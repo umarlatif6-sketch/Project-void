@@ -151,6 +151,34 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     return passphrase
 
 
+def encode_burst(signal_text: str, output_path: str) -> str:
+    if len(signal_text) > 10:
+        raise ValueError("Signal text must be 10 characters or fewer.")
+
+    sample_rate = 44100
+    duration = 5
+    t = np.linspace(0, duration, sample_rate * duration, endpoint=False)
+    carrier = (16000 * np.sin(2 * np.pi * VILLAGE_STANDARD_HZ * t)).astype(np.int16)
+
+    carrier_path = output_path + ".tmp_carrier.wav"
+    try:
+        with wave.open(carrier_path, "wb") as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)
+            wf.setframerate(sample_rate)
+            wf.writeframes(carrier.tobytes())
+
+        from void_engine.compressor import compress_bytes
+        compressed = compress_bytes(signal_text.encode("utf-8"))
+
+        hash_key = encode(carrier_path, compressed, "burst", ".sig", output_path, lsb_depth=1)
+    finally:
+        if os.path.exists(carrier_path):
+            os.remove(carrier_path)
+
+    return hash_key
+
+
 def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes, str, str]:
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")

@@ -39,6 +39,11 @@ def compress_file(file_path: str) -> tuple[bytes, str, str, int]:
     return compressed, name, extension, original_size
 
 
+def compress_bytes(data: bytes) -> bytes:
+    compressed = zlib.compress(data, level=9)
+    return b"ZLIB" + compressed
+
+
 def decompress_data(compressed_data: bytes) -> bytes:
     tag = compressed_data[:4]
     payload = compressed_data[4:]

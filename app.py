@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 
 from void_engine.compressor import compress_file, decompress_data
-from void_engine.stega import encode, decode
+from void_engine.stega import encode, decode, encode_burst
 from void_engine.calculator import analyze_carrier
 
 app = Flask(__name__)
@@ -98,6 +98,33 @@ def encode_file():
             "original_size": orig_size,
             "compressed_size": len(compressed),
             "lsb_depth": lsb_depth,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/burst", methods=["POST"])
+def burst_encode():
+    data = request.json
+    signal = data.get("signal", "")
+
+    if not signal:
+        return jsonify({"error": "Signal text is required"}), 400
+    if len(signal) > 10:
+        return jsonify({"error": "Signal text must be 10 characters or fewer"}), 400
+
+    try:
+        burst_id = uuid.uuid4().hex[:8]
+        output_name = f"burst_{burst_id}.wav"
+        output_path = os.path.join(OUTPUT_DIR, output_name)
+
+        hash_key = encode_burst(signal, output_path)
+
+        return jsonify({
+            "success": True,
+            "hash_key": hash_key,
+            "output_file": output_name,
+            "output_size": os.path.getsize(output_path),
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 400

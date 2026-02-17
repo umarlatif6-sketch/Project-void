@@ -26,6 +26,8 @@
         <div class="tabs">
             <button class="tab active" data-tab="encode">Encode</button>
             <button class="tab" data-tab="decode">Decode</button>
+            <button class="tab" data-tab="burst">Burst</button>
+            <button class="tab" data-tab="visualizer">Visualizer</button>
             <button class="tab" data-tab="capacity">Capacity</button>
             <button class="tab" data-tab="files">Files</button>
         </div>
@@ -119,6 +121,70 @@
                     <div class="result-item"><span class="label">Integrity</span><span id="dec-integrity" class="value verified">VERIFIED</span></div>
                 </div>
                 <button id="download-decoded-btn" class="btn-secondary">Download Restored File</button>
+            </div>
+        </div>
+
+        <div id="burst" class="panel">
+            <h2>Short Burst — Quick Signal Encoding</h2>
+            <p class="desc">Encode a short signal string (up to 10 characters) into a fresh 5-second 432 Hz carrier with zero distortion. Perfect for quick trading signals like "BUY_GOLD_15".</p>
+
+            <div class="form-group">
+                <label>Signal String</label>
+                <input type="text" id="burst-signal" placeholder="e.g. BUY_GOLD_15" maxlength="10" spellcheck="false" autocomplete="off">
+                <div class="char-count"><span id="burst-char-count">0</span>/10</div>
+            </div>
+            <button id="burst-btn" class="btn-primary">Encode Burst Signal</button>
+
+            <div id="burst-result" class="result-box" style="display:none;">
+                <h3>Burst Encoded</h3>
+                <div class="result-grid">
+                    <div class="result-item"><span class="label">Signal</span><span id="burst-res-signal" class="value"></span></div>
+                    <div class="result-item"><span class="label">Output File</span><span id="burst-res-file" class="value"></span></div>
+                    <div class="result-item"><span class="label">File Size</span><span id="burst-res-size" class="value"></span></div>
+                    <div class="result-item"><span class="label">Distortion</span><span id="burst-res-distortion" class="value verified">0%</span></div>
+                </div>
+                <div class="hash-key-box">
+                    <span class="label">HASH KEY (save this!)</span>
+                    <div class="hash-key-display">
+                        <code id="burst-res-hash"></code>
+                        <button id="copy-burst-hash-btn" class="btn-copy" title="Copy">&#9113;</button>
+                    </div>
+                </div>
+                <button id="download-burst-btn" class="btn-secondary">Download Burst WAV</button>
+            </div>
+        </div>
+
+        <div id="visualizer" class="panel">
+            <h2>Frequency Visualizer — 432 Hz Spectrum</h2>
+            <p class="desc">Play a WAV file and see its frequency spectrum in real time. The 432 Hz Village Standard peak is highlighted in gold.</p>
+
+            <div class="form-group">
+                <label>Source</label>
+                <div class="source-toggle">
+                    <label class="radio-label"><input type="radio" name="viz-source" value="input" checked> input_files/</label>
+                    <label class="radio-label"><input type="radio" name="viz-source" value="output"> output_audio/</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>WAV File</label>
+                <select id="viz-file-select"><option value="">Loading...</option></select>
+            </div>
+
+            <div class="viz-controls">
+                <button id="viz-play-btn" class="btn-primary">Play &amp; Visualize</button>
+                <button id="viz-stop-btn" class="btn-secondary" style="display:none;">Stop</button>
+            </div>
+
+            <div class="viz-container" id="viz-container" style="display:none;">
+                <canvas id="viz-canvas" width="760" height="260"></canvas>
+                <div class="viz-legend">
+                    <span class="viz-legend-item"><span class="viz-dot viz-dot-normal"></span> Frequency Spectrum</span>
+                    <span class="viz-legend-item"><span class="viz-dot viz-dot-gold"></span> 432 Hz Peak</span>
+                </div>
+                <div class="viz-freq-info">
+                    <span id="viz-peak-freq">Peak: --</span>
+                    <span id="viz-432-level">432 Hz: --</span>
+                </div>
             </div>
         </div>
 
