@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 HEADER_SIZE = 64
 MAGIC = b"PVOD"
+VILLAGE_STANDARD_HZ = 432
 
 
 def _derive_key(passphrase: str) -> bytes:

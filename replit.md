@@ -10,6 +10,7 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 ├── app.py                     # Flask web UI server (port 5000)
 ├── main.py                    # CLI entry point (alternative interface)
 ├── test_void.py               # Self-test script for pipeline verification
+├── generate_carriers.py       # Carrier WAV generator (432 Hz Village Standard)
 ├── templates/
 │   └── index.html             # Web UI template
 ├── static/
@@ -34,6 +35,7 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 - **main.py**: Interactive CLI with [1] Encode (returns Hash Key), [2] Decode (requires Hash Key), [3] Check Capacity (Resonance Meter), [q] Quit.
 
 ### Technical Details
+- Village Standard: All carriers tuned to 432 Hz base frequency (not 440 Hz concert pitch)
 - Audio: Only 16-bit PCM WAV files supported as carriers
 - Header format (64 bytes): 4B magic ("PVOD") + 24B filename/ext + 4B data size + 16B MD5 (raw) + 16B nonce
 - Header encryption: ChaCha20 with key derived from SHA-256 of passphrase

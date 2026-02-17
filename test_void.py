@@ -8,7 +8,7 @@ from void_engine.stega import encode, decode
 def generate_test_wav(path: str, duration: float = 10.0, sample_rate: int = 44100):
     n_samples = int(sample_rate * duration)
     t = np.linspace(0, duration, n_samples, endpoint=False)
-    freq = 440.0
+    freq = 432.0
     signal = (np.sin(2 * np.pi * freq * t) * 16000).astype(np.int16)
 
     with wave.open(path, "wb") as wf:
