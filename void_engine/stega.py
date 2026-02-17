@@ -1,30 +1,79 @@
 import wave
 import struct
 import hashlib
+import os
+import secrets
 import numpy as np
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+HEADER_SIZE = 64
+MAGIC = b"PVOD"
 
 
-HEADER_SIZE = 24
-MAGIC = b"VOID"
+def _derive_key(passphrase: str) -> bytes:
+    return hashlib.sha256(passphrase.encode("utf-8")).digest()
 
 
-def _build_header(file_name: str, extension: str, data_size: int) -> bytes:
+def _generate_hash_key() -> str:
+    return secrets.token_hex(16)
+
+
+def _encrypt_header(header_bytes: bytes, key: bytes) -> bytes:
+    nonce = header_bytes[48:64]
+    cipher = Cipher(algorithms.ChaCha20(key, nonce), mode=None)
+    encryptor = cipher.encryptor()
+    encrypted = encryptor.update(header_bytes[:48]) + encryptor.finalize()
+    return encrypted + nonce
+
+
+def _decrypt_header(encrypted_header: bytes, key: bytes) -> bytes:
+    nonce = encrypted_header[48:64]
+    cipher = Cipher(algorithms.ChaCha20(key, nonce), mode=None)
+    decryptor = cipher.decryptor()
+    decrypted = decryptor.update(encrypted_header[:48]) + decryptor.finalize()
+    return decrypted + nonce
+
+
+def _build_header(file_name: str, extension: str, data_size: int,
+                  checksum: str, key: bytes) -> bytes:
     name_ext = (file_name + extension).encode("utf-8")
-    if len(name_ext) > 16:
-        name_ext = name_ext[:16]
-    name_ext = name_ext.ljust(16, b"\x00")
-    header = MAGIC + name_ext + struct.pack("<I", data_size)
-    assert len(header) == HEADER_SIZE
-    return header
+    if len(name_ext) > 24:
+        name_ext = name_ext[:24]
+    name_ext = name_ext.ljust(24, b"\x00")
+
+    checksum_bytes = bytes.fromhex(checksum)
+
+    nonce = secrets.token_bytes(16)
+
+    plaintext = (
+        MAGIC
+        + name_ext
+        + struct.pack("<I", data_size)
+        + checksum_bytes
+        + nonce
+    )
+
+    assert len(plaintext) == HEADER_SIZE, f"Header is {len(plaintext)} bytes, expected {HEADER_SIZE}"
+
+    encrypted = _encrypt_header(plaintext, key)
+    return encrypted
 
 
-def _parse_header(header_bytes: bytes) -> tuple[str, int]:
-    if header_bytes[:4] != MAGIC:
-        raise ValueError("Invalid VOID header — this audio does not contain encoded data.")
-    name_ext_raw = header_bytes[4:20]
+def _parse_header(encrypted_header: bytes, key: bytes) -> tuple[str, int, str]:
+    decrypted = _decrypt_header(encrypted_header, key)
+
+    magic = decrypted[:4]
+    if magic != MAGIC:
+        raise ValueError("Invalid hash key or corrupted header — decryption failed.")
+
+    name_ext_raw = decrypted[4:28]
     name_ext = name_ext_raw.rstrip(b"\x00").decode("utf-8", errors="replace")
-    data_size = struct.unpack("<I", header_bytes[20:24])[0]
-    return name_ext, data_size
+
+    data_size = struct.unpack("<I", decrypted[28:32])[0]
+
+    checksum = decrypted[32:48].hex()
+
+    return name_ext, data_size, checksum
 
 
 def _compute_md5(data: bytes) -> str:
@@ -32,21 +81,22 @@ def _compute_md5(data: bytes) -> str:
 
 
 def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
-           output_path: str, lsb_depth: int = 1) -> str:
+           output_path: str, lsb_depth: int = 1, passphrase: str | None = None) -> str:
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")
 
+    if passphrase is None:
+        passphrase = _generate_hash_key()
+
+    key = _derive_key(passphrase)
     checksum = _compute_md5(payload)
-    checksum_bytes = checksum.encode("utf-8")
+    header = _build_header(file_name, extension, len(payload), checksum, key)
 
-    header = _build_header(file_name, extension, len(payload))
-    full_payload = header + checksum_bytes + payload
-
+    full_payload = header + payload
     total_bits = len(full_payload) * 8
 
     with wave.open(carrier_path, "rb") as wav_in:
         params = wav_in.getparams()
-        n_channels = params.nchannels
         sampwidth = params.sampwidth
         n_frames = params.nframes
         raw_frames = wav_in.readframes(n_frames)
@@ -56,14 +106,13 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
 
     samples = np.frombuffer(raw_frames, dtype=np.int16).copy()
     total_samples = len(samples)
-
     bits_per_sample = lsb_depth
     capacity = total_samples * bits_per_sample
 
     if total_bits > capacity:
         raise ValueError(
-            f"Payload too large: needs {total_bits} bits, "
-            f"carrier has capacity for {capacity} bits ({capacity // 8:,} bytes) "
+            f"Payload too large: needs {total_bits:,} bits, "
+            f"carrier has capacity for {capacity:,} bits ({capacity // 8:,} bytes) "
             f"at LSB depth {lsb_depth}."
         )
 
@@ -96,14 +145,16 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     print(f"         LSB depth:  {lsb_depth}")
     print(f"         Capacity:   {capacity // 8:,} bytes")
     print(f"         Used:       {len(full_payload):,} bytes ({usage_pct:.1f}%)")
-    print(f"         MD5:        {checksum}")
+    print(f"         Checksum:   {checksum}")
 
-    return checksum
+    return passphrase
 
 
-def decode(stego_path: str, lsb_depth: int = 1) -> tuple[bytes, str, str]:
+def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes, str, str]:
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")
+
+    key = _derive_key(passphrase)
 
     with wave.open(stego_path, "rb") as wav_in:
         params = wav_in.getparams()
@@ -117,29 +168,22 @@ def decode(stego_path: str, lsb_depth: int = 1) -> tuple[bytes, str, str]:
     samples = np.frombuffer(raw_frames, dtype=np.int16)
 
     header_bits_needed = HEADER_SIZE * 8
-    md5_hex_len = 32
-    header_plus_md5_bytes = HEADER_SIZE + md5_hex_len
-    header_plus_md5_bits = header_plus_md5_bytes * 8
 
     if lsb_depth == 1:
-        header_md5_bits = samples[:header_plus_md5_bits] & 1
+        header_bits = samples[:header_bits_needed] & 1
     else:
-        needed_samples = (header_plus_md5_bits + 1) // 2
+        needed_samples = (header_bits_needed + 1) // 2
         raw_bits = []
         for i in range(needed_samples):
             val = int(samples[i]) & 3
             raw_bits.append((val >> 1) & 1)
             raw_bits.append(val & 1)
-        header_md5_bits = np.array(raw_bits[:header_plus_md5_bits], dtype=np.uint8)
+        header_bits = np.array(raw_bits[:header_bits_needed], dtype=np.uint8)
 
-    header_md5_bytes = np.packbits(header_md5_bits).tobytes()[:header_plus_md5_bytes]
+    header_bytes = np.packbits(header_bits).tobytes()[:HEADER_SIZE]
+    name_ext, data_size, stored_checksum = _parse_header(header_bytes, key)
 
-    header_data = header_md5_bytes[:HEADER_SIZE]
-    stored_checksum = header_md5_bytes[HEADER_SIZE:HEADER_SIZE + md5_hex_len].decode("utf-8")
-
-    name_ext, data_size = _parse_header(header_data)
-
-    total_payload_bytes = HEADER_SIZE + md5_hex_len + data_size
+    total_payload_bytes = HEADER_SIZE + data_size
     total_bits = total_payload_bytes * 8
 
     if lsb_depth == 1:
@@ -154,22 +198,20 @@ def decode(stego_path: str, lsb_depth: int = 1) -> tuple[bytes, str, str]:
         all_bits = np.array(raw_bits[:total_bits], dtype=np.uint8)
 
     all_bytes = np.packbits(all_bits).tobytes()[:total_payload_bytes]
-
-    compressed_data = all_bytes[HEADER_SIZE + md5_hex_len:]
+    compressed_data = all_bytes[HEADER_SIZE:]
 
     computed_checksum = _compute_md5(compressed_data)
-
     if computed_checksum != stored_checksum:
         raise ValueError(
             f"Resonance verification FAILED!\n"
-            f"  Expected MD5: {stored_checksum}\n"
-            f"  Computed MD5: {computed_checksum}\n"
-            f"  The data may be corrupted."
+            f"  Expected: {stored_checksum}\n"
+            f"  Computed: {computed_checksum}\n"
+            f"  Data may be corrupted."
         )
 
     print(f"  [VOID] Decoding complete:")
     print(f"         File:       {name_ext}")
     print(f"         Data size:  {data_size:,} bytes (compressed)")
-    print(f"         MD5 match:  VERIFIED")
+    print(f"         Checksum:   VERIFIED")
 
     return compressed_data, name_ext, stored_checksum

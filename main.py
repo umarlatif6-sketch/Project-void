@@ -1,18 +1,21 @@
 import os
 import sys
 
-from compressor import compress_file, decompress_data
-from steganography import encode, decode
-from keep_alive import start_pulse
+from void_engine.compressor import compress_file, decompress_data
+from void_engine.stega import encode, decode
+from void_engine.keep_alive import start_pulse
 
 BANNER = r"""
- ╔══════════════════════════════════════════════════════╗
- ║              T H E   V O I D   E N G I N E          ║
- ║         Modular Steganography System  v1.0           ║
- ╠══════════════════════════════════════════════════════╣
- ║  Hide any file inside an audio signal.               ║
- ║  LSB encoding  |  zlib compression  |  MD5 verified  ║
- ╚══════════════════════════════════════════════════════╝
+ ╔══════════════════════════════════════════════════════════╗
+ ║               P R O J E C T    V O I D                  ║
+ ║         Modular Steganography Engine  v2.0               ║
+ ╠══════════════════════════════════════════════════════════╣
+ ║  Hide any file inside an audio signal.                   ║
+ ║  LSB encoding | zlib+lzma | ChaCha20 header | MD5 hash  ║
+ ╠══════════════════════════════════════════════════════════╣
+ ║  Modules: Void-Compressor | Stega Engine | Pulse-Wrapper ║
+ ║  Planned: Silk Web | Graphene Suit                       ║
+ ╚══════════════════════════════════════════════════════════╝
 """
 
 INPUT_DIR = "input_files"
@@ -22,7 +25,7 @@ OUTPUT_DIR = "output_audio"
 def list_files(directory: str, ext: str | None = None) -> list[str]:
     if not os.path.isdir(directory):
         return []
-    files = os.listdir(directory)
+    files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
     if ext:
         files = [f for f in files if f.lower().endswith(ext)]
     return sorted(files)
@@ -40,7 +43,15 @@ def pick_file(directory: str, prompt: str, ext: str | None = None) -> str | None
     print(f"\n  Files in '{directory}/':")
     for i, f in enumerate(files, 1):
         size = os.path.getsize(os.path.join(directory, f))
-        print(f"    [{i}] {f}  ({size:,} bytes)")
+        if size >= 1_073_741_824:
+            size_str = f"{size / 1_073_741_824:.2f} GB"
+        elif size >= 1_048_576:
+            size_str = f"{size / 1_048_576:.1f} MB"
+        elif size >= 1024:
+            size_str = f"{size / 1024:.1f} KB"
+        else:
+            size_str = f"{size:,} bytes"
+        print(f"    [{i}] {f}  ({size_str})")
 
     while True:
         choice = input(f"\n  {prompt} (number or 'q' to cancel): ").strip()
@@ -56,13 +67,13 @@ def pick_file(directory: str, prompt: str, ext: str | None = None) -> str | None
 
 
 def encode_flow():
-    print("\n" + "=" * 56)
-    print("  ENCODE — Hide a file inside audio")
-    print("=" * 56)
+    print("\n" + "=" * 60)
+    print("  ENCODE — Hide a file inside a high-fidelity audio track")
+    print("=" * 60)
 
     carrier = pick_file(INPUT_DIR, "Select carrier WAV file", ext=".wav")
     if not carrier:
-        print("\n  Place a .wav file in 'input_files/' and try again.")
+        print("\n  Place a 16-bit .wav file in 'input_files/' and try again.")
         return
 
     print()
@@ -71,7 +82,7 @@ def encode_flow():
         return
 
     while True:
-        depth_str = input("\n  LSB depth (1 or 2, default=1): ").strip()
+        depth_str = input("\n  LSB depth (1=stealth, 2=capacity, default=1): ").strip()
         if depth_str == "" or depth_str == "1":
             lsb_depth = 1
             break
@@ -80,7 +91,7 @@ def encode_flow():
             break
         print("  Enter 1 or 2.")
 
-    print("\n  [VOID] Compressing payload...")
+    print("\n  [VOID] Compressing payload (zlib+lzma, selecting best)...")
     compressed, name, ext, orig_size = compress_file(payload_path)
 
     base_name = os.path.splitext(os.path.basename(carrier))[0]
@@ -88,27 +99,36 @@ def encode_flow():
 
     print("\n  [VOID] Encoding into carrier audio...")
     try:
-        checksum = encode(carrier, compressed, name, ext, output_path, lsb_depth)
+        hash_key = encode(carrier, compressed, name, ext, output_path, lsb_depth)
     except ValueError as e:
         print(f"\n  [ERROR] {e}")
         return
 
     out_size = os.path.getsize(output_path)
-    print(f"\n  Output saved: {output_path} ({out_size:,} bytes)")
-    print(f"  Resonance ID (MD5): {checksum}")
-    print("  Encoding COMPLETE.")
+    print(f"\n  {'=' * 60}")
+    print(f"  OUTPUT SAVED: {output_path} ({out_size:,} bytes)")
+    print(f"  {'=' * 60}")
+    print(f"  HASH KEY (save this — required for decoding):")
+    print(f"  >>> {hash_key} <<<")
+    print(f"  {'=' * 60}")
+    print(f"  Encoding COMPLETE.")
 
 
 def decode_flow():
-    print("\n" + "=" * 56)
-    print("  DECODE — Extract a file from audio")
-    print("=" * 56)
+    print("\n" + "=" * 60)
+    print("  DECODE — Extract a file from audio using your Hash Key")
+    print("=" * 60)
 
     stego = pick_file(OUTPUT_DIR, "Select encoded WAV file", ext=".wav")
     if not stego:
         stego = pick_file(INPUT_DIR, "Select encoded WAV file", ext=".wav")
     if not stego:
         print("\n  No encoded WAV files found.")
+        return
+
+    hash_key = input("\n  Enter your Hash Key: ").strip()
+    if not hash_key:
+        print("  No key provided. Aborting.")
         return
 
     while True:
@@ -123,7 +143,7 @@ def decode_flow():
 
     print("\n  [VOID] Extracting data from audio...")
     try:
-        compressed_data, name_ext, checksum = decode(stego, lsb_depth)
+        compressed_data, name_ext, checksum = decode(stego, hash_key, lsb_depth)
     except ValueError as e:
         print(f"\n  [ERROR] {e}")
         return
@@ -140,7 +160,7 @@ def decode_flow():
         f.write(original_data)
 
     print(f"\n  File restored: {output_path} ({len(original_data):,} bytes)")
-    print(f"  Resonance ID (MD5): {checksum}")
+    print(f"  Checksum:      {checksum}")
     print("  Decoding COMPLETE.")
 
 
@@ -151,11 +171,11 @@ def main():
     print(BANNER)
 
     while True:
-        print("\n  ┌─────────────────────────────┐")
-        print("  │  [1]  Encode File to Audio  │")
-        print("  │  [2]  Decode Audio to File  │")
-        print("  │  [q]  Quit                  │")
-        print("  └─────────────────────────────┘")
+        print("\n  ┌──────────────────────────────────────┐")
+        print("  │  [1]  Encode File to Audio           │")
+        print("  │  [2]  Decode Audio to File (Hash Key)│")
+        print("  │  [q]  Quit                           │")
+        print("  └──────────────────────────────────────┘")
         choice = input("\n  Select option: ").strip().lower()
 
         if choice == "1":

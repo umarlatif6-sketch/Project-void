@@ -4,12 +4,12 @@ from flask import Flask
 
 app = Flask(__name__)
 
-PING_INTERVAL = 300
+PING_INTERVAL = 240
 
 
 @app.route("/")
 def index():
-    return "VOID ENGINE — Active", 200
+    return "PROJECT VOID — Active", 200
 
 
 @app.route("/ping")
@@ -46,5 +46,5 @@ def start_pulse():
     )
     pulse_thread.start()
 
-    print("  [VOID] Stealth Pulse active on port 8099 (ping every 5 min)")
+    print("  [VOID] Stealth Pulse active on port 8099 (ping every 4 min)")
     return flask_thread, pulse_thread
