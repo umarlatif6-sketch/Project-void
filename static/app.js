@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
             tab.classList.add("active");
             document.getElementById(tab.dataset.tab).classList.add("active");
             if (tab.dataset.tab === "files") refreshFiles();
+            if (tab.dataset.tab === "capacity") loadSelects();
         });
     });
 
@@ -48,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
             : '<option value="">No files in input_files/</option>';
 
         updateStegoSelect(data);
+        updateCapSelect(data);
     }
 
     function updateStegoSelect(data) {
@@ -64,6 +66,23 @@ document.addEventListener("DOMContentLoaded", () => {
         r.addEventListener("change", async () => {
             const data = await fetchFiles();
             updateStegoSelect(data);
+        });
+    });
+
+    function updateCapSelect(data) {
+        const sel = document.getElementById("cap-file-select");
+        const source = document.querySelector('input[name="cap-source"]:checked').value;
+        const files = source === "output" ? data.output : data.input;
+        const wavFiles = files.filter(f => f.name.toLowerCase().endsWith(".wav"));
+        sel.innerHTML = wavFiles.length
+            ? wavFiles.map(f => `<option value="${f.name}">${f.name} (${formatSize(f.size)})</option>`).join("")
+            : '<option value="">No WAV files found</option>';
+    }
+
+    document.querySelectorAll('input[name="cap-source"]').forEach(r => {
+        r.addEventListener("change", async () => {
+            const data = await fetchFiles();
+            updateCapSelect(data);
         });
     });
 
@@ -281,6 +300,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("download-decoded-btn").addEventListener("click", () => {
         if (lastDecodedFile) window.open(`/api/download/output_audio/${lastDecodedFile}`, "_blank");
+    });
+
+    document.getElementById("cap-btn").addEventListener("click", async () => {
+        const filename = document.getElementById("cap-file-select").value;
+        const source = document.querySelector('input[name="cap-source"]:checked').value;
+        const btn = document.getElementById("cap-btn");
+
+        if (!filename) {
+            showToast("Select a WAV file to analyze", "error");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Analyzing...';
+        document.getElementById("cap-result").style.display = "none";
+
+        try {
+            const res = await fetch("/api/capacity", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename, source }),
+            });
+            const d = await res.json();
+
+            if (d.success) {
+                document.getElementById("cap-filename").textContent = d.filename;
+                document.getElementById("cap-duration").textContent = d.duration.toFixed(1) + "s";
+                document.getElementById("cap-samplerate").textContent = d.sample_rate.toLocaleString() + " Hz";
+                document.getElementById("cap-samples").textContent = d.total_samples.toLocaleString();
+
+                const maxRef = d.capacity_2bit || 1;
+
+                document.getElementById("cap-max-1").textContent = formatSize(d.capacity_1bit);
+                document.getElementById("cap-safe-1").textContent = formatSize(d.resonance_limit_1bit);
+                document.getElementById("cap-est-1").textContent = "~" + formatSize(d.resonance_limit_1bit * 3) + " - " + formatSize(d.resonance_limit_1bit * 5);
+                document.getElementById("cap-bar-1-max").style.width = (d.capacity_1bit / maxRef * 100) + "%";
+                document.getElementById("cap-bar-1-safe").style.width = (d.resonance_limit_1bit / maxRef * 100) + "%";
+                document.getElementById("cap-bar-1-est").style.width = (d.resonance_limit_1bit * 4 / maxRef * 100) + "%";
+
+                document.getElementById("cap-max-2").textContent = formatSize(d.capacity_2bit);
+                document.getElementById("cap-safe-2").textContent = formatSize(d.resonance_limit_2bit);
+                document.getElementById("cap-est-2").textContent = "~" + formatSize(d.resonance_limit_2bit * 3) + " - " + formatSize(d.resonance_limit_2bit * 5);
+                document.getElementById("cap-bar-2-max").style.width = "100%";
+                document.getElementById("cap-bar-2-safe").style.width = (d.resonance_limit_2bit / maxRef * 100) + "%";
+                document.getElementById("cap-bar-2-est").style.width = (d.resonance_limit_2bit * 4 / maxRef * 100) + "%";
+
+                document.getElementById("cap-result").style.display = "block";
+                showToast("Analysis complete!", "success");
+            } else {
+                showToast(d.error, "error");
+            }
+        } catch (e) {
+            showToast("Analysis failed: " + e.message, "error");
+        }
+
+        btn.disabled = false;
+        btn.textContent = "Analyze Capacity";
     });
 
     loadSelects();

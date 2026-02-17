@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 
 from void_engine.compressor import compress_file, decompress_data
 from void_engine.stega import encode, decode
+from void_engine.calculator import analyze_carrier
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "void-engine-dev-key")
@@ -138,6 +139,28 @@ def decode_file():
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": f"Decoding failed: {str(e)}"}), 400
+
+
+@app.route("/api/capacity", methods=["POST"])
+def check_capacity():
+    data = request.json
+    filename = data.get("filename")
+    source = data.get("source", "input")
+
+    if not filename:
+        return jsonify({"error": "No file specified"}), 400
+
+    directory = INPUT_DIR if source == "input" else OUTPUT_DIR
+    filepath = os.path.join(directory, filename)
+
+    if not os.path.exists(filepath):
+        return jsonify({"error": f"File not found: {filename}"}), 404
+
+    try:
+        info = analyze_carrier(filepath)
+        return jsonify({"success": True, **info})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 @app.route("/api/download/<folder>/<filename>")

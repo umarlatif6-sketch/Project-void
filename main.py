@@ -4,6 +4,7 @@ import sys
 from void_engine.compressor import compress_file, decompress_data
 from void_engine.stega import encode, decode
 from void_engine.keep_alive import start_pulse
+from void_engine.calculator import analyze_carrier, print_analysis
 
 BANNER = r"""
  ╔══════════════════════════════════════════════════════════╗
@@ -164,6 +165,25 @@ def decode_flow():
     print("  Decoding COMPLETE.")
 
 
+def capacity_flow():
+    print("\n" + "=" * 60)
+    print("  RESONANCE METER — Check Carrier Capacity")
+    print("=" * 60)
+
+    wav_file = pick_file(INPUT_DIR, "Select WAV file to analyze", ext=".wav")
+    if not wav_file:
+        wav_file = pick_file(OUTPUT_DIR, "Select WAV file to analyze", ext=".wav")
+    if not wav_file:
+        print("\n  No WAV files found.")
+        return
+
+    try:
+        info = analyze_carrier(wav_file)
+        print_analysis(info)
+    except Exception as e:
+        print(f"\n  [ERROR] {e}")
+
+
 def main():
     os.makedirs(INPUT_DIR, exist_ok=True)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -174,6 +194,7 @@ def main():
         print("\n  ┌──────────────────────────────────────┐")
         print("  │  [1]  Encode File to Audio           │")
         print("  │  [2]  Decode Audio to File (Hash Key)│")
+        print("  │  [3]  Check Capacity (Resonance)     │")
         print("  │  [q]  Quit                           │")
         print("  └──────────────────────────────────────┘")
         choice = input("\n  Select option: ").strip().lower()
@@ -182,6 +203,8 @@ def main():
             encode_flow()
         elif choice == "2":
             decode_flow()
+        elif choice == "3":
+            capacity_flow()
         elif choice == "q":
             print("\n  [VOID] Engine shutting down.\n")
             sys.exit(0)

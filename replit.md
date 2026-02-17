@@ -19,6 +19,7 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 │   ├── __init__.py            # Package init (v2.0)
 │   ├── compressor.py          # Void-Compressor: zlib level 9 + lzma
 │   ├── stega.py               # Stega Engine: LSB encoding + 64-byte encrypted header
+│   ├── calculator.py          # Resonance Meter: WAV capacity analysis + resonance limits
 │   └── keep_alive.py          # Pulse-Wrapper: Flask self-ping every 4 min
 ├── input_files/               # Place carrier .wav files and payload files here
 ├── output_audio/              # Encoded audio and decoded files output here
@@ -29,7 +30,8 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 - **void_engine/compressor.py**: Dual compression using zlib (level 9) and lzma (preset 9). Automatically selects whichever yields smaller output. Tagged output (ZLIB/LZMA prefix) for correct decompression.
 - **void_engine/stega.py**: LSB encoding (depth 1 or 2) into 16-bit WAV files. 64-byte ChaCha20-encrypted header containing magic, filename, data size, MD5 checksum, and nonce. Decode requires the unique Hash Key generated during encoding.
 - **void_engine/keep_alive.py**: Flask server on port 8099 with asyncio self-ping every 4 minutes.
-- **main.py**: Interactive CLI with [1] Encode (returns Hash Key), [2] Decode (requires Hash Key), [q] Quit.
+- **void_engine/calculator.py**: Resonance Meter — scans WAV carriers to calculate max payload capacity at LSB depth 1 and 2, estimates resonance limit (distortion threshold), and projects compressed data capacity with zlib/lzma. Accounts for 64-byte header overhead.
+- **main.py**: Interactive CLI with [1] Encode (returns Hash Key), [2] Decode (requires Hash Key), [3] Check Capacity (Resonance Meter), [q] Quit.
 
 ### Technical Details
 - Audio: Only 16-bit PCM WAV files supported as carriers
