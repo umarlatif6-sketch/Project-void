@@ -7,8 +7,14 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 
 ### File Structure
 ```
-├── main.py                    # CLI entry point
+├── app.py                     # Flask web UI server (port 5000)
+├── main.py                    # CLI entry point (alternative interface)
 ├── test_void.py               # Self-test script for pipeline verification
+├── templates/
+│   └── index.html             # Web UI template
+├── static/
+│   ├── style.css              # Dark-themed UI styles
+│   └── app.js                 # Frontend JavaScript
 ├── void_engine/               # Core engine package
 │   ├── __init__.py            # Package init (v2.0)
 │   ├── compressor.py          # Void-Compressor: zlib level 9 + lzma

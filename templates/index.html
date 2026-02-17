@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">&#9670;</div>
+            <div>
+                <h1>PROJECT VOID</h1>
+                <p class="subtitle">Modular Steganography Engine v2.0</p>
+            </div>
+        </div>
+        <div class="status-bar">
+            <span class="pulse-dot"></span>
+            <span>Engine Active</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="tabs">
+            <button class="tab active" data-tab="encode">Encode</button>
+            <button class="tab" data-tab="decode">Decode</button>
+            <button class="tab" data-tab="files">Files</button>
+        </div>
+
+        <div id="encode" class="panel active">
+            <h2>Encode — Hide a file inside audio</h2>
+            <p class="desc">Select a carrier WAV and a file to hide. The engine will compress, encrypt, and embed your data using LSB steganography.</p>
+
+            <div class="upload-zone" id="upload-zone-encode">
+                <div class="upload-icon">&#8682;</div>
+                <p>Drag & drop files here or <label for="file-upload-encode" class="upload-link">browse</label></p>
+                <p class="upload-hint">Upload carrier .wav and payload files to input_files/</p>
+                <input type="file" id="file-upload-encode" multiple hidden>
+            </div>
+            <div id="upload-status-encode" class="upload-status"></div>
+
+            <div class="form-group">
+                <label>Carrier WAV File</label>
+                <select id="carrier-select"><option value="">Loading...</option></select>
+            </div>
+            <div class="form-group">
+                <label>File to Hide</label>
+                <select id="payload-select"><option value="">Loading...</option></select>
+            </div>
+            <div class="form-group">
+                <label>LSB Depth</label>
+                <div class="radio-group">
+                    <label class="radio-label"><input type="radio" name="lsb-encode" value="1" checked> Depth 1 <span class="hint">— Stealth (minimal distortion)</span></label>
+                    <label class="radio-label"><input type="radio" name="lsb-encode" value="2"> Depth 2 <span class="hint">— Capacity (more data, slight distortion)</span></label>
+                </div>
+            </div>
+            <button id="encode-btn" class="btn-primary">Encode File</button>
+
+            <div id="encode-result" class="result-box" style="display:none;">
+                <h3>Encoding Complete</h3>
+                <div class="result-grid">
+                    <div class="result-item"><span class="label">Output File</span><span id="res-output" class="value"></span></div>
+                    <div class="result-item"><span class="label">Original Size</span><span id="res-orig-size" class="value"></span></div>
+                    <div class="result-item"><span class="label">Compressed Size</span><span id="res-comp-size" class="value"></span></div>
+                    <div class="result-item"><span class="label">Output Size</span><span id="res-out-size" class="value"></span></div>
+                </div>
+                <div class="hash-key-box">
+                    <span class="label">HASH KEY (save this!)</span>
+                    <div class="hash-key-display">
+                        <code id="res-hash-key"></code>
+                        <button id="copy-hash-btn" class="btn-copy" title="Copy">&#9113;</button>
+                    </div>
+                </div>
+                <button id="download-encoded-btn" class="btn-secondary">Download Encoded WAV</button>
+            </div>
+        </div>
+
+        <div id="decode" class="panel">
+            <h2>Decode — Extract a file from audio</h2>
+            <p class="desc">Select an encoded WAV file and enter the Hash Key to extract the hidden data.</p>
+
+            <div class="upload-zone" id="upload-zone-decode">
+                <div class="upload-icon">&#8682;</div>
+                <p>Drag & drop encoded WAV here or <label for="file-upload-decode" class="upload-link">browse</label></p>
+                <input type="file" id="file-upload-decode" accept=".wav" hidden>
+            </div>
+            <div id="upload-status-decode" class="upload-status"></div>
+
+            <div class="form-group">
+                <label>Encoded WAV File</label>
+                <div class="source-toggle">
+                    <label class="radio-label"><input type="radio" name="decode-source" value="output" checked> output_audio/</label>
+                    <label class="radio-label"><input type="radio" name="decode-source" value="input"> input_files/</label>
+                </div>
+                <select id="stego-select"><option value="">Loading...</option></select>
+            </div>
+            <div class="form-group">
+                <label>Hash Key</label>
+                <input type="text" id="hash-key-input" placeholder="Enter your 32-character Hash Key" maxlength="64" spellcheck="false" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>LSB Depth</label>
+                <div class="radio-group">
+                    <label class="radio-label"><input type="radio" name="lsb-decode" value="1" checked> Depth 1</label>
+                    <label class="radio-label"><input type="radio" name="lsb-decode" value="2"> Depth 2</label>
+                </div>
+            </div>
+            <button id="decode-btn" class="btn-primary">Decode File</button>
+
+            <div id="decode-result" class="result-box" style="display:none;">
+                <h3>Decoding Complete</h3>
+                <div class="result-grid">
+                    <div class="result-item"><span class="label">Restored File</span><span id="dec-filename" class="value"></span></div>
+                    <div class="result-item"><span class="label">File Size</span><span id="dec-size" class="value"></span></div>
+                    <div class="result-item"><span class="label">Checksum</span><span id="dec-checksum" class="value"></span></div>
+                    <div class="result-item"><span class="label">Integrity</span><span id="dec-integrity" class="value verified">VERIFIED</span></div>
+                </div>
+                <button id="download-decoded-btn" class="btn-secondary">Download Restored File</button>
+            </div>
+        </div>
+
+        <div id="files" class="panel">
+            <h2>File Manager</h2>
+            <div class="file-section">
+                <h3>input_files/</h3>
+                <div id="input-file-list" class="file-list"><p class="loading">Loading...</p></div>
+            </div>
+            <div class="file-section">
+                <h3>output_audio/</h3>
+                <div id="output-file-list" class="file-list"><p class="loading">Loading...</p></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
