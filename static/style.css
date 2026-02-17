@@ -59,9 +59,22 @@ h1 {
 .status-bar {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-size: 12px;
     color: var(--success);
+}
+
+.freq-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(124, 92, 255, 0.15);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    font-weight: 600;
+    text-transform: uppercase;
 }
 
 .pulse-dot {
