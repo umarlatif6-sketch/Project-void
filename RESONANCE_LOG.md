@@ -206,3 +206,4 @@ Observations:
 | 2026-02-18 00:22:26 | DECODE | burst.sig | ...44ae | size=8 |
 | 2026-02-18 01:34:01 | SILK_SIGNAL | burst_432Hz_473dddee.wav | ...a7d0 | signal=BUY_GOLD |
 | 2026-02-18 01:34:07 | SILK_SIGNAL | burst_432Hz_54060f55.wav | ...34be | signal=SELL_AU |
+| 2026-02-18 02:59:22 | SILK_SIGNAL | heartbeat_432Hz.wav | ...ba64 | signal=HEARTBEAT |

@@ -8,6 +8,7 @@ RESONANCE_THRESHOLD_LSB1 = 0.25
 RESONANCE_THRESHOLD_LSB2 = 0.15
 RESONANCE_BONUS = 0.05
 RESONANCE_KEYWORDS = ("432hz", "432_hz", "432-hz", "resonate")
+BUBBLE_BURST_MARGIN = 0.90
 LOG_FILE = "RESONANCE_LOG.md"
 
 
@@ -44,8 +45,11 @@ def analyze_carrier(wav_path: str) -> dict:
     threshold_1 = RESONANCE_THRESHOLD_LSB1 + (RESONANCE_BONUS if resonant else 0)
     threshold_2 = RESONANCE_THRESHOLD_LSB2
 
-    resonance_1bit = int(usable_1bit * threshold_1)
-    resonance_2bit = int(usable_2bit * threshold_2)
+    tension_1bit = int(usable_1bit * threshold_1)
+    tension_2bit = int(usable_2bit * threshold_2)
+
+    burst_1bit = int(tension_1bit * BUBBLE_BURST_MARGIN)
+    burst_2bit = int(tension_2bit * BUBBLE_BURST_MARGIN)
 
     bitrate_1 = sample_rate * n_channels / 8
     bitrate_2 = sample_rate * n_channels * 2 / 8
@@ -62,8 +66,12 @@ def analyze_carrier(wav_path: str) -> dict:
         "capacity_2bit": usable_2bit,
         "bitrate_1bit": bitrate_1,
         "bitrate_2bit": bitrate_2,
-        "resonance_limit_1bit": resonance_1bit,
-        "resonance_limit_2bit": resonance_2bit,
+        "surface_tension_1bit": tension_1bit,
+        "surface_tension_2bit": tension_2bit,
+        "bubble_burst_1bit": burst_1bit,
+        "bubble_burst_2bit": burst_2bit,
+        "resonance_limit_1bit": tension_1bit,
+        "resonance_limit_2bit": tension_2bit,
         "header_overhead": HEADER_OVERHEAD,
         "resonant_carrier": resonant,
         "threshold_lsb1": threshold_1,
@@ -98,26 +106,29 @@ def print_analysis(info: dict):
     print(f"  {'─' * 56}")
     print(f"  LSB DEPTH 1 (Stealth Mode)")
     print(f"  {'─' * 56}")
-    print(f"  Data rate:        {format_size(int(info['bitrate_1bit']))}/sec")
-    print(f"  Max capacity:     {format_size(info['capacity_1bit'])}")
-    print(f"  Resonance limit:  {format_size(info['resonance_limit_1bit'])}")
-    print(f"  Est. compressed:  ~{format_size(info['resonance_limit_1bit'] * 3)} to ~{format_size(info['resonance_limit_1bit'] * 5)} of real data")
+    print(f"  Data rate:          {format_size(int(info['bitrate_1bit']))}/sec")
+    print(f"  Max capacity:       {format_size(info['capacity_1bit'])}")
+    print(f"  Surface tension:    {format_size(info['surface_tension_1bit'])}")
+    print(f"  Bubble burst at:    {format_size(info['bubble_burst_1bit'])} (90% membrane)")
+    print(f"  Est. compressed:    ~{format_size(info['surface_tension_1bit'] * 3)} to ~{format_size(info['surface_tension_1bit'] * 5)} of real data")
     print()
     print(f"  {'─' * 56}")
     print(f"  LSB DEPTH 2 (High Capacity)")
     print(f"  {'─' * 56}")
-    print(f"  Data rate:        {format_size(int(info['bitrate_2bit']))}/sec")
-    print(f"  Max capacity:     {format_size(info['capacity_2bit'])}")
-    print(f"  Resonance limit:  {format_size(info['resonance_limit_2bit'])}")
-    print(f"  Est. compressed:  ~{format_size(info['resonance_limit_2bit'] * 3)} to ~{format_size(info['resonance_limit_2bit'] * 5)} of real data")
+    print(f"  Data rate:          {format_size(int(info['bitrate_2bit']))}/sec")
+    print(f"  Max capacity:       {format_size(info['capacity_2bit'])}")
+    print(f"  Surface tension:    {format_size(info['surface_tension_2bit'])}")
+    print(f"  Bubble burst at:    {format_size(info['bubble_burst_2bit'])} (90% membrane)")
+    print(f"  Est. compressed:    ~{format_size(info['surface_tension_2bit'] * 3)} to ~{format_size(info['surface_tension_2bit'] * 5)} of real data")
     print()
     print(f"  {'─' * 56}")
     print(f"  NOTES")
     print(f"  {'─' * 56}")
-    print(f"  - Below resonance limit: audio sounds clean")
-    print(f"  - Above limit: distortion may become audible")
+    print(f"  - Below surface tension: bubble holds — audio sounds clean")
+    print(f"  - Near bubble burst: membrane is stretching — distortion risk")
+    print(f"  - Above burst: bubble pops — audible artifacts")
     print(f"  - 'Est. compressed' = real file sizes after zlib/lzma")
-    print(f"  - Complex audio (noise, music) hides data better")
+    print(f"  - Complex audio (noise, music) = thicker bubble skin")
     print(f"  - Optimized for Node: Mac 2012 / Phone Bridge")
     print(f"  {'=' * 56}")
 
@@ -142,11 +153,13 @@ def append_to_log(info: dict):
         f.write(f"| Sample Rate | {info['sample_rate']:,} Hz |\n")
         f.write(f"| Total Samples | {info['total_samples']:,} |\n")
         f.write(f"| LSB1 Max Capacity | {format_size(info['capacity_1bit'])} |\n")
-        f.write(f"| LSB1 Resonance Limit | {format_size(info['resonance_limit_1bit'])} |\n")
-        f.write(f"| LSB1 Est. Real Data | ~{format_size(info['resonance_limit_1bit'] * 3)} to ~{format_size(info['resonance_limit_1bit'] * 5)} |\n")
+        f.write(f"| LSB1 Surface Tension | {format_size(info['surface_tension_1bit'])} |\n")
+        f.write(f"| LSB1 Bubble Burst | {format_size(info['bubble_burst_1bit'])} |\n")
+        f.write(f"| LSB1 Est. Real Data | ~{format_size(info['surface_tension_1bit'] * 3)} to ~{format_size(info['surface_tension_1bit'] * 5)} |\n")
         f.write(f"| LSB2 Max Capacity | {format_size(info['capacity_2bit'])} |\n")
-        f.write(f"| LSB2 Resonance Limit | {format_size(info['resonance_limit_2bit'])} |\n")
-        f.write(f"| LSB2 Est. Real Data | ~{format_size(info['resonance_limit_2bit'] * 3)} to ~{format_size(info['resonance_limit_2bit'] * 5)} |\n")
+        f.write(f"| LSB2 Surface Tension | {format_size(info['surface_tension_2bit'])} |\n")
+        f.write(f"| LSB2 Bubble Burst | {format_size(info['bubble_burst_2bit'])} |\n")
+        f.write(f"| LSB2 Est. Real Data | ~{format_size(info['surface_tension_2bit'] * 3)} to ~{format_size(info['surface_tension_2bit'] * 5)} |\n")
         f.write(f"\n---\n\n")
 
     print(f"  [LOG] Analysis appended to {log_path}")

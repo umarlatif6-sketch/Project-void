@@ -224,7 +224,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("res-hash-key").textContent = data.hash_key;
                 document.getElementById("encode-result").style.display = "block";
                 lastEncodedFile = data.output_file;
-                showToast("Encoding complete!", "success");
+
+                const bubbleEl = document.getElementById("bubble-status-msg");
+                if (bubbleEl) {
+                    if (data.bubble_warning) {
+                        bubbleEl.textContent = data.bubble_warning;
+                        bubbleEl.className = data.bubble_status === "burst" ? "bubble-burst-warning" : "bubble-stretch";
+                        bubbleEl.style.display = "block";
+                    } else {
+                        bubbleEl.textContent = "Bubble intact — clean encode";
+                        bubbleEl.className = "bubble-safe";
+                        bubbleEl.style.display = "block";
+                    }
+                }
+
+                const toastMsg = data.bubble_status === "burst" ? "BUBBLE BURST — encoded with distortion risk!" : "Sapphire Bubble sealed!";
+                showToast(toastMsg, data.bubble_status === "burst" ? "error" : "success");
                 loadSelects();
             } else {
                 showToast(data.error, "error");
@@ -716,18 +731,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 const maxRef = d.capacity_2bit || 1;
 
                 document.getElementById("cap-max-1").textContent = formatSize(d.capacity_1bit);
-                document.getElementById("cap-safe-1").textContent = formatSize(d.resonance_limit_1bit);
-                document.getElementById("cap-est-1").textContent = "~" + formatSize(d.resonance_limit_1bit * 3) + " - " + formatSize(d.resonance_limit_1bit * 5);
+                document.getElementById("cap-safe-1").textContent = formatSize(d.surface_tension_1bit);
+                document.getElementById("cap-burst-1").textContent = formatSize(d.bubble_burst_1bit) + " (90% membrane)";
+                document.getElementById("cap-est-1").textContent = "~" + formatSize(d.surface_tension_1bit * 3) + " - " + formatSize(d.surface_tension_1bit * 5);
                 document.getElementById("cap-bar-1-max").style.width = (d.capacity_1bit / maxRef * 100) + "%";
-                document.getElementById("cap-bar-1-safe").style.width = (d.resonance_limit_1bit / maxRef * 100) + "%";
-                document.getElementById("cap-bar-1-est").style.width = (d.resonance_limit_1bit * 4 / maxRef * 100) + "%";
+                document.getElementById("cap-bar-1-safe").style.width = (d.surface_tension_1bit / maxRef * 100) + "%";
+                document.getElementById("cap-bar-1-burst").style.width = (d.bubble_burst_1bit / maxRef * 100) + "%";
+                document.getElementById("cap-bar-1-est").style.width = (d.surface_tension_1bit * 4 / maxRef * 100) + "%";
 
                 document.getElementById("cap-max-2").textContent = formatSize(d.capacity_2bit);
-                document.getElementById("cap-safe-2").textContent = formatSize(d.resonance_limit_2bit);
-                document.getElementById("cap-est-2").textContent = "~" + formatSize(d.resonance_limit_2bit * 3) + " - " + formatSize(d.resonance_limit_2bit * 5);
+                document.getElementById("cap-safe-2").textContent = formatSize(d.surface_tension_2bit);
+                document.getElementById("cap-burst-2").textContent = formatSize(d.bubble_burst_2bit) + " (90% membrane)";
+                document.getElementById("cap-est-2").textContent = "~" + formatSize(d.surface_tension_2bit * 3) + " - " + formatSize(d.surface_tension_2bit * 5);
                 document.getElementById("cap-bar-2-max").style.width = "100%";
-                document.getElementById("cap-bar-2-safe").style.width = (d.resonance_limit_2bit / maxRef * 100) + "%";
-                document.getElementById("cap-bar-2-est").style.width = (d.resonance_limit_2bit * 4 / maxRef * 100) + "%";
+                document.getElementById("cap-bar-2-safe").style.width = (d.surface_tension_2bit / maxRef * 100) + "%";
+                document.getElementById("cap-bar-2-burst").style.width = (d.bubble_burst_2bit / maxRef * 100) + "%";
+                document.getElementById("cap-bar-2-est").style.width = (d.surface_tension_2bit * 4 / maxRef * 100) + "%";
 
                 document.getElementById("cap-result").style.display = "block";
                 showToast("Analysis complete!", "success");
@@ -774,9 +793,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("silk-res-time").textContent = data.timestamp;
                 document.getElementById("silk-res-hash").textContent = data.hash_key;
                 document.getElementById("silk-send-result").style.display = "block";
-                showToast("Signal sent through Silk Web!", "success");
+                showToast("Sapphire Bubble blown!", "success");
                 document.getElementById("silk-signal").value = "";
                 document.getElementById("silk-char-count").textContent = "0";
+
+                const silkPanel = document.getElementById("silk");
+                silkPanel.classList.remove("sapphire-glow");
+                void silkPanel.offsetWidth;
+                silkPanel.classList.add("sapphire-glow");
+                setTimeout(() => silkPanel.classList.remove("sapphire-glow"), 2100);
+
                 loadSilkFeed();
                 loadSelects();
             } else {
@@ -873,9 +899,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let listenerAnimFrame = null;
     let listenerRecorder = null;
     let listenerRecording = false;
+    let lockOnStartTime = 0;
     const LOCK_THRESHOLD_432 = 100;
     const LOCK_THRESHOLD_864 = 40;
+    const LOCK_SUSTAIN_MS = 500;
     const RECORD_DURATION = 6000;
+    const LISTENER_FFT_SIZE = 8192;
 
     document.getElementById("silk-listen-btn").addEventListener("click", async () => {
         const sonar = document.getElementById("sonar-ring");
@@ -885,7 +914,7 @@ document.addEventListener("DOMContentLoaded", () => {
             listenerStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             listenerCtx = new (window.AudioContext || window.webkitAudioContext)();
             listenerAnalyser = listenerCtx.createAnalyser();
-            listenerAnalyser.fftSize = 4096;
+            listenerAnalyser.fftSize = LISTENER_FFT_SIZE;
 
             const source = listenerCtx.createMediaStreamSource(listenerStream);
             source.connect(listenerAnalyser);
@@ -928,11 +957,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const bufLen = listenerAnalyser.frequencyBinCount;
         const dataArr = new Uint8Array(bufLen);
         const sampleRate = listenerCtx.sampleRate;
-        const binWidth = sampleRate / listenerAnalyser.fftSize;
-        const bin432 = Math.round(432 / binWidth);
-        const bin864 = Math.round(864 / binWidth);
+        const bin432 = Math.round(432 * (LISTENER_FFT_SIZE / sampleRate));
+        const bin864 = Math.round(864 * (LISTENER_FFT_SIZE / sampleRate));
         const sonar = document.getElementById("sonar-ring");
         const status = document.getElementById("sonar-status");
+        lockOnStartTime = 0;
 
         function scan() {
             if (!listenerAnalyser) return;
@@ -942,12 +971,26 @@ document.addEventListener("DOMContentLoaded", () => {
             const level432 = dataArr[bin432] || 0;
             const level864 = dataArr[bin864] || 0;
 
-            if (level432 >= LOCK_THRESHOLD_432 && level864 >= LOCK_THRESHOLD_864 && !listenerRecording) {
-                sonar.classList.remove("active");
-                sonar.classList.add("locked");
-                status.textContent = "LOCKED ON — Recording 6s...";
-                listenerRecording = true;
-                captureAndDecode();
+            if (level432 >= LOCK_THRESHOLD_432 && level864 >= LOCK_THRESHOLD_864) {
+                if (lockOnStartTime === 0) {
+                    lockOnStartTime = performance.now();
+                    status.textContent = "Locking on...";
+                }
+
+                const elapsed = performance.now() - lockOnStartTime;
+
+                if (elapsed >= LOCK_SUSTAIN_MS && !listenerRecording) {
+                    sonar.classList.remove("active");
+                    sonar.classList.add("locked");
+                    status.textContent = "BUBBLE CAUGHT — Recording 6s...";
+                    listenerRecording = true;
+                    captureAndDecode();
+                }
+            } else {
+                if (lockOnStartTime !== 0 && !listenerRecording) {
+                    lockOnStartTime = 0;
+                    status.textContent = "Scanning for 432 Hz...";
+                }
             }
         }
 
@@ -998,7 +1041,18 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
 
                         document.getElementById("listener-decode-result").style.display = "block";
-                        showToast(`Acoustic decode: ${data.signal_text}`, "success");
+                        showToast(`Bubble caught: ${data.signal_text}`, "success");
+
+                        sonar.classList.remove("locked");
+                        sonar.classList.add("bubble-caught");
+                        setTimeout(() => sonar.classList.remove("bubble-caught"), 1200);
+
+                        const silkPanel = document.getElementById("silk");
+                        silkPanel.classList.remove("sapphire-glow");
+                        void silkPanel.offsetWidth;
+                        silkPanel.classList.add("sapphire-glow");
+                        setTimeout(() => silkPanel.classList.remove("sapphire-glow"), 2100);
+
                         loadSilkFeed();
                     } else {
                         showToast(data.error || "Decode failed", "error");

@@ -160,10 +160,17 @@ def encode_burst(signal_text: str, output_path: str) -> str:
     sample_rate = 44100
     duration = 5
     t = np.linspace(0, duration, sample_rate * duration, endpoint=False)
+
+    shimmer_lfo_rate = 0.25
+    shimmer_depth = 2.0
+    shimmer_mod = shimmer_depth * np.sin(2 * np.pi * shimmer_lfo_rate * t)
+    base_freq = VILLAGE_STANDARD_HZ + shimmer_mod
+    phase = np.cumsum(2 * np.pi * base_freq / sample_rate)
+
     signal = (
-        16000 * np.sin(2 * np.pi * VILLAGE_STANDARD_HZ * t)
-        + 16000 * 0.10 * np.sin(2 * np.pi * (VILLAGE_STANDARD_HZ * 2) * t)
-        + 16000 * 0.05 * np.sin(2 * np.pi * (VILLAGE_STANDARD_HZ * 3) * t)
+        16000 * np.sin(phase)
+        + 16000 * 0.10 * np.sin(2 * phase)
+        + 16000 * 0.05 * np.sin(3 * phase)
     )
     carrier = np.clip(signal, -32768, 32767).astype(np.int16)
 

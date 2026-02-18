@@ -81,6 +81,7 @@
                         <button id="copy-hash-btn" class="btn-copy" title="Copy">&#9113;</button>
                     </div>
                 </div>
+                <div id="bubble-status-msg" style="display:none; margin-top:12px; padding:10px 14px; border-radius:6px; font-size:13px; letter-spacing:0.5px;"></div>
                 <button id="download-encoded-btn" class="btn-secondary">Download Encoded WAV</button>
             </div>
         </div>
@@ -231,9 +232,14 @@
                             <span class="cap-value" id="cap-max-1"></span>
                         </div>
                         <div class="cap-row">
-                            <span class="cap-label">Resonance Limit</span>
+                            <span class="cap-label">Surface Tension</span>
                             <div class="cap-bar-wrap"><div class="cap-bar cap-bar-safe" id="cap-bar-1-safe"></div></div>
                             <span class="cap-value" id="cap-safe-1"></span>
+                        </div>
+                        <div class="cap-row">
+                            <span class="cap-label">Bubble Burst</span>
+                            <div class="cap-bar-wrap"><div class="cap-bar cap-bar-est" id="cap-bar-1-burst"></div></div>
+                            <span class="cap-value" id="cap-burst-1"></span>
                         </div>
                         <div class="cap-row">
                             <span class="cap-label">Est. Real Data</span>
@@ -252,9 +258,14 @@
                             <span class="cap-value" id="cap-max-2"></span>
                         </div>
                         <div class="cap-row">
-                            <span class="cap-label">Resonance Limit</span>
+                            <span class="cap-label">Surface Tension</span>
                             <div class="cap-bar-wrap"><div class="cap-bar cap-bar-safe" id="cap-bar-2-safe"></div></div>
                             <span class="cap-value" id="cap-safe-2"></span>
+                        </div>
+                        <div class="cap-row">
+                            <span class="cap-label">Bubble Burst</span>
+                            <div class="cap-bar-wrap"><div class="cap-bar cap-bar-est" id="cap-bar-2-burst"></div></div>
+                            <span class="cap-value" id="cap-burst-2"></span>
                         </div>
                         <div class="cap-row">
                             <span class="cap-label">Est. Real Data</span>
@@ -265,9 +276,10 @@
                 </div>
 
                 <div class="cap-notes">
-                    <p>Frequency: 432 Hz (Resonant Mode) — enhanced acoustic camouflage vs 440 Hz</p>
-                    <p>Below resonance limit = clean audio (passes ear test)</p>
-                    <p>Above limit = distortion may become audible</p>
+                    <p>Frequency: 432 Hz (Village Standard) — Sapphire Bubble acoustic camouflage</p>
+                    <p>Below surface tension = bubble holds — audio sounds clean</p>
+                    <p>Near bubble burst = membrane stretching — distortion risk</p>
+                    <p>Above burst = bubble pops — audible artifacts</p>
                     <p>"Est. Real Data" = approximate file sizes after zlib/lzma compression</p>
                 </div>
             </div>

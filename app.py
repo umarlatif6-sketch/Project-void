@@ -109,14 +109,32 @@ def encode_file():
 
         _log_operation("ENCODE", output_name, hash_key, f"LSB{lsb_depth}")
 
+        info = analyze_carrier(carrier_path)
+        tension_key = f"surface_tension_{lsb_depth}bit"
+        burst_key = f"bubble_burst_{lsb_depth}bit"
+        tension = info.get(tension_key, 0)
+        burst = info.get(burst_key, 0)
+        compressed_size = len(compressed)
+
+        bubble_status = "safe"
+        bubble_warning = None
+        if compressed_size > tension:
+            bubble_status = "burst"
+            bubble_warning = "BUBBLE BURST — Data exceeds membrane capacity. Audible distortion likely."
+        elif compressed_size > burst:
+            bubble_status = "stretch"
+            bubble_warning = "Membrane stretching — approaching bubble burst threshold."
+
         return jsonify({
             "success": True,
             "hash_key": hash_key,
             "output_file": output_name,
             "output_size": os.path.getsize(output_path),
             "original_size": orig_size,
-            "compressed_size": len(compressed),
+            "compressed_size": compressed_size,
             "lsb_depth": lsb_depth,
+            "bubble_status": bubble_status,
+            "bubble_warning": bubble_warning,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 400
