@@ -202,3 +202,5 @@ Observations:
 
 ---
 
+| 2026-02-18 00:22:26 | BURST | burst_432Hz_a906b656.wav | ...44ae | signal=TEST_CLI |
+| 2026-02-18 00:22:26 | DECODE | burst.sig | ...44ae | size=8 |

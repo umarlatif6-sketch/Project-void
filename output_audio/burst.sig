@@ -1,1 +1,1 @@
-BUY_GOLD
+TEST_CLI

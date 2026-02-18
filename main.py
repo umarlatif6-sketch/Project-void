@@ -1,10 +1,24 @@
 import os
 import sys
+from datetime import datetime
 
 from void_engine.compressor import compress_file, decompress_data
 from void_engine.stega import encode, decode
 from void_engine.keep_alive import start_pulse
 from void_engine.calculator import analyze_carrier, print_analysis, append_to_log
+
+VILLAGE_STANDARD_HZ = 432
+LOG_FILE = "RESONANCE_LOG.md"
+
+
+def _log_operation(op_type: str, filename: str, hash_key: str, extra: str = ""):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    hash_tail = hash_key[-4:] if hash_key else "????"
+    with open(LOG_FILE, "a") as f:
+        line = f"| {timestamp} | {op_type} | {filename} | ...{hash_tail} |"
+        if extra:
+            line += f" {extra} |"
+        f.write(line + "\n")
 
 BANNER = r"""
  ╔══════════════════════════════════════════════════════════╗
@@ -92,6 +106,14 @@ def encode_flow():
             break
         print("  Enter 1 or 2.")
 
+    orig_size = os.path.getsize(payload_path)
+    if orig_size > 100 * 1024 * 1024:
+        mb_size = orig_size / (1024 * 1024)
+        confirm = input(f"\n  [WARNING]: Large payload ({mb_size:.0f} MB) may stress Mac 2012 CPU. Continue? (y/n): ").strip().lower()
+        if confirm != "y":
+            print("  Encoding cancelled.")
+            return
+
     print("\n  [VOID] Compressing payload (zlib+lzma, selecting best)...")
     compressed, name, ext, orig_size = compress_file(payload_path)
 
@@ -104,6 +126,9 @@ def encode_flow():
     except ValueError as e:
         print(f"\n  [ERROR] {e}")
         return
+
+    output_name = os.path.basename(output_path)
+    _log_operation("ENCODE", output_name, hash_key, f"LSB{lsb_depth}")
 
     out_size = os.path.getsize(output_path)
     print(f"\n  {'=' * 60}")
@@ -160,6 +185,8 @@ def decode_flow():
     with open(output_path, "wb") as f:
         f.write(original_data)
 
+    _log_operation("DECODE", name_ext, hash_key, f"size={len(original_data)}")
+
     print(f"\n  File restored: {output_path} ({len(original_data):,} bytes)")
     print(f"  Checksum:      {checksum}")
     print("  Decoding COMPLETE.")
@@ -190,6 +217,7 @@ def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     start_pulse()
     print(BANNER)
+    print(f"  [STATUS] Node: Mac 2012 | Freq: {VILLAGE_STANDARD_HZ}Hz | Pulse: Active")
 
     while True:
         print("\n  ┌──────────────────────────────────────┐")
