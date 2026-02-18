@@ -1485,10 +1485,210 @@ body.sapphire-bubble-mode::before {
     color: var(--text-dim);
     font-size: 9px;
 }
+.aljabr-section {
+    border: 1px solid rgba(218,165,32,0.25);
+    background: rgba(218,165,32,0.03);
+    border-radius: 8px;
+    padding: 16px;
+}
+.aljabr-section h3 {
+    color: #daa520;
+}
+.aljabr-pattern-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+.pat-tag {
+    display: inline-block;
+    background: rgba(218,165,32,0.1);
+    border: 1px solid rgba(218,165,32,0.2);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-family: monospace;
+    color: #daa520;
+    cursor: default;
+}
+.aljabr-narrative {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(218,165,32,0.08);
+    border: 1px solid rgba(218,165,32,0.2);
+    border-radius: 6px;
+    color: #f0d878;
+    font-size: 13px;
+    font-style: italic;
+}
+.aljabr-result {
+    margin-top: 10px;
+}
+.aljabr-result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.aljabr-compression {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 12px;
+}
+.aljabr-compression .ratio-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #daa520;
+}
+.aljabr-compression .ratio-label {
+    color: var(--text-dim);
+    font-size: 10px;
+}
+.aljabr-commands {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 11px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+.aljabr-cmd {
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: #f0d878;
+}
+.aljabr-cmd .cmd-root {
+    color: #daa520;
+    font-weight: bold;
+    margin-right: 1px;
+}
+.aljabr-cmd .cmd-pat {
+    color: #888;
+    margin-right: 6px;
+}
+.aljabr-python {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 4px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 10px;
+}
+.aljabr-python pre {
+    white-space: pre-wrap;
+    margin: 0;
+    color: #aaa;
+}
+.aljabr-python .py-label {
+    color: var(--text-dim);
+    font-size: 9px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.aljabr-dry-runs {
+    font-size: 11px;
+    font-family: monospace;
+}
+.aljabr-dry-run {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 3px 0;
+    flex-wrap: wrap;
+}
+.aljabr-dry-run .dr-verdict {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 10px;
+}
+.aljabr-dry-run .dr-pass { background: rgba(74,222,128,0.15); color: #4ade80; }
+.aljabr-dry-run .dr-fail { background: rgba(248,113,113,0.15); color: #f87171; }
+.aljabr-dry-run .dr-root {
+    color: #daa520;
+    font-weight: bold;
+}
+.aljabr-roots-panel {
+    margin-top: 12px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(218,165,32,0.15);
+    border-radius: 6px;
+    padding: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+.aljabr-roots-header {
+    color: #daa520;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+}
+.aljabr-patterns-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(218,165,32,0.1);
+}
+.aljabr-domain-group {
+    margin-bottom: 10px;
+}
+.aljabr-domain-label {
+    color: #daa520;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+}
+.aljabr-root-entry {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 4px 8px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 3px;
+    margin-bottom: 2px;
+    font-size: 11px;
+}
+.aljabr-root-entry .root-code {
+    color: #daa520;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 13px;
+    min-width: 36px;
+}
+.aljabr-root-entry .root-essence {
+    color: #f0d878;
+    font-style: italic;
+    min-width: 120px;
+}
+.aljabr-root-entry .root-desc {
+    color: #888;
+    flex: 1;
+}
+.aljabr-root-entry .root-patterns {
+    color: #daa520;
+    font-family: monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+}
 @media (max-width: 700px) {
     .harness-grid { grid-template-columns: 1fr; }
     .sensor-grid { grid-template-columns: 1fr; }
     .harness-action-form { flex-direction: column; }
     .chaos-step-row { grid-template-columns: 1fr; }
     .adriana-result-grid { grid-template-columns: 1fr; }
+    .aljabr-result-grid { grid-template-columns: 1fr; }
 }

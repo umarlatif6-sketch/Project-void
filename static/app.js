@@ -1885,6 +1885,142 @@ document.addEventListener("DOMContentLoaded", () => {
         renderGroup("adriana-lex-actions", "Actions (Operations)", lex.action || []);
     }
 
+    document.getElementById("aljabr-transpile-btn")?.addEventListener("click", async () => {
+        const expr = document.getElementById("aljabr-input").value.trim();
+        if (!expr) return showToast("Enter a root expression (e.g. HFZ)", "error");
+        try {
+            const res = await fetch("/api/harness/aljabr/transpile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ expression: expr }),
+            });
+            const data = await res.json();
+            if (data.result) renderAlJabrResult(data.result, data.dry_runs);
+            else showToast(data.error || "Transpile failed", "error");
+        } catch(e) { showToast("Error: " + e.message, "error"); }
+    });
+
+    document.getElementById("aljabr-execute-btn")?.addEventListener("click", async () => {
+        const expr = document.getElementById("aljabr-input").value.trim();
+        if (!expr) return showToast("Enter a root expression (e.g. HFZ)", "error");
+        try {
+            const res = await fetch("/api/harness/aljabr/execute", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ expression: expr }),
+            });
+            const data = await res.json();
+            if (data.result) renderAlJabrResult(data.result, null, data.execution);
+            if (data.success) {
+                showToast("Al-Jabr: All commands executed", "success");
+            } else if (data.partial) {
+                showToast("Al-Jabr: Partial execution (some blocked)", "error");
+            } else if (data.errors && data.errors.length) {
+                showToast("Al-Jabr: " + data.errors[0], "error");
+            } else {
+                showToast("Al-Jabr: Execution blocked by safety pipeline", "error");
+            }
+            loadHarnessStatus();
+        } catch(e) { showToast("Error: " + e.message, "error"); }
+    });
+
+    document.getElementById("aljabr-roots-btn")?.addEventListener("click", async () => {
+        const panel = document.getElementById("aljabr-roots-panel");
+        if (panel.style.display !== "none") {
+            panel.style.display = "none";
+            return;
+        }
+        try {
+            const res = await fetch("/api/harness/aljabr/roots");
+            const data = await res.json();
+            renderAlJabrRoots(data);
+            panel.style.display = "block";
+        } catch(e) { showToast("Error loading roots", "error"); }
+    });
+
+    function renderAlJabrResult(result, dryRuns, execResults) {
+        const narrativeEl = document.getElementById("aljabr-narrative");
+        if (narrativeEl && result.narrative) {
+            narrativeEl.textContent = result.narrative;
+            narrativeEl.style.display = "block";
+        }
+
+        const resultEl = document.getElementById("aljabr-result");
+        resultEl.style.display = "block";
+
+        const comp = result.compression || {};
+        document.getElementById("aljabr-compression").innerHTML =
+            `<div class="ratio-value">${comp.ratio || 0}x</div>` +
+            `<div class="ratio-label">COMPRESSION RATIO</div>` +
+            `<div style="margin-top:6px; font-size:10px; color:#888;">` +
+            `${comp.aljabr_chars || 0} chars \u2192 ${comp.python_chars || 0} chars<br>` +
+            `${comp.root_count || 0} roots, ${comp.pattern_count || 0} patterns \u2192 ${comp.action_count || 0} actions</div>`;
+
+        const cmdsEl = document.getElementById("aljabr-commands");
+        cmdsEl.innerHTML = (result.commands || []).map(c =>
+            `<div class="aljabr-cmd"><span class="cmd-root">${c.root}</span><span class="cmd-pat">.${c.pattern}</span> ${c.action_type} \u2192 ${c.narrative}</div>`
+        ).join("") || '<div style="color:#666;">No commands generated</div>';
+
+        const pyEl = document.getElementById("aljabr-python");
+        pyEl.innerHTML = `<div class="py-label">Python Equivalent</div><pre>${comp.python_equivalent || "# no equivalent"}</pre>`;
+
+        const drEl = document.getElementById("aljabr-dry-runs");
+        if (dryRuns) {
+            drEl.innerHTML = "<div style='color:#888;font-size:10px;margin-bottom:4px;'>SAFETY DRY-RUN</div>" +
+                dryRuns.map(dr => {
+                    const ok = dr.boundary_allowed && dr.checklist_verdict === "PASS";
+                    return `<div class="aljabr-dry-run">` +
+                        `<span class="dr-verdict ${ok ? 'dr-pass' : 'dr-fail'}">${ok ? 'SAFE' : 'BLOCKED'}</span>` +
+                        `<span class="dr-root">${dr.root}.${dr.pattern}</span>` +
+                        `<span>${dr.action.type}</span>` +
+                        `<span style="color:#666;">${dr.checklist_verdict}</span>` +
+                        `</div>`;
+                }).join("");
+        } else if (execResults) {
+            drEl.innerHTML = "<div style='color:#888;font-size:10px;margin-bottom:4px;'>EXECUTION RESULTS</div>" +
+                execResults.map(er => {
+                    return `<div class="aljabr-dry-run">` +
+                        `<span class="dr-verdict ${er.executed ? 'dr-pass' : 'dr-fail'}">${er.executed ? 'DONE' : 'BLOCKED'}</span>` +
+                        `<span class="dr-root">${er.root}.${er.pattern}</span>` +
+                        `<span>${er.action.type}</span>` +
+                        `<span style="color:#888;font-size:10px;">${er.narrative}</span>` +
+                        (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${er.blocked_by}]</span>` : '') +
+                        `</div>`;
+                }).join("");
+        } else {
+            drEl.innerHTML = "";
+        }
+    }
+
+    function renderAlJabrRoots(data) {
+        const panel = document.getElementById("aljabr-roots-panel");
+        const manifest = data.manifest || {};
+        const patterns = data.patterns || {};
+
+        let html = '<div class="aljabr-roots-header">ROOT MANIFEST</div>';
+        html += '<div class="aljabr-patterns-row">';
+        for (const [code, info] of Object.entries(patterns)) {
+            html += `<span class="pat-tag" title="${info.verb}">${code} ${info.name}</span>`;
+        }
+        html += '</div>';
+
+        const domainLabels = {aqua:"Aquaponics",flywheel:"Flywheel",silk:"Silk Wiring",pressure:"Pressure",system:"System"};
+        for (const [domain, roots] of Object.entries(manifest)) {
+            if (!roots.length) continue;
+            html += `<div class="aljabr-domain-group"><div class="aljabr-domain-label">${domainLabels[domain] || domain}</div>`;
+            for (const r of roots) {
+                html += `<div class="aljabr-root-entry">` +
+                    `<span class="root-code">${r.root}</span>` +
+                    `<span class="root-essence">${r.essence}</span>` +
+                    `<span class="root-desc">${r.description}</span>` +
+                    `<span class="root-patterns">${(r.available_patterns||[]).join(" ")}</span>` +
+                    `</div>`;
+            }
+            html += '</div>';
+        }
+        panel.innerHTML = html;
+    }
+
     function renderChaosReport(report) {
         const wrap = document.getElementById("chaos-test-result");
         if (!wrap) return;

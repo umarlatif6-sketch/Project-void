@@ -16,6 +16,7 @@ from void_engine.nervous_system import SilkLinkContextMiddleware, AquaponicsBoun
 from void_engine.loop_detector import LoopDetectionMiddleware
 from void_engine.chaos_test import NitrogenLeakChaosTest
 from void_engine.adriana_transpiler import AdrianaTranspiler
+from void_engine.aljabr_transpiler import AlJabrTranspiler
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -501,6 +502,7 @@ _loop_detector = LoopDetectionMiddleware(max_attempts=5)
 
 _chaos_test = NitrogenLeakChaosTest(_harness_sim, _harness_checklist, _boundary_hook, _loop_detector)
 _adriana = AdrianaTranspiler()
+_aljabr = AlJabrTranspiler()
 
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
@@ -902,6 +904,130 @@ def adriana_execute():
                 "blocked_by": "checklist",
                 "verdict": sim_result.get("checklist", {}).get("overall_verdict", "UNKNOWN"),
                 "narrative": cmd.narrative,
+            })
+
+    all_executed = all(r["executed"] for r in execution_results)
+    return jsonify({
+        "success": all_executed,
+        "result": result.to_dict(),
+        "execution": execution_results,
+        "partial": not all_executed and any(r["executed"] for r in execution_results),
+    })
+
+
+@app.route("/api/harness/aljabr/roots")
+def aljabr_roots():
+    return jsonify({
+        "manifest": _aljabr.manifest.get_manifest_map(),
+        "size": _aljabr.manifest.size,
+        "patterns": _aljabr.patterns,
+        "stats": _aljabr.stats,
+    })
+
+
+@app.route("/api/harness/aljabr/transpile", methods=["POST"])
+def aljabr_transpile():
+    data = request.json or {}
+    expression = data.get("expression", "")
+    if not expression:
+        return jsonify({"error": "expression required"}), 400
+
+    result = _aljabr.transpile(expression)
+
+    dry_runs = []
+    for cmd in result.commands:
+        action = {"type": cmd.action_type, **cmd.params}
+        sim_result = _harness_sim.simulate_action(action)
+
+        state = _harness_sim.get_state()
+        boundary_check = _boundary_hook.check_boundaries(state)
+
+        dry_runs.append({
+            "action": action,
+            "narrative": cmd.narrative,
+            "root": cmd.root,
+            "pattern": cmd.pattern,
+            "pattern_name": cmd.pattern_name,
+            "checklist_verdict": sim_result.get("checklist", {}).get("overall_verdict", "UNKNOWN"),
+            "safe_to_execute": sim_result.get("safe_to_execute", False),
+            "boundary_allowed": len(boundary_check) == 0 if boundary_check is not None else True,
+            "boundary_violations": [{"rule": v.rule_name, "msg": v.message} for v in (boundary_check or [])],
+        })
+
+    return jsonify({
+        "success": result.success,
+        "result": result.to_dict(),
+        "dry_runs": dry_runs,
+        "dry_run_note": "Static state snapshot — multi-command dry-runs reflect current state, not sequential effects.",
+    })
+
+
+@app.route("/api/harness/aljabr/execute", methods=["POST"])
+def aljabr_execute():
+    data = request.json or {}
+    expression = data.get("expression", "")
+    if not expression:
+        return jsonify({"error": "expression required"}), 400
+
+    result = _aljabr.transpile(expression)
+    if not result.success:
+        return jsonify({
+            "success": False,
+            "errors": result.errors,
+            "result": result.to_dict(),
+        })
+
+    execution_results = []
+    for cmd in result.commands:
+        action = {"type": cmd.action_type, **cmd.params}
+
+        state = _harness_sim.get_state()
+        boundary_check = _boundary_hook.check_boundaries(state)
+        if boundary_check:
+            execution_results.append({
+                "action": action,
+                "executed": False,
+                "blocked_by": "boundary_hook",
+                "violations": [{"rule": v.rule_name, "msg": v.message} for v in boundary_check],
+                "narrative": cmd.narrative,
+                "root": cmd.root,
+                "pattern": cmd.pattern,
+            })
+            continue
+
+        loop_result = _loop_detector.record_action({"type": cmd.action_type, **cmd.params})
+        if loop_result:
+            execution_results.append({
+                "action": action,
+                "executed": False,
+                "blocked_by": "loop_detector",
+                "loop_alert": {"message": loop_result.message, "action": loop_result.action_signature},
+                "narrative": cmd.narrative,
+                "root": cmd.root,
+                "pattern": cmd.pattern,
+            })
+            continue
+
+        sim_result = _harness_sim.simulate_action(action)
+        if sim_result.get("safe_to_execute"):
+            _harness_sim.apply_action(action)
+            execution_results.append({
+                "action": action,
+                "executed": True,
+                "effects": sim_result.get("effects", []),
+                "narrative": cmd.narrative,
+                "root": cmd.root,
+                "pattern": cmd.pattern,
+            })
+        else:
+            execution_results.append({
+                "action": action,
+                "executed": False,
+                "blocked_by": "checklist",
+                "verdict": sim_result.get("checklist", {}).get("overall_verdict", "UNKNOWN"),
+                "narrative": cmd.narrative,
+                "root": cmd.root,
+                "pattern": cmd.pattern,
             })
 
     all_executed = all(r["executed"] for r in execution_results)

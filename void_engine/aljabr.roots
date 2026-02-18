@@ -1,0 +1,62 @@
+# ═══════════════════════════════════════════════════════════
+# AL-JABR ROOT MANIFEST — Root-Pattern AI Logic v1.0
+# "The Root is the Essence. The Pattern is the Function."
+# ═══════════════════════════════════════════════════════════
+#
+# STRUCTURE:
+#   Classical Arabic uses trilateral roots (3-letter stems)
+#   that carry a "cloud" of meaning. Patterns (verb forms)
+#   shape HOW that meaning is applied.
+#
+# FORMAT:  root | domain | essence | description
+#
+# DOMAINS:
+#   aqua      — Aquaponics subsystem
+#   flywheel  — Flywheel energy storage
+#   silk      — Silk wiring / strand network
+#   pressure  — AC Lobby pressure differential
+#   system    — Cross-domain / meta operations
+#
+# PATTERNS (Verb Forms):
+#   A  = Accelerate   — Increase / boost / amplify
+#   I  = Isolate      — Protect / shield / contain
+#   V  = Verify       — Check / validate / diagnose
+#   M  = Monitor      — Observe / read / sense
+#   R  = Restore      — Reset / heal / return to nominal
+#   D  = Diminish     — Reduce / slow / cool
+#   T  = Transmit     — Signal / send / broadcast
+#
+# GRAMMAR:
+#   Bare root:    HFZ         — Full protection sequence (all patterns)
+#   Root.Pattern: HFZ.I       — Specific pattern (Isolate only)
+#   Chain:        HFZ>QDR     — Sequential execution
+#   Branch:       HFZ|SLM     — Conditional OR
+#   Multi-pat:    HFZ.IV      — Multiple patterns (Isolate + Verify)
+#
+# ═══════════════════════════════════════════════════════════
+
+# ─── AQUAPONICS ROOTS ───────────────────────────────────────
+
+HYA | aqua | life/vitality | Plankton life force — the living essence of the system
+GDH | aqua | nourishment | Nutrient flow — feeding and pH balance
+DFQ | aqua | flow/current | Water pump cycle — circulation and movement
+
+# ─── FLYWHEEL ROOTS ─────────────────────────────────────────
+
+QDR | flywheel | power/capacity | Flywheel energy — RPM, torque, kinetic reserve
+HRR | flywheel | heat/thermal | Thermal regulation — temperature and friction
+
+# ─── SILK ROOTS ─────────────────────────────────────────────
+
+WSL | silk | connection/bond | Silk strand integrity — wiring, links, resistance
+NZM | silk | order/pattern | Strand network order — calibration and harmony
+
+# ─── PRESSURE ROOTS ─────────────────────────────────────────
+
+HFZ | pressure | preservation | Air Curtain protection — seal, shield, contain
+DGT | pressure | pressure/force | Pressure differential — nitrogen, internal/external
+NFD | pressure | exhale/release | Vent and depressurize — nitrogen release
+
+# ─── SYSTEM ROOTS ───────────────────────────────────────────
+
+SLM | system | safety/peace | Pre-Completion Checklist — full system verification
