@@ -2257,6 +2257,350 @@ body.sapphire-bubble-mode::before {
     letter-spacing: 1px;
 }
 
+.ritual-section { border-left: 3px solid #FFD700; }
+.ritual-machine-id {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background: rgba(255,215,0,0.06);
+    border: 1px solid rgba(255,215,0,0.15);
+    border-radius: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+}
+.ritual-machine-id-label {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.ritual-machine-id-value {
+    font-size: 13px;
+    color: #FFD700;
+    font-weight: 600;
+}
+.ritual-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.btn-ritual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 14px 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: #ddd;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'IBM Plex Mono', monospace;
+}
+.btn-ritual:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.btn-ritual:active {
+    transform: translateY(0);
+}
+.btn-ritual[data-color="#FFD700"]:hover { border-color: #FFD700; box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+.btn-ritual[data-color="#00FF88"]:hover { border-color: #00FF88; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+.btn-ritual[data-color="#00BFFF"]:hover { border-color: #00BFFF; box-shadow: 0 0 20px rgba(0,191,255,0.3); }
+.btn-ritual[data-color="#FFFFFF"]:hover { border-color: #FFFFFF; box-shadow: 0 0 20px rgba(255,255,255,0.3); }
+.ritual-btn-glyph {
+    font-size: 24px;
+}
+.ritual-btn-name {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.ritual-btn-root {
+    font-size: 10px;
+    color: #888;
+}
+.ritual-flash {
+    padding: 30px;
+    text-align: center;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    animation: ritualPulse 1.5s ease-in-out 2;
+}
+@keyframes ritualPulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+.ritual-flash-glyph {
+    font-size: 36px;
+    margin-bottom: 8px;
+}
+.ritual-flash-name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.ritual-flash-root {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+}
+.ritual-last-result { margin-bottom: 16px; }
+.ritual-result-card {
+    padding: 12px 16px;
+    border-left: 3px solid #FFD700;
+    background: rgba(255,255,255,0.02);
+    border-radius: 4px;
+}
+.ritual-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.ritual-result-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+.ritual-result-root {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #888;
+}
+.ritual-result-intent {
+    font-size: 12px;
+    color: #ccc;
+    font-style: italic;
+    margin-bottom: 4px;
+}
+.ritual-result-desc {
+    font-size: 11px;
+    color: #999;
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+.ritual-result-snap {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: #666;
+}
+.ritual-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.ritual-count {
+    color: #FFD700;
+    font-weight: 600;
+}
+.ritual-timeline {
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.ritual-empty {
+    text-align: center;
+    color: #555;
+    font-style: italic;
+    padding: 20px;
+    font-size: 12px;
+}
+.ritual-entry {
+    padding: 8px 12px;
+    border-left: 3px solid #FFD700;
+    background: rgba(255,255,255,0.02);
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+.ritual-entry:hover {
+    background: rgba(255,255,255,0.05);
+}
+.ritual-entry-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 3px;
+}
+.ritual-entry-name {
+    font-size: 12px;
+    font-weight: 600;
+}
+.ritual-entry-root {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: #888;
+}
+.ritual-entry-visual {
+    font-size: 10px;
+    color: #666;
+    margin-left: auto;
+}
+.ritual-entry-intent {
+    font-size: 11px;
+    color: #999;
+    font-style: italic;
+}
+.ritual-entry-time {
+    font-size: 10px;
+    color: #555;
+    font-family: 'IBM Plex Mono', monospace;
+}
+.warranty-machine-id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: #FFD700;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 6px;
+    background: rgba(255,215,0,0.04);
+    letter-spacing: 1px;
+}
+
+.autoheal-section { border-left: 3px solid #00FF88; }
+.autoheal-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+.autoheal-status-label {
+    font-size: 12px;
+    color: #888;
+    font-family: 'IBM Plex Mono', monospace;
+}
+.autoheal-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.ah-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    background: rgba(0,255,136,0.04);
+    border: 1px solid rgba(0,255,136,0.1);
+    border-radius: 6px;
+}
+.ah-stat-label {
+    font-size: 10px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.ah-stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #00FF88;
+    font-family: 'IBM Plex Mono', monospace;
+}
+.autoheal-result { margin-top: 8px; }
+.ah-section-title {
+    font-size: 11px;
+    color: #00FF88;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(0,255,136,0.15);
+}
+.ah-alert-title { color: #ff6b6b; border-bottom-color: rgba(255,107,107,0.15); }
+.ah-none {
+    font-size: 11px;
+    color: #555;
+    font-style: italic;
+    padding: 8px 0;
+}
+.ah-heal-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: rgba(0,255,136,0.04);
+    border-radius: 4px;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+.ah-heal-root {
+    font-family: 'IBM Plex Mono', monospace;
+    color: #00FF88;
+    font-size: 11px;
+    font-weight: 600;
+}
+.ah-heal-domain {
+    color: #888;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+.ah-heal-desc {
+    color: #ccc;
+    flex: 1;
+}
+.ah-alert-card {
+    padding: 10px 12px;
+    background: rgba(255,107,107,0.05);
+    border-left: 3px solid #ff6b6b;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+.ah-alert-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+.ah-alert-severity {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+.ah-alert-severity.sev-CRITICAL { background: rgba(255,68,68,0.2); color: #ff4444; }
+.ah-alert-severity.sev-WARNING { background: rgba(255,165,0,0.2); color: #ffa500; }
+.ah-alert-root {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: #ff6b6b;
+}
+.ah-alert-msg {
+    font-size: 12px;
+    color: #ccc;
+    margin-bottom: 4px;
+}
+.ah-alert-ritual {
+    font-size: 11px;
+    color: #FFD700;
+    margin-bottom: 3px;
+}
+.ah-alert-fix {
+    font-size: 11px;
+    color: #888;
+}
+.ah-alert-fix code {
+    color: #00bcd4;
+    background: rgba(0,188,212,0.1);
+    padding: 1px 4px;
+    border-radius: 2px;
+}
+
 @media (max-width: 700px) {
     .harness-grid { grid-template-columns: 1fr; }
     .sensor-grid { grid-template-columns: 1fr; }
@@ -2266,4 +2610,6 @@ body.sapphire-bubble-mode::before {
     .aljabr-result-grid { grid-template-columns: 1fr; }
     .diagnostics-findings { grid-template-columns: 1fr; }
     .warranty-article-text { padding-left: 0; }
+    .ritual-buttons { grid-template-columns: repeat(2, 1fr); }
+    .autoheal-stats-grid { grid-template-columns: repeat(2, 1fr); }
 }

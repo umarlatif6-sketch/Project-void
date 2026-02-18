@@ -20,6 +20,7 @@ from void_engine.aljabr_transpiler import AlJabrTranspiler
 from void_engine.consensus import ConsensusEngine
 from void_engine.wallet import AlJabrWalletMiddleware
 from void_engine.diagnostics import DiagnosticEngine, SOVEREIGN_WARRANTY
+from void_engine.rituals import RitualHistory, AutoHealDaemon, RITUAL_TYPES
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -509,6 +510,8 @@ _aljabr = AlJabrTranspiler()
 _wallet = AlJabrWalletMiddleware(initial_balance=50.0)
 _consensus = ConsensusEngine(_harness_sim, _aljabr, _boundary_hook, _loop_detector, wallet=_wallet)
 _diagnostics = DiagnosticEngine(_harness_sim, wallet=_wallet)
+_ritual_history = RitualHistory(_harness_sim, wallet=_wallet)
+_auto_heal = AutoHealDaemon(_diagnostics, _harness_sim, wallet=_wallet, ritual_history=_ritual_history)
 
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
@@ -1148,7 +1151,82 @@ def diagnostics_history():
 
 @app.route("/api/harness/warranty")
 def warranty():
-    return jsonify(SOVEREIGN_WARRANTY)
+    w = dict(SOVEREIGN_WARRANTY)
+    w["machine_id"] = _ritual_history.machine_id
+    return jsonify(w)
+
+
+@app.route("/api/harness/rituals/perform", methods=["POST"])
+def ritual_perform():
+    data = request.json or {}
+    ritual_type = data.get("ritual_type", "")
+    operator_note = data.get("operator_note", "")
+    if not ritual_type:
+        return jsonify({"error": "ritual_type required"}), 400
+    result = _ritual_history.perform_ritual(ritual_type, operator_note)
+    if "error" in result:
+        return jsonify(result), 400
+    return jsonify(result)
+
+
+@app.route("/api/harness/rituals/history")
+def ritual_history_list():
+    limit = request.args.get("limit", 50, type=int)
+    return jsonify({"history": _ritual_history.get_history(limit), "machine_id": _ritual_history.machine_id})
+
+
+@app.route("/api/harness/rituals/stats")
+def ritual_stats():
+    return jsonify(_ritual_history.get_stats())
+
+
+@app.route("/api/harness/rituals/types")
+def ritual_types():
+    types = []
+    for key, val in RITUAL_TYPES.items():
+        types.append({"type": key, "name": val["name"], "root": val["root"], "visual": val["visual"], "color": val["color"], "intent": val["intent"], "description": val["description"]})
+    return jsonify({"types": types})
+
+
+@app.route("/api/harness/autoheal/scan", methods=["POST"])
+def autoheal_scan():
+    try:
+        result = _auto_heal.scan_and_heal()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/harness/autoheal/status")
+def autoheal_status():
+    return jsonify(_auto_heal.get_status())
+
+
+@app.route("/api/harness/autoheal/toggle", methods=["POST"])
+def autoheal_toggle():
+    data = request.json or {}
+    interval = data.get("interval", 300)
+    if _auto_heal.active:
+        result = _auto_heal.stop()
+    else:
+        result = _auto_heal.start(interval)
+    return jsonify(result)
+
+
+@app.route("/api/harness/autoheal/alerts")
+def autoheal_alerts():
+    limit = request.args.get("limit", 20, type=int)
+    return jsonify({"alerts": _auto_heal.get_alerts(limit)})
+
+
+@app.route("/api/harness/autoheal/alerts/clear", methods=["POST"])
+def autoheal_clear_alerts():
+    return jsonify(_auto_heal.clear_alerts())
+
+
+@app.route("/api/harness/machine-id")
+def machine_id():
+    return jsonify({"machine_id": _ritual_history.machine_id})
 
 
 _start_time = __import__("time").time()

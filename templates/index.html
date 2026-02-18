@@ -569,6 +569,64 @@
                 </div>
             </div>
 
+            <div class="harness-actions-row ritual-section">
+                <h3>Ritual History — The Sovereign Story</h3>
+                <p class="panel-desc">Every physical interaction with the machine is a <strong>Ritual</strong> — a chapter in its lineage. The machine remembers every Shock, Feeding, Fast, and Cure.</p>
+                <div class="ritual-machine-id">
+                    <span class="ritual-machine-id-label">Machine ID:</span>
+                    <span id="ritual-machine-id" class="ritual-machine-id-value">Loading...</span>
+                </div>
+                <div class="ritual-buttons">
+                    <button id="ritual-shock-btn" class="btn-ritual" data-ritual="shock" data-color="#FFD700">
+                        <span class="ritual-btn-glyph">&#9889;</span>
+                        <span class="ritual-btn-name">The Shock</span>
+                        <span class="ritual-btn-root">WSL.A</span>
+                    </button>
+                    <button id="ritual-feeding-btn" class="btn-ritual" data-ritual="feeding" data-color="#00FF88">
+                        <span class="ritual-btn-glyph">&#127793;</span>
+                        <span class="ritual-btn-name">The Feeding</span>
+                        <span class="ritual-btn-root">GDH.A</span>
+                    </button>
+                    <button id="ritual-fast-btn" class="btn-ritual" data-ritual="fast" data-color="#00BFFF">
+                        <span class="ritual-btn-glyph">&#128737;</span>
+                        <span class="ritual-btn-name">The Fast</span>
+                        <span class="ritual-btn-root">HFZ.I</span>
+                    </button>
+                    <button id="ritual-cure-btn" class="btn-ritual" data-ritual="cure" data-color="#FFFFFF">
+                        <span class="ritual-btn-glyph">&#10024;</span>
+                        <span class="ritual-btn-name">The Cure</span>
+                        <span class="ritual-btn-root">SLM.R</span>
+                    </button>
+                </div>
+                <div id="ritual-flash" class="ritual-flash" style="display:none;"></div>
+                <div id="ritual-last-result" class="ritual-last-result" style="display:none;"></div>
+                <div class="ritual-history-header">
+                    <span>Ritual Lineage</span>
+                    <span id="ritual-count" class="ritual-count">0 rituals</span>
+                </div>
+                <div id="ritual-timeline" class="ritual-timeline"></div>
+            </div>
+
+            <div class="harness-actions-row autoheal-section">
+                <h3>Auto-Heal Daemon — Zero-Maintenance</h3>
+                <p class="panel-desc">The machine scans itself every 5 minutes. If it finds an error, it spends <strong>Compute Credits</strong> to fix it. Only if it cannot self-heal does it request a <strong>Ritual</strong> from the operator.</p>
+                <div class="autoheal-controls">
+                    <button id="autoheal-scan-btn" class="btn-accent">Scan + Heal Now</button>
+                    <button id="autoheal-toggle-btn" class="btn-secondary">Daemon: OFF</button>
+                    <span id="autoheal-status-label" class="autoheal-status-label"></span>
+                </div>
+                <div class="autoheal-stats-grid">
+                    <div class="ah-stat"><span class="ah-stat-label">Total Scans</span><span id="ah-scans" class="ah-stat-value">0</span></div>
+                    <div class="ah-stat"><span class="ah-stat-label">Auto-Heals</span><span id="ah-heals" class="ah-stat-value">0</span></div>
+                    <div class="ah-stat"><span class="ah-stat-label">Alerts</span><span id="ah-alerts-count" class="ah-stat-value">0</span></div>
+                    <div class="ah-stat"><span class="ah-stat-label">Daemon</span><span id="ah-daemon-status" class="ah-stat-value">OFF</span></div>
+                </div>
+                <div id="autoheal-result" class="autoheal-result" style="display:none;">
+                    <div id="autoheal-healed" class="autoheal-healed"></div>
+                    <div id="autoheal-alerts" class="autoheal-alerts"></div>
+                </div>
+            </div>
+
             <div class="harness-actions-row wallet-section">
                 <h3>Al-Jabr Wallet — Machine Financial Autonomy</h3>
                 <p class="panel-desc">The Machine Wallet gives the 4000-series economic agency. Agents earn <strong>Compute Credits (CC)</strong> from excess flywheel energy and spend them on cooling, nutrients, and resources. Every action has a cost — if the budget is insufficient, the action is blocked.</p>

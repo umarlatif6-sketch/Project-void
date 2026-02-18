@@ -70,8 +70,23 @@ PROJECT VOID features both a Flask-based web UI and a command-line interface. Th
     - **API Endpoints:** `POST /api/harness/diagnostics/scan`, `GET /api/harness/diagnostics/history`
 - **Sovereign Warranty:**
     - **SOVEREIGN_WARRANTY** (defined in `void_engine/diagnostics.py`): A 10-article Technological Covenant guaranteeing machine sovereignty, Al-Jabr root integrity, budget gate sanctity, consensus autonomy, silk-carbon bond requirements, self-healing guarantee, boundary hook inviolability, night cycle autonomy, explainable hardware, and the Village promise.
-    - **Harness Tab UI:** Gold-themed warranty panel rendered as a formal document with article numbering, preamble, and seal.
-    - **API Endpoint:** `GET /api/harness/warranty`
+    - **Merkle Hash Machine ID:** Each unit gets a unique tamper-proof identity (VOID-4000-[SHA256-hash]) derived from genesis state, displayed in warranty panel.
+    - **Harness Tab UI:** Gold-themed warranty panel rendered as a formal document with Machine ID, article numbering, preamble, and seal.
+    - **API Endpoint:** `GET /api/harness/warranty` (includes `machine_id`), `GET /api/harness/machine-id`
+- **Ritual History (The Sovereign Story):**
+    - **RitualHistory** (`void_engine/rituals.py`): Logs every physical interaction as a permanent chapter in the machine's narrative. Rituals modify simulator state and affect wallet (Fast freezes, Cure unfreezes).
+    - **The Four Rituals:**
+        - The Shock (WSL.A) — Gold Spark: Establishing the Carbon-Silk bond. Resets silk resistance to 8Ω.
+        - The Feeding (GDH.A) — Green Pulse: Vitalizing the Plankton EA agents. Boosts dissolved oxygen to 8ppm.
+        - The Fast (HFZ.I) — Blue Shield: Protecting during high-cost hours. Boosts energy reserves, freezes wallet.
+        - The Cure (SLM.R) — White Aura: Resetting the machine's Soul. Normalizes temperature, pressure, unfreezes wallet.
+    - **Harness Tab UI:** Gold-themed Ritual section with 4 ritual buttons (visual effect flash on activation), scrollable timeline of ritual lineage, machine ID display.
+    - **API Endpoints:** `POST /api/harness/rituals/perform`, `GET /api/harness/rituals/history`, `GET /api/harness/rituals/stats`, `GET /api/harness/rituals/types`
+- **Auto-Heal Daemon (Zero-Maintenance):**
+    - **AutoHealDaemon** (`void_engine/rituals.py`): Scans every 5 minutes (configurable). For each CRITICAL/WARNING finding, attempts auto-repair using wallet credits and simulator state changes. If self-repair fails (insufficient credits or physical ritual required), generates a Ritual Request alert.
+    - **Self-Heal Actions:** Thermal → auto-vent LN2 (4 CC), Pressure → Laminar Ghost vent (4 CC), Vibration → flywheel adjust (3 CC), Nitrogen → regulate boil rate (4 CC). Vitality → requires Feeding ritual. Silk → requires Shock ritual. Economy → machine must earn.
+    - **Harness Tab UI:** Green-themed Auto-Heal section with Scan+Heal button, daemon toggle, stats grid (scans/heals/alerts/daemon status), auto-heal results with Ritual Request cards.
+    - **API Endpoints:** `POST /api/harness/autoheal/scan`, `GET /api/harness/autoheal/status`, `POST /api/harness/autoheal/toggle`, `GET /api/harness/autoheal/alerts`, `POST /api/harness/autoheal/alerts/clear`
 
 ## External Dependencies
 -   **Python:** 3.11

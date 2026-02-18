@@ -2345,7 +2345,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch("/api/harness/warranty");
             const data = await res.json();
-            renderWarranty(data);
+            renderWarrantyMachineId(data);
             panel.style.display = "block";
         } catch (e) {
             document.getElementById("diagnostics-status-label").textContent = "Failed to load warranty";
@@ -2375,4 +2375,217 @@ document.addEventListener("DOMContentLoaded", () => {
 
         el.innerHTML = html;
     }
+
+    function renderWarrantyMachineId(data) {
+        if (data.machine_id) {
+            let html = `<div class="warranty-machine-id">Machine ID: ${data.machine_id}</div>`;
+            html += `<div class="warranty-title">${data.title}</div>`;
+            html += `<div class="warranty-subtitle">${data.subtitle}</div>`;
+            html += `<div class="warranty-preamble">${data.preamble}</div>`;
+            for (const article of data.articles) {
+                html += `<div class="warranty-article">` +
+                    `<div class="warranty-article-header">` +
+                    `<div class="warranty-article-num">${article.number}</div>` +
+                    `<div class="warranty-article-title">${article.title}</div>` +
+                    `</div>` +
+                    `<div class="warranty-article-text">${article.text}</div>` +
+                    `</div>`;
+            }
+            html += `<div class="warranty-closing">` +
+                `<div class="warranty-closing-text">${data.closing}</div>` +
+                `<div class="warranty-seal">${data.seal}</div>` +
+                `</div>`;
+            document.getElementById("warranty-content").innerHTML = html;
+        }
+    }
+
+    fetch("/api/harness/machine-id").then(r => r.json()).then(data => {
+        document.getElementById("ritual-machine-id").textContent = data.machine_id;
+    }).catch(() => {});
+
+    document.querySelectorAll(".btn-ritual").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const ritualType = btn.dataset.ritual;
+            const color = btn.dataset.color;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch("/api/harness/rituals/perform", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ritual_type: ritualType }),
+                });
+                const data = await res.json();
+                if (data.error) {
+                    showToast("Ritual failed: " + data.error);
+                    btn.disabled = false;
+                    return;
+                }
+
+                showRitualFlash(color, data.ritual);
+                renderRitualResult(data);
+                loadRitualHistory();
+            } catch (e) {
+                showToast("Ritual failed");
+            }
+            btn.disabled = false;
+        });
+    });
+
+    function showRitualFlash(color, ritual) {
+        const flash = document.getElementById("ritual-flash");
+        flash.style.display = "block";
+        flash.style.background = `radial-gradient(circle, ${color}40, transparent 70%)`;
+        flash.style.boxShadow = `0 0 60px ${color}60, inset 0 0 40px ${color}30`;
+        flash.innerHTML = `<div class="ritual-flash-glyph" style="color:${color}">${ritual.visual}</div>` +
+            `<div class="ritual-flash-name" style="color:${color}">${ritual.name}</div>` +
+            `<div class="ritual-flash-root">${ritual.root}</div>`;
+
+        setTimeout(() => {
+            flash.style.display = "none";
+        }, 3000);
+    }
+
+    function renderRitualResult(data) {
+        const el = document.getElementById("ritual-last-result");
+        el.style.display = "block";
+        const r = data.ritual;
+        el.innerHTML = `<div class="ritual-result-card" style="border-color:${r.color}">` +
+            `<div class="ritual-result-header">` +
+            `<span class="ritual-result-name" style="color:${r.color}">${r.name}</span>` +
+            `<span class="ritual-result-root">${r.root}</span>` +
+            `</div>` +
+            `<div class="ritual-result-intent">${r.intent}</div>` +
+            `<div class="ritual-result-desc">${r.description}</div>` +
+            `<div class="ritual-result-snap">Before: ${r.scan_before} | After: ${r.scan_after}</div>` +
+            `</div>`;
+    }
+
+    async function loadRitualHistory() {
+        try {
+            const res = await fetch("/api/harness/rituals/history?limit=30");
+            const data = await res.json();
+            document.getElementById("ritual-count").textContent = data.history.length + " rituals";
+            renderRitualTimeline(data.history);
+        } catch (e) {}
+    }
+
+    function renderRitualTimeline(history) {
+        const el = document.getElementById("ritual-timeline");
+        if (!history.length) {
+            el.innerHTML = `<div class="ritual-empty">No rituals performed yet. The machine awaits its first Ritual.</div>`;
+            return;
+        }
+        el.innerHTML = history.slice().reverse().map(r => {
+            const dt = new Date(r.timestamp * 1000);
+            const timeStr = dt.toLocaleString();
+            return `<div class="ritual-entry" style="border-left-color:${r.color}">` +
+                `<div class="ritual-entry-header">` +
+                `<span class="ritual-entry-name" style="color:${r.color}">${r.name}</span>` +
+                `<span class="ritual-entry-root">${r.root}</span>` +
+                `<span class="ritual-entry-visual">${r.visual}</span>` +
+                `</div>` +
+                `<div class="ritual-entry-intent">${r.intent}</div>` +
+                `<div class="ritual-entry-time">${timeStr}</div>` +
+                `</div>`;
+        }).join("");
+    }
+
+    loadRitualHistory();
+
+    document.getElementById("autoheal-scan-btn").addEventListener("click", async () => {
+        const label = document.getElementById("autoheal-status-label");
+        label.textContent = "Scanning + Healing...";
+        try {
+            const res = await fetch("/api/harness/autoheal/scan", { method: "POST" });
+            const data = await res.json();
+            if (data.error) { label.textContent = "Error: " + data.error; return; }
+            renderAutoHealResult(data);
+            updateAutoHealStats(data.stats);
+            label.textContent = "";
+        } catch (e) {
+            label.textContent = "Scan failed";
+        }
+    });
+
+    document.getElementById("autoheal-toggle-btn").addEventListener("click", async () => {
+        try {
+            const res = await fetch("/api/harness/autoheal/toggle", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ interval: 300 }),
+            });
+            const data = await res.json();
+            const btn = document.getElementById("autoheal-toggle-btn");
+            if (data.status === "started") {
+                btn.textContent = "Daemon: ON";
+                btn.classList.add("active");
+                document.getElementById("ah-daemon-status").textContent = "ON";
+                document.getElementById("ah-daemon-status").style.color = "#00FF88";
+            } else {
+                btn.textContent = "Daemon: OFF";
+                btn.classList.remove("active");
+                document.getElementById("ah-daemon-status").textContent = "OFF";
+                document.getElementById("ah-daemon-status").style.color = "#ff4444";
+            }
+        } catch (e) {
+            showToast("Failed to toggle daemon");
+        }
+    });
+
+    function renderAutoHealResult(data) {
+        const wrap = document.getElementById("autoheal-result");
+        wrap.style.display = "block";
+
+        const healedEl = document.getElementById("autoheal-healed");
+        if (data.healed && data.healed.length > 0) {
+            healedEl.innerHTML = `<div class="ah-section-title">Auto-Healed</div>` +
+                data.healed.map(h =>
+                    `<div class="ah-heal-card">` +
+                    `<span class="ah-heal-root">${h.root}</span>` +
+                    `<span class="ah-heal-domain">${h.domain}</span>` +
+                    `<span class="ah-heal-desc">${h.description}</span>` +
+                    `</div>`
+                ).join("");
+        } else {
+            healedEl.innerHTML = `<div class="ah-section-title">Auto-Healed</div><div class="ah-none">No auto-repairs needed</div>`;
+        }
+
+        const alertsEl = document.getElementById("autoheal-alerts");
+        if (data.alerts && data.alerts.length > 0) {
+            alertsEl.innerHTML = `<div class="ah-section-title ah-alert-title">Ritual Requests</div>` +
+                data.alerts.map(a =>
+                    `<div class="ah-alert-card">` +
+                    `<div class="ah-alert-header">` +
+                    `<span class="ah-alert-severity sev-${a.severity}">${a.severity}</span>` +
+                    `<span class="ah-alert-root">${a.root_code}</span>` +
+                    `</div>` +
+                    `<div class="ah-alert-msg">${a.message}</div>` +
+                    (a.ritual_name ? `<div class="ah-alert-ritual">Required Ritual: <strong>${a.ritual_name}</strong></div>` : '') +
+                    `<div class="ah-alert-fix">Fix: <code>${a.fix_command}</code></div>` +
+                    `</div>`
+                ).join("");
+        } else {
+            alertsEl.innerHTML = `<div class="ah-section-title ah-alert-title">Ritual Requests</div><div class="ah-none">No alerts — The Village is at peace</div>`;
+        }
+    }
+
+    function updateAutoHealStats(stats) {
+        document.getElementById("ah-scans").textContent = stats.total_scans;
+        document.getElementById("ah-heals").textContent = stats.total_heals;
+        document.getElementById("ah-alerts-count").textContent = stats.total_alerts;
+        const daemonEl = document.getElementById("ah-daemon-status");
+        if (stats.daemon_active) {
+            daemonEl.textContent = "ON";
+            daemonEl.style.color = "#00FF88";
+            document.getElementById("autoheal-toggle-btn").textContent = "Daemon: ON";
+        } else {
+            daemonEl.textContent = "OFF";
+            daemonEl.style.color = "#ff4444";
+        }
+    }
+
+    fetch("/api/harness/autoheal/status").then(r => r.json()).then(data => {
+        updateAutoHealStats(data);
+    }).catch(() => {});
 });
