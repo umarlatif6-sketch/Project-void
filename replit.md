@@ -28,7 +28,7 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 ```
 
 ### Modules
-- **void_engine/compressor.py**: Dual compression using zlib (level 9) and lzma (preset 9). Automatically selects whichever yields smaller output. Tagged output (ZLIB/LZMA prefix) for correct decompression. Also has `compress_bytes()` for raw byte compression (used by Burst mode).
+- **void_engine/compressor.py**: Dual compression using zlib (level 9) and lzma (preset 9). Automatically selects whichever yields smaller output. Tagged output (ZLIB/LZMA prefix) for correct decompression. Also has `compress_bytes()` for raw byte compression (used by Burst mode). Optimized for 1GB on Mac 2012: Memory Guard checks available RAM before loading, Adaptive LZMA skips lzma for files >100MB (use deep=True to override), Progress Pulse prints 10% increments during compression.
 - **void_engine/stega.py**: LSB encoding (depth 1 or 2) into 16-bit WAV files. 64-byte ChaCha20-encrypted header containing magic, filename, data size, MD5 checksum, and nonce. Decode requires the unique Hash Key generated during encoding. Also has `encode_burst()` for Short Burst signal encoding.
 - **void_engine/keep_alive.py**: Flask server on port 8099 with asyncio self-ping every 4 minutes.
 - **void_engine/calculator.py**: Resonance Meter — scans WAV carriers to calculate max payload capacity at LSB depth 1 and 2, estimates resonance limit (distortion threshold), and projects compressed data capacity with zlib/lzma. Accounts for 64-byte header overhead.
