@@ -50,9 +50,10 @@ class ConsensusResult:
     timestamp: float
     energy_pct: float
     outcome: str
+    wallet_snapshot: Optional[Dict] = None
 
     def to_dict(self):
-        return {
+        d = {
             "success": self.success,
             "consensus_command": self.consensus_command,
             "consensus_intent": self.consensus_intent,
@@ -64,6 +65,9 @@ class ConsensusResult:
             "energy_pct": round(self.energy_pct, 1),
             "outcome": self.outcome,
         }
+        if self.wallet_snapshot:
+            d["wallet"] = self.wallet_snapshot
+        return d
 
 
 ENERGY_CAPACITY_WH = 250.0
@@ -86,11 +90,12 @@ GROWTH_THRESHOLDS = {
 
 
 class ConsensusEngine:
-    def __init__(self, simulator, transpiler, boundary_hook, loop_detector):
+    def __init__(self, simulator, transpiler, boundary_hook, loop_detector, wallet=None):
         self._sim = simulator
         self._transpiler = transpiler
         self._boundary_hook = boundary_hook
         self._loop_detector = loop_detector
+        self._wallet = wallet
         self._history: List[ConsensusResult] = []
         self._night_cycle_active = False
         self._night_cycle_thread: Optional[threading.Thread] = None
@@ -146,7 +151,11 @@ class ConsensusEngine:
 
         total_chars = sum(len(t.command) for t in trace) + len(consensus_cmd)
 
-        execution_results = self._execute_consensus(consensus_cmd)
+        execution_results = self._execute_consensus(consensus_cmd, energy_pct)
+
+        wallet_snapshot = None
+        if self._wallet:
+            wallet_snapshot = self._wallet.get_status()
 
         result = ConsensusResult(
             success=all(r.get("executed", False) for r in execution_results) if execution_results else False,
@@ -159,6 +168,7 @@ class ConsensusEngine:
             timestamp=time.time(),
             energy_pct=energy_pct * 100,
             outcome="SLM Achieved" if all(r.get("executed", False) for r in execution_results) else "Partial Consensus",
+            wallet_snapshot=wallet_snapshot,
         )
 
         self._history.append(result)
@@ -315,13 +325,21 @@ class ConsensusEngine:
         elif energy_pct < 0.50:
             parts.append("QDR.M")
 
+        if self._wallet and energy_pct >= 0.60:
+            parts.append("QSB.A")
+
         if pr["internal_pressure_atm"] > 1.05 or fw["temperature_c"] > 42.0:
+            if self._wallet and self._wallet.balance >= 15.0:
+                parts.append("QSB.D")
             parts.append("NFD.A")
 
         if aq["dissolved_oxygen_ppm"] < 6.5 or aq["ammonia_ppm"] > 0.3:
             parts.append("GDH.A")
         else:
             parts.append("GDH.M")
+
+        if self._wallet:
+            parts.append("QSB.V")
 
         parts.append("SLM")
 
@@ -334,6 +352,17 @@ class ConsensusEngine:
             seg = seg.strip()
             if seg == "SLM":
                 parts.append("Achieve safety/peace")
+            elif seg.startswith("QSB"):
+                if ".A" in seg:
+                    parts.append("Harvest excess energy into compute credits")
+                elif ".D" in seg:
+                    parts.append("Purchase cooling/resources with credits")
+                elif ".V" in seg:
+                    parts.append("Audit wallet balance")
+                elif ".M" in seg:
+                    parts.append("Monitor wallet status")
+                else:
+                    parts.append("Wallet operation")
             elif seg.startswith("QDR"):
                 if ".D" in seg:
                     parts.append("Diminish power draw")
@@ -359,7 +388,7 @@ class ConsensusEngine:
 
         return " → ".join(parts)
 
-    def _execute_consensus(self, consensus_cmd: str) -> List[Dict]:
+    def _execute_consensus(self, consensus_cmd: str, energy_pct: float = 0.0) -> List[Dict]:
         result = self._transpiler.transpile(consensus_cmd)
         if not result.success:
             return [{"executed": False, "error": e} for e in result.errors]
@@ -367,6 +396,112 @@ class ConsensusEngine:
         execution_results = []
         for cmd in result.commands:
             action = {"type": cmd.action_type, **cmd.params}
+
+            if cmd.action_type == "wallet_earn" and self._wallet:
+                earn_result = self._wallet.earn(
+                    source=cmd.params.get("source", "flywheel_excess"),
+                    amount=cmd.params.get("amount", 10.0),
+                    energy_pct=energy_pct,
+                    root_command=f"{cmd.root}.{cmd.pattern}",
+                )
+                execution_results.append({
+                    "action": action,
+                    "executed": earn_result.get("earned", False),
+                    "effects": [earn_result.get("reason", f"Earned {earn_result.get('amount', 0)} CC")] if not earn_result.get("earned") else [f"Earned {earn_result['amount']} CC (balance: {earn_result['balance']} CC)"],
+                    "narrative": cmd.narrative,
+                    "root": cmd.root,
+                    "pattern": cmd.pattern,
+                    "wallet_result": earn_result,
+                })
+                continue
+
+            if cmd.action_type == "wallet_spend" and self._wallet:
+                spend_result = self._wallet.spend(
+                    target=cmd.params.get("target", "ln2_refill"),
+                    amount=cmd.params.get("amount"),
+                    root_command=f"{cmd.root}.{cmd.pattern}",
+                )
+                execution_results.append({
+                    "action": action,
+                    "executed": spend_result.get("spent", False),
+                    "effects": [f"Purchased {spend_result.get('target', '')} for {spend_result.get('cost', 0)} CC"] if spend_result.get("spent") else [spend_result.get("reason", "Purchase failed")],
+                    "narrative": cmd.narrative,
+                    "root": cmd.root,
+                    "pattern": cmd.pattern,
+                    "wallet_result": spend_result,
+                })
+                continue
+
+            if cmd.action_type == "wallet_audit" and self._wallet:
+                audit_result = self._wallet.audit()
+                execution_results.append({
+                    "action": action,
+                    "executed": True,
+                    "effects": [f"Balance: {audit_result['balance']} CC | Earned: {audit_result['total_earned']} CC | Spent: {audit_result['total_spent']} CC"],
+                    "narrative": cmd.narrative,
+                    "root": cmd.root,
+                    "pattern": cmd.pattern,
+                    "wallet_result": audit_result,
+                })
+                continue
+
+            if cmd.action_type == "wallet_check_budget" and self._wallet:
+                threshold = cmd.params.get("threshold", 5.0)
+                balance = self._wallet.balance
+                execution_results.append({
+                    "action": action,
+                    "executed": balance >= threshold,
+                    "effects": [f"Budget check: {balance:.1f} CC >= {threshold} CC threshold"] if balance >= threshold else [f"BUDGET LOW: {balance:.1f} CC < {threshold} CC threshold"],
+                    "narrative": cmd.narrative,
+                    "root": cmd.root,
+                    "pattern": cmd.pattern,
+                })
+                continue
+
+            if cmd.action_type == "wallet_status" and self._wallet:
+                status = self._wallet.get_status()
+                execution_results.append({
+                    "action": action,
+                    "executed": True,
+                    "effects": [f"Wallet: {status['balance']} CC | Frozen: {status['frozen']}"],
+                    "narrative": cmd.narrative,
+                    "root": cmd.root,
+                    "pattern": cmd.pattern,
+                    "wallet_result": status,
+                })
+                continue
+
+            if cmd.action_type == "wallet_freeze" and self._wallet:
+                self._wallet.freeze()
+                execution_results.append({
+                    "action": action, "executed": True,
+                    "effects": ["Wallet frozen — critical ops mode"],
+                    "narrative": cmd.narrative, "root": cmd.root, "pattern": cmd.pattern,
+                })
+                continue
+
+            if cmd.action_type == "wallet_unfreeze" and self._wallet:
+                self._wallet.unfreeze()
+                execution_results.append({
+                    "action": action, "executed": True,
+                    "effects": ["Wallet unfrozen — normal ops"],
+                    "narrative": cmd.narrative, "root": cmd.root, "pattern": cmd.pattern,
+                })
+                continue
+
+            if self._wallet:
+                budget_verdict = self._wallet.check_budget(action)
+                if not budget_verdict.approved:
+                    execution_results.append({
+                        "action": action,
+                        "executed": False,
+                        "blocked_by": "wallet",
+                        "narrative": cmd.narrative,
+                        "root": cmd.root,
+                        "pattern": cmd.pattern,
+                        "budget_verdict": budget_verdict.to_dict(),
+                    })
+                    continue
 
             state = self._sim.get_state()
             boundary_check = self._boundary_hook.check_boundaries(state)
@@ -397,6 +532,8 @@ class ConsensusEngine:
             sim_result = self._sim.simulate_action(action)
             if sim_result.get("safe_to_execute"):
                 self._sim.apply_action(action)
+                if self._wallet:
+                    self._wallet.debit(action)
                 execution_results.append({
                     "action": action,
                     "executed": True,

@@ -39,6 +39,7 @@ DEFAULT_BARE_PATTERNS = {
     "flywheel": ["M", "V", "R"],
     "silk": ["M", "V", "R"],
     "pressure": ["M", "V", "I"],
+    "economy": ["V", "M"],
     "system": ["V"],
 }
 
@@ -225,6 +226,18 @@ ROOT_PATTERN_ACTIONS = {
         "D": [("nitrogen_vent", {"vent_rate": 0.3}, "Diminish — reduce pressure via controlled vent")],
         "T": [("sensor_calibrate", {"sensor": "silk_web"}, "Transmit vent status via Silk Web")],
     },
+    "QSB": {
+        "A": [("wallet_earn", {"source": "flywheel_excess", "amount": 10.0}, "Acquire — harvest excess flywheel energy into compute credits")],
+        "I": [("wallet_freeze", {}, "Isolate — freeze wallet spending during critical operations")],
+        "V": [
+            ("wallet_audit", {}, "Verify wallet balance and transaction integrity"),
+            ("wallet_check_budget", {"threshold": 5.0}, "Verify sufficient budget for next operation"),
+        ],
+        "M": [("wallet_status", {}, "Monitor wallet balance and earning rate")],
+        "R": [("wallet_unfreeze", {}, "Restore — unfreeze wallet after critical period")],
+        "D": [("wallet_spend", {"target": "ln2_refill", "amount": 15.0}, "Disburse — purchase LN2 cooling refill")],
+        "T": [("sensor_calibrate", {"sensor": "silk_web"}, "Transmit wallet ledger via Silk Web")],
+    },
     "SLM": {
         "A": None,
         "I": None,
@@ -289,7 +302,7 @@ class AlJabrManifest:
 
     def get_manifest_map(self) -> Dict:
         result = {}
-        for domain in ("aqua", "flywheel", "silk", "pressure", "system"):
+        for domain in ("aqua", "flywheel", "silk", "pressure", "economy", "system"):
             result[domain] = []
             for entry in self._by_domain.get(domain, []):
                 actions = ROOT_PATTERN_ACTIONS.get(entry.root, {})

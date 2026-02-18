@@ -2021,6 +2021,112 @@ document.addEventListener("DOMContentLoaded", () => {
         panel.innerHTML = html;
     }
 
+    async function loadWalletStatus() {
+        try {
+            const res = await fetch("/api/harness/wallet/audit");
+            const data = await res.json();
+            document.getElementById("wallet-balance").textContent = data.balance.toFixed(2) + " CC";
+            document.getElementById("wallet-earned").textContent = data.total_earned.toFixed(2);
+            document.getElementById("wallet-spent").textContent = data.total_spent.toFixed(2);
+            const net = data.net_flow;
+            const netEl = document.getElementById("wallet-net");
+            netEl.textContent = (net >= 0 ? "+" : "") + net.toFixed(2);
+            netEl.className = "wallet-stat-value " + (net >= 0 ? "credit" : "debit");
+            document.getElementById("wallet-denials").textContent = data.budget_denials;
+            const frozenBadge = document.getElementById("wallet-frozen-badge");
+            frozenBadge.style.display = data.frozen ? "block" : "none";
+            const freezeBtn = document.getElementById("wallet-freeze-btn");
+            freezeBtn.textContent = data.frozen ? "QSB.R Unfreeze" : "QSB.I Freeze";
+            if (data.frozen) freezeBtn.classList.add("btn-active"); else freezeBtn.classList.remove("btn-active");
+        } catch(e) {}
+    }
+
+    async function loadWalletLedger() {
+        try {
+            const res = await fetch("/api/harness/wallet/ledger?limit=15");
+            const data = await res.json();
+            const el = document.getElementById("wallet-ledger");
+            if (!data.ledger || data.ledger.length === 0) {
+                el.innerHTML = '<div style="color:#888;font-size:10px;padding:8px;">No transactions yet.</div>';
+                return;
+            }
+            el.innerHTML = data.ledger.reverse().map(tx => {
+                const isCredit = tx.tx_type === "credit" || tx.tx_type === "genesis";
+                const amtClass = isCredit ? "positive" : (tx.amount > 0 ? "negative" : "");
+                const amtStr = tx.amount > 0 ? (isCredit ? "+" : "-") + tx.amount.toFixed(2) : "---";
+                return `<div class="wallet-tx-row">` +
+                    `<span class="wallet-tx-type ${tx.tx_type}">${tx.tx_type}</span>` +
+                    `<span class="wallet-tx-amount ${amtClass}">${amtStr}</span>` +
+                    `<span class="wallet-tx-desc">${tx.description}</span>` +
+                    `<span class="wallet-tx-balance">${tx.balance_after.toFixed(2)} CC</span>` +
+                    (tx.root_command ? `<span style="color:#eab308;font-size:9px;">${tx.root_command}</span>` : '') +
+                    `</div>`;
+            }).join("");
+        } catch(e) {}
+    }
+
+    loadWalletStatus();
+    loadWalletLedger();
+
+    document.getElementById("wallet-earn-btn")?.addEventListener("click", async () => {
+        try {
+            const res = await fetch("/api/harness/wallet/earn", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ source: "flywheel_excess", amount: 10.0 }),
+            });
+            const data = await res.json();
+            if (data.earned) {
+                showToast(`QSB.A Earned ${data.amount} CC from ${data.source}`, "success");
+            } else {
+                showToast(`QSB.A: ${data.reason}`, "error");
+            }
+            loadWalletStatus();
+            loadWalletLedger();
+        } catch(e) { showToast("Error: " + e.message, "error"); }
+    });
+
+    document.getElementById("wallet-spend-btn")?.addEventListener("click", async () => {
+        try {
+            const res = await fetch("/api/harness/wallet/spend", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ target: "ln2_refill" }),
+            });
+            const data = await res.json();
+            if (data.spent) {
+                showToast(`QSB.D Purchased ${data.target} for ${data.cost} CC`, "success");
+            } else {
+                showToast(`QSB.D: ${data.reason}`, "error");
+            }
+            loadWalletStatus();
+            loadWalletLedger();
+        } catch(e) { showToast("Error: " + e.message, "error"); }
+    });
+
+    document.getElementById("wallet-audit-btn")?.addEventListener("click", async () => {
+        try {
+            const res = await fetch("/api/harness/wallet/audit");
+            const data = await res.json();
+            showToast(`QSB.V Audit: ${data.balance} CC | Earned: ${data.total_earned} | Spent: ${data.total_spent} | Denials: ${data.budget_denials}`, "success");
+            loadWalletStatus();
+        } catch(e) { showToast("Error: " + e.message, "error"); }
+    });
+
+    document.getElementById("wallet-freeze-btn")?.addEventListener("click", async () => {
+        try {
+            const res = await fetch("/api/harness/wallet/freeze", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "toggle" }),
+            });
+            const data = await res.json();
+            showToast(data.frozen ? "QSB.I Wallet FROZEN — spending blocked" : "QSB.R Wallet UNFROZEN — spending resumed", data.frozen ? "error" : "success");
+            loadWalletStatus();
+            loadWalletLedger();
+        } catch(e) { showToast("Error: " + e.message, "error"); }
+    });
+
     document.getElementById("consensus-run-btn")?.addEventListener("click", async () => {
         const btn = document.getElementById("consensus-run-btn");
         btn.disabled = true;
@@ -2038,6 +2144,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 showToast("Consensus: " + data.outcome, data.success ? "success" : "error");
             }
             loadHarnessStatus();
+            loadWalletStatus();
+            loadWalletLedger();
         } catch(e) { showToast("Error: " + e.message, "error"); }
         btn.disabled = false;
         btn.textContent = "Run Consensus";
@@ -2124,10 +2232,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     `<span class="dr-root">${er.root || ''}.${er.pattern || ''}</span>` +
                     `<span>${er.narrative || ''}</span>` +
                     (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${er.blocked_by}]</span>` : '') +
+                    (er.wallet_result ? `<span style="color:#eab308;font-size:10px;">[${er.wallet_result.balance != null ? er.wallet_result.balance + ' CC' : ''}]</span>` : '') +
                     `</div>`
                 ).join("");
         } else {
             execEl.innerHTML = "";
+        }
+
+        if (data.wallet) {
+            const walletLine = document.createElement("div");
+            walletLine.style.cssText = "margin-top:8px;padding:6px 10px;background:rgba(234,179,8,0.06);border:1px solid rgba(234,179,8,0.2);border-radius:4px;font-size:11px;font-family:monospace;color:#eab308;";
+            walletLine.innerHTML = `WALLET: ${data.wallet.balance.toFixed(2)} CC | Earned: ${data.wallet.total_earned.toFixed(2)} | Spent: ${data.wallet.total_spent.toFixed(2)}${data.wallet.frozen ? ' | <span style="color:#f87171;">FROZEN</span>' : ''}`;
+            execEl.appendChild(walletLine);
         }
     }
 

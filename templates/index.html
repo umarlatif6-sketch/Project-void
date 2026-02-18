@@ -548,6 +548,31 @@
                 <div id="aljabr-roots-panel" class="aljabr-roots-panel" style="display:none;"></div>
             </div>
 
+            <div class="harness-actions-row wallet-section">
+                <h3>Al-Jabr Wallet — Machine Financial Autonomy</h3>
+                <p class="panel-desc">The Machine Wallet gives the 4000-series economic agency. Agents earn <strong>Compute Credits (CC)</strong> from excess flywheel energy and spend them on cooling, nutrients, and resources. Every action has a cost — if the budget is insufficient, the action is blocked.</p>
+                <div class="wallet-dashboard">
+                    <div class="wallet-balance-card">
+                        <div class="wallet-balance-label">BALANCE</div>
+                        <div id="wallet-balance" class="wallet-balance-value">50.00 CC</div>
+                        <div id="wallet-frozen-badge" class="wallet-frozen-badge" style="display:none;">FROZEN</div>
+                    </div>
+                    <div class="wallet-stats-grid">
+                        <div class="wallet-stat"><span class="wallet-stat-label">Earned</span><span id="wallet-earned" class="wallet-stat-value credit">0.00</span></div>
+                        <div class="wallet-stat"><span class="wallet-stat-label">Spent</span><span id="wallet-spent" class="wallet-stat-value debit">0.00</span></div>
+                        <div class="wallet-stat"><span class="wallet-stat-label">Net Flow</span><span id="wallet-net" class="wallet-stat-value">0.00</span></div>
+                        <div class="wallet-stat"><span class="wallet-stat-label">Denials</span><span id="wallet-denials" class="wallet-stat-value">0</span></div>
+                    </div>
+                </div>
+                <div class="wallet-controls">
+                    <button id="wallet-earn-btn" class="btn-accent">QSB.A Harvest</button>
+                    <button id="wallet-spend-btn" class="btn-secondary">QSB.D Disburse</button>
+                    <button id="wallet-audit-btn" class="btn-secondary">QSB.V Audit</button>
+                    <button id="wallet-freeze-btn" class="btn-secondary">QSB.I Freeze</button>
+                </div>
+                <div id="wallet-ledger" class="wallet-ledger"></div>
+            </div>
+
             <div class="harness-actions-row consensus-section">
                 <h3>Al-Jabr Consensus — Root-Exchange Protocol</h3>
                 <p class="panel-desc">Two agents negotiate the machine's state via root commands. <strong>Agent A</strong> (Guardian) prioritizes preservation. <strong>Agent B</strong> (Growth-Seeker) prioritizes plankton vitality.</p>

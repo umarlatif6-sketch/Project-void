@@ -723,6 +723,11 @@ class VirtualVoidSimulator:
             else:
                 effects.append("No pressure differential to vent")
 
+        elif action_type in ("wallet_earn", "wallet_spend", "wallet_audit",
+                             "wallet_status", "wallet_check_budget",
+                             "wallet_freeze", "wallet_unfreeze"):
+            effects.append(f"Wallet operation: {action_type}")
+
         report = self._checklist.run_checklist(sim_state, action)
 
         result = {

@@ -57,6 +57,10 @@ HFZ | pressure | preservation | Air Curtain protection — seal, shield, contain
 DGT | pressure | pressure/force | Pressure differential — nitrogen, internal/external
 NFD | pressure | exhale/release | Vent and depressurize — nitrogen release
 
+# ─── ECONOMY ROOTS ─────────────────────────────────────────
+
+QSB | economy | acquisition/wealth | Machine Wallet — earning, spending, and auditing compute credits
+
 # ─── SYSTEM ROOTS ───────────────────────────────────────────
 
 SLM | system | safety/peace | Pre-Completion Checklist — full system verification

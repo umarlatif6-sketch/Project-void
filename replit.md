@@ -54,6 +54,14 @@ PROJECT VOID features both a Flask-based web UI and a command-line interface. Th
     - **Safety Integration:** Consensus commands execute through full Harness safety pipeline (BoundaryHook → LoopDetector → PreCompletionChecklist).
     - **Harness Tab UI:** Green-themed Consensus section with Run Consensus button, Night Cycle toggle, Root-Exchange trace table (agent positions, commands, intents), Consensus Command display, and execution results.
     - **API Endpoints:** `POST /api/harness/consensus/run`, `GET /api/harness/consensus/status`, `POST /api/harness/consensus/night-cycle`
+- **Al-Jabr Wallet (Machine Financial Autonomy):**
+    - **QSB Root** (Acquisition/Wealth): 12th trilateral root in the "economy" domain. Patterns: A (Acquire/earn credits), D (Disburse/spend), V (Audit/verify budget), M (Monitor status), I (Freeze wallet), R (Unfreeze wallet), T (Transmit ledger).
+    - **AlJabrWalletMiddleware** (`void_engine/wallet.py`): Virtual wallet tracking Compute Credits (CC). Initial balance 50 CC. Earning model: excess flywheel energy above 60% capacity converted at 1 CC = 5 Wh. Purchase costs: LN2 refill (15 CC), nutrients (3 CC), heavy compute (8 CC), silk repair (10 CC), coolant flush (6 CC).
+    - **Budget Approval Gate:** Every `apply_action` call passes through `check_budget()`. If cost exceeds balance, action blocked with BUDGET_DENIED. Frozen wallet blocks all spending.
+    - **Action Cost Model:** pump_cycle (2 CC), flywheel_boost (3 CC), nutrient_dose (3 CC), air_curtain_activate (5 CC), nitrogen_vent (4 CC), silk_test (1 CC), sensor_calibrate (0.5 CC). Wallet operations are free.
+    - **Consensus Integration:** Agents are wallet-aware — Guardian uses QSB.V to audit before expensive ops, consensus derives QSB.A when energy > 60% (earning), QSB.D when cooling needed and credits available, QSB.V for post-execution audit. All debits tracked in transaction ledger.
+    - **Harness Tab UI:** Gold-themed Wallet section with balance card, stats grid (earned/spent/net/denials), QSB.A Harvest / QSB.D Disburse / QSB.V Audit / QSB.I Freeze buttons, scrollable transaction ledger.
+    - **API Endpoints:** `GET /api/harness/wallet/status`, `GET /api/harness/wallet/audit`, `GET /api/harness/wallet/ledger`, `POST /api/harness/wallet/earn`, `POST /api/harness/wallet/spend`, `POST /api/harness/wallet/freeze`
 
 ## External Dependencies
 -   **Python:** 3.11

@@ -18,6 +18,7 @@ from void_engine.chaos_test import NitrogenLeakChaosTest
 from void_engine.adriana_transpiler import AdrianaTranspiler
 from void_engine.aljabr_transpiler import AlJabrTranspiler
 from void_engine.consensus import ConsensusEngine
+from void_engine.wallet import AlJabrWalletMiddleware
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -504,7 +505,8 @@ _loop_detector = LoopDetectionMiddleware(max_attempts=5)
 _chaos_test = NitrogenLeakChaosTest(_harness_sim, _harness_checklist, _boundary_hook, _loop_detector)
 _adriana = AdrianaTranspiler()
 _aljabr = AlJabrTranspiler()
-_consensus = ConsensusEngine(_harness_sim, _aljabr, _boundary_hook, _loop_detector)
+_wallet = AlJabrWalletMiddleware(initial_balance=50.0)
+_consensus = ConsensusEngine(_harness_sim, _aljabr, _boundary_hook, _loop_detector, wallet=_wallet)
 
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
@@ -1075,6 +1077,57 @@ def consensus_night_cycle():
             result = _consensus.start_night_cycle(interval)
 
     return jsonify(result)
+
+
+@app.route("/api/harness/wallet/status")
+def wallet_status():
+    return jsonify(_wallet.get_status())
+
+
+@app.route("/api/harness/wallet/audit")
+def wallet_audit():
+    return jsonify(_wallet.audit())
+
+
+@app.route("/api/harness/wallet/ledger")
+def wallet_ledger():
+    limit = request.args.get("limit", 20, type=int)
+    return jsonify({"ledger": _wallet.get_ledger(limit)})
+
+
+@app.route("/api/harness/wallet/earn", methods=["POST"])
+def wallet_earn():
+    data = request.json or {}
+    source = data.get("source", "flywheel_excess")
+    amount = data.get("amount", 10.0)
+    state = _harness_sim.get_state()
+    energy_pct = state["flywheel"]["energy_reserve_wh"] / 250.0
+    result = _wallet.earn(source, amount, energy_pct, root_command="QSB.A")
+    return jsonify(result)
+
+
+@app.route("/api/harness/wallet/spend", methods=["POST"])
+def wallet_spend():
+    data = request.json or {}
+    target = data.get("target", "ln2_refill")
+    amount = data.get("amount")
+    result = _wallet.spend(target, amount, root_command="QSB.D")
+    return jsonify(result)
+
+
+@app.route("/api/harness/wallet/freeze", methods=["POST"])
+def wallet_freeze():
+    data = request.json or {}
+    action = data.get("action", "toggle")
+    if action == "freeze":
+        return jsonify(_wallet.freeze())
+    elif action == "unfreeze":
+        return jsonify(_wallet.unfreeze())
+    else:
+        if _wallet.frozen:
+            return jsonify(_wallet.unfreeze())
+        else:
+            return jsonify(_wallet.freeze())
 
 
 _start_time = __import__("time").time()
