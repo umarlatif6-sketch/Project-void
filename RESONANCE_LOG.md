@@ -149,3 +149,37 @@ Date:
 Duration:
 Observations:
 ```
+### 2026-02-18 00:13:31 — burst_2eb529f9.wav
+
+| Metric | Value |
+|---|---|
+| Duration | 5.0s |
+| Channels | 1 |
+| Sample Rate | 44,100 Hz |
+| Total Samples | 220,500 |
+| LSB1 Max Capacity | 26.9 KB |
+| LSB1 Resonance Limit | 6.7 KB |
+| LSB1 Est. Real Data | ~20.1 KB to ~33.6 KB |
+| LSB2 Max Capacity | 53.8 KB |
+| LSB2 Resonance Limit | 8.1 KB |
+| LSB2 Est. Real Data | ~24.2 KB to ~40.3 KB |
+
+---
+
+### 2026-02-18 00:13:42 — test_432Hz_drone.wav [432 Hz BOOSTED]
+
+| Metric | Value |
+|---|---|
+| Duration | 5.0s |
+| Channels | 1 |
+| Sample Rate | 44,100 Hz |
+| Total Samples | 220,500 |
+| LSB1 Max Capacity | 26.9 KB |
+| LSB1 Resonance Limit | 8.1 KB |
+| LSB1 Est. Real Data | ~24.2 KB to ~40.3 KB |
+| LSB2 Max Capacity | 53.8 KB |
+| LSB2 Resonance Limit | 8.1 KB |
+| LSB2 Est. Real Data | ~24.2 KB to ~40.3 KB |
+
+---
+

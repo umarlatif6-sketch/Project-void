@@ -4,7 +4,7 @@ import sys
 from void_engine.compressor import compress_file, decompress_data
 from void_engine.stega import encode, decode
 from void_engine.keep_alive import start_pulse
-from void_engine.calculator import analyze_carrier, print_analysis
+from void_engine.calculator import analyze_carrier, print_analysis, append_to_log
 
 BANNER = r"""
  ╔══════════════════════════════════════════════════════════╗
@@ -180,6 +180,7 @@ def capacity_flow():
     try:
         info = analyze_carrier(wav_file)
         print_analysis(info)
+        append_to_log(info)
     except Exception as e:
         print(f"\n  [ERROR] {e}")
 

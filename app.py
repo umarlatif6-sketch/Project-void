@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 
 from void_engine.compressor import compress_file, decompress_data
 from void_engine.stega import encode, decode, encode_burst
-from void_engine.calculator import analyze_carrier
+from void_engine.calculator import analyze_carrier, append_to_log
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "void-engine-dev-key")
@@ -185,6 +185,7 @@ def check_capacity():
 
     try:
         info = analyze_carrier(filepath)
+        append_to_log(info)
         return jsonify({"success": True, **info})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
