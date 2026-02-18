@@ -6,13 +6,15 @@ import lzma
 import wave
 import hashlib
 import tracemalloc
+import datetime
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from void_engine.stega import (
     encode, decode, _generate_jitter_map, _compute_ghost_offset,
-    _derive_key, _build_header, HEADER_SIZE, JITTER_FLAG_BIT
+    _derive_key, _build_header, check_resonance_purity,
+    HEADER_SIZE, JITTER_FLAG_BIT
 )
 from void_engine.compressor import decompress_data
 
@@ -21,6 +23,7 @@ COOLING_THRESHOLD = 50 * 1024 * 1024
 COOLING_PAUSE = 2.0
 VILLAGE_HZ = 432
 SAMPLE_RATE = 44100
+RESONANCE_LOG = "RESONANCE_LOG.md"
 
 
 def _format_size(n: int) -> str:
@@ -88,7 +91,26 @@ def _generate_carrier(duration_seconds: float, output_path: str) -> str:
     return output_path
 
 
-def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_void.wav"):
+def generate_ocean_payload(size_bytes: int, output_path: str) -> str:
+    rng = np.random.RandomState(432)
+    remaining = size_bytes
+    with open(output_path, "wb") as f:
+        while remaining > 0:
+            block_size = min(remaining, CHUNK_SIZE)
+            block = rng.bytes(block_size)
+            f.write(block)
+            remaining -= block_size
+    print(f"  [OCEAN] Synthetic payload generated: {_format_size(size_bytes)} → {output_path}")
+    return output_path
+
+
+def _append_resonance_log(entry: str):
+    with open(RESONANCE_LOG, "a") as f:
+        f.write("\n" + entry + "\n")
+
+
+def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_void.wav",
+                  carrier_path_override: str = None):
     if not os.path.exists(media_path):
         print(f"  [ERROR] File not found: {media_path}")
         return
@@ -96,9 +118,10 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
     file_size = os.path.getsize(media_path)
     file_name = os.path.basename(media_path)
     name, ext = os.path.splitext(file_name)
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     print("=" * 70)
-    print("  VOID MEDIA BENCHMARK — Sapphire Pipeline Test")
+    print("  VOID MEDIA BENCHMARK — Deep Sea Stress Test")
     print("=" * 70)
     print(f"  Input File:    {file_name}")
     print(f"  File Size:     {_format_size(file_size)}")
@@ -146,38 +169,54 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
     header = _build_header(name, ext, len(compressed), checksum, key, jitter=True)
     total_payload = len(header) + len(compressed)
 
-    ghost_carrier_samples = total_payload * 8 * 4
-    carrier_duration = ghost_carrier_samples / SAMPLE_RATE
-    carrier_duration = max(carrier_duration, 5.0)
-
     print(f"    Header Size:      {HEADER_SIZE} bytes (ChaCha20 encrypted)")
     print(f"    Payload Size:     {_format_size(len(compressed))}")
     print(f"    Total Embedded:   {_format_size(total_payload)}")
     print(f"    Hash Key:         {passphrase[:8]}...{passphrase[-4:]}")
     print()
 
-    print("  PHASE 3: CARRIER GENERATION (432 Hz Village Standard)")
-    print("  " + "-" * 50)
+    use_existing_carrier = carrier_path_override and os.path.exists(carrier_path_override)
 
-    carrier_path = output_wav + ".tmp_carrier.wav"
-    t_carrier_start = time.perf_counter()
-    _generate_carrier(carrier_duration, carrier_path)
-    t_carrier_end = time.perf_counter()
+    if use_existing_carrier:
+        carrier_path = carrier_path_override
+        print("  PHASE 3: CARRIER LOADING (Existing 432 Hz WAV)")
+        print("  " + "-" * 50)
 
-    carrier_size = os.path.getsize(carrier_path)
-    carrier_samples = int(SAMPLE_RATE * carrier_duration)
+        with wave.open(carrier_path, "rb") as wf:
+            carrier_samples = wf.getnframes()
+            sr = wf.getframerate()
+            carrier_duration = carrier_samples / sr
+
+        carrier_size = os.path.getsize(carrier_path)
+    else:
+        print("  PHASE 3: CARRIER GENERATION (432 Hz Village Standard)")
+        print("  " + "-" * 50)
+
+        ghost_carrier_samples = total_payload * 8 * 4
+        carrier_duration = ghost_carrier_samples / SAMPLE_RATE
+        carrier_duration = max(carrier_duration, 5.0)
+
+        carrier_path = output_wav + ".tmp_carrier.wav"
+        t_carrier_start = time.perf_counter()
+        _generate_carrier(carrier_duration, carrier_path)
+        t_carrier_end = time.perf_counter()
+
+        carrier_size = os.path.getsize(carrier_path)
+        carrier_samples = int(SAMPLE_RATE * carrier_duration)
+        sr = SAMPLE_RATE
+
+        print(f"    Generation Time:  {_format_time(t_carrier_end - t_carrier_start)}")
 
     ghost_offset = _compute_ghost_offset(passphrase, carrier_samples)
 
     print(f"    Duration:         {carrier_duration:.1f}s")
-    print(f"    Sample Rate:      {SAMPLE_RATE} Hz")
+    print(f"    Sample Rate:      {sr} Hz")
     print(f"    Carrier Size:     {_format_size(carrier_size)}")
     print(f"    Total Samples:    {carrier_samples:,}")
     print(f"    Ghost Offset:     {ghost_offset:,} samples")
-    print(f"    Generation Time:  {_format_time(t_carrier_end - t_carrier_start)}")
     print()
 
-    print("  PHASE 4: FLY JITTER PACKETIZING")
+    print("  PHASE 4: PLANKTON FRAGMENTATION (Fly Jitter)")
     print("  " + "-" * 50)
 
     bits_per_sample = 1
@@ -188,26 +227,49 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
     jitter_map = _generate_jitter_map(passphrase, data_samples, data_start, carrier_samples)
 
     print(f"    Data Samples:     {data_samples:,}")
-    print(f"    Fragment Count:   {len(jitter_map)} Fly packets")
+    print(f"    Fragment Count:   {len(jitter_map)} Plankton packets")
+    print()
 
+    plankton_lines = []
     if len(jitter_map) > 1:
         chunk_sizes = [s for _, s in jitter_map]
         gaps = [jitter_map[i+1][0] - (jitter_map[i][0] + jitter_map[i][1]) for i in range(len(jitter_map)-1)]
-        print(f"    Chunk Sizes:      min={min(chunk_sizes):,} / max={max(chunk_sizes):,} / avg={sum(chunk_sizes)//len(chunk_sizes):,}")
-        print(f"    Gap Sizes:        min={min(gaps):,} / max={max(gaps):,} / avg={sum(gaps)//len(gaps):,}")
+
+        print(f"    {'#':>4}  {'Offset':>10}  {'Size':>8}  {'Gap→Next':>10}  {'Depth':>8}")
+        print(f"    {'—'*4}  {'—'*10}  {'—'*8}  {'—'*10}  {'—'*8}")
+
+        for i, (offset, size) in enumerate(jitter_map):
+            gap_str = f"{gaps[i]:,}" if i < len(gaps) else "—"
+            depth_pct = f"{(offset / carrier_samples) * 100:.1f}%"
+            line = f"    {i+1:>4}  {offset:>10,}  {size:>8,}  {gap_str:>10}  {depth_pct:>8}"
+            print(line)
+            plankton_lines.append(f"| {i+1} | {offset:,} | {size:,} | {gap_str} | {depth_pct} |")
+
+        print()
+        print(f"    Chunk Stats:      min={min(chunk_sizes):,} / max={max(chunk_sizes):,} / avg={sum(chunk_sizes)//len(chunk_sizes):,}")
+        print(f"    Gap Stats:        min={min(gaps):,} / max={max(gaps):,} / avg={sum(gaps)//len(gaps):,}")
         print(f"    Scatter Range:    {jitter_map[0][0]:,} → {jitter_map[-1][0] + jitter_map[-1][1]:,} samples")
+        print(f"    Coverage:         {((jitter_map[-1][0] + jitter_map[-1][1]) - jitter_map[0][0]):,} samples span")
     else:
         print(f"    Mode:             Sequential (carrier too full for jitter)")
+        plankton_lines.append("| 1 | Sequential | All | — | — |")
     print()
 
     print("  PHASE 5: FULL ENCODE (Sapphire WAV)")
     print("  " + "-" * 50)
+
+    encode_success = False
+    integrity = "UNTESTED"
+    purity = {}
+    surface_tension = 0
+    decoded_name = ""
 
     t_encode_start = time.perf_counter()
     try:
         returned_key = encode(carrier_path, compressed, name, ext, output_wav,
                               lsb_depth=1, passphrase=passphrase, jitter=True)
         t_encode_end = time.perf_counter()
+        encode_success = True
 
         output_size = os.path.getsize(output_wav)
         effective_capacity = ((carrier_samples - ghost_offset) * bits_per_sample) // 8
@@ -218,7 +280,19 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
         print(f"    Output Size:      {_format_size(output_size)}")
         print()
 
-        print("  PHASE 6: DECODE VERIFICATION")
+        print("  PHASE 6: RESONANCE PURITY (FFT Analysis)")
+        print("  " + "-" * 50)
+
+        purity = check_resonance_purity(output_wav)
+        print(f"    432 Hz Signal:    {purity.get('snr_db', 0):.1f} dB SNR")
+        print(f"    864 Hz Harmonic:  {'Present' if purity.get('harmonic_2_present', False) else 'Absent'}")
+        print(f"    Quality Grade:    {purity.get('quality', 'Unknown')}")
+        if purity.get('warning'):
+            print(f"    WARNING:          {purity['warning']}")
+        print(f"    Verdict:          {'432 Hz SURVIVED encoding — Surface Tension held' if purity.get('quality') in ('Clear', 'Acceptable') else '432 Hz degraded — Bubble membrane stressed'}")
+        print()
+
+        print("  PHASE 7: DECODE VERIFICATION")
         print("  " + "-" * 50)
 
         t_decode_start = time.perf_counter()
@@ -238,37 +312,90 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
 
     except Exception as e:
         t_encode_end = time.perf_counter()
-        print(f"    [ERROR] Encode failed: {e}")
-        surface_tension = 0
+        print(f"    [ERROR] Pipeline failed: {e}")
         print()
 
-    if os.path.exists(carrier_path):
+    if not use_existing_carrier and os.path.exists(carrier_path):
         os.remove(carrier_path)
 
+    if surface_tension < 0.25:
+        bubble_status = "SAFE — bubble holds firm"
+    elif surface_tension < 0.90:
+        bubble_status = "STRETCH — membrane under tension"
+    else:
+        bubble_status = "BURST — exceeding membrane capacity"
+
     print("=" * 70)
-    print("  BENCHMARK SUMMARY")
+    print("  DEEP SEA BENCHMARK SUMMARY")
     print("=" * 70)
     print(f"  Input:              {file_name} ({_format_size(file_size)})")
     print(f"  Compression:        {winner} won ({_format_time(win_time)}, peak {_format_size(int(win_peak))})")
+    print(f"  LZMA CPU Time:      {_format_time(lzma_time)}")
     print(f"  Compressed Size:    {_format_size(len(compressed))}")
-    print(f"  Fly Fragments:      {len(jitter_map)} packets")
+    print(f"  Plankton Fragments: {len(jitter_map)} packets")
     print(f"  Surface Tension:    {surface_tension:.4f} ({surface_tension * 100:.2f}%)")
+    print(f"  Resonance Purity:   {purity.get('quality', 'N/A')} ({purity.get('snr_db', 0):.1f} dB)")
+    print(f"  Integrity:          {integrity}")
     print(f"  Output:             {output_wav}")
-    if surface_tension < 0.25:
-        print(f"  Bubble Status:      SAFE — bubble holds firm")
-    elif surface_tension < 0.90:
-        print(f"  Bubble Status:      STRETCH — membrane under tension")
-    else:
-        print(f"  Bubble Status:      BURST — exceeding membrane capacity")
+    print(f"  Bubble Status:      {bubble_status}")
     print("=" * 70)
+
+    log_entry = f"""### {timestamp} — DEEP SEA STRESS TEST: {file_name}
+
+| Metric | Value |
+|---|---|
+| Input File | {file_name} |
+| Input Size | {_format_size(file_size)} |
+| Compression Winner | {winner} ({_format_time(win_time)}) |
+| ZLIB Result | {_format_size(len(zlib_result))} in {_format_time(zlib_time)} |
+| LZMA Result | {_format_size(len(lzma_result))} in {_format_time(lzma_time)} |
+| LZMA Peak Memory | {_format_size(int(lzma_peak))} |
+| Compressed Size | {_format_size(len(compressed))} |
+| Ghost Offset | {ghost_offset:,} samples |
+| Plankton Fragments | {len(jitter_map)} packets |
+| Surface Tension | {surface_tension:.4f} ({surface_tension * 100:.2f}%) |
+| Bubble Status | {bubble_status} |
+| Resonance Purity | {purity.get('quality', 'N/A')} ({purity.get('snr_db', 0):.1f} dB SNR) |
+| Integrity | {integrity} |
+| Output File | {output_wav} |
+| Carrier | {os.path.basename(carrier_path)} |
+
+#### Plankton Map (Fragment Offsets)
+
+| # | Offset | Size | Gap→Next | Depth |
+|---|---|---|---|---|
+{chr(10).join(plankton_lines)}
+
+---"""
+
+    _append_resonance_log(log_entry)
+    print()
+    print(f"  [LOG] Results appended to {RESONANCE_LOG}")
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python -m void_engine.media_bench <media_file> [output_wav]")
-        print("Example: python -m void_engine.media_bench input_files/test_image.bmp")
+        print("Usage:")
+        print("  python -m void_engine.media_bench <media_file> [output_wav] [carrier_wav]")
+        print("  python -m void_engine.media_bench --ocean <size_kb> [output_wav] [carrier_wav]")
+        print()
+        print("Examples:")
+        print("  python -m void_engine.media_bench input_files/test_image.bmp")
+        print("  python -m void_engine.media_bench input_files/photo.jpg output_audio/deep_test.wav input_files/ambient_drone_60s.wav")
+        print("  python -m void_engine.media_bench --ocean 100 output_audio/ocean_test.wav input_files/ambient_drone_60s.wav")
         sys.exit(1)
 
-    media_file = sys.argv[1]
-    output = sys.argv[2] if len(sys.argv) > 2 else "output_audio/media_test_void.wav"
-    run_benchmark(media_file, output)
+    if sys.argv[1] == "--ocean":
+        size_kb = int(sys.argv[2]) if len(sys.argv) > 2 else 50
+        size_bytes = size_kb * 1024
+        ocean_path = f"input_files/ocean_payload_{size_kb}kb.bin"
+        generate_ocean_payload(size_bytes, ocean_path)
+        media_file = ocean_path
+        output = sys.argv[3] if len(sys.argv) > 3 else "output_audio/ocean_stress_test.wav"
+        carrier = sys.argv[4] if len(sys.argv) > 4 else None
+    else:
+        media_file = sys.argv[1]
+        output = sys.argv[2] if len(sys.argv) > 2 else "output_audio/media_test_void.wav"
+        carrier = sys.argv[3] if len(sys.argv) > 3 else None
+
+    run_benchmark(media_file, output, carrier_path_override=carrier)

@@ -209,3 +209,97 @@ Observations:
 | 2026-02-18 02:59:22 | SILK_SIGNAL | heartbeat_432Hz.wav | ...ba64 | signal=HEARTBEAT |
 | 2026-02-18 05:00:55 | SILK_SIGNAL | heartbeat_432Hz.wav | ...548e | signal=HEARTBEAT |
 | 2026-02-18 05:40:08 | SILK_SIGNAL | heartbeat_432Hz.wav | ...ca41 | signal=HEARTBEAT |
+
+### 2026-02-18 05:43:47 — DEEP SEA STRESS TEST: ocean_payload_50kb.bin
+
+| Metric | Value |
+|---|---|
+| Input File | ocean_payload_50kb.bin |
+| Input Size | 50.00 KB |
+| Compression Winner | ZLIB (2.2ms) |
+| ZLIB Result | 50.03 KB in 2.2ms |
+| LZMA Result | 50.06 KB in 55.0ms |
+| LZMA Peak Memory | 681.12 MB |
+| Compressed Size | 50.03 KB |
+| Ghost Offset | 170,903 samples |
+| Plankton Fragments | 20 packets |
+| Surface Tension | 0.1658 (16.58%) |
+| Bubble Status | SAFE — bubble holds firm |
+| Resonance Purity | Clear (31.1 dB SNR) |
+| Integrity | VERIFIED |
+| Output File | output_audio/ocean_stress_test.wav |
+| Carrier | ambient_drone_60s.wav |
+
+#### Plankton Map (Fragment Offsets)
+
+| # | Offset | Size | Gap→Next | Depth |
+|---|---|---|---|---|
+| 1 | 290,913 | 3,146 | 139 | 11.0% |
+| 2 | 294,198 | 4,262 | 5,034 | 11.1% |
+| 3 | 303,494 | 13,145 | 112,305 | 11.5% |
+| 4 | 428,944 | 52,559 | 84,295 | 16.2% |
+| 5 | 565,798 | 7,287 | 33,015 | 21.4% |
+| 6 | 606,100 | 92,321 | 130,029 | 22.9% |
+| 7 | 828,450 | 3,179 | 180,229 | 31.3% |
+| 8 | 1,011,858 | 25,278 | 207,544 | 38.2% |
+| 9 | 1,244,680 | 300 | 76,428 | 47.0% |
+| 10 | 1,321,408 | 22,041 | 25,414 | 49.9% |
+| 11 | 1,368,863 | 8,234 | 172,167 | 51.7% |
+| 12 | 1,549,264 | 2,458 | 41,127 | 58.6% |
+| 13 | 1,592,849 | 1,675 | 37,352 | 60.2% |
+| 14 | 1,631,876 | 6,552 | 161,958 | 61.7% |
+| 15 | 1,800,386 | 21,943 | 352,567 | 68.0% |
+| 16 | 2,174,896 | 19,950 | 17,714 | 82.2% |
+| 17 | 2,212,560 | 13,936 | 101,022 | 83.6% |
+| 18 | 2,327,518 | 55,705 | 95,106 | 88.0% |
+| 19 | 2,478,329 | 44,372 | 9,709 | 93.7% |
+| 20 | 2,532,410 | 11,497 | — | 95.7% |
+
+---
+
+### 2026-02-18 05:44:03 — DEEP SEA STRESS TEST: test_image.bmp
+
+| Metric | Value |
+|---|---|
+| Input File | test_image.bmp |
+| Input Size | 3.05 KB |
+| Compression Winner | ZLIB (1.7ms) |
+| ZLIB Result | 2.23 KB in 1.7ms |
+| LZMA Result | 2.70 KB in 41.3ms |
+| LZMA Peak Memory | 681.08 MB |
+| Compressed Size | 2.23 KB |
+| Ghost Offset | 345,553 samples |
+| Plankton Fragments | 20 packets |
+| Surface Tension | 0.0082 (0.82%) |
+| Bubble Status | SAFE — bubble holds firm |
+| Resonance Purity | Clear (31.1 dB SNR) |
+| Integrity | VERIFIED |
+| Output File | output_audio/deep_sea_image.wav |
+| Carrier | ambient_drone_60s.wav |
+
+#### Plankton Map (Fragment Offsets)
+
+| # | Offset | Size | Gap→Next | Depth |
+|---|---|---|---|---|
+| 1 | 358,569 | 326 | 158,412 | 13.6% |
+| 2 | 517,307 | 950 | 67,082 | 19.6% |
+| 3 | 585,339 | 159 | 33,902 | 22.1% |
+| 4 | 619,400 | 1,001 | 314,573 | 23.4% |
+| 5 | 934,974 | 944 | 14,764 | 35.3% |
+| 6 | 950,682 | 651 | 73,758 | 35.9% |
+| 7 | 1,025,091 | 702 | 22,145 | 38.7% |
+| 8 | 1,047,938 | 210 | 175,951 | 39.6% |
+| 9 | 1,224,099 | 3,668 | 158,845 | 46.3% |
+| 10 | 1,386,612 | 263 | 115,261 | 52.4% |
+| 11 | 1,502,136 | 175 | 36,386 | 56.8% |
+| 12 | 1,538,697 | 718 | 194,743 | 58.2% |
+| 13 | 1,734,158 | 975 | 18,540 | 65.5% |
+| 14 | 1,753,673 | 50 | 25,126 | 66.3% |
+| 15 | 1,778,849 | 541 | 87,780 | 67.2% |
+| 16 | 1,867,170 | 803 | 53,932 | 70.6% |
+| 17 | 1,921,905 | 1,420 | 186,944 | 72.6% |
+| 18 | 2,110,269 | 4,581 | 319,300 | 79.8% |
+| 19 | 2,434,150 | 13 | 10,759 | 92.0% |
+| 20 | 2,444,922 | 154 | — | 92.4% |
+
+---
