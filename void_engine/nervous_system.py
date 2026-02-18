@@ -110,6 +110,8 @@ Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
                 sections["aqua"].append(line)
             elif "flywheel" in sid.lower() or "rpm" in sid.lower() or "energy" in sid.lower():
                 sections["flywheel"].append(line)
+            elif "pressure" in sid.lower() or "air_curtain" in sid.lower() or "nitrogen" in sid.lower() or "seal" in sid.lower():
+                sections.setdefault("pressure", []).append(line)
             else:
                 sections["other"].append(line)
 
@@ -120,6 +122,8 @@ Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
             blocks.append("AQUAPONICS STATE:\n" + "\n".join(sections["aqua"]))
         if sections["flywheel"]:
             blocks.append("FLYWHEEL STATE:\n" + "\n".join(sections["flywheel"]))
+        if sections.get("pressure"):
+            blocks.append("PRESSURE / AC LOBBY STATE:\n" + "\n".join(sections["pressure"]))
         if sections["other"]:
             blocks.append("OTHER SENSORS:\n" + "\n".join(sections["other"]))
 
@@ -196,6 +200,27 @@ BOUNDARY_RULES = [
         "max_value": 0.5,
         "message": "Ammonia levels toxic. Fish and plankton at immediate risk.",
         "reconsider": "Emergency water change (25%). Check biofilter. Reduce feeding. Do NOT cycle pumps faster — that won't fix ammonia.",
+    },
+    {
+        "name": "pressure_high",
+        "sensor_pattern": "pressure_internal",
+        "max_value": 1.5,
+        "message": "Internal pressure exceeding safe atmospheric limit. Nitrogen boil likely.",
+        "reconsider": "Activate Air Curtain immediately (velocity >= 10 m/s). If already active, increase velocity. Check nitrogen supply valve for leaks.",
+    },
+    {
+        "name": "pressure_seal_breach",
+        "sensor_pattern": "pressure_internal",
+        "max_value": 1.8,
+        "message": "SEAL BREACH: Pressure has exceeded containment limit. Immediate action required.",
+        "reconsider": "Emergency nitrogen vent. Activate Air Curtain at maximum velocity. Evacuate sensitive equipment from pressure zone.",
+    },
+    {
+        "name": "air_curtain_insufficient",
+        "sensor_pattern": "air_curtain_velocity",
+        "min_value": 10.0,
+        "message": "Air Curtain velocity below minimum effective threshold.",
+        "reconsider": "Increase Air Curtain fan speed. Check power supply to curtain motor. Verify Flywheel energy is sufficient to sustain curtain operation.",
     },
 ]
 

@@ -69,6 +69,16 @@ class ChecklistReport:
         }
 
 
+PRESSURE_DEFAULTS = {
+    "internal_pressure_max_atm": 1.5,
+    "internal_pressure_warn_atm": 1.3,
+    "external_pressure_nominal_atm": 1.0,
+    "differential_max_atm": 0.5,
+    "air_curtain_min_velocity_ms": 10.0,
+    "nitrogen_boil_rate_max": 0.3,
+    "seal_breach_threshold_atm": 1.8,
+}
+
 AQUAPONICS_DEFAULTS = {
     "pump_cycle_max_per_hour": 12,
     "ph_min": 6.0,
@@ -100,10 +110,11 @@ SILK_WIRING_DEFAULTS = {
 
 
 class PreCompletionChecklistMiddleware:
-    def __init__(self, aqua_params=None, flywheel_params=None, silk_params=None):
+    def __init__(self, aqua_params=None, flywheel_params=None, silk_params=None, pressure_params=None):
         self.aqua = {**AQUAPONICS_DEFAULTS, **(aqua_params or {})}
         self.flywheel = {**FLYWHEEL_DEFAULTS, **(flywheel_params or {})}
         self.silk = {**SILK_WIRING_DEFAULTS, **(silk_params or {})}
+        self.pressure = {**PRESSURE_DEFAULTS, **(pressure_params or {})}
         self._history: List[ChecklistReport] = []
         self._max_history = 100
 
@@ -116,6 +127,7 @@ class PreCompletionChecklistMiddleware:
         checks.extend(self._check_aquaponics(sensor_state.get("aquaponics", {}), proposed_action))
         checks.extend(self._check_flywheel(sensor_state.get("flywheel", {})))
         checks.extend(self._check_silk(sensor_state.get("silk_wiring", {})))
+        checks.extend(self._check_pressure(sensor_state.get("pressure", {})))
 
         has_fail = any(c.verdict == Verdict.FAIL for c in checks)
         has_reconsider = any(c.verdict == Verdict.RECONSIDER for c in checks)
@@ -484,6 +496,105 @@ class PreCompletionChecklistMiddleware:
 
         return results
 
+    def _check_pressure(self, pressure_state: Dict) -> List[CheckResult]:
+        results = []
+
+        internal = pressure_state.get("internal_pressure_atm")
+        external = pressure_state.get("external_pressure_atm")
+        air_curtain = pressure_state.get("air_curtain_velocity_ms")
+        seal_threshold = self.pressure["seal_breach_threshold_atm"]
+
+        if internal is not None:
+            if internal >= seal_threshold:
+                results.append(CheckResult(
+                    name="pressure_seal_breach",
+                    verdict=Verdict.FAIL,
+                    severity=Severity.CRITICAL,
+                    message=f"SEAL BREACH IMMINENT: Internal pressure {internal:.2f} atm exceeds breach threshold ({seal_threshold} atm). Emergency vent required.",
+                    value=internal,
+                    threshold=seal_threshold,
+                ))
+            elif internal >= self.pressure["internal_pressure_max_atm"]:
+                results.append(CheckResult(
+                    name="pressure_high",
+                    verdict=Verdict.FAIL,
+                    severity=Severity.CRITICAL,
+                    message=f"HIGH PRESSURE: Internal pressure {internal:.2f} atm exceeds max ({self.pressure['internal_pressure_max_atm']} atm). Activate Air Curtain.",
+                    value=internal,
+                    threshold=self.pressure["internal_pressure_max_atm"],
+                ))
+            elif internal >= self.pressure["internal_pressure_warn_atm"]:
+                results.append(CheckResult(
+                    name="pressure_warning",
+                    verdict=Verdict.RECONSIDER,
+                    severity=Severity.WARNING,
+                    message=f"Pressure building: {internal:.2f} atm approaching limit ({self.pressure['internal_pressure_max_atm']} atm). Monitor nitrogen boil rate.",
+                    value=internal,
+                    threshold=self.pressure["internal_pressure_warn_atm"],
+                ))
+            else:
+                results.append(CheckResult(
+                    name="pressure_internal",
+                    verdict=Verdict.PASS,
+                    severity=Severity.INFO,
+                    message=f"Internal pressure {internal:.2f} atm nominal.",
+                    value=internal,
+                    threshold=self.pressure["internal_pressure_max_atm"],
+                ))
+
+        if internal is not None and external is not None:
+            differential = abs(internal - external)
+            if differential > self.pressure["differential_max_atm"]:
+                results.append(CheckResult(
+                    name="pressure_differential",
+                    verdict=Verdict.RECONSIDER,
+                    severity=Severity.WARNING,
+                    message=f"Pressure differential {differential:.2f} atm exceeds safe limit ({self.pressure['differential_max_atm']} atm). Air Curtain should compensate.",
+                    value=differential,
+                    threshold=self.pressure["differential_max_atm"],
+                ))
+            else:
+                results.append(CheckResult(
+                    name="pressure_differential",
+                    verdict=Verdict.PASS,
+                    severity=Severity.INFO,
+                    message=f"Pressure differential {differential:.2f} atm within limits.",
+                    value=differential,
+                    threshold=self.pressure["differential_max_atm"],
+                ))
+
+        if air_curtain is not None and internal is not None:
+            needs_curtain = internal > self.pressure["internal_pressure_warn_atm"]
+            if needs_curtain and air_curtain < self.pressure["air_curtain_min_velocity_ms"]:
+                results.append(CheckResult(
+                    name="air_curtain_velocity",
+                    verdict=Verdict.FAIL,
+                    severity=Severity.CRITICAL,
+                    message=f"Air Curtain velocity {air_curtain:.1f} m/s insufficient (need >= {self.pressure['air_curtain_min_velocity_ms']} m/s) while pressure elevated at {internal:.2f} atm.",
+                    value=air_curtain,
+                    threshold=self.pressure["air_curtain_min_velocity_ms"],
+                ))
+            elif not needs_curtain:
+                results.append(CheckResult(
+                    name="air_curtain_velocity",
+                    verdict=Verdict.PASS,
+                    severity=Severity.INFO,
+                    message=f"Air Curtain at {air_curtain:.1f} m/s. Pressure nominal — curtain on standby.",
+                    value=air_curtain,
+                    threshold=self.pressure["air_curtain_min_velocity_ms"],
+                ))
+            else:
+                results.append(CheckResult(
+                    name="air_curtain_velocity",
+                    verdict=Verdict.PASS,
+                    severity=Severity.INFO,
+                    message=f"Air Curtain active at {air_curtain:.1f} m/s. Venting pressure differential.",
+                    value=air_curtain,
+                    threshold=self.pressure["air_curtain_min_velocity_ms"],
+                ))
+
+        return results
+
     def get_history(self, limit: int = 20) -> List[Dict]:
         return [r.to_dict() for r in self._history[-limit:]]
 
@@ -492,10 +603,11 @@ class PreCompletionChecklistMiddleware:
             "aquaponics": self.aqua,
             "flywheel": self.flywheel,
             "silk_wiring": self.silk,
+            "pressure": self.pressure,
         }
 
     def update_params(self, section: str, updates: Dict) -> bool:
-        target = {"aquaponics": self.aqua, "flywheel": self.flywheel, "silk_wiring": self.silk}.get(section)
+        target = {"aquaponics": self.aqua, "flywheel": self.flywheel, "silk_wiring": self.silk, "pressure": self.pressure}.get(section)
         if target is None:
             return False
         for k, v in updates.items():
@@ -533,6 +645,14 @@ class VirtualVoidSimulator:
                     {"id": 4, "resistance_ohm": 3.4, "continuity": True},
                     {"id": 5, "resistance_ohm": 3.1, "continuity": True},
                 ],
+            },
+            "pressure": {
+                "internal_pressure_atm": 1.0,
+                "external_pressure_atm": 1.0,
+                "air_curtain_velocity_ms": 0.0,
+                "air_curtain_active": False,
+                "nitrogen_boil_rate": 0.0,
+                "seal_integrity_pct": 100.0,
             },
         }
         self._action_log: List[Dict] = []
@@ -581,6 +701,28 @@ class VirtualVoidSimulator:
             sim_state["aquaponics"]["ammonia_ppm"] += dose_ml * 0.005
             effects.append(f"Nutrient dose {dose_ml}ml, pH +{dose_ml * 0.02}")
 
+        elif action_type == "air_curtain_activate":
+            velocity = action.get("velocity_ms", 15.0)
+            sim_state["pressure"]["air_curtain_velocity_ms"] = velocity
+            sim_state["pressure"]["air_curtain_active"] = True
+            sim_state["flywheel"]["energy_reserve_wh"] -= velocity * 0.3
+            effects.append(f"Air Curtain activated at {velocity} m/s, energy -{velocity * 0.3:.1f} Wh")
+
+        elif action_type == "air_curtain_deactivate":
+            sim_state["pressure"]["air_curtain_velocity_ms"] = 0.0
+            sim_state["pressure"]["air_curtain_active"] = False
+            effects.append("Air Curtain deactivated")
+
+        elif action_type == "nitrogen_vent":
+            vent_rate = action.get("vent_rate", 0.3)
+            pressure = sim_state["pressure"]
+            vented = min(vent_rate, pressure["internal_pressure_atm"] - pressure["external_pressure_atm"])
+            if vented > 0:
+                pressure["internal_pressure_atm"] -= vented
+                effects.append(f"Emergency nitrogen vent: pressure -{vented:.2f} atm")
+            else:
+                effects.append("No pressure differential to vent")
+
         report = self._checklist.run_checklist(sim_state, action)
 
         result = {
@@ -617,6 +759,76 @@ class VirtualVoidSimulator:
             "new_state": self.get_state(),
             "simulation": sim_result,
         }
+
+    def simulate_nitrogen_boil(self, boil_rate: float) -> Dict:
+        pressure = self._environment_state["pressure"]
+        pressure["nitrogen_boil_rate"] = boil_rate
+
+        pressure["internal_pressure_atm"] += boil_rate * 0.5
+
+        status = "Warning: Pressure Building"
+        vented = 0.0
+
+        if pressure["air_curtain_active"] and pressure["air_curtain_velocity_ms"] > 10:
+            vent_rate = (pressure["internal_pressure_atm"] - pressure["external_pressure_atm"]) * 0.8
+            if vent_rate > 0:
+                pressure["internal_pressure_atm"] -= vent_rate
+                vented = vent_rate
+                status = "Stable: Air Curtain Venting Pressure"
+
+        if pressure["internal_pressure_atm"] >= 1.8:
+            pressure["seal_integrity_pct"] = max(0, pressure["seal_integrity_pct"] - boil_rate * 15)
+            status = "CRITICAL: Seal Breach — Integrity Degrading"
+        elif pressure["internal_pressure_atm"] >= 1.5:
+            status = "CRITICAL: High Pressure — Potential Seal Breach"
+        elif pressure["internal_pressure_atm"] >= 1.3:
+            status = "Warning: Pressure Building"
+
+        self._action_log.append({
+            "action": {"type": "nitrogen_boil", "boil_rate": boil_rate},
+            "status": status,
+            "internal_pressure": pressure["internal_pressure_atm"],
+            "vented": vented,
+            "seal_integrity": pressure["seal_integrity_pct"],
+            "air_curtain_active": pressure["air_curtain_active"],
+            "timestamp": time.time(),
+        })
+
+        return {
+            "status": status,
+            "internal_pressure_atm": round(pressure["internal_pressure_atm"], 4),
+            "external_pressure_atm": pressure["external_pressure_atm"],
+            "differential_atm": round(pressure["internal_pressure_atm"] - pressure["external_pressure_atm"], 4),
+            "vented_atm": round(vented, 4),
+            "air_curtain_active": pressure["air_curtain_active"],
+            "air_curtain_velocity_ms": pressure["air_curtain_velocity_ms"],
+            "seal_integrity_pct": round(pressure["seal_integrity_pct"], 1),
+            "nitrogen_boil_rate": boil_rate,
+        }
+
+    def activate_air_curtain(self, velocity_ms: float = 15.0) -> Dict:
+        pressure = self._environment_state["pressure"]
+        pressure["air_curtain_velocity_ms"] = velocity_ms
+        pressure["air_curtain_active"] = True
+        self._environment_state["flywheel"]["energy_reserve_wh"] -= velocity_ms * 0.3
+
+        self._action_log.append({
+            "action": {"type": "air_curtain_activate", "velocity_ms": velocity_ms},
+            "timestamp": time.time(),
+        })
+
+        return {
+            "active": True,
+            "velocity_ms": velocity_ms,
+            "energy_cost_wh": velocity_ms * 0.3,
+            "internal_pressure_atm": pressure["internal_pressure_atm"],
+        }
+
+    def deactivate_air_curtain(self) -> Dict:
+        pressure = self._environment_state["pressure"]
+        pressure["air_curtain_velocity_ms"] = 0.0
+        pressure["air_curtain_active"] = False
+        return {"active": False, "velocity_ms": 0.0}
 
     def get_action_log(self, limit: int = 20) -> List[Dict]:
         return self._action_log[-limit:]

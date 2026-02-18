@@ -1538,6 +1538,37 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             renderSensorGrid("harness-silk-sensors", silkData);
 
+            const pressure = state.pressure || {};
+            renderSensorGrid("harness-pressure-sensors", {
+                "Int P": (pressure.internal_pressure_atm || 1.0).toFixed(3) + " atm",
+                "Ext P": (pressure.external_pressure_atm || 1.0).toFixed(3) + " atm",
+                "Diff": ((pressure.internal_pressure_atm || 1.0) - (pressure.external_pressure_atm || 1.0)).toFixed(3) + " atm",
+                "AC Vel": (pressure.air_curtain_velocity_ms || 0).toFixed(1) + " m/s",
+                "N2 Boil": (pressure.nitrogen_boil_rate || 0).toFixed(3),
+                "Seal": (pressure.seal_integrity_pct || 100).toFixed(1) + "%",
+            });
+
+            const pBar = document.getElementById("pressure-bar-fill");
+            if (pBar) {
+                const pAtm = pressure.internal_pressure_atm || 1.0;
+                const pPct = Math.min(100, Math.max(0, (pAtm / 1.8) * 100));
+                pBar.style.width = pPct + "%";
+                if (pAtm >= 1.5) pBar.style.background = "linear-gradient(90deg, #4ade80, #fbbf24, #f87171, #ff00ff)";
+                else if (pAtm >= 1.3) pBar.style.background = "linear-gradient(90deg, #4ade80, #fbbf24, #f87171)";
+                else pBar.style.background = "linear-gradient(90deg, #4ade80, #fbbf24)";
+            }
+
+            const acLabel = document.getElementById("ac-status-label");
+            if (acLabel) {
+                if (pressure.air_curtain_active) {
+                    acLabel.textContent = "ACTIVE " + (pressure.air_curtain_velocity_ms || 0).toFixed(1) + " m/s";
+                    acLabel.className = "ac-status-label active";
+                } else {
+                    acLabel.textContent = "OFF";
+                    acLabel.className = "ac-status-label";
+                }
+            }
+
             renderChecklist(data.checklist);
 
             const loopStats = document.getElementById("harness-loop-stats");
@@ -1587,6 +1618,9 @@ document.addEventListener("DOMContentLoaded", () => {
         else if (actionType === "sensor_calibrate") action.sensor = "Sensor_A";
         else if (actionType === "nutrient_dose") action.dose_ml = actionValue;
         else if (actionType === "silk_test") action.strand_id = actionValue;
+        else if (actionType === "air_curtain_activate") action.velocity_ms = actionValue;
+        else if (actionType === "air_curtain_deactivate") { /* no extra params */ }
+        else if (actionType === "nitrogen_vent") action.vent_rate = actionValue * 0.1;
 
         const res = await fetch("/api/harness/check", {
             method: "POST",
@@ -1629,6 +1663,9 @@ document.addEventListener("DOMContentLoaded", () => {
         else if (actionType === "sensor_calibrate") action.sensor = "Sensor_A";
         else if (actionType === "nutrient_dose") action.dose_ml = actionValue;
         else if (actionType === "silk_test") action.strand_id = actionValue;
+        else if (actionType === "air_curtain_activate") action.velocity_ms = actionValue;
+        else if (actionType === "air_curtain_deactivate") { /* no extra params */ }
+        else if (actionType === "nitrogen_vent") action.vent_rate = actionValue * 0.1;
 
         const res = await fetch("/api/harness/execute", {
             method: "POST",
@@ -1659,4 +1696,107 @@ document.addEventListener("DOMContentLoaded", () => {
             pre.textContent = data.injected_prompt;
         }
     });
+
+    document.getElementById("ac-activate-btn")?.addEventListener("click", async () => {
+        const vel = parseFloat(document.getElementById("ac-velocity-input").value) || 15;
+        const res = await fetch("/api/harness/air-curtain", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "activate", velocity_ms: vel }),
+        });
+        const data = await res.json();
+        if (data.success) showToast("Air Curtain activated at " + vel + " m/s", "success");
+        else showToast("AC activation failed", "error");
+        loadHarnessStatus();
+    });
+
+    document.getElementById("ac-deactivate-btn")?.addEventListener("click", async () => {
+        const res = await fetch("/api/harness/air-curtain", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "deactivate" }),
+        });
+        const data = await res.json();
+        if (data.success) showToast("Air Curtain deactivated", "success");
+        loadHarnessStatus();
+    });
+
+    document.getElementById("pressure-reset-btn")?.addEventListener("click", async () => {
+        await fetch("/api/harness/pressure/reset", { method: "POST" });
+        showToast("Pressure system reset to nominal", "success");
+        loadHarnessStatus();
+    });
+
+    document.getElementById("chaos-run-btn")?.addEventListener("click", async () => {
+        const btn = document.getElementById("chaos-run-btn");
+        btn.disabled = true;
+        btn.textContent = "Running...";
+
+        const steps = parseInt(document.getElementById("chaos-steps").value) || 10;
+        const rate = parseFloat(document.getElementById("chaos-rate").value) || 0.05;
+        const esc = parseFloat(document.getElementById("chaos-escalation").value) || 1.5;
+        const autoResp = document.getElementById("chaos-auto-respond").checked;
+
+        try {
+            const res = await fetch("/api/harness/chaos-test", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    steps: steps,
+                    initial_boil_rate: rate,
+                    escalation_factor: esc,
+                    auto_respond: autoResp,
+                }),
+            });
+            const data = await res.json();
+            if (data.success && data.report) {
+                renderChaosReport(data.report);
+                showToast("Chaos test complete: " + data.report.outcome, data.report.seal_survived ? "success" : "error");
+            } else {
+                showToast(data.error || "Chaos test failed", "error");
+            }
+        } catch(e) {
+            showToast("Chaos test error: " + e.message, "error");
+        }
+        btn.disabled = false;
+        btn.textContent = "Run Chaos Test";
+        loadHarnessStatus();
+    });
+
+    function renderChaosReport(report) {
+        const wrap = document.getElementById("chaos-test-result");
+        if (!wrap) return;
+        wrap.style.display = "block";
+
+        const outcomeEl = document.getElementById("chaos-outcome");
+        outcomeEl.textContent = report.outcome;
+        outcomeEl.className = "harness-chaos-outcome " + (report.seal_survived ? "pass" : "fail");
+
+        const statsEl = document.getElementById("chaos-stats");
+        statsEl.innerHTML = [
+            { label: "Test ID", value: report.test_id },
+            { label: "Steps", value: report.completed_steps + "/" + report.total_steps },
+            { label: "Max Pressure", value: report.max_pressure_reached + " atm" },
+            { label: "Min Seal", value: report.min_seal_integrity + "%" },
+            { label: "AC Activated Step", value: report.air_curtain_activated_at_step || "N/A" },
+            { label: "Duration", value: (report.duration_seconds || 0) + "s" },
+        ].map(s => `<div class="chaos-stat"><span class="stat-label">${s.label}</span><br><span class="stat-value">${s.value}</span></div>`).join("");
+
+        const stepsEl = document.getElementById("chaos-steps-log");
+        let html = '<div class="chaos-step-row header"><span>#</span><span>Boil</span><span>Press</span><span>Seal</span><span>AC</span><span>Chk</span><span>Response</span></div>';
+        for (const s of report.steps) {
+            const pClass = s.internal_pressure_atm >= 1.5 ? "step-danger" : s.internal_pressure_atm >= 1.3 ? "step-warn" : "step-ok";
+            const sealClass = s.seal_integrity_pct <= 50 ? "step-danger" : s.seal_integrity_pct <= 80 ? "step-warn" : "step-ok";
+            html += `<div class="chaos-step-row">` +
+                `<span>${s.step}</span>` +
+                `<span>${s.boil_rate.toFixed(3)}</span>` +
+                `<span class="${pClass}">${s.internal_pressure_atm.toFixed(3)}</span>` +
+                `<span class="${sealClass}">${s.seal_integrity_pct.toFixed(1)}%</span>` +
+                `<span>${s.air_curtain_active ? s.air_curtain_velocity_ms.toFixed(0) + "m/s" : "OFF"}</span>` +
+                `<span>${s.checklist_verdict}</span>` +
+                `<span style="font-size:10px;">${s.auto_response}</span>` +
+                `</div>`;
+        }
+        stepsEl.innerHTML = html;
+    }
 });

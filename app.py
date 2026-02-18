@@ -14,6 +14,7 @@ from void_engine.silk_web import SignalTicker
 from void_engine.harness import PreCompletionChecklistMiddleware, VirtualVoidSimulator
 from void_engine.nervous_system import SilkLinkContextMiddleware, AquaponicsBoundaryHook
 from void_engine.loop_detector import LoopDetectionMiddleware
+from void_engine.chaos_test import NitrogenLeakChaosTest
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -497,6 +498,8 @@ _silk_context = SilkLinkContextMiddleware()
 _boundary_hook = AquaponicsBoundaryHook()
 _loop_detector = LoopDetectionMiddleware(max_attempts=5)
 
+_chaos_test = NitrogenLeakChaosTest(_harness_sim, _harness_checklist, _boundary_hook, _loop_detector)
+
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
     "silk_strand_1_resistance": {"value": 3.2, "unit": "ohm"},
@@ -515,6 +518,11 @@ _silk_context.bulk_update({
     "flywheel_energy": {"value": 120.0, "unit": "Wh"},
     "flywheel_temperature": {"value": 38.0, "unit": "°C"},
     "flywheel_vibration": {"value": 0.8, "unit": "g"},
+    "pressure_internal": {"value": 1.0, "unit": "atm"},
+    "pressure_external": {"value": 1.0, "unit": "atm"},
+    "air_curtain_velocity": {"value": 0.0, "unit": "m/s"},
+    "nitrogen_boil_rate": {"value": 0.0, "unit": "rate"},
+    "seal_integrity": {"value": 100.0, "unit": "%"},
 })
 
 
@@ -696,6 +704,102 @@ def harness_update_params():
         return jsonify({"error": "section and updates required"}), 400
     ok = _harness_checklist.update_params(section, updates)
     return jsonify({"success": ok})
+
+
+@app.route("/api/harness/pressure")
+def harness_pressure():
+    state = _harness_sim.get_state()
+    return jsonify({
+        "success": True,
+        "pressure": state.get("pressure", {}),
+    })
+
+
+@app.route("/api/harness/air-curtain", methods=["POST"])
+def harness_air_curtain():
+    data = request.json or {}
+    action = data.get("action", "activate")
+    velocity = float(data.get("velocity_ms", 15.0))
+
+    if action == "activate":
+        result = _harness_sim.activate_air_curtain(velocity)
+        _silk_context.register_sensor("air_curtain_velocity", velocity, "m/s")
+        return jsonify({"success": True, **result})
+    elif action == "deactivate":
+        result = _harness_sim.deactivate_air_curtain()
+        _silk_context.register_sensor("air_curtain_velocity", 0.0, "m/s")
+        return jsonify({"success": True, **result})
+    else:
+        return jsonify({"error": "action must be 'activate' or 'deactivate'"}), 400
+
+
+@app.route("/api/harness/nitrogen-boil", methods=["POST"])
+def harness_nitrogen_boil():
+    data = request.json or {}
+    boil_rate = float(data.get("boil_rate", 0.1))
+    result = _harness_sim.simulate_nitrogen_boil(boil_rate)
+
+    _silk_context.register_sensor("pressure_internal", result["internal_pressure_atm"], "atm")
+    _silk_context.register_sensor("nitrogen_boil_rate", boil_rate, "rate")
+    _silk_context.register_sensor("seal_integrity", result["seal_integrity_pct"], "%")
+
+    return jsonify({"success": True, **result})
+
+
+@app.route("/api/harness/chaos-test", methods=["POST"])
+def harness_chaos_test():
+    data = request.json or {}
+    steps = int(data.get("steps", 10))
+    initial_rate = float(data.get("initial_boil_rate", 0.05))
+    escalation = float(data.get("escalation_factor", 1.5))
+    auto_respond = bool(data.get("auto_respond", True))
+
+    if _chaos_test.is_running():
+        return jsonify({"error": "A chaos test is already running"}), 400
+
+    report = _chaos_test.run_test(
+        total_steps=steps,
+        initial_boil_rate=initial_rate,
+        escalation_factor=escalation,
+        auto_respond=auto_respond,
+    )
+
+    state = _harness_sim.get_state()
+    pressure = state.get("pressure", {})
+    _silk_context.register_sensor("pressure_internal", pressure.get("internal_pressure_atm", 1.0), "atm")
+    _silk_context.register_sensor("air_curtain_velocity", pressure.get("air_curtain_velocity_ms", 0.0), "m/s")
+    _silk_context.register_sensor("seal_integrity", pressure.get("seal_integrity_pct", 100.0), "%")
+    _silk_context.register_sensor("nitrogen_boil_rate", pressure.get("nitrogen_boil_rate", 0.0), "rate")
+
+    return jsonify({"success": True, "report": report.to_dict()})
+
+
+@app.route("/api/harness/chaos-test/reports")
+def harness_chaos_reports():
+    limit = request.args.get("limit", 10, type=int)
+    return jsonify({
+        "success": True,
+        "reports": _chaos_test.get_reports(limit),
+        "latest": _chaos_test.get_latest_report(),
+    })
+
+
+@app.route("/api/harness/pressure/reset", methods=["POST"])
+def harness_pressure_reset():
+    _harness_sim.set_state("pressure", {
+        "internal_pressure_atm": 1.0,
+        "external_pressure_atm": 1.0,
+        "air_curtain_velocity_ms": 0.0,
+        "air_curtain_active": False,
+        "nitrogen_boil_rate": 0.0,
+        "seal_integrity_pct": 100.0,
+    })
+    _silk_context.register_sensor("pressure_internal", 1.0, "atm")
+    _silk_context.register_sensor("pressure_external", 1.0, "atm")
+    _silk_context.register_sensor("air_curtain_velocity", 0.0, "m/s")
+    _silk_context.register_sensor("nitrogen_boil_rate", 0.0, "rate")
+    _silk_context.register_sensor("seal_integrity", 100.0, "%")
+    return jsonify({"success": True, "message": "Pressure system reset to nominal"})
 
 
 _start_time = __import__("time").time()

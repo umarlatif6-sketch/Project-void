@@ -78,6 +78,20 @@ DIAGNOSTIC_MAP = {
         "Check for environmental factors (humidity, temperature) affecting conductivity.",
         "Try swapping the strand with a known-good one to isolate the issue.",
     ],
+    "air_curtain_activate": [
+        "Check the Air Curtain fan motor for power supply.",
+        "Verify the Flywheel has enough energy reserve to sustain the curtain.",
+        "Inspect the curtain vents for physical blockage or debris.",
+        "Check the relay/controller board for fault indicators.",
+        "Verify the pressure sensors are reading correctly — false positives waste energy.",
+    ],
+    "nitrogen_vent": [
+        "Check the nitrogen supply valve — is it stuck open?",
+        "Verify the pressure relief valve is not jammed.",
+        "Inspect the seal gaskets for visible degradation.",
+        "Check for ice formation around the vent (nitrogen condensation).",
+        "Verify the external vent pipe is not obstructed.",
+    ],
 }
 
 DEFAULT_DIAGNOSTICS = [
