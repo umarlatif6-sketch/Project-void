@@ -22,7 +22,8 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 │   ├── stega.py               # Stega Engine: LSB encoding + 64-byte encrypted header + encode_burst()
 │   ├── calculator.py          # Resonance Meter: WAV capacity analysis + resonance limits
 │   ├── keep_alive.py          # Pulse-Wrapper: Flask self-ping every 4 min
-│   └── silk_web.py            # Silk Web: Signal Ticker — sends signals as 432 Hz burst packets
+│   ├── silk_web.py            # Silk Web: Signal Ticker — sends signals as 432 Hz burst packets
+│   └── stress_test.py         # Stress Test: 1MB-increment Bubble Burst finder with BURST_REPORT.md
 ├── input_files/               # Place carrier .wav files and payload files here
 ├── output_audio/              # Encoded audio and decoded files output here
 └── pyproject.toml             # Dependencies (numpy, flask, cryptography)
@@ -35,6 +36,7 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 - **void_engine/keep_alive.py**: Flask server on port 8099 with asyncio self-ping every 4 minutes.
 - **void_engine/calculator.py**: Resonance Meter with Acoustic Surface Tension model — scans WAV carriers to calculate max payload capacity at LSB depth 1 and 2, Surface Tension Limit (max data before distortion), and Bubble Burst threshold (90% of membrane — distortion risk zone). Projects compressed data capacity with zlib/lzma. 432 Hz Resonance Bonus: carriers with "432Hz" or "resonate" in filename get +5% LSB1 threshold (0.30 vs 0.25). Bubble analogy: below surface tension = bubble holds (clean audio), near burst = membrane stretching, above burst = bubble pops (audible artifacts). Every analysis appended to RESONANCE_LOG.md.
 - **void_engine/silk_web.py**: Silk Web Signal Ticker — formats signals (uppercase, max 10 chars), sends them as 432 Hz burst-encoded WAV packets via encode_burst(), maintains in-memory signal history (last 50), thread-safe queue with deque+lock, auto-logs to RESONANCE_LOG.md. Auto-Pulse heartbeat thread fires HEARTBEAT signal every 30 min if idle, keeps 432 Hz resonance alive. Network health API: Resonant (signal within 35 min) / Desynced (no signal for 35+ min). API: SignalTicker.send_signal(text) → {id, signal, hash_key, output_file, ...}, SignalTicker.get_signals(limit) → safe feed (hash tails only, no full keys), SignalTicker.get_network_health() → {status, last_signal_age_seconds}.
+- **void_engine/stress_test.py**: Void Stress Test — automatic Bubble Burst finder that escalates synthetic Ocean payloads in 1 MB increments against a carrier WAV. Runs full pipeline per probe (compress → ghost header → LSB encode with Fly Jitter → FFT purity check). Dual failure conditions: stops when SNR drops below 15.0 dB OR Surface Tension exceeds 40%. Generates carrier on-the-fly if none provided. Logs every probe to BURST_REPORT.md with payload size, tension %, SNR, encode time, and grade. Prints bold breakpoint summary. Usage: `python -m void_engine.stress_test [carrier_path] [duration]`.
 - **main.py**: Interactive CLI with [1] Encode (returns Hash Key), [2] Decode (requires Hash Key), [3] Check Capacity (Resonance Meter), [q] Quit.
 
 ### Web UI Features
