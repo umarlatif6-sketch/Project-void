@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (tab.dataset.tab === "files") refreshFiles();
             if (tab.dataset.tab === "capacity") loadSelects();
             if (tab.dataset.tab === "visualizer") loadSelects();
+            if (tab.dataset.tab === "silk") loadSilkFeed();
         });
     });
 
@@ -590,6 +591,97 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.disabled = false;
         btn.textContent = "Analyze Capacity";
     });
+
+    document.getElementById("silk-signal").addEventListener("input", (e) => {
+        document.getElementById("silk-char-count").textContent = e.target.value.length;
+    });
+
+    document.getElementById("silk-send-btn").addEventListener("click", async () => {
+        const signal = document.getElementById("silk-signal").value.trim();
+        const btn = document.getElementById("silk-send-btn");
+
+        if (!signal) {
+            showToast("Enter a signal to send", "error");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Sending Signal...';
+        document.getElementById("silk-send-result").style.display = "none";
+
+        try {
+            const res = await fetch("/api/silk/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ signal }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                document.getElementById("silk-res-signal").textContent = data.signal;
+                document.getElementById("silk-res-file").textContent = data.output_file;
+                document.getElementById("silk-res-size").textContent = formatSize(data.output_size);
+                document.getElementById("silk-res-time").textContent = data.timestamp;
+                document.getElementById("silk-res-hash").textContent = data.hash_key;
+                document.getElementById("silk-send-result").style.display = "block";
+                showToast("Signal sent through Silk Web!", "success");
+                document.getElementById("silk-signal").value = "";
+                document.getElementById("silk-char-count").textContent = "0";
+                loadSilkFeed();
+                loadSelects();
+            } else {
+                showToast(data.error, "error");
+            }
+        } catch (e) {
+            showToast("Signal failed: " + e.message, "error");
+        }
+
+        btn.disabled = false;
+        btn.textContent = "Send Signal";
+    });
+
+    document.getElementById("copy-silk-hash-btn").addEventListener("click", () => {
+        const key = document.getElementById("silk-res-hash").textContent;
+        navigator.clipboard.writeText(key).then(() => {
+            showToast("Hash Key copied!", "success");
+        }).catch(() => {
+            const ta = document.createElement("textarea");
+            ta.value = key;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            showToast("Hash Key copied!", "success");
+        });
+    });
+
+    async function loadSilkFeed() {
+        const feed = document.getElementById("silk-feed");
+        try {
+            const res = await fetch("/api/silk/signals?limit=20");
+            const data = await res.json();
+
+            if (!data.success || !data.signals.length) {
+                feed.innerHTML = '<p class="loading">No signals yet</p>';
+                return;
+            }
+
+            feed.innerHTML = data.signals.map(s => `
+                <div class="silk-entry">
+                    <div class="silk-entry-left">
+                        <span class="silk-signal-text">${s.signal}</span>
+                        <span class="silk-entry-meta">${s.timestamp} &middot; ${s.output_file}</span>
+                    </div>
+                    <div class="silk-entry-right">
+                        <span class="silk-status">${s.status}</span>
+                        <span class="silk-hash-tail">${s.hash_tail}</span>
+                    </div>
+                </div>
+            `).join("");
+        } catch {
+            feed.innerHTML = '<p class="loading">Failed to load signals</p>';
+        }
+    }
 
     loadSelects();
 });

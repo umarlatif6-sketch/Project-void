@@ -12,7 +12,7 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 ├── test_void.py               # Self-test script for pipeline verification
 ├── generate_carriers.py       # Carrier WAV generator (432 Hz Village Standard)
 ├── templates/
-│   └── index.html             # Web UI template (6 tabs: Encode, Decode, Burst, Visualizer, Capacity, Files)
+│   └── index.html             # Web UI template (7 tabs: Encode, Decode, Burst, Visualizer, Capacity, Silk Web, Files)
 ├── static/
 │   ├── style.css              # Dark-themed UI styles (mobile-responsive)
 │   └── app.js                 # Frontend JavaScript (includes Web Audio API visualizer)
@@ -21,7 +21,8 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 │   ├── compressor.py          # Void-Compressor: zlib level 9 + lzma + compress_bytes()
 │   ├── stega.py               # Stega Engine: LSB encoding + 64-byte encrypted header + encode_burst()
 │   ├── calculator.py          # Resonance Meter: WAV capacity analysis + resonance limits
-│   └── keep_alive.py          # Pulse-Wrapper: Flask self-ping every 4 min
+│   ├── keep_alive.py          # Pulse-Wrapper: Flask self-ping every 4 min
+│   └── silk_web.py            # Silk Web: Signal Ticker — sends signals as 432 Hz burst packets
 ├── input_files/               # Place carrier .wav files and payload files here
 ├── output_audio/              # Encoded audio and decoded files output here
 └── pyproject.toml             # Dependencies (numpy, flask, cryptography)
@@ -32,6 +33,7 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 - **void_engine/stega.py**: LSB encoding (depth 1 or 2) into 16-bit WAV files. 64-byte ChaCha20-encrypted header containing magic, filename, data size, MD5 checksum, and nonce. Decode requires the unique Hash Key generated during encoding. Also has `encode_burst()` for Short Burst signal encoding.
 - **void_engine/keep_alive.py**: Flask server on port 8099 with asyncio self-ping every 4 minutes.
 - **void_engine/calculator.py**: Resonance Meter — scans WAV carriers to calculate max payload capacity at LSB depth 1 and 2, estimates resonance limit (distortion threshold), and projects compressed data capacity with zlib/lzma. Accounts for 64-byte header overhead. 432 Hz Resonance Bonus: carriers with "432Hz" or "resonate" in filename get +5% LSB1 threshold (0.30 vs 0.25). Every analysis is appended to RESONANCE_LOG.md with timestamps.
+- **void_engine/silk_web.py**: Silk Web Signal Ticker — formats signals (uppercase, max 10 chars), sends them as 432 Hz burst-encoded WAV packets via encode_burst(), maintains in-memory signal history (last 50), thread-safe queue with deque+lock, auto-logs to RESONANCE_LOG.md. API: SignalTicker.send_signal(text) → {id, signal, hash_key, output_file, ...}, SignalTicker.get_signals(limit) → safe feed (hash tails only, no full keys).
 - **main.py**: Interactive CLI with [1] Encode (returns Hash Key), [2] Decode (requires Hash Key), [3] Check Capacity (Resonance Meter), [q] Quit.
 
 ### Web UI Features
@@ -40,6 +42,7 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 - **Burst Tab**: Short Burst encoding — encode signal strings (≤10 chars) into 5-second 432 Hz clips at LSB depth 1 with 0% distortion
 - **Visualizer Tab**: Web Audio API frequency spectrum analyzer with real-time FFT, 432 Hz gold-highlighted peak, play/stop controls
 - **Capacity Tab**: Resonance Meter with bar charts for max capacity, resonance limits, and estimated real data capacity
+- **Silk Web Tab**: Signal Ticker — send signals (≤10 chars) through the 432 Hz network as burst packets, scrollable signal feed with timestamps and hash tails, copy Hash Key for decode
 - **Files Tab**: File manager for input_files/ and output_audio/ with download/delete
 
 ### Technical Details
@@ -54,8 +57,11 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 - Short Burst: Generates fresh 5-second 432 Hz mono carrier, encodes at depth 1, zero distortion guaranteed
 - Visualizer: Web Audio API with FFT size 4096, frequency range 0-2000 Hz, gold highlight on 432 Hz bin
 
+### API Endpoints — Silk Web
+- `POST /api/silk/send` — Send a signal through Silk Web. Body: `{"signal": "BUY_GOLD"}`. Returns: `{success, id, signal, output_file, output_size, hash_key, timestamp}`
+- `GET /api/silk/signals?limit=20` — Fetch recent signal feed (hash tails only, no full keys exposed)
+
 ### Planned Modules
-- **Silk Web**: Trading module (future)
 - **Graphene Suit**: Sensor module (future)
 
 ## How to Use

@@ -29,6 +29,7 @@
             <button class="tab" data-tab="burst">Burst</button>
             <button class="tab" data-tab="visualizer">Visualizer</button>
             <button class="tab" data-tab="capacity">Capacity</button>
+            <button class="tab" data-tab="silk">Silk Web</button>
             <button class="tab" data-tab="files">Files</button>
         </div>
 
@@ -262,6 +263,40 @@
                     <p>Above limit = distortion may become audible</p>
                     <p>"Est. Real Data" = approximate file sizes after zlib/lzma compression</p>
                 </div>
+            </div>
+        </div>
+
+        <div id="silk" class="panel">
+            <h2>Silk Web — Signal Ticker</h2>
+            <p class="desc">Send signals through the 432 Hz network. Each signal is encoded into a Resonant Burst packet and logged to the Resonance Journal. Up to 10 characters per signal.</p>
+
+            <div class="form-group">
+                <label>Signal Input</label>
+                <input type="text" id="silk-signal" placeholder="e.g. BUY_GOLD" maxlength="10" spellcheck="false" autocomplete="off">
+                <div class="char-count"><span id="silk-char-count">0</span>/10</div>
+            </div>
+            <button id="silk-send-btn" class="btn-primary">Send Signal</button>
+
+            <div id="silk-send-result" class="result-box" style="display:none;">
+                <h3>Signal Sent</h3>
+                <div class="result-grid">
+                    <div class="result-item"><span class="label">Signal</span><span id="silk-res-signal" class="value"></span></div>
+                    <div class="result-item"><span class="label">Burst File</span><span id="silk-res-file" class="value"></span></div>
+                    <div class="result-item"><span class="label">File Size</span><span id="silk-res-size" class="value"></span></div>
+                    <div class="result-item"><span class="label">Time</span><span id="silk-res-time" class="value"></span></div>
+                </div>
+                <div class="hash-key-box">
+                    <span class="label">HASH KEY (save this!)</span>
+                    <div class="hash-key-display">
+                        <code id="silk-res-hash"></code>
+                        <button id="copy-silk-hash-btn" class="btn-copy" title="Copy">&#9113;</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="silk-feed-section">
+                <h3>Signal Feed</h3>
+                <div id="silk-feed" class="silk-feed"><p class="loading">No signals yet</p></div>
             </div>
         </div>
 

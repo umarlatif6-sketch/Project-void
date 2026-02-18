@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 from void_engine.compressor import compress_file, decompress_data
 from void_engine.stega import encode, decode, encode_burst
 from void_engine.calculator import analyze_carrier, append_to_log
+from void_engine.silk_web import SignalTicker
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -233,6 +234,39 @@ def delete_file(folder, filename):
 
     os.remove(filepath)
     return jsonify({"success": True})
+
+
+silk_ticker = SignalTicker()
+
+
+@app.route("/api/silk/send", methods=["POST"])
+def silk_send():
+    data = request.json
+    raw_text = data.get("signal", "").strip()
+
+    if not raw_text:
+        return jsonify({"error": "Signal text is required"}), 400
+
+    try:
+        entry = silk_ticker.send_signal(raw_text)
+        return jsonify({
+            "success": True,
+            "id": entry["id"],
+            "signal": entry["signal"],
+            "output_file": entry["output_file"],
+            "output_size": entry["output_size"],
+            "hash_key": entry["hash_key"],
+            "timestamp": entry["timestamp"],
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/silk/signals")
+def silk_signals():
+    limit = request.args.get("limit", 20, type=int)
+    signals = silk_ticker.get_signals(limit)
+    return jsonify({"success": True, "signals": signals, "count": len(signals)})
 
 
 @app.route("/api/status")
