@@ -21,6 +21,7 @@ from void_engine.consensus import ConsensusEngine
 from void_engine.wallet import AlJabrWalletMiddleware
 from void_engine.diagnostics import DiagnosticEngine, SOVEREIGN_WARRANTY
 from void_engine.rituals import RitualHistory, AutoHealDaemon, RITUAL_TYPES
+from void_engine.chronicle import RootChronicle
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -508,9 +509,10 @@ _chaos_test = NitrogenLeakChaosTest(_harness_sim, _harness_checklist, _boundary_
 _adriana = AdrianaTranspiler()
 _aljabr = AlJabrTranspiler()
 _wallet = AlJabrWalletMiddleware(initial_balance=50.0)
-_consensus = ConsensusEngine(_harness_sim, _aljabr, _boundary_hook, _loop_detector, wallet=_wallet)
 _diagnostics = DiagnosticEngine(_harness_sim, wallet=_wallet)
 _ritual_history = RitualHistory(_harness_sim, wallet=_wallet)
+_chronicle = RootChronicle(machine_id=_ritual_history.machine_id)
+_consensus = ConsensusEngine(_harness_sim, _aljabr, _boundary_hook, _loop_detector, wallet=_wallet, chronicle=_chronicle)
 _auto_heal = AutoHealDaemon(_diagnostics, _harness_sim, wallet=_wallet, ritual_history=_ritual_history)
 
 _silk_context.bulk_update({
@@ -1227,6 +1229,61 @@ def autoheal_clear_alerts():
 @app.route("/api/harness/machine-id")
 def machine_id():
     return jsonify({"machine_id": _ritual_history.machine_id})
+
+
+@app.route("/api/harness/chronicle/entries")
+def chronicle_entries():
+    limit = request.args.get("limit", 50, type=int)
+    success_only = request.args.get("success_only", "false").lower() == "true"
+    return jsonify({"entries": _chronicle.get_chronicle_entries(limit, success_only)})
+
+
+@app.route("/api/harness/chronicle/stats")
+def chronicle_stats():
+    return jsonify(_chronicle.get_stats())
+
+
+@app.route("/api/harness/chronicle/query", methods=["POST"])
+def chronicle_query():
+    state = _harness_sim.get_state()
+    ancestors = _chronicle.query_ancestors(state)
+    return jsonify({"matches": [m.to_dict() for m in ancestors]})
+
+
+@app.route("/api/harness/chronicle/wisdom")
+def chronicle_wisdom():
+    state = _harness_sim.get_state()
+    wisdom = _chronicle.get_wisdom_context(state)
+    return jsonify(wisdom)
+
+
+@app.route("/api/harness/chronicle/prophecy", methods=["POST"])
+def chronicle_prophecy():
+    state = _harness_sim.get_state()
+    prophecies = _chronicle.predict_crisis(state)
+    return jsonify({"prophecies": [p.to_dict() for p in prophecies]})
+
+
+@app.route("/api/harness/chronicle/episodic")
+def chronicle_episodic():
+    domain = request.args.get("domain")
+    hours = request.args.get("hours", 24, type=float)
+    return jsonify({"readings": _chronicle.get_episodic_memory(domain, hours)})
+
+
+@app.route("/api/harness/chronicle/export")
+def chronicle_export():
+    seed = _chronicle.export_genesis_seed()
+    return jsonify(seed)
+
+
+@app.route("/api/harness/chronicle/import", methods=["POST"])
+def chronicle_import():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No seed data provided"}), 400
+    result = _chronicle.import_genesis_seed(data)
+    return jsonify(result)
 
 
 _start_time = __import__("time").time()

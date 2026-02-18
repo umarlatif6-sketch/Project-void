@@ -2601,6 +2601,150 @@ body.sapphire-bubble-mode::before {
     border-radius: 2px;
 }
 
+.chronicle-section h3 { color: #7B68EE; }
+.chronicle-memory-layers {
+    display: flex; gap: 12px; margin: 16px 0;
+    flex-wrap: wrap;
+}
+.memory-layer {
+    flex: 1; min-width: 180px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(123, 104, 238, 0.3);
+    background: rgba(123, 104, 238, 0.06);
+    display: flex; flex-direction: column; gap: 4px;
+}
+.memory-layer.short-term { border-color: rgba(0,255,136,0.3); background: rgba(0,255,136,0.06); }
+.memory-layer.short-term .layer-icon { color: #00FF88; }
+.memory-layer.episodic { border-color: rgba(0,188,255,0.3); background: rgba(0,188,255,0.06); }
+.memory-layer.episodic .layer-icon { color: #00bcff; }
+.memory-layer.ancestral { border-color: rgba(123,104,238,0.3); background: rgba(123,104,238,0.06); }
+.memory-layer.ancestral .layer-icon { color: #7B68EE; }
+.layer-icon {
+    font-family: var(--font-mono); font-size: 0.95em; font-weight: 700;
+}
+.layer-label {
+    font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted);
+}
+.layer-detail {
+    font-size: 0.8em; color: var(--text-secondary);
+}
+.chronicle-stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; margin: 12px 0;
+}
+.ch-stat {
+    text-align: center; padding: 10px;
+    background: rgba(123, 104, 238, 0.08);
+    border-radius: 6px; border: 1px solid rgba(123, 104, 238, 0.2);
+}
+.ch-stat-label {
+    display: block; font-size: 0.7em; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px;
+}
+.ch-stat-value {
+    display: block; font-family: var(--font-mono); font-size: 1em;
+    color: #7B68EE; font-weight: 600;
+}
+.chronicle-controls {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0;
+}
+.chronicle-import-label {
+    cursor: pointer; display: inline-flex; align-items: center;
+}
+.chronicle-result {
+    margin: 12px 0; padding: 16px;
+    background: rgba(123, 104, 238, 0.05);
+    border: 1px solid rgba(123, 104, 238, 0.2);
+    border-radius: 8px;
+}
+.chronicle-matches, .chronicle-prophecies {
+    display: flex; flex-direction: column; gap: 8px;
+}
+.ancestor-card {
+    padding: 12px; border-radius: 6px;
+    border-left: 3px solid #7B68EE;
+    background: rgba(123, 104, 238, 0.08);
+}
+.ancestor-similarity {
+    font-family: var(--font-mono); font-size: 0.9em;
+    color: #7B68EE; font-weight: 700; margin-bottom: 4px;
+}
+.ancestor-command {
+    font-family: var(--font-mono); font-size: 0.85em;
+    color: #00FF88; margin: 4px 0;
+}
+.ancestor-intent {
+    font-size: 0.8em; color: var(--text-secondary);
+}
+.ancestor-domains {
+    display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap;
+}
+.ancestor-domain-tag {
+    font-size: 0.7em; padding: 2px 8px; border-radius: 10px;
+    background: rgba(123, 104, 238, 0.15); color: #7B68EE;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.prophecy-card {
+    padding: 12px; border-radius: 6px;
+    border-left: 3px solid #FFD700;
+    background: rgba(255, 215, 0, 0.06);
+}
+.prophecy-name {
+    font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px;
+    color: #FFD700; margin-bottom: 4px;
+}
+.prophecy-command {
+    font-family: var(--font-mono); font-size: 0.9em;
+    color: #FFD700; font-weight: 700;
+}
+.prophecy-intent {
+    font-size: 0.8em; color: var(--text-secondary); margin-top: 4px;
+}
+.prophecy-confidence {
+    font-family: var(--font-mono); font-size: 0.8em;
+    color: var(--text-muted); margin-top: 4px;
+}
+.chronicle-timeline-header {
+    font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted); margin: 16px 0 8px 0;
+}
+.chronicle-timeline {
+    max-height: 240px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 6px;
+    padding-right: 4px;
+}
+.chronicle-entry {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 6px;
+    background: rgba(123, 104, 238, 0.04);
+    border: 1px solid rgba(123, 104, 238, 0.12);
+    font-size: 0.82em;
+}
+.chronicle-entry.success { border-left: 3px solid #00FF88; }
+.chronicle-entry.partial { border-left: 3px solid #FFD700; }
+.ce-time {
+    font-family: var(--font-mono); font-size: 0.8em;
+    color: var(--text-muted); min-width: 70px;
+}
+.ce-cmd {
+    font-family: var(--font-mono); color: #7B68EE;
+    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ce-outcome {
+    font-size: 0.8em; color: var(--text-muted);
+    min-width: 90px; text-align: right;
+}
+.ce-energy {
+    font-family: var(--font-mono); font-size: 0.8em;
+    color: #00bcff; min-width: 50px; text-align: right;
+}
+.chronicle-empty {
+    text-align: center; padding: 20px;
+    color: var(--text-muted); font-style: italic;
+}
+
 @media (max-width: 700px) {
     .harness-grid { grid-template-columns: 1fr; }
     .sensor-grid { grid-template-columns: 1fr; }
@@ -2612,4 +2756,6 @@ body.sapphire-bubble-mode::before {
     .warranty-article-text { padding-left: 0; }
     .ritual-buttons { grid-template-columns: repeat(2, 1fr); }
     .autoheal-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .chronicle-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .chronicle-memory-layers { flex-direction: column; }
 }

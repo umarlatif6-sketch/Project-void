@@ -2588,4 +2588,165 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("/api/harness/autoheal/status").then(r => r.json()).then(data => {
         updateAutoHealStats(data);
     }).catch(() => {});
+
+    function loadChronicleStats() {
+        fetch("/api/harness/chronicle/stats").then(r => r.json()).then(data => {
+            document.getElementById("ch-total").textContent = data.total_entries;
+            document.getElementById("ch-rate").textContent = data.success_rate + "%";
+            document.getElementById("ch-machine").textContent = data.machine_id ? data.machine_id.replace("VOID-4000-", "V4K-") : "—";
+            if (data.most_proven_root) {
+                document.getElementById("ch-proven").textContent = data.most_proven_root.command;
+                document.getElementById("ch-proven").title = "Used " + data.most_proven_root.count + " times";
+            }
+        }).catch(() => {});
+
+        fetch("/api/harness/chronicle/wisdom").then(r => r.json()).then(data => {
+            if (data.memory_layers) {
+                const stMatch = data.memory_layers.short_term || "";
+                const epMatch = data.memory_layers.episodic || "";
+                const anMatch = data.memory_layers.ancestral || "";
+                document.getElementById("chronicle-layer-st").textContent = stMatch.split("—")[1] || "Current scan";
+                document.getElementById("chronicle-layer-ep").textContent = epMatch.split("—")[1] || "0 readings";
+                document.getElementById("chronicle-layer-an").textContent = anMatch.split("—")[1] || "0 outcomes";
+            }
+        }).catch(() => {});
+    }
+
+    function loadChronicleTimeline() {
+        fetch("/api/harness/chronicle/entries?limit=30").then(r => r.json()).then(data => {
+            const timeline = document.getElementById("chronicle-timeline");
+            if (!data.entries || data.entries.length === 0) {
+                timeline.innerHTML = '<div class="chronicle-empty">No entries yet. Run Consensus to build the Chronicle.</div>';
+                return;
+            }
+            timeline.innerHTML = data.entries.map(e => {
+                const t = new Date(e.timestamp * 1000);
+                const time = t.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+                const cls = e.success ? "success" : "partial";
+                return '<div class="chronicle-entry ' + cls + '">' +
+                    '<span class="ce-time">' + time + '</span>' +
+                    '<span class="ce-cmd" title="' + (e.consensus_intent || "") + '">' + e.consensus_command + '</span>' +
+                    '<span class="ce-energy">' + e.energy_pct + '%</span>' +
+                    '<span class="ce-outcome">' + e.outcome + '</span>' +
+                    '</div>';
+            }).join("");
+        }).catch(() => {});
+    }
+
+    loadChronicleStats();
+    loadChronicleTimeline();
+
+    document.getElementById("chronicle-query-btn").addEventListener("click", function() {
+        this.disabled = true;
+        this.textContent = "Querying...";
+        fetch("/api/harness/chronicle/query", {method: "POST"}).then(r => r.json()).then(data => {
+            const resultEl = document.getElementById("chronicle-result");
+            const matchesEl = document.getElementById("chronicle-matches");
+            resultEl.style.display = "block";
+
+            if (!data.matches || data.matches.length === 0) {
+                matchesEl.innerHTML = '<div class="chronicle-empty">No ancestral matches found for current sensor state.</div>';
+            } else {
+                matchesEl.innerHTML = '<div style="font-size:0.8em;color:var(--text-muted);margin-bottom:8px;">ANCESTRAL MATCHES</div>' +
+                    data.matches.map(m =>
+                        '<div class="ancestor-card">' +
+                        '<div class="ancestor-similarity">Match: ' + (m.similarity * 100).toFixed(1) + '%</div>' +
+                        '<div class="ancestor-command">' + m.proven_command + '</div>' +
+                        '<div class="ancestor-intent">' + m.proven_intent + '</div>' +
+                        '<div class="ancestor-domains">' + m.matched_domains.map(d => '<span class="ancestor-domain-tag">' + d + '</span>').join("") + '</div>' +
+                        '</div>'
+                    ).join("");
+            }
+            showToast("Ancestors queried", "success");
+        }).catch(() => {
+            showToast("Query failed", "error");
+        }).finally(() => {
+            this.disabled = false;
+            this.textContent = "Query Ancestors";
+        });
+    });
+
+    document.getElementById("chronicle-prophecy-btn").addEventListener("click", function() {
+        this.disabled = true;
+        this.textContent = "Prophesying...";
+        fetch("/api/harness/chronicle/prophecy", {method: "POST"}).then(r => r.json()).then(data => {
+            const resultEl = document.getElementById("chronicle-result");
+            const prophEl = document.getElementById("chronicle-prophecies");
+            resultEl.style.display = "block";
+
+            if (!data.prophecies || data.prophecies.length === 0) {
+                prophEl.innerHTML = '<div class="chronicle-empty">No prophecies — the V2 Pastor sees no imminent crisis patterns.</div>';
+            } else {
+                prophEl.innerHTML = '<div style="font-size:0.8em;color:#FFD700;margin-bottom:8px;">V2 PASTOR PROPHECIES</div>' +
+                    data.prophecies.map(p =>
+                        '<div class="prophecy-card">' +
+                        '<div class="prophecy-name">' + p.pattern_name.replace(/_/g, " ") + '</div>' +
+                        '<div class="prophecy-command">' + p.prophecy_command + '</div>' +
+                        '<div class="prophecy-intent">' + p.prophecy_intent + '</div>' +
+                        '<div class="prophecy-confidence">Confidence: ' + (p.confidence * 100).toFixed(0) + '% | Supporting: ' + p.supporting_entries + ' entries | ' + p.trigger_domain + ' → ' + p.consequence_domain + '</div>' +
+                        '</div>'
+                    ).join("");
+            }
+            showToast("Prophecy complete", "success");
+        }).catch(() => {
+            showToast("Prophecy failed", "error");
+        }).finally(() => {
+            this.disabled = false;
+            this.textContent = "V2 Pastor Prophecy";
+        });
+    });
+
+    document.getElementById("chronicle-export-btn").addEventListener("click", function() {
+        fetch("/api/harness/chronicle/export").then(r => r.json()).then(data => {
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "genesis_seed_" + (data.source_machine_id || "void") + ".json";
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Genesis Seed exported — " + data.total_entries + " entries", "success");
+        }).catch(() => {
+            showToast("Export failed", "error");
+        });
+    });
+
+    document.getElementById("chronicle-import-input").addEventListener("change", function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            try {
+                const seedData = JSON.parse(ev.target.result);
+                fetch("/api/harness/chronicle/import", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(seedData)
+                }).then(r => r.json()).then(data => {
+                    if (data.success) {
+                        showToast("Genesis Seed imported: " + data.imported_chronicle + " chronicle + " + data.imported_episodic + " episodic from " + data.source_machine, "success");
+                        loadChronicleStats();
+                        loadChronicleTimeline();
+                    } else {
+                        showToast("Import failed: " + (data.error || "Unknown error"), "error");
+                    }
+                }).catch(() => showToast("Import failed", "error"));
+            } catch (err) {
+                showToast("Invalid JSON file", "error");
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = "";
+    });
+
+    const origConsensusBtn = document.getElementById("consensus-run-btn");
+    if (origConsensusBtn) {
+        const origClick = origConsensusBtn.onclick;
+        origConsensusBtn.addEventListener("click", function() {
+            setTimeout(function() {
+                loadChronicleStats();
+                loadChronicleTimeline();
+            }, 1500);
+        });
+    }
 });

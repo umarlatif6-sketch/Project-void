@@ -90,12 +90,13 @@ GROWTH_THRESHOLDS = {
 
 
 class ConsensusEngine:
-    def __init__(self, simulator, transpiler, boundary_hook, loop_detector, wallet=None):
+    def __init__(self, simulator, transpiler, boundary_hook, loop_detector, wallet=None, chronicle=None):
         self._sim = simulator
         self._transpiler = transpiler
         self._boundary_hook = boundary_hook
         self._loop_detector = loop_detector
         self._wallet = wallet
+        self._chronicle = chronicle
         self._history: List[ConsensusResult] = []
         self._night_cycle_active = False
         self._night_cycle_thread: Optional[threading.Thread] = None
@@ -109,45 +110,74 @@ class ConsensusEngine:
 
         trace = []
         turn = 0
+        wisdom_context = None
+        adopted_proven_root = False
 
-        guardian_assessment = self._guardian_assess(state, energy_pct)
-        growth_assessment = self._growth_assess(state, energy_pct)
+        if self._chronicle:
+            wisdom_context = self._chronicle.get_wisdom_context(state)
 
-        turn += 1
-        guardian_cmd = guardian_assessment["opening_command"]
-        guardian_intent = guardian_assessment["opening_intent"]
-        trace.append(TraceEntry(
-            turn=turn, agent="Agent A", agent_role="The Guardian",
-            command=guardian_cmd, intent=guardian_intent,
-            state_snapshot={"energy_pct": round(energy_pct * 100, 1)},
-        ))
+            if wisdom_context.get("adopt_proven_root"):
+                turn += 1
+                trace.append(TraceEntry(
+                    turn=turn, agent="Chronicle", agent_role="Ancestral Memory",
+                    command=wisdom_context["proven_command"],
+                    intent=f"PROVEN ROOT ADOPTED — {wisdom_context['adoption_reason']}",
+                    state_snapshot={"energy_pct": round(energy_pct * 100, 1)},
+                ))
+                adopted_proven_root = True
 
-        turn += 1
-        growth_cmd = growth_assessment["opening_command"]
-        growth_intent = growth_assessment["opening_intent"]
-        trace.append(TraceEntry(
-            turn=turn, agent="Agent B", agent_role="The Growth-Seeker",
-            command=growth_cmd, intent=growth_intent,
-            state_snapshot={"energy_pct": round(energy_pct * 100, 1)},
-        ))
+            if wisdom_context.get("has_prophecy") and not adopted_proven_root:
+                for prophecy in wisdom_context["prophecies"]:
+                    turn += 1
+                    trace.append(TraceEntry(
+                        turn=turn, agent="Chronicle", agent_role="V2 Pastor",
+                        command=prophecy["prophecy_command"],
+                        intent=f"PROPHECY ({prophecy['confidence']:.0%}) — {prophecy['prophecy_intent']}",
+                        state_snapshot={"energy_pct": round(energy_pct * 100, 1)},
+                    ))
 
-        turn += 1
-        counter = self._guardian_counter(state, energy_pct, growth_cmd)
-        trace.append(TraceEntry(
-            turn=turn, agent="Agent A", agent_role="The Guardian",
-            command=counter["command"], intent=counter["intent"],
-            state_snapshot={"energy_pct": round(energy_pct * 100, 1)},
-        ))
+        guardian_assessment = self._guardian_assess(state, energy_pct, wisdom_context)
+        growth_assessment = self._growth_assess(state, energy_pct, wisdom_context)
 
-        turn += 1
-        resolution = self._growth_resolve(state, energy_pct, counter["command"])
-        trace.append(TraceEntry(
-            turn=turn, agent="Agent B", agent_role="The Growth-Seeker",
-            command=resolution["command"], intent=resolution["intent"],
-            state_snapshot={"energy_pct": round(energy_pct * 100, 1)},
-        ))
+        if not adopted_proven_root:
+            turn += 1
+            guardian_cmd = guardian_assessment["opening_command"]
+            guardian_intent = guardian_assessment["opening_intent"]
+            trace.append(TraceEntry(
+                turn=turn, agent="Agent A", agent_role="The Guardian",
+                command=guardian_cmd, intent=guardian_intent,
+                state_snapshot={"energy_pct": round(energy_pct * 100, 1)},
+            ))
 
-        consensus_cmd = self._derive_consensus(state, energy_pct, guardian_assessment, growth_assessment)
+            turn += 1
+            growth_cmd = growth_assessment["opening_command"]
+            growth_intent = growth_assessment["opening_intent"]
+            trace.append(TraceEntry(
+                turn=turn, agent="Agent B", agent_role="The Growth-Seeker",
+                command=growth_cmd, intent=growth_intent,
+                state_snapshot={"energy_pct": round(energy_pct * 100, 1)},
+            ))
+
+            turn += 1
+            counter = self._guardian_counter(state, energy_pct, growth_cmd)
+            trace.append(TraceEntry(
+                turn=turn, agent="Agent A", agent_role="The Guardian",
+                command=counter["command"], intent=counter["intent"],
+                state_snapshot={"energy_pct": round(energy_pct * 100, 1)},
+            ))
+
+            turn += 1
+            resolution = self._growth_resolve(state, energy_pct, counter["command"])
+            trace.append(TraceEntry(
+                turn=turn, agent="Agent B", agent_role="The Growth-Seeker",
+                command=resolution["command"], intent=resolution["intent"],
+                state_snapshot={"energy_pct": round(energy_pct * 100, 1)},
+            ))
+
+        if adopted_proven_root:
+            consensus_cmd = wisdom_context["proven_command"]
+        else:
+            consensus_cmd = self._derive_consensus(state, energy_pct, guardian_assessment, growth_assessment)
 
         total_chars = sum(len(t.command) for t in trace) + len(consensus_cmd)
 
@@ -156,6 +186,10 @@ class ConsensusEngine:
         wallet_snapshot = None
         if self._wallet:
             wallet_snapshot = self._wallet.get_status()
+
+        outcome_text = "SLM Achieved" if all(r.get("executed", False) for r in execution_results) else "Partial Consensus"
+        if adopted_proven_root:
+            outcome_text = "Proven Root — " + outcome_text
 
         result = ConsensusResult(
             success=all(r.get("executed", False) for r in execution_results) if execution_results else False,
@@ -167,7 +201,7 @@ class ConsensusEngine:
             execution_results=execution_results,
             timestamp=time.time(),
             energy_pct=energy_pct * 100,
-            outcome="SLM Achieved" if all(r.get("executed", False) for r in execution_results) else "Partial Consensus",
+            outcome=outcome_text,
             wallet_snapshot=wallet_snapshot,
         )
 
@@ -175,11 +209,41 @@ class ConsensusEngine:
         if len(self._history) > 50:
             self._history = self._history[-50:]
 
+        if self._chronicle:
+            self._chronicle.record_consensus(
+                result.to_dict(),
+                state,
+                guardian_priority=guardian_assessment.get("priority", ""),
+                growth_priority=growth_assessment.get("priority", ""),
+            )
+
         return result
 
-    def _guardian_assess(self, state: Dict, energy_pct: float) -> Dict:
+    def _guardian_assess(self, state: Dict, energy_pct: float, wisdom: Optional[Dict] = None) -> Dict:
         fw = state["flywheel"]
         pr = state["pressure"]
+
+        if wisdom and wisdom.get("has_prophecy"):
+            for prophecy in wisdom.get("prophecies", []):
+                if prophecy.get("trigger_domain") in ("thermal", "pressure", "power"):
+                    return {
+                        "opening_command": prophecy["prophecy_command"],
+                        "opening_intent": f"Chronicle prophecy: {prophecy['prophecy_intent']}",
+                        "priority": f"prophetic_{prophecy['trigger_domain']}",
+                        "wisdom_source": "chronicle_prophecy",
+                    }
+
+        if wisdom and wisdom.get("has_ancestral_match"):
+            best = wisdom.get("best_match", {})
+            if best and best.get("similarity", 0) >= 0.75:
+                matched = best.get("matched_domains", [])
+                if "flywheel" in matched or "pressure" in matched:
+                    return {
+                        "opening_command": best["proven_command"],
+                        "opening_intent": f"Ancestral wisdom ({best['similarity']:.0%} match): {best['proven_intent']}",
+                        "priority": "ancestral_guidance",
+                        "wisdom_source": "chronicle_ancestor",
+                    }
 
         if energy_pct < GUARDIAN_THRESHOLDS["energy_critical"]:
             return {
@@ -218,8 +282,20 @@ class ConsensusEngine:
                 "priority": "nominal_watch",
             }
 
-    def _growth_assess(self, state: Dict, energy_pct: float) -> Dict:
+    def _growth_assess(self, state: Dict, energy_pct: float, wisdom: Optional[Dict] = None) -> Dict:
         aq = state["aquaponics"]
+
+        if wisdom and wisdom.get("has_ancestral_match"):
+            best = wisdom.get("best_match", {})
+            if best and best.get("similarity", 0) >= 0.75:
+                matched = best.get("matched_domains", [])
+                if "aquaponics" in matched:
+                    return {
+                        "opening_command": best["proven_command"],
+                        "opening_intent": f"Ancestral harvest window ({best['similarity']:.0%} match): {best['proven_intent']}",
+                        "priority": "ancestral_harvest",
+                        "wisdom_source": "chronicle_ancestor",
+                    }
 
         if aq["dissolved_oxygen_ppm"] < GROWTH_THRESHOLDS["oxygen_low"]:
             return {

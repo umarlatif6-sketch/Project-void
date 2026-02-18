@@ -671,6 +671,37 @@
                 </div>
             </div>
 
+            <div class="harness-actions-row chronicle-section">
+                <h3>Root-Chronicle — Ancestral Wisdom</h3>
+                <p class="panel-desc">The Chronicle stores every successful Consensus as <strong>"Morphic Memory."</strong> Agents recall past victories and adopt <strong>Proven Roots</strong> when sensor patterns match. The <strong>V2 Pastor</strong> predicts crises before they hit.</p>
+                <div class="chronicle-memory-layers">
+                    <div class="memory-layer short-term"><span class="layer-icon">SLM.V</span><span class="layer-label">Short-Term</span><span id="chronicle-layer-st" class="layer-detail">Current scan</span></div>
+                    <div class="memory-layer episodic"><span class="layer-icon">NZM.M</span><span class="layer-label">Episodic</span><span id="chronicle-layer-ep" class="layer-detail">0 readings (24h)</span></div>
+                    <div class="memory-layer ancestral"><span class="layer-icon">WSL.R</span><span class="layer-label">Ancestral</span><span id="chronicle-layer-an" class="layer-detail">0 proven outcomes</span></div>
+                </div>
+                <div class="chronicle-stats-grid">
+                    <div class="ch-stat"><span class="ch-stat-label">Entries</span><span id="ch-total" class="ch-stat-value">0</span></div>
+                    <div class="ch-stat"><span class="ch-stat-label">Success Rate</span><span id="ch-rate" class="ch-stat-value">0%</span></div>
+                    <div class="ch-stat"><span class="ch-stat-label">Proven Root</span><span id="ch-proven" class="ch-stat-value">—</span></div>
+                    <div class="ch-stat"><span class="ch-stat-label">Machine</span><span id="ch-machine" class="ch-stat-value">—</span></div>
+                </div>
+                <div class="chronicle-controls">
+                    <button id="chronicle-query-btn" class="btn-accent">Query Ancestors</button>
+                    <button id="chronicle-prophecy-btn" class="btn-secondary">V2 Pastor Prophecy</button>
+                    <button id="chronicle-export-btn" class="btn-secondary">Export Genesis Seed</button>
+                    <label class="btn-secondary chronicle-import-label">
+                        Import Seed
+                        <input type="file" id="chronicle-import-input" accept=".json" style="display:none;">
+                    </label>
+                </div>
+                <div id="chronicle-result" class="chronicle-result" style="display:none;">
+                    <div id="chronicle-matches" class="chronicle-matches"></div>
+                    <div id="chronicle-prophecies" class="chronicle-prophecies"></div>
+                </div>
+                <div class="chronicle-timeline-header">Chronicle Timeline</div>
+                <div id="chronicle-timeline" class="chronicle-timeline"></div>
+            </div>
+
             <div class="harness-actions-row">
                 <h3>Context Injection Preview</h3>
                 <button id="harness-context-btn" class="btn-secondary">Generate SilkLink Context</button>
