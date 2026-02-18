@@ -86,6 +86,9 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")
 
+    if len(payload) > 500 * 1024 * 1024:
+        print(f"  [RESONANCE WARNING]: Large Void detected ({len(payload) / (1024*1024):.0f} MB). Ensuring 18-hour Pulse is active...")
+
     if passphrase is None:
         passphrase = _generate_hash_key()
 
@@ -120,18 +123,17 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     bit_array = np.unpackbits(np.frombuffer(full_payload, dtype=np.uint8))
 
     if lsb_depth == 1:
-        mask = np.int16(~1)
-        for i in range(len(bit_array)):
-            samples[i] = (samples[i] & mask) | np.int16(bit_array[i])
+        n = len(bit_array)
+        samples[:n] = (samples[:n] & np.int16(~1)) | bit_array.astype(np.int16)
     else:
-        mask = np.int16(~3)
         pad_len = (2 - (len(bit_array) % 2)) % 2
         if pad_len:
             bit_array = np.concatenate([bit_array, np.zeros(pad_len, dtype=np.uint8)])
-        for i in range(0, len(bit_array), 2):
-            two_bits = np.int16((bit_array[i] << 1) | bit_array[i + 1])
-            idx = i // 2
-            samples[idx] = (samples[idx] & mask) | two_bits
+        high_bits = bit_array[0::2].astype(np.int16)
+        low_bits = bit_array[1::2].astype(np.int16)
+        two_bit_values = (high_bits << 1) | low_bits
+        n = len(two_bit_values)
+        samples[:n] = (samples[:n] & np.int16(~3)) | two_bit_values
 
     modified_frames = samples.tobytes()
 
@@ -158,7 +160,12 @@ def encode_burst(signal_text: str, output_path: str) -> str:
     sample_rate = 44100
     duration = 5
     t = np.linspace(0, duration, sample_rate * duration, endpoint=False)
-    carrier = (16000 * np.sin(2 * np.pi * VILLAGE_STANDARD_HZ * t)).astype(np.int16)
+    signal = (
+        16000 * np.sin(2 * np.pi * VILLAGE_STANDARD_HZ * t)
+        + 16000 * 0.10 * np.sin(2 * np.pi * (VILLAGE_STANDARD_HZ * 2) * t)
+        + 16000 * 0.05 * np.sin(2 * np.pi * (VILLAGE_STANDARD_HZ * 3) * t)
+    )
+    carrier = np.clip(signal, -32768, 32767).astype(np.int16)
 
     carrier_path = output_path + ".tmp_carrier.wav"
     try:
@@ -202,12 +209,13 @@ def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes,
         header_bits = samples[:header_bits_needed] & 1
     else:
         needed_samples = (header_bits_needed + 1) // 2
-        raw_bits = []
-        for i in range(needed_samples):
-            val = int(samples[i]) & 3
-            raw_bits.append((val >> 1) & 1)
-            raw_bits.append(val & 1)
-        header_bits = np.array(raw_bits[:header_bits_needed], dtype=np.uint8)
+        two_bit_vals = samples[:needed_samples].astype(np.int16) & 3
+        high_bits = (two_bit_vals >> 1).astype(np.uint8)
+        low_bits = (two_bit_vals & 1).astype(np.uint8)
+        interleaved = np.empty(needed_samples * 2, dtype=np.uint8)
+        interleaved[0::2] = high_bits
+        interleaved[1::2] = low_bits
+        header_bits = interleaved[:header_bits_needed]
 
     header_bytes = np.packbits(header_bits).tobytes()[:HEADER_SIZE]
     name_ext, data_size, stored_checksum = _parse_header(header_bytes, key)
@@ -219,12 +227,13 @@ def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes,
         all_bits = samples[:total_bits] & 1
     else:
         needed_samples = (total_bits + 1) // 2
-        raw_bits = []
-        for i in range(needed_samples):
-            val = int(samples[i]) & 3
-            raw_bits.append((val >> 1) & 1)
-            raw_bits.append(val & 1)
-        all_bits = np.array(raw_bits[:total_bits], dtype=np.uint8)
+        two_bit_vals = samples[:needed_samples].astype(np.int16) & 3
+        high_bits = (two_bit_vals >> 1).astype(np.uint8)
+        low_bits = (two_bit_vals & 1).astype(np.uint8)
+        interleaved = np.empty(needed_samples * 2, dtype=np.uint8)
+        interleaved[0::2] = high_bits
+        interleaved[1::2] = low_bits
+        all_bits = interleaved[:total_bits]
 
     all_bytes = np.packbits(all_bits).tobytes()[:total_payload_bytes]
     compressed_data = all_bytes[HEADER_SIZE:]
