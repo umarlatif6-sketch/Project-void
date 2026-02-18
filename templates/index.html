@@ -64,6 +64,13 @@
                     <label class="radio-label"><input type="radio" name="lsb-encode" value="2"> Depth 2 <span class="hint">— Capacity (more data, slight distortion)</span></label>
                 </div>
             </div>
+            <div class="form-group">
+                <label class="checkbox-label" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="checkbox" id="jitter-toggle">
+                    <span>Fly Jitter</span>
+                    <span class="hint">— Scatter data like a fly (anti-forensic temporal offset)</span>
+                </label>
+            </div>
             <button id="encode-btn" class="btn-primary">Encode File</button>
 
             <div id="encode-result" class="result-box" style="display:none;">

@@ -11,6 +11,7 @@ MAGIC = b"PVOD"
 VILLAGE_STANDARD_HZ = 432
 PILOT_TONE_DURATION = 0.5
 PILOT_TONE_SAMPLE_RATE = 44100
+JITTER_FLAG_BIT = 1 << 31
 
 _carrier_cache = {}
 
@@ -62,6 +63,62 @@ def _compute_ghost_offset(passphrase: str, total_samples: int) -> int:
     return seed % max_offset
 
 
+def _generate_jitter_map(passphrase: str, n_data_samples: int,
+                         available_start: int, available_end: int) -> list[tuple[int, int]]:
+    seed = int(hashlib.sha256(("jitter:" + passphrase).encode()).hexdigest()[:8], 16)
+    rng = np.random.RandomState(seed)
+
+    total_available = available_end - available_start
+
+    if n_data_samples <= 0:
+        return []
+
+    if n_data_samples >= int(total_available * 0.8):
+        return [(available_start, n_data_samples)]
+
+    n_chunks = min(max(7, n_data_samples // 500), 20)
+    if n_data_samples < n_chunks:
+        n_chunks = max(1, n_data_samples)
+
+    alpha = rng.uniform(0.5, 2.0, size=n_chunks)
+    proportions = rng.dirichlet(alpha)
+    chunk_sizes = np.maximum(1, np.round(proportions * n_data_samples).astype(int))
+
+    diff = n_data_samples - int(chunk_sizes.sum())
+    chunk_sizes[-1] += diff
+    if chunk_sizes[-1] <= 0:
+        chunk_sizes[-1] = 1
+        overshoot = int(chunk_sizes.sum()) - n_data_samples
+        for i in range(len(chunk_sizes) - 2, -1, -1):
+            take = min(overshoot, int(chunk_sizes[i]) - 1)
+            chunk_sizes[i] -= take
+            overshoot -= take
+            if overshoot <= 0:
+                break
+
+    total_gap = total_available - n_data_samples
+    n_gaps = n_chunks + 1
+    gap_alpha = rng.uniform(0.3, 3.0, size=n_gaps)
+    gap_proportions = rng.dirichlet(gap_alpha)
+    gaps = np.maximum(0, np.round(gap_proportions * total_gap).astype(int))
+
+    gap_diff = total_gap - int(gaps.sum())
+    gaps[-1] += gap_diff
+
+    positions = []
+    pos = available_start
+    for i in range(n_chunks):
+        pos += int(gaps[i])
+        csize = int(chunk_sizes[i])
+        if pos + csize > available_end:
+            csize = available_end - pos
+        if csize > 0:
+            positions.append((pos, csize))
+        pos += csize
+
+    return positions
+
+
 def apply_dither_mask(samples: np.ndarray, seed: int = 42) -> np.ndarray:
     rng = np.random.RandomState(seed)
     white = rng.randn(len(samples))
@@ -103,7 +160,7 @@ def _decrypt_header(encrypted_header: bytes, key: bytes) -> bytes:
 
 
 def _build_header(file_name: str, extension: str, data_size: int,
-                  checksum: str, key: bytes) -> bytes:
+                  checksum: str, key: bytes, jitter: bool = False) -> bytes:
     name_ext = (file_name + extension).encode("utf-8")
     if len(name_ext) > 24:
         name_ext = name_ext[:24]
@@ -113,10 +170,14 @@ def _build_header(file_name: str, extension: str, data_size: int,
 
     nonce = secrets.token_bytes(16)
 
+    stored_size = data_size
+    if jitter:
+        stored_size |= JITTER_FLAG_BIT
+
     plaintext = (
         MAGIC
         + name_ext
-        + struct.pack("<I", data_size)
+        + struct.pack("<I", stored_size)
         + checksum_bytes
         + nonce
     )
@@ -127,7 +188,7 @@ def _build_header(file_name: str, extension: str, data_size: int,
     return encrypted
 
 
-def _parse_header(encrypted_header: bytes, key: bytes) -> tuple[str, int, str]:
+def _parse_header(encrypted_header: bytes, key: bytes) -> tuple[str, int, str, bool]:
     decrypted = _decrypt_header(encrypted_header, key)
 
     magic = decrypted[:4]
@@ -137,19 +198,51 @@ def _parse_header(encrypted_header: bytes, key: bytes) -> tuple[str, int, str]:
     name_ext_raw = decrypted[4:28]
     name_ext = name_ext_raw.rstrip(b"\x00").decode("utf-8", errors="replace")
 
-    data_size = struct.unpack("<I", decrypted[28:32])[0]
+    raw_size = struct.unpack("<I", decrypted[28:32])[0]
+    jitter = bool(raw_size & JITTER_FLAG_BIT)
+    data_size = raw_size & ~JITTER_FLAG_BIT
 
     checksum = decrypted[32:48].hex()
 
-    return name_ext, data_size, checksum
+    return name_ext, data_size, checksum, jitter
 
 
 def _compute_md5(data: bytes) -> str:
     return hashlib.md5(data).hexdigest()
 
 
+def _embed_bits_at(samples: np.ndarray, bit_array: np.ndarray,
+                   start: int, n_samples: int, lsb_depth: int) -> None:
+    if lsb_depth == 1:
+        seg = samples[start:start + n_samples]
+        samples[start:start + n_samples] = (seg & np.int16(~1)) | bit_array[:n_samples].astype(np.int16)
+    else:
+        seg = samples[start:start + n_samples]
+        bits = bit_array[:n_samples * 2]
+        high_bits = bits[0::2].astype(np.int16)
+        low_bits = bits[1::2].astype(np.int16)
+        two_bit_values = (high_bits << 1) | low_bits
+        samples[start:start + n_samples] = (seg & np.int16(~3)) | two_bit_values
+
+
+def _extract_bits_at(samples: np.ndarray, start: int,
+                     n_samples: int, lsb_depth: int) -> np.ndarray:
+    if lsb_depth == 1:
+        return (samples[start:start + n_samples] & 1).astype(np.uint8)
+    else:
+        seg = samples[start:start + n_samples]
+        two_bit_vals = seg.astype(np.int16) & 3
+        high_bits = (two_bit_vals >> 1).astype(np.uint8)
+        low_bits = (two_bit_vals & 1).astype(np.uint8)
+        interleaved = np.empty(n_samples * 2, dtype=np.uint8)
+        interleaved[0::2] = high_bits
+        interleaved[1::2] = low_bits
+        return interleaved
+
+
 def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
-           output_path: str, lsb_depth: int = 1, passphrase: str | None = None) -> str:
+           output_path: str, lsb_depth: int = 1, passphrase: str | None = None,
+           jitter: bool = False) -> str:
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")
 
@@ -161,10 +254,7 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
 
     key = _derive_key(passphrase)
     checksum = _compute_md5(payload)
-    header = _build_header(file_name, extension, len(payload), checksum, key)
-
-    full_payload = header + payload
-    total_bits = len(full_payload) * 8
+    header = _build_header(file_name, extension, len(payload), checksum, key, jitter=jitter)
 
     with wave.open(carrier_path, "rb") as wav_in:
         params = wav_in.getparams()
@@ -182,6 +272,7 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
 
     ghost_offset = _compute_ghost_offset(passphrase, total_samples)
     effective_capacity = (total_samples - ghost_offset) * bits_per_sample
+    total_bits = (HEADER_SIZE + len(payload)) * 8
 
     if total_bits > effective_capacity:
         raise ValueError(
@@ -193,22 +284,37 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     dither_seed = int(hashlib.sha256(("dither:" + passphrase).encode()).hexdigest()[:8], 16)
     samples = apply_dither_mask(samples, seed=dither_seed)
 
-    bit_array = np.unpackbits(np.frombuffer(full_payload, dtype=np.uint8))
-
-    if lsb_depth == 1:
-        n = len(bit_array)
-        start = ghost_offset
-        samples[start:start + n] = (samples[start:start + n] & np.int16(~1)) | bit_array.astype(np.int16)
-    else:
-        pad_len = (2 - (len(bit_array) % 2)) % 2
+    header_bits = np.unpackbits(np.frombuffer(header, dtype=np.uint8))
+    header_samples = HEADER_SIZE * 8 // bits_per_sample
+    if lsb_depth == 2:
+        pad_len = (2 - (len(header_bits) % 2)) % 2
         if pad_len:
-            bit_array = np.concatenate([bit_array, np.zeros(pad_len, dtype=np.uint8)])
-        high_bits = bit_array[0::2].astype(np.int16)
-        low_bits = bit_array[1::2].astype(np.int16)
-        two_bit_values = (high_bits << 1) | low_bits
-        n = len(two_bit_values)
-        start = ghost_offset
-        samples[start:start + n] = (samples[start:start + n] & np.int16(~3)) | two_bit_values
+            header_bits = np.concatenate([header_bits, np.zeros(pad_len, dtype=np.uint8)])
+    _embed_bits_at(samples, header_bits, ghost_offset, header_samples, lsb_depth)
+
+    data_bits = np.unpackbits(np.frombuffer(payload, dtype=np.uint8))
+    if lsb_depth == 2:
+        pad_len = (2 - (len(data_bits) % 2)) % 2
+        if pad_len:
+            data_bits = np.concatenate([data_bits, np.zeros(pad_len, dtype=np.uint8)])
+    data_samples_needed = len(data_bits) // bits_per_sample
+
+    jitter_info = ""
+    if jitter and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        jitter_map = _generate_jitter_map(passphrase, data_samples_needed,
+                                          data_start, total_samples)
+
+        bit_offset = 0
+        for (pos, chunk_len) in jitter_map:
+            chunk_bits = data_bits[bit_offset * bits_per_sample:(bit_offset + chunk_len) * bits_per_sample]
+            _embed_bits_at(samples, chunk_bits, pos, chunk_len, lsb_depth)
+            bit_offset += chunk_len
+
+        jitter_info = f"\n         Fly Jitter: Active ({len(jitter_map)} chunks scattered)"
+    else:
+        data_start = ghost_offset + header_samples
+        _embed_bits_at(samples, data_bits, data_start, data_samples_needed, lsb_depth)
 
     modified_frames = samples.tobytes()
 
@@ -216,16 +322,17 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
         wav_out.setparams(params)
         wav_out.writeframes(modified_frames)
 
+    full_payload_size = HEADER_SIZE + len(payload)
     usage_pct = (total_bits / capacity) * 100
     print(f"  [VOID] Encoding complete:")
     print(f"         Carrier:    {carrier_path}")
     print(f"         Output:     {output_path}")
     print(f"         LSB depth:  {lsb_depth}")
     print(f"         Capacity:   {capacity // 8:,} bytes")
-    print(f"         Used:       {len(full_payload):,} bytes ({usage_pct:.1f}%)")
+    print(f"         Used:       {full_payload_size:,} bytes ({usage_pct:.1f}%)")
     print(f"         Checksum:   {checksum}")
     print(f"         Ghost Offset: {ghost_offset:,} samples")
-    print(f"         Dither Mask: Applied (seed {dither_seed})")
+    print(f"         Dither Mask: Applied (seed {dither_seed}){jitter_info}")
 
     return passphrase
 
@@ -327,44 +434,37 @@ def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes,
 
     samples = np.frombuffer(raw_frames, dtype=np.int16)
     total_samples = len(samples)
+    bits_per_sample = lsb_depth
 
-    header_bits_needed = HEADER_SIZE * 8
     ghost_offset = _compute_ghost_offset(passphrase, total_samples)
+    header_samples = HEADER_SIZE * 8 // bits_per_sample
 
-    if lsb_depth == 1:
-        header_bits = samples[ghost_offset:ghost_offset + header_bits_needed] & 1
-    else:
-        needed_samples = (header_bits_needed + 1) // 2
-        seg = samples[ghost_offset:ghost_offset + needed_samples]
-        two_bit_vals = seg.astype(np.int16) & 3
-        high_bits = (two_bit_vals >> 1).astype(np.uint8)
-        low_bits = (two_bit_vals & 1).astype(np.uint8)
-        interleaved = np.empty(needed_samples * 2, dtype=np.uint8)
-        interleaved[0::2] = high_bits
-        interleaved[1::2] = low_bits
-        header_bits = interleaved[:header_bits_needed]
-
+    header_raw_bits = _extract_bits_at(samples, ghost_offset, header_samples, lsb_depth)
+    header_bits = header_raw_bits[:HEADER_SIZE * 8]
     header_bytes = np.packbits(header_bits).tobytes()[:HEADER_SIZE]
-    name_ext, data_size, stored_checksum = _parse_header(header_bytes, key)
+    name_ext, data_size, stored_checksum, has_jitter = _parse_header(header_bytes, key)
 
-    total_payload_bytes = HEADER_SIZE + data_size
-    total_bits = total_payload_bytes * 8
+    data_samples_needed = (data_size * 8 + bits_per_sample - 1) // bits_per_sample
 
-    if lsb_depth == 1:
-        all_bits = samples[ghost_offset:ghost_offset + total_bits] & 1
+    if has_jitter and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        jitter_map = _generate_jitter_map(passphrase, data_samples_needed,
+                                          data_start, total_samples)
+
+        collected_bits = []
+        for (pos, chunk_len) in jitter_map:
+            chunk_raw = _extract_bits_at(samples, pos, chunk_len, lsb_depth)
+            collected_bits.append(chunk_raw)
+
+        all_data_bits = np.concatenate(collected_bits)[:data_size * 8]
+        jitter_info = f" (Fly Jitter: {len(jitter_map)} chunks)"
     else:
-        needed_samples = (total_bits + 1) // 2
-        seg = samples[ghost_offset:ghost_offset + needed_samples]
-        two_bit_vals = seg.astype(np.int16) & 3
-        high_bits = (two_bit_vals >> 1).astype(np.uint8)
-        low_bits = (two_bit_vals & 1).astype(np.uint8)
-        interleaved = np.empty(needed_samples * 2, dtype=np.uint8)
-        interleaved[0::2] = high_bits
-        interleaved[1::2] = low_bits
-        all_bits = interleaved[:total_bits]
+        data_start = ghost_offset + header_samples
+        all_data_bits_raw = _extract_bits_at(samples, data_start, data_samples_needed, lsb_depth)
+        all_data_bits = all_data_bits_raw[:data_size * 8]
+        jitter_info = ""
 
-    all_bytes = np.packbits(all_bits).tobytes()[:total_payload_bytes]
-    compressed_data = all_bytes[HEADER_SIZE:]
+    compressed_data = np.packbits(all_data_bits).tobytes()[:data_size]
 
     computed_checksum = _compute_md5(compressed_data)
     if computed_checksum != stored_checksum:
@@ -378,6 +478,6 @@ def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes,
     print(f"  [VOID] Decoding complete:")
     print(f"         File:       {name_ext}")
     print(f"         Data size:  {data_size:,} bytes (compressed)")
-    print(f"         Checksum:   VERIFIED")
+    print(f"         Checksum:   VERIFIED{jitter_info}")
 
     return compressed_data, name_ext, stored_checksum

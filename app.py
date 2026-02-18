@@ -86,6 +86,7 @@ def encode_file():
     carrier = data.get("carrier")
     payload = data.get("payload")
     lsb_depth = int(data.get("lsb_depth", 1))
+    jitter = bool(data.get("jitter", False))
 
     if not carrier or not payload:
         return jsonify({"error": "Carrier and payload files are required"}), 400
@@ -105,7 +106,7 @@ def encode_file():
         output_name = f"{base_name}_void.wav"
         output_path = os.path.join(OUTPUT_DIR, output_name)
 
-        hash_key = encode(carrier_path, compressed, name, ext, output_path, lsb_depth)
+        hash_key = encode(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter)
 
         _log_operation("ENCODE", output_name, hash_key, f"LSB{lsb_depth}")
 
@@ -133,6 +134,7 @@ def encode_file():
             "original_size": orig_size,
             "compressed_size": compressed_size,
             "lsb_depth": lsb_depth,
+            "jitter": jitter,
             "bubble_status": bubble_status,
             "bubble_warning": bubble_warning,
         })

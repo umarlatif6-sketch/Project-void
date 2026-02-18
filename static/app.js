@@ -197,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const carrier = document.getElementById("carrier-select").value;
         const payload = document.getElementById("payload-select").value;
         const lsb = document.querySelector('input[name="lsb-encode"]:checked').value;
+        const jitter = document.getElementById("jitter-toggle").checked;
         const btn = document.getElementById("encode-btn");
 
         if (!carrier || !payload) {
@@ -212,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("/api/encode", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ carrier, payload, lsb_depth: parseInt(lsb) }),
+                body: JSON.stringify({ carrier, payload, lsb_depth: parseInt(lsb), jitter }),
             });
             const data = await res.json();
 
