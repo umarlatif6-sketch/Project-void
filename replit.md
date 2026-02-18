@@ -56,9 +56,13 @@ A modular steganography engine that hides massive data files (up to 1GB) inside 
 - Hash Key: 32-char hex token generated per encode, required for decode
 - Noise-Floor Mask: apply_dither_mask() adds pink noise (1/f spectral density) to carrier before LSB embedding — makes digital data look like natural analog warmth, defeats forensic steganalysis
 - Ghost Header: 64-byte encrypted header placed at Floating Offset (derived from SHA-256 of "ghost:" + passphrase, mod total_samples/4) — sniffers see solid audio, no header at position 0
-- Short Burst: Generates 5-second 432 Hz mono carrier with Harmonic Shimmer (LFO 0.25 Hz, ±2 Hz depth = 430-434 Hz modulation), encodes at depth 1, Sapphire Masking camouflage
+- Short Burst: Generates 5.5-second audio (0.5s Pilot Tone + 5s 432 Hz body with Harmonic Shimmer), encodes at depth 1, Sapphire Masking camouflage
+- Wing-Beat Pilot Tone: 0.5s dual-frequency preamble (432 Hz + 864 Hz harmonic) prepended to every burst — acts as acoustic wake-up call for phone mic detection. 60/30% mix with 10ms fade in/out.
+- Pre-Render Cache: Carrier waveforms (pilot tone, 5s burst body) cached in memory after first generation — subsequent encode_burst() calls skip waveform calculation entirely. Saves CPU during 18-hour window.
+- Sapphire Bubble Effect: When mic listener detects sustained Pilot Tone (432+864 Hz for 400ms), entire screen transitions from Dark Void to shimmering Sapphire Bubble — radial gradient overlay with shimmer animation, blue-glowing visualizer border. Confirms Fly is caught.
 - Spectrogram Mode: Visualizer toggle shows frequency-over-time waterfall with scrolling pixel columns, glowing sapphire thread at 432 Hz confirms Void is secure
 - Acoustic Lock-on: FFT size 8192 for high precision, target bin = 432 * (FFT_SIZE / SampleRate), 0.5s sustained dual-threshold (432 Hz ≥100, 864 Hz harmonic ≥40) before triggering 6-second capture
+- Visualizer Pilot Detection: FFT 4096, 432 Hz ≥100 + 864 Hz ≥50, 400ms sustained before Sapphire Bubble activates
 - Sapphire Glow: Translucent blue gradient pulse animation on Silk Web panel when signal successfully sent or acoustically caught
 - Bubble Burst Warning: Encode response includes bubble_status (safe/stretch/burst) and bubble_warning message based on Surface Tension analysis
 - Low-Power Resonance Mode: Toggle in header disables LZMA compression during encoding, maintains heartbeat and ticker

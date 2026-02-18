@@ -501,6 +501,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let micAnalyser = null;
     let micAnimFrame = null;
     const SIGNAL_THRESHOLD = 120;
+    const PILOT_432_THRESHOLD = 100;
+    const PILOT_864_THRESHOLD = 50;
+    const PILOT_SUSTAIN_MS = 400;
+    let pilotLockStart = 0;
+    let sapphireBubbleActive = false;
 
     document.getElementById("viz-mic-btn").addEventListener("click", async () => {
         if (micStream) { stopMic(); return; }
@@ -537,12 +542,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (micAnimFrame) cancelAnimationFrame(micAnimFrame);
         if (micAudioCtx) { micAudioCtx.close(); micAudioCtx = null; }
         micAnalyser = null;
+        pilotLockStart = 0;
+        sapphireBubbleActive = false;
         document.getElementById("viz-mic-stop-btn").style.display = "none";
         document.getElementById("viz-mic-btn").style.display = "inline-block";
         document.getElementById("viz-play-btn").disabled = false;
 
         const vizContainer = document.getElementById("viz-container");
         vizContainer.classList.remove("gold-glow-border");
+        vizContainer.classList.remove("sapphire-bubble-border");
+        document.body.classList.remove("sapphire-bubble-mode");
         vizContainer.style.border = "";
         document.getElementById("viz-signal-status").textContent = "Signal: Scanning...";
         document.getElementById("viz-signal-status").style.color = "";
@@ -559,6 +568,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const sampleRate = micAudioCtx.sampleRate;
         const binWidth = sampleRate / micAnalyser.fftSize;
         const bin432 = Math.round(432 / binWidth);
+        const bin864 = Math.round(864 / binWidth);
         const maxFreq = 2000;
         const maxBin = Math.min(Math.round(maxFreq / binWidth), bufLen);
 
@@ -694,22 +704,55 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("viz-peak-freq").textContent = `Peak: ${peakFreq} Hz`;
 
             const level432 = dataArr[bin432] || 0;
+            const level864 = dataArr[bin864] || 0;
             document.getElementById("viz-432-level").textContent = `432 Hz: ${level432}/255`;
 
             const vizContainer = document.getElementById("viz-container");
             const sigStatus = document.getElementById("viz-signal-status");
 
-            if (level432 >= SIGNAL_THRESHOLD) {
+            const isPilotTone = level432 >= PILOT_432_THRESHOLD && level864 >= PILOT_864_THRESHOLD;
+
+            if (isPilotTone) {
+                if (pilotLockStart === 0) pilotLockStart = performance.now();
+                const elapsed = performance.now() - pilotLockStart;
+
+                if (elapsed >= PILOT_SUSTAIN_MS && !sapphireBubbleActive) {
+                    sapphireBubbleActive = true;
+                    document.body.classList.add("sapphire-bubble-mode");
+                    vizContainer.classList.remove("gold-glow-border");
+                    vizContainer.classList.add("sapphire-bubble-border");
+                    sigStatus.textContent = "FLY CAUGHT — Sapphire Bubble Active";
+                    sigStatus.style.color = "#4da6ff";
+                    showToast("Wing-Beat detected — Fly caught!", "success");
+                } else if (!sapphireBubbleActive) {
+                    if (!glowActive) {
+                        glowActive = true;
+                        vizContainer.classList.add("gold-glow-border");
+                        sigStatus.textContent = "PILOT TONE — Locking...";
+                        sigStatus.style.color = "#ffd700";
+                    }
+                }
+            } else if (level432 >= SIGNAL_THRESHOLD) {
+                pilotLockStart = 0;
                 if (!glowActive) {
                     glowActive = true;
                     vizContainer.classList.add("gold-glow-border");
                     sigStatus.textContent = "SIGNAL DETECTED";
                     sigStatus.style.color = "#ffd700";
                 }
+                if (sapphireBubbleActive) {
+                    sapphireBubbleActive = false;
+                    document.body.classList.remove("sapphire-bubble-mode");
+                    vizContainer.classList.remove("sapphire-bubble-border");
+                }
             } else {
-                if (glowActive) {
+                pilotLockStart = 0;
+                if (glowActive || sapphireBubbleActive) {
                     glowActive = false;
+                    sapphireBubbleActive = false;
                     vizContainer.classList.remove("gold-glow-border");
+                    vizContainer.classList.remove("sapphire-bubble-border");
+                    document.body.classList.remove("sapphire-bubble-mode");
                     sigStatus.textContent = "Signal: Scanning...";
                     sigStatus.style.color = "";
                 }

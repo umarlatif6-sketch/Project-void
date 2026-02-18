@@ -9,6 +9,45 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 HEADER_SIZE = 64
 MAGIC = b"PVOD"
 VILLAGE_STANDARD_HZ = 432
+PILOT_TONE_DURATION = 0.5
+PILOT_TONE_SAMPLE_RATE = 44100
+
+_carrier_cache = {}
+
+
+def _get_cached_carrier(cache_key: str, generator_fn):
+    if cache_key not in _carrier_cache:
+        _carrier_cache[cache_key] = generator_fn()
+    return _carrier_cache[cache_key].copy()
+
+
+def _generate_pilot_tone(sample_rate: int = PILOT_TONE_SAMPLE_RATE) -> np.ndarray:
+    n_samples = int(PILOT_TONE_DURATION * sample_rate)
+    t = np.linspace(0, PILOT_TONE_DURATION, n_samples, endpoint=False)
+    tone_432 = np.sin(2 * np.pi * VILLAGE_STANDARD_HZ * t)
+    tone_864 = np.sin(2 * np.pi * (VILLAGE_STANDARD_HZ * 2) * t)
+    combined = 0.6 * tone_432 + 0.3 * tone_864
+    fade_len = int(0.01 * sample_rate)
+    fade_in = np.linspace(0, 1, fade_len)
+    fade_out = np.linspace(1, 0, fade_len)
+    combined[:fade_len] *= fade_in
+    combined[-fade_len:] *= fade_out
+    return np.clip(combined * 16000, -32768, 32767).astype(np.int16)
+
+
+def _generate_burst_carrier(duration: float = 5.0, sample_rate: int = PILOT_TONE_SAMPLE_RATE) -> np.ndarray:
+    t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+    shimmer_lfo_rate = 0.25
+    shimmer_depth = 2.0
+    shimmer_mod = shimmer_depth * np.sin(2 * np.pi * shimmer_lfo_rate * t)
+    base_freq = VILLAGE_STANDARD_HZ + shimmer_mod
+    phase = np.cumsum(2 * np.pi * base_freq / sample_rate)
+    signal = (
+        16000 * np.sin(phase)
+        + 16000 * 0.10 * np.sin(2 * phase)
+        + 16000 * 0.05 * np.sin(3 * phase)
+    )
+    return np.clip(signal, -32768, 32767).astype(np.int16)
 
 
 def _derive_key(passphrase: str) -> bytes:
@@ -195,22 +234,11 @@ def encode_burst(signal_text: str, output_path: str) -> str:
     if len(signal_text) > 10:
         raise ValueError("Signal text must be 10 characters or fewer.")
 
-    sample_rate = 44100
-    duration = 5
-    t = np.linspace(0, duration, sample_rate * duration, endpoint=False)
+    sample_rate = PILOT_TONE_SAMPLE_RATE
 
-    shimmer_lfo_rate = 0.25
-    shimmer_depth = 2.0
-    shimmer_mod = shimmer_depth * np.sin(2 * np.pi * shimmer_lfo_rate * t)
-    base_freq = VILLAGE_STANDARD_HZ + shimmer_mod
-    phase = np.cumsum(2 * np.pi * base_freq / sample_rate)
-
-    signal = (
-        16000 * np.sin(phase)
-        + 16000 * 0.10 * np.sin(2 * phase)
-        + 16000 * 0.05 * np.sin(3 * phase)
-    )
-    carrier = np.clip(signal, -32768, 32767).astype(np.int16)
+    pilot = _get_cached_carrier("pilot_44100", lambda: _generate_pilot_tone(sample_rate))
+    body = _get_cached_carrier("burst_5s_44100", lambda: _generate_burst_carrier(5.0, sample_rate))
+    carrier = np.concatenate([pilot, body])
 
     carrier_path = output_path + ".tmp_carrier.wav"
     try:

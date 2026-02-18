@@ -962,6 +962,59 @@ input[type="radio"] {
     letter-spacing: 1px;
 }
 
+.sapphire-bubble-border {
+    border: 2px solid #4da6ff !important;
+    animation: sapphireBubbleBorder 2s ease-in-out infinite;
+}
+
+@keyframes sapphireBubbleBorder {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(77, 166, 255, 0.4), inset 0 0 20px rgba(77, 166, 255, 0.05);
+        border-color: rgba(77, 166, 255, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(77, 166, 255, 0.7), 0 0 80px rgba(77, 166, 255, 0.2), inset 0 0 40px rgba(77, 166, 255, 0.1);
+        border-color: #4da6ff;
+    }
+}
+
+body.sapphire-bubble-mode {
+    animation: sapphireBubbleScreen 3s ease-in-out infinite;
+}
+
+body.sapphire-bubble-mode::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background: radial-gradient(ellipse at center, rgba(77, 166, 255, 0.08) 0%, rgba(30, 80, 180, 0.04) 50%, transparent 80%);
+    animation: sapphireShimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes sapphireShimmer {
+    0%, 100% {
+        opacity: 0.4;
+        background: radial-gradient(ellipse at 40% 40%, rgba(77, 166, 255, 0.1) 0%, rgba(30, 80, 180, 0.04) 50%, transparent 80%);
+    }
+    33% {
+        opacity: 0.8;
+        background: radial-gradient(ellipse at 60% 50%, rgba(100, 180, 255, 0.12) 0%, rgba(40, 100, 200, 0.06) 50%, transparent 80%);
+    }
+    66% {
+        opacity: 0.6;
+        background: radial-gradient(ellipse at 50% 60%, rgba(77, 166, 255, 0.1) 0%, rgba(30, 80, 180, 0.05) 50%, transparent 80%);
+    }
+}
+
+@keyframes sapphireBubbleScreen {
+    0%, 100% { background-color: #0a0a0f; }
+    50% { background-color: #0c0e1a; }
+}
+
 @media (max-width: 600px) {
     header { flex-direction: column; gap: 12px; padding: 16px; }
     main { padding: 16px 12px; }
