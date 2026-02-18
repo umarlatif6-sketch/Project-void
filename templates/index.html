@@ -493,6 +493,31 @@
                 <div id="harness-loop-alerts" class="harness-loop-alerts"></div>
             </div>
 
+            <div class="harness-actions-row adriana-section">
+                <h3>Adriana Protocol — Semantic Core Language</h3>
+                <p class="panel-desc">Type glyph-chain expressions to command the Void. Pattern: <code>[entity]-[condition]-[action]</code></p>
+                <div class="harness-action-form">
+                    <input type="text" id="adriana-input" class="void-input adriana-input" placeholder="e.g. α-θ-❄️  or  ψ-📉-💊  or  Ρ-⚡-🛡️" style="flex:2; font-size:16px;">
+                    <button id="adriana-transpile-btn" class="btn-secondary">Transpile</button>
+                    <button id="adriana-execute-btn" class="btn-accent">Execute</button>
+                    <button id="adriana-lexicon-btn" class="btn-secondary" style="font-size:11px;">Lexicon</button>
+                </div>
+                <div id="adriana-narrative" class="adriana-narrative" style="display:none;"></div>
+                <div id="adriana-result" class="adriana-result" style="display:none;">
+                    <div class="adriana-result-grid">
+                        <div id="adriana-compression" class="adriana-compression"></div>
+                        <div id="adriana-commands" class="adriana-commands"></div>
+                    </div>
+                    <div id="adriana-python" class="adriana-python"></div>
+                    <div id="adriana-dry-runs" class="adriana-dry-runs"></div>
+                </div>
+                <div id="adriana-lexicon-panel" class="adriana-lexicon-panel" style="display:none;">
+                    <div class="adriana-lex-grid" id="adriana-lex-entities"></div>
+                    <div class="adriana-lex-grid" id="adriana-lex-conditions"></div>
+                    <div class="adriana-lex-grid" id="adriana-lex-actions"></div>
+                </div>
+            </div>
+
             <div class="harness-actions-row">
                 <h3>Context Injection Preview</h3>
                 <button id="harness-context-btn" class="btn-secondary">Generate SilkLink Context</button>

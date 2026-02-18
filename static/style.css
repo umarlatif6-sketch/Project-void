@@ -1345,9 +1345,150 @@ body.sapphire-bubble-mode::before {
     font-size: 11px;
     color: var(--text-dim);
 }
+.adriana-section {
+    border: 1px solid rgba(124,92,255,0.2);
+    background: rgba(124,92,255,0.03);
+    border-radius: 8px;
+    padding: 16px;
+}
+.adriana-section h3 {
+    color: #b49cff;
+}
+.adriana-input {
+    font-family: 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif !important;
+    letter-spacing: 2px;
+}
+.adriana-narrative {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(124,92,255,0.08);
+    border: 1px solid rgba(124,92,255,0.2);
+    border-radius: 6px;
+    color: #d4c4ff;
+    font-size: 13px;
+    font-style: italic;
+}
+.adriana-result {
+    margin-top: 10px;
+}
+.adriana-result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.adriana-compression {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 12px;
+}
+.adriana-compression .ratio-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #7c5cff;
+}
+.adriana-compression .ratio-label {
+    color: var(--text-dim);
+    font-size: 10px;
+}
+.adriana-commands {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 11px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+.adriana-cmd {
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: #3ca0ff;
+}
+.adriana-python {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 4px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #888;
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+}
+.adriana-python .py-label {
+    color: var(--text-dim);
+    font-size: 9px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.adriana-dry-runs {
+    font-size: 11px;
+    font-family: monospace;
+}
+.adriana-dry-run {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 3px 0;
+}
+.adriana-dry-run .dr-verdict {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 10px;
+}
+.adriana-dry-run .dr-pass { background: rgba(74,222,128,0.15); color: #4ade80; }
+.adriana-dry-run .dr-fail { background: rgba(248,113,113,0.15); color: #f87171; }
+.adriana-lexicon-panel {
+    margin-top: 12px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(124,92,255,0.15);
+    border-radius: 6px;
+    padding: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.adriana-lex-grid {
+    margin-bottom: 10px;
+}
+.adriana-lex-grid h4 {
+    color: #b49cff;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+.lex-entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin: 2px;
+    font-size: 11px;
+    cursor: default;
+}
+.lex-entry .lex-glyph {
+    font-size: 16px;
+}
+.lex-entry .lex-key {
+    color: #3ca0ff;
+    font-family: monospace;
+}
+.lex-entry .lex-desc {
+    color: var(--text-dim);
+    font-size: 9px;
+}
 @media (max-width: 700px) {
     .harness-grid { grid-template-columns: 1fr; }
     .sensor-grid { grid-template-columns: 1fr; }
     .harness-action-form { flex-direction: column; }
     .chaos-step-row { grid-template-columns: 1fr; }
+    .adriana-result-grid { grid-template-columns: 1fr; }
 }

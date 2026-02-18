@@ -1763,6 +1763,128 @@ document.addEventListener("DOMContentLoaded", () => {
         loadHarnessStatus();
     });
 
+    document.getElementById("adriana-transpile-btn")?.addEventListener("click", async () => {
+        const expr = document.getElementById("adriana-input").value.trim();
+        if (!expr) return showToast("Enter an Adriana expression", "error");
+        try {
+            const res = await fetch("/api/harness/adriana/transpile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ expression: expr }),
+            });
+            const data = await res.json();
+            if (data.result) renderAdrianaResult(data.result, data.dry_runs);
+            else showToast(data.error || "Transpile failed", "error");
+        } catch(e) { showToast("Error: " + e.message, "error"); }
+    });
+
+    document.getElementById("adriana-execute-btn")?.addEventListener("click", async () => {
+        const expr = document.getElementById("adriana-input").value.trim();
+        if (!expr) return showToast("Enter an Adriana expression", "error");
+        try {
+            const res = await fetch("/api/harness/adriana/execute", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ expression: expr }),
+            });
+            const data = await res.json();
+            if (data.result) renderAdrianaResult(data.result, null, data.execution);
+            if (data.success) {
+                showToast("Adriana: All commands executed", "success");
+            } else if (data.partial) {
+                showToast("Adriana: Partial execution (some blocked)", "error");
+            } else if (data.errors && data.errors.length) {
+                showToast("Adriana: " + data.errors[0], "error");
+            } else {
+                showToast("Adriana: Execution blocked by safety pipeline", "error");
+            }
+            loadHarnessStatus();
+        } catch(e) { showToast("Error: " + e.message, "error"); }
+    });
+
+    document.getElementById("adriana-lexicon-btn")?.addEventListener("click", async () => {
+        const panel = document.getElementById("adriana-lexicon-panel");
+        if (panel.style.display !== "none") {
+            panel.style.display = "none";
+            return;
+        }
+        try {
+            const res = await fetch("/api/harness/adriana/lexicon");
+            const data = await res.json();
+            if (data.success) renderAdrianaLexicon(data.lexicon);
+            panel.style.display = "block";
+        } catch(e) { showToast("Error loading lexicon", "error"); }
+    });
+
+    function renderAdrianaResult(result, dryRuns, execResults) {
+        const narrativeEl = document.getElementById("adriana-narrative");
+        if (narrativeEl && result.narrative) {
+            narrativeEl.textContent = result.narrative;
+            narrativeEl.style.display = "block";
+        }
+
+        const resultEl = document.getElementById("adriana-result");
+        resultEl.style.display = "block";
+
+        const comp = result.compression || {};
+        document.getElementById("adriana-compression").innerHTML =
+            `<div class="ratio-value">${comp.ratio || 0}x</div>` +
+            `<div class="ratio-label">COMPRESSION RATIO</div>` +
+            `<div style="margin-top:6px; font-size:10px; color:#888;">` +
+            `${comp.adriana_chars || 0} chars → ${comp.python_chars || 0} chars<br>` +
+            `${comp.adriana_glyphs || 0} glyphs → ${comp.python_tokens || 0} tokens<br>` +
+            `Density: ${comp.density || 0}%</div>`;
+
+        const cmdsEl = document.getElementById("adriana-commands");
+        cmdsEl.innerHTML = (result.commands || []).map(c =>
+            `<div class="adriana-cmd">${c.action_type} → ${c.narrative}</div>`
+        ).join("") || '<div style="color:#666;">No commands generated</div>';
+
+        const pyEl = document.getElementById("adriana-python");
+        pyEl.innerHTML = `<div class="py-label">Python Equivalent</div>${comp.python_equivalent || "# no equivalent"}`;
+
+        const drEl = document.getElementById("adriana-dry-runs");
+        if (dryRuns) {
+            drEl.innerHTML = "<div style='color:#888;font-size:10px;margin-bottom:4px;'>SAFETY DRY-RUN</div>" +
+                dryRuns.map(dr => {
+                    const ok = dr.boundary_allowed && dr.checklist_verdict === "PASS";
+                    return `<div class="adriana-dry-run">` +
+                        `<span class="dr-verdict ${ok ? 'dr-pass' : 'dr-fail'}">${ok ? 'SAFE' : 'BLOCKED'}</span>` +
+                        `<span>${dr.action.type}</span>` +
+                        `<span style="color:#666;">${dr.checklist_verdict}</span>` +
+                        `</div>`;
+                }).join("");
+        } else if (execResults) {
+            drEl.innerHTML = "<div style='color:#888;font-size:10px;margin-bottom:4px;'>EXECUTION RESULTS</div>" +
+                execResults.map(er => {
+                    return `<div class="adriana-dry-run">` +
+                        `<span class="dr-verdict ${er.executed ? 'dr-pass' : 'dr-fail'}">${er.executed ? 'DONE' : 'BLOCKED'}</span>` +
+                        `<span>${er.action.type}</span>` +
+                        `<span style="color:#888;font-size:10px;">${er.narrative}</span>` +
+                        (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${er.blocked_by}]</span>` : '') +
+                        `</div>`;
+                }).join("");
+        } else {
+            drEl.innerHTML = "";
+        }
+    }
+
+    function renderAdrianaLexicon(lex) {
+        const renderGroup = (containerId, title, entries) => {
+            const el = document.getElementById(containerId);
+            el.innerHTML = `<h4>${title}</h4>` +
+                entries.map(e =>
+                    `<span class="lex-entry" title="${e.description} → ${e.python_equivalent}">` +
+                    `<span class="lex-glyph">${e.glyph}</span>` +
+                    `<span class="lex-key">${e.key}</span>` +
+                    `</span>`
+                ).join("");
+        };
+        renderGroup("adriana-lex-entities", "Entities (Subjects)", lex.entity || []);
+        renderGroup("adriana-lex-conditions", "Conditions (Qualifiers)", lex.condition || []);
+        renderGroup("adriana-lex-actions", "Actions (Operations)", lex.action || []);
+    }
+
     function renderChaosReport(report) {
         const wrap = document.getElementById("chaos-test-result");
         if (!wrap) return;

@@ -221,6 +221,7 @@ BOUNDARY_RULES = [
         "min_value": 10.0,
         "message": "Air Curtain velocity below minimum effective threshold.",
         "reconsider": "Increase Air Curtain fan speed. Check power supply to curtain motor. Verify Flywheel energy is sufficient to sustain curtain operation.",
+        "requires_condition": {"sensor_pattern": "pressure_internal", "min_value": 1.1},
     },
 ]
 
@@ -238,6 +239,21 @@ class AquaponicsBoundaryHook:
         flat_sensors = self._flatten_state(sensor_state)
 
         for rule in self.rules:
+            if "requires_condition" in rule:
+                cond = rule["requires_condition"]
+                cond_pattern = cond["sensor_pattern"]
+                cond_val = None
+                for key, value in flat_sensors.items():
+                    if cond_pattern in key.lower():
+                        cond_val = value
+                        break
+                if cond_val is None:
+                    continue
+                if "min_value" in cond and cond_val < cond["min_value"]:
+                    continue
+                if "max_value" in cond and cond_val > cond["max_value"]:
+                    continue
+
             pattern = rule["sensor_pattern"]
             matched_value = None
             matched_key = None

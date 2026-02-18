@@ -58,6 +58,17 @@ PROJECT VOID features a Flask-based web UI and a CLI for interaction. The core `
   - `GET /api/harness/chaos-test/reports` — Historical chaos test reports
   - `POST /api/harness/pressure/reset` — Reset pressure system to nominal (1.0 atm, AC off, seal 100%)
 
+**Adriana Protocol — Semantic Core Language (SCL):**
+- **AdrianaLexicon** (`void_engine/adriana.lex`): 45-glyph ontology mapping semantic symbols to domain operations across Aquaponics (α ψ ω μ ν π), Flywheel (Φ Ε Θ Γ), Silk (σ δ λ), Pressure (Ρ Χ Ν Σ), and System (Ω ∞). Three categories: Entity (subjects/sensors), Condition (thresholds/qualifiers like θ 📈 📉 ⚡ ⚖️), Action (operations like ❄️ 💊 🌊 🔋 🛡️ 💨).
+- **AdrianaTranspiler** (`void_engine/adriana_transpiler.py`): Parses glyph-chain expressions using Subject-Condition-Action grammar (e.g., `α-θ-❄️` = "When heat exceeds threshold → cool"). Supports multi-branch expressions via `|` separator. Generates VirtualVoidSimulator action sequences, validates against lexicon, produces human-readable narratives, and calculates compression metrics.
+- **Frequency Compression**: Measured 11-14x compression ratio vs equivalent Python code. Each semantic glyph carries complete intent — eliminates lexical ambiguity. Multi-branch expressions maintain 11x+ ratios.
+- **Safety Integration**: All transpiled commands route through the full Harness safety pipeline (BoundaryHook → LoopDetector → PreCompletionChecklist) before execution. Conditional boundary rules (e.g., air curtain velocity only checked when pressure elevated above 1.1 atm).
+- **Harness Tab UI**: Adriana Protocol section with glyph input field, Transpile (dry-run) and Execute buttons, narrative display, compression ratio visualization, Python equivalent preview, safety dry-run results, and toggleable lexicon reference panel.
+- **Adriana API Endpoints:**
+  - `GET /api/harness/adriana/lexicon` — Full glyph map with categories, domains, descriptions
+  - `POST /api/harness/adriana/transpile` — Parse expression, generate commands, dry-run safety checks
+  - `POST /api/harness/adriana/execute` — Transpile and execute through full safety pipeline
+
 ## External Dependencies
 -   **Python:** 3.11
 -   **numpy:** For audio sample manipulation.

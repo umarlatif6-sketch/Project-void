@@ -15,6 +15,7 @@ from void_engine.harness import PreCompletionChecklistMiddleware, VirtualVoidSim
 from void_engine.nervous_system import SilkLinkContextMiddleware, AquaponicsBoundaryHook
 from void_engine.loop_detector import LoopDetectionMiddleware
 from void_engine.chaos_test import NitrogenLeakChaosTest
+from void_engine.adriana_transpiler import AdrianaTranspiler
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -499,6 +500,7 @@ _boundary_hook = AquaponicsBoundaryHook()
 _loop_detector = LoopDetectionMiddleware(max_attempts=5)
 
 _chaos_test = NitrogenLeakChaosTest(_harness_sim, _harness_checklist, _boundary_hook, _loop_detector)
+_adriana = AdrianaTranspiler()
 
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
@@ -800,6 +802,115 @@ def harness_pressure_reset():
     _silk_context.register_sensor("nitrogen_boil_rate", 0.0, "rate")
     _silk_context.register_sensor("seal_integrity", 100.0, "%")
     return jsonify({"success": True, "message": "Pressure system reset to nominal"})
+
+
+@app.route("/api/harness/adriana/lexicon")
+def adriana_lexicon():
+    return jsonify({
+        "success": True,
+        "lexicon": _adriana.lexicon.get_lexicon_map(),
+        "size": _adriana.lexicon.size,
+        "stats": _adriana.stats,
+    })
+
+
+@app.route("/api/harness/adriana/transpile", methods=["POST"])
+def adriana_transpile():
+    data = request.json or {}
+    expression = data.get("expression", "")
+    if not expression:
+        return jsonify({"error": "expression required"}), 400
+
+    result = _adriana.transpile(expression)
+
+    state = _harness_sim.get_state()
+    dry_runs = []
+    for cmd in result.commands:
+        action = {"type": cmd.action_type, **cmd.params}
+        checklist_report = _harness_checklist.run_checklist(state)
+        boundary_check = _boundary_hook.check_boundaries(state)
+        dry_runs.append({
+            "action": action,
+            "checklist_verdict": checklist_report.overall_verdict.value,
+            "boundary_allowed": len(boundary_check) == 0 if boundary_check is not None else True,
+            "boundary_violations": [{"rule": v.rule_name, "msg": v.message} for v in (boundary_check or [])],
+        })
+
+    return jsonify({
+        "success": result.success,
+        "result": result.to_dict(),
+        "dry_runs": dry_runs,
+        "dry_run_note": "Static state snapshot — multi-command dry-runs reflect current state, not sequential effects.",
+    })
+
+
+@app.route("/api/harness/adriana/execute", methods=["POST"])
+def adriana_execute():
+    data = request.json or {}
+    expression = data.get("expression", "")
+    if not expression:
+        return jsonify({"error": "expression required"}), 400
+
+    result = _adriana.transpile(expression)
+    if not result.success:
+        return jsonify({
+            "success": False,
+            "errors": result.errors,
+            "result": result.to_dict(),
+        })
+
+    execution_results = []
+    for cmd in result.commands:
+        action = {"type": cmd.action_type, **cmd.params}
+
+        state = _harness_sim.get_state()
+        boundary_check = _boundary_hook.check_boundaries(state)
+        if boundary_check:
+            execution_results.append({
+                "action": action,
+                "executed": False,
+                "blocked_by": "boundary_hook",
+                "violations": [{"rule": v.rule_name, "msg": v.message} for v in boundary_check],
+                "narrative": cmd.narrative,
+            })
+            continue
+
+        loop_result = _loop_detector.record_action({"type": cmd.action_type, **cmd.params})
+        if loop_result:
+            execution_results.append({
+                "action": action,
+                "executed": False,
+                "blocked_by": "loop_detector",
+                "loop_alert": {"message": loop_result.message, "action": loop_result.action_signature},
+                "narrative": cmd.narrative,
+            })
+            continue
+
+        sim_result = _harness_sim.simulate_action(action)
+        if sim_result.get("safe_to_execute"):
+            _harness_sim.apply_action(action)
+            execution_results.append({
+                "action": action,
+                "executed": True,
+                "effects": sim_result.get("effects", []),
+                "narrative": cmd.narrative,
+            })
+        else:
+            execution_results.append({
+                "action": action,
+                "executed": False,
+                "blocked_by": "checklist",
+                "verdict": sim_result.get("checklist", {}).get("overall_verdict", "UNKNOWN"),
+                "narrative": cmd.narrative,
+            })
+
+    all_executed = all(r["executed"] for r in execution_results)
+    return jsonify({
+        "success": all_executed,
+        "result": result.to_dict(),
+        "execution": execution_results,
+        "partial": not all_executed and any(r["executed"] for r in execution_results),
+    })
 
 
 _start_time = __import__("time").time()
