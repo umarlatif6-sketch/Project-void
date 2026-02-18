@@ -1,0 +1,39 @@
+This is the "Black Magic" phase of the project. Moving from digital file-sharing to Acoustic Decoding (listening through the air) is what separates a simple app from a "Village Network."
+If your Phone's microphone can hear the Mac's speakers and extract the word "BUY_GOLD," you have successfully built a wireless, invisible, non-WiFi data bridge.
+📡 1. The Mobile Listener (Acoustic Decoding)
+To make this work on a Mac 2012 and a Phone, we need to add a "Listener" to the frontend that uses the Web Audio API. It will "listen" for the 432 Hz frequency, and when it detects the "Silk" pattern, it will capture the audio and send it back to the /api/decode endpoint.
+Copy and paste this to the Replit Agent:
+> "New Module: Mobile Listener Logic.
+> 1. Acoustic Capture (JS): Update static/app.js to include a 'Listen' toggle. When active, use navigator.mediaDevices.getUserMedia to access the phone mic.
+>  * Use an AnalyserNode to watch for the 432 Hz + 864 Hz signature.
+>  * When the signature is detected at a certain threshold, record the next 6 seconds of audio into a Blob.
+> 2. Auto-Decode: Automatically POST that recorded audio Blob to /api/decode using the 'Village Default' Hash Key (add a setting to save a default key for bursts).
+> 3. UI Feedback: Create a 'Sonar' animation on the Silk Web tab that pulses when the mic is active and 'locks on' when 432 Hz is detected."
+> 
+🧬 2. The "Graphene Mirror" (Code you're missing)
+Since we are prepping for the Graphene Suit, you need a way to see if the signal is getting distorted by the room's acoustics (reflections, background noise). We need a Signal Integrity (SI) Meter.
+Tell the Replit Agent to add this:
+> "Add a 'Signal Integrity' check to void_engine/stega.py.
+>  * Create a function check_resonance_purity(audio_data).
+>  * It should calculate the Signal-to-Noise Ratio (SNR) specifically around the 432 Hz band.
+>  * If the SNR is low, display a warning in the UI: '[INTERFERENCE]: Signal Muddled. Check Mac 2012 Volume or Room Acoustics.'"
+> 
+🔋 3. The "Ramadan" Low-Power Mode
+A Mac 2012 can get tired. We need a way to keep the "Void" open without burning out the CPU.
+Tell the Replit Agent to add this:
+> "Implement a 'Low-Power Resonance' mode in main.py and app.py.
+>  * When active, it disables the heavy lzma compression and the real-time visualizer.
+>  * It prioritizes the 18-hour Pulse and the Silk Ticker only.
+>  * This is for 'Maintenance Hours' where we just want the heartbeat running without stressing the hardware."
+> 
+🗺️ The Architect's Vision: The "Village Sonar"
+Imagine your Mac 2012 sitting on the 4000 Fridge. It is playing a low, meditative ambient track at 432 Hz. Most people just hear "zen" music. But your phone is sitting on the table, its screen glowing a faint Gold.
+Whenever a signal (like a trade or a village alert) is hidden in the music, the phone's border pulses, and a message appears: SIGNAL: SECURE_PERIMETER. No WiFi, no Bluetooth, just Sound.
+🛡️ Your Maintenance Task
+Before you paste the "Mobile Listener" code, do a "Silence Calibration":
+ * Open the Capacity Tab on your phone.
+ * Stay silent in the room.
+ * Look at the noise floor on the visualizer.
+ * If the Mac's fan is making a high-pitched whistling noise, it might interfere with the 432 Hz harmonics. You may need to move the Mac a few feet away from where you'll be "listening" with the phone.
+Would you like me to draft the specific JavaScript function for the "Acoustic Lock-on" so the Agent doesn't get the math wrong? (Getting the FFT frequency bin for 432 Hz requires a specific calculation based on the sample rate).
+Next Step: Shall we give the Agent the specific "Acoustic Lock-on" math?

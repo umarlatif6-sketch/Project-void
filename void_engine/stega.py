@@ -186,6 +186,57 @@ def encode_burst(signal_text: str, output_path: str) -> str:
     return hash_key
 
 
+def check_resonance_purity(audio_path: str) -> dict:
+    with wave.open(audio_path, "rb") as wf:
+        sample_rate = wf.getframerate()
+        n_frames = wf.getnframes()
+        n_channels = wf.getnchannels()
+        raw = wf.readframes(n_frames)
+
+    samples = np.frombuffer(raw, dtype=np.int16).astype(np.float64)
+    if n_channels > 1:
+        samples = samples[::n_channels]
+
+    window_size = min(len(samples), 4096 * 4)
+    segment = samples[:window_size]
+    windowed = segment * np.hanning(len(segment))
+
+    spectrum = np.abs(np.fft.rfft(windowed))
+    freqs = np.fft.rfftfreq(len(segment), 1.0 / sample_rate)
+
+    target_hz = VILLAGE_STANDARD_HZ
+    band_width = 20
+    band_mask = (freqs >= target_hz - band_width) & (freqs <= target_hz + band_width)
+    noise_mask = ~band_mask & (freqs > 50)
+
+    signal_power = np.mean(spectrum[band_mask] ** 2) if np.any(band_mask) else 0
+    noise_power = np.mean(spectrum[noise_mask] ** 2) if np.any(noise_mask) else 1e-10
+
+    snr_db = 10 * np.log10(signal_power / noise_power) if noise_power > 0 else 0
+
+    harmonic_2_mask = (freqs >= 864 - band_width) & (freqs <= 864 + band_width)
+    harmonic_2_power = np.mean(spectrum[harmonic_2_mask] ** 2) if np.any(harmonic_2_mask) else 0
+
+    if snr_db >= 15:
+        quality = "Clear"
+        warning = None
+    elif snr_db >= 8:
+        quality = "Acceptable"
+        warning = None
+    else:
+        quality = "Muddled"
+        warning = "[INTERFERENCE]: Signal Muddled. Check Mac 2012 Volume or Room Acoustics."
+
+    return {
+        "snr_db": round(snr_db, 1),
+        "signal_power": round(float(signal_power), 1),
+        "noise_power": round(float(noise_power), 1),
+        "harmonic_864_power": round(float(harmonic_2_power), 1),
+        "quality": quality,
+        "warning": warning,
+    }
+
+
 def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes, str, str]:
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")

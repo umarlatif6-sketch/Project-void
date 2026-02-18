@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
             tab.classList.add("active");
             document.getElementById(tab.dataset.tab).classList.add("active");
             if (tab.dataset.tab !== "visualizer") { stopViz(); stopMic(); }
+            if (tab.dataset.tab !== "silk") { stopListener(); }
             if (tab.dataset.tab === "files") refreshFiles();
             if (tab.dataset.tab === "capacity") loadSelects();
             if (tab.dataset.tab === "visualizer") loadSelects();
@@ -864,6 +865,212 @@ document.addEventListener("DOMContentLoaded", () => {
 
         btn.disabled = false;
         btn.textContent = "Purge Files Older Than 24h";
+    });
+
+    let listenerStream = null;
+    let listenerCtx = null;
+    let listenerAnalyser = null;
+    let listenerAnimFrame = null;
+    let listenerRecorder = null;
+    let listenerRecording = false;
+    const LOCK_THRESHOLD_432 = 100;
+    const LOCK_THRESHOLD_864 = 40;
+    const RECORD_DURATION = 6000;
+
+    document.getElementById("silk-listen-btn").addEventListener("click", async () => {
+        const sonar = document.getElementById("sonar-ring");
+        const status = document.getElementById("sonar-status");
+
+        try {
+            listenerStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            listenerCtx = new (window.AudioContext || window.webkitAudioContext)();
+            listenerAnalyser = listenerCtx.createAnalyser();
+            listenerAnalyser.fftSize = 4096;
+
+            const source = listenerCtx.createMediaStreamSource(listenerStream);
+            source.connect(listenerAnalyser);
+
+            document.getElementById("silk-listen-btn").style.display = "none";
+            document.getElementById("silk-listen-stop-btn").style.display = "inline-block";
+
+            sonar.classList.add("active");
+            status.textContent = "Scanning for 432 Hz...";
+            document.getElementById("listener-decode-result").style.display = "none";
+
+            runListenerLoop();
+            showToast("Listener active — scanning for 432 Hz signature", "success");
+        } catch (e) {
+            showToast("Microphone access denied", "error");
+        }
+    });
+
+    document.getElementById("silk-listen-stop-btn").addEventListener("click", stopListener);
+
+    function stopListener() {
+        if (listenerStream) {
+            listenerStream.getTracks().forEach(t => t.stop());
+            listenerStream = null;
+        }
+        if (listenerAnimFrame) cancelAnimationFrame(listenerAnimFrame);
+        if (listenerCtx) { listenerCtx.close(); listenerCtx = null; }
+        listenerAnalyser = null;
+        listenerRecording = false;
+
+        document.getElementById("silk-listen-btn").style.display = "inline-block";
+        document.getElementById("silk-listen-stop-btn").style.display = "none";
+        document.getElementById("sonar-ring").classList.remove("active", "locked");
+        document.getElementById("sonar-status").textContent = "Sonar Idle";
+    }
+
+    function runListenerLoop() {
+        if (!listenerAnalyser) return;
+
+        const bufLen = listenerAnalyser.frequencyBinCount;
+        const dataArr = new Uint8Array(bufLen);
+        const sampleRate = listenerCtx.sampleRate;
+        const binWidth = sampleRate / listenerAnalyser.fftSize;
+        const bin432 = Math.round(432 / binWidth);
+        const bin864 = Math.round(864 / binWidth);
+        const sonar = document.getElementById("sonar-ring");
+        const status = document.getElementById("sonar-status");
+
+        function scan() {
+            if (!listenerAnalyser) return;
+            listenerAnimFrame = requestAnimationFrame(scan);
+            listenerAnalyser.getByteFrequencyData(dataArr);
+
+            const level432 = dataArr[bin432] || 0;
+            const level864 = dataArr[bin864] || 0;
+
+            if (level432 >= LOCK_THRESHOLD_432 && level864 >= LOCK_THRESHOLD_864 && !listenerRecording) {
+                sonar.classList.remove("active");
+                sonar.classList.add("locked");
+                status.textContent = "LOCKED ON — Recording 6s...";
+                listenerRecording = true;
+                captureAndDecode();
+            }
+        }
+
+        scan();
+    }
+
+    async function captureAndDecode() {
+        const sonar = document.getElementById("sonar-ring");
+        const status = document.getElementById("sonar-status");
+
+        try {
+            const captureStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(captureStream, { mimeType: "audio/webm" });
+            const chunks = [];
+
+            recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+
+            recorder.onstop = async () => {
+                captureStream.getTracks().forEach(t => t.stop());
+                const blob = new Blob(chunks, { type: "audio/webm" });
+
+                status.textContent = "Decoding captured audio...";
+
+                const formData = new FormData();
+                formData.append("audio", blob, "capture.webm");
+
+                const keyInput = document.getElementById("default-key-input").value.trim();
+                if (keyInput) formData.append("hash_key", keyInput);
+
+                try {
+                    const res = await fetch("/api/decode/audio", {
+                        method: "POST",
+                        body: formData,
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        document.getElementById("listener-signal").textContent = data.signal_text;
+                        document.getElementById("listener-snr").textContent = data.purity.snr_db + " dB";
+                        document.getElementById("listener-quality").textContent = data.purity.quality;
+
+                        const warn = document.getElementById("listener-warning");
+                        if (data.purity.warning) {
+                            warn.textContent = data.purity.warning;
+                            warn.style.display = "block";
+                        } else {
+                            warn.style.display = "none";
+                        }
+
+                        document.getElementById("listener-decode-result").style.display = "block";
+                        showToast(`Acoustic decode: ${data.signal_text}`, "success");
+                        loadSilkFeed();
+                    } else {
+                        showToast(data.error || "Decode failed", "error");
+                    }
+                } catch (e) {
+                    showToast("Decode error: " + e.message, "error");
+                }
+
+                listenerRecording = false;
+                sonar.classList.remove("locked");
+                if (listenerStream) {
+                    sonar.classList.add("active");
+                    status.textContent = "Scanning for 432 Hz...";
+                } else {
+                    status.textContent = "Sonar Idle";
+                }
+            };
+
+            recorder.start();
+            setTimeout(() => {
+                if (recorder.state === "recording") recorder.stop();
+            }, RECORD_DURATION);
+
+        } catch (e) {
+            showToast("Recording failed: " + e.message, "error");
+            listenerRecording = false;
+            sonar.classList.remove("locked");
+            sonar.classList.add("active");
+            status.textContent = "Scanning for 432 Hz...";
+        }
+    }
+
+    document.getElementById("set-default-key-btn").addEventListener("click", async () => {
+        const key = document.getElementById("default-key-input").value.trim();
+        if (!key) { showToast("Enter a hash key first", "error"); return; }
+
+        const res = await fetch("/api/settings/default-key", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key }),
+        });
+        const data = await res.json();
+        document.getElementById("default-key-status").textContent = data.message;
+        showToast("Village Default Key set!", "success");
+    });
+
+    document.getElementById("clear-default-key-btn").addEventListener("click", async () => {
+        await fetch("/api/settings/default-key", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key: "" }),
+        });
+        document.getElementById("default-key-input").value = "";
+        document.getElementById("default-key-status").textContent = "Key cleared";
+        showToast("Village Default Key cleared", "success");
+    });
+
+    document.getElementById("low-power-toggle").addEventListener("change", async (e) => {
+        const enabled = e.target.checked;
+        await fetch("/api/low-power", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ enabled }),
+        });
+        const statusText = document.getElementById("engine-status-text");
+        statusText.textContent = enabled ? "Low-Power Resonance" : "Engine Active";
+        showToast(enabled ? "Low-Power mode active" : "Full power restored", "success");
+    });
+
+    fetch("/api/low-power").then(r => r.json()).then(d => {
+        document.getElementById("low-power-toggle").checked = d.low_power;
+        if (d.low_power) document.getElementById("engine-status-text").textContent = "Low-Power Resonance";
     });
 
     loadSelects();

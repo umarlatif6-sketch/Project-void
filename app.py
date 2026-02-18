@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 
 from void_engine.compressor import compress_file, decompress_data
-from void_engine.stega import encode, decode, encode_burst
+from void_engine.stega import encode, decode, encode_burst, check_resonance_purity
 from void_engine.calculator import analyze_carrier, append_to_log
 from void_engine.silk_web import SignalTicker
 
@@ -29,6 +29,9 @@ OUTPUT_DIR = "output_audio"
 
 os.makedirs(INPUT_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+_low_power_mode = False
+_village_default_key = None
 
 
 @app.route("/")
@@ -96,7 +99,7 @@ def encode_file():
         return jsonify({"error": f"Payload file not found: {payload}"}), 404
 
     try:
-        compressed, name, ext, orig_size = compress_file(payload_path)
+        compressed, name, ext, orig_size = compress_file(payload_path, low_power=_low_power_mode)
 
         base_name = os.path.splitext(carrier)[0]
         output_name = f"{base_name}_void.wav"
@@ -240,6 +243,88 @@ silk_ticker = SignalTicker()
 silk_ticker.start_heartbeat()
 
 
+@app.route("/api/decode/audio", methods=["POST"])
+def decode_audio():
+    if "audio" not in request.files:
+        return jsonify({"error": "No audio file provided"}), 400
+
+    audio_file = request.files["audio"]
+    hash_key = request.form.get("hash_key", "").strip()
+
+    if not hash_key:
+        global _village_default_key
+        if _village_default_key:
+            hash_key = _village_default_key
+        else:
+            return jsonify({"error": "No hash key provided and no Village Default Key set"}), 400
+
+    temp_path = os.path.join(OUTPUT_DIR, f"_listener_capture_{uuid.uuid4().hex[:8]}.wav")
+    try:
+        audio_file.save(temp_path)
+
+        purity = check_resonance_purity(temp_path)
+
+        compressed_data, name_ext, checksum = decode(temp_path, hash_key, 1)
+        original_data = decompress_data(compressed_data)
+
+        output_path = os.path.join(OUTPUT_DIR, name_ext)
+        with open(output_path, "wb") as f:
+            f.write(original_data)
+
+        _log_operation("ACOUSTIC_DECODE", name_ext, hash_key, f"size={len(original_data)} snr={purity['snr_db']}dB")
+
+        return jsonify({
+            "success": True,
+            "filename": name_ext,
+            "size": len(original_data),
+            "signal_text": original_data.decode("utf-8", errors="replace"),
+            "checksum": checksum,
+            "purity": purity,
+        })
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Acoustic decode failed: {str(e)}"}), 400
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+
+@app.route("/api/settings/default-key", methods=["POST"])
+def set_default_key():
+    global _village_default_key
+    data = request.json
+    key = data.get("key", "").strip()
+    if key:
+        _village_default_key = key
+        return jsonify({"success": True, "message": "Village Default Key set"})
+    else:
+        _village_default_key = None
+        return jsonify({"success": True, "message": "Village Default Key cleared"})
+
+
+@app.route("/api/settings/default-key")
+def get_default_key():
+    global _village_default_key
+    return jsonify({
+        "has_key": _village_default_key is not None,
+        "key_tail": "..." + _village_default_key[-4:] if _village_default_key else None,
+    })
+
+
+@app.route("/api/low-power", methods=["POST"])
+def toggle_low_power():
+    global _low_power_mode
+    data = request.json
+    _low_power_mode = bool(data.get("enabled", False))
+    return jsonify({"success": True, "low_power": _low_power_mode})
+
+
+@app.route("/api/low-power")
+def get_low_power():
+    return jsonify({"low_power": _low_power_mode})
+
+
 @app.route("/api/silk/send", methods=["POST"])
 def silk_send():
     data = request.json
@@ -315,6 +400,7 @@ def system_status():
     status["files"] = {"input": input_count, "output": output_count}
 
     status["network"] = silk_ticker.get_network_health()
+    status["low_power"] = _low_power_mode
 
     return jsonify(status)
 

@@ -781,6 +781,127 @@ input[type="radio"] {
     animation: goldPulse 1.5s ease-in-out infinite;
 }
 
+.silk-sonar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.sonar-ring {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.sonar-ring.active {
+    border-color: rgba(124, 92, 255, 0.6);
+    animation: sonarPulse 2s ease-out infinite;
+}
+
+.sonar-ring.locked {
+    border-color: #ffd700;
+    animation: sonarLock 1s ease-in-out infinite;
+}
+
+.sonar-core {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+}
+
+.sonar-ring.active .sonar-core {
+    background: rgba(124, 92, 255, 0.8);
+}
+
+.sonar-ring.locked .sonar-core {
+    background: #ffd700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+@keyframes sonarPulse {
+    0% { box-shadow: 0 0 0 0 rgba(124, 92, 255, 0.4); }
+    70% { box-shadow: 0 0 0 20px rgba(124, 92, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(124, 92, 255, 0); }
+}
+
+@keyframes sonarLock {
+    0%, 100% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
+    50% { box-shadow: 0 0 24px rgba(255, 215, 0, 0.8); }
+}
+
+.sonar-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sonar-status {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.default-key-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.default-key-row input {
+    flex: 1;
+}
+
+.default-key-status {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    display: block;
+}
+
+.listener-warning {
+    background: rgba(220, 53, 69, 0.15);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: #ff6b6b;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-top: 12px;
+    letter-spacing: 0.5px;
+}
+
+.low-power-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    margin-left: 12px;
+}
+
+.low-power-toggle input {
+    accent-color: #ffd700;
+    cursor: pointer;
+}
+
+.toggle-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
 @media (max-width: 600px) {
     header { flex-direction: column; gap: 12px; padding: 16px; }
     main { padding: 16px 12px; }

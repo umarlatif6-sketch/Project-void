@@ -18,7 +18,11 @@
         <div class="status-bar">
             <span class="freq-badge">432 Hz</span>
             <span class="pulse-dot"></span>
-            <span>Engine Active</span>
+            <span id="engine-status-text">Engine Active</span>
+            <label class="low-power-toggle" title="Low-Power Resonance — disables LZMA, prioritizes heartbeat">
+                <input type="checkbox" id="low-power-toggle">
+                <span class="toggle-label">Low Power</span>
+            </label>
         </div>
     </header>
 
@@ -272,6 +276,36 @@
         <div id="silk" class="panel">
             <h2>Silk Web — Signal Ticker</h2>
             <p class="desc">Send signals through the 432 Hz network. Each signal is encoded into a Resonant Burst packet and logged to the Resonance Journal. Up to 10 characters per signal.</p>
+
+            <div class="silk-sonar-section">
+                <div class="sonar-ring" id="sonar-ring">
+                    <div class="sonar-core" id="sonar-core"></div>
+                </div>
+                <div class="sonar-controls">
+                    <button id="silk-listen-btn" class="btn-accent">Start Listener</button>
+                    <button id="silk-listen-stop-btn" class="btn-secondary" style="display:none;">Stop Listener</button>
+                    <span id="sonar-status" class="sonar-status">Sonar Idle</span>
+                </div>
+                <div id="listener-decode-result" class="result-box" style="display:none;">
+                    <h3>Acoustic Decode</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><span class="label">Signal</span><span id="listener-signal" class="value"></span></div>
+                        <div class="result-item"><span class="label">SNR</span><span id="listener-snr" class="value"></span></div>
+                        <div class="result-item"><span class="label">Quality</span><span id="listener-quality" class="value"></span></div>
+                    </div>
+                    <div id="listener-warning" class="listener-warning" style="display:none;"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Village Default Key (for auto-decode)</label>
+                <div class="default-key-row">
+                    <input type="text" id="default-key-input" placeholder="Paste hash key for listener auto-decode" maxlength="32" spellcheck="false" autocomplete="off">
+                    <button id="set-default-key-btn" class="btn-secondary">Set</button>
+                    <button id="clear-default-key-btn" class="btn-secondary">Clear</button>
+                </div>
+                <span id="default-key-status" class="default-key-status"></span>
+            </div>
 
             <div class="form-group">
                 <label>Signal Input</label>

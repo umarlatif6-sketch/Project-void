@@ -75,7 +75,7 @@ def _stream_compress_lzma(file_path: str, file_size: int, show_progress: bool) -
     return b"".join(chunks)
 
 
-def compress_file(file_path: str, deep: bool = False) -> tuple[bytes, str, str, int]:
+def compress_file(file_path: str, deep: bool = False, low_power: bool = False) -> tuple[bytes, str, str, int]:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
 
@@ -101,7 +101,9 @@ def compress_file(file_path: str, deep: bool = False) -> tuple[bytes, str, str, 
 
     zlib_compressed = _stream_compress_zlib(file_path, original_size, show_progress)
 
-    skip_lzma = original_size > ADAPTIVE_LZMA_THRESHOLD and not deep
+    skip_lzma = (original_size > ADAPTIVE_LZMA_THRESHOLD and not deep) or low_power
+    if low_power:
+        print(f"  [VOID] Low-Power Resonance active — LZMA disabled.")
     lzma_compressed = None
 
     if skip_lzma:
