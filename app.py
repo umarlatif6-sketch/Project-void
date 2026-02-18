@@ -1,11 +1,24 @@
 import os
 import uuid
+from datetime import datetime
 from flask import Flask, render_template, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 
 from void_engine.compressor import compress_file, decompress_data
 from void_engine.stega import encode, decode, encode_burst
 from void_engine.calculator import analyze_carrier, append_to_log
+
+LOG_FILE = "RESONANCE_LOG.md"
+
+
+def _log_operation(op_type: str, filename: str, hash_key: str, extra: str = ""):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    hash_tail = hash_key[-4:] if hash_key else "????"
+    with open(LOG_FILE, "a") as f:
+        line = f"| {timestamp} | {op_type} | {filename} | ...{hash_tail} |"
+        if extra:
+            line += f" {extra} |"
+        f.write(line + "\n")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "void-engine-dev-key")
@@ -90,6 +103,8 @@ def encode_file():
 
         hash_key = encode(carrier_path, compressed, name, ext, output_path, lsb_depth)
 
+        _log_operation("ENCODE", output_name, hash_key, f"LSB{lsb_depth}")
+
         return jsonify({
             "success": True,
             "hash_key": hash_key,
@@ -115,10 +130,12 @@ def burst_encode():
 
     try:
         burst_id = uuid.uuid4().hex[:8]
-        output_name = f"burst_{burst_id}.wav"
+        output_name = f"burst_432Hz_{burst_id}.wav"
         output_path = os.path.join(OUTPUT_DIR, output_name)
 
         hash_key = encode_burst(signal, output_path)
+
+        _log_operation("BURST", output_name, hash_key, f"signal={signal}")
 
         return jsonify({
             "success": True,
@@ -154,6 +171,8 @@ def decode_file():
         output_path = os.path.join(OUTPUT_DIR, name_ext)
         with open(output_path, "wb") as f:
             f.write(original_data)
+
+        _log_operation("DECODE", name_ext, hash_key, f"size={len(original_data)}")
 
         return jsonify({
             "success": True,
@@ -214,6 +233,56 @@ def delete_file(folder, filename):
 
     os.remove(filepath)
     return jsonify({"success": True})
+
+
+@app.route("/api/status")
+def system_status():
+    import time
+
+    status = {
+        "node": "Mac 2012 / Phone Bridge",
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "uptime_seconds": int(time.time() - _start_time),
+    }
+
+    try:
+        with open("/proc/meminfo", "r") as f:
+            mem = {}
+            for line in f:
+                parts = line.split()
+                if parts[0].rstrip(":") in ("MemTotal", "MemAvailable", "MemFree"):
+                    mem[parts[0].rstrip(":")] = int(parts[1]) * 1024
+        total = mem.get("MemTotal", 0)
+        available = mem.get("MemAvailable", mem.get("MemFree", 0))
+        used = total - available
+        status["ram"] = {
+            "total_mb": round(total / (1024 * 1024)),
+            "used_mb": round(used / (1024 * 1024)),
+            "available_mb": round(available / (1024 * 1024)),
+            "usage_pct": round((used / total) * 100, 1) if total > 0 else 0,
+        }
+    except Exception:
+        status["ram"] = {"error": "Unable to read memory info"}
+
+    try:
+        with open("/proc/loadavg", "r") as f:
+            parts = f.read().split()
+            status["cpu"] = {
+                "load_1min": float(parts[0]),
+                "load_5min": float(parts[1]),
+                "load_15min": float(parts[2]),
+            }
+    except Exception:
+        status["cpu"] = {"error": "Unable to read CPU info"}
+
+    input_count = len([f for f in os.listdir(INPUT_DIR) if os.path.isfile(os.path.join(INPUT_DIR, f))]) if os.path.isdir(INPUT_DIR) else 0
+    output_count = len([f for f in os.listdir(OUTPUT_DIR) if os.path.isfile(os.path.join(OUTPUT_DIR, f))]) if os.path.isdir(OUTPUT_DIR) else 0
+    status["files"] = {"input": input_count, "output": output_count}
+
+    return jsonify(status)
+
+
+_start_time = __import__("time").time()
 
 
 if __name__ == "__main__":

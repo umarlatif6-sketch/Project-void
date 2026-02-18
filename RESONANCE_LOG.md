@@ -183,3 +183,22 @@ Observations:
 
 ---
 
+| 2026-02-18 00:17:47 | BURST | burst_432Hz_24d6e2d7.wav | ...6483 | signal=BUY_GOLD |
+| 2026-02-18 00:17:48 | DECODE | burst.sig | ...6483 | size=8 |
+### 2026-02-18 00:17:57 — burst_432Hz_24d6e2d7.wav [432 Hz BOOSTED]
+
+| Metric | Value |
+|---|---|
+| Duration | 5.0s |
+| Channels | 1 |
+| Sample Rate | 44,100 Hz |
+| Total Samples | 220,500 |
+| LSB1 Max Capacity | 26.9 KB |
+| LSB1 Resonance Limit | 8.1 KB |
+| LSB1 Est. Real Data | ~24.2 KB to ~40.3 KB |
+| LSB2 Max Capacity | 53.8 KB |
+| LSB2 Resonance Limit | 8.1 KB |
+| LSB2 Est. Real Data | ~24.2 KB to ~40.3 KB |
+
+---
+
