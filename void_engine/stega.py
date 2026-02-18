@@ -15,6 +15,34 @@ def _derive_key(passphrase: str) -> bytes:
     return hashlib.sha256(passphrase.encode("utf-8")).digest()
 
 
+def _compute_ghost_offset(passphrase: str, total_samples: int) -> int:
+    seed = int(hashlib.sha256(("ghost:" + passphrase).encode()).hexdigest()[:8], 16)
+    max_offset = total_samples // 4
+    if max_offset <= 0:
+        return 0
+    return seed % max_offset
+
+
+def apply_dither_mask(samples: np.ndarray, seed: int = 42) -> np.ndarray:
+    rng = np.random.RandomState(seed)
+    white = rng.randn(len(samples))
+    b = [0.049922035, -0.095993537, 0.050612699, -0.004709510,
+         0.000045049, -0.000023574, 0.000011570]
+    pink = np.zeros(len(white))
+    state = np.zeros(len(b))
+    for i in range(len(white)):
+        x = white[i]
+        y = 0.0
+        for j in range(len(b)):
+            y += b[j] * state[j]
+            state[j] = x if j == 0 else state[j - 1]
+        pink[i] = x - y
+    amplitude = 1.5
+    pink = pink / (np.max(np.abs(pink)) + 1e-10) * amplitude
+    dithered = samples.astype(np.float64) + pink
+    return np.clip(dithered, -32768, 32767).astype(np.int16)
+
+
 def _generate_hash_key() -> str:
     return secrets.token_hex(16)
 
@@ -113,18 +141,25 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     bits_per_sample = lsb_depth
     capacity = total_samples * bits_per_sample
 
-    if total_bits > capacity:
+    ghost_offset = _compute_ghost_offset(passphrase, total_samples)
+    effective_capacity = (total_samples - ghost_offset) * bits_per_sample
+
+    if total_bits > effective_capacity:
         raise ValueError(
             f"Payload too large: needs {total_bits:,} bits, "
-            f"carrier has capacity for {capacity:,} bits ({capacity // 8:,} bytes) "
-            f"at LSB depth {lsb_depth}."
+            f"carrier has capacity for {effective_capacity:,} bits ({effective_capacity // 8:,} bytes) "
+            f"at LSB depth {lsb_depth} (Ghost Offset: {ghost_offset:,} samples)."
         )
+
+    dither_seed = int(hashlib.sha256(("dither:" + passphrase).encode()).hexdigest()[:8], 16)
+    samples = apply_dither_mask(samples, seed=dither_seed)
 
     bit_array = np.unpackbits(np.frombuffer(full_payload, dtype=np.uint8))
 
     if lsb_depth == 1:
         n = len(bit_array)
-        samples[:n] = (samples[:n] & np.int16(~1)) | bit_array.astype(np.int16)
+        start = ghost_offset
+        samples[start:start + n] = (samples[start:start + n] & np.int16(~1)) | bit_array.astype(np.int16)
     else:
         pad_len = (2 - (len(bit_array) % 2)) % 2
         if pad_len:
@@ -133,7 +168,8 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
         low_bits = bit_array[1::2].astype(np.int16)
         two_bit_values = (high_bits << 1) | low_bits
         n = len(two_bit_values)
-        samples[:n] = (samples[:n] & np.int16(~3)) | two_bit_values
+        start = ghost_offset
+        samples[start:start + n] = (samples[start:start + n] & np.int16(~3)) | two_bit_values
 
     modified_frames = samples.tobytes()
 
@@ -149,6 +185,8 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     print(f"         Capacity:   {capacity // 8:,} bytes")
     print(f"         Used:       {len(full_payload):,} bytes ({usage_pct:.1f}%)")
     print(f"         Checksum:   {checksum}")
+    print(f"         Ghost Offset: {ghost_offset:,} samples")
+    print(f"         Dither Mask: Applied (seed {dither_seed})")
 
     return passphrase
 
@@ -260,14 +298,17 @@ def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes,
         raise ValueError(f"Only 16-bit WAV files are supported (got {sampwidth * 8}-bit).")
 
     samples = np.frombuffer(raw_frames, dtype=np.int16)
+    total_samples = len(samples)
 
     header_bits_needed = HEADER_SIZE * 8
+    ghost_offset = _compute_ghost_offset(passphrase, total_samples)
 
     if lsb_depth == 1:
-        header_bits = samples[:header_bits_needed] & 1
+        header_bits = samples[ghost_offset:ghost_offset + header_bits_needed] & 1
     else:
         needed_samples = (header_bits_needed + 1) // 2
-        two_bit_vals = samples[:needed_samples].astype(np.int16) & 3
+        seg = samples[ghost_offset:ghost_offset + needed_samples]
+        two_bit_vals = seg.astype(np.int16) & 3
         high_bits = (two_bit_vals >> 1).astype(np.uint8)
         low_bits = (two_bit_vals & 1).astype(np.uint8)
         interleaved = np.empty(needed_samples * 2, dtype=np.uint8)
@@ -282,10 +323,11 @@ def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes,
     total_bits = total_payload_bytes * 8
 
     if lsb_depth == 1:
-        all_bits = samples[:total_bits] & 1
+        all_bits = samples[ghost_offset:ghost_offset + total_bits] & 1
     else:
         needed_samples = (total_bits + 1) // 2
-        two_bit_vals = samples[:needed_samples].astype(np.int16) & 3
+        seg = samples[ghost_offset:ghost_offset + needed_samples]
+        two_bit_vals = seg.astype(np.int16) & 3
         high_bits = (two_bit_vals >> 1).astype(np.uint8)
         low_bits = (two_bit_vals & 1).astype(np.uint8)
         interleaved = np.empty(needed_samples * 2, dtype=np.uint8)

@@ -638,6 +638,20 @@ input[type="radio"] {
 
 .viz-dot-normal { background: var(--accent); }
 .viz-dot-gold { background: #ffd700; }
+.viz-dot-sapphire { background: #4da6ff; box-shadow: 0 0 6px rgba(77, 166, 255, 0.8); }
+
+.viz-mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.viz-mode-toggle input {
+    accent-color: #4da6ff;
+    cursor: pointer;
+}
 
 .viz-freq-info {
     display: flex;

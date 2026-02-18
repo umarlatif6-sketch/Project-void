@@ -408,6 +408,23 @@ document.addEventListener("DOMContentLoaded", () => {
         if (window._lastBurstFile) window.open(`/api/download/output_audio/${window._lastBurstFile}`, "_blank");
     });
 
+    let vizSpectrogramMode = false;
+    let spectrogramImageData = null;
+
+    document.getElementById("viz-spectrogram-toggle").addEventListener("change", (e) => {
+        vizSpectrogramMode = e.target.checked;
+        spectrogramImageData = null;
+        const legendNormal = document.getElementById("viz-legend");
+        const legendSpec = document.getElementById("viz-legend-spectrogram");
+        if (vizSpectrogramMode) {
+            legendNormal.style.display = "none";
+            legendSpec.style.display = "flex";
+        } else {
+            legendNormal.style.display = "flex";
+            legendSpec.style.display = "none";
+        }
+    });
+
     let vizAudioCtx = null;
     let vizSource = null;
     let vizAnalyser = null;
@@ -546,59 +563,134 @@ document.addEventListener("DOMContentLoaded", () => {
         const maxBin = Math.min(Math.round(maxFreq / binWidth), bufLen);
 
         let glowActive = false;
+        let micSpecCol = 0;
+        let micSpecImageData = null;
 
         function draw() {
             micAnimFrame = requestAnimationFrame(draw);
             micAnalyser.getByteFrequencyData(dataArr);
 
-            canvas.width = canvas.clientWidth * (window.devicePixelRatio || 1);
-            canvas.height = canvas.clientHeight * (window.devicePixelRatio || 1);
-            ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+            const dpr = window.devicePixelRatio || 1;
+            const cw = canvas.clientWidth;
+            const ch = canvas.clientHeight;
+            const pw = Math.round(cw * dpr);
+            const ph = Math.round(ch * dpr);
 
-            const w = canvas.clientWidth;
-            const h = canvas.clientHeight;
+            if (canvas.width !== pw || canvas.height !== ph) {
+                canvas.width = pw;
+                canvas.height = ph;
+                micSpecImageData = null;
+                micSpecCol = 0;
+            }
 
-            ctx.fillStyle = "#0a0a0f";
-            ctx.fillRect(0, 0, w, h);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-            const barW = w / maxBin;
-            let peakVal = 0, peakBin = 0;
+            const w = cw;
+            const h = ch;
 
-            for (let i = 0; i < maxBin; i++) {
-                const val = dataArr[i];
-                const barH = (val / 255) * h * 0.9;
+            if (vizSpectrogramMode) {
+                if (!micSpecImageData) {
+                    ctx.fillStyle = "#0a0a0f";
+                    ctx.fillRect(0, 0, w, h);
+                    micSpecImageData = ctx.getImageData(0, 0, w, h);
+                    micSpecCol = 0;
+                }
 
-                if (val > peakVal) { peakVal = val; peakBin = i; }
+                const imgData = micSpecImageData;
+                const iw = imgData.width;
+                const ih = imgData.height;
+                const pixels = imgData.data;
 
-                const inGoldZone = Math.abs(i - bin432) <= 2;
-                if (inGoldZone) {
-                    ctx.fillStyle = "#ffd700";
-                    ctx.shadowColor = "#ffd700";
-                    ctx.shadowBlur = 8;
-                } else {
-                    ctx.fillStyle = "rgba(124, 92, 255, 0.7)";
+                if (micSpecCol >= iw) {
+                    for (let y = 0; y < ih; y++) {
+                        const rowStart = y * iw * 4;
+                        for (let x = 0; x < iw - 1; x++) {
+                            const dst = rowStart + x * 4;
+                            const src = rowStart + (x + 1) * 4;
+                            pixels[dst] = pixels[src];
+                            pixels[dst + 1] = pixels[src + 1];
+                            pixels[dst + 2] = pixels[src + 2];
+                            pixels[dst + 3] = pixels[src + 3];
+                        }
+                    }
+                    micSpecCol = iw - 1;
+                }
+
+                const x = micSpecCol;
+                for (let i = 0; i < maxBin && i < ih; i++) {
+                    const y = ih - 1 - Math.round((i / maxBin) * (ih - 1));
+                    const val = dataArr[i] / 255;
+                    const idx = (y * iw + x) * 4;
+                    const isSapphire = Math.abs(i - bin432) <= 1;
+                    if (isSapphire && val > 0.05) {
+                        const glow = Math.min(val * 2.5, 1.0);
+                        pixels[idx] = Math.round(40 + 37 * glow);
+                        pixels[idx + 1] = Math.round(130 + 126 * glow);
+                        pixels[idx + 2] = Math.round(220 + 35 * glow);
+                        pixels[idx + 3] = 255;
+                    } else {
+                        pixels[idx] = Math.round(val * val * 200 + val * 55);
+                        pixels[idx + 1] = Math.round(val * val * 40 + val * 20);
+                        pixels[idx + 2] = Math.round(val * 180 + 20);
+                        pixels[idx + 3] = 255;
+                    }
+                }
+                micSpecCol++;
+                ctx.putImageData(imgData, 0, 0);
+
+                const sapphireY = ih - 1 - Math.round((bin432 / maxBin) * (ih - 1));
+                const screenY = (sapphireY / ih) * h;
+                ctx.strokeStyle = "rgba(77, 166, 255, 0.6)";
+                ctx.lineWidth = 1;
+                ctx.shadowColor = "#4da6ff";
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.moveTo(0, screenY);
+                ctx.lineTo(w, screenY);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "#4da6ff";
+                ctx.font = "10px monospace";
+                ctx.fillText("432 Hz", 4, screenY - 4);
+            } else {
+                ctx.fillStyle = "#0a0a0f";
+                ctx.fillRect(0, 0, w, h);
+
+                const barW = w / maxBin;
+                let peakVal = 0, peakBin = 0;
+
+                for (let i = 0; i < maxBin; i++) {
+                    const val = dataArr[i];
+                    const barH = (val / 255) * h * 0.9;
+                    if (val > peakVal) { peakVal = val; peakBin = i; }
+                    const inGoldZone = Math.abs(i - bin432) <= 2;
+                    if (inGoldZone) {
+                        ctx.fillStyle = "#ffd700";
+                        ctx.shadowColor = "#ffd700";
+                        ctx.shadowBlur = 8;
+                    } else {
+                        ctx.fillStyle = "rgba(124, 92, 255, 0.7)";
+                        ctx.shadowBlur = 0;
+                    }
+                    ctx.fillRect(i * barW, h - barH, Math.max(barW - 1, 1), barH);
                     ctx.shadowBlur = 0;
                 }
 
-                ctx.fillRect(i * barW, h - barH, Math.max(barW - 1, 1), barH);
-                ctx.shadowBlur = 0;
+                const goldX = bin432 * barW;
+                ctx.strokeStyle = "rgba(255, 215, 0, 0.4)";
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(goldX, 0);
+                ctx.lineTo(goldX, h);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = "#ffd700";
+                ctx.font = "10px monospace";
+                ctx.fillText("432", goldX - 8, 12);
             }
 
-            const goldX = bin432 * barW;
-            ctx.strokeStyle = "rgba(255, 215, 0, 0.4)";
-            ctx.lineWidth = 1;
-            ctx.setLineDash([4, 4]);
-            ctx.beginPath();
-            ctx.moveTo(goldX, 0);
-            ctx.lineTo(goldX, h);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            ctx.fillStyle = "#ffd700";
-            ctx.font = "10px monospace";
-            ctx.fillText("432", goldX - 8, 12);
-
-            const peakFreq = (peakBin * binWidth).toFixed(0);
+            const peakFreq = (Array.from(dataArr.slice(0, maxBin)).reduce((best, v, i) => v > best.v ? {v, i} : best, {v:0,i:0}).i * binWidth).toFixed(0);
             document.getElementById("viz-peak-freq").textContent = `Peak: ${peakFreq} Hz`;
 
             const level432 = dataArr[bin432] || 0;
@@ -641,17 +733,35 @@ document.addEventListener("DOMContentLoaded", () => {
         const maxFreq = 2000;
         const maxBin = Math.min(Math.round(maxFreq / binWidth), bufLen);
 
+        let specCol = 0;
+
         function draw() {
             vizAnimFrame = requestAnimationFrame(draw);
             vizAnalyser.getByteFrequencyData(dataArr);
 
-            canvas.width = canvas.clientWidth * (window.devicePixelRatio || 1);
-            canvas.height = canvas.clientHeight * (window.devicePixelRatio || 1);
-            ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+            const dpr = window.devicePixelRatio || 1;
+            const cw = canvas.clientWidth;
+            const ch = canvas.clientHeight;
+            const pw = Math.round(cw * dpr);
+            const ph = Math.round(ch * dpr);
 
-            const w = canvas.clientWidth;
-            const h = canvas.clientHeight;
+            if (canvas.width !== pw || canvas.height !== ph) {
+                canvas.width = pw;
+                canvas.height = ph;
+                spectrogramImageData = null;
+                specCol = 0;
+            }
 
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            if (vizSpectrogramMode) {
+                drawSpectrogram(ctx, cw, ch, dataArr, maxBin, bin432, binWidth);
+            } else {
+                drawBarSpectrum(ctx, cw, ch, dataArr, maxBin, bin432, binWidth);
+            }
+        }
+
+        function drawBarSpectrum(ctx, w, h, dataArr, maxBin, bin432, binWidth) {
             ctx.fillStyle = "#0a0a0f";
             ctx.fillRect(0, 0, w, h);
 
@@ -692,6 +802,87 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.font = "10px monospace";
             ctx.fillText("432", goldX - 8, 12);
 
+            const peakFreq = (peakBin * binWidth).toFixed(0);
+            document.getElementById("viz-peak-freq").textContent = `Peak: ${peakFreq} Hz`;
+            document.getElementById("viz-432-level").textContent = `432 Hz: ${dataArr[bin432] || 0}/255`;
+        }
+
+        function drawSpectrogram(ctx, w, h, dataArr, maxBin, bin432, binWidth) {
+            if (!spectrogramImageData) {
+                ctx.fillStyle = "#0a0a0f";
+                ctx.fillRect(0, 0, w, h);
+                spectrogramImageData = ctx.getImageData(0, 0, w, h);
+                specCol = 0;
+            }
+
+            const imgData = spectrogramImageData;
+            const iw = imgData.width;
+            const ih = imgData.height;
+            const pixels = imgData.data;
+
+            if (specCol >= iw) {
+                const rowBytes = 4;
+                for (let y = 0; y < ih; y++) {
+                    const rowStart = y * iw * rowBytes;
+                    for (let x = 0; x < iw - 1; x++) {
+                        const dst = rowStart + x * rowBytes;
+                        const src = rowStart + (x + 1) * rowBytes;
+                        pixels[dst] = pixels[src];
+                        pixels[dst + 1] = pixels[src + 1];
+                        pixels[dst + 2] = pixels[src + 2];
+                        pixels[dst + 3] = pixels[src + 3];
+                    }
+                }
+                specCol = iw - 1;
+            }
+
+            const x = specCol;
+            for (let i = 0; i < maxBin && i < ih; i++) {
+                const y = ih - 1 - Math.round((i / maxBin) * (ih - 1));
+                const val = dataArr[i] / 255;
+                const idx = (y * iw + x) * 4;
+
+                const isSapphire = Math.abs(i - bin432) <= 1;
+                if (isSapphire && val > 0.05) {
+                    const glow = Math.min(val * 2.5, 1.0);
+                    pixels[idx] = Math.round(40 + 37 * glow);
+                    pixels[idx + 1] = Math.round(130 + 126 * glow);
+                    pixels[idx + 2] = Math.round(220 + 35 * glow);
+                    pixels[idx + 3] = 255;
+                } else {
+                    const r = Math.round(val * val * 200 + val * 55);
+                    const g = Math.round(val * val * 40 + val * 20);
+                    const b = Math.round(val * 180 + 20);
+                    pixels[idx] = r;
+                    pixels[idx + 1] = g;
+                    pixels[idx + 2] = b;
+                    pixels[idx + 3] = 255;
+                }
+            }
+
+            specCol++;
+            ctx.putImageData(imgData, 0, 0);
+
+            const sapphireY = ih - 1 - Math.round((bin432 / maxBin) * (ih - 1));
+            const screenY = (sapphireY / ih) * h;
+            ctx.strokeStyle = "rgba(77, 166, 255, 0.6)";
+            ctx.lineWidth = 1;
+            ctx.shadowColor = "#4da6ff";
+            ctx.shadowBlur = 6;
+            ctx.beginPath();
+            ctx.moveTo(0, screenY);
+            ctx.lineTo(w, screenY);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = "#4da6ff";
+            ctx.font = "10px monospace";
+            ctx.fillText("432 Hz", 4, screenY - 4);
+
+            let peakVal = 0, peakBin = 0;
+            for (let i = 0; i < maxBin; i++) {
+                if (dataArr[i] > peakVal) { peakVal = dataArr[i]; peakBin = i; }
+            }
             const peakFreq = (peakBin * binWidth).toFixed(0);
             document.getElementById("viz-peak-freq").textContent = `Peak: ${peakFreq} Hz`;
             document.getElementById("viz-432-level").textContent = `432 Hz: ${dataArr[bin432] || 0}/255`;
