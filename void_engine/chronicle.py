@@ -32,6 +32,8 @@ from dataclasses import dataclass, field
 
 CHRONICLE_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'chronicle.db')
 
+FOUNDER_ROOT_HASH = "89x-VOID-GEN1-PROTO-2026"
+
 SENSOR_KEYS = [
     ("flywheel", "temperature_c"),
     ("flywheel", "energy_reserve_wh"),
@@ -86,6 +88,7 @@ class ChronicleEntry:
     growth_priority: str
     wallet_balance: float
     machine_id: str
+    is_founder_wisdom: int = 0
 
     def to_dict(self):
         return {
@@ -101,6 +104,7 @@ class ChronicleEntry:
             "growth_priority": self.growth_priority,
             "wallet_balance": round(self.wallet_balance, 1),
             "machine_id": self.machine_id,
+            "is_founder_wisdom": self.is_founder_wisdom,
         }
 
 
@@ -169,9 +173,14 @@ class RootChronicle:
                     guardian_priority TEXT DEFAULT '',
                     growth_priority TEXT DEFAULT '',
                     wallet_balance REAL DEFAULT 0.0,
-                    machine_id TEXT DEFAULT ''
+                    machine_id TEXT DEFAULT '',
+                    is_founder_wisdom INTEGER DEFAULT 0
                 )
             """)
+            try:
+                conn.execute("ALTER TABLE chronicle ADD COLUMN is_founder_wisdom INTEGER DEFAULT 0")
+            except Exception:
+                pass
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS episodic_memory (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -198,7 +207,8 @@ class RootChronicle:
         return conn
 
     def record_consensus(self, consensus_result: Dict, sensor_state: Dict,
-                         guardian_priority: str = "", growth_priority: str = "") -> ChronicleEntry:
+                         guardian_priority: str = "", growth_priority: str = "",
+                         is_founder: int = 0) -> ChronicleEntry:
         snapshot = self._extract_sensor_snapshot(sensor_state)
         wallet_balance = 0.0
         if "wallet" in consensus_result and consensus_result["wallet"]:
@@ -210,8 +220,9 @@ class RootChronicle:
                     INSERT INTO chronicle (
                         timestamp, consensus_command, consensus_intent,
                         sensor_snapshot, outcome, success, energy_pct,
-                        guardian_priority, growth_priority, wallet_balance, machine_id
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        guardian_priority, growth_priority, wallet_balance, machine_id,
+                        is_founder_wisdom
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     consensus_result.get("timestamp", time.time()),
                     consensus_result.get("consensus_command", ""),
@@ -224,6 +235,7 @@ class RootChronicle:
                     growth_priority,
                     wallet_balance,
                     self._machine_id,
+                    is_founder,
                 ))
                 entry_id = cursor.lastrowid
 
@@ -242,6 +254,7 @@ class RootChronicle:
             growth_priority=growth_priority,
             wallet_balance=wallet_balance,
             machine_id=self._machine_id,
+            is_founder_wisdom=is_founder,
         )
 
     def _record_episodic(self, snapshot: Dict):
@@ -481,6 +494,13 @@ class RootChronicle:
                 if cmd_row:
                     most_used_cmd = {"command": cmd_row["consensus_command"], "count": cmd_row["cnt"]}
 
+            try:
+                founder_count = conn.execute(
+                    "SELECT COUNT(*) as c FROM chronicle WHERE is_founder_wisdom = 1"
+                ).fetchone()["c"]
+            except Exception:
+                founder_count = 0
+
         return {
             "total_entries": total,
             "successful_entries": successful,
@@ -489,9 +509,15 @@ class RootChronicle:
             "monitored_domains": [d["domain"] for d in domains],
             "most_proven_root": most_used_cmd,
             "machine_id": self._machine_id,
+            "founder_wisdom_count": founder_count,
+            "is_founder": founder_count > 0,
+            "founder_root_hash": FOUNDER_ROOT_HASH if founder_count > 0 else None,
         }
 
-    def export_genesis_seed(self) -> Dict:
+    def export_genesis_seed(self, mark_founder: bool = False) -> Dict:
+        if mark_founder:
+            self.mark_as_founder_wisdom()
+
         with self._get_conn() as conn:
             entries = conn.execute("""
                 SELECT * FROM chronicle WHERE success = 1 ORDER BY timestamp
@@ -500,8 +526,15 @@ class RootChronicle:
                 SELECT * FROM episodic_memory ORDER BY timestamp DESC LIMIT 500
             """).fetchall()
 
+            try:
+                founder_count = conn.execute(
+                    "SELECT COUNT(*) as c FROM chronicle WHERE is_founder_wisdom = 1"
+                ).fetchone()["c"]
+            except Exception:
+                founder_count = 0
+
         seed_data = {
-            "version": "1.0",
+            "version": "1.1",
             "type": "genesis_seed",
             "source_machine_id": self._machine_id,
             "export_timestamp": time.time(),
@@ -509,6 +542,9 @@ class RootChronicle:
             "episodic": [dict(r) for r in episodic],
             "total_entries": len(entries),
             "total_episodic": len(episodic),
+            "founder_root_hash": FOUNDER_ROOT_HASH,
+            "founder_wisdom_count": founder_count,
+            "is_founder_seed": founder_count > 0,
         }
 
         seed_json = json.dumps(seed_data, sort_keys=True)
@@ -522,17 +558,20 @@ class RootChronicle:
 
         imported_chronicle = 0
         imported_episodic = 0
+        is_founder_seed = seed_data.get("is_founder_seed", False)
 
         with self._lock:
             with self._get_conn() as conn:
                 for entry in seed_data.get("chronicle", []):
                     try:
+                        founder_flag = entry.get("is_founder_wisdom", 1 if is_founder_seed else 0)
                         conn.execute("""
                             INSERT INTO chronicle (
                                 timestamp, consensus_command, consensus_intent,
                                 sensor_snapshot, outcome, success, energy_pct,
-                                guardian_priority, growth_priority, wallet_balance, machine_id
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                guardian_priority, growth_priority, wallet_balance, machine_id,
+                                is_founder_wisdom
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """, (
                             entry.get("timestamp", time.time()),
                             entry.get("consensus_command", ""),
@@ -545,6 +584,7 @@ class RootChronicle:
                             entry.get("growth_priority", ""),
                             entry.get("wallet_balance", 0.0),
                             seed_data.get("source_machine_id", "SEED"),
+                            founder_flag,
                         ))
                         imported_chronicle += 1
                     except Exception:
@@ -573,6 +613,8 @@ class RootChronicle:
             "imported_episodic": imported_episodic,
             "source_machine": seed_data.get("source_machine_id", "UNKNOWN"),
             "lineage_established": True,
+            "founder_wisdom_inherited": is_founder_seed,
+            "founder_root_hash": FOUNDER_ROOT_HASH if is_founder_seed else None,
         }
 
     def _get_chronicle_count(self) -> int:
@@ -583,7 +625,49 @@ class RootChronicle:
         with self._get_conn() as conn:
             return conn.execute("SELECT COUNT(*) as c FROM episodic_memory").fetchone()["c"]
 
+    def mark_as_founder_wisdom(self) -> Dict:
+        with self._lock:
+            with self._get_conn() as conn:
+                conn.execute("""
+                    UPDATE chronicle SET is_founder_wisdom = 1 WHERE success = 1
+                """)
+                count = conn.execute(
+                    "SELECT COUNT(*) as c FROM chronicle WHERE is_founder_wisdom = 1"
+                ).fetchone()["c"]
+        return {
+            "success": True,
+            "marked_count": count,
+            "founder_root_hash": FOUNDER_ROOT_HASH,
+        }
+
+    def get_founder_status(self) -> Dict:
+        with self._get_conn() as conn:
+            try:
+                row = conn.execute(
+                    "SELECT COUNT(*) as c FROM chronicle WHERE is_founder_wisdom = 1"
+                ).fetchone()
+                founder_count = row["c"] if row else 0
+            except Exception:
+                founder_count = 0
+
+        is_founder = founder_count > 0
+        result = {
+            "is_founder": is_founder,
+            "founder_count": founder_count,
+            "founder_root_hash": FOUNDER_ROOT_HASH,
+            "machine_id": self._machine_id,
+        }
+        if is_founder:
+            result["greeting"] = "Inherited Wisdom Detected. First Generation Status: ACTIVE. Greeting the Architect."
+            result["founder_vibe"] = True
+        return result
+
     def _row_to_entry(self, row) -> ChronicleEntry:
+        is_founder = 0
+        try:
+            is_founder = row["is_founder_wisdom"] or 0
+        except (IndexError, KeyError):
+            pass
         return ChronicleEntry(
             id=row["id"],
             timestamp=row["timestamp"],
@@ -597,4 +681,5 @@ class RootChronicle:
             growth_priority=row["growth_priority"] or "",
             wallet_balance=row["wallet_balance"] or 0.0,
             machine_id=row["machine_id"] or "",
+            is_founder_wisdom=is_founder,
         )

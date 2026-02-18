@@ -22,6 +22,7 @@ from void_engine.wallet import AlJabrWalletMiddleware
 from void_engine.diagnostics import DiagnosticEngine, SOVEREIGN_WARRANTY
 from void_engine.rituals import RitualHistory, AutoHealDaemon, RITUAL_TYPES
 from void_engine.chronicle import RootChronicle
+from void_engine.founder_certs import create_founder_cert, batch_generate_certs, FOUNDER_ROOT_HASH
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -1273,7 +1274,8 @@ def chronicle_episodic():
 
 @app.route("/api/harness/chronicle/export")
 def chronicle_export():
-    seed = _chronicle.export_genesis_seed()
+    mark_founder = request.args.get("mark_founder", "false").lower() == "true"
+    seed = _chronicle.export_genesis_seed(mark_founder=mark_founder)
     return jsonify(seed)
 
 
@@ -1284,6 +1286,53 @@ def chronicle_import():
         return jsonify({"error": "No seed data provided"}), 400
     result = _chronicle.import_genesis_seed(data)
     return jsonify(result)
+
+
+@app.route("/api/harness/founder/status")
+def founder_status():
+    return jsonify(_chronicle.get_founder_status())
+
+
+@app.route("/api/harness/founder/mark", methods=["POST"])
+def founder_mark():
+    result = _chronicle.mark_as_founder_wisdom()
+    return jsonify(result)
+
+
+@app.route("/api/harness/founder/cert", methods=["POST"])
+def founder_generate_cert():
+    data = request.json or {}
+    customer_id = data.get("customer_id", 1)
+    machine_hash = data.get("machine_hash", _ritual_history.machine_id)
+    try:
+        result = create_founder_cert(int(customer_id), machine_hash, OUTPUT_DIR)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/harness/founder/batch", methods=["POST"])
+def founder_batch_certs():
+    data = request.json or {}
+    count = min(int(data.get("count", 100)), 100)
+    base_hash = data.get("base_hash", _ritual_history.machine_id)
+    try:
+        result = batch_generate_certs(count, base_hash, OUTPUT_DIR)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/harness/founder/genesis-kit", methods=["POST"])
+def founder_genesis_kit():
+    _chronicle.mark_as_founder_wisdom()
+    seed = _chronicle.export_genesis_seed(mark_founder=True)
+    return jsonify({
+        "success": True,
+        "genesis_seed": seed,
+        "founder_root_hash": FOUNDER_ROOT_HASH,
+        "instructions": "Package this seed with genesis_init.sh and FOUNDER_CERT for each customer.",
+    })
 
 
 _start_time = __import__("time").time()

@@ -2746,7 +2746,168 @@ document.addEventListener("DOMContentLoaded", () => {
             setTimeout(function() {
                 loadChronicleStats();
                 loadChronicleTimeline();
+                loadFounderStatus();
             }, 1500);
         });
     }
+
+    function loadFounderStatus() {
+        fetch("/api/harness/founder/status").then(r => r.json()).then(data => {
+            var statusEl = document.getElementById("founder-status-val");
+            var countEl = document.getElementById("founder-count-val");
+            var hashEl = document.getElementById("founder-hash-val");
+            var machineEl = document.getElementById("founder-machine-val");
+            var banner = document.getElementById("founder-greeting-banner");
+
+            countEl.textContent = data.founder_count || 0;
+            machineEl.textContent = data.machine_id ? data.machine_id.replace("VOID-4000-", "V4K-") : "—";
+
+            if (data.is_founder) {
+                statusEl.textContent = "FIRST GENERATION";
+                statusEl.style.color = "#D4AF37";
+                hashEl.textContent = data.founder_root_hash;
+                hashEl.style.color = "#D4AF37";
+                banner.style.display = "flex";
+                document.getElementById("founder-greeting-msg").textContent = data.greeting || "First Generation Status: ACTIVE";
+                document.getElementById("founder-greeting-hash").textContent = data.founder_root_hash;
+                document.body.classList.add("founder-vibe");
+            } else {
+                statusEl.textContent = "NOT ACTIVATED";
+                statusEl.style.color = "var(--text-muted)";
+                hashEl.textContent = "—";
+                banner.style.display = "none";
+                document.body.classList.remove("founder-vibe");
+            }
+        }).catch(function() {});
+    }
+
+    loadFounderStatus();
+
+    document.getElementById("founder-mark-btn").addEventListener("click", function() {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = "Marking...";
+        fetch("/api/harness/founder/mark", {method: "POST"}).then(r => r.json()).then(function(data) {
+            if (data.success) {
+                showToast("Founder Wisdom marked: " + data.marked_count + " entries flagged as Original Lineage", "success");
+                loadFounderStatus();
+                loadChronicleStats();
+            } else {
+                showToast("Failed to mark founder wisdom", "error");
+            }
+        }).catch(function() {
+            showToast("Mark failed", "error");
+        }).finally(function() {
+            btn.disabled = false;
+            btn.textContent = "Mark as Founder Wisdom";
+        });
+    });
+
+    document.getElementById("founder-cert-btn").addEventListener("click", function() {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = "Generating...";
+        fetch("/api/harness/founder/cert", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({customer_id: 1})
+        }).then(r => r.json()).then(function(data) {
+            if (data.success) {
+                var resultEl = document.getElementById("founder-result");
+                var contentEl = document.getElementById("founder-result-content");
+                resultEl.style.display = "block";
+                contentEl.innerHTML = '<div class="founder-cert-result">' +
+                    '<div class="cert-icon">CERT</div>' +
+                    '<div class="cert-details">' +
+                    '<div class="cert-filename">' + data.filename + '</div>' +
+                    '<div class="cert-seal">Seal: ' + data.seal + '</div>' +
+                    '<a href="/api/download/output_audio/' + data.filename + '" class="btn-founder-secondary" style="text-decoration:none;display:inline-block;margin-top:8px;">Download Certificate</a>' +
+                    '</div></div>';
+                showToast("Founder Certificate generated: " + data.filename, "success");
+            }
+        }).catch(function() {
+            showToast("Generation failed", "error");
+        }).finally(function() {
+            btn.disabled = false;
+            btn.textContent = "Generate Single Cert";
+        });
+    });
+
+    document.getElementById("founder-batch-btn").addEventListener("click", function() {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = "Generating 100...";
+        fetch("/api/harness/founder/batch", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({count: 100})
+        }).then(r => r.json()).then(function(data) {
+            if (data.success) {
+                var resultEl = document.getElementById("founder-result");
+                var contentEl = document.getElementById("founder-result-content");
+                resultEl.style.display = "block";
+                contentEl.innerHTML = '<div class="founder-batch-result">' +
+                    '<div class="batch-count">' + data.generated + ' Certificates Generated</div>' +
+                    '<div class="batch-list">' + data.filenames.slice(0, 5).join(", ") + (data.generated > 5 ? ", ..." : "") + '</div>' +
+                    '</div>';
+                showToast(data.generated + " Founder Certificates generated", "success");
+            }
+        }).catch(function() {
+            showToast("Batch generation failed", "error");
+        }).finally(function() {
+            btn.disabled = false;
+            btn.textContent = "Generate 100 Certs";
+        });
+    });
+
+    document.getElementById("founder-kit-btn").addEventListener("click", function() {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = "Packaging...";
+        fetch("/api/harness/founder/genesis-kit", {method: "POST"}).then(r => r.json()).then(function(data) {
+            if (data.success) {
+                var blob = new Blob([JSON.stringify(data.genesis_seed, null, 2)], {type: "application/json"});
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = "genesis_kit_founder_seed.json";
+                a.click();
+                URL.revokeObjectURL(url);
+
+                var resultEl = document.getElementById("founder-result");
+                var contentEl = document.getElementById("founder-result-content");
+                resultEl.style.display = "block";
+                contentEl.innerHTML = '<div class="founder-kit-result">' +
+                    '<div class="kit-title">Genesis Kit Packaged</div>' +
+                    '<div class="kit-hash">Root Hash: ' + data.founder_root_hash + '</div>' +
+                    '<div class="kit-entries">Chronicle: ' + data.genesis_seed.total_entries + ' entries | Episodic: ' + data.genesis_seed.total_episodic + '</div>' +
+                    '<div class="kit-instructions">' + data.instructions + '</div>' +
+                    '</div>';
+
+                showToast("Genesis Kit exported with Founder Wisdom", "success");
+                loadFounderStatus();
+            }
+        }).catch(function() {
+            showToast("Kit packaging failed", "error");
+        }).finally(function() {
+            btn.disabled = false;
+            btn.textContent = "Package Genesis Kit";
+        });
+    });
+
+    document.getElementById("founder-export-seed-btn").addEventListener("click", function() {
+        fetch("/api/harness/chronicle/export?mark_founder=true").then(r => r.json()).then(function(data) {
+            var blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "founder_seed_" + (data.source_machine_id || "void") + ".json";
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Founder Seed exported — " + data.total_entries + " entries (Founder: " + data.founder_wisdom_count + ")", "success");
+            loadFounderStatus();
+        }).catch(function() {
+            showToast("Export failed", "error");
+        });
+    });
 });
