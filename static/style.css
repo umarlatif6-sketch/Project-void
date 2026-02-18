@@ -719,6 +719,68 @@ input[type="radio"] {
     font-family: monospace;
 }
 
+.btn-danger {
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover { background: #c82333; }
+
+.btn-accent {
+    background: transparent;
+    color: #ffd700;
+    border: 1px solid #ffd700;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+}
+
+.btn-accent:hover { background: rgba(255, 215, 0, 0.1); }
+
+.purge-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.purge-status {
+    font-size: 12px;
+    color: var(--text-dim);
+}
+
+.viz-signal-status {
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: color 0.3s;
+}
+
+.gold-glow {
+    animation: goldPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes goldPulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.3); border-color: rgba(255, 215, 0, 0.4); }
+    50% { box-shadow: 0 0 24px rgba(255, 215, 0, 0.7), 0 0 48px rgba(255, 215, 0, 0.3); border-color: #ffd700; }
+}
+
+.gold-glow-border {
+    border: 2px solid #ffd700;
+    animation: goldPulse 1.5s ease-in-out infinite;
+}
+
 @media (max-width: 600px) {
     header { flex-direction: column; gap: 12px; padding: 16px; }
     main { padding: 16px 12px; }

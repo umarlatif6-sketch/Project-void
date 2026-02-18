@@ -237,6 +237,7 @@ def delete_file(folder, filename):
 
 
 silk_ticker = SignalTicker()
+silk_ticker.start_heartbeat()
 
 
 @app.route("/api/silk/send", methods=["POST"])
@@ -313,7 +314,33 @@ def system_status():
     output_count = len([f for f in os.listdir(OUTPUT_DIR) if os.path.isfile(os.path.join(OUTPUT_DIR, f))]) if os.path.isdir(OUTPUT_DIR) else 0
     status["files"] = {"input": input_count, "output": output_count}
 
+    status["network"] = silk_ticker.get_network_health()
+
     return jsonify(status)
+
+
+@app.route("/api/purge", methods=["POST"])
+def purge_old_files():
+    import time as _time
+    cutoff = _time.time() - 86400
+    purged = []
+    if os.path.isdir(OUTPUT_DIR):
+        for fname in os.listdir(OUTPUT_DIR):
+            fpath = os.path.join(OUTPUT_DIR, fname)
+            if os.path.isfile(fpath) and os.path.getmtime(fpath) < cutoff:
+                try:
+                    size = os.path.getsize(fpath)
+                    os.remove(fpath)
+                    purged.append({"name": fname, "size": size})
+                except Exception:
+                    pass
+    total_freed = sum(f["size"] for f in purged)
+    return jsonify({
+        "success": True,
+        "purged_count": len(purged),
+        "freed_bytes": total_freed,
+        "files": purged,
+    })
 
 
 _start_time = __import__("time").time()

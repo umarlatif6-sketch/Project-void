@@ -174,6 +174,8 @@
             <div class="viz-controls">
                 <button id="viz-play-btn" class="btn-primary">Play &amp; Visualize</button>
                 <button id="viz-stop-btn" class="btn-secondary" style="display:none;">Stop</button>
+                <button id="viz-mic-btn" class="btn-accent">Mic Listener</button>
+                <button id="viz-mic-stop-btn" class="btn-secondary" style="display:none;">Stop Mic</button>
             </div>
 
             <div class="viz-container" id="viz-container" style="display:none;">
@@ -185,6 +187,7 @@
                 <div class="viz-freq-info">
                     <span id="viz-peak-freq">Peak: --</span>
                     <span id="viz-432-level">432 Hz: --</span>
+                    <span id="viz-signal-status" class="viz-signal-status">Signal: Scanning...</span>
                 </div>
             </div>
         </div>
@@ -302,6 +305,10 @@
 
         <div id="files" class="panel">
             <h2>File Manager</h2>
+            <div class="purge-section">
+                <button id="purge-btn" class="btn-danger">Purge Files Older Than 24h</button>
+                <span id="purge-status" class="purge-status"></span>
+            </div>
             <div class="file-section">
                 <h3>input_files/</h3>
                 <div id="input-file-list" class="file-list"><p class="loading">Loading...</p></div>

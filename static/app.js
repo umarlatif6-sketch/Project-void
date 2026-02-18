@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
             panels.forEach(p => p.classList.remove("active"));
             tab.classList.add("active");
             document.getElementById(tab.dataset.tab).classList.add("active");
+            if (tab.dataset.tab !== "visualizer") { stopViz(); stopMic(); }
             if (tab.dataset.tab === "files") refreshFiles();
             if (tab.dataset.tab === "capacity") loadSelects();
             if (tab.dataset.tab === "visualizer") loadSelects();
@@ -462,6 +463,154 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("viz-play-btn").disabled = false;
     }
 
+    let micStream = null;
+    let micAudioCtx = null;
+    let micAnalyser = null;
+    let micAnimFrame = null;
+    const SIGNAL_THRESHOLD = 120;
+
+    document.getElementById("viz-mic-btn").addEventListener("click", async () => {
+        if (micStream) { stopMic(); return; }
+        stopViz();
+
+        try {
+            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            micAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            micAnalyser = micAudioCtx.createAnalyser();
+            micAnalyser.fftSize = 4096;
+
+            const source = micAudioCtx.createMediaStreamSource(micStream);
+            source.connect(micAnalyser);
+
+            document.getElementById("viz-container").style.display = "block";
+            document.getElementById("viz-mic-btn").style.display = "none";
+            document.getElementById("viz-mic-stop-btn").style.display = "inline-block";
+            document.getElementById("viz-play-btn").disabled = true;
+
+            drawMicSpectrum();
+            showToast("Mic Listener active — scanning for 432 Hz", "success");
+        } catch (e) {
+            showToast("Microphone access denied or unavailable", "error");
+        }
+    });
+
+    document.getElementById("viz-mic-stop-btn").addEventListener("click", stopMic);
+
+    function stopMic() {
+        if (micStream) {
+            micStream.getTracks().forEach(t => t.stop());
+            micStream = null;
+        }
+        if (micAnimFrame) cancelAnimationFrame(micAnimFrame);
+        if (micAudioCtx) { micAudioCtx.close(); micAudioCtx = null; }
+        micAnalyser = null;
+        document.getElementById("viz-mic-stop-btn").style.display = "none";
+        document.getElementById("viz-mic-btn").style.display = "inline-block";
+        document.getElementById("viz-play-btn").disabled = false;
+
+        const vizContainer = document.getElementById("viz-container");
+        vizContainer.classList.remove("gold-glow-border");
+        vizContainer.style.border = "";
+        document.getElementById("viz-signal-status").textContent = "Signal: Scanning...";
+        document.getElementById("viz-signal-status").style.color = "";
+    }
+
+    function drawMicSpectrum() {
+        if (!micAnalyser) return;
+
+        const canvas = document.getElementById("viz-canvas");
+        const ctx = canvas.getContext("2d");
+        const bufLen = micAnalyser.frequencyBinCount;
+        const dataArr = new Uint8Array(bufLen);
+
+        const sampleRate = micAudioCtx.sampleRate;
+        const binWidth = sampleRate / micAnalyser.fftSize;
+        const bin432 = Math.round(432 / binWidth);
+        const maxFreq = 2000;
+        const maxBin = Math.min(Math.round(maxFreq / binWidth), bufLen);
+
+        let glowActive = false;
+
+        function draw() {
+            micAnimFrame = requestAnimationFrame(draw);
+            micAnalyser.getByteFrequencyData(dataArr);
+
+            canvas.width = canvas.clientWidth * (window.devicePixelRatio || 1);
+            canvas.height = canvas.clientHeight * (window.devicePixelRatio || 1);
+            ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+
+            ctx.fillStyle = "#0a0a0f";
+            ctx.fillRect(0, 0, w, h);
+
+            const barW = w / maxBin;
+            let peakVal = 0, peakBin = 0;
+
+            for (let i = 0; i < maxBin; i++) {
+                const val = dataArr[i];
+                const barH = (val / 255) * h * 0.9;
+
+                if (val > peakVal) { peakVal = val; peakBin = i; }
+
+                const inGoldZone = Math.abs(i - bin432) <= 2;
+                if (inGoldZone) {
+                    ctx.fillStyle = "#ffd700";
+                    ctx.shadowColor = "#ffd700";
+                    ctx.shadowBlur = 8;
+                } else {
+                    ctx.fillStyle = "rgba(124, 92, 255, 0.7)";
+                    ctx.shadowBlur = 0;
+                }
+
+                ctx.fillRect(i * barW, h - barH, Math.max(barW - 1, 1), barH);
+                ctx.shadowBlur = 0;
+            }
+
+            const goldX = bin432 * barW;
+            ctx.strokeStyle = "rgba(255, 215, 0, 0.4)";
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(goldX, 0);
+            ctx.lineTo(goldX, h);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = "#ffd700";
+            ctx.font = "10px monospace";
+            ctx.fillText("432", goldX - 8, 12);
+
+            const peakFreq = (peakBin * binWidth).toFixed(0);
+            document.getElementById("viz-peak-freq").textContent = `Peak: ${peakFreq} Hz`;
+
+            const level432 = dataArr[bin432] || 0;
+            document.getElementById("viz-432-level").textContent = `432 Hz: ${level432}/255`;
+
+            const vizContainer = document.getElementById("viz-container");
+            const sigStatus = document.getElementById("viz-signal-status");
+
+            if (level432 >= SIGNAL_THRESHOLD) {
+                if (!glowActive) {
+                    glowActive = true;
+                    vizContainer.classList.add("gold-glow-border");
+                    sigStatus.textContent = "SIGNAL DETECTED";
+                    sigStatus.style.color = "#ffd700";
+                }
+            } else {
+                if (glowActive) {
+                    glowActive = false;
+                    vizContainer.classList.remove("gold-glow-border");
+                    sigStatus.textContent = "Signal: Scanning...";
+                    sigStatus.style.color = "";
+                }
+            }
+        }
+
+        draw();
+    }
+
     function drawSpectrum() {
         if (!vizAnalyser) return;
 
@@ -682,6 +831,40 @@ document.addEventListener("DOMContentLoaded", () => {
             feed.innerHTML = '<p class="loading">Failed to load signals</p>';
         }
     }
+
+    document.getElementById("purge-btn").addEventListener("click", async () => {
+        const btn = document.getElementById("purge-btn");
+        const status = document.getElementById("purge-status");
+
+        if (!confirm("This will permanently delete all files in output_audio/ older than 24 hours. Continue?")) return;
+
+        btn.disabled = true;
+        btn.textContent = "Purging...";
+        status.textContent = "";
+
+        try {
+            const res = await fetch("/api/purge", { method: "POST" });
+            const data = await res.json();
+
+            if (data.success) {
+                if (data.purged_count === 0) {
+                    status.textContent = "No files older than 24h found.";
+                    showToast("Nothing to purge", "success");
+                } else {
+                    status.textContent = `Purged ${data.purged_count} file(s), freed ${formatSize(data.freed_bytes)}`;
+                    showToast(`Purged ${data.purged_count} file(s)!`, "success");
+                    refreshFiles();
+                }
+            } else {
+                showToast(data.error || "Purge failed", "error");
+            }
+        } catch (e) {
+            showToast("Purge failed: " + e.message, "error");
+        }
+
+        btn.disabled = false;
+        btn.textContent = "Purge Files Older Than 24h";
+    });
 
     loadSelects();
 });
