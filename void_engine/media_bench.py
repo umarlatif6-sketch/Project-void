@@ -26,6 +26,17 @@ SAMPLE_RATE = 44100
 RESONANCE_LOG = "RESONANCE_LOG.md"
 
 
+class _SuppressStdout:
+    def __enter__(self):
+        self._original = sys.stdout
+        sys.stdout = open(os.devnull, "w")
+        return self
+
+    def __exit__(self, *args):
+        sys.stdout.close()
+        sys.stdout = self._original
+
+
 def _format_size(n: int) -> str:
     if n >= 1024 * 1024:
         return f"{n / (1024*1024):.2f} MB"
@@ -373,19 +384,221 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
     print(f"  [LOG] Results appended to {RESONANCE_LOG}")
 
 
+def find_burst_point(carrier_path: str, start_kb: int = 10, step_kb: int = 10,
+                     max_kb: int = None, snr_floor: float = 15.0):
+    if not os.path.exists(carrier_path):
+        print(f"  [ERROR] Carrier not found: {carrier_path}")
+        return
+
+    with wave.open(carrier_path, "rb") as wf:
+        carrier_samples = wf.getnframes()
+        sr = wf.getframerate()
+        carrier_duration = carrier_samples / sr
+
+    carrier_name = os.path.basename(carrier_path)
+    max_capacity_bytes = carrier_samples // 8
+    if max_kb is None:
+        max_kb = max_capacity_bytes // 1024
+
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    output_wav = "output_audio/burst_point_probe.wav"
+    temp_payload = "input_files/_burst_probe.bin"
+
+    print("=" * 70)
+    print("  BURST POINT FINDER — Sapphire Bubble Pressure Test")
+    print("=" * 70)
+    print(f"  Carrier:           {carrier_name}")
+    print(f"  Duration:          {carrier_duration:.1f}s")
+    print(f"  Total Samples:     {carrier_samples:,}")
+    print(f"  Max Capacity:      {_format_size(max_capacity_bytes)} (LSB depth 1)")
+    print(f"  SNR Floor:         {snr_floor:.1f} dB (below = Muddled)")
+    print(f"  Escalation:        {start_kb} KB → {max_kb} KB (step {step_kb} KB)")
+    print()
+
+    results = []
+    burst_found = False
+    last_safe_kb = 0
+    last_safe_snr = 0.0
+
+    print(f"  {'Size':>8}  {'Tension':>10}  {'SNR':>8}  {'Grade':>12}  {'Encode':>10}  {'Status':>10}")
+    print(f"  {'—'*8}  {'—'*10}  {'—'*8}  {'—'*12}  {'—'*10}  {'—'*10}")
+
+    current_kb = start_kb
+    while current_kb <= max_kb:
+        size_bytes = current_kb * 1024
+
+        rng = np.random.RandomState(432 + current_kb)
+        raw_payload = rng.bytes(size_bytes)
+
+        compressed = b"ZLIB" + zlib.compress(raw_payload, level=1)
+
+        passphrase = hashlib.sha256(f"burst_probe_{current_kb}".encode()).hexdigest()[:32]
+
+        ghost_offset = _compute_ghost_offset(passphrase, carrier_samples)
+        effective_capacity = ((carrier_samples - ghost_offset) * 1) // 8
+        total_embedded = HEADER_SIZE + len(compressed)
+
+        if total_embedded > effective_capacity:
+            print(f"  {_format_size(size_bytes):>8}  {'—':>10}  {'—':>8}  {'—':>12}  {'—':>10}  {'OVERFLOW':>10}")
+            results.append({
+                "size_kb": current_kb, "size_bytes": size_bytes,
+                "tension": 1.0, "snr": 0.0, "grade": "OVERFLOW",
+                "encode_time": 0.0, "status": "OVERFLOW"
+            })
+            burst_found = True
+            break
+
+        try:
+            name = f"probe_{current_kb}kb"
+            ext = ".bin"
+            t_start = time.perf_counter()
+            with _SuppressStdout():
+                returned_key = encode(carrier_path, compressed, name, ext, output_wav,
+                                      lsb_depth=1, passphrase=passphrase, jitter=True)
+            t_end = time.perf_counter()
+            encode_time = t_end - t_start
+
+            tension = total_embedded / effective_capacity if effective_capacity > 0 else 1.0
+
+            purity = check_resonance_purity(output_wav)
+            snr = purity.get("snr_db", 0.0)
+            grade = purity.get("quality", "Unknown")
+
+            if snr < snr_floor:
+                status = "BURST"
+                burst_found = True
+            elif tension >= 0.90:
+                status = "STRETCH"
+            else:
+                status = "SAFE"
+                last_safe_kb = current_kb
+                last_safe_snr = snr
+
+            print(f"  {_format_size(size_bytes):>8}  {tension*100:>9.2f}%  {snr:>7.1f}  {grade:>12}  {_format_time(encode_time):>10}  {status:>10}")
+
+            results.append({
+                "size_kb": current_kb, "size_bytes": size_bytes,
+                "tension": tension, "snr": snr, "grade": grade,
+                "encode_time": encode_time, "status": status
+            })
+
+            if burst_found:
+                break
+
+        except Exception as e:
+            err_msg = str(e)
+            if "capacity" in err_msg.lower() or "too large" in err_msg.lower() or "exceed" in err_msg.lower():
+                print(f"  {_format_size(size_bytes):>8}  {'—':>10}  {'—':>8}  {'—':>12}  {'—':>10}  {'OVERFLOW':>10}")
+                results.append({
+                    "size_kb": current_kb, "size_bytes": size_bytes,
+                    "tension": 1.0, "snr": 0.0, "grade": "OVERFLOW",
+                    "encode_time": 0.0, "status": "OVERFLOW"
+                })
+            else:
+                print(f"  {_format_size(size_bytes):>8}  {'—':>10}  {'—':>8}  {'ERROR':>12}  {'—':>10}  {'FAILED':>10}")
+                results.append({
+                    "size_kb": current_kb, "size_bytes": size_bytes,
+                    "tension": 0, "snr": 0.0, "grade": "ERROR",
+                    "encode_time": 0.0, "status": f"ERROR: {e}"
+                })
+            burst_found = True
+            break
+
+        if current_kb < 50:
+            current_kb += 10
+        elif current_kb < 200:
+            current_kb += 20
+        else:
+            current_kb += 40
+
+    for f in [output_wav, temp_payload]:
+        if os.path.exists(f):
+            os.remove(f)
+
+    print()
+    print("=" * 70)
+    print("  BURST POINT ANALYSIS")
+    print("=" * 70)
+
+    if burst_found and len(results) >= 2:
+        burst_entry = results[-1]
+        safe_entry = results[-2] if results[-2]["status"] == "SAFE" else None
+
+        if burst_entry["status"] == "OVERFLOW":
+            print(f"  Burst Type:         CAPACITY OVERFLOW at {_format_size(burst_entry['size_bytes'])}")
+        else:
+            print(f"  Burst Type:         SNR FAILURE at {_format_size(burst_entry['size_bytes'])}")
+            print(f"  SNR at Burst:       {burst_entry['snr']:.1f} dB ({burst_entry['grade']})")
+
+        if safe_entry:
+            print(f"  Last Safe Payload:  {_format_size(safe_entry['size_bytes'])} ({safe_entry['snr']:.1f} dB, {safe_entry['tension']*100:.1f}% tension)")
+        elif last_safe_kb > 0:
+            print(f"  Last Safe Payload:  {last_safe_kb} KB ({last_safe_snr:.1f} dB)")
+    elif not burst_found:
+        print(f"  Result:             BUBBLE NEVER BURST — carrier held all payloads up to {_format_size(results[-1]['size_bytes'])}")
+        print(f"  Final SNR:          {results[-1]['snr']:.1f} dB ({results[-1]['grade']})")
+        print(f"  Final Tension:      {results[-1]['tension']*100:.2f}%")
+    else:
+        print(f"  Result:             BURST on first probe ({_format_size(results[0]['size_bytes'])})")
+
+    print(f"  Carrier:            {carrier_name} ({carrier_duration:.1f}s)")
+    print(f"  Max Capacity:       {_format_size(max_capacity_bytes)}")
+    print(f"  Probes Run:         {len(results)}")
+    print("=" * 70)
+
+    log_lines = []
+    for r in results:
+        log_lines.append(
+            f"| {_format_size(r['size_bytes'])} | {r['tension']*100:.1f}% | {r['snr']:.1f} dB | {r['grade']} | {r['status']} |"
+        )
+
+    safe_entries = [r for r in results if r["status"] == "SAFE"]
+    max_safe = safe_entries[-1] if safe_entries else None
+
+    log_entry = f"""### {timestamp} — BURST POINT TEST: {carrier_name}
+
+| Metric | Value |
+|---|---|
+| Carrier | {carrier_name} |
+| Duration | {carrier_duration:.1f}s |
+| Max Capacity | {_format_size(max_capacity_bytes)} |
+| Max Safe Payload | {_format_size(max_safe['size_bytes']) + ' (' + f"{max_safe['snr']:.1f}" + ' dB)' if max_safe else 'None'} |
+| Burst Point | {_format_size(results[-1]['size_bytes']) if burst_found else 'Not reached'} |
+| Probes | {len(results)} |
+
+#### Pressure Curve
+
+| Payload | Tension | SNR | Grade | Status |
+|---|---|---|---|---|
+{chr(10).join(log_lines)}
+
+---"""
+
+    _append_resonance_log(log_entry)
+    print()
+    print(f"  [LOG] Burst Point results appended to {RESONANCE_LOG}")
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage:")
         print("  python -m void_engine.media_bench <media_file> [output_wav] [carrier_wav]")
         print("  python -m void_engine.media_bench --ocean <size_kb> [output_wav] [carrier_wav]")
+        print("  python -m void_engine.media_bench --burst <carrier_wav> [start_kb] [step_kb]")
         print()
         print("Examples:")
         print("  python -m void_engine.media_bench input_files/test_image.bmp")
         print("  python -m void_engine.media_bench input_files/photo.jpg output_audio/deep_test.wav input_files/ambient_drone_60s.wav")
         print("  python -m void_engine.media_bench --ocean 100 output_audio/ocean_test.wav input_files/ambient_drone_60s.wav")
+        print("  python -m void_engine.media_bench --burst input_files/ambient_drone_60s.wav 5 10")
         sys.exit(1)
 
-    if sys.argv[1] == "--ocean":
+    if sys.argv[1] == "--burst":
+        carrier = sys.argv[2] if len(sys.argv) > 2 else "input_files/ambient_drone_60s.wav"
+        start = int(sys.argv[3]) if len(sys.argv) > 3 else 10
+        step = int(sys.argv[4]) if len(sys.argv) > 4 else 10
+        find_burst_point(carrier, start_kb=start, step_kb=step)
+    elif sys.argv[1] == "--ocean":
         size_kb = int(sys.argv[2]) if len(sys.argv) > 2 else 50
         size_bytes = size_kb * 1024
         ocean_path = f"input_files/ocean_payload_{size_kb}kb.bin"
@@ -393,9 +606,9 @@ if __name__ == "__main__":
         media_file = ocean_path
         output = sys.argv[3] if len(sys.argv) > 3 else "output_audio/ocean_stress_test.wav"
         carrier = sys.argv[4] if len(sys.argv) > 4 else None
+        run_benchmark(media_file, output, carrier_path_override=carrier)
     else:
         media_file = sys.argv[1]
         output = sys.argv[2] if len(sys.argv) > 2 else "output_audio/media_test_void.wav"
         carrier = sys.argv[3] if len(sys.argv) > 3 else None
-
-    run_benchmark(media_file, output, carrier_path_override=carrier)
+        run_benchmark(media_file, output, carrier_path_override=carrier)

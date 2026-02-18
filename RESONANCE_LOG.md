@@ -303,3 +303,200 @@ Observations:
 | 20 | 2,444,922 | 154 | — | 92.4% |
 
 ---
+
+### 2026-02-18 05:50:01 — BURST POINT TEST: ambient_drone_60s.wav
+
+| Metric | Value |
+|---|---|
+| Carrier | ambient_drone_60s.wav |
+| Duration | 60.0s |
+| Max Capacity | 323.00 KB |
+| Max Safe Payload | 215.00 KB (31.1 dB) |
+| Burst Point | 295.00 KB |
+| Probes | 16 |
+
+#### Pressure Curve
+
+| Payload | Tension | SNR | Grade | Status |
+|---|---|---|---|---|
+| 5.00 KB | 1.8% | 31.1 dB | Clear | SAFE |
+| 15.00 KB | 5.1% | 31.1 dB | Clear | SAFE |
+| 25.00 KB | 7.8% | 31.1 dB | Clear | SAFE |
+| 35.00 KB | 12.3% | 31.1 dB | Clear | SAFE |
+| 45.00 KB | 15.6% | 31.1 dB | Clear | SAFE |
+| 55.00 KB | 19.9% | 31.1 dB | Clear | SAFE |
+| 75.00 KB | 26.3% | 31.1 dB | Clear | SAFE |
+| 95.00 KB | 34.2% | 31.1 dB | Clear | SAFE |
+| 115.00 KB | 36.2% | 31.1 dB | Clear | SAFE |
+| 135.00 KB | 47.4% | 31.1 dB | Clear | SAFE |
+| 155.00 KB | 52.7% | 31.1 dB | Clear | SAFE |
+| 175.00 KB | 55.1% | 31.1 dB | Clear | SAFE |
+| 195.00 KB | 65.4% | 31.1 dB | Clear | SAFE |
+| 215.00 KB | 71.8% | 31.1 dB | Clear | SAFE |
+| 255.00 KB | 90.9% | 31.1 dB | Clear | STRETCH |
+| 295.00 KB | 0.0% | 0.0 dB | ERROR | ERROR: Payload too large: needs 2,417,992 bits, carrier has capacity for 2,389,076 bits (298,634 bytes) at LSB depth 1 (Ghost Offset: 256,924 samples). |
+
+---
+
+### 2026-02-18 05:52:19 — BURST POINT TEST: ambient_drone_60s.wav
+
+| Metric | Value |
+|---|---|
+| Carrier | ambient_drone_60s.wav |
+| Duration | 60.0s |
+| Max Capacity | 323.00 KB |
+| Max Safe Payload | 215.00 KB (31.1 dB) |
+| Burst Point | 295.00 KB |
+| Probes | 16 |
+
+#### Pressure Curve
+
+| Payload | Tension | SNR | Grade | Status |
+|---|---|---|---|---|
+| 5.00 KB | 1.8% | 31.1 dB | Clear | SAFE |
+| 15.00 KB | 5.1% | 31.1 dB | Clear | SAFE |
+| 25.00 KB | 7.8% | 31.1 dB | Clear | SAFE |
+| 35.00 KB | 12.3% | 31.1 dB | Clear | SAFE |
+| 45.00 KB | 15.6% | 31.1 dB | Clear | SAFE |
+| 55.00 KB | 19.9% | 31.1 dB | Clear | SAFE |
+| 75.00 KB | 26.3% | 31.1 dB | Clear | SAFE |
+| 95.00 KB | 34.2% | 31.1 dB | Clear | SAFE |
+| 115.00 KB | 36.2% | 31.1 dB | Clear | SAFE |
+| 135.00 KB | 47.4% | 31.1 dB | Clear | SAFE |
+| 155.00 KB | 52.7% | 31.1 dB | Clear | SAFE |
+| 175.00 KB | 55.1% | 31.1 dB | Clear | SAFE |
+| 195.00 KB | 65.4% | 31.1 dB | Clear | SAFE |
+| 215.00 KB | 71.8% | 31.1 dB | Clear | SAFE |
+| 255.00 KB | 90.9% | 31.1 dB | Clear | STRETCH |
+| 295.00 KB | 0.0% | 0.0 dB | ERROR | ERROR: Payload too large: needs 2,417,992 bits, carrier has capacity for 2,389,076 bits (298,634 bytes) at LSB depth 1 (Ghost Offset: 256,924 samples). |
+
+---
+
+### 2026-02-18 05:54:39 — BURST POINT TEST: ambient_drone_60s.wav
+
+| Metric | Value |
+|---|---|
+| Carrier | ambient_drone_60s.wav |
+| Duration | 60.0s |
+| Max Capacity | 323.00 KB |
+| Max Safe Payload | 215.00 KB (31.1 dB) |
+| Burst Point | 295.00 KB |
+| Probes | 16 |
+
+#### Pressure Curve
+
+| Payload | Tension | SNR | Grade | Status |
+|---|---|---|---|---|
+| 5.00 KB | 1.8% | 31.1 dB | Clear | SAFE |
+| 15.00 KB | 5.1% | 31.1 dB | Clear | SAFE |
+| 25.00 KB | 7.8% | 31.1 dB | Clear | SAFE |
+| 35.00 KB | 12.3% | 31.1 dB | Clear | SAFE |
+| 45.00 KB | 15.6% | 31.1 dB | Clear | SAFE |
+| 55.00 KB | 19.9% | 31.1 dB | Clear | SAFE |
+| 75.00 KB | 26.3% | 31.1 dB | Clear | SAFE |
+| 95.00 KB | 34.2% | 31.1 dB | Clear | SAFE |
+| 115.00 KB | 36.2% | 31.1 dB | Clear | SAFE |
+| 135.00 KB | 47.4% | 31.1 dB | Clear | SAFE |
+| 155.00 KB | 52.7% | 31.1 dB | Clear | SAFE |
+| 175.00 KB | 55.1% | 31.1 dB | Clear | SAFE |
+| 195.00 KB | 65.4% | 31.1 dB | Clear | SAFE |
+| 215.00 KB | 71.8% | 31.1 dB | Clear | SAFE |
+| 255.00 KB | 90.9% | 31.1 dB | Clear | STRETCH |
+| 295.00 KB | 100.0% | 0.0 dB | OVERFLOW | OVERFLOW |
+
+---
+
+### 2026-02-18 05:56:27 — BURST POINT TEST: pink_noise_30s.wav
+
+| Metric | Value |
+|---|---|
+| Carrier | pink_noise_30s.wav |
+| Duration | 30.0s |
+| Max Capacity | 161.50 KB |
+| Max Safe Payload | 115.00 KB (25.9 dB) |
+| Burst Point | 135.00 KB |
+| Probes | 10 |
+
+#### Pressure Curve
+
+| Payload | Tension | SNR | Grade | Status |
+|---|---|---|---|---|
+| 5.00 KB | 4.0% | 25.9 dB | Clear | SAFE |
+| 15.00 KB | 11.2% | 25.9 dB | Clear | SAFE |
+| 25.00 KB | 15.7% | 25.9 dB | Clear | SAFE |
+| 35.00 KB | 28.1% | 25.9 dB | Clear | SAFE |
+| 45.00 KB | 35.3% | 25.9 dB | Clear | SAFE |
+| 55.00 KB | 35.3% | 25.9 dB | Clear | SAFE |
+| 75.00 KB | 60.7% | 25.9 dB | Clear | SAFE |
+| 95.00 KB | 60.5% | 25.9 dB | Clear | SAFE |
+| 115.00 KB | 73.4% | 25.9 dB | Clear | SAFE |
+| 135.00 KB | 100.0% | 0.0 dB | OVERFLOW | OVERFLOW |
+
+---
+
+### 2026-02-18 05:57:55 — BURST POINT TEST: ambient_drone_60s.wav
+
+| Metric | Value |
+|---|---|
+| Carrier | ambient_drone_60s.wav |
+| Duration | 60.0s |
+| Max Capacity | 323.00 KB |
+| Max Safe Payload | 215.00 KB (31.1 dB) |
+| Burst Point | 295.00 KB |
+| Probes | 16 |
+
+#### Pressure Curve
+
+| Payload | Tension | SNR | Grade | Status |
+|---|---|---|---|---|
+| 5.00 KB | 1.8% | 31.1 dB | Clear | SAFE |
+| 15.00 KB | 5.1% | 31.1 dB | Clear | SAFE |
+| 25.00 KB | 7.8% | 31.1 dB | Clear | SAFE |
+| 35.00 KB | 12.3% | 31.1 dB | Clear | SAFE |
+| 45.00 KB | 15.6% | 31.1 dB | Clear | SAFE |
+| 55.00 KB | 19.9% | 31.1 dB | Clear | SAFE |
+| 75.00 KB | 26.3% | 31.1 dB | Clear | SAFE |
+| 95.00 KB | 34.2% | 31.1 dB | Clear | SAFE |
+| 115.00 KB | 36.2% | 31.1 dB | Clear | SAFE |
+| 135.00 KB | 47.4% | 31.1 dB | Clear | SAFE |
+| 155.00 KB | 52.7% | 31.1 dB | Clear | SAFE |
+| 175.00 KB | 55.1% | 31.1 dB | Clear | SAFE |
+| 195.00 KB | 65.4% | 31.1 dB | Clear | SAFE |
+| 215.00 KB | 71.8% | 31.1 dB | Clear | SAFE |
+| 255.00 KB | 90.9% | 31.1 dB | Clear | STRETCH |
+| 295.00 KB | 100.0% | 0.0 dB | OVERFLOW | OVERFLOW |
+
+---
+
+### 2026-02-18 05:59:44 — BURST POINT TEST: ambient_drone_60s.wav
+
+| Metric | Value |
+|---|---|
+| Carrier | ambient_drone_60s.wav |
+| Duration | 60.0s |
+| Max Capacity | 323.00 KB |
+| Max Safe Payload | 250.00 KB (31.1 dB) |
+| Burst Point | 290.00 KB |
+| Probes | 15 |
+
+#### Pressure Curve
+
+| Payload | Tension | SNR | Grade | Status |
+|---|---|---|---|---|
+| 10.00 KB | 3.2% | 31.1 dB | Clear | SAFE |
+| 20.00 KB | 7.9% | 31.1 dB | Clear | SAFE |
+| 30.00 KB | 10.1% | 31.1 dB | Clear | SAFE |
+| 40.00 KB | 12.6% | 31.1 dB | Clear | SAFE |
+| 50.00 KB | 16.7% | 31.1 dB | Clear | SAFE |
+| 70.00 KB | 25.6% | 31.1 dB | Clear | SAFE |
+| 90.00 KB | 29.8% | 31.1 dB | Clear | SAFE |
+| 110.00 KB | 43.6% | 31.1 dB | Clear | SAFE |
+| 130.00 KB | 47.4% | 31.1 dB | Clear | SAFE |
+| 150.00 KB | 47.5% | 31.1 dB | Clear | SAFE |
+| 170.00 KB | 67.5% | 31.1 dB | Clear | SAFE |
+| 190.00 KB | 76.2% | 31.1 dB | Clear | SAFE |
+| 210.00 KB | 82.1% | 31.1 dB | Clear | SAFE |
+| 250.00 KB | 85.6% | 31.1 dB | Clear | SAFE |
+| 290.00 KB | 100.0% | 0.0 dB | OVERFLOW | OVERFLOW |
+
+---
