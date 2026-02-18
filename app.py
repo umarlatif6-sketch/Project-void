@@ -19,6 +19,7 @@ from void_engine.adriana_transpiler import AdrianaTranspiler
 from void_engine.aljabr_transpiler import AlJabrTranspiler
 from void_engine.consensus import ConsensusEngine
 from void_engine.wallet import AlJabrWalletMiddleware
+from void_engine.diagnostics import DiagnosticEngine, SOVEREIGN_WARRANTY
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -507,6 +508,7 @@ _adriana = AdrianaTranspiler()
 _aljabr = AlJabrTranspiler()
 _wallet = AlJabrWalletMiddleware(initial_balance=50.0)
 _consensus = ConsensusEngine(_harness_sim, _aljabr, _boundary_hook, _loop_detector, wallet=_wallet)
+_diagnostics = DiagnosticEngine(_harness_sim, wallet=_wallet)
 
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
@@ -1128,6 +1130,25 @@ def wallet_freeze():
             return jsonify(_wallet.unfreeze())
         else:
             return jsonify(_wallet.freeze())
+
+
+@app.route("/api/harness/diagnostics/scan", methods=["POST"])
+def diagnostics_scan():
+    try:
+        report = _diagnostics.scan()
+        return jsonify(report.to_dict())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/harness/diagnostics/history")
+def diagnostics_history():
+    return jsonify({"history": _diagnostics.history})
+
+
+@app.route("/api/harness/warranty")
+def warranty():
+    return jsonify(SOVEREIGN_WARRANTY)
 
 
 _start_time = __import__("time").time()

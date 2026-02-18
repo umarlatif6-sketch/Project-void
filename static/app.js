@@ -2283,4 +2283,96 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         stepsEl.innerHTML = html;
     }
+
+    document.getElementById("diagnostics-scan-btn").addEventListener("click", async () => {
+        const label = document.getElementById("diagnostics-status-label");
+        label.textContent = "Scanning...";
+        try {
+            const res = await fetch("/api/harness/diagnostics/scan", { method: "POST" });
+            const data = await res.json();
+            if (data.error) { label.textContent = "Error: " + data.error; return; }
+            renderDiagnosticReport(data);
+            label.textContent = "";
+            document.getElementById("warranty-panel").style.display = "none";
+        } catch (e) {
+            label.textContent = "Scan failed";
+        }
+    });
+
+    function renderDiagnosticReport(data) {
+        const wrap = document.getElementById("diagnostics-result");
+        wrap.style.display = "block";
+
+        const overallEl = document.getElementById("diagnostics-overall");
+        overallEl.className = "diagnostics-overall status-" + data.overall_status;
+        overallEl.textContent = data.overall_status;
+
+        document.getElementById("diagnostics-summary").textContent = data.summary;
+
+        const countsEl = document.getElementById("diagnostics-counts");
+        countsEl.innerHTML =
+            `<span class="dc-crit">${data.critical_count} CRITICAL</span>` +
+            `<span class="dc-warn">${data.warning_count} WARNING</span>` +
+            `<span class="dc-nom">${data.nominal_count} NOMINAL</span>`;
+
+        const findingsEl = document.getElementById("diagnostics-findings");
+        const sortOrder = { "CRITICAL": 0, "WARNING": 1, "NOMINAL": 2 };
+        const sorted = [...data.findings].sort((a, b) => sortOrder[a.severity] - sortOrder[b.severity]);
+
+        findingsEl.innerHTML = sorted.map(f => {
+            const meterPct = f.threshold > 0 ? Math.min((f.value / f.threshold) * 100, 100) : (f.severity === "NOMINAL" ? 30 : 80);
+            return `<div class="diag-card sev-${f.severity}">` +
+                `<div class="diag-card-header">` +
+                `<div class="diag-glyph">${f.glyph}</div>` +
+                `<span class="diag-root-code">${f.root_code}</span>` +
+                `<span class="diag-severity">${f.severity}</span>` +
+                `</div>` +
+                `<div class="diag-semantic">${f.semantic_error}</div>` +
+                `<div class="diag-physical">${f.physical_reality}</div>` +
+                (f.solution_command ? `<div class="diag-solution"><span class="diag-solution-cmd">${f.solution_command}</span>${f.solution_text}</div>` : `<div class="diag-solution">${f.solution_text}</div>`) +
+                (f.threshold > 0 ? `<div class="diag-meter"><div class="diag-meter-fill" style="width:${meterPct}%"></div></div>` : '') +
+                `</div>`;
+        }).join("");
+    }
+
+    document.getElementById("warranty-btn").addEventListener("click", async () => {
+        const panel = document.getElementById("warranty-panel");
+        if (panel.style.display !== "none") {
+            panel.style.display = "none";
+            return;
+        }
+        document.getElementById("diagnostics-result").style.display = "none";
+        try {
+            const res = await fetch("/api/harness/warranty");
+            const data = await res.json();
+            renderWarranty(data);
+            panel.style.display = "block";
+        } catch (e) {
+            document.getElementById("diagnostics-status-label").textContent = "Failed to load warranty";
+        }
+    });
+
+    function renderWarranty(data) {
+        const el = document.getElementById("warranty-content");
+        let html = `<div class="warranty-title">${data.title}</div>`;
+        html += `<div class="warranty-subtitle">${data.subtitle}</div>`;
+        html += `<div class="warranty-preamble">${data.preamble}</div>`;
+
+        for (const article of data.articles) {
+            html += `<div class="warranty-article">` +
+                `<div class="warranty-article-header">` +
+                `<div class="warranty-article-num">${article.number}</div>` +
+                `<div class="warranty-article-title">${article.title}</div>` +
+                `</div>` +
+                `<div class="warranty-article-text">${article.text}</div>` +
+                `</div>`;
+        }
+
+        html += `<div class="warranty-closing">` +
+            `<div class="warranty-closing-text">${data.closing}</div>` +
+            `<div class="warranty-seal">${data.seal}</div>` +
+            `</div>`;
+
+        el.innerHTML = html;
+    }
 });

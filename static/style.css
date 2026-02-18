@@ -1995,6 +1995,268 @@ body.sapphire-bubble-mode::before {
     color: #22c55e;
     font-weight: bold;
 }
+.diagnostics-section {
+    border-left: 3px solid #06b6d4;
+}
+.diagnostics-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+.diagnostics-status-label {
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #888;
+}
+.diagnostics-result {
+    margin-top: 8px;
+}
+.diagnostics-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+.diagnostics-overall {
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 6px 16px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+.diagnostics-overall.status-NOMINAL {
+    background: rgba(74,222,128,0.12);
+    color: #4ade80;
+    border: 1px solid rgba(74,222,128,0.3);
+}
+.diagnostics-overall.status-WARNING {
+    background: rgba(234,179,8,0.12);
+    color: #eab308;
+    border: 1px solid rgba(234,179,8,0.3);
+}
+.diagnostics-overall.status-CRITICAL {
+    background: rgba(248,113,113,0.12);
+    color: #f87171;
+    border: 1px solid rgba(248,113,113,0.3);
+}
+.diagnostics-summary {
+    font-size: 12px;
+    color: #ccc;
+    flex: 1;
+}
+.diagnostics-counts {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+}
+.diagnostics-counts .dc-crit { color: #f87171; }
+.diagnostics-counts .dc-warn { color: #eab308; }
+.diagnostics-counts .dc-nom { color: #4ade80; }
+.diagnostics-findings {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 10px;
+}
+.diag-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+}
+.diag-card.sev-CRITICAL {
+    border-left: 3px solid #f87171;
+    background: rgba(248,113,113,0.04);
+}
+.diag-card.sev-WARNING {
+    border-left: 3px solid #eab308;
+    background: rgba(234,179,8,0.04);
+}
+.diag-card.sev-NOMINAL {
+    border-left: 3px solid #4ade80;
+    background: rgba(74,222,128,0.03);
+}
+.diag-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.diag-glyph {
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.sev-CRITICAL .diag-glyph { background: rgba(248,113,113,0.15); }
+.sev-WARNING .diag-glyph { background: rgba(234,179,8,0.15); }
+.sev-NOMINAL .diag-glyph { background: rgba(74,222,128,0.1); }
+.diag-root-code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: bold;
+    font-size: 13px;
+}
+.sev-CRITICAL .diag-root-code { color: #f87171; }
+.sev-WARNING .diag-root-code { color: #eab308; }
+.sev-NOMINAL .diag-root-code { color: #4ade80; }
+.diag-severity {
+    font-size: 9px;
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+    margin-left: auto;
+}
+.sev-CRITICAL .diag-severity { background: rgba(248,113,113,0.2); color: #f87171; }
+.sev-WARNING .diag-severity { background: rgba(234,179,8,0.2); color: #eab308; }
+.sev-NOMINAL .diag-severity { background: rgba(74,222,128,0.15); color: #4ade80; }
+.diag-semantic {
+    font-size: 12px;
+    font-weight: 600;
+    color: #e5e5e5;
+    margin-bottom: 4px;
+}
+.diag-physical {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+.diag-solution {
+    font-size: 11px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    line-height: 1.4;
+}
+.sev-CRITICAL .diag-solution { background: rgba(248,113,113,0.08); color: #fca5a5; }
+.sev-WARNING .diag-solution { background: rgba(234,179,8,0.08); color: #fde047; }
+.sev-NOMINAL .diag-solution { background: rgba(74,222,128,0.06); color: #86efac; }
+.diag-solution-cmd {
+    font-weight: bold;
+    margin-right: 6px;
+}
+.diag-meter {
+    margin-top: 6px;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.diag-meter-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+.sev-CRITICAL .diag-meter-fill { background: #f87171; }
+.sev-WARNING .diag-meter-fill { background: #eab308; }
+.sev-NOMINAL .diag-meter-fill { background: #4ade80; }
+
+.warranty-panel {
+    margin-top: 12px;
+}
+.warranty-content {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(234,179,8,0.2);
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 800px;
+}
+.warranty-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #eab308;
+    text-align: center;
+    margin-bottom: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 2px;
+}
+.warranty-subtitle {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    margin-bottom: 16px;
+    font-style: italic;
+}
+.warranty-preamble {
+    font-size: 12px;
+    color: #ccc;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: rgba(234,179,8,0.04);
+    border-left: 2px solid rgba(234,179,8,0.3);
+    border-radius: 4px;
+}
+.warranty-article {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.015);
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+.warranty-article-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+.warranty-article-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    color: #eab308;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(234,179,8,0.3);
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.warranty-article-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e5e5e5;
+}
+.warranty-article-text {
+    font-size: 11.5px;
+    color: #aaa;
+    line-height: 1.6;
+    padding-left: 38px;
+}
+.warranty-closing {
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: rgba(234,179,8,0.04);
+    border-radius: 4px;
+    text-align: center;
+}
+.warranty-closing-text {
+    font-size: 12px;
+    color: #ccc;
+    line-height: 1.6;
+    font-style: italic;
+}
+.warranty-seal {
+    margin-top: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: #eab308;
+    letter-spacing: 1px;
+}
+
 @media (max-width: 700px) {
     .harness-grid { grid-template-columns: 1fr; }
     .sensor-grid { grid-template-columns: 1fr; }
@@ -2002,4 +2264,6 @@ body.sapphire-bubble-mode::before {
     .chaos-step-row { grid-template-columns: 1fr; }
     .adriana-result-grid { grid-template-columns: 1fr; }
     .aljabr-result-grid { grid-template-columns: 1fr; }
+    .diagnostics-findings { grid-template-columns: 1fr; }
+    .warranty-article-text { padding-left: 0; }
 }

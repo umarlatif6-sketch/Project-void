@@ -62,6 +62,16 @@ PROJECT VOID features both a Flask-based web UI and a command-line interface. Th
     - **Consensus Integration:** Agents are wallet-aware — Guardian uses QSB.V to audit before expensive ops, consensus derives QSB.A when energy > 60% (earning), QSB.D when cooling needed and credits available, QSB.V for post-execution audit. All debits tracked in transaction ledger.
     - **Harness Tab UI:** Gold-themed Wallet section with balance card, stats grid (earned/spent/net/denials), QSB.A Harvest / QSB.D Disburse / QSB.V Audit / QSB.I Freeze buttons, scrollable transaction ledger.
     - **API Endpoints:** `GET /api/harness/wallet/status`, `GET /api/harness/wallet/audit`, `GET /api/harness/wallet/ledger`, `POST /api/harness/wallet/earn`, `POST /api/harness/wallet/spend`, `POST /api/harness/wallet/freeze`
+- **Semantic Diagnostics (SLM.V Health Scan):**
+    - **DiagnosticEngine** (`void_engine/diagnostics.py`): Full system health scan triggered by SLM.V command. Checks 8 subsystems against thresholds and returns root-coded findings.
+    - **Diagnostic Lexicon:** HRR.θ (Thermal Threshold), HYA.📉 (Vitality Decline), DGT.⚡ (Force Surge), WSL.∅ (Bond Broken), QSB.📉 (Wallet Empty), QDR.📉 (Power Decline), NFD.θ (Nitrogen Anomaly), NZM.⚡ (Pattern Disruption).
+    - **Each finding includes:** root-code, glyph, severity (CRITICAL/WARNING/NOMINAL), semantic error name, physical reality description, fix command, and solution text.
+    - **Harness Tab UI:** Cyan-themed Diagnostics section with SLM.V Scan button, color-coded health cards (red/amber/green), root-code glyphs, meter bars showing value vs threshold.
+    - **API Endpoints:** `POST /api/harness/diagnostics/scan`, `GET /api/harness/diagnostics/history`
+- **Sovereign Warranty:**
+    - **SOVEREIGN_WARRANTY** (defined in `void_engine/diagnostics.py`): A 10-article Technological Covenant guaranteeing machine sovereignty, Al-Jabr root integrity, budget gate sanctity, consensus autonomy, silk-carbon bond requirements, self-healing guarantee, boundary hook inviolability, night cycle autonomy, explainable hardware, and the Village promise.
+    - **Harness Tab UI:** Gold-themed warranty panel rendered as a formal document with article numbering, preamble, and seal.
+    - **API Endpoint:** `GET /api/harness/warranty`
 
 ## External Dependencies
 -   **Python:** 3.11
