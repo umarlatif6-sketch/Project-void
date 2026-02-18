@@ -1,107 +1,39 @@
 # PROJECT VOID
 
 ## Overview
-A modular steganography engine that hides massive data files (up to 1GB) inside audio signals using LSB encoding, dual compression (zlib+lzma), ChaCha20-encrypted headers, and MD5 verification. Designed for extensibility with planned modules (Silk Web, Graphene Suit).
+PROJECT VOID is a modular steganography engine designed to embed large data files (up to 1GB) within audio signals. It employs advanced techniques such as LSB encoding, dual compression (zlib and lzma), ChaCha20-encrypted headers with MD5 verification, and innovative acoustic camouflage methods. The project introduces the "Adriana Pocket" architecture, utilizing stereo phase-shift encoding to preserve audio integrity while embedding data in harmonic frequency pockets. This engine is built for extensibility, with a vision to integrate future modules like Silk Web for signal transmission and Graphene Suit for sensor integration. The business vision is to provide a robust, stealthy, and high-capacity data concealment solution with potential applications in secure communication and digital watermarking.
 
-## Project Architecture
+## User Preferences
+No specific user preferences were provided in the original `replit.md` file.
 
-### File Structure
-```
-├── app.py                     # Flask web UI server (port 5000)
-├── main.py                    # CLI entry point (alternative interface)
-├── test_void.py               # Self-test script for pipeline verification
-├── generate_carriers.py       # Carrier WAV generator (432 Hz Village Standard)
-├── templates/
-│   └── index.html             # Web UI template (7 tabs: Encode, Decode, Burst, Visualizer, Capacity, Silk Web, Files)
-├── static/
-│   ├── style.css              # Dark-themed UI styles (mobile-responsive)
-│   └── app.js                 # Frontend JavaScript (includes Web Audio API visualizer)
-├── void_engine/               # Core engine package
-│   ├── __init__.py            # Package init (v2.0)
-│   ├── compressor.py          # Void-Compressor: zlib level 9 + lzma + compress_bytes()
-│   ├── stega.py               # Stega Engine: LSB encoding + 64-byte encrypted header + encode_burst()
-│   ├── calculator.py          # Resonance Meter: WAV capacity analysis + resonance limits
-│   ├── keep_alive.py          # Pulse-Wrapper: Flask self-ping every 4 min
-│   ├── silk_web.py            # Silk Web: Signal Ticker — sends signals as 432 Hz burst packets
-│   └── stress_test.py         # Stress Test: 1MB-increment Bubble Burst finder with BURST_REPORT.md
-├── input_files/               # Place carrier .wav files and payload files here
-├── output_audio/              # Encoded audio and decoded files output here
-└── pyproject.toml             # Dependencies (numpy, flask, cryptography)
-```
+## System Architecture
+PROJECT VOID features a Flask-based web UI and a CLI for interaction. The core `void_engine` package handles compression, steganography, capacity analysis, and signal transmission.
 
-### Modules
-- **void_engine/media_bench.py**: Deep Sea Stress Test — full pipeline benchmark with 7 phases: streaming compression competition (ZLIB vs LZMA with 8MB chunk cooling for >50MB files), Ghost Header wrap, carrier loading/generation, Plankton fragmentation log (per-fragment offset/size/gap/depth), Sapphire WAV encode, FFT resonance purity analysis (432 Hz SNR), and decode verification. Supports existing carrier override, synthetic Ocean Payload generator (--ocean flag), and auto-appends full results with Plankton Map to RESONANCE_LOG.md. Surface tension = total_payload / effective_capacity (accounting for ghost offset and LSB depth).
-- **void_engine/compressor.py**: Dual compression using zlib (level 9) and lzma (preset 9). Automatically selects whichever yields smaller output. Tagged output (ZLIB/LZMA prefix) for correct decompression. Also has `compress_bytes()` for raw byte compression (used by Burst mode). Optimized for 1GB on Mac 2012: Memory Guard checks available RAM before loading, Adaptive LZMA skips lzma for files >100MB (use deep=True to override), Progress Pulse prints 10% increments during compression.
-- **void_engine/stega.py**: LSB encoding (depth 1 or 2) into 16-bit WAV files. 64-byte ChaCha20-encrypted header with Ghost Header (Floating Offset derived from Hash Key — header is not at sample 0). `apply_dither_mask()` adds microscopic pink noise before LSB encoding (Noise-Floor Mask) making digital data indistinguishable from analog warmth. Decode requires the unique Hash Key generated during encoding. Also has `encode_burst()` for Short Burst signal encoding with Sapphire Masking — Harmonic Shimmer LFO modulates base frequency between 430-434 Hz at 0.25 Hz rate using phase accumulation for acoustic camouflage. `check_resonance_purity()` performs FFT-based SNR analysis with quality grades (Clear/Acceptable/Muddled). Fly Jitter: optional temporal scatter mode — breaks payload into 7-20 irregular chunks (Dirichlet distribution) and embeds them at non-uniform positions across the carrier with variable gaps, making data appear/disappear like a fly. Jitter flag stored in bit 31 of data_size field. Auto-fallback to sequential if carrier >80% full.
-- **void_engine/keep_alive.py**: Flask server on port 8099 with asyncio self-ping every 4 minutes.
-- **void_engine/calculator.py**: Resonance Meter with Acoustic Surface Tension model — scans WAV carriers to calculate max payload capacity at LSB depth 1 and 2, Surface Tension Limit (max data before distortion), and Bubble Burst threshold (90% of membrane — distortion risk zone). Projects compressed data capacity with zlib/lzma. 432 Hz Resonance Bonus: carriers with "432Hz" or "resonate" in filename get +5% LSB1 threshold (0.30 vs 0.25). Bubble analogy: below surface tension = bubble holds (clean audio), near burst = membrane stretching, above burst = bubble pops (audible artifacts). Every analysis appended to RESONANCE_LOG.md.
-- **void_engine/silk_web.py**: Silk Web Signal Ticker — formats signals (uppercase, max 10 chars), sends them as 432 Hz burst-encoded WAV packets via encode_burst(), maintains in-memory signal history (last 50), thread-safe queue with deque+lock, auto-logs to RESONANCE_LOG.md. Auto-Pulse heartbeat thread fires HEARTBEAT signal every 30 min if idle, keeps 432 Hz resonance alive. Network health API: Resonant (signal within 35 min) / Desynced (no signal for 35+ min). API: SignalTicker.send_signal(text) → {id, signal, hash_key, output_file, ...}, SignalTicker.get_signals(limit) → safe feed (hash tails only, no full keys), SignalTicker.get_network_health() → {status, last_signal_age_seconds}.
-- **void_engine/stress_test.py**: Void Stress Test — automatic Bubble Burst finder that escalates synthetic Ocean payloads in 1 MB increments against a carrier WAV. Runs full pipeline per probe (compress → ghost header → LSB encode with Fly Jitter → FFT purity check). Dual failure conditions: stops when SNR drops below 15.0 dB OR Surface Tension exceeds 40%. Generates carrier on-the-fly if none provided. Logs every probe to BURST_REPORT.md with payload size, tension %, SNR, encode time, and grade. Prints bold breakpoint summary. Usage: `python -m void_engine.stress_test [carrier_path] [duration]`.
-- **main.py**: Interactive CLI with [1] Encode (returns Hash Key), [2] Decode (requires Hash Key), [3] Check Capacity (Resonance Meter), [q] Quit.
+**UI/UX Decisions:**
+- **Web UI:** Dark-themed, mobile-responsive interface with seven dedicated tabs: Encode, Decode, Burst, Visualizer, Capacity, Silk Web, and Files.
+- **Visualizers:** Features Web Audio API-based spectrum and spectrogram modes, including a "Vocal Pocket Visualizer" for Adriana Pocket, with specific highlights for 432 Hz frequency and real-time mic listener capabilities.
+- **Acoustic Feedback:** Utilizes "Sapphire Bubble" and "Sapphire Glow" effects for visual confirmation of signal detection and transmission.
 
-### Web UI Features
-- **Encode Tab**: Full encode workflow with drag-drop upload, carrier/payload selection, LSB depth, Fly Jitter toggle, Hash Key display
-- **Decode Tab**: Decode with source toggle (input/output), Hash Key input, file download
-- **Burst Tab**: Short Burst encoding — encode signal strings (≤10 chars) into 5-second 432 Hz clips at LSB depth 1 with 0% distortion
-- **Visualizer Tab**: Web Audio API with Spectrum and Spectrogram modes. Spectrum: real-time FFT bar chart with 432 Hz gold peak. Spectrogram: scrolling frequency-over-time waterfall display with glowing sapphire thread at 432 Hz confirming the Moat is active. Toggle between modes. Mic Listener mode for live signal detection with gold glow border
-- **Capacity Tab**: Resonance Meter with Surface Tension / Bubble Burst bar charts showing max capacity, membrane limits (90% burst threshold), and estimated real data capacity
-- **Silk Web Tab**: Signal Ticker with Sonar Listener — send signals (≤10 chars) through 432 Hz network as Sapphire Bubbles, Acoustic Lock-on listener (FFT 8192, precise bin math, 0.5s sustained threshold), Village Default Key for auto-decode, scrollable signal feed, Sapphire Glow animation on successful send/catch. Sonar ring visualizes listener state (scanning → locking → bubble caught)
-- **Files Tab**: File manager for input_files/ and output_audio/ with download/delete, Purge button to clear output_audio/ files older than 24 hours (Mac 2012 storage maintenance)
+**Technical Implementations & Feature Specifications:**
+- **Audio Standard:** All carriers are tuned to a 432 Hz base frequency (Village Standard). Supports only 16-bit PCM WAV files as carriers.
+- **Compression:** Dual zlib (level 9) and lzma (preset 9) compression, automatically selecting the more efficient method. Includes memory guarding and adaptive LZMA.
+- **Steganography:**
+    - **LSB Encoding:** Supports LSB depth 1 (minimal distortion) and LSB depth 2 (higher capacity).
+    - **Header:** 64-byte ChaCha20-encrypted header (magic, filename/ext, data size, MD5, nonce) with a "Ghost Header" (floating offset) to avoid detection at sample 0.
+    - **Noise-Floor Mask:** `apply_dither_mask()` adds microscopic pink noise for forensic steganalysis evasion.
+    - **Fly Jitter:** Optional temporal scatter mode that fragments and embeds data chunks at non-uniform positions for anti-forensic purposes.
+    - **Adriana Pocket:** Stereo encoding where the left channel carries the pure 432 Hz body, and the right channel (phase-shifted harmonic channel with LFO modulation) is used for LSB data embedding.
+- **Signal Transmission (Silk Web):** Formats and sends signals as 432 Hz burst-encoded WAV packets (`encode_burst()` with Sapphire Masking). Features a "Wing-Beat Pilot Tone" for acoustic wake-up and a "Pre-Render Cache" for efficiency. Includes network health monitoring.
+- **Capacity Analysis:** "Resonance Meter" calculates max payload capacity, "Surface Tension Limit," and "Bubble Burst threshold," providing warnings for potential audio distortion.
+- **Stress Testing:** "Void Stress Test" automatically finds the "Bubble Burst" point by escalating synthetic payloads and monitoring SNR and Surface Tension.
+- **File Management:** Web UI includes a file manager with download/delete and a purge function for old output files.
+- **API Endpoints:** Comprehensive API for signal sending, system status, low-power mode control, default key management, acoustic decoding, and harmonic pocket scanning (`POST /api/pockets`). Encode/decode endpoints auto-detect stereo carriers and route to Adriana Pocket functions.
+- **Vocal Pocket Visualizer:** Third visualizer mode showing pulsing radial 432 Hz breath cycle with 8 orbiting pocket indicators (sapphire orbs) that open/close with the breath phase. States: POCKET OPEN / POCKET SEALED / TRANSITIONING.
+- **Stress Test Results (Stereo):** 60s stereo carrier at LSB1 holds ~330KB. 100KB: 31% tension, 31.1 dB SNR (Clear). 250KB: 77.4% tension, 31.1 dB SNR (Clear). All verified with MD5 round-trip.
 
-### Technical Details
-- Village Standard: All carriers tuned to 432 Hz base frequency (not 440 Hz concert pitch)
-- Audio: Only 16-bit PCM WAV files supported as carriers
-- Header format (64 bytes): 4B magic ("PVOD") + 24B filename/ext + 4B data size (bit 31 = jitter flag) + 16B MD5 (raw) + 16B nonce
-- Header encryption: ChaCha20 with key derived from SHA-256 of passphrase
-- Compression: Best-of zlib/lzma selected automatically, tagged for decompression
-- LSB depth 1: 1 bit per sample, minimal audio distortion (stealth)
-- LSB depth 2: 2 bits per sample, more capacity (higher throughput)
-- Hash Key: 32-char hex token generated per encode, required for decode
-- Noise-Floor Mask: apply_dither_mask() adds pink noise (1/f spectral density) to carrier before LSB embedding — makes digital data look like natural analog warmth, defeats forensic steganalysis
-- Ghost Header: 64-byte encrypted header placed at Floating Offset (derived from SHA-256 of "ghost:" + passphrase, mod total_samples/4) — sniffers see solid audio, no header at position 0
-- Fly Jitter: Temporal scatter anti-forensic mode. Payload data (after header) broken into 7-20 irregular chunks using Dirichlet distribution (PRNG seeded from SHA-256 of "jitter:" + passphrase). Chunks placed at non-uniform positions across carrier with variable gaps (hundreds to tens of thousands of samples). Header always sequential at ghost offset; only data is scattered. Jitter flag = bit 31 of data_size in header. Auto-fallback: if carrier >80% full, reverts to sequential (not enough room for meaningful gaps). Decoder regenerates identical jitter map from passphrase. Web UI: "Fly Jitter" checkbox on Encode tab.
-- Short Burst: Generates 5.5-second audio (0.5s Pilot Tone + 5s 432 Hz body with Harmonic Shimmer), encodes at depth 1, Sapphire Masking camouflage
-- Wing-Beat Pilot Tone: 0.5s dual-frequency preamble (432 Hz + 864 Hz harmonic) prepended to every burst — acts as acoustic wake-up call for phone mic detection. 60/30% mix with 10ms fade in/out.
-- Pre-Render Cache: Carrier waveforms (pilot tone, 5s burst body) cached in memory after first generation — subsequent encode_burst() calls skip waveform calculation entirely. Saves CPU during 18-hour window.
-- Sapphire Bubble Effect: When mic listener detects sustained Pilot Tone (432+864 Hz for 400ms), entire screen transitions from Dark Void to shimmering Sapphire Bubble — radial gradient overlay with shimmer animation, blue-glowing visualizer border. Confirms Fly is caught.
-- Spectrogram Mode: Visualizer toggle shows frequency-over-time waterfall with scrolling pixel columns, glowing sapphire thread at 432 Hz confirms Void is secure
-- Acoustic Lock-on: FFT size 8192 for high precision, target bin = 432 * (FFT_SIZE / SampleRate), 0.5s sustained dual-threshold (432 Hz ≥100, 864 Hz harmonic ≥40) before triggering 6-second capture
-- Visualizer Pilot Detection: FFT 4096, 432 Hz ≥100 + 864 Hz ≥50, 400ms sustained before Sapphire Bubble activates
-- Sapphire Glow: Translucent blue gradient pulse animation on Silk Web panel when signal successfully sent or acoustically caught
-- Bubble Burst Warning: Encode response includes bubble_status (safe/stretch/burst) and bubble_warning message based on Surface Tension analysis
-- Low-Power Resonance Mode: Toggle in header disables LZMA compression during encoding, maintains heartbeat and ticker
-- Village Default Key: Persistent hash key for auto-decode of acoustically captured signals via /api/decode/audio
-- Visualizer: Web Audio API with FFT size 4096, frequency range 0-2000 Hz, gold highlight on 432 Hz bin, mic listener mode with gold glow on signal detection (threshold 120/255)
-- Auto-Pulse: Background heartbeat every 30 min if idle, keeps Replit session alive and 432 Hz resonance constant
-- Network Health: Resonant (last signal <35 min) / Desynced (>35 min since last signal)
-- Purge: Automated cleanup of output_audio/ files older than 24 hours via /api/purge
-
-### API Endpoints — Silk Web
-- `POST /api/silk/send` — Send a signal through Silk Web. Body: `{"signal": "BUY_GOLD"}`. Returns: `{success, id, signal, output_file, output_size, hash_key, timestamp}`
-- `GET /api/silk/signals?limit=20` — Fetch recent signal feed (hash tails only, no full keys exposed)
-
-### API Endpoints — System
-- `GET /api/status` — System status with RAM, CPU, file counts, network health, and low_power flag
-- `POST /api/purge` — Delete output_audio/ files older than 24 hours. Returns: `{success, purged_count, freed_bytes, files}`
-- `POST /api/low-power` — Toggle Low-Power Resonance mode. Body: `{"enabled": true/false}`
-- `GET /api/low-power` — Get current low-power mode state
-- `POST /api/settings/default-key` — Set/clear Village Default Key. Body: `{"key": "..."}`
-- `GET /api/settings/default-key` — Check if default key is set
-- `POST /api/decode/audio` — Acoustic decode: upload captured audio (WAV/WebM), optional hash_key, returns decoded signal with purity analysis (SNR, quality grade)
-
-### Planned Modules
-- **Graphene Suit**: Sensor module (future)
-
-## How to Use
-1. Place a 16-bit .wav carrier file in `input_files/`
-2. Place the file to hide in `input_files/`
-3. Run the app and select [1] Encode
-4. **Save the Hash Key** displayed after encoding
-5. To extract: select [2] Decode, choose the WAV, and enter the Hash Key
-
-## Dependencies
-- Python 3.11
-- numpy (audio sample manipulation)
-- flask (keep-alive server)
-- cryptography (ChaCha20 header encryption)
-- zlib, lzma, wave, hashlib (standard library)
+## External Dependencies
+-   **Python:** 3.11
+-   **numpy:** For audio sample manipulation.
+-   **flask:** For the web UI server and keep-alive functionality.
+-   **cryptography:** For ChaCha20 header encryption.
+-   **Standard Library:** `zlib`, `lzma`, `wave`, `hashlib` are utilized for compression, WAV file handling, and hashing.

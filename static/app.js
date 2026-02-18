@@ -410,20 +410,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     let vizSpectrogramMode = false;
+    let vizPocketMode = false;
     let spectrogramImageData = null;
+    let pocketPhase = 0;
+
+    function updateVizLegends() {
+        const legendNormal = document.getElementById("viz-legend");
+        const legendSpec = document.getElementById("viz-legend-spectrogram");
+        const legendPocket = document.getElementById("viz-legend-pocket");
+        legendNormal.style.display = "none";
+        legendSpec.style.display = "none";
+        legendPocket.style.display = "none";
+        if (vizPocketMode) {
+            legendPocket.style.display = "flex";
+        } else if (vizSpectrogramMode) {
+            legendSpec.style.display = "flex";
+        } else {
+            legendNormal.style.display = "flex";
+        }
+    }
 
     document.getElementById("viz-spectrogram-toggle").addEventListener("change", (e) => {
         vizSpectrogramMode = e.target.checked;
         spectrogramImageData = null;
-        const legendNormal = document.getElementById("viz-legend");
-        const legendSpec = document.getElementById("viz-legend-spectrogram");
         if (vizSpectrogramMode) {
-            legendNormal.style.display = "none";
-            legendSpec.style.display = "flex";
-        } else {
-            legendNormal.style.display = "flex";
-            legendSpec.style.display = "none";
+            vizPocketMode = false;
+            document.getElementById("viz-pocket-toggle").checked = false;
         }
+        updateVizLegends();
+    });
+
+    document.getElementById("viz-pocket-toggle").addEventListener("change", (e) => {
+        vizPocketMode = e.target.checked;
+        pocketPhase = 0;
+        if (vizPocketMode) {
+            vizSpectrogramMode = false;
+            document.getElementById("viz-spectrogram-toggle").checked = false;
+        }
+        updateVizLegends();
     });
 
     let vizAudioCtx = null;
@@ -798,7 +822,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-            if (vizSpectrogramMode) {
+            if (vizPocketMode) {
+                drawVocalPocket(ctx, cw, ch, dataArr, maxBin, bin432, binWidth);
+            } else if (vizSpectrogramMode) {
                 drawSpectrogram(ctx, cw, ch, dataArr, maxBin, bin432, binWidth);
             } else {
                 drawBarSpectrum(ctx, cw, ch, dataArr, maxBin, bin432, binWidth);
@@ -848,6 +874,90 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const peakFreq = (peakBin * binWidth).toFixed(0);
             document.getElementById("viz-peak-freq").textContent = `Peak: ${peakFreq} Hz`;
+            document.getElementById("viz-432-level").textContent = `432 Hz: ${dataArr[bin432] || 0}/255`;
+        }
+
+        function drawVocalPocket(ctx, w, h, dataArr, maxBin, bin432, binWidth) {
+            ctx.fillStyle = "#0a0a0f";
+            ctx.fillRect(0, 0, w, h);
+
+            pocketPhase += 0.02;
+            const breathCycle = Math.sin(pocketPhase);
+            const breathScale = 0.6 + 0.4 * breathCycle;
+
+            const level432 = (dataArr[bin432] || 0) / 255;
+            const cx = w / 2;
+            const cy = h / 2;
+            const baseRadius = Math.min(w, h) * 0.35;
+            const pulseRadius = baseRadius * breathScale;
+
+            const outerGrad = ctx.createRadialGradient(cx, cy, pulseRadius * 0.1, cx, cy, pulseRadius);
+            outerGrad.addColorStop(0, `rgba(255, 215, 0, ${0.15 + level432 * 0.3})`);
+            outerGrad.addColorStop(0.5, `rgba(255, 215, 0, ${0.05 + level432 * 0.1})`);
+            outerGrad.addColorStop(1, "rgba(255, 215, 0, 0)");
+            ctx.fillStyle = outerGrad;
+            ctx.beginPath();
+            ctx.arc(cx, cy, pulseRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            const numPockets = 8;
+            const pocketDepthBase = 0.35;
+            for (let i = 0; i < numPockets; i++) {
+                const angle = (i / numPockets) * Math.PI * 2 + pocketPhase * 0.5;
+                const freqIdx = Math.min(Math.floor((i / numPockets) * maxBin), maxBin - 1);
+                const freqLevel = (dataArr[freqIdx] || 0) / 255;
+
+                const pocketOpen = breathCycle > 0 ? breathCycle : 0;
+                const pocketDepth = pocketDepthBase * pocketOpen * (1 - freqLevel * 0.5);
+                const pocketR = pulseRadius * (0.4 + pocketDepth * 0.3);
+
+                const px = cx + Math.cos(angle) * pulseRadius * 0.7;
+                const py = cy + Math.sin(angle) * pulseRadius * 0.7;
+
+                const pocketGrad = ctx.createRadialGradient(px, py, 2, px, py, pocketR);
+                const sapAlpha = 0.15 + pocketOpen * 0.4;
+                pocketGrad.addColorStop(0, `rgba(40, 120, 220, ${sapAlpha})`);
+                pocketGrad.addColorStop(0.6, `rgba(20, 80, 180, ${sapAlpha * 0.5})`);
+                pocketGrad.addColorStop(1, "rgba(10, 40, 100, 0)");
+                ctx.fillStyle = pocketGrad;
+                ctx.beginPath();
+                ctx.arc(px, py, pocketR, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (pocketOpen > 0.3) {
+                    ctx.strokeStyle = `rgba(60, 160, 255, ${pocketOpen * 0.5})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(px, py, pocketR * 0.6, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            }
+
+            ctx.strokeStyle = `rgba(255, 215, 0, ${0.3 + level432 * 0.5})`;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = "#ffd700";
+            ctx.shadowBlur = level432 * 15;
+            ctx.beginPath();
+            ctx.arc(cx, cy, pulseRadius * 0.25, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = `rgba(255, 215, 0, ${0.5 + level432 * 0.5})`;
+            ctx.font = "bold 12px monospace";
+            ctx.textAlign = "center";
+            ctx.fillText("432 Hz", cx, cy + 4);
+            ctx.textAlign = "start";
+
+            const stateText = breathCycle > 0.2 ? "POCKET OPEN" : breathCycle < -0.2 ? "POCKET SEALED" : "TRANSITIONING";
+            const stateColor = breathCycle > 0.2 ? "#3ca0ff" : breathCycle < -0.2 ? "#ffd700" : "#666";
+            ctx.fillStyle = stateColor;
+            ctx.font = "10px monospace";
+            ctx.fillText(stateText, 10, h - 10);
+
+            ctx.fillStyle = "#888";
+            ctx.fillText(`Breath: ${(breathCycle * 100).toFixed(0)}%`, w - 120, h - 10);
+
+            document.getElementById("viz-peak-freq").textContent = `Pocket: ${stateText}`;
             document.getElementById("viz-432-level").textContent = `432 Hz: ${dataArr[bin432] || 0}/255`;
         }
 

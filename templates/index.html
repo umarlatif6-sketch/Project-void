@@ -192,6 +192,10 @@
                     <input type="checkbox" id="viz-spectrogram-toggle">
                     <span class="toggle-label">Spectrogram</span>
                 </label>
+                <label class="viz-mode-toggle">
+                    <input type="checkbox" id="viz-pocket-toggle">
+                    <span class="toggle-label">Vocal Pocket</span>
+                </label>
             </div>
 
             <div class="viz-container" id="viz-container" style="display:none;">
@@ -203,6 +207,10 @@
                 <div class="viz-legend" id="viz-legend-spectrogram" style="display:none;">
                     <span class="viz-legend-item"><span class="viz-dot viz-dot-sapphire"></span> 432 Hz Thread</span>
                     <span class="viz-legend-item"><span class="viz-dot viz-dot-normal"></span> Frequency Intensity</span>
+                </div>
+                <div class="viz-legend" id="viz-legend-pocket" style="display:none;">
+                    <span class="viz-legend-item"><span class="viz-dot viz-dot-gold"></span> 432 Hz Breath Pulse</span>
+                    <span class="viz-legend-item"><span class="viz-dot viz-dot-sapphire"></span> Adriana Pocket (open = data ready)</span>
                 </div>
                 <div class="viz-freq-info">
                     <span id="viz-peak-freq">Peak: --</span>

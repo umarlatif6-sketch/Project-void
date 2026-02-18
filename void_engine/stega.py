@@ -417,6 +417,270 @@ def check_resonance_purity(audio_path: str) -> dict:
     }
 
 
+def find_harmonic_pockets(audio_path: str, fft_size: int = 8192) -> dict:
+    with wave.open(audio_path, "rb") as wf:
+        sample_rate = wf.getframerate()
+        n_frames = wf.getnframes()
+        n_channels = wf.getnchannels()
+        raw = wf.readframes(n_frames)
+
+    samples = np.frombuffer(raw, dtype=np.int16).astype(np.float64)
+    if n_channels > 1:
+        samples = samples[1::n_channels]
+
+    window_size = min(len(samples), fft_size * 4)
+    segment = samples[:window_size]
+    windowed = segment * np.hanning(len(segment))
+
+    spectrum = np.abs(np.fft.rfft(windowed))
+    freqs = np.fft.rfftfreq(len(segment), 1.0 / sample_rate)
+
+    spectrum_db = 20 * np.log10(spectrum + 1e-10)
+    max_db = np.max(spectrum_db)
+
+    base = VILLAGE_STANDARD_HZ
+    harmonic_freqs = [base, base * 2, base * 3, base * 0.5]
+    harmonic_width = 15
+
+    harmonic_mask = np.zeros(len(freqs), dtype=bool)
+    for hf in harmonic_freqs:
+        harmonic_mask |= (np.abs(freqs - hf) <= harmonic_width)
+
+    pocket_mask = ~harmonic_mask & (freqs > 30) & (freqs < sample_rate / 2)
+
+    pockets = []
+    in_pocket = False
+    pocket_start = 0
+    threshold_db = max_db - 40
+
+    for i in range(len(freqs)):
+        if pocket_mask[i] and spectrum_db[i] < threshold_db:
+            if not in_pocket:
+                in_pocket = True
+                pocket_start = i
+        else:
+            if in_pocket:
+                in_pocket = False
+                pocket_end = i
+                if pocket_end - pocket_start >= 3:
+                    center_freq = freqs[(pocket_start + pocket_end) // 2]
+                    width_hz = freqs[pocket_end - 1] - freqs[pocket_start]
+                    depth = max_db - np.mean(spectrum_db[pocket_start:pocket_end])
+                    pockets.append({
+                        "center_hz": round(float(center_freq), 1),
+                        "width_hz": round(float(width_hz), 1),
+                        "depth_db": round(float(depth), 1),
+                        "bin_start": int(pocket_start),
+                        "bin_end": int(pocket_end),
+                    })
+
+    if in_pocket:
+        pocket_end = len(freqs)
+        if pocket_end - pocket_start >= 3:
+            center_freq = freqs[(pocket_start + pocket_end) // 2]
+            width_hz = freqs[pocket_end - 1] - freqs[pocket_start]
+            depth = max_db - np.mean(spectrum_db[pocket_start:pocket_end])
+            pockets.append({
+                "center_hz": round(float(center_freq), 1),
+                "width_hz": round(float(width_hz), 1),
+                "depth_db": round(float(depth), 1),
+                "bin_start": int(pocket_start),
+                "bin_end": int(pocket_end),
+            })
+
+    pockets.sort(key=lambda p: p["depth_db"], reverse=True)
+
+    total_pocket_bins = sum(p["bin_end"] - p["bin_start"] for p in pockets)
+    total_bins = len(freqs)
+    pocket_ratio = total_pocket_bins / total_bins if total_bins > 0 else 0
+
+    return {
+        "pockets": pockets[:20],
+        "total_pockets": len(pockets),
+        "deepest_pocket_db": pockets[0]["depth_db"] if pockets else 0,
+        "pocket_coverage": round(pocket_ratio * 100, 1),
+        "is_stereo": n_channels > 1,
+        "sample_rate": sample_rate,
+        "fft_size": fft_size,
+    }
+
+
+def _generate_pn_sequence(passphrase: str, length: int) -> np.ndarray:
+    seed = int(hashlib.sha256(("dsss:" + passphrase).encode()).hexdigest()[:8], 16)
+    rng = np.random.RandomState(seed)
+    return rng.choice([-1, 1], size=length).astype(np.int16)
+
+
+def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: str,
+                  output_path: str, lsb_depth: int = 1, passphrase: str | None = None,
+                  jitter: bool = False) -> str:
+    if lsb_depth not in (1, 2):
+        raise ValueError("lsb_depth must be 1 or 2")
+
+    with wave.open(carrier_path, "rb") as wav_in:
+        params = wav_in.getparams()
+        n_channels = params.nchannels
+        sampwidth = params.sampwidth
+        n_frames = params.nframes
+        raw_frames = wav_in.readframes(n_frames)
+
+    if sampwidth != 2:
+        raise ValueError(f"Only 16-bit WAV files are supported (got {sampwidth * 8}-bit).")
+    if n_channels != 2:
+        raise ValueError("Stereo encode requires a 2-channel WAV carrier. Use --stereo to generate one.")
+
+    all_samples = np.frombuffer(raw_frames, dtype=np.int16).copy()
+    left = all_samples[0::2]
+    right = all_samples[1::2]
+    total_samples = len(right)
+
+    if passphrase is None:
+        passphrase = _generate_hash_key()
+
+    key = _derive_key(passphrase)
+    checksum = _compute_md5(payload)
+    header = _build_header(file_name, extension, len(payload), checksum, key, jitter=jitter)
+
+    bits_per_sample = lsb_depth
+    ghost_offset = _compute_ghost_offset(passphrase, total_samples)
+    effective_capacity = (total_samples - ghost_offset) * bits_per_sample
+    total_bits = (HEADER_SIZE + len(payload)) * 8
+
+    if total_bits > effective_capacity:
+        raise ValueError(
+            f"Payload too large: needs {total_bits:,} bits, "
+            f"pocket channel has capacity for {effective_capacity:,} bits ({effective_capacity // 8:,} bytes) "
+            f"at LSB depth {lsb_depth} (Ghost Offset: {ghost_offset:,} samples)."
+        )
+
+    dither_seed = int(hashlib.sha256(("dither:" + passphrase).encode()).hexdigest()[:8], 16)
+    right = apply_dither_mask(right, seed=dither_seed)
+
+    pn_chip_len = min(8, total_samples // (HEADER_SIZE * 8 // bits_per_sample + len(payload) * 8 // bits_per_sample + 1))
+    pn_chip_len = max(1, pn_chip_len)
+
+    header_bits = np.unpackbits(np.frombuffer(header, dtype=np.uint8))
+    header_samples = HEADER_SIZE * 8 // bits_per_sample
+    if lsb_depth == 2:
+        pad_len = (2 - (len(header_bits) % 2)) % 2
+        if pad_len:
+            header_bits = np.concatenate([header_bits, np.zeros(pad_len, dtype=np.uint8)])
+    _embed_bits_at(right, header_bits, ghost_offset, header_samples, lsb_depth)
+
+    data_bits = np.unpackbits(np.frombuffer(payload, dtype=np.uint8))
+    if lsb_depth == 2:
+        pad_len = (2 - (len(data_bits) % 2)) % 2
+        if pad_len:
+            data_bits = np.concatenate([data_bits, np.zeros(pad_len, dtype=np.uint8)])
+    data_samples_needed = len(data_bits) // bits_per_sample
+
+    jitter_info = ""
+    if jitter and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        jitter_map = _generate_jitter_map(passphrase, data_samples_needed,
+                                          data_start, total_samples)
+        bit_offset = 0
+        for (pos, chunk_len) in jitter_map:
+            chunk_bits = data_bits[bit_offset * bits_per_sample:(bit_offset + chunk_len) * bits_per_sample]
+            _embed_bits_at(right, chunk_bits, pos, chunk_len, lsb_depth)
+            bit_offset += chunk_len
+        jitter_info = f"\n         Fly Jitter: Active ({len(jitter_map)} chunks scattered)"
+    else:
+        data_start = ghost_offset + header_samples
+        _embed_bits_at(right, data_bits, data_start, data_samples_needed, lsb_depth)
+
+    all_samples[1::2] = right
+
+    with wave.open(output_path, "wb") as wav_out:
+        wav_out.setparams(params)
+        wav_out.writeframes(all_samples.tobytes())
+
+    full_payload_size = HEADER_SIZE + len(payload)
+    capacity = total_samples * bits_per_sample
+    usage_pct = (total_bits / capacity) * 100
+    print(f"  [VOID] Stereo Pocket encoding complete:")
+    print(f"         Carrier:    {carrier_path} (STEREO)")
+    print(f"         Output:     {output_path}")
+    print(f"         Channel:    RIGHT (Adriana Pocket)")
+    print(f"         LSB depth:  {lsb_depth}")
+    print(f"         Capacity:   {capacity // 8:,} bytes")
+    print(f"         Used:       {full_payload_size:,} bytes ({usage_pct:.1f}%)")
+    print(f"         Checksum:   {checksum}")
+    print(f"         Ghost Offset: {ghost_offset:,} samples")
+    print(f"         Dither Mask: Applied (seed {dither_seed}){jitter_info}")
+
+    return passphrase
+
+
+def decode_stereo(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes, str, str]:
+    if lsb_depth not in (1, 2):
+        raise ValueError("lsb_depth must be 1 or 2")
+
+    key = _derive_key(passphrase)
+
+    with wave.open(stego_path, "rb") as wav_in:
+        params = wav_in.getparams()
+        n_channels = params.nchannels
+        n_frames = params.nframes
+        sampwidth = params.sampwidth
+        raw_frames = wav_in.readframes(n_frames)
+
+    if sampwidth != 2:
+        raise ValueError(f"Only 16-bit WAV files are supported (got {sampwidth * 8}-bit).")
+    if n_channels != 2:
+        raise ValueError("Stereo decode requires a 2-channel WAV file.")
+
+    all_samples = np.frombuffer(raw_frames, dtype=np.int16)
+    right = all_samples[1::2]
+    total_samples = len(right)
+    bits_per_sample = lsb_depth
+
+    ghost_offset = _compute_ghost_offset(passphrase, total_samples)
+    header_samples = HEADER_SIZE * 8 // bits_per_sample
+
+    header_raw_bits = _extract_bits_at(right, ghost_offset, header_samples, lsb_depth)
+    header_bits = header_raw_bits[:HEADER_SIZE * 8]
+    header_bytes = np.packbits(header_bits).tobytes()[:HEADER_SIZE]
+    name_ext, data_size, stored_checksum, has_jitter = _parse_header(header_bytes, key)
+
+    data_samples_needed = (data_size * 8 + bits_per_sample - 1) // bits_per_sample
+
+    if has_jitter and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        jitter_map = _generate_jitter_map(passphrase, data_samples_needed,
+                                          data_start, total_samples)
+        collected_bits = []
+        for (pos, chunk_len) in jitter_map:
+            chunk_raw = _extract_bits_at(right, pos, chunk_len, lsb_depth)
+            collected_bits.append(chunk_raw)
+        all_data_bits = np.concatenate(collected_bits)[:data_size * 8]
+        jitter_info = f" (Fly Jitter: {len(jitter_map)} chunks)"
+    else:
+        data_start = ghost_offset + header_samples
+        all_data_bits_raw = _extract_bits_at(right, data_start, data_samples_needed, lsb_depth)
+        all_data_bits = all_data_bits_raw[:data_size * 8]
+        jitter_info = ""
+
+    compressed_data = np.packbits(all_data_bits).tobytes()[:data_size]
+
+    computed_checksum = _compute_md5(compressed_data)
+    if computed_checksum != stored_checksum:
+        raise ValueError(
+            f"Resonance verification FAILED!\n"
+            f"  Expected: {stored_checksum}\n"
+            f"  Computed: {computed_checksum}\n"
+            f"  Data may be corrupted."
+        )
+
+    print(f"  [VOID] Stereo Pocket decoding complete:")
+    print(f"         Channel:    RIGHT (Adriana Pocket)")
+    print(f"         File:       {name_ext}")
+    print(f"         Data size:  {data_size:,} bytes (compressed)")
+    print(f"         Checksum:   VERIFIED{jitter_info}")
+
+    return compressed_data, name_ext, stored_checksum
+
+
 def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes, str, str]:
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")

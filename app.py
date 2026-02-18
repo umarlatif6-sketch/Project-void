@@ -4,8 +4,11 @@ from datetime import datetime
 from flask import Flask, render_template, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 
+import wave
+
 from void_engine.compressor import compress_file, decompress_data
-from void_engine.stega import encode, decode, encode_burst, check_resonance_purity
+from void_engine.stega import (encode, decode, encode_burst, check_resonance_purity,
+                                encode_stereo, decode_stereo, find_harmonic_pockets)
 from void_engine.calculator import analyze_carrier, append_to_log
 from void_engine.silk_web import SignalTicker
 
@@ -106,7 +109,14 @@ def encode_file():
         output_name = f"{base_name}_void.wav"
         output_path = os.path.join(OUTPUT_DIR, output_name)
 
-        hash_key = encode(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter)
+        with wave.open(carrier_path, "rb") as wf:
+            n_channels = wf.getnchannels()
+        is_stereo = n_channels == 2
+
+        if is_stereo:
+            hash_key = encode_stereo(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter)
+        else:
+            hash_key = encode(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter)
 
         _log_operation("ENCODE", output_name, hash_key, f"LSB{lsb_depth}")
 
@@ -189,7 +199,14 @@ def decode_file():
         return jsonify({"error": f"File not found: {stego_file}"}), 404
 
     try:
-        compressed_data, name_ext, checksum = decode(stego_path, hash_key, lsb_depth)
+        with wave.open(stego_path, "rb") as wf:
+            n_channels = wf.getnchannels()
+        is_stereo = n_channels == 2
+
+        if is_stereo:
+            compressed_data, name_ext, checksum = decode_stereo(stego_path, hash_key, lsb_depth)
+        else:
+            compressed_data, name_ext, checksum = decode(stego_path, hash_key, lsb_depth)
         original_data = decompress_data(compressed_data)
 
         output_path = os.path.join(OUTPUT_DIR, name_ext)
@@ -423,6 +440,28 @@ def system_status():
     status["low_power"] = _low_power_mode
 
     return jsonify(status)
+
+
+@app.route("/api/pockets", methods=["POST"])
+def scan_pockets():
+    data = request.json
+    filename = data.get("filename")
+    source = data.get("source", "input")
+
+    if not filename:
+        return jsonify({"error": "No file specified"}), 400
+
+    directory = INPUT_DIR if source == "input" else OUTPUT_DIR
+    filepath = os.path.join(directory, filename)
+
+    if not os.path.exists(filepath):
+        return jsonify({"error": f"File not found: {filename}"}), 404
+
+    try:
+        result = find_harmonic_pockets(filepath)
+        return jsonify({"success": True, **result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 @app.route("/api/purge", methods=["POST"])
