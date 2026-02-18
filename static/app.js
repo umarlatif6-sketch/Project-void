@@ -1473,4 +1473,190 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     loadSelects();
+
+    function renderSensorGrid(containerId, sensors) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = "";
+        for (const [key, val] of Object.entries(sensors)) {
+            const item = document.createElement("div");
+            item.className = "sensor-item";
+            const label = key.replace(/_/g, " ");
+            item.innerHTML = `<span class="sensor-label">${label}</span><span class="sensor-value">${val}</span>`;
+            el.appendChild(item);
+        }
+    }
+
+    function renderChecklist(data) {
+        const verdictEl = document.getElementById("harness-checklist-verdict");
+        const checksEl = document.getElementById("harness-checklist-results");
+        if (!verdictEl || !checksEl) return;
+
+        const v = data.overall_verdict;
+        verdictEl.className = "harness-verdict " + v.toLowerCase();
+        verdictEl.textContent = v + " (" + data.passed + "/" + data.total_checks + " passed)";
+
+        checksEl.innerHTML = "";
+        for (const check of data.checks) {
+            const icons = { PASS: "\u2713", FAIL: "\u2717", RECONSIDER: "?" };
+            const row = document.createElement("div");
+            row.className = "harness-check-item";
+            row.innerHTML =
+                `<div class="harness-check-icon ${check.verdict.toLowerCase()}">${icons[check.verdict] || "?"}</div>` +
+                `<span class="harness-check-msg">${check.message}</span>`;
+            checksEl.appendChild(row);
+        }
+    }
+
+    function loadHarnessStatus() {
+        fetch("/api/harness/status").then(r => r.json()).then(data => {
+            if (!data.success) return;
+            const state = data.environment_state;
+
+            renderSensorGrid("harness-aqua-sensors", {
+                "pH": state.aquaponics.ph,
+                "Temp": state.aquaponics.temperature_c + "\u00b0C",
+                "O\u2082": state.aquaponics.dissolved_oxygen_ppm + " ppm",
+                "NH\u2083": state.aquaponics.ammonia_ppm + " ppm",
+                "Pumps/hr": state.aquaponics.pump_cycles_this_hour,
+                "Water": state.aquaponics.water_level_pct + "%",
+            });
+
+            renderSensorGrid("harness-flywheel-sensors", {
+                "RPM": state.flywheel.rpm,
+                "Energy": state.flywheel.energy_reserve_wh + " Wh",
+                "Temp": state.flywheel.temperature_c + "\u00b0C",
+                "Vibration": state.flywheel.vibration_g + " g",
+            });
+
+            const silkData = {};
+            silkData["Total R"] = state.silk_wiring.total_resistance_ohm + " \u03a9";
+            silkData["Delta"] = state.silk_wiring.resistance_delta_ohm + " \u03a9";
+            const strands = state.silk_wiring.strands || [];
+            for (let i = 0; i < strands.length; i++) {
+                silkData["S" + i] = strands[i].resistance_ohm + "\u03a9 " + (strands[i].continuity ? "\u2713" : "\u2717");
+            }
+            renderSensorGrid("harness-silk-sensors", silkData);
+
+            renderChecklist(data.checklist);
+
+            const loopStats = document.getElementById("harness-loop-stats");
+            if (loopStats) {
+                const ls = data.loop_detector;
+                loopStats.innerHTML =
+                    `Detections: <span class="harness-loop-stat">${ls.total_detections}</span> | ` +
+                    `Active: <span class="harness-loop-stat">${ls.active_alerts}</span> | ` +
+                    `Tracked: <span class="harness-loop-stat">${ls.tracked_signatures}</span>`;
+            }
+        });
+
+        fetch("/api/harness/loops").then(r => r.json()).then(data => {
+            const alertsEl = document.getElementById("harness-loop-alerts");
+            if (!alertsEl || !data.success) return;
+            if (data.active_alerts.length === 0) {
+                alertsEl.innerHTML = '<p style="color:#666;font-size:12px;">No active doom loops.</p>';
+                return;
+            }
+            alertsEl.innerHTML = "";
+            for (const a of data.active_alerts) {
+                const div = document.createElement("div");
+                div.className = "harness-loop-alert";
+                div.innerHTML =
+                    `<span class="alert-id">${a.alert_id}</span>` +
+                    `<div class="alert-msg">${a.message}</div>` +
+                    `<div class="alert-diag">${a.diagnostic_suggestions.slice(0, 3).map(d => "\u2022 " + d).join("<br>")}</div>`;
+                alertsEl.appendChild(div);
+            }
+        });
+    }
+
+    const harnessTab = document.querySelector('[data-tab="harness"]');
+    if (harnessTab) {
+        harnessTab.addEventListener("click", () => {
+            setTimeout(loadHarnessStatus, 100);
+        });
+    }
+
+    document.getElementById("harness-simulate-btn")?.addEventListener("click", async () => {
+        const actionType = document.getElementById("harness-action-type").value;
+        const actionValue = parseInt(document.getElementById("harness-action-value").value) || 1;
+        const action = { type: actionType };
+
+        if (actionType === "pump_cycle") action.count = actionValue;
+        else if (actionType === "flywheel_boost") action.rpm_delta = actionValue * 100;
+        else if (actionType === "sensor_calibrate") action.sensor = "Sensor_A";
+        else if (actionType === "nutrient_dose") action.dose_ml = actionValue;
+        else if (actionType === "silk_test") action.strand_id = actionValue;
+
+        const res = await fetch("/api/harness/check", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action }),
+        });
+        const data = await res.json();
+        const outEl = document.getElementById("harness-sim-result");
+        if (outEl) {
+            const sim = data.simulation;
+            const verdict = sim.checklist.overall_verdict;
+            const color = verdict === "PASS" ? "#00c853" : verdict === "FAIL" ? "#ff4444" : "#ffd700";
+            let text = `VERDICT: ${verdict}\n`;
+            text += `Safe to execute: ${sim.safe_to_execute}\n`;
+            text += `Effects: ${sim.effects.join(", ") || "none"}\n`;
+            text += `Loop risk: ${data.loop_risk.risk_level} (${data.loop_risk.recent_attempts}/${data.loop_risk.max_attempts})\n`;
+            if (!data.boundary_check.allowed) {
+                text += `BOUNDARY BLOCKED: ${data.boundary_check.violations.length} violation(s)\n`;
+                for (const v of data.boundary_check.violations) {
+                    text += `  - ${v.rule_name}: ${v.message}\n`;
+                }
+            }
+            for (const c of sim.checklist.checks) {
+                if (c.verdict !== "PASS") {
+                    text += `  [${c.verdict}] ${c.message}\n`;
+                }
+            }
+            outEl.style.color = color;
+            outEl.textContent = text;
+        }
+    });
+
+    document.getElementById("harness-execute-btn")?.addEventListener("click", async () => {
+        const actionType = document.getElementById("harness-action-type").value;
+        const actionValue = parseInt(document.getElementById("harness-action-value").value) || 1;
+        const action = { type: actionType };
+
+        if (actionType === "pump_cycle") action.count = actionValue;
+        else if (actionType === "flywheel_boost") action.rpm_delta = actionValue * 100;
+        else if (actionType === "sensor_calibrate") action.sensor = "Sensor_A";
+        else if (actionType === "nutrient_dose") action.dose_ml = actionValue;
+        else if (actionType === "silk_test") action.strand_id = actionValue;
+
+        const res = await fetch("/api/harness/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action }),
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast("Action executed successfully", "success");
+            if (data.loop_alert) {
+                showToast("DOOM LOOP: " + data.loop_alert.message, "error");
+            }
+        } else {
+            showToast("Blocked: " + (data.blocked_by || "checklist failed"), "error");
+        }
+        loadHarnessStatus();
+    });
+
+    document.getElementById("harness-context-btn")?.addEventListener("click", async () => {
+        const res = await fetch("/api/harness/context", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: "You are a Plankton EA agent operating on the Orin 4000-series." }),
+        });
+        const data = await res.json();
+        const pre = document.getElementById("harness-context-output");
+        if (pre && data.success) {
+            pre.textContent = data.injected_prompt;
+        }
+    });
 });

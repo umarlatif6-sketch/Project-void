@@ -35,6 +35,7 @@
             <button class="tab" data-tab="capacity">Capacity</button>
             <button class="tab" data-tab="silk">Silk Web</button>
             <button class="tab" data-tab="files">Files</button>
+            <button class="tab" data-tab="harness">Harness</button>
         </div>
 
         <div id="encode" class="panel active">
@@ -385,6 +386,63 @@
             <div class="file-section">
                 <h3>output_audio/</h3>
                 <div id="output-file-list" class="file-list"><p class="loading">Loading...</p></div>
+            </div>
+        </div>
+        <div id="harness" class="panel">
+            <h2>Plankton-Orin Harness</h2>
+            <p class="panel-desc">Digital Nervous System — PreCompletionChecklist, Boundary Hooks, and Loop Detection for the 4000-series machine.</p>
+
+            <div class="harness-grid">
+                <div class="harness-section">
+                    <h3>Environment State</h3>
+                    <div class="harness-subsection">
+                        <h4>Aquaponics</h4>
+                        <div class="sensor-grid" id="harness-aqua-sensors"></div>
+                    </div>
+                    <div class="harness-subsection">
+                        <h4>Flywheel</h4>
+                        <div class="sensor-grid" id="harness-flywheel-sensors"></div>
+                    </div>
+                    <div class="harness-subsection">
+                        <h4>Silk Wiring</h4>
+                        <div class="sensor-grid" id="harness-silk-sensors"></div>
+                    </div>
+                </div>
+
+                <div class="harness-section">
+                    <h3>PreCompletion Checklist</h3>
+                    <div id="harness-checklist-verdict" class="harness-verdict"></div>
+                    <div id="harness-checklist-results" class="harness-checks"></div>
+                </div>
+            </div>
+
+            <div class="harness-actions-row">
+                <h3>Virtual Void Simulator</h3>
+                <div class="harness-action-form">
+                    <select id="harness-action-type" class="void-select">
+                        <option value="pump_cycle">Pump Cycle</option>
+                        <option value="flywheel_boost">Flywheel Boost</option>
+                        <option value="sensor_calibrate">Sensor Calibrate</option>
+                        <option value="nutrient_dose">Nutrient Dose</option>
+                        <option value="silk_test">Silk Test</option>
+                    </select>
+                    <input type="number" id="harness-action-value" class="void-input" placeholder="Value (count/rpm/ml)" value="1" min="1">
+                    <button id="harness-simulate-btn" class="btn-primary">Simulate</button>
+                    <button id="harness-execute-btn" class="btn-accent">Execute</button>
+                </div>
+                <div id="harness-sim-result" class="harness-sim-output"></div>
+            </div>
+
+            <div class="harness-actions-row">
+                <h3>Loop Detection — Doom Loop Breaker</h3>
+                <div id="harness-loop-stats" class="harness-loop-stats"></div>
+                <div id="harness-loop-alerts" class="harness-loop-alerts"></div>
+            </div>
+
+            <div class="harness-actions-row">
+                <h3>Context Injection Preview</h3>
+                <button id="harness-context-btn" class="btn-secondary">Generate SilkLink Context</button>
+                <pre id="harness-context-output" class="harness-context-pre"></pre>
             </div>
         </div>
     </main>

@@ -11,6 +11,9 @@ from void_engine.stega import (encode, decode, encode_burst, check_resonance_pur
                                 encode_stereo, decode_stereo, find_harmonic_pockets)
 from void_engine.calculator import analyze_carrier, append_to_log
 from void_engine.silk_web import SignalTicker
+from void_engine.harness import PreCompletionChecklistMiddleware, VirtualVoidSimulator
+from void_engine.nervous_system import SilkLinkContextMiddleware, AquaponicsBoundaryHook
+from void_engine.loop_detector import LoopDetectionMiddleware
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -486,6 +489,213 @@ def purge_old_files():
         "freed_bytes": total_freed,
         "files": purged,
     })
+
+
+_harness_checklist = PreCompletionChecklistMiddleware()
+_harness_sim = VirtualVoidSimulator()
+_silk_context = SilkLinkContextMiddleware()
+_boundary_hook = AquaponicsBoundaryHook()
+_loop_detector = LoopDetectionMiddleware(max_attempts=5)
+
+_silk_context.bulk_update({
+    "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
+    "silk_strand_1_resistance": {"value": 3.2, "unit": "ohm"},
+    "silk_strand_2_resistance": {"value": 3.0, "unit": "ohm"},
+    "silk_strand_3_resistance": {"value": 3.2, "unit": "ohm"},
+    "silk_strand_4_resistance": {"value": 3.4, "unit": "ohm"},
+    "silk_strand_5_resistance": {"value": 3.1, "unit": "ohm"},
+    "silk_total_resistance": {"value": 12.5, "unit": "ohm"},
+    "aqua_ph": {"value": 6.8, "unit": "pH"},
+    "aqua_temperature": {"value": 22.0, "unit": "°C"},
+    "aqua_dissolved_oxygen": {"value": 7.5, "unit": "ppm"},
+    "aqua_ammonia": {"value": 0.1, "unit": "ppm"},
+    "aqua_pump_cycles": {"value": 0, "unit": "cycles/hr"},
+    "aqua_water_level": {"value": 85.0, "unit": "%"},
+    "flywheel_rpm": {"value": 3500, "unit": "RPM"},
+    "flywheel_energy": {"value": 120.0, "unit": "Wh"},
+    "flywheel_temperature": {"value": 38.0, "unit": "°C"},
+    "flywheel_vibration": {"value": 0.8, "unit": "g"},
+})
+
+
+@app.route("/api/harness/status")
+def harness_status():
+    state = _harness_sim.get_state()
+    checklist_report = _harness_checklist.run_checklist(state)
+    return jsonify({
+        "success": True,
+        "environment_state": state,
+        "checklist": checklist_report.to_dict(),
+        "loop_detector": _loop_detector.get_stats(),
+        "boundary_hook": _boundary_hook.get_stats(),
+        "context": _silk_context.get_context_stats(),
+    })
+
+
+@app.route("/api/harness/check", methods=["POST"])
+def harness_check():
+    data = request.json or {}
+    action = data.get("action", {})
+    sim_result = _harness_sim.simulate_action(action)
+    loop_check = _loop_detector.check_action(action)
+    boundary_check = _boundary_hook.intercept_action(action, _harness_sim.get_state())
+
+    return jsonify({
+        "success": True,
+        "simulation": sim_result,
+        "loop_risk": loop_check,
+        "boundary_check": boundary_check,
+    })
+
+
+@app.route("/api/harness/execute", methods=["POST"])
+def harness_execute():
+    data = request.json or {}
+    action = data.get("action", {})
+
+    boundary_check = _boundary_hook.intercept_action(action, _harness_sim.get_state())
+    if not boundary_check["allowed"]:
+        return jsonify({
+            "success": False,
+            "blocked_by": "boundary_hook",
+            "boundary_check": boundary_check,
+        }), 400
+
+    loop_check = _loop_detector.check_action(action)
+    if loop_check["risk_level"] == "blocked":
+        return jsonify({
+            "success": False,
+            "blocked_by": "loop_detector",
+            "loop_check": loop_check,
+        }), 400
+
+    checklist_report = _harness_checklist.run_checklist(_harness_sim.get_state(), action)
+    if checklist_report.overall_verdict.value != "PASS":
+        return jsonify({
+            "success": False,
+            "blocked_by": "checklist",
+            "checklist": checklist_report.to_dict(),
+        }), 400
+
+    result = _harness_sim.apply_action(action)
+    loop_alert = _loop_detector.record_action(
+        action,
+        result_value=action.get("result_value"),
+    )
+
+    response = {
+        "success": result["applied"],
+        "result": result,
+        "checklist": checklist_report.to_dict(),
+    }
+    if loop_alert:
+        response["loop_alert"] = loop_alert.to_dict()
+
+    return jsonify(response)
+
+
+@app.route("/api/harness/loops")
+def harness_loops():
+    return jsonify({
+        "success": True,
+        "active_alerts": _loop_detector.get_active_alerts(),
+        "stats": _loop_detector.get_stats(),
+    })
+
+
+@app.route("/api/harness/loops/resolve", methods=["POST"])
+def harness_resolve_loop():
+    data = request.json or {}
+    alert_id = data.get("alert_id", "")
+    resolved = _loop_detector.resolve_alert(alert_id)
+    return jsonify({"success": resolved})
+
+
+@app.route("/api/harness/sensors")
+def harness_sensors():
+    return jsonify({
+        "success": True,
+        "sensors": _silk_context.get_all_readings(),
+        "context_stats": _silk_context.get_context_stats(),
+    })
+
+
+@app.route("/api/harness/sensors/update", methods=["POST"])
+def harness_update_sensor():
+    data = request.json or {}
+    sensor_id = data.get("sensor_id", "")
+    value = data.get("value")
+    unit = data.get("unit", "")
+
+    if not sensor_id or value is None:
+        return jsonify({"error": "sensor_id and value required"}), 400
+
+    _silk_context.register_sensor(sensor_id, float(value), unit)
+
+    section = None
+    updates = {}
+    if "aqua" in sensor_id.lower():
+        section = "aquaponics"
+        if "ph" in sensor_id.lower():
+            updates["ph"] = float(value)
+        elif "temp" in sensor_id.lower():
+            updates["temperature_c"] = float(value)
+        elif "oxygen" in sensor_id.lower():
+            updates["dissolved_oxygen_ppm"] = float(value)
+        elif "ammonia" in sensor_id.lower():
+            updates["ammonia_ppm"] = float(value)
+        elif "pump" in sensor_id.lower():
+            updates["pump_cycles_this_hour"] = int(value)
+        elif "water" in sensor_id.lower():
+            updates["water_level_pct"] = float(value)
+    elif "flywheel" in sensor_id.lower():
+        section = "flywheel"
+        if "rpm" in sensor_id.lower():
+            updates["rpm"] = float(value)
+        elif "energy" in sensor_id.lower():
+            updates["energy_reserve_wh"] = float(value)
+        elif "temp" in sensor_id.lower():
+            updates["temperature_c"] = float(value)
+        elif "vibration" in sensor_id.lower():
+            updates["vibration_g"] = float(value)
+    elif "silk" in sensor_id.lower():
+        section = "silk_wiring"
+        if "total" in sensor_id.lower():
+            updates["total_resistance_ohm"] = float(value)
+        elif "delta" in sensor_id.lower():
+            updates["resistance_delta_ohm"] = float(value)
+
+    if section and updates:
+        _harness_sim.set_state(section, updates)
+
+    return jsonify({"success": True, "sensor_id": sensor_id, "value": float(value)})
+
+
+@app.route("/api/harness/context", methods=["POST"])
+def harness_context():
+    data = request.json or {}
+    base_prompt = data.get("prompt", "You are a Plankton EA agent operating on the Orin.")
+    injected = _silk_context.inject_context(base_prompt)
+    return jsonify({"success": True, "injected_prompt": injected})
+
+
+@app.route("/api/harness/params")
+def harness_params():
+    return jsonify({
+        "success": True,
+        "params": _harness_checklist.get_params(),
+    })
+
+
+@app.route("/api/harness/params/update", methods=["POST"])
+def harness_update_params():
+    data = request.json or {}
+    section = data.get("section", "")
+    updates = data.get("updates", {})
+    if not section or not updates:
+        return jsonify({"error": "section and updates required"}), 400
+    ok = _harness_checklist.update_params(section, updates)
+    return jsonify({"success": ok})
 
 
 _start_time = __import__("time").time()
