@@ -2021,6 +2021,116 @@ document.addEventListener("DOMContentLoaded", () => {
         panel.innerHTML = html;
     }
 
+    document.getElementById("consensus-run-btn")?.addEventListener("click", async () => {
+        const btn = document.getElementById("consensus-run-btn");
+        btn.disabled = true;
+        btn.textContent = "Negotiating...";
+        try {
+            const res = await fetch("/api/harness/consensus/run", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+            });
+            const data = await res.json();
+            if (data.error) {
+                showToast("Consensus error: " + data.error, "error");
+            } else {
+                renderConsensusResult(data);
+                showToast("Consensus: " + data.outcome, data.success ? "success" : "error");
+            }
+            loadHarnessStatus();
+        } catch(e) { showToast("Error: " + e.message, "error"); }
+        btn.disabled = false;
+        btn.textContent = "Run Consensus";
+    });
+
+    document.getElementById("consensus-night-btn")?.addEventListener("click", async () => {
+        try {
+            const res = await fetch("/api/harness/consensus/night-cycle", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "toggle", interval: 300 }),
+            });
+            const data = await res.json();
+            const btn = document.getElementById("consensus-night-btn");
+            if (data.status === "started") {
+                btn.textContent = "Night Cycle: ON";
+                btn.classList.add("btn-active");
+                showToast("Night Cycle daemon started (5 min interval)", "success");
+            } else {
+                btn.textContent = "Night Cycle: OFF";
+                btn.classList.remove("btn-active");
+                showToast("Night Cycle daemon stopped", "success");
+            }
+        } catch(e) { showToast("Error: " + e.message, "error"); }
+    });
+
+    (async function loadConsensusStatus() {
+        try {
+            const res = await fetch("/api/harness/consensus/status");
+            const data = await res.json();
+            const nightBtn = document.getElementById("consensus-night-btn");
+            if (data.night_cycle && data.night_cycle.active) {
+                nightBtn.textContent = "Night Cycle: ON";
+                nightBtn.classList.add("btn-active");
+            }
+            const label = document.getElementById("consensus-status-label");
+            if (data.night_cycle) {
+                label.textContent = `${data.night_cycle.total_consensus_runs} runs`;
+            }
+            if (data.history && data.history.length > 0) {
+                renderConsensusResult(data.history[data.history.length - 1]);
+            }
+        } catch(e) {}
+    })();
+
+    function renderConsensusResult(data) {
+        const wrap = document.getElementById("consensus-result");
+        wrap.style.display = "block";
+
+        const outcomeEl = document.getElementById("consensus-outcome");
+        outcomeEl.innerHTML = `<span class="consensus-verdict ${data.success ? 'pass' : 'fail'}">${data.outcome}</span>` +
+            `<span class="consensus-cmd">${data.consensus_command}</span>`;
+
+        const statsEl = document.getElementById("consensus-stats");
+        statsEl.innerHTML = [
+            { label: "Energy", value: data.energy_pct + "%" },
+            { label: "Turns", value: data.total_turns },
+            { label: "Total Chars", value: data.total_chars },
+            { label: "Intent", value: data.consensus_intent },
+        ].map(s => `<div class="cs-stat"><span class="cs-label">${s.label}</span> <span class="cs-value">${s.value}</span></div>`).join("");
+
+        const traceEl = document.getElementById("consensus-trace");
+        traceEl.innerHTML = '<div class="trace-header"><span>#</span><span>Agent</span><span>Command</span><span>Intent</span></div>' +
+            (data.trace || []).map(t =>
+                `<div class="trace-row ${t.agent === 'Agent A' ? 'agent-a' : 'agent-b'}">` +
+                `<span>${t.turn}</span>` +
+                `<span><strong>${t.agent}</strong><br><span class="trace-role">${t.agent_role}</span></span>` +
+                `<span class="trace-cmd">${t.command}</span>` +
+                `<span class="trace-intent">${t.intent}</span>` +
+                `</div>`
+            ).join("");
+
+        const finalEl = document.getElementById("consensus-final");
+        finalEl.innerHTML = `<div class="consensus-final-label">CONSENSUS COMMAND</div>` +
+            `<div class="consensus-final-cmd">${data.consensus_command}</div>` +
+            `<div class="consensus-final-intent">${data.consensus_intent}</div>`;
+
+        const execEl = document.getElementById("consensus-execution");
+        if (data.execution_results && data.execution_results.length) {
+            execEl.innerHTML = '<div style="color:#888;font-size:10px;margin-bottom:4px;">EXECUTION TRACE</div>' +
+                data.execution_results.map(er =>
+                    `<div class="consensus-exec-row">` +
+                    `<span class="dr-verdict ${er.executed ? 'dr-pass' : 'dr-fail'}">${er.executed ? 'DONE' : 'BLOCKED'}</span>` +
+                    `<span class="dr-root">${er.root || ''}.${er.pattern || ''}</span>` +
+                    `<span>${er.narrative || ''}</span>` +
+                    (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${er.blocked_by}]</span>` : '') +
+                    `</div>`
+                ).join("");
+        } else {
+            execEl.innerHTML = "";
+        }
+    }
+
     function renderChaosReport(report) {
         const wrap = document.getElementById("chaos-test-result");
         if (!wrap) return;

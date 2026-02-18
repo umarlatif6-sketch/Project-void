@@ -44,6 +44,16 @@ PROJECT VOID features both a Flask-based web UI and a command-line interface. Th
     - **Root Manifest:** 11 trilateral roots mapped across various domains (Aquaponics, Flywheel, Silk, Pressure, System).
     - **7 Verb Patterns:** (Accelerate, Diminish, Isolate, Verify, Monitor, Restore, Transmit) applied to roots via notation (e.g., `QDR.A`).
     - **AlJabrTranspiler:** Parses root-pattern expressions, mapping them to pre-verified logic blocks and integrating with the Harness safety pipeline.
+    - **Compression Results:** HFZ bare root = 89.33x (3 chars → 5 actions). QDR.A = 7.8x. HFZ>SLM.V = 77.67x (9 chars → 13 actions).
+    - **API Endpoints:** `GET /api/harness/aljabr/roots`, `POST /api/harness/aljabr/transpile`, `POST /api/harness/aljabr/execute`
+- **Al-Jabr Consensus Engine (Multi-Agent Root-Exchange Protocol):**
+    - **ConsensusEngine** (`void_engine/consensus.py`): Simulates two Plankton EA agents — Agent A (The Guardian, priorities: HFZ/SLM preservation) and Agent B (The Growth-Seeker, priorities: HYA/GDH biological growth) — negotiating the 4000-series energy state using only Al-Jabr root commands.
+    - **Root-Exchange Trace:** Turn-based negotiation where agents evaluate machine state, issue root commands based on their drive profiles, counter each other's positions, and converge on a consensus SLM path. Full audit trail in compressed root notation.
+    - **State-Aware Assessment:** Guardian thresholds (energy <50% triggers QDR.D>HFZ, temperature >50°C triggers HRR.D, pressure >1.2 atm triggers DGT.D). Growth thresholds (oxygen <6 ppm triggers HYA.D|GDH.A, ammonia >0.5 triggers DFQ.A>GDH.V, pH out of range triggers GDH.V>HYA.M).
+    - **Night Cycle Daemon:** Automated mode that runs consensus on configurable interval (default 5 min). Gives the 4000-series self-management capability — "fasting and feeding" cycles using pure root logic while operator is away.
+    - **Safety Integration:** Consensus commands execute through full Harness safety pipeline (BoundaryHook → LoopDetector → PreCompletionChecklist).
+    - **Harness Tab UI:** Green-themed Consensus section with Run Consensus button, Night Cycle toggle, Root-Exchange trace table (agent positions, commands, intents), Consensus Command display, and execution results.
+    - **API Endpoints:** `POST /api/harness/consensus/run`, `GET /api/harness/consensus/status`, `POST /api/harness/consensus/night-cycle`
 
 ## External Dependencies
 -   **Python:** 3.11

@@ -17,6 +17,7 @@ from void_engine.loop_detector import LoopDetectionMiddleware
 from void_engine.chaos_test import NitrogenLeakChaosTest
 from void_engine.adriana_transpiler import AdrianaTranspiler
 from void_engine.aljabr_transpiler import AlJabrTranspiler
+from void_engine.consensus import ConsensusEngine
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -503,6 +504,7 @@ _loop_detector = LoopDetectionMiddleware(max_attempts=5)
 _chaos_test = NitrogenLeakChaosTest(_harness_sim, _harness_checklist, _boundary_hook, _loop_detector)
 _adriana = AdrianaTranspiler()
 _aljabr = AlJabrTranspiler()
+_consensus = ConsensusEngine(_harness_sim, _aljabr, _boundary_hook, _loop_detector)
 
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
@@ -1037,6 +1039,42 @@ def aljabr_execute():
         "execution": execution_results,
         "partial": not all_executed and any(r["executed"] for r in execution_results),
     })
+
+
+@app.route("/api/harness/consensus/run", methods=["POST"])
+def consensus_run():
+    try:
+        result = _consensus.run_consensus()
+        return jsonify(result.to_dict())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/harness/consensus/status")
+def consensus_status():
+    return jsonify({
+        "night_cycle": _consensus.night_cycle_status,
+        "history": _consensus.history,
+    })
+
+
+@app.route("/api/harness/consensus/night-cycle", methods=["POST"])
+def consensus_night_cycle():
+    data = request.json or {}
+    action = data.get("action", "toggle")
+    interval = data.get("interval", 300)
+
+    if action == "start":
+        result = _consensus.start_night_cycle(interval)
+    elif action == "stop":
+        result = _consensus.stop_night_cycle()
+    else:
+        if _consensus.night_cycle_status["active"]:
+            result = _consensus.stop_night_cycle()
+        else:
+            result = _consensus.start_night_cycle(interval)
+
+    return jsonify(result)
 
 
 _start_time = __import__("time").time()
