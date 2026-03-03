@@ -504,3 +504,45 @@ Observations:
 | 2026-02-18 07:07:45 | SILK_SIGNAL | heartbeat_432Hz.wav | ...1a27 | signal=HEARTBEAT |
 | 2026-02-18 07:37:45 | SILK_SIGNAL | heartbeat_432Hz.wav | ...d9e2 | signal=HEARTBEAT |
 | 2026-02-18 19:17:51 | SILK_SIGNAL | heartbeat_432Hz.wav | ...37bd | signal=HEARTBEAT |
+| 2026-03-03 20:14:12 | ENCODE | test_carrier_void.wav | ...908a | LSB1 |
+| 2026-03-03 20:14:18 | ENCODE | ambient_drone_60s_void.wav | ...75fa | LSB1 |
+| 2026-03-03 20:14:26 | DECODE | secret.txt | ...908a | size=62 |
+| 2026-03-03 20:14:26 | DECODE | IMG-20260303-WA0023.jpg | ...75fa | size=72953 |
+### 2026-03-03 20:15:28 — test_carrier.wav
+
+| Metric | Value |
+|---|---|
+| Duration | 10.0s |
+| Channels | 1 |
+| Sample Rate | 44,100 Hz |
+| Total Samples | 441,000 |
+| LSB1 Max Capacity | 53.8 KB |
+| LSB1 Surface Tension | 13.4 KB |
+| LSB1 Bubble Burst | 12.1 KB |
+| LSB1 Est. Real Data | ~40.3 KB to ~67.2 KB |
+| LSB2 Max Capacity | 107.6 KB |
+| LSB2 Surface Tension | 16.1 KB |
+| LSB2 Bubble Burst | 14.5 KB |
+| LSB2 Est. Real Data | ~48.4 KB to ~80.7 KB |
+
+---
+
+### 2026-03-03 20:15:36 — test_carrier.wav
+
+| Metric | Value |
+|---|---|
+| Duration | 10.0s |
+| Channels | 1 |
+| Sample Rate | 44,100 Hz |
+| Total Samples | 441,000 |
+| LSB1 Max Capacity | 53.8 KB |
+| LSB1 Surface Tension | 13.4 KB |
+| LSB1 Bubble Burst | 12.1 KB |
+| LSB1 Est. Real Data | ~40.3 KB to ~67.2 KB |
+| LSB2 Max Capacity | 107.6 KB |
+| LSB2 Surface Tension | 16.1 KB |
+| LSB2 Bubble Burst | 14.5 KB |
+| LSB2 Est. Real Data | ~48.4 KB to ~80.7 KB |
+
+---
+
