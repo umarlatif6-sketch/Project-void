@@ -4,7 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["cargo", "libiconv", "libxcrypt", "openssl", "pkg-config", "rustc"]
+packages = ["cargo", "libiconv", "libxcrypt", "openssl", "pkg-config", "rustc", "xsimd"]
 
 [workflows]
 runButton = "Project"
@@ -32,4 +32,8 @@ waitForPort = 5000
 
 [[ports]]
 localPort = 5000
-externalPort = 80
+externalPort = 5000
+
+[[ports]]
+localPort = 8099
+externalPort = 8099

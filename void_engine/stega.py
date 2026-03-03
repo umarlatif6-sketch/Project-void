@@ -13,6 +13,7 @@ PILOT_TONE_DURATION = 0.5
 PILOT_TONE_SAMPLE_RATE = 44100
 JITTER_FLAG_BIT = 1 << 31
 VORTEX_FLAG_BIT = 1 << 30
+CHIRP_SYNC_FLAG_BIT = 1 << 29
 
 _carrier_cache = {}
 
@@ -189,6 +190,109 @@ def _generate_vortex_map(passphrase: str, n_data_samples: int,
     return resolved
 
 
+def _auto_detect_chirp_peaks(samples: np.ndarray, percentile: int = 70) -> np.ndarray:
+    abs_samples = np.abs(samples.astype(np.float64))
+    window = min(512, len(abs_samples) // 10)
+    if window < 4:
+        return np.array([], dtype=np.int64)
+    kernel = np.ones(window) / window
+    envelope = np.convolve(abs_samples, kernel, mode='same')
+    threshold = np.percentile(envelope, percentile)
+    above = envelope > threshold
+    rising = np.zeros(len(above), dtype=bool)
+    rising[1:] = above[1:] & ~above[:-1]
+    peak_indices = np.where(rising)[0]
+    if len(peak_indices) == 0:
+        peak_indices = np.where(above)[0]
+        if len(peak_indices) > 0:
+            step = max(1, len(peak_indices) // (len(samples) // 1260 + 1))
+            peak_indices = peak_indices[::step]
+    return peak_indices.astype(np.int64)
+
+
+def _load_or_detect_chirp_peaks(carrier_path: str, samples: np.ndarray) -> np.ndarray:
+    chirpmap_path = carrier_path.replace(".wav", ".chirpmap.npy")
+    if os.path.exists(chirpmap_path):
+        peaks = np.load(chirpmap_path)
+        return peaks.astype(np.int64)
+    return _auto_detect_chirp_peaks(samples)
+
+
+def _copy_chirpmap_sidecar(carrier_path: str, output_path: str):
+    import shutil
+    src_map = carrier_path.replace(".wav", ".chirpmap.npy")
+    if os.path.exists(src_map):
+        dst_map = output_path.replace(".wav", ".chirpmap.npy")
+        shutil.copy2(src_map, dst_map)
+
+
+def _generate_chirp_map(samples: np.ndarray, n_data_samples: int,
+                        chirp_peaks: np.ndarray, passphrase: str,
+                        lsb_depth: int, available_start: int,
+                        available_end: int) -> list[tuple[int, int]]:
+    if n_data_samples <= 0:
+        return []
+
+    valid_peaks = chirp_peaks[(chirp_peaks >= available_start) & (chirp_peaks < available_end)]
+
+    if len(valid_peaks) == 0:
+        return [(available_start, n_data_samples)]
+
+    total_available = available_end - available_start
+    if n_data_samples >= int(total_available * 0.8):
+        return [(available_start, n_data_samples)]
+
+    n_chunks = min(len(valid_peaks), max(7, n_data_samples // 300))
+    if n_data_samples < n_chunks:
+        n_chunks = max(1, n_data_samples)
+
+    if len(valid_peaks) > n_chunks:
+        step = len(valid_peaks) / n_chunks
+        selected_peaks = np.array([valid_peaks[int(i * step)] for i in range(n_chunks)])
+    else:
+        selected_peaks = valid_peaks[:n_chunks]
+
+    seed = int(hashlib.sha256(("chirpsync:" + passphrase).encode()).hexdigest()[:8], 16)
+    rng = np.random.RandomState(seed)
+
+    alpha = np.ones(n_chunks) + rng.uniform(0.2, 1.0, size=n_chunks)
+    proportions = rng.dirichlet(alpha)
+    chunk_sizes = np.maximum(1, np.round(proportions * n_data_samples).astype(int))
+
+    diff = n_data_samples - int(chunk_sizes.sum())
+    chunk_sizes[-1] += diff
+    if chunk_sizes[-1] <= 0:
+        chunk_sizes[-1] = 1
+        overshoot = int(chunk_sizes.sum()) - n_data_samples
+        for i in range(len(chunk_sizes) - 2, -1, -1):
+            take = min(overshoot, int(chunk_sizes[i]) - 1)
+            chunk_sizes[i] -= take
+            overshoot -= take
+            if overshoot <= 0:
+                break
+
+    positions = []
+    for i in range(n_chunks):
+        csize = int(chunk_sizes[i])
+        pos = int(selected_peaks[i])
+        pos = max(available_start, min(pos, available_end - csize))
+        positions.append((pos, csize))
+
+    positions.sort(key=lambda x: x[0])
+
+    resolved = []
+    current_end = available_start
+    for (pos, csize) in positions:
+        actual_pos = max(pos, current_end)
+        if actual_pos + csize > available_end:
+            csize = available_end - actual_pos
+        if csize > 0:
+            resolved.append((actual_pos, csize))
+            current_end = actual_pos + csize
+
+    return resolved
+
+
 def apply_dither_mask(samples: np.ndarray, seed: int = 42) -> np.ndarray:
     rng = np.random.RandomState(seed)
     white = rng.randn(len(samples))
@@ -231,7 +335,7 @@ def _decrypt_header(encrypted_header: bytes, key: bytes) -> bytes:
 
 def _build_header(file_name: str, extension: str, data_size: int,
                   checksum: str, key: bytes, jitter: bool = False,
-                  vortex: bool = False) -> bytes:
+                  vortex: bool = False, chirp_sync: bool = False) -> bytes:
     name_ext = (file_name + extension).encode("utf-8")
     if len(name_ext) > 24:
         name_ext = name_ext[:24]
@@ -246,6 +350,8 @@ def _build_header(file_name: str, extension: str, data_size: int,
         stored_size |= JITTER_FLAG_BIT
     if vortex:
         stored_size |= VORTEX_FLAG_BIT
+    if chirp_sync:
+        stored_size |= CHIRP_SYNC_FLAG_BIT
 
     plaintext = (
         MAGIC
@@ -261,7 +367,7 @@ def _build_header(file_name: str, extension: str, data_size: int,
     return encrypted
 
 
-def _parse_header(encrypted_header: bytes, key: bytes) -> tuple[str, int, str, bool, bool]:
+def _parse_header(encrypted_header: bytes, key: bytes) -> tuple[str, int, str, bool, bool, bool]:
     decrypted = _decrypt_header(encrypted_header, key)
 
     magic = decrypted[:4]
@@ -274,11 +380,12 @@ def _parse_header(encrypted_header: bytes, key: bytes) -> tuple[str, int, str, b
     raw_size = struct.unpack("<I", decrypted[28:32])[0]
     jitter = bool(raw_size & JITTER_FLAG_BIT)
     vortex = bool(raw_size & VORTEX_FLAG_BIT)
-    data_size = raw_size & ~JITTER_FLAG_BIT & ~VORTEX_FLAG_BIT
+    chirp_sync = bool(raw_size & CHIRP_SYNC_FLAG_BIT)
+    data_size = raw_size & ~JITTER_FLAG_BIT & ~VORTEX_FLAG_BIT & ~CHIRP_SYNC_FLAG_BIT
 
     checksum = decrypted[32:48].hex()
 
-    return name_ext, data_size, checksum, jitter, vortex
+    return name_ext, data_size, checksum, jitter, vortex, chirp_sync
 
 
 def _compute_md5(data: bytes) -> str:
@@ -316,12 +423,14 @@ def _extract_bits_at(samples: np.ndarray, start: int,
 
 def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
            output_path: str, lsb_depth: int = 1, passphrase: str | None = None,
-           jitter: bool = False, vortex: bool = False) -> str:
+           jitter: bool = False, vortex: bool = False,
+           chirp_sync: bool = False) -> str:
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")
 
-    if jitter and vortex:
-        raise ValueError("Cannot use both jitter and vortex modes simultaneously")
+    active_modes = sum([jitter, vortex, chirp_sync])
+    if active_modes > 1:
+        raise ValueError("Cannot use multiple scatter modes simultaneously (jitter, vortex, chirp_sync are mutually exclusive)")
 
     if len(payload) > 500 * 1024 * 1024:
         print(f"  [RESONANCE WARNING]: Large Void detected ({len(payload) / (1024*1024):.0f} MB). Ensuring 18-hour Pulse is active...")
@@ -332,7 +441,7 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     key = _derive_key(passphrase)
     checksum = _compute_md5(payload)
     header = _build_header(file_name, extension, len(payload), checksum, key,
-                           jitter=jitter, vortex=vortex)
+                           jitter=jitter, vortex=vortex, chirp_sync=chirp_sync)
 
     with wave.open(carrier_path, "rb") as wav_in:
         params = wav_in.getparams()
@@ -378,7 +487,18 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     data_samples_needed = len(data_bits) // bits_per_sample
 
     scatter_info = ""
-    if vortex and data_samples_needed > 0:
+    if chirp_sync and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        chirp_peaks = _load_or_detect_chirp_peaks(carrier_path, samples)
+        chirp_map = _generate_chirp_map(samples, data_samples_needed, chirp_peaks,
+                                        passphrase, lsb_depth, data_start, total_samples)
+        bit_offset = 0
+        for (pos, chunk_len) in chirp_map:
+            chunk_bits = data_bits[bit_offset * bits_per_sample:(bit_offset + chunk_len) * bits_per_sample]
+            _embed_bits_at(samples, chunk_bits, pos, chunk_len, lsb_depth)
+            bit_offset += chunk_len
+        scatter_info = f"\n         Chirp Sync: Active ({len(chirp_map)} chunks synced to {len(chirp_peaks)} chirp peaks)"
+    elif vortex and data_samples_needed > 0:
         data_start = ghost_offset + header_samples
         vortex_map = _generate_vortex_map(passphrase, data_samples_needed,
                                           data_start, total_samples)
@@ -411,6 +531,9 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     with wave.open(output_path, "wb") as wav_out:
         wav_out.setparams(params)
         wav_out.writeframes(modified_frames)
+
+    if chirp_sync:
+        _copy_chirpmap_sidecar(carrier_path, output_path)
 
     full_payload_size = HEADER_SIZE + len(payload)
     usage_pct = (total_bits / capacity) * 100
@@ -603,12 +726,14 @@ def _generate_pn_sequence(passphrase: str, length: int) -> np.ndarray:
 
 def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: str,
                   output_path: str, lsb_depth: int = 1, passphrase: str | None = None,
-                  jitter: bool = False, vortex: bool = False) -> str:
+                  jitter: bool = False, vortex: bool = False,
+                  chirp_sync: bool = False) -> str:
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")
 
-    if jitter and vortex:
-        raise ValueError("Cannot use both jitter and vortex modes simultaneously")
+    active_modes = sum([jitter, vortex, chirp_sync])
+    if active_modes > 1:
+        raise ValueError("Cannot use multiple scatter modes simultaneously (jitter, vortex, chirp_sync are mutually exclusive)")
 
     with wave.open(carrier_path, "rb") as wav_in:
         params = wav_in.getparams()
@@ -633,7 +758,7 @@ def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: 
     key = _derive_key(passphrase)
     checksum = _compute_md5(payload)
     header = _build_header(file_name, extension, len(payload), checksum, key,
-                           jitter=jitter, vortex=vortex)
+                           jitter=jitter, vortex=vortex, chirp_sync=chirp_sync)
 
     bits_per_sample = lsb_depth
     ghost_offset = _compute_ghost_offset(passphrase, total_samples)
@@ -669,7 +794,18 @@ def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: 
     data_samples_needed = len(data_bits) // bits_per_sample
 
     scatter_info = ""
-    if vortex and data_samples_needed > 0:
+    if chirp_sync and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        chirp_peaks = _load_or_detect_chirp_peaks(carrier_path, right)
+        chirp_map = _generate_chirp_map(right, data_samples_needed, chirp_peaks,
+                                        passphrase, lsb_depth, data_start, total_samples)
+        bit_offset = 0
+        for (pos, chunk_len) in chirp_map:
+            chunk_bits = data_bits[bit_offset * bits_per_sample:(bit_offset + chunk_len) * bits_per_sample]
+            _embed_bits_at(right, chunk_bits, pos, chunk_len, lsb_depth)
+            bit_offset += chunk_len
+        scatter_info = f"\n         Chirp Sync: Active ({len(chirp_map)} chunks synced to {len(chirp_peaks)} chirp peaks)"
+    elif vortex and data_samples_needed > 0:
         data_start = ghost_offset + header_samples
         vortex_map = _generate_vortex_map(passphrase, data_samples_needed,
                                           data_start, total_samples)
@@ -698,6 +834,9 @@ def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: 
     with wave.open(output_path, "wb") as wav_out:
         wav_out.setparams(params)
         wav_out.writeframes(all_samples.tobytes())
+
+    if chirp_sync:
+        _copy_chirpmap_sidecar(carrier_path, output_path)
 
     full_payload_size = HEADER_SIZE + len(payload)
     capacity = total_samples * bits_per_sample
@@ -745,11 +884,22 @@ def decode_stereo(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple
     header_raw_bits = _extract_bits_at(right, ghost_offset, header_samples, lsb_depth)
     header_bits = header_raw_bits[:HEADER_SIZE * 8]
     header_bytes = np.packbits(header_bits).tobytes()[:HEADER_SIZE]
-    name_ext, data_size, stored_checksum, has_jitter, has_vortex = _parse_header(header_bytes, key)
+    name_ext, data_size, stored_checksum, has_jitter, has_vortex, has_chirp_sync = _parse_header(header_bytes, key)
 
     data_samples_needed = (data_size * 8 + bits_per_sample - 1) // bits_per_sample
 
-    if has_vortex and data_samples_needed > 0:
+    if has_chirp_sync and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        chirp_peaks = _load_or_detect_chirp_peaks(stego_path, right)
+        chirp_map = _generate_chirp_map(right, data_samples_needed, chirp_peaks,
+                                        passphrase, lsb_depth, data_start, total_samples)
+        collected_bits = []
+        for (pos, chunk_len) in chirp_map:
+            chunk_raw = _extract_bits_at(right, pos, chunk_len, lsb_depth)
+            collected_bits.append(chunk_raw)
+        all_data_bits = np.concatenate(collected_bits)[:data_size * 8]
+        jitter_info = f" (Chirp Sync: {len(chirp_map)} chunks)"
+    elif has_vortex and data_samples_needed > 0:
         data_start = ghost_offset + header_samples
         vortex_map = _generate_vortex_map(passphrase, data_samples_needed,
                                           data_start, total_samples)
@@ -820,11 +970,22 @@ def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes,
     header_raw_bits = _extract_bits_at(samples, ghost_offset, header_samples, lsb_depth)
     header_bits = header_raw_bits[:HEADER_SIZE * 8]
     header_bytes = np.packbits(header_bits).tobytes()[:HEADER_SIZE]
-    name_ext, data_size, stored_checksum, has_jitter, has_vortex = _parse_header(header_bytes, key)
+    name_ext, data_size, stored_checksum, has_jitter, has_vortex, has_chirp_sync = _parse_header(header_bytes, key)
 
     data_samples_needed = (data_size * 8 + bits_per_sample - 1) // bits_per_sample
 
-    if has_vortex and data_samples_needed > 0:
+    if has_chirp_sync and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        chirp_peaks = _load_or_detect_chirp_peaks(stego_path, samples)
+        chirp_map = _generate_chirp_map(samples, data_samples_needed, chirp_peaks,
+                                        passphrase, lsb_depth, data_start, total_samples)
+        collected_bits = []
+        for (pos, chunk_len) in chirp_map:
+            chunk_raw = _extract_bits_at(samples, pos, chunk_len, lsb_depth)
+            collected_bits.append(chunk_raw)
+        all_data_bits = np.concatenate(collected_bits)[:data_size * 8]
+        jitter_info = f" (Chirp Sync: {len(chirp_map)} chunks)"
+    elif has_vortex and data_samples_needed > 0:
         data_start = ghost_offset + header_samples
         vortex_map = _generate_vortex_map(passphrase, data_samples_needed,
                                           data_start, total_samples)

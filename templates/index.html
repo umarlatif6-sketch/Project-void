@@ -42,6 +42,58 @@
             <h2>Encode — Hide a file inside audio</h2>
             <p class="desc">Select a carrier WAV and a file to hide. The engine will compress, encrypt, and embed your data using LSB steganography.</p>
 
+            <div class="collapsible-panel">
+                <button class="collapsible-toggle" id="gen-carrier-toggle" type="button">
+                    <span class="toggle-icon">&#9654;</span> Generate Carrier
+                </button>
+                <div class="collapsible-body" id="gen-carrier-body" style="display:none;">
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <div class="duration-presets">
+                            <button type="button" class="preset-btn" data-dur="10">10 min</button>
+                            <button type="button" class="preset-btn" data-dur="30">30 min</button>
+                            <button type="button" class="preset-btn active" data-dur="60">1 hr</button>
+                            <button type="button" class="preset-btn" data-dur="180">3 hr</button>
+                            <button type="button" class="preset-btn" data-dur="300">5 hr</button>
+                        </div>
+                        <input type="number" id="gen-duration" value="60" min="1" max="300" class="input-field" style="width:100px; margin-top:6px;">
+                        <span class="hint">minutes</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Sound Style</label>
+                        <select id="gen-style" class="input-field">
+                            <optgroup label="Classic">
+                                <option value="drone">Ambient Drone</option>
+                                <option value="harmonic">Harmonic Mix</option>
+                                <option value="pink_noise">Pink Noise</option>
+                                <option value="stereo_pocket">Stereo Pocket</option>
+                            </optgroup>
+                            <optgroup label="Insect-Pulse">
+                                <option value="cicada_wall">Cicada Wall (max density)</option>
+                                <option value="cricket_pulse">Cricket Pulse (rhythmic)</option>
+                            </optgroup>
+                            <optgroup label="Biophony Mesh">
+                                <option value="midnight_pond" selected>Midnight Pond (full 10-20-970)</option>
+                                <option value="biophony_mesh">Biophony Mesh (alias)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div id="gen-estimate" class="estimate-panel" style="display:none;">
+                        <div class="estimate-header">Capacity Estimate</div>
+                        <div class="estimate-grid">
+                            <div class="estimate-item"><span class="label">WAV Size</span><span id="est-wav-size" class="value">—</span></div>
+                            <div class="estimate-item"><span class="label">LSB1 Capacity</span><span id="est-lsb1" class="value">—</span></div>
+                            <div class="estimate-item"><span class="label">LSB2 Capacity</span><span id="est-lsb2" class="value">—</span></div>
+                            <div class="estimate-item"><span class="label">Effective LSB2</span><span id="est-effective" class="value">—</span></div>
+                        </div>
+                        <div id="est-density-badge" class="density-badge" style="display:none;"></div>
+                        <div id="est-shelf-info" class="shelf-info" style="display:none;"></div>
+                    </div>
+                    <button type="button" id="gen-carrier-btn" class="btn-primary" style="margin-top:8px;">Generate Carrier</button>
+                    <div id="gen-carrier-status" class="gen-status" style="display:none;"></div>
+                </div>
+            </div>
+
             <div class="upload-zone" id="upload-zone-encode">
                 <div class="upload-icon">&#8682;</div>
                 <p>Drag & drop files here or <label for="file-upload-encode" class="upload-link">browse</label></p>
@@ -73,6 +125,7 @@
                     <label class="radio-label"><input type="radio" name="scatter-mode" value="linear" checked> Linear <span class="hint">— Standard sequential embedding</span></label>
                     <label class="radio-label"><input type="radio" name="scatter-mode" value="jitter"> Fly Jitter <span class="hint">— Anti-forensic temporal scatter</span></label>
                     <label class="radio-label"><input type="radio" name="scatter-mode" value="vortex"> Vortex <span class="hint">— 432 Hz harmonic spiral (Divided Optimum)</span></label>
+                    <label class="radio-label"><input type="radio" name="scatter-mode" value="chirp_sync"> Chirp Sync <span class="hint">— Sync data to chirp peaks (Insect-Pulse / Biophony carriers)</span></label>
                 </div>
             </div>
             <button id="encode-btn" class="btn-primary">Encode File</button>

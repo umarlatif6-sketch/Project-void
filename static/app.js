@@ -102,6 +102,114 @@ document.addEventListener("DOMContentLoaded", () => {
         fitEl.style.display = "block";
     }
 
+    const genToggle = document.getElementById("gen-carrier-toggle");
+    const genBody = document.getElementById("gen-carrier-body");
+    if (genToggle && genBody) {
+        genToggle.addEventListener("click", () => {
+            const open = genBody.style.display !== "none";
+            genBody.style.display = open ? "none" : "block";
+            genToggle.querySelector(".toggle-icon").textContent = open ? "\u25B6" : "\u25BC";
+            if (!open) updateEstimate();
+        });
+    }
+
+    document.querySelectorAll(".preset-btn[data-dur]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".preset-btn[data-dur]").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            document.getElementById("gen-duration").value = btn.dataset.dur;
+            updateEstimate();
+        });
+    });
+
+    const genDuration = document.getElementById("gen-duration");
+    const genStyle = document.getElementById("gen-style");
+    if (genDuration) genDuration.addEventListener("change", updateEstimate);
+    if (genStyle) genStyle.addEventListener("change", updateEstimate);
+
+    async function updateEstimate() {
+        const dur = parseFloat(document.getElementById("gen-duration").value) || 1;
+        const style = document.getElementById("gen-style").value;
+        const panel = document.getElementById("gen-estimate");
+        try {
+            const res = await fetch(`/api/carrier-estimate?duration=${dur}&style=${style}`);
+            const d = await res.json();
+            if (!d.success) return;
+            panel.style.display = "block";
+            document.getElementById("est-wav-size").textContent = formatSize(d.wav_size);
+            document.getElementById("est-lsb1").textContent = formatSize(d.raw_lsb1);
+            document.getElementById("est-lsb2").textContent = formatSize(d.raw_lsb2);
+            document.getElementById("est-effective").textContent = formatSize(d.effective_lsb2);
+
+            const badge = document.getElementById("est-density-badge");
+            if (d.density_multiplier > 1) {
+                badge.textContent = d.density_multiplier + "x DENSITY";
+                badge.style.display = "inline-block";
+            } else {
+                badge.style.display = "none";
+            }
+
+            const shelfEl = document.getElementById("est-shelf-info");
+            if (d.shelf_breakdown) {
+                const sb = d.shelf_breakdown;
+                shelfEl.innerHTML = '<strong>Shelf Breakdown:</strong><br>' +
+                    'Whales: heavy data blocks | Birds: parity headers | Insects: compressed silt';
+                shelfEl.style.display = "block";
+            } else {
+                shelfEl.style.display = "none";
+            }
+        } catch(e) { /* silent */ }
+    }
+
+    const genBtn = document.getElementById("gen-carrier-btn");
+    if (genBtn) {
+        genBtn.addEventListener("click", async () => {
+            const dur = parseFloat(document.getElementById("gen-duration").value) || 1;
+            const style = document.getElementById("gen-style").value;
+            const statusEl = document.getElementById("gen-carrier-status");
+
+            genBtn.disabled = true;
+            genBtn.innerHTML = '<span class="spinner"></span>Generating...';
+            statusEl.style.display = "block";
+            statusEl.className = "gen-status";
+            statusEl.textContent = "Synthesizing " + style + " carrier (" + dur + " min)...";
+
+            try {
+                const res = await fetch("/api/generate-carrier", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ duration_minutes: dur, style }),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    statusEl.className = "gen-status gen-success";
+                    statusEl.innerHTML = 'Generated: <strong>' + data.filename + '</strong> (' +
+                        formatSize(data.file_size) + ')' +
+                        (data.chirp_count ? ' | ' + data.chirp_count.toLocaleString() + ' chirp peaks' : '');
+                    showToast("Carrier generated: " + data.filename, "success");
+                    await loadSelects();
+                    const carrierSel = document.getElementById("carrier-select");
+                    for (let i = 0; i < carrierSel.options.length; i++) {
+                        if (carrierSel.options[i].value === data.filename) {
+                            carrierSel.selectedIndex = i;
+                            break;
+                        }
+                    }
+                } else {
+                    statusEl.className = "gen-status gen-error";
+                    statusEl.textContent = data.error || "Generation failed";
+                    showToast(data.error || "Generation failed", "error");
+                }
+            } catch(e) {
+                statusEl.className = "gen-status gen-error";
+                statusEl.textContent = "Request failed: " + e.message;
+            } finally {
+                genBtn.disabled = false;
+                genBtn.innerHTML = "Generate Carrier";
+            }
+        });
+    }
+
     function updateStegoSelect(data) {
         const stego = document.getElementById("stego-select");
         const source = document.querySelector('input[name="decode-source"]:checked').value;
@@ -255,6 +363,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const scatterMode = document.querySelector('input[name="scatter-mode"]:checked').value;
         const jitter = scatterMode === "jitter";
         const vortex = scatterMode === "vortex";
+        const chirp_sync = scatterMode === "chirp_sync";
         const btn = document.getElementById("encode-btn");
 
         if (!carrier || !payload) {
@@ -271,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("/api/encode", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ carrier, payload, lsb_depth: parseInt(lsb), jitter, vortex }),
+                body: JSON.stringify({ carrier, payload, lsb_depth: parseInt(lsb), jitter, vortex, chirp_sync }),
             });
             const data = await res.json();
 

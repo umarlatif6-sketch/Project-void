@@ -24,6 +24,7 @@ from void_engine.rituals import RitualHistory, AutoHealDaemon, RITUAL_TYPES
 from void_engine.chronicle import RootChronicle
 from void_engine.founder_certs import create_founder_cert, batch_generate_certs, FOUNDER_ROOT_HASH
 from void_engine.divided_protocol import DividedProtocol
+from generate_carriers import generate_custom_carrier, estimate_carrier_capacity, ALL_STYLES
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -104,6 +105,7 @@ def encode_file():
     lsb_depth = int(data.get("lsb_depth", 1))
     jitter = bool(data.get("jitter", False))
     vortex = bool(data.get("vortex", False))
+    chirp_sync = bool(data.get("chirp_sync", False))
 
     if not carrier or not payload:
         return jsonify({"error": "Carrier and payload files are required"}), 400
@@ -128,11 +130,11 @@ def encode_file():
         is_stereo = n_channels == 2
 
         if is_stereo:
-            hash_key = encode_stereo(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter, vortex=vortex)
+            hash_key = encode_stereo(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter, vortex=vortex, chirp_sync=chirp_sync)
         else:
-            hash_key = encode(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter, vortex=vortex)
+            hash_key = encode(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter, vortex=vortex, chirp_sync=chirp_sync)
 
-        scatter_mode = "vortex" if vortex else ("jitter" if jitter else "linear")
+        scatter_mode = "chirp_sync" if chirp_sync else ("vortex" if vortex else ("jitter" if jitter else "linear"))
         _log_operation("ENCODE", output_name, hash_key, f"LSB{lsb_depth}/{scatter_mode}")
 
         info = analyze_carrier(carrier_path)
@@ -161,6 +163,7 @@ def encode_file():
             "lsb_depth": lsb_depth,
             "jitter": jitter,
             "vortex": vortex,
+            "chirp_sync": chirp_sync,
             "scatter_mode": scatter_mode,
             "bubble_status": bubble_status,
             "bubble_warning": bubble_warning,
@@ -1378,6 +1381,51 @@ def divided_execute():
         return jsonify(result), status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/generate-carrier", methods=["POST"])
+def api_generate_carrier():
+    data = request.json or {}
+    duration_minutes = data.get("duration_minutes")
+    style = data.get("style")
+
+    if not duration_minutes or not style:
+        return jsonify({"error": "duration_minutes and style are required"}), 400
+
+    try:
+        duration_minutes = float(duration_minutes)
+    except (ValueError, TypeError):
+        return jsonify({"error": "duration_minutes must be a number"}), 400
+
+    if style not in ALL_STYLES:
+        return jsonify({"error": f"Unknown style '{style}'. Valid: {sorted(ALL_STYLES)}"}), 400
+
+    try:
+        result = generate_custom_carrier(duration_minutes, style)
+        return jsonify({"success": True, **result})
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Generation failed: {str(e)}"}), 500
+
+
+@app.route("/api/carrier-estimate")
+def api_carrier_estimate():
+    try:
+        duration = float(request.args.get("duration", 1))
+    except (ValueError, TypeError):
+        return jsonify({"error": "duration must be a number"}), 400
+
+    style = request.args.get("style", "drone")
+
+    if style not in ALL_STYLES:
+        return jsonify({"error": f"Unknown style '{style}'. Valid: {sorted(ALL_STYLES)}"}), 400
+
+    try:
+        result = estimate_carrier_capacity(duration, style)
+        return jsonify({"success": True, **result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 _start_time = __import__("time").time()

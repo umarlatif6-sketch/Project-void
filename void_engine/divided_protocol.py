@@ -14,15 +14,63 @@ Each step returns a status. The protocol short-circuits on failure.
 import os
 import time
 import wave
+import numpy as np
 from typing import Dict, Optional
 
 from void_engine.stega import encode, encode_stereo, check_resonance_purity, VILLAGE_STANDARD_HZ
 from void_engine.calculator import analyze_carrier
 from void_engine.compressor import compress_file
 
-PROTOCOL_VERSION = "1.0"
+PROTOCOL_VERSION = "1.1"
 RESONANCE_THRESHOLD = 5.0
 RADIANCE_MOTION_THRESHOLD = 3000
+
+
+def _detect_biophony_carrier(carrier_path: str) -> Dict:
+    chirpmap_path = carrier_path.replace(".wav", ".chirpmap.npy")
+    has_chirpmap = os.path.exists(chirpmap_path)
+
+    with wave.open(carrier_path, "rb") as wf:
+        sr = wf.getframerate()
+        n_frames = wf.getnframes()
+        n_ch = wf.getnchannels()
+        raw = wf.readframes(min(n_frames, sr * 5))
+
+    samples = np.frombuffer(raw, dtype=np.int16).astype(np.float64)
+    if n_ch > 1:
+        samples = samples[::n_ch]
+
+    window_size = min(len(samples), 16384)
+    segment = samples[:window_size]
+    windowed = segment * np.hanning(len(segment))
+    spectrum = np.abs(np.fft.rfft(windowed))
+    freqs = np.fft.rfftfreq(len(segment), 1.0 / sr)
+
+    low_mask = (freqs >= 15) & (freqs <= 50)
+    mid_mask = (freqs >= 300) & (freqs <= 800)
+    high_mask = (freqs >= 2000) & (freqs <= 12000)
+
+    total_power = np.mean(spectrum ** 2) + 1e-10
+    low_power = np.mean(spectrum[low_mask] ** 2) if np.any(low_mask) else 0
+    mid_power = np.mean(spectrum[mid_mask] ** 2) if np.any(mid_mask) else 0
+    high_power = np.mean(spectrum[high_mask] ** 2) if np.any(high_mask) else 0
+
+    low_ratio = low_power / total_power
+    mid_ratio = mid_power / total_power
+    high_ratio = high_power / total_power
+
+    biophony_active = has_chirpmap or (high_ratio > 0.05)
+    sapphire_thread = (low_ratio > 0.01 and mid_ratio > 0.01 and high_ratio > 0.05)
+
+    return {
+        "is_biophony": biophony_active,
+        "has_chirpmap": has_chirpmap,
+        "sapphire_thread": sapphire_thread,
+        "low_shelf_ratio": round(float(low_ratio), 4),
+        "mid_shelf_ratio": round(float(mid_ratio), 4),
+        "high_shelf_ratio": round(float(high_ratio), 4),
+        "chirpmap_path": chirpmap_path if has_chirpmap else None,
+    }
 
 
 class ProtocolStep:
@@ -147,7 +195,8 @@ class DividedProtocol:
         if overall_success and final_result:
             run_result["hash_key"] = final_result.get("hash_key")
             run_result["output_file"] = final_result.get("output_file")
-            run_result["scatter_mode"] = "vortex"
+            run_result["scatter_mode"] = final_result.get("scatter_mode", "vortex")
+            run_result["biophony_carrier"] = final_result.get("biophony_carrier", False)
 
         self._last_run = {
             "timestamp": time.time(),
@@ -219,14 +268,28 @@ class DividedProtocol:
         purity = check_resonance_purity(carrier_path)
         has_glow = purity.get("snr_432hz_db", 0) > 0
 
-        axiom_result = "PASS" if motion_active else "CONDITIONAL"
+        biophony = _detect_biophony_carrier(carrier_path)
+        biophony_active = biophony["is_biophony"]
+        sapphire_thread = biophony["sapphire_thread"]
 
-        if not motion_active and not has_glow:
+        if biophony_active:
+            glow_level = "MAX_GLOW" if sapphire_thread else "GLOW"
+            axiom_result = "PASS"
+        elif motion_active:
+            glow_level = "GLOW"
+            axiom_result = "PASS"
+        else:
+            glow_level = "DIM"
+            axiom_result = "CONDITIONAL"
+
+        if not motion_active and not has_glow and not biophony_active:
             axiom_result = "BLOCKAGE"
             raise RuntimeError(
                 f"ZHR.V BLOCKAGE — Motion (TRK: {rpm} RPM) below threshold "
                 f"and no glow detected. Mechanical blockage suspected."
             )
+
+        self._biophony_info = biophony
 
         return {
             "axiom": "if TRK.A > threshold then ZHR.A",
@@ -234,8 +297,16 @@ class DividedProtocol:
             "motion_threshold": RADIANCE_MOTION_THRESHOLD,
             "motion_active": motion_active,
             "glow_detected": has_glow,
+            "glow_level": glow_level,
             "glow_snr_db": round(purity.get("snr_432hz_db", 0), 2),
             "axiom_result": axiom_result,
+            "biophony_active": biophony_active,
+            "sapphire_thread": sapphire_thread,
+            "shelf_ratios": {
+                "low": biophony["low_shelf_ratio"],
+                "mid": biophony["mid_shelf_ratio"],
+                "high": biophony["high_shelf_ratio"],
+            },
         }
 
     def _step_inject(self, carrier_path: str, payload_path: str,
@@ -258,15 +329,23 @@ class DividedProtocol:
         with wave.open(carrier_path, "rb") as wf:
             n_channels = wf.getnchannels()
 
+        biophony = getattr(self, "_biophony_info", None)
+        use_chirp_sync = biophony and biophony.get("has_chirpmap", False)
+        scatter_mode = "chirp_sync" if use_chirp_sync else "vortex"
+
         if n_channels == 2:
             hash_key = encode_stereo(
                 carrier_path, compressed, name, ext, output_path,
-                lsb_depth, vortex=True
+                lsb_depth,
+                vortex=(not use_chirp_sync),
+                chirp_sync=use_chirp_sync
             )
         else:
             hash_key = encode(
                 carrier_path, compressed, name, ext, output_path,
-                lsb_depth, vortex=True
+                lsb_depth,
+                vortex=(not use_chirp_sync),
+                chirp_sync=use_chirp_sync
             )
 
         output_size = os.path.getsize(output_path) if os.path.exists(output_path) else 0
@@ -279,8 +358,9 @@ class DividedProtocol:
             "compressed_size": len(compressed),
             "output_size": output_size,
             "lsb_depth": lsb_depth,
-            "scatter_mode": "vortex",
+            "scatter_mode": scatter_mode,
             "stereo": n_channels == 2,
+            "biophony_carrier": use_chirp_sync,
         }
 
     def _step_commit(self, inject_result: Dict) -> Dict:

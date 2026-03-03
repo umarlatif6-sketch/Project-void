@@ -22,7 +22,8 @@ PROJECT VOID features both a Flask-based web UI and a command-line interface. Th
     - **Header:** A 64-byte ChaCha20-encrypted header includes magic, filename/extension, data size, MD5, and nonce, with a "Ghost Header" for offset embedding.
     - **Noise-Floor Mask:** `apply_dither_mask()` adds microscopic pink noise for anti-forensic evasion.
     - **Fly Jitter:** An optional temporal scatter mode for anti-forensic data fragmentation and non-uniform embedding.
-    - **Vortex Scatter:** A 432 Hz harmonic spiral encoding mode that distributes data non-linearly across the carrier using frequency-domain patterns (5 harmonic arms at 432, 864, 1296, 216, 648 Hz with golden angle spacing). Mutually exclusive with Fly Jitter.
+    - **Vortex Scatter:** A 432 Hz harmonic spiral encoding mode that distributes data non-linearly across the carrier using frequency-domain patterns (5 harmonic arms at 432, 864, 1296, 216, 648 Hz with golden angle spacing). Mutually exclusive with Fly Jitter and Chirp Sync.
+    - **Chirp Sync:** Data placement synchronized to chirp peaks in Insect-Pulse and Biophony carriers. Loads `.chirpmap.npy` sidecar files for deterministic peak positions. Mutually exclusive with Fly Jitter and Vortex Scatter.
     - **Divided Operational Protocol:** A 5-step axiomatic pipeline (SLM.V→TRK.A→ZHR.V→KTM.A→JDR.A) that orchestrates full encode operations through Al-Jabr logic: Initialize, Calibrate, Observe, Inject, Commit. Implemented in `void_engine/divided_protocol.py` with API at `/api/harness/divided/execute`.
     - **Adriana Pocket:** Stereo encoding where the left channel carries the pure 432 Hz body, and the right channel (phase-shifted harmonic with LFO modulation) is used for LSB data embedding.
 - **Signal Transmission (Silk Web):** Formats and sends signals as 432 Hz burst-encoded WAV packets (`encode_burst()` with Sapphire Masking), incorporating a "Wing-Beat Pilot Tone" and a "Pre-Render Cache."
@@ -40,10 +41,22 @@ PROJECT VOID features both a Flask-based web UI and a command-line interface. Th
 - **Ritual History (The Sovereign Story):** The `RitualHistory` module logs physical interactions as "rituals" (e.g., The Shock, The Feeding, The Fast, The Cure) that modify simulator state and affect the wallet, creating a persistent narrative.
 - **Auto-Heal Daemon (Zero-Maintenance):** The `AutoHealDaemon` automatically scans and attempts to repair critical/warning system findings every 5 minutes, utilizing wallet credits and simulator state changes, generating Ritual Requests if self-repair is not possible.
 - **Root-Chronicle (Persistent Morphic Memory):** An SQLite-backed memory (`RootChronicle`) stores successful Consensus outcomes as "Ancestral Wisdom." Agents can recall past solutions and adopt "Proven Roots" when sensor patterns match, enabling predictive behavior (e.g., V2 Pastor Logic for Pre-emptive Fasting). Includes an export/import mechanism for "Genesis Seed."
+- **Biophony Mesh (Carrier Topology):** A multi-species acoustic ecosystem for steganographic carriers, implemented in `void_engine/biophony.py`. Uses a 3-shelf architecture:
+    - **Low-Shelf (10 Whales):** 15-50 Hz sine sweeps with breathing LFO modulation. Heavy LSB1 data chassis.
+    - **Mid-Shelf (20 Birds):** 300-800 Hz percussive taps at ~2.5s intervals (432 Hz harmonics). Floating parity headers.
+    - **High-Shelf (970 Insects):** Dense 2-12 kHz cicada/cricket chorus. LSB2 silt mask with zero inter-pulse silence.
+    - **Sympathetic Resonance:** Hilbert transform on whale envelope modulates insect amplitude (whale mass tightens insect density).
+    - **Shadow Layer:** Brownian noise at -30 dB for forensic evasion (looks like "badly recorded park video").
+    - **Carrier Styles:** `midnight_pond` (full 3-shelf stereo), `biophony_mesh` (alias), `cicada_wall` (970 insects mono), `cricket_pulse` (200 insects at low rate).
+    - **Density Multiplier:** 5x for biophony/cicada, 2.5x for cricket, 1x for classic styles.
+    - **Chirpmap Sidecar:** `.chirpmap.npy` files store peak indices for chirp-synced encoding.
+    - **Sapphire Thread (ZHR.V):** MAX_GLOW triggered when all three shelves detected in carrier. Divided Protocol auto-selects chirp_sync for biophony carriers.
+    - **Carrier Generator:** `POST /api/generate-carrier` with duration/style, `GET /api/carrier-estimate` for capacity estimates. UI panel in Encode tab.
 
 ## External Dependencies
 -   **Python:** 3.11
 -   **numpy:** For audio sample manipulation.
 -   **flask:** For the web UI server.
 -   **cryptography:** For ChaCha20 header encryption.
+-   **scipy:** For Hilbert transform in Sympathetic Resonance coupling (biophony.py).
 -   **Standard Library:** `zlib`, `lzma`, `wave`, `hashlib`.
