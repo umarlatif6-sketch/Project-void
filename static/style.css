@@ -2745,6 +2745,37 @@ body.sapphire-bubble-mode::before {
     color: var(--text-muted); font-style: italic;
 }
 
+.field-hint {
+    margin: 4px 0 0 0; font-size: 11px; color: var(--text-muted);
+    letter-spacing: 0.3px;
+}
+.fit-check {
+    margin: 8px 0 12px 0; padding: 10px 14px; border-radius: 6px;
+    font-size: 13px; letter-spacing: 0.4px; line-height: 1.5;
+}
+.fit-check.fit-ok {
+    background: rgba(0, 255, 136, 0.08); border: 1px solid rgba(0, 255, 136, 0.3);
+    color: #00ff88;
+}
+.fit-check.fit-warn {
+    background: rgba(255, 200, 0, 0.08); border: 1px solid rgba(255, 200, 0, 0.3);
+    color: #ffc800;
+}
+.fit-check.fit-fail {
+    background: rgba(255, 60, 60, 0.08); border: 1px solid rgba(255, 60, 60, 0.4);
+    color: #ff4444;
+}
+.fit-check .fit-icon { font-size: 16px; margin-right: 6px; }
+.inline-error {
+    margin: 12px 0; padding: 14px 18px; border-radius: 6px;
+    background: rgba(255, 40, 40, 0.1); border: 1px solid rgba(255, 40, 40, 0.4);
+    color: #ff5555; font-size: 13px; line-height: 1.6; letter-spacing: 0.3px;
+}
+.inline-error .error-title {
+    font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #ff4444;
+    text-transform: uppercase; letter-spacing: 1px;
+}
+
 @media (max-width: 700px) {
     .harness-grid { grid-template-columns: 1fr; }
     .sensor-grid { grid-template-columns: 1fr; }

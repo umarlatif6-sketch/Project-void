@@ -24,12 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return bytes.toLocaleString() + " B";
     }
 
-    function showToast(msg, type) {
+    function showToast(msg, type, duration) {
         const toast = document.getElementById("toast");
         toast.textContent = msg;
         toast.className = "toast show " + (type || "");
         clearTimeout(toast._timeout);
-        toast._timeout = setTimeout(() => toast.className = "toast", 4000);
+        const dur = duration || (type === "error" ? 8000 : 4000);
+        toast._timeout = setTimeout(() => toast.className = "toast", dur);
     }
 
     async function fetchFiles() {
@@ -49,12 +50,56 @@ document.addEventListener("DOMContentLoaded", () => {
             : '<option value="">No WAV files in input_files/</option>';
 
         payload.innerHTML = data.input.length
-            ? data.input.map(f => `<option value="${f.name}">${f.name} (${formatSize(f.size)})</option>`).join("")
+            ? data.input.map(f => {
+                const isWav = f.name.toLowerCase().endsWith(".wav");
+                const tag = isWav ? " [WAV AUDIO]" : "";
+                return `<option value="${f.name}">${f.name} (${formatSize(f.size)})${tag}</option>`;
+            }).join("")
             : '<option value="">No files in input_files/</option>';
 
         updateStegoSelect(data);
         updateCapSelect(data);
         updateVizSelect(data);
+        checkEncodeFit(data);
+    }
+
+    let _lastFileData = null;
+    function checkEncodeFit(fileData) {
+        if (fileData) _lastFileData = fileData;
+        if (!_lastFileData) return;
+        const fitEl = document.getElementById("encode-fit-check");
+        const carrier = document.getElementById("carrier-select").value;
+        const payloadName = document.getElementById("payload-select").value;
+        const lsb = parseInt(document.querySelector('input[name="lsb-encode"]:checked').value);
+
+        if (!carrier || !payloadName) { fitEl.style.display = "none"; return; }
+
+        const carrierFile = _lastFileData.input.find(f => f.name === carrier);
+        const payloadFile = _lastFileData.input.find(f => f.name === payloadName);
+        if (!carrierFile || !payloadFile) { fitEl.style.display = "none"; return; }
+
+        const carrierSamples = Math.floor((carrierFile.size - 44) / 2);
+        const ghostOffset = Math.floor(carrierSamples * 0.02);
+        const usableSamples = carrierSamples - ghostOffset;
+        const capacityBits = usableSamples * lsb;
+        const headerBytes = 64;
+        const capacityBytes = Math.max(0, Math.floor(capacityBits / 8) - headerBytes);
+        const payloadBytes = payloadFile.size;
+
+        if (capacityBytes === 0) {
+            fitEl.className = "fit-check fit-fail";
+            fitEl.innerHTML = '<span class="fit-icon">&#10006;</span> Carrier too small — no usable capacity for data embedding.';
+        } else if (payloadBytes <= capacityBytes * 0.5) {
+            fitEl.className = "fit-check fit-ok";
+            fitEl.innerHTML = '<span class="fit-icon">&#9679;</span> Payload fits comfortably — ' + formatSize(payloadBytes) + ' payload vs ' + formatSize(capacityBytes) + ' capacity at LSB ' + lsb + ' (compression will reduce further)';
+        } else if (payloadBytes <= capacityBytes) {
+            fitEl.className = "fit-check fit-warn";
+            fitEl.innerHTML = '<span class="fit-icon">&#9888;</span> Tight fit — ' + formatSize(payloadBytes) + ' payload vs ' + formatSize(capacityBytes) + ' capacity at LSB ' + lsb + '. May work if compression is effective.';
+        } else {
+            fitEl.className = "fit-check fit-fail";
+            fitEl.innerHTML = '<span class="fit-icon">&#10006;</span> Payload too large — ' + formatSize(payloadBytes) + ' payload exceeds ' + formatSize(capacityBytes) + ' capacity at LSB ' + lsb + '. Use a longer carrier WAV or switch to LSB Depth 2.';
+        }
+        fitEl.style.display = "block";
     }
 
     function updateStegoSelect(data) {
@@ -193,6 +238,16 @@ document.addEventListener("DOMContentLoaded", () => {
     let lastEncodedFile = null;
     let lastDecodedFile = null;
 
+    document.getElementById("carrier-select").addEventListener("change", () => checkEncodeFit());
+    document.getElementById("payload-select").addEventListener("change", () => checkEncodeFit());
+    document.querySelectorAll('input[name="lsb-encode"]').forEach(r => r.addEventListener("change", () => checkEncodeFit()));
+
+    function showInlineError(elementId, message) {
+        const el = document.getElementById(elementId);
+        el.innerHTML = '<div class="error-title">Error</div>' + message;
+        el.style.display = "block";
+    }
+
     document.getElementById("encode-btn").addEventListener("click", async () => {
         const carrier = document.getElementById("carrier-select").value;
         const payload = document.getElementById("payload-select").value;
@@ -208,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>Encoding...';
         document.getElementById("encode-result").style.display = "none";
+        document.getElementById("encode-error").style.display = "none";
 
         try {
             const res = await fetch("/api/encode", {
@@ -243,10 +299,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 showToast(toastMsg, data.bubble_status === "burst" ? "error" : "success");
                 loadSelects();
             } else {
-                showToast(data.error, "error");
+                showInlineError("encode-error", data.error || "Unknown encoding error");
+                showToast("Encoding failed — see details below", "error");
             }
         } catch (e) {
-            showToast("Encoding failed: " + e.message, "error");
+            showInlineError("encode-error", "Encoding failed: " + e.message);
+            showToast("Encoding failed — see details below", "error");
         }
 
         btn.disabled = false;
@@ -291,6 +349,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>Decoding...';
         document.getElementById("decode-result").style.display = "none";
+        document.getElementById("decode-error").style.display = "none";
 
         try {
             const res = await fetch("/api/decode", {
@@ -309,10 +368,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 showToast("Decoding complete!", "success");
                 loadSelects();
             } else {
-                showToast(data.error, "error");
+                showInlineError("decode-error", data.error || "Unknown decoding error");
+                showToast("Decoding failed — see details below", "error");
             }
         } catch (e) {
-            showToast("Decoding failed: " + e.message, "error");
+            showInlineError("decode-error", "Decoding failed: " + e.message);
+            showToast("Decoding failed — see details below", "error");
         }
 
         btn.disabled = false;

@@ -57,7 +57,9 @@
             <div class="form-group">
                 <label>File to Hide</label>
                 <select id="payload-select"><option value="">Loading...</option></select>
+                <p class="field-hint">The file you want to conceal inside the carrier. Text, images, and documents work best.</p>
             </div>
+            <div id="encode-fit-check" class="fit-check" style="display:none;"></div>
             <div class="form-group">
                 <label>LSB Depth</label>
                 <div class="radio-group">
@@ -73,6 +75,7 @@
                 </label>
             </div>
             <button id="encode-btn" class="btn-primary">Encode File</button>
+            <div id="encode-error" class="inline-error" style="display:none;"></div>
 
             <div id="encode-result" class="result-box" style="display:none;">
                 <h3>Encoding Complete</h3>
@@ -125,6 +128,7 @@
                 </div>
             </div>
             <button id="decode-btn" class="btn-primary">Decode File</button>
+            <div id="decode-error" class="inline-error" style="display:none;"></div>
 
             <div id="decode-result" class="result-box" style="display:none;">
                 <h3>Decoding Complete</h3>
