@@ -3213,6 +3213,187 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    var meshActive = false;
+    var meshRefreshInterval = null;
+
+    function addMeshLog(event, detail) {
+        var log = document.getElementById("mesh-activity-log");
+        var empty = log.querySelector(".mesh-log-empty");
+        if (empty) empty.remove();
+        var now = new Date();
+        var timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+        var entry = document.createElement("div");
+        entry.className = "mesh-log-entry";
+        entry.innerHTML = '<span class="mesh-log-time">' + timeStr + '</span><span class="mesh-log-event">' + event + '</span><span class="mesh-log-detail">' + detail + '</span>';
+        log.prepend(entry);
+    }
+
+    function updateMeshStateBadge(state) {
+        var badge = document.getElementById("mesh-state-badge");
+        var s = (state || "dark").toLowerCase();
+        badge.textContent = s.toUpperCase();
+        badge.className = "mesh-state-badge state-" + s;
+    }
+
+    function refreshMeshStatus() {
+        fetch("/api/mesh/status").then(function(r) { return r.json(); }).then(function(data) {
+            if (!data.success) return;
+            document.getElementById("mesh-node-id").textContent = data.node_id || "—";
+            document.getElementById("mesh-state-val").textContent = (data.state || "DARK").toUpperCase();
+            document.getElementById("mesh-neighbor-count").textContent = data.neighbor_count || 0;
+            var stats = data.stats || {};
+            document.getElementById("mesh-packets-sent").textContent = stats.packets_sent || 0;
+            document.getElementById("mesh-packets-recv").textContent = stats.packets_received || 0;
+            document.getElementById("mesh-packets-relay").textContent = stats.packets_relayed || 0;
+            document.getElementById("mesh-cc-spent").textContent = (stats.cc_spent || 0).toFixed(1);
+            updateMeshStateBadge(data.state || "dark");
+
+            var grid = document.getElementById("mesh-neighbors-grid");
+            if (data.neighbors && data.neighbors.length > 0) {
+                grid.innerHTML = data.neighbors.map(function(n) {
+                    var signalClass = "mesh-signal-strong";
+                    if (n.signal < 0.5) signalClass = "mesh-signal-weak";
+                    else if (n.signal < 0.8) signalClass = "mesh-signal-medium";
+                    var cardClass = n.state === "dark" ? "mesh-neighbor-card dark" : "mesh-neighbor-card active";
+                    return '<div class="' + cardClass + '">' +
+                        '<div class="mesh-neighbor-id">' + (n.node_id || "unknown") + '</div>' +
+                        '<div class="mesh-neighbor-stat">State: ' + (n.state || "unknown") + '</div>' +
+                        '<div class="mesh-neighbor-stat">Hops: ' + (n.hops || 0) + '</div>' +
+                        '<div class="mesh-signal-bar ' + signalClass + '"></div>' +
+                        '</div>';
+                }).join("");
+            } else {
+                grid.innerHTML = '<div class="mesh-empty">No neighbors detected.</div>';
+            }
+        }).catch(function() {});
+    }
+
+    var meshToggleBtn = document.getElementById("mesh-toggle-btn");
+    if (meshToggleBtn) {
+        meshToggleBtn.addEventListener("click", function() {
+            if (!meshActive) {
+                meshToggleBtn.disabled = true;
+                meshToggleBtn.textContent = "Connecting...";
+                fetch("/api/mesh/connect", { method: "POST", headers: {"Content-Type": "application/json"}, body: "{}" }).then(function(r) { return r.json(); }).then(function(data) {
+                    if (data.success) {
+                        meshActive = true;
+                        meshToggleBtn.textContent = "Leave Sovereign Mesh Mode";
+                        meshToggleBtn.classList.add("active");
+                        document.body.classList.add("beehive-active");
+                        document.getElementById("mesh-send-btn").disabled = false;
+                        addMeshLog("CONNECTED", "Node joined the mesh network");
+                        refreshMeshStatus();
+                        meshRefreshInterval = setInterval(refreshMeshStatus, 5000);
+                        showToast("Sovereign Mesh Mode activated", "success");
+                    } else {
+                        showToast(data.error || "Failed to connect", "error");
+                    }
+                }).catch(function(e) {
+                    showToast("Connection failed: " + e.message, "error");
+                }).finally(function() {
+                    meshToggleBtn.disabled = false;
+                });
+            } else {
+                meshToggleBtn.disabled = true;
+                meshToggleBtn.textContent = "Disconnecting...";
+                fetch("/api/mesh/disconnect", { method: "POST", headers: {"Content-Type": "application/json"}, body: "{}" }).then(function(r) { return r.json(); }).then(function(data) {
+                    meshActive = false;
+                    meshToggleBtn.textContent = "Enter Sovereign Mesh Mode";
+                    meshToggleBtn.classList.remove("active");
+                    document.body.classList.remove("beehive-active");
+                    document.getElementById("mesh-send-btn").disabled = true;
+                    if (meshRefreshInterval) { clearInterval(meshRefreshInterval); meshRefreshInterval = null; }
+                    updateMeshStateBadge("dark");
+                    addMeshLog("DISCONNECTED", "Node left the mesh network");
+                    showToast("Sovereign Mesh Mode deactivated", "success");
+                }).catch(function(e) {
+                    showToast("Disconnect failed: " + e.message, "error");
+                }).finally(function() {
+                    meshToggleBtn.disabled = false;
+                });
+            }
+        });
+    }
+
+    var meshSendBtn = document.getElementById("mesh-send-btn");
+    if (meshSendBtn) {
+        meshSendBtn.addEventListener("click", function() {
+            var input = document.getElementById("mesh-send-input");
+            var msg = input.value.trim();
+            if (!msg) { showToast("Enter a message to transmit", "error"); return; }
+            meshSendBtn.disabled = true;
+            fetch("/api/mesh/send", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({message: msg}) }).then(function(r) { return r.json(); }).then(function(data) {
+                if (data.success) {
+                    addMeshLog("TRANSMITTED", msg);
+                    showToast("Message transmitted via mesh", "success");
+                    input.value = "";
+                    refreshMeshStatus();
+                } else {
+                    showToast(data.error || "Transmit failed", "error");
+                }
+            }).catch(function(e) {
+                showToast("Transmit failed: " + e.message, "error");
+            }).finally(function() {
+                meshSendBtn.disabled = !meshActive;
+            });
+        });
+    }
+
+    var meshHandshakeBtn = document.getElementById("mesh-handshake-btn");
+    if (meshHandshakeBtn) {
+        meshHandshakeBtn.addEventListener("click", function() {
+            meshHandshakeBtn.disabled = true;
+            fetch("/api/mesh/handshake", { method: "POST", headers: {"Content-Type": "application/json"}, body: "{}" }).then(function(r) { return r.json(); }).then(function(data) {
+                if (data.success) {
+                    addMeshLog("HANDSHAKE", data.message || "432 Hz pulse sent");
+                    showToast(data.message || "Handshake pulse sent", "success");
+                    refreshMeshStatus();
+                } else {
+                    showToast(data.error || "Handshake failed", "error");
+                }
+            }).catch(function(e) {
+                showToast("Handshake failed: " + e.message, "error");
+            }).finally(function() {
+                meshHandshakeBtn.disabled = false;
+            });
+        });
+    }
+
+    var meshSimulateBtn = document.getElementById("mesh-simulate-btn");
+    if (meshSimulateBtn) {
+        meshSimulateBtn.addEventListener("click", function() {
+            meshSimulateBtn.disabled = true;
+            meshSimulateBtn.textContent = "Simulating...";
+            var simResult = document.getElementById("mesh-sim-result");
+            var simContent = document.getElementById("mesh-sim-content");
+            fetch("/api/mesh/simulate", { method: "POST", headers: {"Content-Type": "application/json"}, body: "{}" }).then(function(r) { return r.json(); }).then(function(data) {
+                simResult.style.display = "block";
+                if (data.success) {
+                    var html = '<div><strong>Two-Node Simulation</strong></div>';
+                    if (data.steps && data.steps.length) {
+                        data.steps.forEach(function(step) {
+                            var cls = step.pass ? "sim-pass" : "sim-fail";
+                            html += '<div class="' + cls + '">' + (step.pass ? "✓" : "✗") + ' ' + step.description + '</div>';
+                        });
+                    }
+                    if (data.summary) html += '<div style="margin-top:8px;"><strong>' + data.summary + '</strong></div>';
+                    simContent.innerHTML = html;
+                    addMeshLog("SIMULATION", data.summary || "Two-node sim complete");
+                    showToast("Simulation complete", "success");
+                } else {
+                    simContent.innerHTML = '<div class="sim-fail">' + (data.error || "Simulation failed") + '</div>';
+                    showToast(data.error || "Simulation failed", "error");
+                }
+            }).catch(function(e) {
+                simResult.style.display = "block";
+                simContent.innerHTML = '<div class="sim-fail">Simulation error: ' + e.message + '</div>';
+            }).finally(function() {
+                meshSimulateBtn.disabled = false;
+                meshSimulateBtn.textContent = "Run Two-Node Simulation";
+            });
+        });
+    }
+
     document.getElementById("founder-export-seed-btn").addEventListener("click", function() {
         fetch("/api/harness/chronicle/export?mark_founder=true").then(r => r.json()).then(function(data) {
             var blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});

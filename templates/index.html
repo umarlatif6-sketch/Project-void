@@ -34,6 +34,7 @@
             <button class="tab" data-tab="visualizer">Visualizer</button>
             <button class="tab" data-tab="capacity">Capacity</button>
             <button class="tab" data-tab="silk">Silk Web</button>
+            <button class="tab" data-tab="mesh">Mesh</button>
             <button class="tab" data-tab="files">Files</button>
             <button class="tab" data-tab="harness">Harness</button>
         </div>
@@ -428,6 +429,57 @@
             <div class="silk-feed-section">
                 <h3>Signal Feed</h3>
                 <div id="silk-feed" class="silk-feed"><p class="loading">No signals yet</p></div>
+            </div>
+        </div>
+
+        <div id="mesh" class="panel">
+            <h2>Sovereign Mesh Mode <span class="mode-badge simulation">SIMULATION</span></h2>
+            <p class="desc">Ghost Internet — acoustic mesh networking via the Beehive Protocol. Nodes discover each other through 432 Hz phase-authenticated handshakes.</p>
+
+            <div class="mesh-toggle-section">
+                <button id="mesh-toggle-btn" class="mesh-toggle-btn">Enter Sovereign Mesh Mode</button>
+                <div id="mesh-state-badge" class="mesh-state-badge state-dark">DARK</div>
+            </div>
+
+            <div class="mesh-status-panel">
+                <div class="mesh-stat"><span class="mesh-stat-label">Node ID</span><span id="mesh-node-id" class="mesh-stat-value mono">—</span></div>
+                <div class="mesh-stat"><span class="mesh-stat-label">State</span><span id="mesh-state-val" class="mesh-stat-value">DARK</span></div>
+                <div class="mesh-stat"><span class="mesh-stat-label">Neighbors</span><span id="mesh-neighbor-count" class="mesh-stat-value">0</span></div>
+                <div class="mesh-stat"><span class="mesh-stat-label">Packets Sent</span><span id="mesh-packets-sent" class="mesh-stat-value">0</span></div>
+                <div class="mesh-stat"><span class="mesh-stat-label">Packets Received</span><span id="mesh-packets-recv" class="mesh-stat-value">0</span></div>
+                <div class="mesh-stat"><span class="mesh-stat-label">Relayed</span><span id="mesh-packets-relay" class="mesh-stat-value">0</span></div>
+                <div class="mesh-stat"><span class="mesh-stat-label">CC Spent</span><span id="mesh-cc-spent" class="mesh-stat-value">0.0</span></div>
+            </div>
+
+            <div class="mesh-neighbors-section">
+                <h3>Neighbor Nodes</h3>
+                <div id="mesh-neighbors-grid" class="mesh-neighbors-grid">
+                    <div class="mesh-empty">No neighbors detected. Enter Sovereign Mesh Mode to begin scanning.</div>
+                </div>
+            </div>
+
+            <div class="mesh-send-section">
+                <h3>Transmit via Mesh</h3>
+                <div class="mesh-send-row">
+                    <input type="text" id="mesh-send-input" class="mesh-input" placeholder="Enter message to broadcast...">
+                    <button id="mesh-send-btn" class="btn-mesh-send" disabled>Transmit</button>
+                </div>
+            </div>
+
+            <div class="mesh-actions-row">
+                <button id="mesh-handshake-btn" class="btn-mesh-secondary">Send Handshake Pulse</button>
+                <button id="mesh-simulate-btn" class="btn-mesh-secondary">Run Two-Node Simulation</button>
+            </div>
+
+            <div id="mesh-sim-result" class="mesh-sim-result" style="display:none;">
+                <div id="mesh-sim-content"></div>
+            </div>
+
+            <div class="mesh-activity-section">
+                <h3>Activity Log</h3>
+                <div id="mesh-activity-log" class="mesh-activity-log">
+                    <div class="mesh-log-empty">No activity yet.</div>
+                </div>
             </div>
         </div>
 

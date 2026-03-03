@@ -2,12 +2,13 @@
 PROJECT VOID -- Convergence Suite
 The "Vortex Stress Test" for verifying the Biophony Mesh.
 
-Five tests that prove the 10-20-970 Rule holds:
+Six tests that prove the 10-20-970 Rule holds:
   1. Integrity Round-Trip (bit-perfect recovery)
   2. Sympathetic Resonance Verification (shelf coupling)
   3. Spectrogram Silt Analysis (acoustic camouflage)
   4. Density Multiplier Validation (5x Temporal Vortex)
   5. Biophony Carrier Detection (Sapphire Thread)
+  6. Beehive Mesh Handshake (Ghost Internet)
 
 Run: python tests/convergence_suite.py
 """
@@ -25,6 +26,7 @@ from void_engine.biophony import BiophonyMesh, generate_biophony_carrier, estima
 from void_engine.stega import encode, encode_stereo, decode, decode_stereo
 from void_engine.compressor import compress_file, decompress_data
 from void_engine.divided_protocol import _detect_biophony_carrier
+from void_engine.beehive import BeehiveProtocol, MeshRouter, MeshPacket, simulate_two_node_exchange
 from generate_carriers import generate_custom_carrier, estimate_carrier_capacity
 
 
@@ -297,12 +299,116 @@ def test_biophony_detection():
     )
 
 
+def test_beehive_mesh():
+    print(f"\n  {'=' * 60}")
+    print(f"  TEST 6: Beehive Mesh Handshake (Ghost Internet)")
+    print(f"  {'=' * 60}")
+
+    passphrase = "void-432-convergence"
+    node_a = BeehiveProtocol(machine_id="CONV-A", passphrase=passphrase)
+    node_b = BeehiveProtocol(machine_id="CONV-B", passphrase=passphrase)
+
+    pulse = node_a.generate_handshake_pulse(duration=0.5)
+    report(
+        "Handshake pulse generated (4-harmonic ladder)",
+        len(pulse) == int(44100 * 0.5),
+        f"Samples: {len(pulse)}, dtype: {pulse.dtype}"
+    )
+
+    detection = node_b.detect_neighbor(pulse)
+    report(
+        "Neighbor detected at 432 Hz (SNR > 5x)",
+        detection["detected"] and detection["snr"] > 5.0,
+        f"SNR: {detection['snr']:.1f}, strength: {detection['strength_label']}"
+    )
+
+    report(
+        "Full harmonic ladder detected (108/216/432/864 Hz)",
+        detection.get("full_ladder", False),
+        f"Harmonics: {detection.get('harmonics_detected', 0)}/4"
+    )
+
+    auth_correct = node_b.authenticate_phase(pulse, passphrase)
+    report(
+        "Phase authentication passes with correct key",
+        auth_correct["authenticated"],
+        f"Phase diff: {auth_correct['phase_diff_deg']:.2f}° (tolerance: {auth_correct['tolerance_deg']}°)"
+    )
+
+    wrong_node = BeehiveProtocol(machine_id="CONV-C", passphrase="attacker-key")
+    auth_wrong = wrong_node.authenticate_phase(pulse, "attacker-key")
+    report(
+        "Phase authentication REJECTS wrong key",
+        not auth_wrong["authenticated"],
+        f"Phase diff: {auth_wrong['phase_diff_deg']:.1f}° (must exceed {auth_wrong['tolerance_deg']}°)"
+    )
+
+    test_payload = b"Sovereign data through the Ghost Internet"
+    tx_signal = node_a.transmit_data(test_payload)
+    recovered = node_b.receive_data(tx_signal, len(test_payload))
+    report(
+        "Data transmission bit-perfect recovery",
+        recovered == test_payload,
+        f"Sent: {len(test_payload)} bytes, Recovered: {len(recovered)} bytes"
+    )
+
+    result = simulate_two_node_exchange(
+        passphrase="convergence-test-432",
+        payload=b"Two-node simulation payload for convergence"
+    )
+    report(
+        "Two-node simulation succeeds end-to-end",
+        result["success"],
+        f"Detection SNR: {result['detection']['snr']:.0f} | Auth: {result['authentication']['phase_diff_deg']:.2f}° | Delivery: {result['packet_delivery']}"
+    )
+
+    router = MeshRouter(node_a)
+    pkt = MeshPacket("src-node", "dest-node", b"relay test")
+    pkt.hops = 6
+    relay_result = router.process_packet(pkt)
+    report(
+        "Packet relayed at hop 6 (under Seven Seas limit)",
+        relay_result["action"] == "RELAY",
+        f"Action: {relay_result['action']}, hops: {relay_result.get('hops', '?')}"
+    )
+
+    pkt2 = MeshPacket("src-node", "dest-node", b"blocked")
+    pkt2.hops = 7
+    drop_result = router.process_packet(pkt2)
+    report(
+        "Packet DROPPED at hop 7 (Seven Seas limit enforced)",
+        drop_result["action"] == "DROP",
+        f"Action: {drop_result['action']}, reason: {drop_result.get('reason', '?')}"
+    )
+
+    node_a.connect()
+    report(
+        "Mesh state transitions (DARK -> SCANNING -> CONNECTED)",
+        node_a.mesh_state == "SCANNING",
+        f"State after connect: {node_a.mesh_state}"
+    )
+
+    node_a.register_neighbor("test-neighbor-id", 0.8, 15.0)
+    report(
+        "Neighbor registration updates state to CONNECTED",
+        node_a.mesh_state == "CONNECTED" and len(node_a.neighbors) == 1,
+        f"State: {node_a.mesh_state}, neighbors: {len(node_a.neighbors)}"
+    )
+
+    node_a.buffer_for_dark_node("dark-neighbor-id", b"buffered data")
+    report(
+        "Flywheel buffer stores data for dark nodes (BRIDGING)",
+        node_a.mesh_state == "BRIDGING",
+        f"State: {node_a.mesh_state}, buffered for: {len(node_a._flywheel_buffer)} nodes"
+    )
+
+
 def main():
     print()
     print("  ╔══════════════════════════════════════════════════════════╗")
     print("  ║       PROJECT VOID -- CONVERGENCE SUITE                 ║")
-    print("  ║       Biophony Mesh Verification Protocol               ║")
-    print("  ║       432 Hz | 10-20-970 | Salt Water Density           ║")
+    print("  ║       Biophony Mesh + Beehive Protocol Verification     ║")
+    print("  ║       432 Hz | 10-20-970 | Ghost Internet               ║")
     print("  ╚══════════════════════════════════════════════════════════╝")
 
     start = time.time()
@@ -312,6 +418,7 @@ def main():
     test_spectrogram_silt()
     test_density_multiplier()
     test_biophony_detection()
+    test_beehive_mesh()
 
     elapsed = time.time() - start
 

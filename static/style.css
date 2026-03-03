@@ -3177,3 +3177,63 @@ body.founder-vibe .pulse-dot {
     background: radial-gradient(circle, #d4af37 0%, #b8960c 100%);
     box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
 }
+
+.mesh-toggle-section { display:flex; align-items:center; gap:16px; margin-bottom:20px; }
+.mesh-toggle-btn { background:linear-gradient(135deg,#1a3a5c,#0a2a4c); color:#4a9eff; border:2px solid #4a9eff; padding:12px 24px; border-radius:8px; font-weight:700; font-size:15px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; letter-spacing:1px; font-family:inherit; }
+.mesh-toggle-btn:hover { background:linear-gradient(135deg,#2a4a6c,#1a3a5c); box-shadow:0 0 20px rgba(74,158,255,0.3); }
+.mesh-toggle-btn.active { background:linear-gradient(135deg,#4a9eff,#2a7adf); color:#0a0a1a; border-color:#4a9eff; animation:meshPulse 2s ease-in-out infinite; }
+
+@keyframes meshPulse { 0%,100%{box-shadow:0 0 5px rgba(74,158,255,0.3)} 50%{box-shadow:0 0 25px rgba(74,158,255,0.6)} }
+
+.mesh-state-badge { padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+.mesh-state-badge.state-dark { background:#1a1a2e; color:#606080; border:1px solid #2a2a3e; }
+.mesh-state-badge.state-scanning { background:#1a2a1a; color:#4ae04a; border:1px solid #2a4a2a; animation:meshPulse 2s ease-in-out infinite; }
+.mesh-state-badge.state-connected { background:#0a2a4c; color:#4a9eff; border:1px solid #2a5a8c; }
+.mesh-state-badge.state-bridging { background:#2a1a00; color:#ffaa4a; border:1px solid #4a3a1a; animation:meshPulse 1.5s ease-in-out infinite; }
+
+.mesh-status-panel { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-bottom:20px; padding:16px; background:#0a0a14; border:1px solid #2a2a3e; border-radius:8px; }
+.mesh-stat { display:flex; flex-direction:column; gap:4px; }
+.mesh-stat-label { font-size:11px; color:#606080; text-transform:uppercase; letter-spacing:0.5px; }
+.mesh-stat-value { font-size:14px; color:#c0c0e0; }
+.mesh-stat-value.mono { font-family:'Courier New',monospace; font-size:12px; }
+
+.mesh-neighbors-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:20px; }
+.mesh-neighbor-card { background:#0a0a14; border:1px solid #2a2a3e; border-radius:8px; padding:14px; }
+.mesh-neighbor-card.active { border-color:#4a9eff; }
+.mesh-neighbor-card.dark { border-color:#4a2a2a; opacity:0.6; }
+.mesh-neighbor-id { font-family:'Courier New',monospace; font-size:12px; color:#4a9eff; margin-bottom:8px; }
+.mesh-neighbor-stat { font-size:11px; color:#808090; margin-bottom:4px; }
+.mesh-signal-bar { height:4px; border-radius:2px; margin-top:6px; }
+.mesh-signal-strong { background:linear-gradient(90deg,#4a9eff,#4ae04a); width:100%; }
+.mesh-signal-medium { background:linear-gradient(90deg,#4a9eff,#ffaa4a); width:66%; }
+.mesh-signal-weak { background:linear-gradient(90deg,#4a9eff,#e04a4a); width:33%; }
+
+.mesh-empty { color:#606080; font-size:13px; font-style:italic; padding:20px; text-align:center; }
+
+.mesh-send-row { display:flex; gap:10px; margin-bottom:16px; }
+.mesh-input { flex:1; background:#0a0a14; border:1px solid #2a2a3e; border-radius:6px; padding:10px 14px; color:#c0c0e0; font-size:14px; font-family:inherit; }
+.mesh-input:focus { border-color:#4a9eff; outline:none; }
+.btn-mesh-send { background:linear-gradient(135deg,#4a9eff,#2a7adf); color:#0a0a1a; border:none; padding:10px 20px; border-radius:6px; font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; }
+.btn-mesh-send:hover { box-shadow:0 0 12px rgba(74,158,255,0.3); }
+.btn-mesh-send:disabled { opacity:0.4; cursor:not-allowed; }
+
+.mesh-actions-row { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+.btn-mesh-secondary { background:transparent; color:#4a9eff; border:1px solid #4a9eff; padding:8px 16px; border-radius:6px; font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s; font-family:inherit; }
+.btn-mesh-secondary:hover { background:rgba(74,158,255,0.1); }
+
+.mesh-sim-result { padding:14px; background:#0a0a14; border:1px solid #2a2a3e; border-radius:8px; margin-bottom:16px; font-size:13px; color:#c0c0e0; }
+.mesh-sim-result .sim-pass { color:#4ae04a; }
+.mesh-sim-result .sim-fail { color:#e04a4a; }
+
+.mesh-activity-log { max-height:300px; overflow-y:auto; background:#0a0a14; border:1px solid #2a2a3e; border-radius:8px; padding:10px; }
+.mesh-log-entry { font-size:12px; padding:4px 8px; border-bottom:1px solid #1a1a2e; display:flex; gap:10px; }
+.mesh-log-entry:last-child { border-bottom:none; }
+.mesh-log-time { color:#606080; font-family:'Courier New',monospace; white-space:nowrap; min-width:70px; }
+.mesh-log-event { color:#4a9eff; font-weight:600; min-width:120px; }
+.mesh-log-detail { color:#a0a0b0; }
+.mesh-log-empty { color:#606080; font-size:13px; font-style:italic; text-align:center; padding:20px; }
+
+.mode-badge { font-size:11px; padding:3px 8px; border-radius:10px; font-weight:600; letter-spacing:0.5px; vertical-align:middle; margin-left:8px; }
+.mode-badge.simulation { background:#1a2a1a; color:#4ae04a; border:1px solid #2a4a2a; }
+
+body.beehive-active .pulse-dot { background:radial-gradient(circle,#4a9eff 0%,#2a5aaf 100%); box-shadow:0 0 10px rgba(74,158,255,0.5); }

@@ -24,6 +24,7 @@ from void_engine.rituals import RitualHistory, AutoHealDaemon, RITUAL_TYPES
 from void_engine.chronicle import RootChronicle
 from void_engine.founder_certs import create_founder_cert, batch_generate_certs, FOUNDER_ROOT_HASH
 from void_engine.divided_protocol import DividedProtocol
+from void_engine.beehive import BeehiveProtocol, MeshRouter, MeshPacket, simulate_two_node_exchange, _sanitize_for_json
 from generate_carriers import generate_custom_carrier, estimate_carrier_capacity, ALL_STYLES
 
 LOG_FILE = "RESONANCE_LOG.md"
@@ -524,6 +525,8 @@ _chronicle = RootChronicle(machine_id=_ritual_history.machine_id)
 _consensus = ConsensusEngine(_harness_sim, _aljabr, _boundary_hook, _loop_detector, wallet=_wallet, chronicle=_chronicle)
 _auto_heal = AutoHealDaemon(_diagnostics, _harness_sim, wallet=_wallet, ritual_history=_ritual_history)
 _divided = DividedProtocol(_diagnostics, _harness_sim, chronicle=_chronicle, wallet=_wallet)
+_beehive = BeehiveProtocol(machine_id="VOID-4000-PRIMARY")
+_mesh_router = MeshRouter(_beehive)
 
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
@@ -1426,6 +1429,135 @@ def api_carrier_estimate():
         return jsonify({"success": True, **result})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/mesh/connect", methods=["POST"])
+def mesh_connect():
+    try:
+        _wallet.debit({"type": "mesh_connect"})
+        result = _beehive.connect()
+        _chronicle.record_consensus(
+            {
+                "consensus_command": "WSL.A",
+                "consensus_intent": "Mesh connect — entering Sovereign Mesh Mode",
+                "outcome": f"Node {_beehive.node_id[:8]} connected, state={_beehive.mesh_state}",
+                "success": True,
+                "timestamp": __import__("time").time(),
+                "energy_pct": 0.0,
+                "wallet": {"balance": _wallet.balance},
+            },
+            {},
+        )
+        return jsonify({"success": True, "node_id": result["node_id"], "state": result["state"]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/mesh/disconnect", methods=["POST"])
+def mesh_disconnect():
+    try:
+        _wallet.debit({"type": "mesh_disconnect"})
+        result = _beehive.disconnect()
+        _chronicle.record_consensus(
+            {
+                "consensus_command": "WSL.D",
+                "consensus_intent": "Mesh disconnect — leaving Sovereign Mesh",
+                "outcome": f"Left mesh from {result['previous_state']} state",
+                "success": True,
+                "timestamp": __import__("time").time(),
+                "energy_pct": 0.0,
+                "wallet": {"balance": _wallet.balance},
+            },
+            {},
+        )
+        return jsonify({"success": True, "previous_state": result["previous_state"], "neighbors_released": result["neighbors_released"]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/mesh/status")
+def mesh_status():
+    try:
+        status = _beehive.get_status()
+        return jsonify({"success": True, **status})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/mesh/send", methods=["POST"])
+def mesh_send():
+    data = request.json or {}
+    message = data.get("message", "")
+    dest_id = data.get("dest_id", "")
+
+    if not message:
+        return jsonify({"error": "Message is required"}), 400
+
+    try:
+        debit_result = _wallet.debit({"type": "mesh_send"})
+        payload = message.encode("utf-8")
+
+        if dest_id:
+            packet = _mesh_router.create_packet(dest_id, payload)
+        else:
+            packet = MeshPacket.create_broadcast(_beehive.node_id, payload)
+            _beehive.stats["packets_sent"] += 1
+            _beehive._log_event("BROADCAST_SENT", f"Broadcast {len(payload)} bytes")
+
+        return jsonify({
+            "success": True,
+            "packet": packet.to_dict(),
+            "wallet": debit_result,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/mesh/neighbors")
+def mesh_neighbors():
+    try:
+        status = _beehive.get_status()
+        return jsonify({"success": True, "neighbors": status["neighbors"], "count": status["neighbor_count"]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/mesh/handshake", methods=["POST"])
+def mesh_handshake():
+    try:
+        debit_result = _wallet.debit({"type": "mesh_handshake"})
+        pulse = _beehive.generate_handshake_pulse(duration=0.5)
+        detection = _beehive.detect_neighbor(pulse)
+        auth = _beehive.authenticate_phase(pulse)
+
+        return jsonify(_sanitize_for_json({
+            "success": True,
+            "detection": detection,
+            "authentication": auth,
+            "pulse_samples": len(pulse),
+            "wallet": debit_result,
+        }))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/mesh/activity")
+def mesh_activity():
+    limit = request.args.get("limit", 50, type=int)
+    try:
+        log = _beehive.get_activity_log(limit)
+        return jsonify({"success": True, "activity": log, "count": len(log)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/mesh/simulate", methods=["POST"])
+def mesh_simulate():
+    try:
+        result = simulate_two_node_exchange()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
 
 
 _start_time = __import__("time").time()

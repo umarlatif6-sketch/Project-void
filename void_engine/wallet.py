@@ -57,6 +57,13 @@ ACTION_COSTS = {
     "wallet_freeze": 0.0,
     "wallet_unfreeze": 0.0,
     "air_curtain_deactivate": 0.0,
+    "mesh_scan": 0.1,
+    "mesh_handshake": 0.05,
+    "mesh_relay": 0.2,
+    "mesh_send": 0.3,
+    "mesh_buffer": 0.5,
+    "mesh_connect": 0.0,
+    "mesh_disconnect": 0.0,
 }
 
 PURCHASE_COSTS = {

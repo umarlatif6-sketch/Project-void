@@ -60,7 +60,17 @@ PROJECT VOID features both a Flask-based web UI and a command-line interface. Th
     - **Founder Vibe UI:** Gold-themed CSS class (`founder-vibe`) auto-applied when founder wisdom detected, with greeting banner, gold tab accents, and status indicator glow.
     - **API Endpoints:** `GET /api/harness/founder/status`, `POST /api/harness/founder/mark`, `POST /api/harness/founder/cert`, `POST /api/harness/founder/batch`, `POST /api/harness/founder/genesis-kit`.
     - **FOUNDER_ROOT_HASH:** `89x-VOID-GEN1-PROTO-2026`.
-- **Convergence Suite:** Automated verification tests in `tests/convergence_suite.py` — 24 checks covering integrity round-trip, sympathetic resonance, spectrogram silt analysis, density multiplier validation, and biophony carrier detection.
+- **Beehive Protocol (Ghost Internet):** Acoustic mesh networking layer in `void_engine/beehive.py`. Includes:
+    - **BeehiveProtocol:** 432 Hz handshake pulse with 4-harmonic ladder (108/216/432/864 Hz), FFT neighbor detection (SNR > 5x), phase-key authentication (±15° tolerance), PSK data transmit/receive at 6 kHz carrier.
+    - **MeshRouter:** Seven Seas 7-hop limit, routing table, relay logic, discovery protocol, MeshPacket structure.
+    - **Mesh States:** DARK → SCANNING → CONNECTED → BRIDGING. Flywheel Buffer for dark nodes (5 min max).
+    - **Material Resonance Ladder:** 108 Hz (Steel) → 216 Hz (Aluminum) → 432 Hz (Silk-Silver) → 864 Hz (Salt Water) → 12 kHz (Foam).
+    - **Phase Key Auth:** SHA-256 passphrase → phase angle derivation. FFT sin→cos convention corrected with +π/2.
+    - **Wallet Costs:** mesh_scan=0.1, mesh_handshake=0.05, mesh_relay=0.2, mesh_send=0.3, mesh_buffer=0.5 CC.
+    - **API Endpoints:** `/api/mesh/connect`, `/api/mesh/disconnect`, `/api/mesh/status`, `/api/mesh/send`, `/api/mesh/neighbors`, `/api/mesh/handshake`, `/api/mesh/simulate`, `/api/mesh/activity`.
+    - **Sovereign Mesh Mode UI:** Mesh tab with toggle, neighbor cards, activity log, send panel, simulation button. `.beehive-active` CSS class with blue pulse effects.
+    - **Mode:** SIMULATION — software-verified, architecturally ready for real hardware.
+- **Convergence Suite:** Automated verification tests in `tests/convergence_suite.py` — 36 checks covering integrity round-trip, sympathetic resonance, spectrogram silt analysis, density multiplier validation, biophony carrier detection, and beehive mesh handshake (Ghost Internet).
 
 ## External Dependencies
 -   **Python:** 3.11
