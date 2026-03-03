@@ -53,10 +53,20 @@ PROJECT VOID features both a Flask-based web UI and a command-line interface. Th
     - **Sapphire Thread (ZHR.V):** MAX_GLOW triggered when all three shelves detected in carrier. Divided Protocol auto-selects chirp_sync for biophony carriers.
     - **Carrier Generator:** `POST /api/generate-carrier` with duration/style, `GET /api/carrier-estimate` for capacity estimates. UI panel in Encode tab.
 
+- **First Generation Founder Protocol:** Implemented in `void_engine/founder_certs.py`, `void_engine/chronicle.py`, and `genesis_init.sh`. Includes:
+    - **Founder Wisdom Marking:** `mark_as_founder_wisdom()` flags all successful chronicle entries as Original Lineage.
+    - **Founder Certificate Generator:** `fpdf2`-based gold-on-black PDF with SHA-256 seal, 3 articles (Heritage, Wisdom, Sovereign), batch generation for up to 100 customers.
+    - **Genesis Kit:** Export/import mechanism for founder-flagged `chronicle.db` entries as JSON seed, with `genesis_init.sh` bootstrap script.
+    - **Founder Vibe UI:** Gold-themed CSS class (`founder-vibe`) auto-applied when founder wisdom detected, with greeting banner, gold tab accents, and status indicator glow.
+    - **API Endpoints:** `GET /api/harness/founder/status`, `POST /api/harness/founder/mark`, `POST /api/harness/founder/cert`, `POST /api/harness/founder/batch`, `POST /api/harness/founder/genesis-kit`.
+    - **FOUNDER_ROOT_HASH:** `89x-VOID-GEN1-PROTO-2026`.
+- **Convergence Suite:** Automated verification tests in `tests/convergence_suite.py` — 24 checks covering integrity round-trip, sympathetic resonance, spectrogram silt analysis, density multiplier validation, and biophony carrier detection.
+
 ## External Dependencies
 -   **Python:** 3.11
 -   **numpy:** For audio sample manipulation.
 -   **flask:** For the web UI server.
 -   **cryptography:** For ChaCha20 header encryption.
 -   **scipy:** For Hilbert transform in Sympathetic Resonance coupling (biophony.py).
+-   **fpdf2:** For gold-on-black Founder Certificate PDF generation.
 -   **Standard Library:** `zlib`, `lzma`, `wave`, `hashlib`.

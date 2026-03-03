@@ -1,0 +1,345 @@
+"""
+PROJECT VOID -- Convergence Suite
+The "Vortex Stress Test" for verifying the Biophony Mesh.
+
+Five tests that prove the 10-20-970 Rule holds:
+  1. Integrity Round-Trip (bit-perfect recovery)
+  2. Sympathetic Resonance Verification (shelf coupling)
+  3. Spectrogram Silt Analysis (acoustic camouflage)
+  4. Density Multiplier Validation (5x Temporal Vortex)
+  5. Biophony Carrier Detection (Sapphire Thread)
+
+Run: python tests/convergence_suite.py
+"""
+
+import os
+import sys
+import hashlib
+import wave
+import time
+import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from void_engine.biophony import BiophonyMesh, generate_biophony_carrier, estimate_capacity
+from void_engine.stega import encode, encode_stereo, decode, decode_stereo
+from void_engine.compressor import compress_file, decompress_data
+from void_engine.divided_protocol import _detect_biophony_carrier
+from generate_carriers import generate_custom_carrier, estimate_carrier_capacity
+
+
+PASS = "\033[92mPASS\033[0m"
+FAIL = "\033[91mFAIL\033[0m"
+INFO = "\033[94mINFO\033[0m"
+
+results = []
+
+
+def sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def report(name, passed, detail=""):
+    status = PASS if passed else FAIL
+    results.append((name, passed))
+    print(f"  [{status}] {name}")
+    if detail:
+        print(f"         {detail}")
+
+
+def test_integrity_roundtrip():
+    print(f"\n  {'=' * 60}")
+    print(f"  TEST 1: Integrity Round-Trip (Bit-Perfect Recovery)")
+    print(f"  {'=' * 60}")
+
+    test_payload = os.urandom(2048)
+    payload_path = os.path.join("input_files", "_convergence_test_payload.bin")
+    with open(payload_path, "wb") as f:
+        f.write(test_payload)
+
+    original_hash = sha256(test_payload)
+
+    styles = [
+        ("cicada_wall", 1, False, True),
+        ("midnight_pond", 1, True, True),
+        ("drone", 1, False, False),
+    ]
+
+    for style, dur_min, is_stereo, use_chirp in styles:
+        print(f"\n  [{INFO}] Testing {style} ({'stereo' if is_stereo else 'mono'}, "
+              f"{'chirp_sync' if use_chirp else 'vortex'})...")
+
+        carrier_result = generate_custom_carrier(dur_min, style)
+        carrier_path = os.path.join("input_files", carrier_result["filename"])
+        output_path = os.path.join("output_audio", f"_convergence_{style}_void.wav")
+
+        compressed, name, ext, orig_size = compress_file(payload_path)
+
+        try:
+            if is_stereo:
+                hash_key = encode_stereo(
+                    carrier_path, compressed, name, ext, output_path,
+                    lsb_depth=2, chirp_sync=use_chirp, vortex=(not use_chirp)
+                )
+                data_out, name_ext, checksum = decode_stereo(output_path, hash_key, lsb_depth=2)
+            else:
+                hash_key = encode(
+                    carrier_path, compressed, name, ext, output_path,
+                    lsb_depth=2, chirp_sync=use_chirp, vortex=(not use_chirp)
+                )
+                data_out, name_ext, checksum = decode(output_path, hash_key, lsb_depth=2)
+
+            recovered = decompress_data(data_out)
+            recovered_hash = sha256(recovered)
+            match = original_hash == recovered_hash
+
+            report(
+                f"{style} round-trip",
+                match,
+                f"Original: {original_hash[:16]}... | Recovered: {recovered_hash[:16]}..."
+            )
+        except Exception as e:
+            report(f"{style} round-trip", False, f"Error: {e}")
+
+        for f in [output_path, output_path.replace(".wav", ".chirpmap.npy")]:
+            if os.path.exists(f):
+                os.remove(f)
+
+    os.remove(payload_path)
+
+
+def test_sympathetic_resonance():
+    print(f"\n  {'=' * 60}")
+    print(f"  TEST 2: Sympathetic Resonance Verification")
+    print(f"  {'=' * 60}")
+
+    mesh = BiophonyMesh()
+
+    whales = mesh._synthesize_whale_shelf(5.0)
+    insects_raw, _ = mesh._synthesize_insect_shelf(5.0)
+
+    coupled = mesh._apply_sympathetic_resonance(whales, insects_raw)
+
+    from scipy.signal import hilbert as hilbert_fn
+    whale_env = np.abs(hilbert_fn(whales))
+    whale_env_norm = whale_env / (np.max(whale_env) + 1e-10)
+
+    n_segments = 20
+    seg_len = len(whales) // n_segments
+    whale_energies = []
+    coupling_ratios = []
+
+    for i in range(n_segments):
+        s = i * seg_len
+        e = s + seg_len
+        whale_e = np.mean(whale_env_norm[s:e])
+        raw_e = np.mean(np.abs(insects_raw[s:e]))
+        coup_e = np.mean(np.abs(coupled[s:e]))
+
+        whale_energies.append(whale_e)
+        if raw_e > 0:
+            coupling_ratios.append(coup_e / raw_e)
+
+    min_ratio = min(coupling_ratios)
+    max_ratio = max(coupling_ratios)
+    variation = max_ratio - min_ratio
+
+    report(
+        "Coupling ratio varies with whale amplitude",
+        variation > 0.05,
+        f"Min ratio: {min_ratio:.3f} | Max ratio: {max_ratio:.3f} | Variation: {variation:.3f}"
+    )
+
+    correlation = np.corrcoef(whale_energies, coupling_ratios[:len(whale_energies)])[0, 1]
+    report(
+        "Positive correlation (whale amplitude vs insect density)",
+        correlation > 0.3,
+        f"Pearson correlation: {correlation:.4f}"
+    )
+
+
+def test_spectrogram_silt():
+    print(f"\n  {'=' * 60}")
+    print(f"  TEST 3: Spectrogram Silt Analysis (Acoustic Camouflage)")
+    print(f"  {'=' * 60}")
+
+    mesh = BiophonyMesh()
+    stereo, peaks, meta = mesh.synthesize_mesh(5.0)
+
+    left = stereo[0::2].astype(np.float64)
+    right = stereo[1::2].astype(np.float64)
+
+    sr = 44100
+    fft_size = 8192
+    spectrum_left = np.abs(np.fft.rfft(left[:fft_size] * np.hanning(fft_size)))
+    freqs = np.fft.rfftfreq(fft_size, 1.0 / sr)
+
+    low_mask = (freqs >= 15) & (freqs <= 50)
+    mid_mask = (freqs >= 300) & (freqs <= 800)
+    high_mask = (freqs >= 2000) & (freqs <= 12000)
+
+    low_power = np.mean(spectrum_left[low_mask] ** 2)
+    mid_power = np.mean(spectrum_left[mid_mask] ** 2)
+    high_power = np.mean(spectrum_left[high_mask] ** 2)
+
+    report(
+        "Low-shelf energy present (Whale 15-50 Hz)",
+        low_power > 0,
+        f"Power: {low_power:.1f}"
+    )
+    report(
+        "Mid-shelf energy present (Bird 300-800 Hz)",
+        mid_power > 0,
+        f"Power: {mid_power:.1f}"
+    )
+    report(
+        "High-shelf energy present (Insect 2-12 kHz)",
+        high_power > 0,
+        f"Power: {high_power:.1f}"
+    )
+
+    spectrum_right = np.abs(np.fft.rfft(right[:fft_size] * np.hanning(fft_size)))
+    right_low = np.mean(spectrum_right[low_mask] ** 2)
+    right_high = np.mean(spectrum_right[high_mask] ** 2)
+
+    report(
+        "Right channel (Adriana Pocket) is insect-dominant",
+        right_high > right_low * 5 if right_low > 0 else right_high > 0,
+        f"Right high: {right_high:.1f} | Right low: {right_low:.1f}"
+    )
+
+    report(
+        "Chirp peaks generated (>100 peaks for 5 seconds)",
+        len(peaks) > 100,
+        f"Peak count: {len(peaks):,} ({len(peaks)/5:.0f} peaks/sec)"
+    )
+
+
+def test_density_multiplier():
+    print(f"\n  {'=' * 60}")
+    print(f"  TEST 4: Density Multiplier Validation (5x Temporal Vortex)")
+    print(f"  {'=' * 60}")
+
+    styles_expected = {
+        "midnight_pond": 5.0,
+        "biophony_mesh": 5.0,
+        "cicada_wall": 5.0,
+        "cricket_pulse": 2.5,
+        "drone": 1.0,
+        "harmonic": 1.0,
+        "pink_noise": 1.0,
+        "stereo_pocket": 1.0,
+    }
+
+    for style, expected_mult in styles_expected.items():
+        est = estimate_carrier_capacity(60, style)
+        actual_mult = est.get("density_multiplier", 0)
+        report(
+            f"{style} density = {expected_mult}x",
+            abs(actual_mult - expected_mult) < 0.01,
+            f"Expected: {expected_mult}x | Got: {actual_mult}x"
+        )
+
+    est_pond = estimate_carrier_capacity(60, "midnight_pond")
+    eff = est_pond.get("effective_lsb2", 0)
+    raw = est_pond.get("raw_lsb2", 0)
+
+    report(
+        "Midnight Pond effective > 4x raw",
+        eff > raw * 4,
+        f"Raw LSB2: {raw:,} | Effective: {eff:,} ({eff/raw:.1f}x)"
+    )
+
+    shelf = est_pond.get("shelf_breakdown")
+    report(
+        "Shelf breakdown present for biophony",
+        shelf is not None and "whale_capacity" in str(shelf).lower(),
+        f"Keys: {list(shelf.keys()) if shelf else 'None'}"
+    )
+
+
+def test_biophony_detection():
+    print(f"\n  {'=' * 60}")
+    print(f"  TEST 5: Biophony Carrier Detection (Sapphire Thread)")
+    print(f"  {'=' * 60}")
+
+    carrier_result = generate_custom_carrier(1, "midnight_pond")
+    carrier_path = os.path.join("input_files", carrier_result["filename"])
+
+    bio = _detect_biophony_carrier(carrier_path)
+
+    report(
+        "Midnight Pond detected as biophony",
+        bio["is_biophony"],
+        f"is_biophony={bio['is_biophony']}, has_chirpmap={bio['has_chirpmap']}"
+    )
+
+    report(
+        "Chirpmap sidecar detected",
+        bio["has_chirpmap"],
+        f"Path: {bio.get('chirpmap_path', 'None')}"
+    )
+
+    report(
+        "Three-shelf energy detected (Sapphire Thread)",
+        bio["sapphire_thread"],
+        f"Low: {bio['low_shelf_ratio']:.4f} | Mid: {bio['mid_shelf_ratio']:.4f} | High: {bio['high_shelf_ratio']:.4f}"
+    )
+
+    drone_result = generate_custom_carrier(1, "drone")
+    drone_path = os.path.join("input_files", drone_result["filename"])
+    drone_bio = _detect_biophony_carrier(drone_path)
+
+    report(
+        "Drone NOT detected as biophony (no chirpmap)",
+        not drone_bio["has_chirpmap"],
+        f"is_biophony={drone_bio['is_biophony']}, has_chirpmap={drone_bio['has_chirpmap']}"
+    )
+
+
+def main():
+    print()
+    print("  ╔══════════════════════════════════════════════════════════╗")
+    print("  ║       PROJECT VOID -- CONVERGENCE SUITE                 ║")
+    print("  ║       Biophony Mesh Verification Protocol               ║")
+    print("  ║       432 Hz | 10-20-970 | Salt Water Density           ║")
+    print("  ╚══════════════════════════════════════════════════════════╝")
+
+    start = time.time()
+
+    test_integrity_roundtrip()
+    test_sympathetic_resonance()
+    test_spectrogram_silt()
+    test_density_multiplier()
+    test_biophony_detection()
+
+    elapsed = time.time() - start
+
+    total = len(results)
+    passed = sum(1 for _, p in results if p)
+    failed = total - passed
+
+    print(f"\n  {'=' * 60}")
+    print(f"  CONVERGENCE SUITE RESULTS")
+    print(f"  {'=' * 60}")
+    print(f"  Total:  {total}")
+    print(f"  Passed: {passed}")
+    print(f"  Failed: {failed}")
+    print(f"  Time:   {elapsed:.1f}s")
+    print()
+
+    if failed == 0:
+        print(f"  \033[92mVORTEX STABLE: All convergence checks passed.\033[0m")
+        print(f"  \033[92mSapphire Thread illuminated at MAX_GLOW.\033[0m")
+    else:
+        print(f"  \033[91mVORTEX UNSTABLE: {failed} check(s) failed.\033[0m")
+        for name, p in results:
+            if not p:
+                print(f"    - {name}")
+
+    print()
+    return 0 if failed == 0 else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
