@@ -12,6 +12,7 @@ VILLAGE_STANDARD_HZ = 432
 PILOT_TONE_DURATION = 0.5
 PILOT_TONE_SAMPLE_RATE = 44100
 JITTER_FLAG_BIT = 1 << 31
+VORTEX_FLAG_BIT = 1 << 30
 
 _carrier_cache = {}
 
@@ -119,6 +120,75 @@ def _generate_jitter_map(passphrase: str, n_data_samples: int,
     return positions
 
 
+def _generate_vortex_map(passphrase: str, n_data_samples: int,
+                         available_start: int, available_end: int) -> list[tuple[int, int]]:
+    seed = int(hashlib.sha256(("vortex:" + passphrase).encode()).hexdigest()[:8], 16)
+    total_available = available_end - available_start
+
+    if n_data_samples <= 0:
+        return []
+
+    if n_data_samples >= int(total_available * 0.8):
+        return [(available_start, n_data_samples)]
+
+    harmonics = [VILLAGE_STANDARD_HZ, VILLAGE_STANDARD_HZ * 2, VILLAGE_STANDARD_HZ * 3,
+                 VILLAGE_STANDARD_HZ * 0.5, VILLAGE_STANDARD_HZ * 1.5]
+    n_arms = len(harmonics)
+    n_chunks = min(max(n_arms * 3, n_data_samples // 300), 40)
+    if n_data_samples < n_chunks:
+        n_chunks = max(1, n_data_samples)
+
+    golden_angle = 2.399963
+    spiral_positions = []
+    for i in range(n_chunks):
+        harmonic_idx = i % n_arms
+        harmonic_weight = harmonics[harmonic_idx] / VILLAGE_STANDARD_HZ
+        angle = i * golden_angle * harmonic_weight
+        radius = (i / n_chunks)
+        normalized_pos = (np.sin(angle) * radius + 1.0) / 2.0
+        spiral_positions.append(normalized_pos)
+
+    spiral_positions.sort()
+
+    rng = np.random.RandomState(seed)
+    alpha = np.array([harmonics[i % n_arms] / VILLAGE_STANDARD_HZ + 0.5 for i in range(n_chunks)])
+    proportions = rng.dirichlet(alpha)
+    chunk_sizes = np.maximum(1, np.round(proportions * n_data_samples).astype(int))
+
+    diff = n_data_samples - int(chunk_sizes.sum())
+    chunk_sizes[-1] += diff
+    if chunk_sizes[-1] <= 0:
+        chunk_sizes[-1] = 1
+        overshoot = int(chunk_sizes.sum()) - n_data_samples
+        for i in range(len(chunk_sizes) - 2, -1, -1):
+            take = min(overshoot, int(chunk_sizes[i]) - 1)
+            chunk_sizes[i] -= take
+            overshoot -= take
+            if overshoot <= 0:
+                break
+
+    positions = []
+    for i in range(n_chunks):
+        csize = int(chunk_sizes[i])
+        raw_pos = available_start + int(spiral_positions[i] * (total_available - csize))
+        raw_pos = max(available_start, min(raw_pos, available_end - csize))
+        positions.append((raw_pos, csize))
+
+    positions.sort(key=lambda x: x[0])
+
+    resolved = []
+    current_end = available_start
+    for (pos, csize) in positions:
+        actual_pos = max(pos, current_end)
+        if actual_pos + csize > available_end:
+            csize = available_end - actual_pos
+        if csize > 0:
+            resolved.append((actual_pos, csize))
+            current_end = actual_pos + csize
+
+    return resolved
+
+
 def apply_dither_mask(samples: np.ndarray, seed: int = 42) -> np.ndarray:
     rng = np.random.RandomState(seed)
     white = rng.randn(len(samples))
@@ -160,7 +230,8 @@ def _decrypt_header(encrypted_header: bytes, key: bytes) -> bytes:
 
 
 def _build_header(file_name: str, extension: str, data_size: int,
-                  checksum: str, key: bytes, jitter: bool = False) -> bytes:
+                  checksum: str, key: bytes, jitter: bool = False,
+                  vortex: bool = False) -> bytes:
     name_ext = (file_name + extension).encode("utf-8")
     if len(name_ext) > 24:
         name_ext = name_ext[:24]
@@ -173,6 +244,8 @@ def _build_header(file_name: str, extension: str, data_size: int,
     stored_size = data_size
     if jitter:
         stored_size |= JITTER_FLAG_BIT
+    if vortex:
+        stored_size |= VORTEX_FLAG_BIT
 
     plaintext = (
         MAGIC
@@ -188,7 +261,7 @@ def _build_header(file_name: str, extension: str, data_size: int,
     return encrypted
 
 
-def _parse_header(encrypted_header: bytes, key: bytes) -> tuple[str, int, str, bool]:
+def _parse_header(encrypted_header: bytes, key: bytes) -> tuple[str, int, str, bool, bool]:
     decrypted = _decrypt_header(encrypted_header, key)
 
     magic = decrypted[:4]
@@ -200,11 +273,12 @@ def _parse_header(encrypted_header: bytes, key: bytes) -> tuple[str, int, str, b
 
     raw_size = struct.unpack("<I", decrypted[28:32])[0]
     jitter = bool(raw_size & JITTER_FLAG_BIT)
-    data_size = raw_size & ~JITTER_FLAG_BIT
+    vortex = bool(raw_size & VORTEX_FLAG_BIT)
+    data_size = raw_size & ~JITTER_FLAG_BIT & ~VORTEX_FLAG_BIT
 
     checksum = decrypted[32:48].hex()
 
-    return name_ext, data_size, checksum, jitter
+    return name_ext, data_size, checksum, jitter, vortex
 
 
 def _compute_md5(data: bytes) -> str:
@@ -242,9 +316,12 @@ def _extract_bits_at(samples: np.ndarray, start: int,
 
 def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
            output_path: str, lsb_depth: int = 1, passphrase: str | None = None,
-           jitter: bool = False) -> str:
+           jitter: bool = False, vortex: bool = False) -> str:
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")
+
+    if jitter and vortex:
+        raise ValueError("Cannot use both jitter and vortex modes simultaneously")
 
     if len(payload) > 500 * 1024 * 1024:
         print(f"  [RESONANCE WARNING]: Large Void detected ({len(payload) / (1024*1024):.0f} MB). Ensuring 18-hour Pulse is active...")
@@ -254,7 +331,8 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
 
     key = _derive_key(passphrase)
     checksum = _compute_md5(payload)
-    header = _build_header(file_name, extension, len(payload), checksum, key, jitter=jitter)
+    header = _build_header(file_name, extension, len(payload), checksum, key,
+                           jitter=jitter, vortex=vortex)
 
     with wave.open(carrier_path, "rb") as wav_in:
         params = wav_in.getparams()
@@ -299,8 +377,20 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
             data_bits = np.concatenate([data_bits, np.zeros(pad_len, dtype=np.uint8)])
     data_samples_needed = len(data_bits) // bits_per_sample
 
-    jitter_info = ""
-    if jitter and data_samples_needed > 0:
+    scatter_info = ""
+    if vortex and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        vortex_map = _generate_vortex_map(passphrase, data_samples_needed,
+                                          data_start, total_samples)
+
+        bit_offset = 0
+        for (pos, chunk_len) in vortex_map:
+            chunk_bits = data_bits[bit_offset * bits_per_sample:(bit_offset + chunk_len) * bits_per_sample]
+            _embed_bits_at(samples, chunk_bits, pos, chunk_len, lsb_depth)
+            bit_offset += chunk_len
+
+        scatter_info = f"\n         Vortex Scatter: Active ({len(vortex_map)} spiral arms, 432 Hz harmonic distribution)"
+    elif jitter and data_samples_needed > 0:
         data_start = ghost_offset + header_samples
         jitter_map = _generate_jitter_map(passphrase, data_samples_needed,
                                           data_start, total_samples)
@@ -311,7 +401,7 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
             _embed_bits_at(samples, chunk_bits, pos, chunk_len, lsb_depth)
             bit_offset += chunk_len
 
-        jitter_info = f"\n         Fly Jitter: Active ({len(jitter_map)} chunks scattered)"
+        scatter_info = f"\n         Fly Jitter: Active ({len(jitter_map)} chunks scattered)"
     else:
         data_start = ghost_offset + header_samples
         _embed_bits_at(samples, data_bits, data_start, data_samples_needed, lsb_depth)
@@ -332,7 +422,7 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     print(f"         Used:       {full_payload_size:,} bytes ({usage_pct:.1f}%)")
     print(f"         Checksum:   {checksum}")
     print(f"         Ghost Offset: {ghost_offset:,} samples")
-    print(f"         Dither Mask: Applied (seed {dither_seed}){jitter_info}")
+    print(f"         Dither Mask: Applied (seed {dither_seed}){scatter_info}")
 
     return passphrase
 
@@ -513,9 +603,12 @@ def _generate_pn_sequence(passphrase: str, length: int) -> np.ndarray:
 
 def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: str,
                   output_path: str, lsb_depth: int = 1, passphrase: str | None = None,
-                  jitter: bool = False) -> str:
+                  jitter: bool = False, vortex: bool = False) -> str:
     if lsb_depth not in (1, 2):
         raise ValueError("lsb_depth must be 1 or 2")
+
+    if jitter and vortex:
+        raise ValueError("Cannot use both jitter and vortex modes simultaneously")
 
     with wave.open(carrier_path, "rb") as wav_in:
         params = wav_in.getparams()
@@ -539,7 +632,8 @@ def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: 
 
     key = _derive_key(passphrase)
     checksum = _compute_md5(payload)
-    header = _build_header(file_name, extension, len(payload), checksum, key, jitter=jitter)
+    header = _build_header(file_name, extension, len(payload), checksum, key,
+                           jitter=jitter, vortex=vortex)
 
     bits_per_sample = lsb_depth
     ghost_offset = _compute_ghost_offset(passphrase, total_samples)
@@ -574,8 +668,18 @@ def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: 
             data_bits = np.concatenate([data_bits, np.zeros(pad_len, dtype=np.uint8)])
     data_samples_needed = len(data_bits) // bits_per_sample
 
-    jitter_info = ""
-    if jitter and data_samples_needed > 0:
+    scatter_info = ""
+    if vortex and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        vortex_map = _generate_vortex_map(passphrase, data_samples_needed,
+                                          data_start, total_samples)
+        bit_offset = 0
+        for (pos, chunk_len) in vortex_map:
+            chunk_bits = data_bits[bit_offset * bits_per_sample:(bit_offset + chunk_len) * bits_per_sample]
+            _embed_bits_at(right, chunk_bits, pos, chunk_len, lsb_depth)
+            bit_offset += chunk_len
+        scatter_info = f"\n         Vortex Scatter: Active ({len(vortex_map)} spiral arms, 432 Hz harmonic distribution)"
+    elif jitter and data_samples_needed > 0:
         data_start = ghost_offset + header_samples
         jitter_map = _generate_jitter_map(passphrase, data_samples_needed,
                                           data_start, total_samples)
@@ -584,7 +688,7 @@ def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: 
             chunk_bits = data_bits[bit_offset * bits_per_sample:(bit_offset + chunk_len) * bits_per_sample]
             _embed_bits_at(right, chunk_bits, pos, chunk_len, lsb_depth)
             bit_offset += chunk_len
-        jitter_info = f"\n         Fly Jitter: Active ({len(jitter_map)} chunks scattered)"
+        scatter_info = f"\n         Fly Jitter: Active ({len(jitter_map)} chunks scattered)"
     else:
         data_start = ghost_offset + header_samples
         _embed_bits_at(right, data_bits, data_start, data_samples_needed, lsb_depth)
@@ -607,7 +711,7 @@ def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: 
     print(f"         Used:       {full_payload_size:,} bytes ({usage_pct:.1f}%)")
     print(f"         Checksum:   {checksum}")
     print(f"         Ghost Offset: {ghost_offset:,} samples")
-    print(f"         Dither Mask: Applied (seed {dither_seed}){jitter_info}")
+    print(f"         Dither Mask: Applied (seed {dither_seed}){scatter_info}")
 
     return passphrase
 
@@ -641,11 +745,21 @@ def decode_stereo(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple
     header_raw_bits = _extract_bits_at(right, ghost_offset, header_samples, lsb_depth)
     header_bits = header_raw_bits[:HEADER_SIZE * 8]
     header_bytes = np.packbits(header_bits).tobytes()[:HEADER_SIZE]
-    name_ext, data_size, stored_checksum, has_jitter = _parse_header(header_bytes, key)
+    name_ext, data_size, stored_checksum, has_jitter, has_vortex = _parse_header(header_bytes, key)
 
     data_samples_needed = (data_size * 8 + bits_per_sample - 1) // bits_per_sample
 
-    if has_jitter and data_samples_needed > 0:
+    if has_vortex and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        vortex_map = _generate_vortex_map(passphrase, data_samples_needed,
+                                          data_start, total_samples)
+        collected_bits = []
+        for (pos, chunk_len) in vortex_map:
+            chunk_raw = _extract_bits_at(right, pos, chunk_len, lsb_depth)
+            collected_bits.append(chunk_raw)
+        all_data_bits = np.concatenate(collected_bits)[:data_size * 8]
+        jitter_info = f" (Vortex Scatter: {len(vortex_map)} spiral arms)"
+    elif has_jitter and data_samples_needed > 0:
         data_start = ghost_offset + header_samples
         jitter_map = _generate_jitter_map(passphrase, data_samples_needed,
                                           data_start, total_samples)
@@ -706,11 +820,23 @@ def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes,
     header_raw_bits = _extract_bits_at(samples, ghost_offset, header_samples, lsb_depth)
     header_bits = header_raw_bits[:HEADER_SIZE * 8]
     header_bytes = np.packbits(header_bits).tobytes()[:HEADER_SIZE]
-    name_ext, data_size, stored_checksum, has_jitter = _parse_header(header_bytes, key)
+    name_ext, data_size, stored_checksum, has_jitter, has_vortex = _parse_header(header_bytes, key)
 
     data_samples_needed = (data_size * 8 + bits_per_sample - 1) // bits_per_sample
 
-    if has_jitter and data_samples_needed > 0:
+    if has_vortex and data_samples_needed > 0:
+        data_start = ghost_offset + header_samples
+        vortex_map = _generate_vortex_map(passphrase, data_samples_needed,
+                                          data_start, total_samples)
+
+        collected_bits = []
+        for (pos, chunk_len) in vortex_map:
+            chunk_raw = _extract_bits_at(samples, pos, chunk_len, lsb_depth)
+            collected_bits.append(chunk_raw)
+
+        all_data_bits = np.concatenate(collected_bits)[:data_size * 8]
+        jitter_info = f" (Vortex Scatter: {len(vortex_map)} spiral arms)"
+    elif has_jitter and data_samples_needed > 0:
         data_start = ghost_offset + header_samples
         jitter_map = _generate_jitter_map(passphrase, data_samples_needed,
                                           data_start, total_samples)

@@ -1,9 +1,11 @@
 import wave
 import os
+import numpy as np
 from datetime import datetime
 
 
 HEADER_OVERHEAD = 64
+VILLAGE_STANDARD_HZ = 432
 RESONANCE_THRESHOLD_LSB1 = 0.25
 RESONANCE_THRESHOLD_LSB2 = 0.15
 RESONANCE_BONUS = 0.05
@@ -15,6 +17,51 @@ LOG_FILE = "RESONANCE_LOG.md"
 def _is_resonant_carrier(filename: str) -> bool:
     lower = filename.lower()
     return any(kw in lower for kw in RESONANCE_KEYWORDS)
+
+
+def _compute_resonance_score(wav_path: str, sample_rate: int, n_frames: int, n_channels: int) -> dict:
+    with wave.open(wav_path, "rb") as wf:
+        raw = wf.readframes(n_frames)
+
+    samples = np.frombuffer(raw, dtype=np.int16).astype(np.float64)
+    if n_channels > 1:
+        samples = samples[::n_channels]
+
+    window_size = min(len(samples), 4096 * 4)
+    segment = samples[:window_size]
+    windowed = segment * np.hanning(len(segment))
+
+    spectrum = np.abs(np.fft.rfft(windowed))
+    freqs = np.fft.rfftfreq(len(segment), 1.0 / sample_rate)
+
+    target_hz = VILLAGE_STANDARD_HZ
+    band_width = 20
+
+    band_mask = (freqs >= target_hz - band_width) & (freqs <= target_hz + band_width)
+    noise_mask = ~band_mask & (freqs > 50)
+
+    signal_power = np.mean(spectrum[band_mask] ** 2) if np.any(band_mask) else 0
+    noise_power = np.mean(spectrum[noise_mask] ** 2) if np.any(noise_mask) else 1e-10
+    total_power = np.mean(spectrum ** 2) if len(spectrum) > 0 else 1e-10
+
+    harmonic_powers = []
+    for mult in [1, 2, 3, 0.5]:
+        h_freq = target_hz * mult
+        h_mask = (freqs >= h_freq - band_width) & (freqs <= h_freq + band_width)
+        h_power = np.mean(spectrum[h_mask] ** 2) if np.any(h_mask) else 0
+        harmonic_powers.append(h_power)
+
+    harmonic_sum = sum(harmonic_powers)
+    resonance_ratio = float(harmonic_sum / total_power) if total_power > 0 else 0.0
+    resonance_score = min(1.0, resonance_ratio * 5.0)
+
+    snr_db = 10 * np.log10(signal_power / noise_power) if noise_power > 0 else 0
+
+    return {
+        "resonance_score": round(float(resonance_score), 4),
+        "snr_db": round(float(snr_db), 1),
+        "harmonic_energy_ratio": round(float(resonance_ratio), 4),
+    }
 
 
 def analyze_carrier(wav_path: str) -> dict:
@@ -45,11 +92,21 @@ def analyze_carrier(wav_path: str) -> dict:
     threshold_1 = RESONANCE_THRESHOLD_LSB1 + (RESONANCE_BONUS if resonant else 0)
     threshold_2 = RESONANCE_THRESHOLD_LSB2
 
-    tension_1bit = int(usable_1bit * threshold_1)
-    tension_2bit = int(usable_2bit * threshold_2)
+    res_info = _compute_resonance_score(wav_path, sample_rate, n_frames, n_channels)
+    resonance_score = res_info["resonance_score"]
+
+    capacity_boost = resonance_score * 0.10
+    effective_threshold_1 = min(0.50, threshold_1 + capacity_boost)
+    effective_threshold_2 = min(0.35, threshold_2 + capacity_boost)
+
+    tension_1bit = int(usable_1bit * effective_threshold_1)
+    tension_2bit = int(usable_2bit * effective_threshold_2)
 
     burst_1bit = int(tension_1bit * BUBBLE_BURST_MARGIN)
     burst_2bit = int(tension_2bit * BUBBLE_BURST_MARGIN)
+
+    dynamic_tension_1bit = int(usable_1bit * effective_threshold_1)
+    dynamic_tension_2bit = int(usable_2bit * effective_threshold_2)
 
     bitrate_1 = sample_rate * n_channels / 8
     bitrate_2 = sample_rate * n_channels * 2 / 8
@@ -74,8 +131,16 @@ def analyze_carrier(wav_path: str) -> dict:
         "resonance_limit_2bit": tension_2bit,
         "header_overhead": HEADER_OVERHEAD,
         "resonant_carrier": resonant,
-        "threshold_lsb1": threshold_1,
-        "threshold_lsb2": threshold_2,
+        "threshold_lsb1": effective_threshold_1,
+        "threshold_lsb2": effective_threshold_2,
+        "resonance_score": resonance_score,
+        "resonance_snr_db": res_info["snr_db"],
+        "harmonic_energy_ratio": res_info["harmonic_energy_ratio"],
+        "dynamic_tension": {
+            "lsb1": dynamic_tension_1bit,
+            "lsb2": dynamic_tension_2bit,
+            "boost_pct": round(capacity_boost * 100, 1),
+        },
     }
 
 

@@ -68,11 +68,12 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="checkbox-label" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                    <input type="checkbox" id="jitter-toggle">
-                    <span>Fly Jitter</span>
-                    <span class="hint">— Scatter data like a fly (anti-forensic temporal offset)</span>
-                </label>
+                <label>Scatter Mode</label>
+                <div class="radio-group">
+                    <label class="radio-label"><input type="radio" name="scatter-mode" value="linear" checked> Linear <span class="hint">— Standard sequential embedding</span></label>
+                    <label class="radio-label"><input type="radio" name="scatter-mode" value="jitter"> Fly Jitter <span class="hint">— Anti-forensic temporal scatter</span></label>
+                    <label class="radio-label"><input type="radio" name="scatter-mode" value="vortex"> Vortex <span class="hint">— 432 Hz harmonic spiral (Divided Optimum)</span></label>
+                </div>
             </div>
             <button id="encode-btn" class="btn-primary">Encode File</button>
             <div id="encode-error" class="inline-error" style="display:none;"></div>
@@ -519,6 +520,70 @@
                     <div class="adriana-lex-grid" id="adriana-lex-entities"></div>
                     <div class="adriana-lex-grid" id="adriana-lex-conditions"></div>
                     <div class="adriana-lex-grid" id="adriana-lex-actions"></div>
+                </div>
+            </div>
+
+            <div class="harness-actions-row divided-section">
+                <h3>Divided Protocol — Axiomatic Sequence</h3>
+                <p class="panel-desc">Five-step pipeline: Initialize → Calibrate → Observe → Inject → Commit. The machine takes over. Press execute and watch each step pass or fail.</p>
+
+                <div class="divided-pipeline" id="divided-pipeline">
+                    <div class="divided-step" data-step="1">
+                        <div class="divided-step-code">SLM.V</div>
+                        <div class="divided-step-name">Initialize</div>
+                        <div class="divided-step-status" id="div-step-1-status">—</div>
+                    </div>
+                    <div class="divided-arrow">→</div>
+                    <div class="divided-step" data-step="2">
+                        <div class="divided-step-code">TRK.A</div>
+                        <div class="divided-step-name">Calibrate</div>
+                        <div class="divided-step-status" id="div-step-2-status">—</div>
+                    </div>
+                    <div class="divided-arrow">→</div>
+                    <div class="divided-step" data-step="3">
+                        <div class="divided-step-code">ZHR.V</div>
+                        <div class="divided-step-name">Observe</div>
+                        <div class="divided-step-status" id="div-step-3-status">—</div>
+                    </div>
+                    <div class="divided-arrow">→</div>
+                    <div class="divided-step" data-step="4">
+                        <div class="divided-step-code">KTM.A</div>
+                        <div class="divided-step-name">Inject</div>
+                        <div class="divided-step-status" id="div-step-4-status">—</div>
+                    </div>
+                    <div class="divided-arrow">→</div>
+                    <div class="divided-step" data-step="5">
+                        <div class="divided-step-code">JDR.A</div>
+                        <div class="divided-step-name">Commit</div>
+                        <div class="divided-step-status" id="div-step-5-status">—</div>
+                    </div>
+                </div>
+
+                <div class="divided-controls">
+                    <div class="form-group" style="flex:1">
+                        <label>Carrier WAV</label>
+                        <select id="divided-carrier" class="void-select"><option value="">Loading...</option></select>
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>File to Hide</label>
+                        <select id="divided-payload" class="void-select"><option value="">Loading...</option></select>
+                    </div>
+                    <div class="form-group" style="width:80px">
+                        <label>LSB</label>
+                        <select id="divided-lsb" class="void-select">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+                    </div>
+                    <button id="divided-execute-btn" class="btn-accent" style="align-self:flex-end">Execute Protocol</button>
+                </div>
+
+                <div id="divided-readiness" class="divided-readiness"></div>
+
+                <div id="divided-result" class="divided-result" style="display:none;">
+                    <div class="divided-result-header" id="divided-result-header"></div>
+                    <div class="divided-step-details" id="divided-step-details"></div>
+                    <div class="divided-final" id="divided-final"></div>
                 </div>
             </div>
 

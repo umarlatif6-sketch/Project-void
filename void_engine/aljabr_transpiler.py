@@ -41,6 +41,9 @@ DEFAULT_BARE_PATTERNS = {
     "pressure": ["M", "V", "I"],
     "economy": ["V", "M"],
     "system": ["V"],
+    "steganography": ["V", "M"],
+    "chronicle": ["V", "M"],
+    "radiance": ["V", "M"],
 }
 
 
@@ -261,6 +264,81 @@ ROOT_PATTERN_ACTIONS = {
         "D": None,
         "T": [("sensor_calibrate", {"sensor": "silk_web"}, "Transmit full system status via Silk Web")],
     },
+    "BTR": {
+        "A": [("emergency_shutdown", {"target": "all", "severity": "critical"}, "Accelerate severance — emergency shutdown of all systems")],
+        "I": [("emergency_shutdown", {"target": "signal", "severity": "isolate"}, "Isolate corrupted signal — sever from network")],
+        "V": [("signal_integrity_check", {"target": "all"}, "Verify signal integrity across all channels")],
+        "M": [("signal_integrity_check", {"target": "monitor"}, "Monitor for corrupted signals")],
+        "R": [("signal_restore", {"target": "all"}, "Restore — reconnect severed signals after purge")],
+        "D": [("emergency_shutdown", {"target": "partial", "severity": "controlled"}, "Diminish — controlled partial shutdown")],
+        "T": [("sensor_calibrate", {"sensor": "silk_web"}, "Transmit severance alert via Silk Web")],
+    },
+    "TRK": {
+        "A": [("flywheel_boost", {"rpm_delta": 300, "mode": "vortex"}, "Accelerate vortex — increase flywheel RPM for kinetic harvest")],
+        "I": [("sensor_calibrate", {"sensor": "flywheel_vibration"}, "Isolate kinetic — check vibration before vortex engagement")],
+        "V": [
+            ("sensor_calibrate", {"sensor": "flywheel_rpm"}, "Verify vortex RPM"),
+            ("sensor_calibrate", {"sensor": "flywheel_energy"}, "Verify kinetic energy reserve"),
+        ],
+        "M": [("sensor_calibrate", {"sensor": "flywheel_rpm"}, "Monitor vortex rotation state")],
+        "R": [("flywheel_boost", {"rpm_delta": -150, "mode": "vortex"}, "Restore — reduce vortex RPM toward nominal")],
+        "D": [("flywheel_boost", {"rpm_delta": -300, "mode": "vortex"}, "Diminish — decelerate vortex rotation")],
+        "T": [("burst_generate", {"frequency": 432.0, "source": "vortex"}, "Transmit — generate burst signal from vortex energy")],
+    },
+    "SHR": {
+        "A": [("sensor_calibrate", {"sensor": "all", "mode": "deep_scan"}, "Accelerate observation — deep scan all sensors")],
+        "I": [("sensor_calibrate", {"sensor": "digital_moss", "mode": "isolate"}, "Isolate — focus Digital Moss on single-point reading")],
+        "V": [
+            ("sensor_calibrate", {"sensor": "digital_moss"}, "Verify Digital Moss sensor integrity"),
+            ("resonance_purity_check", {"frequency": 432.0}, "Verify 432 Hz resonance purity"),
+        ],
+        "M": [
+            ("sensor_calibrate", {"sensor": "digital_moss"}, "Monitor Digital Moss presence layer"),
+            ("sensor_calibrate", {"sensor": "resonance_field"}, "Monitor resonance field strength"),
+        ],
+        "R": [("sensor_calibrate", {"sensor": "digital_moss", "mode": "recalibrate"}, "Restore — recalibrate Digital Moss baseline")],
+        "D": [("sensor_calibrate", {"sensor": "digital_moss", "mode": "low_power"}, "Diminish — reduce sensor polling rate")],
+        "T": [("sensor_calibrate", {"sensor": "silk_web"}, "Transmit sensor observation report via Silk Web")],
+    },
+    "KTM": {
+        "A": [("stega_encode", {"mode": "vortex_scatter", "frequency": 432.0}, "Accelerate — encode payload using vortex scatter steganography")],
+        "I": [("stega_encode", {"mode": "standard", "frequency": 432.0}, "Isolate — standard LSB encode with 432 Hz pocket")],
+        "V": [
+            ("stega_capacity_check", {"frequency": 432.0}, "Verify carrier steganographic capacity"),
+            ("stega_decode", {"mode": "verify"}, "Verify — decode and validate hidden payload integrity"),
+        ],
+        "M": [("stega_capacity_check", {"frequency": 432.0}, "Monitor carrier capacity and payload density")],
+        "R": [("stega_decode", {"mode": "full"}, "Restore — extract and recover hidden payload")],
+        "D": [("stega_dither", {"intensity": 0.5}, "Diminish — apply dither to reduce steganographic footprint")],
+        "T": [("stega_encode", {"mode": "burst", "frequency": 432.0}, "Transmit — encode and burst-transmit hidden payload")],
+    },
+    "JDR": {
+        "A": [("chronicle_store", {"scope": "full", "include_state": True}, "Accelerate — write full state snapshot to Root-Chronicle")],
+        "I": [("chronicle_store", {"scope": "minimal"}, "Isolate — store minimal consensus record only")],
+        "V": [
+            ("chronicle_recall", {"query": "latest"}, "Verify — recall latest chronicle entry for validation"),
+            ("chronicle_recall", {"query": "genesis"}, "Verify genesis seed integrity"),
+        ],
+        "M": [("chronicle_recall", {"query": "stats"}, "Monitor chronicle size and entry count")],
+        "R": [("chronicle_import_seed", {"source": "genesis"}, "Restore — import genesis seed to rebuild chronicle")],
+        "D": [("chronicle_export", {"format": "compressed"}, "Diminish — export compressed chronicle archive")],
+        "T": [("chronicle_export", {"format": "full"}, "Transmit — export full chronicle for external consumption")],
+    },
+    "ZHR": {
+        "A": [("radiance_glow", {"intensity": 1.0, "source": "silk_pulse"}, "Accelerate radiance — maximum glow from silk pulse")],
+        "I": [("radiance_glow", {"intensity": 0.5, "source": "algae"}, "Isolate — focus radiance on glow algae only")],
+        "V": [
+            ("radiance_check", {"source": "all"}, "Verify radiance state — check motion-to-light correlation"),
+            ("radiance_motion_light_axiom", {"threshold": 300, "source": "TRK"}, "Verify ZHR axiom — if TRK.A > threshold then ZHR.A (motion→light)"),
+        ],
+        "M": [
+            ("radiance_check", {"source": "algae"}, "Monitor glow algae luminescence"),
+            ("radiance_density_correlation", {}, "Monitor data-density to radiance correlation"),
+        ],
+        "R": [("radiance_glow", {"intensity": 0.0, "source": "all"}, "Restore — dim all radiance to baseline")],
+        "D": [("radiance_glow", {"intensity": 0.2, "source": "all"}, "Diminish — reduce radiance to low-power glow")],
+        "T": [("sensor_calibrate", {"sensor": "silk_web"}, "Transmit radiance report via Silk Web")],
+    },
 }
 
 
@@ -302,7 +380,7 @@ class AlJabrManifest:
 
     def get_manifest_map(self) -> Dict:
         result = {}
-        for domain in ("aqua", "flywheel", "silk", "pressure", "economy", "system"):
+        for domain in ("aqua", "flywheel", "silk", "pressure", "economy", "system", "steganography", "chronicle", "radiance"):
             result[domain] = []
             for entry in self._by_domain.get(domain, []):
                 actions = ROOT_PATTERN_ACTIONS.get(entry.root, {})

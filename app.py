@@ -23,6 +23,7 @@ from void_engine.diagnostics import DiagnosticEngine, SOVEREIGN_WARRANTY
 from void_engine.rituals import RitualHistory, AutoHealDaemon, RITUAL_TYPES
 from void_engine.chronicle import RootChronicle
 from void_engine.founder_certs import create_founder_cert, batch_generate_certs, FOUNDER_ROOT_HASH
+from void_engine.divided_protocol import DividedProtocol
 
 LOG_FILE = "RESONANCE_LOG.md"
 
@@ -102,6 +103,7 @@ def encode_file():
     payload = data.get("payload")
     lsb_depth = int(data.get("lsb_depth", 1))
     jitter = bool(data.get("jitter", False))
+    vortex = bool(data.get("vortex", False))
 
     if not carrier or not payload:
         return jsonify({"error": "Carrier and payload files are required"}), 400
@@ -126,11 +128,12 @@ def encode_file():
         is_stereo = n_channels == 2
 
         if is_stereo:
-            hash_key = encode_stereo(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter)
+            hash_key = encode_stereo(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter, vortex=vortex)
         else:
-            hash_key = encode(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter)
+            hash_key = encode(carrier_path, compressed, name, ext, output_path, lsb_depth, jitter=jitter, vortex=vortex)
 
-        _log_operation("ENCODE", output_name, hash_key, f"LSB{lsb_depth}")
+        scatter_mode = "vortex" if vortex else ("jitter" if jitter else "linear")
+        _log_operation("ENCODE", output_name, hash_key, f"LSB{lsb_depth}/{scatter_mode}")
 
         info = analyze_carrier(carrier_path)
         tension_key = f"surface_tension_{lsb_depth}bit"
@@ -157,6 +160,8 @@ def encode_file():
             "compressed_size": compressed_size,
             "lsb_depth": lsb_depth,
             "jitter": jitter,
+            "vortex": vortex,
+            "scatter_mode": scatter_mode,
             "bubble_status": bubble_status,
             "bubble_warning": bubble_warning,
         })
@@ -515,6 +520,7 @@ _ritual_history = RitualHistory(_harness_sim, wallet=_wallet)
 _chronicle = RootChronicle(machine_id=_ritual_history.machine_id)
 _consensus = ConsensusEngine(_harness_sim, _aljabr, _boundary_hook, _loop_detector, wallet=_wallet, chronicle=_chronicle)
 _auto_heal = AutoHealDaemon(_diagnostics, _harness_sim, wallet=_wallet, ritual_history=_ritual_history)
+_divided = DividedProtocol(_diagnostics, _harness_sim, chronicle=_chronicle, wallet=_wallet)
 
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
@@ -1301,7 +1307,7 @@ def founder_mark():
 
 @app.route("/api/harness/founder/cert", methods=["POST"])
 def founder_generate_cert():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     customer_id = data.get("customer_id", 1)
     machine_hash = data.get("machine_hash", _ritual_history.machine_id)
     try:
@@ -1313,7 +1319,7 @@ def founder_generate_cert():
 
 @app.route("/api/harness/founder/batch", methods=["POST"])
 def founder_batch_certs():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     count = min(int(data.get("count", 100)), 100)
     base_hash = data.get("base_hash", _ritual_history.machine_id)
     try:
@@ -1333,6 +1339,45 @@ def founder_genesis_kit():
         "founder_root_hash": FOUNDER_ROOT_HASH,
         "instructions": "Package this seed with genesis_init.sh and FOUNDER_CERT for each customer.",
     })
+
+
+@app.route("/api/harness/divided/status")
+def divided_status():
+    return jsonify(_divided.get_readiness())
+
+
+@app.route("/api/harness/divided/execute", methods=["POST"])
+def divided_execute():
+    data = request.json or {}
+    carrier = data.get("carrier")
+    payload = data.get("payload")
+    lsb_depth = int(data.get("lsb_depth", 1))
+
+    if not carrier or not payload:
+        return jsonify({"error": "Carrier and payload files are required"}), 400
+
+    carrier_path = os.path.join(INPUT_DIR, carrier)
+    payload_path = os.path.join(INPUT_DIR, payload)
+
+    if not os.path.exists(carrier_path):
+        return jsonify({"error": f"Carrier file not found: {carrier}"}), 404
+    if not os.path.exists(payload_path):
+        return jsonify({"error": f"Payload file not found: {payload}"}), 404
+
+    output_name = f"{os.path.splitext(carrier)[0]}_void.wav"
+    output_path = os.path.join(OUTPUT_DIR, output_name)
+
+    try:
+        result = _divided.execute(
+            carrier_path, payload_path,
+            lsb_depth=lsb_depth,
+            output_path=output_path,
+            low_power=_low_power_mode,
+        )
+        status_code = 200 if result["success"] else 422
+        return jsonify(result), status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 _start_time = __import__("time").time()

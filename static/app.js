@@ -252,7 +252,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const carrier = document.getElementById("carrier-select").value;
         const payload = document.getElementById("payload-select").value;
         const lsb = document.querySelector('input[name="lsb-encode"]:checked').value;
-        const jitter = document.getElementById("jitter-toggle").checked;
+        const scatterMode = document.querySelector('input[name="scatter-mode"]:checked').value;
+        const jitter = scatterMode === "jitter";
+        const vortex = scatterMode === "vortex";
         const btn = document.getElementById("encode-btn");
 
         if (!carrier || !payload) {
@@ -269,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("/api/encode", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ carrier, payload, lsb_depth: parseInt(lsb), jitter }),
+                body: JSON.stringify({ carrier, payload, lsb_depth: parseInt(lsb), jitter, vortex }),
             });
             const data = await res.json();
 
@@ -2307,6 +2309,152 @@ document.addEventListener("DOMContentLoaded", () => {
             execEl.appendChild(walletLine);
         }
     }
+
+    function updateDividedSelects(fileData) {
+        const carrierSel = document.getElementById("divided-carrier");
+        const payloadSel = document.getElementById("divided-payload");
+        if (!carrierSel || !payloadSel) return;
+        const wavFiles = fileData.input.filter(f => f.name.toLowerCase().endsWith(".wav"));
+        carrierSel.innerHTML = wavFiles.length
+            ? wavFiles.map(f => `<option value="${f.name}">${f.name} (${formatSize(f.size)})</option>`).join("")
+            : '<option value="">No WAV files</option>';
+        payloadSel.innerHTML = fileData.input.length
+            ? fileData.input.map(f => {
+                const isWav = f.name.toLowerCase().endsWith(".wav");
+                const tag = isWav ? " [WAV]" : "";
+                return `<option value="${f.name}">${f.name} (${formatSize(f.size)})${tag}</option>`;
+            }).join("")
+            : '<option value="">No files</option>';
+    }
+
+    (async function loadDividedReadiness() {
+        try {
+            const res = await fetch("/api/harness/divided/status");
+            const data = await res.json();
+            const el = document.getElementById("divided-readiness");
+            if (!el) return;
+            const ready = data.ready;
+            el.className = "divided-readiness " + (ready ? "ready" : "not-ready");
+            const checks = data.checks || {};
+            el.innerHTML = ready
+                ? `System Ready — ${checks.system_status || "NOMINAL"} | RPM: ${checks.flywheel_rpm || 0} | Chronicle: ${checks.chronicle_available ? "ON" : "OFF"} | Wallet: ${checks.wallet_available ? "ON" : "OFF"}`
+                : `System Not Ready — ${checks.critical_issues || 0} critical issue(s) detected. Run SLM.V scan first.`;
+
+            const files = await fetchFiles();
+            updateDividedSelects(files);
+        } catch(e) {}
+    })();
+
+    document.getElementById("divided-execute-btn")?.addEventListener("click", async () => {
+        const carrier = document.getElementById("divided-carrier").value;
+        const payload = document.getElementById("divided-payload").value;
+        const lsb = document.getElementById("divided-lsb").value;
+        const btn = document.getElementById("divided-execute-btn");
+
+        if (!carrier || !payload) {
+            showToast("Select carrier and payload files", "error");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Executing...';
+        document.getElementById("divided-result").style.display = "none";
+
+        document.querySelectorAll(".divided-step").forEach(el => {
+            el.setAttribute("data-status", "");
+            el.querySelector(".divided-step-status").textContent = "—";
+        });
+
+        for (let i = 1; i <= 5; i++) {
+            const stepEl = document.querySelector(`.divided-step[data-step="${i}"]`);
+            if (stepEl) {
+                stepEl.setAttribute("data-status", "running");
+                stepEl.querySelector(".divided-step-status").textContent = "running...";
+            }
+            await new Promise(r => setTimeout(r, 200));
+            if (i < 5) {
+                stepEl.setAttribute("data-status", "pass");
+                stepEl.querySelector(".divided-step-status").textContent = "PASS";
+            }
+        }
+
+        try {
+            const res = await fetch("/api/harness/divided/execute", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ carrier, payload, lsb_depth: parseInt(lsb) }),
+            });
+            const data = await res.json();
+
+            if (data.error && !data.steps) {
+                showToast("Protocol error: " + data.error, "error");
+                document.querySelectorAll(".divided-step").forEach(el => {
+                    el.setAttribute("data-status", "fail");
+                    el.querySelector(".divided-step-status").textContent = "ERROR";
+                });
+                btn.disabled = false;
+                btn.textContent = "Execute Protocol";
+                return;
+            }
+
+            (data.steps || []).forEach(step => {
+                const stepEl = document.querySelector(`.divided-step[data-step="${step.index}"]`);
+                if (stepEl) {
+                    stepEl.setAttribute("data-status", step.status);
+                    const ms = step.duration_ms > 0 ? ` (${step.duration_ms.toFixed(0)}ms)` : "";
+                    stepEl.querySelector(".divided-step-status").textContent = step.status.toUpperCase() + ms;
+                }
+            });
+
+            const headerEl = document.getElementById("divided-result-header");
+            headerEl.className = "divided-result-header " + (data.success ? "success" : "failure");
+            headerEl.textContent = data.success
+                ? "Protocol Complete — All steps passed"
+                : "Protocol Failed — Check step details below";
+
+            const detailsEl = document.getElementById("divided-step-details");
+            detailsEl.innerHTML = (data.steps || []).map(step => {
+                let info = "";
+                if (step.result) {
+                    if (step.index === 1) info = step.result.summary || "";
+                    if (step.index === 2) info = `SNR: ${step.result.carrier_snr_db || 0} dB | Resonance: ${step.result.resonance_score || 0}`;
+                    if (step.index === 3) info = `Axiom: ${step.result.axiom_result || ""} | RPM: ${step.result.motion_rpm || 0}`;
+                    if (step.index === 4) info = `${formatSize(step.result.original_size || 0)} → ${formatSize(step.result.compressed_size || 0)} (vortex)`;
+                    if (step.index === 5) info = step.result.committed ? `Chronicle #${step.result.chronicle_id} | ${step.result.wallet_charged} CC` : "Not committed";
+                }
+                if (step.error) info = step.error;
+                return `<div class="divided-detail-row">` +
+                    `<div class="divided-detail-code">${step.root_code}</div>` +
+                    `<div class="divided-detail-name">${step.name}</div>` +
+                    `<div class="divided-detail-info">${info}</div>` +
+                    `<div class="divided-detail-badge ${step.status}">${step.status.toUpperCase()}</div>` +
+                    `</div>`;
+            }).join("");
+
+            const finalEl = document.getElementById("divided-final");
+            if (data.success && data.hash_key) {
+                finalEl.innerHTML = `<div style="color:#888;font-size:10px;margin-bottom:4px;">HASH KEY (save this!)</div>` +
+                    `<div class="hash-display">${data.hash_key}</div>` +
+                    `<div style="margin-top:8px;font-size:11px;color:var(--text-muted);">` +
+                    `Output: ${data.output_file} | Scatter: ${data.scatter_mode} | Chain: ${data.chain} | Duration: ${data.total_duration_ms.toFixed(0)}ms</div>`;
+            } else {
+                finalEl.innerHTML = `<div style="color:#ff4444;font-size:12px;">Protocol terminated at failed step. Duration: ${(data.total_duration_ms || 0).toFixed(0)}ms</div>`;
+            }
+
+            document.getElementById("divided-result").style.display = "block";
+            showToast(data.success ? "Divided Protocol — all 5 steps passed" : "Protocol failed — see results", data.success ? "success" : "error");
+            loadSelects();
+        } catch(e) {
+            showToast("Protocol execution error: " + e.message, "error");
+            document.querySelectorAll(".divided-step").forEach(el => {
+                el.setAttribute("data-status", "fail");
+                el.querySelector(".divided-step-status").textContent = "ERROR";
+            });
+        }
+
+        btn.disabled = false;
+        btn.textContent = "Execute Protocol";
+    });
 
     function renderChaosReport(report) {
         const wrap = document.getElementById("chaos-test-result");
