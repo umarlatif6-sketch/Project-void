@@ -6,6 +6,7 @@ import lzma
 import wave
 import hashlib
 import tracemalloc
+from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
 import datetime
 import numpy as np
 
@@ -173,7 +174,7 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
     print("  PHASE 2: GHOST HEADER WRAP")
     print("  " + "-" * 50)
 
-    passphrase = hashlib.sha256(os.urandom(32)).hexdigest()[:32]
+    passphrase = fatiha_286_hexdigest_from_str(os.urandom(32).hex())[:32]
     key = _derive_key(passphrase)
     checksum = hashlib.md5(compressed).hexdigest()
 
@@ -432,7 +433,7 @@ def find_burst_point(carrier_path: str, start_kb: int = 10, step_kb: int = 10,
 
         compressed = b"ZLIB" + zlib.compress(raw_payload, level=1)
 
-        passphrase = hashlib.sha256(f"burst_probe_{current_kb}".encode()).hexdigest()[:32]
+        passphrase = fatiha_286_hexdigest_from_str(f"burst_probe_{current_kb}")[:32]
 
         ghost_offset = _compute_ghost_offset(passphrase, carrier_samples)
         effective_capacity = ((carrier_samples - ghost_offset) * 1) // 8

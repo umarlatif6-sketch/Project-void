@@ -1,7 +1,7 @@
 import time
-import hashlib
 import json
 from typing import Dict, List, Optional
+from void_engine.al_jabr_286 import fatiha_286_truncated
 from dataclasses import dataclass, field
 
 
@@ -57,7 +57,7 @@ class SetResult:
 
 def _consensus_sign(data: Dict) -> str:
     raw = json.dumps(data, sort_keys=True, default=str)
-    return hashlib.sha256(raw.encode()).hexdigest()[:16]
+    return fatiha_286_truncated(raw.encode("utf-8"), 16)
 
 
 class KineticTransceiver:

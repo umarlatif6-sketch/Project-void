@@ -8,8 +8,8 @@ against a mirrored environment state.
 """
 
 import time
-import hashlib
 import json
+from void_engine.al_jabr_286 import fatiha_286_truncated
 import os
 from datetime import datetime
 from typing import Dict, List, Optional, Any
@@ -119,9 +119,9 @@ class PreCompletionChecklistMiddleware:
         self._max_history = 100
 
     def run_checklist(self, sensor_state: Dict, proposed_action: Optional[Dict] = None) -> ChecklistReport:
-        exec_id = hashlib.sha256(
-            f"{time.time()}:{json.dumps(sensor_state, default=str)}".encode()
-        ).hexdigest()[:12]
+        exec_id = fatiha_286_truncated(
+            f"{time.time()}:{json.dumps(sensor_state, default=str)}".encode(), 12
+        )
 
         checks = []
         checks.extend(self._check_aquaponics(sensor_state.get("aquaponics", {}), proposed_action))

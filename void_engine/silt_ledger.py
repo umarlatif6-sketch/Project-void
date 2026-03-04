@@ -1,8 +1,8 @@
-import hashlib
 import json
 import time
 import threading
 from typing import Dict, List, Optional
+from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str, fatiha_286_truncated
 
 FOUNDER_ROOT_HASH = "89x-VOID-GEN1-PROTO-2026"
 MIN_RELAY_HONOR = 0.3
@@ -12,12 +12,12 @@ def _compute_block_hash(block_index: int, timestamp: float,
                         previous_hash: str, payload: str,
                         node_id: str) -> str:
     raw = f"{block_index}{timestamp}{previous_hash}{payload}{node_id}"
-    return hashlib.sha256(raw.encode()).hexdigest()
+    return fatiha_286_hexdigest_from_str(raw)
 
 
 def _phase_key_signature(node_id: str, payload: str) -> str:
     raw = f"PHASE-KEY:{node_id}:{payload}"
-    return hashlib.sha256(raw.encode()).hexdigest()[:16]
+    return fatiha_286_truncated(raw.encode("utf-8"), 16)
 
 
 def _verify_phase_key_signature(node_id: str, payload: str,
@@ -77,7 +77,7 @@ class SiltLedger:
         genesis = SiltBlock(
             block_index=0,
             timestamp=time.time(),
-            previous_hash="0" * 64,
+            previous_hash="0" * 72,
             payload=genesis_payload,
             node_id=self.node_id,
             kinetic_weight=0.0,
@@ -135,7 +135,7 @@ class SiltLedger:
             if not self.chain:
                 return {"valid": False, "error": "Empty chain"}
 
-            if self.chain[0].previous_hash != "0" * 64:
+            if self.chain[0].previous_hash != "0" * 72:
                 return {"valid": False, "error": "Invalid genesis block"}
 
             for i in range(1, len(self.chain)):
@@ -195,9 +195,9 @@ class SiltLedger:
                      kinetic_weight: float = 0.0,
                      biological_weight: float = 0.0) -> dict:
         node = node_id or self.node_id
-        proposal_id = hashlib.sha256(
-            f"{proposal}{time.time()}{node}".encode()
-        ).hexdigest()[:12]
+        proposal_id = fatiha_286_truncated(
+            f"{proposal}{time.time()}{node}".encode(), 12
+        )
 
         honor = self._get_relay_honor(node)
         voting_weight = (

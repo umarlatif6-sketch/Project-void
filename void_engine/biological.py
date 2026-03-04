@@ -1,6 +1,6 @@
 import time
-import hashlib
 from typing import Dict, List, Optional
+from void_engine.al_jabr_286 import fatiha_286_truncated
 from dataclasses import dataclass, field, asdict
 
 
@@ -250,9 +250,9 @@ class BiologicalTransceiver:
     def _create_governance_proposal(self, intervention_type: str, reason: str,
                                      sensor_trigger: str, current_value: float,
                                      threshold_value: float) -> GovernanceProposal:
-        proposal_id = hashlib.sha256(
-            f"{time.time()}:{intervention_type}:{sensor_trigger}".encode()
-        ).hexdigest()[:12]
+        proposal_id = fatiha_286_truncated(
+            f"{time.time()}:{intervention_type}:{sensor_trigger}".encode(), 12
+        )
 
         proposal = GovernanceProposal(
             proposal_id=proposal_id,

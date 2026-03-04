@@ -1748,6 +1748,18 @@ def blueprint_specs():
     })
 
 
+@app.route("/api/aljabr/protocol")
+def aljabr_protocol():
+    from void_engine.al_jabr_286 import get_protocol_info, fatiha_286_hexdigest
+    info = get_protocol_info()
+    test_hash = fatiha_286_hexdigest(b"PROJECT VOID")
+    info["sample_hash"] = test_hash
+    info["sample_input"] = "PROJECT VOID"
+    info["hash_length_chars"] = len(test_hash)
+    info["status"] = "ACTIVE"
+    return jsonify(info)
+
+
 _start_time = __import__("time").time()
 
 

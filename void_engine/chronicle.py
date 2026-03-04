@@ -24,8 +24,8 @@ import os
 import json
 import time
 import sqlite3
-import hashlib
 import threading
+from void_engine.al_jabr_286 import fatiha_286_truncated
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 
@@ -548,7 +548,7 @@ class RootChronicle:
         }
 
         seed_json = json.dumps(seed_data, sort_keys=True)
-        seed_data["integrity_hash"] = hashlib.sha256(seed_json.encode()).hexdigest()[:16]
+        seed_data["integrity_hash"] = fatiha_286_truncated(seed_json.encode("utf-8"), 16)
 
         return seed_data
 

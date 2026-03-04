@@ -1,7 +1,7 @@
 import os
-import hashlib
 import sqlite3
 from fpdf import FPDF
+from void_engine.al_jabr_286 import fatiha_286_truncated
 
 FOUNDER_ROOT_HASH = "89x-VOID-GEN1-PROTO-2026"
 FOUNDER_GREETING = "Inherited Wisdom Detected. First Generation Status: ACTIVE. Greeting the Architect."
@@ -11,7 +11,7 @@ def create_founder_cert(customer_id: int, machine_hash: str, output_dir: str = "
     os.makedirs(output_dir, exist_ok=True)
 
     seal_input = f"GEN1-{customer_id}-{machine_hash}"
-    seal = hashlib.sha256(seal_input.encode()).hexdigest()[:16]
+    seal = fatiha_286_truncated(seal_input.encode("utf-8"), 16)
 
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=False)
@@ -130,7 +130,7 @@ def batch_generate_certs(count: int = 100, base_hash: str = "x89-silk-carbon-voi
     filenames = []
 
     for i in range(1, count + 1):
-        machine_hash = hashlib.sha256(f"{base_hash}-{i}".encode()).hexdigest()[:16]
+        machine_hash = fatiha_286_truncated(f"{base_hash}-{i}".encode("utf-8"), 16)
         result = create_founder_cert(i, machine_hash, output_dir)
         filenames.append(result["filename"])
 

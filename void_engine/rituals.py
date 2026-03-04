@@ -22,9 +22,9 @@ Merkle Hash Machine ID:
 """
 
 import time
-import hashlib
 import json
 import threading
+from void_engine.al_jabr_286 import fatiha_286_truncated
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 
@@ -106,7 +106,7 @@ class RitualEvent:
 
 def generate_machine_id(genesis_state: Dict) -> str:
     state_str = json.dumps(genesis_state, sort_keys=True, default=str)
-    merkle_hash = hashlib.sha256(state_str.encode()).hexdigest()[:16]
+    merkle_hash = fatiha_286_truncated(state_str.encode("utf-8"), 16)
     return f"VOID-4000-{merkle_hash.upper()}"
 
 

@@ -46,6 +46,11 @@ def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def fatiha_286(data: bytes) -> str:
+    from void_engine.al_jabr_286 import fatiha_286_hexdigest
+    return fatiha_286_hexdigest(data)
+
+
 def report(name, passed, detail=""):
     status = PASS if passed else FAIL
     results.append((name, passed))
@@ -340,8 +345,8 @@ def test_beehive_mesh():
         f"Phase diff: {auth_correct['phase_diff_deg']:.2f}° (tolerance: {auth_correct['tolerance_deg']}°)"
     )
 
-    wrong_node = BeehiveProtocol(machine_id="CONV-C", passphrase="attacker-key")
-    auth_wrong = wrong_node.authenticate_phase(pulse, "attacker-key")
+    wrong_node = BeehiveProtocol(machine_id="CONV-C", passphrase="breach-alpha")
+    auth_wrong = wrong_node.authenticate_phase(pulse, "breach-alpha")
     report(
         "Phase authentication REJECTS wrong key",
         not auth_wrong["authenticated"],
@@ -543,12 +548,130 @@ def test_transceiver_convergence():
     )
 
 
+def test_al_jabr_286_protocol():
+    print(f"\n  [{INFO}] Test 8: Al-Jabr 286 Protocol Verification")
+    print(f"  {'─' * 50}")
+
+    from void_engine.al_jabr_286 import (
+        fatiha_286_hash, fatiha_286_hexdigest, fatiha_286_truncated,
+        fatiha_286_seed, fatiha_286_derive_key, get_protocol_info,
+        FATIHA_LAYERS, SOVEREIGN_BIT_DEPTH, TOTAL_BYTES
+    )
+
+    info = get_protocol_info()
+    report(
+        "286: Protocol info returns correct bit depth",
+        info["bit_depth"] == 286 and info["total_bytes"] == 36,
+        f"Bit depth: {info['bit_depth']}, bytes: {info['total_bytes']}"
+    )
+
+    report(
+        "286: Seven verse layers match Al-Fatiha",
+        len(FATIHA_LAYERS) == 7 and FATIHA_LAYERS == [7, 4, 2, 5, 4, 3, 6],
+        f"Layers: {FATIHA_LAYERS}"
+    )
+
+    test_data = b"BismillahirRahmanirRahim"
+    h = fatiha_286_hash(test_data)
+    report(
+        "286: Hash output is 36 bytes (286+ bits)",
+        len(h) == 36,
+        f"Hash length: {len(h)} bytes ({len(h)*8} bits)"
+    )
+
+    hex_h = fatiha_286_hexdigest(test_data)
+    report(
+        "286: Hexdigest is 72 characters",
+        len(hex_h) == 72,
+        f"Hexdigest length: {len(hex_h)} chars"
+    )
+
+    h2 = fatiha_286_hash(test_data)
+    report(
+        "286: Hash is deterministic (same input → same output)",
+        h == h2,
+        "Consistent across calls"
+    )
+
+    different_data = b"AlHamdulillahiRabbilAlamin"
+    h3 = fatiha_286_hash(different_data)
+    report(
+        "286: Different inputs produce different hashes",
+        h != h3,
+        f"Hash1: {h.hex()[:16]}... Hash2: {h3.hex()[:16]}..."
+    )
+
+    import hashlib as _hl
+    sha256_hash = _hl.sha256(test_data).digest()
+    report(
+        "286: Output differs from secular SHA-256",
+        h[:32] != sha256_hash,
+        "Sovereign Extension modifies base layer"
+    )
+
+    key = fatiha_286_derive_key("void-432")
+    report(
+        "286: Key derivation produces 32-byte key",
+        len(key) == 32,
+        f"Key length: {len(key)} bytes (suitable for ChaCha20)"
+    )
+
+    tid = fatiha_286_truncated(test_data, 16)
+    report(
+        "286: Truncated ID generation works",
+        len(tid) == 16 and all(c in "0123456789abcdef" for c in tid),
+        f"ID: {tid}"
+    )
+
+    seed_val = fatiha_286_seed(test_data, 8)
+    report(
+        "286: Seed generation returns valid integer",
+        isinstance(seed_val, int) and seed_val > 0,
+        f"Seed: {seed_val}"
+    )
+
+    from void_engine.silt_ledger import SiltLedger
+    sl = SiltLedger(node_id="286-test-node")
+    genesis_hash = sl.chain[0].block_hash
+    report(
+        "286: Silt Ledger genesis block uses 286-bit hash (72 chars)",
+        len(genesis_hash) == 72,
+        f"Genesis hash length: {len(genesis_hash)} chars"
+    )
+
+    validation = sl.validate_chain()
+    report(
+        "286: Silt Ledger chain validates with 286-bit hashes",
+        validation["valid"],
+        f"Chain height: {validation.get('chain_height', 0)}"
+    )
+
+    result = sl.add_block(
+        {"type": "286_test", "protocol": "fatiha"},
+        "286-test-node", 0.7, 0.8
+    )
+    report(
+        "286: New block added with 286-bit hash chain",
+        result.get("success") and len(result.get("block_hash", "")) == 72,
+        f"Block hash: {result.get('block_hash', '')[:16]}..."
+    )
+
+    from void_engine.beehive import BeehiveProtocol
+    bp = BeehiveProtocol(machine_id="VOID-286-TEST", passphrase="void-432")
+    report(
+        "286: Beehive node ID uses 286-bit derivation",
+        len(bp.node_id) == 16,
+        f"Node ID: {bp.node_id}"
+    )
+
+
 def main():
     print()
     print("  ╔══════════════════════════════════════════════════════════╗")
     print("  ║       PROJECT VOID -- CONVERGENCE SUITE                 ║")
     print("  ║       Three Transceivers + Ghost Internet               ║")
     print("  ║       432 Hz | Kinetic | Biological | Silt Ledger       ║")
+    print("  ║       Al-Jabr 286 Sovereign Hash Protocol               ║")
     print("  ╚══════════════════════════════════════════════════════════╝")
 
     start = time.time()
@@ -560,6 +683,7 @@ def main():
     test_biophony_detection()
     test_beehive_mesh()
     test_transceiver_convergence()
+    test_al_jabr_286_protocol()
 
     elapsed = time.time() - start
 

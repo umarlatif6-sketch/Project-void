@@ -3,8 +3,8 @@ import sys
 import time
 import zlib
 import wave
-import hashlib
 import datetime
+from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -112,7 +112,7 @@ def run_stress_test(carrier_path: str = None, duration: float = 60.0):
         raw_payload = _generate_ocean_payload(current_mb)
         compressed = b"ZLIB" + zlib.compress(raw_payload, level=1)
 
-        passphrase = hashlib.sha256(f"stress_{current_mb}mb".encode()).hexdigest()[:32]
+        passphrase = fatiha_286_hexdigest_from_str(f"stress_{current_mb}mb")[:32]
 
         ghost_offset = _compute_ghost_offset(passphrase, carrier_samples)
         effective_capacity = ((carrier_samples - ghost_offset) * 1) // 8

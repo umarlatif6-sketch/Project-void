@@ -5,6 +5,7 @@ import os
 import secrets
 import numpy as np
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from void_engine.al_jabr_286 import fatiha_286_derive_key, fatiha_286_seed
 
 HEADER_SIZE = 64
 MAGIC = b"PVOD"
@@ -54,11 +55,11 @@ def _generate_burst_carrier(duration: float = 5.0, sample_rate: int = PILOT_TONE
 
 
 def _derive_key(passphrase: str) -> bytes:
-    return hashlib.sha256(passphrase.encode("utf-8")).digest()
+    return fatiha_286_derive_key(passphrase)
 
 
 def _compute_ghost_offset(passphrase: str, total_samples: int) -> int:
-    seed = int(hashlib.sha256(("ghost:" + passphrase).encode()).hexdigest()[:8], 16)
+    seed = fatiha_286_seed(("ghost:" + passphrase).encode("utf-8"), 8)
     max_offset = total_samples // 4
     if max_offset <= 0:
         return 0
@@ -67,7 +68,7 @@ def _compute_ghost_offset(passphrase: str, total_samples: int) -> int:
 
 def _generate_jitter_map(passphrase: str, n_data_samples: int,
                          available_start: int, available_end: int) -> list[tuple[int, int]]:
-    seed = int(hashlib.sha256(("jitter:" + passphrase).encode()).hexdigest()[:8], 16)
+    seed = fatiha_286_seed(("jitter:" + passphrase).encode("utf-8"), 8)
     rng = np.random.RandomState(seed)
 
     total_available = available_end - available_start
@@ -123,7 +124,7 @@ def _generate_jitter_map(passphrase: str, n_data_samples: int,
 
 def _generate_vortex_map(passphrase: str, n_data_samples: int,
                          available_start: int, available_end: int) -> list[tuple[int, int]]:
-    seed = int(hashlib.sha256(("vortex:" + passphrase).encode()).hexdigest()[:8], 16)
+    seed = fatiha_286_seed(("vortex:" + passphrase).encode("utf-8"), 8)
     total_available = available_end - available_start
 
     if n_data_samples <= 0:
@@ -252,7 +253,7 @@ def _generate_chirp_map(samples: np.ndarray, n_data_samples: int,
     else:
         selected_peaks = valid_peaks[:n_chunks]
 
-    seed = int(hashlib.sha256(("chirpsync:" + passphrase).encode()).hexdigest()[:8], 16)
+    seed = fatiha_286_seed(("chirpsync:" + passphrase).encode("utf-8"), 8)
     rng = np.random.RandomState(seed)
 
     alpha = np.ones(n_chunks) + rng.uniform(0.2, 1.0, size=n_chunks)
@@ -468,7 +469,7 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
             f"at LSB depth {lsb_depth} (Ghost Offset: {ghost_offset:,} samples)."
         )
 
-    dither_seed = int(hashlib.sha256(("dither:" + passphrase).encode()).hexdigest()[:8], 16)
+    dither_seed = fatiha_286_seed(("dither:" + passphrase).encode("utf-8"), 8)
     samples = apply_dither_mask(samples, seed=dither_seed)
 
     header_bits = np.unpackbits(np.frombuffer(header, dtype=np.uint8))
@@ -719,7 +720,7 @@ def find_harmonic_pockets(audio_path: str, fft_size: int = 8192) -> dict:
 
 
 def _generate_pn_sequence(passphrase: str, length: int) -> np.ndarray:
-    seed = int(hashlib.sha256(("dsss:" + passphrase).encode()).hexdigest()[:8], 16)
+    seed = fatiha_286_seed(("dsss:" + passphrase).encode("utf-8"), 8)
     rng = np.random.RandomState(seed)
     return rng.choice([-1, 1], size=length).astype(np.int16)
 
@@ -772,7 +773,7 @@ def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: 
             f"at LSB depth {lsb_depth} (Ghost Offset: {ghost_offset:,} samples)."
         )
 
-    dither_seed = int(hashlib.sha256(("dither:" + passphrase).encode()).hexdigest()[:8], 16)
+    dither_seed = fatiha_286_seed(("dither:" + passphrase).encode("utf-8"), 8)
     right = apply_dither_mask(right, seed=dither_seed)
 
     pn_chip_len = min(8, total_samples // (HEADER_SIZE * 8 // bits_per_sample + len(payload) * 8 // bits_per_sample + 1))

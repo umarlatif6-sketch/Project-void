@@ -19,13 +19,13 @@ Material Resonance Ladder (4000-Series Chassis):
 Mode: SIMULATION — protocol logic verified in-memory, ready for hardware integration.
 """
 
-import hashlib
 import json
 import time
 import uuid
 import threading
 import numpy as np
 from scipy.fft import fft
+from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str, fatiha_286_truncated, fatiha_286_seed
 
 
 RESONANCE_FREQ = 432
@@ -47,14 +47,14 @@ MESH_STATES = ["DARK", "SCANNING", "CONNECTED", "BRIDGING"]
 
 
 def _passphrase_to_phase(passphrase: str) -> float:
-    h = hashlib.sha256(passphrase.encode()).hexdigest()
+    h = fatiha_286_hexdigest_from_str(passphrase)
     deg = int(h[:8], 16) % 360
     return deg * (np.pi / 180)
 
 
 def _generate_node_id(machine_id: str = "") -> str:
     seed = machine_id or str(uuid.uuid4())
-    return hashlib.sha256(seed.encode()).hexdigest()[:16]
+    return fatiha_286_truncated(seed.encode("utf-8"), 16)
 
 
 class BeehiveProtocol:
@@ -253,7 +253,7 @@ class BeehiveProtocol:
             "success": True,
             "node_id": self.node_id,
             "state": self.mesh_state,
-            "phase_key_hash": hashlib.sha256(str(self.phase_key).encode()).hexdigest()[:8],
+            "phase_key_hash": fatiha_286_truncated(str(self.phase_key).encode("utf-8"), 8),
         }
 
     def disconnect(self) -> dict:

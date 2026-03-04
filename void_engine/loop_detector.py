@@ -7,8 +7,8 @@ alerts with suggested physical checks.
 """
 
 import time
-import hashlib
 import json
+from void_engine.al_jabr_286 import fatiha_286_truncated
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field, asdict
@@ -122,7 +122,7 @@ class LoopDetectionMiddleware:
             {k: v for k, v in sorted(action.items()) if k != "timestamp"},
             default=str,
         )
-        return hashlib.sha256(normalized.encode()).hexdigest()[:16]
+        return fatiha_286_truncated(normalized.encode("utf-8"), 16)
 
     def record_action(self, action: Dict, result_value: Optional[float] = None) -> Optional[LoopAlert]:
         sig = self._compute_signature(action)
