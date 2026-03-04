@@ -665,6 +665,142 @@ def test_al_jabr_286_protocol():
     )
 
 
+def test_resonance_contract():
+    """Test 9: Resonance Smart Contract (DAO 3.0) — body/garden/relay convergence."""
+    print(f"\n  [INFO] Test 9: Resonance Smart Contract (DAO 3.0)")
+    print(f"  {'─' * 50}")
+
+    from void_engine.resonance_contract import (
+        ResonanceContract, SOVEREIGN_FREQUENCY, FADING_THRESHOLD,
+        BLOOM_CC_PER_HOUR, RELAY_CC_PER_PACKET, CONTRACT_VERSION,
+    )
+    from void_engine.wallet import AlJabrWalletMiddleware
+    from void_engine.kinetic import KineticTransceiver
+    from void_engine.biological import BiologicalTransceiver
+    from void_engine.beehive import BeehiveProtocol
+    from void_engine.silt_ledger import SiltLedger
+
+    wallet = AlJabrWalletMiddleware(initial_balance=100.0)
+    kinetic = KineticTransceiver(wallet=wallet)
+    biological = BiologicalTransceiver()
+    beehive = BeehiveProtocol(machine_id="VOID-RES-TEST", passphrase="void-432")
+    ledger = SiltLedger(node_id=beehive.node_id)
+
+    contract = ResonanceContract(
+        wallet=wallet, kinetic=kinetic, biological=biological,
+        beehive=beehive, silt_ledger=ledger,
+    )
+
+    state = contract.evaluate()
+    report(
+        "RC: Contract evaluates with all three axioms",
+        "kinetic_axiom" in state and "biological_axiom" in state and "relay_axiom" in state,
+        f"Body freq: {state['body_frequency']:.1f} Hz"
+    )
+
+    report(
+        "RC: Contract version is 286-DAO-3.0",
+        state.get("contract_version") == CONTRACT_VERSION,
+        f"Version: {state.get('contract_version')}"
+    )
+
+    report(
+        "RC: Body frequency uses sovereign 432 Hz base",
+        state.get("sovereign_frequency") == SOVEREIGN_FREQUENCY,
+        f"Sovereign: {state.get('sovereign_frequency')} Hz"
+    )
+
+    report(
+        "RC: Contract hash is 286-bit truncated (16 chars)",
+        len(state.get("contract_hash", "")) == 16,
+        f"Hash: {state.get('contract_hash')}"
+    )
+
+    bio_axiom = state["biological_axiom"]
+    report(
+        "RC: Biological axiom detects optimal sensors (BLOOMING)",
+        bio_axiom["status"] == "BLOOMING" and bio_axiom["score"] == 1.0,
+        f"Score: {bio_axiom['score']}, Status: {bio_axiom['status']}"
+    )
+
+    kin_axiom = state["kinetic_axiom"]
+    report(
+        "RC: Kinetic axiom detects dormant state (no sets)",
+        kin_axiom["status"] == "DORMANT" and kin_axiom["score"] == 0.0,
+        f"Score: {kin_axiom['score']}, Status: {kin_axiom['status']}"
+    )
+
+    kinetic.log_set("pull_up", 10, 30.0, 140)
+    state2 = contract.evaluate()
+    kin_after = state2["kinetic_axiom"]
+    report(
+        "RC: Kinetic axiom updates after logged set",
+        kin_after["score"] > 0 and kin_after["status"] != "DORMANT",
+        f"Score: {kin_after['score']:.2f}, Status: {kin_after['status']}"
+    )
+
+    report(
+        "RC: Body frequency rises after kinetic activation",
+        state2["body_frequency"] > state["body_frequency"],
+        f"Before: {state['body_frequency']:.1f} Hz → After: {state2['body_frequency']:.1f} Hz"
+    )
+
+    beehive.connect()
+    state3 = contract.evaluate()
+    relay_axiom = state3["relay_axiom"]
+    report(
+        "RC: Relay axiom detects mesh scanning state",
+        relay_axiom["score"] > 0 and relay_axiom["status"] != "DARK",
+        f"Score: {relay_axiom['score']:.2f}, Status: {relay_axiom['status']}"
+    )
+
+    import time as _time
+    contract._last_bloom_check = _time.time() - 60
+    biological.update_sensors(water_level=0.7, temperature=23.0, ph=6.8, dissolved_oxygen=7.0)
+    balance_before = wallet.balance
+    harvest = contract.harvest_bloom()
+    report(
+        "RC: Bloom harvest credits wallet from biological health",
+        harvest.get("harvested") is True and wallet.balance >= balance_before,
+        f"Earned: {harvest.get('bloom', {}).get('amount', 0):.4f} CC"
+    )
+
+    relay_result = contract.reward_relay({"hops": 2})
+    report(
+        "RC: Relay reward credits wallet for packet relay",
+        relay_result.get("rewarded") is True and relay_result.get("cc_earned", 0) > 0,
+        f"Relay CC: {relay_result.get('cc_earned', 0):.4f}"
+    )
+
+    axioms = contract.get_axioms()
+    report(
+        "RC: Axioms contain all three pillars with descriptions",
+        all(k in axioms["axioms"] for k in ["kinetic", "biological", "relay"]),
+        f"Axioms: {list(axioms['axioms'].keys())}"
+    )
+
+    report(
+        "RC: Resonance formula documented",
+        "432" in axioms.get("resonance_formula", {}).get("equation", ""),
+        f"Formula: {axioms['resonance_formula']['equation']}"
+    )
+
+    report(
+        "RC: Child explanation present",
+        len(axioms.get("child_explanation", "")) > 50,
+        f"Length: {len(axioms.get('child_explanation', ''))} chars"
+    )
+
+    biological.update_sensors(water_level=0.15)
+    state_fading = contract.evaluate()
+    bio_fading = state_fading["biological_axiom"]
+    report(
+        "RC: Fading detected when water level drops below 20%",
+        bio_fading["status"] == "FADING",
+        f"Water: 0.15, Status: {bio_fading['status']}"
+    )
+
+
 def main():
     print()
     print("  ╔══════════════════════════════════════════════════════════╗")
@@ -672,6 +808,7 @@ def main():
     print("  ║       Three Transceivers + Ghost Internet               ║")
     print("  ║       432 Hz | Kinetic | Biological | Silt Ledger       ║")
     print("  ║       Al-Jabr 286 Sovereign Hash Protocol               ║")
+    print("  ║       Resonance Smart Contract (DAO 3.0)                ║")
     print("  ╚══════════════════════════════════════════════════════════╝")
 
     start = time.time()
@@ -684,6 +821,7 @@ def main():
     test_beehive_mesh()
     test_transceiver_convergence()
     test_al_jabr_286_protocol()
+    test_resonance_contract()
 
     elapsed = time.time() - start
 

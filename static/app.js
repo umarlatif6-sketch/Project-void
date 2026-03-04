@@ -3623,8 +3623,103 @@ document.addEventListener("DOMContentLoaded", () => {
                 }).join("");
             }
 
+            refreshResonanceContract();
+
         } catch(e) {}
     }
+
+    async function refreshResonanceContract() {
+        try {
+            var data = await fetch("/api/resonance/evaluate").then(function(r) { return r.json(); });
+
+            var freqEl = document.getElementById("resonance-freq-hz");
+            var statusEl = document.getElementById("resonance-status");
+            var circleEl = document.querySelector(".resonance-freq-circle");
+            var freq = data.body_frequency || 0;
+            freqEl.textContent = freq.toFixed(1);
+
+            circleEl.classList.remove("full-resonance", "fading");
+            if (data.contract_status === "FULL_RESONANCE") {
+                circleEl.classList.add("full-resonance");
+                statusEl.textContent = "FULL RESONANCE";
+                statusEl.style.color = "#4ade80";
+            } else if (data.contract_status === "FADING") {
+                circleEl.classList.add("fading");
+                statusEl.textContent = "FADING";
+                statusEl.style.color = "#f87171";
+            } else {
+                statusEl.textContent = "PARTIAL RESONANCE";
+                statusEl.style.color = "#fbbf24";
+            }
+
+            var scorePct = (data.resonance_score || 0) * 100;
+            document.getElementById("resonance-score-fill").style.width = scorePct + "%";
+            document.getElementById("resonance-score-pct").textContent = scorePct.toFixed(0) + "%";
+
+            function updateAxiom(prefix, axiom) {
+                document.getElementById("axiom-" + prefix + "-score").textContent = (axiom.score || 0).toFixed(2);
+                document.getElementById("axiom-" + prefix + "-freq").textContent = (axiom.frequency_contribution || 0).toFixed(0) + " Hz";
+                var statusEl = document.getElementById("axiom-" + prefix + "-status");
+                statusEl.textContent = axiom.status || "—";
+                if (axiom.status === "LOCKED" || axiom.status === "BLOOMING" || axiom.status === "CONNECTED" || axiom.status === "MAX_GLOW") {
+                    statusEl.style.color = "#4ade80";
+                } else if (axiom.status === "FADING" || axiom.status === "DARK" || axiom.status === "DORMANT" || axiom.status === "OFFLINE") {
+                    statusEl.style.color = "#f87171";
+                } else {
+                    statusEl.style.color = "#fbbf24";
+                }
+                var detail = axiom.detail || {};
+                var detailParts = [];
+                Object.keys(detail).forEach(function(k) {
+                    var v = detail[k];
+                    if (typeof v === "number") v = v.toFixed(2);
+                    detailParts.push(k.replace(/_/g, " ") + ": " + v);
+                });
+                document.getElementById("axiom-" + prefix + "-detail").textContent = detailParts.slice(0, 3).join(" | ") || "—";
+            }
+
+            if (data.kinetic_axiom) updateAxiom("kinetic", data.kinetic_axiom);
+            if (data.biological_axiom) updateAxiom("bio", data.biological_axiom);
+            if (data.relay_axiom) updateAxiom("relay", data.relay_axiom);
+
+            document.getElementById("resonance-cc-rate").textContent = (data.total_cc_rate || 0).toFixed(2);
+            document.getElementById("resonance-stability-tier").textContent = data.stability_tier || "Seedling";
+            document.getElementById("resonance-stability-hours").textContent = (data.stability_hours || 0).toFixed(1) + "h";
+            document.getElementById("resonance-contract-hash").textContent = data.contract_hash || "—";
+
+            var statusRes = await fetch("/api/resonance/status").then(function(r) { return r.json(); });
+            if (statusRes.bloom) {
+                document.getElementById("resonance-bloom-cc").textContent = (statusRes.bloom.total_bloom_cc || 0).toFixed(2);
+            }
+            if (statusRes.relay) {
+                document.getElementById("resonance-relay-cc").textContent = (statusRes.relay.total_relay_cc || 0).toFixed(2);
+            }
+
+        } catch(e) {}
+    }
+
+    window.harvestBloom = async function() {
+        try {
+            var res = await fetch("/api/resonance/harvest-bloom", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            });
+            var data = await res.json();
+            if (data.harvested) {
+                showToast("Bloom harvested: " + (data.bloom.amount || 0).toFixed(4) + " CC (" + data.bloom.tier + ")", "success");
+                refreshTransceiverStatus();
+            } else {
+                showToast("Bloom: " + (data.reason || "Not ready"), "error");
+            }
+        } catch(e) {
+            showToast("Bloom error: " + e.message, "error");
+        }
+    };
+
+    window.refreshResonance = async function() {
+        await refreshResonanceContract();
+        showToast("Resonance evaluated", "success");
+    };
 
     window.voteOnProposal = async function(proposalId) {
         try {

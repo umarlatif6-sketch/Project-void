@@ -627,6 +627,89 @@
                     </div>
                 </div>
             </div>
+
+            <div class="transceiver-section resonance-contract-panel">
+                <h3>Resonance Smart Contract (DAO 3.0)</h3>
+                <p class="desc">The living contract that binds Body, Garden, and Mesh into one frequency. When all three pillars resonate, the system locks to 432 Hz.</p>
+                <div class="resonance-frequency-display">
+                    <div class="resonance-freq-circle">
+                        <div class="resonance-freq-value" id="resonance-freq-hz">0</div>
+                        <div class="resonance-freq-unit">Hz</div>
+                        <div class="resonance-freq-target">/ 432 Hz</div>
+                    </div>
+                    <div class="resonance-status-label" id="resonance-status">EVALUATING</div>
+                </div>
+                <div class="resonance-score-bar-wrap">
+                    <div class="resonance-score-bar-label">Resonance Score</div>
+                    <div class="resonance-score-bar-bg">
+                        <div class="resonance-score-bar-fill" id="resonance-score-fill" style="width:0%"></div>
+                    </div>
+                    <div class="resonance-score-value" id="resonance-score-pct">0%</div>
+                </div>
+
+                <div class="resonance-axiom-cards">
+                    <div class="resonance-axiom-card axiom-kinetic">
+                        <div class="axiom-icon">&#x1F4AA;</div>
+                        <div class="axiom-name">Proof of Sweat</div>
+                        <div class="axiom-pillar-score" id="axiom-kinetic-score">0.00</div>
+                        <div class="axiom-freq" id="axiom-kinetic-freq">0 Hz</div>
+                        <div class="axiom-status" id="axiom-kinetic-status">DORMANT</div>
+                        <div class="axiom-detail" id="axiom-kinetic-detail">Log calisthenics to activate</div>
+                    </div>
+                    <div class="resonance-axiom-card axiom-biological">
+                        <div class="axiom-icon">&#x1F331;</div>
+                        <div class="axiom-name">Proof of Bloom</div>
+                        <div class="axiom-pillar-score" id="axiom-bio-score">0.00</div>
+                        <div class="axiom-freq" id="axiom-bio-freq">0 Hz</div>
+                        <div class="axiom-status" id="axiom-bio-status">OFFLINE</div>
+                        <div class="axiom-detail" id="axiom-bio-detail">Awaiting sensor data</div>
+                    </div>
+                    <div class="resonance-axiom-card axiom-relay">
+                        <div class="axiom-icon">&#x1F310;</div>
+                        <div class="axiom-name">Proof of Whisper</div>
+                        <div class="axiom-pillar-score" id="axiom-relay-score">0.00</div>
+                        <div class="axiom-freq" id="axiom-relay-freq">0 Hz</div>
+                        <div class="axiom-status" id="axiom-relay-status">DARK</div>
+                        <div class="axiom-detail" id="axiom-relay-detail">Join the mesh to relay</div>
+                    </div>
+                </div>
+
+                <div class="resonance-cc-summary">
+                    <div class="resonance-cc-item">
+                        <span class="cc-label">CC Rate</span>
+                        <span class="cc-value" id="resonance-cc-rate">0.00</span>
+                        <span class="cc-unit">CC/cycle</span>
+                    </div>
+                    <div class="resonance-cc-item">
+                        <span class="cc-label">Bloom Earned</span>
+                        <span class="cc-value" id="resonance-bloom-cc">0.00</span>
+                        <span class="cc-unit">CC</span>
+                    </div>
+                    <div class="resonance-cc-item">
+                        <span class="cc-label">Relay Earned</span>
+                        <span class="cc-value" id="resonance-relay-cc">0.00</span>
+                        <span class="cc-unit">CC</span>
+                    </div>
+                    <div class="resonance-cc-item">
+                        <span class="cc-label">Stability</span>
+                        <span class="cc-value" id="resonance-stability-tier">Seedling</span>
+                        <span class="cc-unit" id="resonance-stability-hours">0h</span>
+                    </div>
+                </div>
+                <div class="resonance-actions">
+                    <button class="btn resonance-btn" onclick="harvestBloom()">Harvest Bloom CC</button>
+                    <button class="btn resonance-btn" onclick="refreshResonance()">Evaluate Resonance</button>
+                </div>
+                <div class="resonance-contract-hash">
+                    <span class="hash-label">Contract Hash:</span>
+                    <span class="hash-value" id="resonance-contract-hash">—</span>
+                </div>
+
+                <div class="resonance-child-explain" id="resonance-child-explain">
+                    <div class="child-explain-title">For a child to understand:</div>
+                    <div class="child-explain-text">"It's like a giant game where the rules are written in a magic book that no one can ever lose! When you exercise, the magic book sees your hard work and gives you 'Golden Seeds.' You can use these seeds to make the secret music box sing louder. The garden helps too &mdash; if the plants are happy, the music box gets even more seeds! All the magic boxes work together like a team, making sure everyone is healthy and the secrets stay safe."</div>
+                </div>
+            </div>
         </div>
 
         <div id="files" class="panel">

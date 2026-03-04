@@ -28,6 +28,7 @@ from void_engine.beehive import BeehiveProtocol, MeshRouter, MeshPacket, simulat
 from void_engine.kinetic import KineticTransceiver, EXERCISE_WEIGHTS
 from void_engine.biological import BiologicalTransceiver
 from void_engine.silt_ledger import SiltLedger
+from void_engine.resonance_contract import ResonanceContract
 from generate_carriers import generate_custom_carrier, estimate_carrier_capacity, ALL_STYLES
 
 LOG_FILE = "RESONANCE_LOG.md"
@@ -533,6 +534,13 @@ _mesh_router = MeshRouter(_beehive)
 _kinetic = KineticTransceiver(wallet=_wallet, chronicle=_chronicle)
 _biological = BiologicalTransceiver()
 _silt_ledger = SiltLedger(node_id=_beehive.node_id)
+_resonance_contract = ResonanceContract(
+    wallet=_wallet,
+    kinetic=_kinetic,
+    biological=_biological,
+    beehive=_beehive,
+    silt_ledger=_silt_ledger,
+)
 
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
@@ -1709,6 +1717,43 @@ def ledger_vote():
 @app.route("/api/ledger/votes")
 def ledger_votes():
     return jsonify({"proposals": _silt_ledger.get_proposals()})
+
+
+@app.route("/api/resonance/evaluate")
+def resonance_evaluate():
+    try:
+        state = _resonance_contract.evaluate()
+        return jsonify(state)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/resonance/axioms")
+def resonance_axioms():
+    return jsonify(_resonance_contract.get_axioms())
+
+
+@app.route("/api/resonance/status")
+def resonance_status():
+    try:
+        return jsonify(_resonance_contract.get_status())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/resonance/harvest-bloom", methods=["POST"])
+def resonance_harvest_bloom():
+    try:
+        result = _resonance_contract.harvest_bloom()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/resonance/history")
+def resonance_history():
+    limit = request.args.get("limit", 20, type=int)
+    return jsonify(_resonance_contract.get_history(limit))
 
 
 @app.route("/api/blueprint/specs")
