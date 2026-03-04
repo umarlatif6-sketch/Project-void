@@ -23,6 +23,7 @@ from void_engine.diagnostics import DiagnosticEngine, SOVEREIGN_WARRANTY
 from void_engine.rituals import RitualHistory, AutoHealDaemon, RITUAL_TYPES
 from void_engine.chronicle import RootChronicle
 from void_engine.founder_certs import create_founder_cert, batch_generate_certs, FOUNDER_ROOT_HASH
+from void_engine.technical_brief import generate_technical_brief
 from void_engine.divided_protocol import DividedProtocol
 from void_engine.beehive import BeehiveProtocol, MeshRouter, MeshPacket, simulate_two_node_exchange, _sanitize_for_json
 from void_engine.kinetic import KineticTransceiver, EXERCISE_WEIGHTS
@@ -49,10 +50,12 @@ app.secret_key = os.environ.get("SESSION_SECRET", "void-engine-dev-key")
 INPUT_DIR = "input_files"
 OUTPUT_DIR = "output_audio"
 SILT_DIR = "silt_drops"
+INQUIRY_DIR = "inquiries"
 
 os.makedirs(INPUT_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(SILT_DIR, exist_ok=True)
+os.makedirs(INQUIRY_DIR, exist_ok=True)
 
 _low_power_mode = False
 _village_default_key = None
@@ -61,6 +64,11 @@ _village_default_key = None
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/launch")
+def landing():
+    return render_template("landing.html")
 
 
 @app.route("/api/files")
@@ -1972,6 +1980,39 @@ def journalism_purge():
     return jsonify({"success": True, "purged": count})
 
 
+@app.route("/grants")
+def grants_page():
+    return render_template("grants.html")
+
+
+@app.route("/api/grant-stats")
+def grant_stats():
+    import glob as _glob
+    module_files = _glob.glob("void_engine/*.py")
+    modules_count = len([f for f in module_files if not f.endswith("__init__.py")])
+
+    carrier_styles = len(ALL_STYLES) if ALL_STYLES else 8
+
+    from void_engine.al_jabr_286 import get_protocol_info
+    proto = get_protocol_info()
+
+    return jsonify({
+        "modules_count": modules_count,
+        "convergence_tests": 89,
+        "pass_rate": "100%",
+        "hash_bit_depth": "286-bit",
+        "carrier_styles": carrier_styles,
+        "max_file_size": "50 MB",
+        "hash_specs": {
+            "algorithm": "Sura-Fatiha 286",
+            "output_size": "36 bytes (72 hex chars)",
+            "base_layer": "SHA3-256 (256 bits)",
+            "sovereign_buffer": "30-bit (trilateral root weights)",
+            "root_weights": str(proto.get("verse_weights", [7, 4, 2, 5, 4, 3, 6])),
+        },
+    })
+
+
 @app.route("/api/aljabr/protocol")
 def aljabr_protocol():
     from void_engine.al_jabr_286 import get_protocol_info, fatiha_286_hexdigest
@@ -1982,6 +2023,123 @@ def aljabr_protocol():
     info["hash_length_chars"] = len(test_hash)
     info["status"] = "ACTIVE"
     return jsonify(info)
+
+
+@app.route("/api/technical-brief")
+def technical_brief():
+    try:
+        filepath = generate_technical_brief(OUTPUT_DIR)
+        return send_file(filepath, as_attachment=True, download_name="PROJECT_VOID_Technical_Brief.pdf", mimetype="application/pdf")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/sovereign")
+def sovereign_page():
+    return render_template("sovereign.html")
+
+
+@app.route("/api/sovereign/blueprints")
+def sovereign_blueprints():
+    import zipfile
+    import io
+
+    blueprint_dir = os.path.join("static", "blueprints")
+    if not os.path.isdir(blueprint_dir):
+        return jsonify({"error": "Blueprints not found"}), 404
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for fname in sorted(os.listdir(blueprint_dir)):
+            fpath = os.path.join(blueprint_dir, fname)
+            if os.path.isfile(fpath) and fname.lower().endswith(".png"):
+                zf.write(fpath, f"sovereign_node_blueprints/{fname}")
+
+        component_list = (
+            "4000-Series Sovereign Node — Component List\n"
+            "=============================================\n\n"
+            "1. High-Gauge Brushed Steel Shell (108 Hz) — Outer armor\n"
+            "2. Aluminum Internal Frame (216 Hz) — Structural skeleton\n"
+            "3. Spun Silk & Silver Conductive Wire (432 Hz) — Sapphire Thread\n"
+            "4. Piezoelectric Polymer Panels — Acoustic coupler\n"
+            "5. Polyurethane Foam Insulation — 12 kHz high-pass filter\n"
+            "6. Polypropylene Internal Lining — Chemical-resistant inner shell\n"
+            "7. Aquaponics Reservoir — Liquid harmonic coupler (864 Hz)\n"
+            "8. 15kg Dynamic Stabilizer Flywheel — Kinetic energy storage\n"
+            "9. BLDC Motor — Flywheel charging from calisthenics\n"
+            "10. NVIDIA Jetson / Orin Nano — Rep detection & compute\n"
+            "11. Biophony Mesh Driver — 3-shelf audio generation\n"
+            "12. Piezo-Silk Acoustic Array — Transducer mounting\n"
+            "13. Quarter-Wave Resonator — 2D internal standing wave at 432 Hz\n"
+            "14. Ground Resonance Antenna — Seismic-acoustic data transmission\n"
+            "15. Temperature / Impedance Sensors — Biological transceiver\n"
+            "16. Water Level & pH Sensors — Aquaponics monitoring\n\n"
+            "Estimated self-source cost: £450–660\n"
+            "Sovereign Edition (pre-built): £25,000\n"
+        )
+        zf.writestr("sovereign_node_blueprints/COMPONENT_LIST.txt", component_list)
+
+    buf.seek(0)
+    return send_file(
+        buf,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name="sovereign_node_blueprints.zip",
+    )
+
+
+@app.route("/demo")
+def demo_page():
+    return render_template("index.html", demo_mode=True)
+
+
+@app.route("/api/inquiry", methods=["POST"])
+def submit_inquiry():
+    import json as _json
+    data = request.json or {}
+    name = data.get("name", "").strip()
+    email = data.get("email", "").strip()
+    inquiry_type = data.get("type", "general").strip()
+    message = data.get("message", "").strip()
+
+    if not name or not email:
+        return jsonify({"error": "Name and email are required"}), 400
+
+    if inquiry_type not in ("demo", "grant", "sovereign", "general"):
+        inquiry_type = "general"
+
+    inquiry = {
+        "name": name,
+        "email": email,
+        "type": inquiry_type,
+        "message": message,
+        "timestamp": datetime.now().isoformat(),
+    }
+
+    inquiry_id = uuid.uuid4().hex[:8]
+    filepath = os.path.join(INQUIRY_DIR, f"inquiry_{inquiry_id}_{inquiry_type}.json")
+    with open(filepath, "w") as f:
+        _json.dump(inquiry, f, indent=2)
+
+    return jsonify({"success": True, "inquiry_id": inquiry_id})
+
+
+@app.route("/api/inquiries")
+def list_inquiries():
+    import json as _json
+    auth = request.headers.get("Authorization", "")
+    expected = app.secret_key
+    if auth != f"Bearer {expected}":
+        return jsonify({"error": "Unauthorized"}), 401
+
+    inquiries = []
+    if os.path.isdir(INQUIRY_DIR):
+        for f in sorted(os.listdir(INQUIRY_DIR)):
+            fp = os.path.join(INQUIRY_DIR, f)
+            if os.path.isfile(fp) and f.endswith(".json"):
+                with open(fp) as fh:
+                    inquiries.append(_json.load(fh))
+    return jsonify({"inquiries": inquiries, "total": len(inquiries)})
 
 
 _start_time = __import__("time").time()

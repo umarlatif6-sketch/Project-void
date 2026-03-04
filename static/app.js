@@ -1,6 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const isDemo = document.body.getAttribute("data-demo") === "true";
     const tabs = document.querySelectorAll(".tab");
     const panels = document.querySelectorAll(".panel");
+
+    if (isDemo) {
+        var restrictedTabs = ["harness", "mesh", "transceiver", "silk"];
+        tabs.forEach(function(tab) {
+            if (restrictedTabs.indexOf(tab.dataset.tab) !== -1) {
+                tab.style.opacity = "0.35";
+                tab.style.pointerEvents = "none";
+                tab.title = "Full Version Only";
+            }
+        });
+        var journalismTab = null;
+        tabs.forEach(function(t) { if (t.dataset.tab === "journalism") journalismTab = t; });
+        if (journalismTab) {
+            tabs.forEach(function(t) { t.classList.remove("active"); });
+            panels.forEach(function(p) { p.classList.remove("active"); });
+            journalismTab.classList.add("active");
+            var jp = document.getElementById("journalism");
+            if (jp) jp.classList.add("active");
+        }
+    }
 
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {
@@ -3816,6 +3837,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (journalismEncodeBtn) {
         journalismEncodeBtn.addEventListener("click", function() {
             if (!journalismFile) return;
+            if (isDemo && journalismFile.size > 1048576) {
+                showToast("Demo mode: file limit is 1 MB. Get full access for up to 50 MB.", "error");
+                return;
+            }
             var style = document.getElementById("journalism-style-select").value;
             var formData = new FormData();
             formData.append("file", journalismFile);
@@ -3858,6 +3883,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     };
 
                     showToast("Silt drop ready — " + data.output_file, "success");
+                    if (isDemo) {
+                        showToast("Your file is hidden in nature sounds. Get full access for mesh broadcast, 50MB uploads, and all modules.", "success", 10000);
+                    }
                     loadSiltDrops();
                     journalismFile = null;
                     journalismFileName.textContent = "";

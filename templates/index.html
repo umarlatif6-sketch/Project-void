@@ -6,7 +6,13 @@
     <title>PROJECT VOID</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body data-demo="{{ 'true' if demo_mode else 'false' }}">
+    {% if demo_mode %}
+    <div class="demo-banner">
+        <span class="demo-banner-icon">&#9670;</span>
+        <span>DEMO MODE — Try the Silt Journalism engine. <a href="/launch" class="demo-banner-link">Get Full Access</a></span>
+    </div>
+    {% endif %}
     <header>
         <div class="logo">
             <div class="logo-icon">&#9670;</div>

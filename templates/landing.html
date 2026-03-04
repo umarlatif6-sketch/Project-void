@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Hide Truth in Nature</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="landing-body">
+    <nav class="landing-nav">
+        <div class="landing-nav-brand">
+            <span class="landing-nav-icon">&#9670;</span>
+            <span class="landing-nav-title">PROJECT VOID</span>
+        </div>
+        <div class="landing-nav-links">
+            <a href="/launch" class="landing-nav-link active">Home</a>
+            <a href="/" class="landing-nav-link">Engine</a>
+            <a href="/demo" class="landing-nav-link">Demo</a>
+            <a href="/grants" class="landing-nav-link">Grants</a>
+            <a href="/sovereign" class="landing-nav-link">Hardware</a>
+        </div>
+    </nav>
+
+    <section class="landing-hero">
+        <div class="landing-hero-inner">
+            <div class="landing-hero-badge">286-BIT SOVEREIGN PROTOCOL</div>
+            <h1 class="landing-hero-title">PROJECT <span class="landing-accent">VOID</span></h1>
+            <p class="landing-hero-tagline">Hide Truth in Nature</p>
+            <p class="landing-hero-desc">A modular steganography engine that conceals any file inside birdsong, insect calls, and ambient audio. Built on sovereign 286-bit hashing, mesh networking, and biophony carriers that institutional scanners cannot reach.</p>
+            <div class="landing-hero-actions">
+                <a href="/" class="landing-btn-primary">Enter the Void</a>
+                <a href="#demo-section" class="landing-btn-secondary">Request Demo</a>
+            </div>
+        </div>
+        <div class="landing-hero-visual">
+            <div class="landing-sonar-outer">
+                <div class="landing-sonar-mid">
+                    <div class="landing-sonar-core"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-cards">
+        <div class="landing-card">
+            <div class="landing-card-icon">&#9835;</div>
+            <h3 class="landing-card-title">Silt Journalism</h3>
+            <p class="landing-card-desc">Hide any file inside birdsong. Compress, encrypt, and embed documents into biophony carriers that sound like nature. Invisible to surveillance, recoverable with a hash key.</p>
+            <span class="landing-card-tag">Press Freedom</span>
+        </div>
+        <div class="landing-card">
+            <div class="landing-card-icon">&#9670;</div>
+            <h3 class="landing-card-title">Ghost Internet</h3>
+            <p class="landing-card-desc">Sovereign mesh networking invisible to monitors. The Beehive Protocol routes encrypted data across nodes using acoustic carriers, creating an untraceable communication layer.</p>
+            <span class="landing-card-tag">Mesh Networking</span>
+        </div>
+        <div class="landing-card">
+            <div class="landing-card-icon">&#9670;</div>
+            <h3 class="landing-card-title">286-Bit Sovereignty</h3>
+            <p class="landing-card-desc">Custom hashing that institutional scanners can't reach. A 286-bit hash derived from Al-Jabr roots creates keys that exist outside conventional cryptographic dictionaries.</p>
+            <span class="landing-card-tag">Sovereign Hashing</span>
+        </div>
+    </section>
+
+    <section class="landing-stats" id="live-stats">
+        <h2 class="landing-section-title">Live Engine Status</h2>
+        <div class="landing-stats-grid">
+            <div class="landing-stat-box">
+                <span class="landing-stat-value" id="stat-convergence">89</span>
+                <span class="landing-stat-label">Convergence Tests Passed</span>
+            </div>
+            <div class="landing-stat-box">
+                <span class="landing-stat-value" id="stat-modules">24</span>
+                <span class="landing-stat-label">Modules Active</span>
+            </div>
+            <div class="landing-stat-box">
+                <span class="landing-stat-value" id="stat-hash">286</span>
+                <span class="landing-stat-label">Hash Bit Depth</span>
+            </div>
+            <div class="landing-stat-box">
+                <span class="landing-stat-value" id="stat-uptime">—</span>
+                <span class="landing-stat-label">Uptime</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-demo-section" id="demo-section">
+        <h2 class="landing-section-title">Request a Demo</h2>
+        <p class="landing-demo-desc">Experience the full Silt Journalism engine. See how files vanish into nature and reappear on demand.</p>
+        <div class="landing-demo-actions">
+            <a href="/demo" class="landing-btn-primary">Try Demo Mode</a>
+        </div>
+    </section>
+
+    <footer class="landing-footer">
+        <div class="landing-footer-inner">
+            <span class="landing-footer-brand">&#9670; PROJECT VOID</span>
+            <span class="landing-footer-badge">286-Bit Sovereign</span>
+        </div>
+    </footer>
+
+    <script>
+    (function() {
+        function formatUptime(seconds) {
+            if (!seconds || seconds < 0) return '—';
+            var h = Math.floor(seconds / 3600);
+            var m = Math.floor((seconds % 3600) / 60);
+            if (h > 0) return h + 'h ' + m + 'm';
+            return m + 'm';
+        }
+
+        function fetchStats() {
+            fetch('/api/status')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var uptimeEl = document.getElementById('stat-uptime');
+                    if (uptimeEl && data.uptime_seconds !== undefined) {
+                        uptimeEl.textContent = formatUptime(data.uptime_seconds);
+                    }
+                    var filesTotal = 0;
+                    if (data.files) {
+                        filesTotal = (data.files.input || 0) + (data.files.output || 0);
+                    }
+                })
+                .catch(function() {});
+        }
+
+        fetchStats();
+        setInterval(fetchStats, 15000);
+    })();
+    </script>
+</body>
+</html>
