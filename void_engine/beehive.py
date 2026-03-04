@@ -25,7 +25,7 @@ import uuid
 import threading
 import numpy as np
 from scipy.fft import fft
-from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str, fatiha_286_truncated, fatiha_286_seed
+from void_engine.al_jabr_286 import fatiha_286_hexdigest, fatiha_286_hexdigest_from_str, fatiha_286_truncated, fatiha_286_seed
 
 
 RESONANCE_FREQ = 432
@@ -42,6 +42,15 @@ SCAN_COST_CC = 0.1
 BUFFER_COST_CC = 0.5
 HANDSHAKE_COST_CC = 0.05
 SEND_COST_CC = 0.3
+
+FATIHA_PHASE_ANGLE = 15.4
+FATIHA_PHASE_RAD = FATIHA_PHASE_ANGLE * (np.pi / 180)
+FATIHA_PHASE_TOLERANCE_DEG = 0.5
+FATIHA_PHASE_TOLERANCE_RAD = FATIHA_PHASE_TOLERANCE_DEG * (np.pi / 180)
+SILT_EMBED_DB = -30.0
+SILT_EMBED_AMP = 10 ** (SILT_EMBED_DB / 20.0)
+INSECT_SHELF_FREQ = 970.0
+WHISPER_PHASE_SHIFT = np.pi
 
 MESH_STATES = ["DARK", "SCANNING", "CONNECTED", "BRIDGING"]
 
@@ -85,7 +94,7 @@ class BeehiveProtocol:
         n_samples = int(self.sr * duration)
         t = np.linspace(0, duration, n_samples, endpoint=False)
 
-        pulse_432 = np.sin(2 * np.pi * RESONANCE_FREQ * t + self.phase_key) * 0.5
+        pulse_432 = np.sin(2 * np.pi * RESONANCE_FREQ * t + self.phase_key + FATIHA_PHASE_RAD) * 0.5
 
         pulse_108 = np.sin(2 * np.pi * 108 * t + self.phase_key * 0.25) * 0.15
         pulse_216 = np.sin(2 * np.pi * 216 * t + self.phase_key * 0.5) * 0.1
@@ -95,10 +104,131 @@ class BeehiveProtocol:
 
         signal = pulse_432 + pulse_108 + pulse_216 + pulse_864 + silt
 
+        identity_hash = fatiha_286_hexdigest_from_str(self.node_id)
+        signal = self.silt_embed(signal, identity_hash)
+
         signal = np.clip(signal, -1.0, 1.0)
         self.stats["handshakes_sent"] += 1
-        self._log_event("HANDSHAKE_SENT", f"Generated {duration}s pulse with 4-harmonic ladder")
+        self._log_event("HANDSHAKE_SENT", f"Generated {duration}s Fatiha pulse (+{FATIHA_PHASE_ANGLE}° phase, -30dB silt)")
         return signal.astype(np.float32)
+
+    def silt_embed(self, signal: np.ndarray, hash_hex: str) -> np.ndarray:
+        n_samples = len(signal)
+        t = np.linspace(0, n_samples / self.sr, n_samples, endpoint=False)
+
+        hash_bytes = bytes.fromhex(hash_hex)
+        bit_stream = []
+        for byte in hash_bytes:
+            for i in range(7, -1, -1):
+                bit_stream.append((byte >> i) & 1)
+
+        silt_signal = np.zeros(n_samples, dtype=np.float64)
+        samples_per_bit = max(1, n_samples // len(bit_stream))
+
+        for idx, bit in enumerate(bit_stream):
+            start = idx * samples_per_bit
+            end = min(start + samples_per_bit, n_samples)
+            if start >= n_samples:
+                break
+            t_slice = t[start:end]
+            freq = INSECT_SHELF_FREQ + (bit * 200)
+            silt_signal[start:end] = np.sin(2 * np.pi * freq * t_slice) * SILT_EMBED_AMP
+
+        return signal + silt_signal
+
+    def verify_fatiha_signature(self, audio_buffer: np.ndarray) -> dict:
+        n = len(audio_buffer)
+        if n < 1024:
+            return {"verified": False, "reason": "Buffer too short"}
+
+        yf = fft(audio_buffer.astype(np.float64))
+        freqs = np.fft.fftfreq(n, 1.0 / self.sr)
+
+        target_idx = np.argmin(np.abs(freqs[:n // 2] - RESONANCE_FREQ))
+
+        raw_phase = np.angle(yf[target_idx])
+        detected_total_phase = raw_phase + np.pi / 2
+
+        expected_base_phase = self.phase_key
+        fatiha_component = detected_total_phase - expected_base_phase
+
+        fatiha_component = fatiha_component % (2 * np.pi)
+        if fatiha_component > np.pi:
+            fatiha_component = fatiha_component - 2 * np.pi
+
+        diff = abs(fatiha_component - FATIHA_PHASE_RAD)
+        if diff > np.pi:
+            diff = 2 * np.pi - diff
+
+        verified = diff <= FATIHA_PHASE_TOLERANCE_RAD
+
+        silt_present = self._detect_silt_layer(audio_buffer)
+
+        return {
+            "verified": verified and silt_present,
+            "fatiha_angle_detected_deg": float(np.degrees(fatiha_component)),
+            "fatiha_angle_expected_deg": FATIHA_PHASE_ANGLE,
+            "angle_diff_deg": float(np.degrees(diff)),
+            "tolerance_deg": FATIHA_PHASE_TOLERANCE_DEG,
+            "silt_layer_present": silt_present,
+            "protocol": "Sura-Fatiha 286-Bit Acoustic Handshake",
+        }
+
+    def _detect_silt_layer(self, audio_buffer: np.ndarray) -> bool:
+        n = len(audio_buffer)
+        yf = fft(audio_buffer.astype(np.float64))
+        freqs = np.fft.fftfreq(n, 1.0 / self.sr)
+        magnitudes = np.abs(yf[:n // 2])
+        freq_axis = freqs[:n // 2]
+
+        silt_mask = freq_axis >= INSECT_SHELF_FREQ
+        if not np.any(silt_mask):
+            return False
+
+        silt_energy = np.mean(magnitudes[silt_mask])
+        noise_floor = np.mean(magnitudes[freq_axis < INSECT_SHELF_FREQ / 2]) if np.any(freq_axis < INSECT_SHELF_FREQ / 2) else 1e-10
+
+        return silt_energy > noise_floor * 0.01
+
+    def whisper_confirm(self, duration: float = 0.5) -> np.ndarray:
+        n_samples = int(self.sr * duration)
+        t = np.linspace(0, duration, n_samples, endpoint=False)
+
+        confirmation_phase = self.phase_key + FATIHA_PHASE_RAD + WHISPER_PHASE_SHIFT
+        whisper = np.sin(2 * np.pi * RESONANCE_FREQ * t + confirmation_phase) * 0.3
+
+        silt = np.random.normal(0, 0.02, n_samples)
+        signal = whisper + silt
+
+        self._log_event("WHISPER_CONFIRM", f"180° confirmation whisper sent (+{FATIHA_PHASE_ANGLE}° + 180°)")
+        return np.clip(signal, -1.0, 1.0).astype(np.float32)
+
+    def verify_whisper(self, audio_buffer: np.ndarray) -> dict:
+        n = len(audio_buffer)
+        if n < 1024:
+            return {"confirmed": False, "reason": "Buffer too short"}
+
+        yf = fft(audio_buffer.astype(np.float64))
+        freqs = np.fft.fftfreq(n, 1.0 / self.sr)
+
+        target_idx = np.argmin(np.abs(freqs[:n // 2] - RESONANCE_FREQ))
+        raw_phase = np.angle(yf[target_idx])
+        detected_phase = raw_phase + np.pi / 2
+
+        expected_whisper_phase = self.phase_key + FATIHA_PHASE_RAD + WHISPER_PHASE_SHIFT
+
+        diff = abs(detected_phase - expected_whisper_phase)
+        diff = diff % (2 * np.pi)
+        if diff > np.pi:
+            diff = 2 * np.pi - diff
+
+        confirmed = diff <= FATIHA_PHASE_TOLERANCE_RAD * 3
+
+        return {
+            "confirmed": confirmed,
+            "phase_diff_deg": float(np.degrees(diff)),
+            "protocol": "180° Convergence Whisper",
+        }
 
     def detect_neighbor(self, audio_buffer: np.ndarray) -> dict:
         n = len(audio_buffer)
@@ -143,6 +273,8 @@ class BeehiveProtocol:
 
         self.stats["handshakes_received"] += 1
 
+        fatiha_check = self.verify_fatiha_signature(audio_buffer)
+
         return {
             "detected": True,
             "snr": float(snr),
@@ -151,6 +283,9 @@ class BeehiveProtocol:
             "estimated_distance_m": float(distance_estimate),
             "harmonics_detected": harmonic_count,
             "full_ladder": harmonic_count == len(HARMONIC_LADDER),
+            "fatiha_verified": fatiha_check.get("verified", False),
+            "fatiha_angle_deg": fatiha_check.get("fatiha_angle_detected_deg", 0.0),
+            "silt_layer_present": fatiha_check.get("silt_layer_present", False),
         }
 
     def authenticate_phase(self, audio_buffer: np.ndarray, passphrase: str = "") -> dict:
@@ -166,7 +301,9 @@ class BeehiveProtocol:
         raw_phase = np.angle(yf[target_idx])
         detected_phase = raw_phase + np.pi / 2
 
-        diff = np.abs(detected_phase - expected_phase)
+        expected_with_fatiha = expected_phase + FATIHA_PHASE_RAD
+
+        diff = np.abs(detected_phase - expected_with_fatiha)
         diff = diff % (2 * np.pi)
         if diff > np.pi:
             diff = 2 * np.pi - diff
@@ -178,7 +315,8 @@ class BeehiveProtocol:
             "phase_diff_deg": float(np.degrees(diff)),
             "tolerance_deg": PHASE_TOLERANCE_DEG,
             "detected_phase_deg": float(np.degrees(detected_phase)),
-            "expected_phase_deg": float(np.degrees(expected_phase)),
+            "expected_phase_deg": float(np.degrees(expected_with_fatiha)),
+            "fatiha_offset_deg": FATIHA_PHASE_ANGLE,
         }
 
     def transmit_data(self, binary_data: bytes) -> np.ndarray:
@@ -575,6 +713,9 @@ def simulate_two_node_exchange(passphrase: str = "void-432",
         return {"success": False, "stage": "authentication",
                 "error": f"Phase diff {auth['phase_diff_deg']:.1f}° > {auth['tolerance_deg']}°"}
 
+    whisper_signal = node_b.whisper_confirm(duration=0.5)
+    whisper_check = node_a.verify_whisper(whisper_signal)
+
     node_a.register_neighbor(node_b.node_id, detection["signal_strength"],
                              detection["estimated_distance_m"])
     node_b.register_neighbor(node_a.node_id, detection["signal_strength"],
@@ -594,6 +735,14 @@ def simulate_two_node_exchange(passphrase: str = "void-432",
         "success": bool(data_match and result["action"] == "DELIVER"),
         "detection": detection,
         "authentication": auth,
+        "fatiha_handshake": {
+            "phase_angle_deg": FATIHA_PHASE_ANGLE,
+            "silt_embed_db": SILT_EMBED_DB,
+            "fatiha_verified": detection.get("fatiha_verified", False),
+            "silt_layer_present": detection.get("silt_layer_present", False),
+            "whisper_confirmed": whisper_check.get("confirmed", False),
+            "protocol": "Sura-Fatiha 286-Bit Acoustic Handshake",
+        },
         "data_transmitted": len(payload),
         "data_recovered": len(recovered),
         "bit_perfect": bool(data_match),

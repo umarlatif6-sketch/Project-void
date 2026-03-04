@@ -1314,6 +1314,12 @@ def chronicle_import():
     return jsonify(result)
 
 
+@app.route("/api/harness/chronicle/record-migration", methods=["POST"])
+def chronicle_record_migration():
+    result = _chronicle.record_286_migration()
+    return jsonify(result)
+
+
 @app.route("/api/harness/founder/status")
 def founder_status():
     return jsonify(_chronicle.get_founder_status())

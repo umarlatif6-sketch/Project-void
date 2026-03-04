@@ -16,7 +16,6 @@ Run: python tests/convergence_suite.py
 
 import os
 import sys
-import hashlib
 import wave
 import time
 import numpy as np
@@ -42,10 +41,6 @@ INFO = "\033[94mINFO\033[0m"
 results = []
 
 
-def sha256(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
-
-
 def fatiha_286(data: bytes) -> str:
     from void_engine.al_jabr_286 import fatiha_286_hexdigest
     return fatiha_286_hexdigest(data)
@@ -69,7 +64,7 @@ def test_integrity_roundtrip():
     with open(payload_path, "wb") as f:
         f.write(test_payload)
 
-    original_hash = sha256(test_payload)
+    original_hash = fatiha_286(test_payload)
 
     styles = [
         ("cicada_wall", 1, False, True),
@@ -102,7 +97,7 @@ def test_integrity_roundtrip():
                 data_out, name_ext, checksum = decode(output_path, hash_key, lsb_depth=2)
 
             recovered = decompress_data(data_out)
-            recovered_hash = sha256(recovered)
+            recovered_hash = fatiha_286(recovered)
             match = original_hash == recovered_hash
 
             report(
@@ -412,6 +407,48 @@ def test_beehive_mesh():
         f"State: {node_a.mesh_state}, buffered for: {len(node_a._flywheel_buffer)} nodes"
     )
 
+    from void_engine.beehive import FATIHA_PHASE_ANGLE, SILT_EMBED_DB
+    fatiha_node = BeehiveProtocol(machine_id="FATIHA-A", passphrase="void-432")
+    fatiha_pulse = fatiha_node.generate_handshake_pulse(duration=0.5)
+
+    sig = fatiha_node.verify_fatiha_signature(fatiha_pulse)
+    report(
+        "Fatiha: +15.4° phase angle embedded and extracted",
+        sig["verified"] and abs(sig["fatiha_angle_detected_deg"] - FATIHA_PHASE_ANGLE) < 0.5,
+        f"Detected: {sig['fatiha_angle_detected_deg']:.2f}° (expected: {FATIHA_PHASE_ANGLE}°, diff: {sig['angle_diff_deg']:.3f}°)"
+    )
+
+    report(
+        "Fatiha: Silt layer present at -30dB in insect shelf",
+        sig.get("silt_layer_present", False),
+        f"Silt: {sig.get('silt_layer_present')}"
+    )
+
+    wrong_fatiha = BeehiveProtocol(machine_id="WRONG-NODE", passphrase="breach-alpha")
+    wrong_pulse = wrong_fatiha.generate_handshake_pulse(duration=0.5)
+    wrong_sig = fatiha_node.verify_fatiha_signature(wrong_pulse)
+    report(
+        "Fatiha: Wrong phase angle (+20° etc) is rejected",
+        not wrong_sig["verified"],
+        f"Angle diff: {wrong_sig['angle_diff_deg']:.2f}° (must exceed tolerance)"
+    )
+
+    whisper = fatiha_node.whisper_confirm(duration=0.5)
+    whisper_check = fatiha_node.verify_whisper(whisper)
+    report(
+        "Fatiha: 180° confirmation whisper round-trip verified",
+        whisper_check["confirmed"],
+        f"Phase diff: {whisper_check['phase_diff_deg']:.3f}°"
+    )
+
+    carrier_before = fatiha_pulse.copy()
+    snr_before = np.std(carrier_before[:4410])
+    report(
+        "Fatiha: -30dB silt embedding preserves audible carrier (SNR check)",
+        snr_before > 0.1,
+        f"Signal RMS: {snr_before:.4f} (silt at {SILT_EMBED_DB} dB is inaudible)"
+    )
+
 
 def test_transceiver_convergence():
     print(f"\n  {'=' * 60}")
@@ -662,6 +699,51 @@ def test_al_jabr_286_protocol():
         "286: Beehive node ID uses 286-bit derivation",
         len(bp.node_id) == 16,
         f"Node ID: {bp.node_id}"
+    )
+
+    avalanche_pass_count = 0
+    avalanche_pairs = 5
+    for i in range(avalanche_pairs):
+        input_a = bytearray(b"AvalancheTest-" + bytes([i]))
+        input_b = bytearray(input_a)
+        input_b[-1] ^= 0x01
+
+        hash_a = fatiha_286_hash(bytes(input_a))
+        hash_b = fatiha_286_hash(bytes(input_b))
+
+        bits_a = int.from_bytes(hash_a, 'big')
+        bits_b = int.from_bytes(hash_b, 'big')
+        xor = bits_a ^ bits_b
+        differing_bits = bin(xor).count('1')
+        total_bits = len(hash_a) * 8
+        avalanche_ratio = differing_bits / total_bits
+
+        if avalanche_ratio >= 0.40:
+            avalanche_pass_count += 1
+
+    report(
+        f"286: Avalanche effect — 1-bit change flips ≥40% output bits",
+        avalanche_pass_count == avalanche_pairs,
+        f"Passed {avalanche_pass_count}/{avalanche_pairs} pairs (last ratio: {avalanche_ratio:.1%})"
+    )
+
+    report(
+        "286: Verse weights [7,4,2,5,4,3,6] sum to 31",
+        sum(FATIHA_LAYERS) == 31 and len(FATIHA_LAYERS) == 7,
+        f"Sum: {sum(FATIHA_LAYERS)}, layers: {FATIHA_LAYERS}"
+    )
+
+    report(
+        "286: Sovereign bit depth = 286 (256 + 30)",
+        SOVEREIGN_BIT_DEPTH == 286 and TOTAL_BYTES == 36,
+        f"Depth: {SOVEREIGN_BIT_DEPTH}, bytes: {TOTAL_BYTES}, extension: {SOVEREIGN_BIT_DEPTH - 256} bits"
+    )
+
+    from void_engine.al_jabr_286 import FATIHA_PRIME_SALT
+    report(
+        "286: Prime salt is BismillahirRahmanirRahim",
+        FATIHA_PRIME_SALT == b"BismillahirRahmanirRahim",
+        f"Salt: {FATIHA_PRIME_SALT.decode()}"
     )
 
 

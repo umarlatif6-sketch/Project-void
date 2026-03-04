@@ -25,7 +25,7 @@ import json
 import time
 import sqlite3
 import threading
-from void_engine.al_jabr_286 import fatiha_286_truncated
+from void_engine.al_jabr_286 import fatiha_286_truncated, fatiha_286_hexdigest, FATIHA_LAYERS
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 
@@ -33,6 +33,36 @@ from dataclasses import dataclass, field
 CHRONICLE_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'chronicle.db')
 
 FOUNDER_ROOT_HASH = "89x-VOID-GEN1-PROTO-2026"
+
+MIGRATED_MODULES = [
+    "adriana_transpiler",
+    "al_jabr_286",
+    "aljabr_transpiler",
+    "beehive",
+    "biological",
+    "biophony",
+    "calculator",
+    "chaos_test",
+    "chronicle",
+    "compressor",
+    "consensus",
+    "diagnostics",
+    "divided_protocol",
+    "founder_certs",
+    "harness",
+    "keep_alive",
+    "kinetic",
+    "loop_detector",
+    "media_bench",
+    "nervous_system",
+    "resonance_contract",
+    "rituals",
+    "silk_web",
+    "silt_ledger",
+    "stega",
+    "stress_test",
+    "wallet",
+]
 
 SENSOR_KEYS = [
     ("flywheel", "temperature_c"),
@@ -661,6 +691,66 @@ class RootChronicle:
             result["greeting"] = "Inherited Wisdom Detected. First Generation Status: ACTIVE. Greeting the Architect."
             result["founder_vibe"] = True
         return result
+
+    def record_286_migration(self) -> Dict:
+        with self._lock:
+            with self._get_conn() as conn:
+                existing = conn.execute(
+                    "SELECT COUNT(*) as c FROM chronicle WHERE consensus_command = '286-BIT-MIGRATION'"
+                ).fetchone()["c"]
+                if existing > 0:
+                    return {
+                        "success": True,
+                        "already_recorded": True,
+                        "message": "286-bit migration already recorded in Chronicle",
+                    }
+
+        module_concat = "".join(MIGRATED_MODULES)
+        verification_hash = fatiha_286_hexdigest(module_concat.encode("utf-8"))
+
+        migration_record = {
+            "timestamp": time.time(),
+            "consensus_command": "286-BIT-MIGRATION",
+            "consensus_intent": "Lock 286-bit sovereign migration into Ancestral Wisdom",
+            "outcome": json.dumps({
+                "migrated_modules": MIGRATED_MODULES,
+                "module_count": len(MIGRATED_MODULES),
+                "hash_algorithm": "SHA3-256 base + 30-bit sovereign extension",
+                "bit_depth": 286,
+                "total_bytes": 36,
+                "fatiha_verse_weights": list(FATIHA_LAYERS),
+                "verification_hash": verification_hash,
+            }),
+            "success": True,
+            "energy_pct": 100.0,
+        }
+
+        sensor_state = {}
+        for section, key in SENSOR_KEYS:
+            if section not in sensor_state:
+                sensor_state[section] = {}
+            sensor_state[section][key] = 0.0
+
+        entry = self.record_consensus(
+            migration_record,
+            sensor_state,
+            guardian_priority="286-BIT-SOVEREIGN",
+            growth_priority="ANCESTRAL-WISDOM",
+            is_founder=1,
+        )
+
+        return {
+            "success": True,
+            "already_recorded": False,
+            "chronicle_id": entry.id,
+            "verification_hash": verification_hash,
+            "migrated_modules": MIGRATED_MODULES,
+            "module_count": len(MIGRATED_MODULES),
+            "hash_spec": "SHA3-256 base + 30-bit sovereign extension",
+            "fatiha_verse_weights": list(FATIHA_LAYERS),
+            "is_founder_seed": True,
+            "message": "286-bit migration locked into Ancestral Wisdom",
+        }
 
     def _row_to_entry(self, row) -> ChronicleEntry:
         is_founder = 0
