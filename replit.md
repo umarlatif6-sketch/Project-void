@@ -48,6 +48,7 @@ PROJECT VOID features a Flask-based web UI and a command-line interface. The `vo
 - **Biological Transceiver (Aquaponics → Impedance):** Sensor readings (water level, temperature, pH, dissolved oxygen) dynamically modify shelf signal parameters.
 - **Silt Ledger (DAO 3.0 — Lightweight Blockchain):** SHA-256 chained blocks for decentralized autonomous organization voting, integrated with Beehive Protocol.
 - **Transceiver UI Tab:** Unified UI for Kinetic, Biological, and Silt Ledger panels.
+- **Blueprint Page (4000-Series Sovereign Node):** Full hardware blueprint tab with schematics gallery (3 images with lightbox), Material Resonance Table (5 components: Steel 108 Hz, Aluminum 216 Hz, Silk-Silver 432 Hz, Salt Water 864 Hz, Foam 12 kHz), Component Shopping List (14 items, ~£450-660 total), 3-phase DIY Build Tutorial (Harmonic Tuning, Kinetic Handshake, Entering the Mesh), Quarter-Wave Resonator formula (L=19.8 cm), dual pricing cards (FREE Pirate Build vs £25,000 Sovereign Edition), child-friendly explanation, and `/api/blueprint/specs` JSON endpoint. Images served from `static/blueprints/`.
 - **Convergence Suite:** Automated verification tests for integrity, resonance, silt analysis, density, Beehive handshake, and kinetic-biological-ledger convergence.
 
 ## External Dependencies

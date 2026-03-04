@@ -3660,4 +3660,25 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Export failed", "error");
         });
     });
+
+    var lightbox = document.getElementById("blueprint-lightbox");
+    var lightboxImg = document.getElementById("lightbox-img");
+    document.querySelectorAll(".blueprint-schematic[data-lightbox]").forEach(function(el) {
+        el.addEventListener("click", function() {
+            lightboxImg.src = el.getAttribute("data-lightbox");
+            lightbox.style.display = "flex";
+        });
+    });
+    if (lightbox) {
+        lightbox.addEventListener("click", function() {
+            lightbox.style.display = "none";
+            lightboxImg.src = "";
+        });
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape" && lightbox.style.display === "flex") {
+                lightbox.style.display = "none";
+                lightboxImg.src = "";
+            }
+        });
+    }
 });

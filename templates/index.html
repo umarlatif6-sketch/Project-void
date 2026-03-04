@@ -36,6 +36,7 @@
             <button class="tab" data-tab="silk">Silk Web</button>
             <button class="tab" data-tab="mesh">Mesh</button>
             <button class="tab" data-tab="transceiver">Transceiver</button>
+            <button class="tab" data-tab="blueprint">Blueprint</button>
             <button class="tab" data-tab="files">Files</button>
             <button class="tab" data-tab="harness">Harness</button>
         </div>
@@ -643,6 +644,260 @@
                 <div id="output-file-list" class="file-list"><p class="loading">Loading...</p></div>
             </div>
         </div>
+        <div id="blueprint" class="panel">
+            <div class="blueprint-hero">
+                <div class="blueprint-hero-title">4000-Series Sovereign Node</div>
+                <div class="blueprint-hero-subtitle">Genesis Blueprint &mdash; Ghost Internet Hardware</div>
+                <div class="blueprint-hero-tagline">Build your own. Join the mesh. No permission required.</div>
+            </div>
+
+            <div class="blueprint-section">
+                <h3 class="blueprint-section-title">&#9670; Schematics</h3>
+                <p class="blueprint-section-desc">Click any schematic to enlarge. These are the official 4000-Series technical drawings.</p>
+                <div class="blueprint-gallery">
+                    <div class="blueprint-schematic" data-lightbox="/static/blueprints/schematic_front.png">
+                        <img src="/static/blueprints/schematic_front.png" alt="4000-Series Front Cross-Section">
+                        <div class="schematic-caption">Front Cross-Section &mdash; Layer Architecture &amp; Quarter-Wave Resonator</div>
+                    </div>
+                    <div class="blueprint-schematic" data-lightbox="/static/blueprints/schematic_detail.png">
+                        <img src="/static/blueprints/schematic_detail.png" alt="4000-Series Continental Mesh Topology">
+                        <div class="schematic-caption">Continental Mesh Topology &mdash; Wallet &amp; Consensus Gateway</div>
+                    </div>
+                    <div class="blueprint-schematic" data-lightbox="/static/blueprints/schematic_3d.png">
+                        <img src="/static/blueprints/schematic_3d.png" alt="4000-Series Multi-Layer Resonant Integration">
+                        <div class="schematic-caption">3D Multi-Layer Resonant Integration &mdash; Shimmer Field</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="blueprint-section">
+                <h3 class="blueprint-section-title">&#9670; Quarter-Wave Resonator</h3>
+                <div class="formula-callout">
+                    <div class="formula-label">Internal Acoustic Column Length</div>
+                    <div class="formula-math">L = v / (4 &times; f) = 343 / (4 &times; 432) &asymp; <strong>19.8 cm</strong></div>
+                    <div class="formula-note">The internal height must be exactly 19.8 cm to sustain a 432 Hz standing wave.</div>
+                </div>
+            </div>
+
+            <div class="blueprint-section">
+                <h3 class="blueprint-section-title">&#9670; Material Resonance Table</h3>
+                <table class="resonance-table">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Material</th>
+                            <th>Primary Resonance (f<sub>0</sub>)</th>
+                            <th>Harmonic Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Outer Skin</td>
+                            <td>304 Brushed Steel</td>
+                            <td class="freq-cell">108 Hz</td>
+                            <td>Whale Shelf (Sub-bass)</td>
+                        </tr>
+                        <tr>
+                            <td>Internal Frame</td>
+                            <td>Aerospace Aluminum</td>
+                            <td class="freq-cell">216 Hz</td>
+                            <td>Skeleton (1st Sub-harmonic of 432 Hz)</td>
+                        </tr>
+                        <tr>
+                            <td>Wiring</td>
+                            <td>Spun Silk &amp; Silver</td>
+                            <td class="freq-cell">432 Hz</td>
+                            <td>Sapphire Thread (Data Core)</td>
+                        </tr>
+                        <tr>
+                            <td>Liquid Buffer</td>
+                            <td>Salt Water / Aquaponics</td>
+                            <td class="freq-cell">864 Hz</td>
+                            <td>Mid-Shelf (1st Overtone)</td>
+                        </tr>
+                        <tr>
+                            <td>Insulation</td>
+                            <td>Polyurethane Foam</td>
+                            <td class="freq-cell">12 kHz</td>
+                            <td>Masking floor for Insect Silt</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="blueprint-section">
+                <h3 class="blueprint-section-title">&#9670; Component Shopping List</h3>
+                <p class="blueprint-section-desc">Everything you need to build a Sovereign Node. All components are commercially available.</p>
+                <div class="shopping-list">
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">304 Brushed Steel sheet (outer skin)</span>
+                        <span class="shopping-cost">&pound;40 &ndash; &pound;60</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">Aerospace Aluminum frame stock</span>
+                        <span class="shopping-cost">&pound;30 &ndash; &pound;50</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">18mm Plywood (alternative chassis)</span>
+                        <span class="shopping-cost">&pound;15 &ndash; &pound;25</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">Polypropylene internal lining</span>
+                        <span class="shopping-cost">&pound;10 &ndash; &pound;15</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">Silk-wrapped silver wiring (1m)</span>
+                        <span class="shopping-cost">&pound;20 &ndash; &pound;35</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">15kg Weighted Plate (flywheel mass)</span>
+                        <span class="shopping-cost">&pound;25 &ndash; &pound;40</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">High-speed ceramic bearings</span>
+                        <span class="shopping-cost">&pound;15 &ndash; &pound;25</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">Brushless DC Motor (BLDC)</span>
+                        <span class="shopping-cost">&pound;30 &ndash; &pound;50</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9670;</span>
+                        <span class="shopping-name">NVIDIA Jetson Orin Nano (The Brain)</span>
+                        <span class="shopping-cost">&pound;200 &ndash; &pound;250</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">USB Webcam / CSI Camera</span>
+                        <span class="shopping-cost">&pound;20 &ndash; &pound;40</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">Piezoelectric Transducers (pack of 10)</span>
+                        <span class="shopping-cost">&pound;8 &ndash; &pound;15</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">Epoxy adhesive</span>
+                        <span class="shopping-cost">&pound;5 &ndash; &pound;10</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">Polyurethane foam insulation</span>
+                        <span class="shopping-cost">&pound;10 &ndash; &pound;20</span>
+                    </div>
+                    <div class="shopping-item">
+                        <span class="shopping-icon">&#9638;</span>
+                        <span class="shopping-name">Miscellaneous (screws, solder, connectors)</span>
+                        <span class="shopping-cost">&pound;15 &ndash; &pound;25</span>
+                    </div>
+                    <div class="shopping-total">
+                        <span class="shopping-total-label">Total Pirate Build Estimate</span>
+                        <span class="shopping-total-cost" id="blueprint-total-cost">&pound;443 &ndash; &pound;660</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="blueprint-section">
+                <h3 class="blueprint-section-title">&#9670; DIY Build Tutorial</h3>
+                <div class="build-phases">
+                    <div class="build-phase">
+                        <div class="phase-number">1</div>
+                        <div class="phase-content">
+                            <div class="phase-title">Phase 1: Harmonic Tuning</div>
+                            <div class="phase-steps">
+                                <div class="phase-step"><strong>Mount the Transducers:</strong> Solder your piezo elements to the silk-wrapped silver wiring. Glue them to the centre of the steel outer panels with epoxy.</div>
+                                <div class="phase-step"><strong>Calibrate:</strong> Run the <code>void_engine/beehive.py</code> test script. Use a frequency analyser to ensure the box &ldquo;rings&rdquo; at 432 Hz. If it is off, adjust the internal volume by adding small wood blocks until the pitch is perfect.</div>
+                                <div class="phase-step"><strong>Lining:</strong> Line the interior with Polypropylene to preserve the high-frequency Insect Silt (12 kHz).</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="build-phase-connector"></div>
+                    <div class="build-phase">
+                        <div class="phase-number">2</div>
+                        <div class="phase-content">
+                            <div class="phase-title">Phase 2: The Kinetic Handshake</div>
+                            <div class="phase-steps">
+                                <div class="phase-step"><strong>Flywheel Assembly:</strong> Mount the BLDC motor to the base. Attach the 15kg weighted plate with ceramic bearings. The spinning mass stores kinetic energy and acts as the Seismic Antenna for the Whale Shelf.</div>
+                                <div class="phase-step"><strong>Spin Up:</strong> Power the BLDC motor until the flywheel reaches stable RPM.</div>
+                                <div class="phase-step"><strong>Sweat-to-Credit:</strong> Open the Sovereign Mesh Mode on your dashboard. Perform 10 Pull-ups. The Orin Nano detects the reps, verifies the effort via the Consensus Engine, and deposits the first Compute Credits into your Al-Jabr Wallet.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="build-phase-connector"></div>
+                    <div class="build-phase">
+                        <div class="phase-number">3</div>
+                        <div class="phase-content">
+                            <div class="phase-title">Phase 3: Entering the Mesh</div>
+                            <div class="phase-steps">
+                                <div class="phase-step"><strong>The Shout:</strong> Trigger the <code>POST /api/mesh/connect</code> command from the Mesh tab.</div>
+                                <div class="phase-step"><strong>Verification:</strong> Your node will pulse the 432 Hz Sapphire Thread. When a neighbouring node hears the pulse and verifies the &plusmn;15&deg; Phase Shift, you are officially part of the Ghost Internet.</div>
+                                <div class="phase-step"><strong>You&rsquo;re In:</strong> From this moment, your node can relay blocks, vote in the DAO, and earn Compute Credits through physical work.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="blueprint-section">
+                <h3 class="blueprint-section-title">&#9670; Pricing</h3>
+                <div class="pricing-zone">
+                    <div class="pricing-card pricing-pirate">
+                        <div class="pricing-badge">PIRATE BUILD</div>
+                        <div class="pricing-price">FREE</div>
+                        <div class="pricing-subtitle">You source the parts. You build it. You own it.</div>
+                        <ul class="pricing-features">
+                            <li>Full schematics &amp; build guide provided</li>
+                            <li>Estimated component cost: &pound;450 &ndash; &pound;660</li>
+                            <li>Full access to PROJECT VOID software</li>
+                            <li>Join the Ghost Internet mesh</li>
+                            <li>Earn Compute Credits through calisthenics</li>
+                            <li>DAO voting rights from day one</li>
+                            <li>Community support via the mesh</li>
+                        </ul>
+                        <div class="pricing-cta">Download the Blueprint</div>
+                    </div>
+                    <div class="pricing-card pricing-sovereign">
+                        <div class="pricing-badge">SOVEREIGN EDITION</div>
+                        <div class="pricing-price">&pound;25,000</div>
+                        <div class="pricing-subtitle">Pre-built. Calibrated. Certified. Delivered.</div>
+                        <ul class="pricing-features">
+                            <li>Hand-built 4000-Series steel chassis</li>
+                            <li>Factory-calibrated 432 Hz resonance</li>
+                            <li>Jetson Orin Nano pre-configured</li>
+                            <li>15kg flywheel &amp; BLDC motor installed</li>
+                            <li>Aquaponics reservoir integrated</li>
+                            <li>Founder Certificate (Gen-1 NFT)</li>
+                            <li>Lifetime Sovereign Warranty</li>
+                            <li>Priority mesh relay status</li>
+                            <li>Gold-tier DAO voting weight</li>
+                        </ul>
+                        <div class="pricing-cta pricing-cta-gold">Order Sovereign Edition</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="blueprint-section">
+                <div class="child-explain">
+                    <div class="child-explain-title">&#9733; For a child to understand:</div>
+                    <div class="child-explain-text">&ldquo;This is the &lsquo;How-To&rsquo; book for building your magic box at home! You don&rsquo;t have to buy a finished one; you can build it with wood, steel, and a few smart parts. Once you build it, you have to work out to &lsquo;charge&rsquo; it with your energy. When it&rsquo;s charged, it will start singing its secret song and find other magic boxes nearby. Then you all become part of a secret team that doesn&rsquo;t need the regular internet at all!&rdquo;</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="blueprint-lightbox" class="blueprint-lightbox" style="display:none;">
+            <div class="lightbox-close">&times;</div>
+            <img id="lightbox-img" class="lightbox-img" src="" alt="Schematic">
+        </div>
+
         <div id="harness" class="panel">
             <h2>Plankton-Orin Harness</h2>
             <p class="panel-desc">Digital Nervous System — PreCompletionChecklist, Boundary Hooks, Loop Detection, and AC Pressure Differential for the 4000-series machine.</p>

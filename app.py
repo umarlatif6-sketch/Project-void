@@ -1711,6 +1711,43 @@ def ledger_votes():
     return jsonify({"proposals": _silt_ledger.get_proposals()})
 
 
+@app.route("/api/blueprint/specs")
+def blueprint_specs():
+    components = [
+        {"name": "304 Brushed Steel sheet (outer skin)", "min": 40, "max": 60, "role": "Whale Shelf carrier @ 108 Hz"},
+        {"name": "Aerospace Aluminum frame stock", "min": 30, "max": 50, "role": "Skeleton @ 216 Hz sub-harmonic"},
+        {"name": "18mm Plywood (alternative chassis)", "min": 15, "max": 25, "role": "Budget chassis option"},
+        {"name": "Polypropylene internal lining", "min": 10, "max": 15, "role": "Insect Silt preservation @ 12 kHz"},
+        {"name": "Silk-wrapped silver wiring (1m)", "min": 20, "max": 35, "role": "Sapphire Thread @ 432 Hz"},
+        {"name": "15kg Weighted Plate (flywheel)", "min": 25, "max": 40, "role": "Kinetic energy storage / Seismic Antenna"},
+        {"name": "High-speed ceramic bearings", "min": 15, "max": 25, "role": "Flywheel mount"},
+        {"name": "Brushless DC Motor (BLDC)", "min": 30, "max": 50, "role": "Flywheel driver / generator"},
+        {"name": "NVIDIA Jetson Orin Nano", "min": 200, "max": 250, "role": "Real-Time Pose Estimation (The Brain)"},
+        {"name": "USB Webcam / CSI Camera", "min": 20, "max": 40, "role": "Calisthenics tracking"},
+        {"name": "Piezoelectric Transducers (x10)", "min": 8, "max": 15, "role": "Resonance pulse generation"},
+        {"name": "Epoxy adhesive", "min": 5, "max": 10, "role": "Transducer mounting"},
+        {"name": "Polyurethane foam insulation", "min": 10, "max": 20, "role": "12 kHz high-pass filter"},
+        {"name": "Miscellaneous (screws, solder, connectors)", "min": 15, "max": 25, "role": "Assembly hardware"},
+    ]
+    total_min = sum(c["min"] for c in components)
+    total_max = sum(c["max"] for c in components)
+    resonance_table = [
+        {"component": "Outer Skin", "material": "304 Brushed Steel", "frequency_hz": 108, "role": "Whale Shelf (Sub-bass)"},
+        {"component": "Internal Frame", "material": "Aerospace Aluminum", "frequency_hz": 216, "role": "Skeleton (1st Sub-harmonic)"},
+        {"component": "Wiring", "material": "Spun Silk & Silver", "frequency_hz": 432, "role": "Sapphire Thread (Data Core)"},
+        {"component": "Liquid Buffer", "material": "Salt Water / Aquaponics", "frequency_hz": 864, "role": "Mid-Shelf (1st Overtone)"},
+        {"component": "Insulation", "material": "Polyurethane Foam", "frequency_hz": 12000, "role": "Masking floor for Insect Silt"},
+    ]
+    return jsonify({
+        "components": components,
+        "pirate_build_total": {"min": total_min, "max": total_max, "currency": "GBP"},
+        "sovereign_price": {"amount": 25000, "currency": "GBP"},
+        "resonance_table": resonance_table,
+        "quarter_wave_length_cm": 19.8,
+        "base_frequency_hz": 432,
+    })
+
+
 _start_time = __import__("time").time()
 
 
