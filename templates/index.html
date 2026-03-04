@@ -37,6 +37,7 @@
             <button class="tab" data-tab="mesh">Mesh</button>
             <button class="tab" data-tab="transceiver">Transceiver</button>
             <button class="tab" data-tab="blueprint">Blueprint</button>
+            <button class="tab" data-tab="journalism">Journalism</button>
             <button class="tab" data-tab="files">Files</button>
             <button class="tab" data-tab="harness">Harness</button>
         </div>
@@ -709,6 +710,77 @@
                     <div class="child-explain-title">For a child to understand:</div>
                     <div class="child-explain-text">"It's like a giant game where the rules are written in a magic book that no one can ever lose! When you exercise, the magic book sees your hard work and gives you 'Golden Seeds.' You can use these seeds to make the secret music box sing louder. The garden helps too &mdash; if the plants are happy, the music box gets even more seeds! All the magic boxes work together like a team, making sure everyone is healthy and the secrets stay safe."</div>
                 </div>
+            </div>
+        </div>
+
+        <div id="journalism" class="panel">
+            <h2>Silt Journalism &mdash; Hide Truth in Nature</h2>
+            <p class="desc">Drop any file into the silt. The engine auto-generates a biophony carrier (birdsong, insects, pond ambiance), hides your data inside it at -30dB using Vortex scatter, and gives you a nature-sound WAV that only a 286-bit key can unlock.</p>
+
+            <div class="journalism-encode-section">
+                <div id="journalism-dropzone" class="journalism-dropzone">
+                    <div class="journalism-dropzone-icon">&#9660;</div>
+                    <div class="journalism-dropzone-text">Drop a file here &mdash; or click to browse</div>
+                    <div id="journalism-file-name" class="journalism-file-label"></div>
+                    <input type="file" id="journalism-file-input" style="display:none;">
+                </div>
+
+                <div class="journalism-controls">
+                    <label class="journalism-label">Carrier Style</label>
+                    <select id="journalism-style-select" class="journalism-select">
+                        <option value="biophony_mesh" selected>Biophony Mesh (Stereo &mdash; Full Ecosystem)</option>
+                        <option value="midnight_pond">Midnight Pond (Stereo &mdash; Frogs + Water)</option>
+                        <option value="cicada_wall">Cicada Wall (Dense Insect Cover)</option>
+                        <option value="cricket_pulse">Cricket Pulse (Rhythmic Insect)</option>
+                        <option value="dawn_chorus">Dawn Chorus (Bird Layer)</option>
+                    </select>
+                    <button id="journalism-encode-btn" class="btn-journalism" disabled>Sink into Silt</button>
+                </div>
+            </div>
+
+            <div id="journalism-result" class="journalism-result" style="display:none;">
+                <h3>Silt Drop Ready</h3>
+                <div class="journalism-result-grid">
+                    <div class="journalism-stat"><span class="journalism-stat-label">Output</span><span id="journalism-out-file" class="journalism-stat-value">—</span></div>
+                    <div class="journalism-stat"><span class="journalism-stat-label">286-Bit Key</span><span id="journalism-hash-key" class="journalism-stat-value journalism-hash-copyable" title="Click to copy">—</span></div>
+                    <div class="journalism-stat"><span class="journalism-stat-label">Original Size</span><span id="journalism-orig-size" class="journalism-stat-value">—</span></div>
+                    <div class="journalism-stat"><span class="journalism-stat-label">Compressed</span><span id="journalism-comp-size" class="journalism-stat-value">—</span></div>
+                    <div class="journalism-stat"><span class="journalism-stat-label">WAV Size</span><span id="journalism-wav-size" class="journalism-stat-value">—</span></div>
+                    <div class="journalism-stat"><span class="journalism-stat-label">Carrier</span><span id="journalism-carrier-style" class="journalism-stat-value">—</span></div>
+                    <div class="journalism-stat"><span class="journalism-stat-label">Scatter</span><span id="journalism-scatter" class="journalism-stat-value">vortex</span></div>
+                    <div class="journalism-stat"><span class="journalism-stat-label">Duration</span><span id="journalism-duration" class="journalism-stat-value">—</span></div>
+                </div>
+                <div class="journalism-actions">
+                    <button id="journalism-download-btn" class="btn-journalism">Download Nature Sound</button>
+                    <button id="journalism-broadcast-btn" class="btn-journalism-secondary">Broadcast to Mesh</button>
+                </div>
+            </div>
+
+            <div class="journalism-drops-section">
+                <h3>Silt Drops Archive</h3>
+                <div class="journalism-drops-controls">
+                    <button id="journalism-refresh-btn" class="btn-secondary">Refresh</button>
+                    <button id="journalism-purge-btn" class="btn-danger">Purge All Drops</button>
+                </div>
+                <div id="journalism-drops-list" class="journalism-drops-list">
+                    <p class="loading">No drops yet.</p>
+                </div>
+            </div>
+
+            <div class="journalism-decode-section">
+                <h3>Extract from Silt</h3>
+                <p class="desc">Provide the WAV filename and your 286-bit hash key to recover the hidden file.</p>
+                <div class="journalism-decode-row">
+                    <input type="text" id="journalism-decode-file" placeholder="silt_xxxxxxxx_name.wav" class="journalism-input">
+                    <input type="text" id="journalism-decode-key" placeholder="286-bit hash key" class="journalism-input">
+                    <button id="journalism-decode-btn" class="btn-journalism-secondary">Extract</button>
+                </div>
+                <div id="journalism-decode-result" class="journalism-decode-result" style="display:none;"></div>
+            </div>
+
+            <div class="child-explain">
+                <div class="child-explain-title">&#127758; For a child to understand</div>
+                <div class="child-explain-text">"When our scientist friends write stories that have secret treasure maps hidden inside, our magic music box takes those maps and hides them inside the sound of crickets and birds singing. If anyone tries to listen, they just hear a beautiful night in the forest. But if you know the special 286-number code, the music box opens up and shows you the treasure map! The big bosses can never find it because they only know how to count to 256."</div>
             </div>
         </div>
 

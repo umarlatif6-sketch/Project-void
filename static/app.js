@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (tab.dataset.tab === "visualizer") loadSelects();
             if (tab.dataset.tab === "silk") loadSilkFeed();
             if (tab.dataset.tab === "transceiver") refreshTransceiverStatus();
+            if (tab.dataset.tab === "journalism") loadSiltDrops();
         });
     });
 
@@ -3774,6 +3775,204 @@ document.addEventListener("DOMContentLoaded", () => {
                 lightbox.style.display = "none";
                 lightboxImg.src = "";
             }
+        });
+    }
+
+    var journalismFile = null;
+    var journalismDropzone = document.getElementById("journalism-dropzone");
+    var journalismFileInput = document.getElementById("journalism-file-input");
+    var journalismFileName = document.getElementById("journalism-file-name");
+    var journalismEncodeBtn = document.getElementById("journalism-encode-btn");
+
+    if (journalismDropzone) {
+        journalismDropzone.addEventListener("click", function() {
+            journalismFileInput.click();
+        });
+        journalismDropzone.addEventListener("dragover", function(e) {
+            e.preventDefault();
+            journalismDropzone.classList.add("drag-over");
+        });
+        journalismDropzone.addEventListener("dragleave", function() {
+            journalismDropzone.classList.remove("drag-over");
+        });
+        journalismDropzone.addEventListener("drop", function(e) {
+            e.preventDefault();
+            journalismDropzone.classList.remove("drag-over");
+            if (e.dataTransfer.files.length > 0) {
+                journalismFile = e.dataTransfer.files[0];
+                journalismFileName.textContent = journalismFile.name + " (" + formatSize(journalismFile.size) + ")";
+                journalismEncodeBtn.disabled = false;
+            }
+        });
+        journalismFileInput.addEventListener("change", function() {
+            if (journalismFileInput.files.length > 0) {
+                journalismFile = journalismFileInput.files[0];
+                journalismFileName.textContent = journalismFile.name + " (" + formatSize(journalismFile.size) + ")";
+                journalismEncodeBtn.disabled = false;
+            }
+        });
+    }
+
+    if (journalismEncodeBtn) {
+        journalismEncodeBtn.addEventListener("click", function() {
+            if (!journalismFile) return;
+            var style = document.getElementById("journalism-style-select").value;
+            var formData = new FormData();
+            formData.append("file", journalismFile);
+            formData.append("style", style);
+
+            journalismEncodeBtn.disabled = true;
+            journalismEncodeBtn.textContent = "Sinking into Silt...";
+            document.getElementById("journalism-result").style.display = "none";
+
+            fetch("/api/journalism/encode", { method: "POST", body: formData })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    journalismEncodeBtn.disabled = false;
+                    journalismEncodeBtn.textContent = "Sink into Silt";
+                    if (data.error) {
+                        showToast(data.error, "error");
+                        return;
+                    }
+                    document.getElementById("journalism-result").style.display = "block";
+                    document.getElementById("journalism-out-file").textContent = data.output_file;
+                    document.getElementById("journalism-hash-key").textContent = data.hash_key;
+                    document.getElementById("journalism-orig-size").textContent = formatSize(data.original_size);
+                    document.getElementById("journalism-comp-size").textContent = formatSize(data.compressed_size);
+                    document.getElementById("journalism-wav-size").textContent = formatSize(data.output_size);
+                    document.getElementById("journalism-carrier-style").textContent = data.carrier_style;
+                    document.getElementById("journalism-scatter").textContent = data.scatter_mode;
+                    document.getElementById("journalism-duration").textContent = data.carrier_duration_min + " min";
+
+                    document.getElementById("journalism-download-btn").onclick = function() {
+                        window.location.href = "/api/journalism/download/" + encodeURIComponent(data.output_file);
+                    };
+                    document.getElementById("journalism-broadcast-btn").onclick = function() {
+                        fetch("/api/mesh/broadcast", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ filename: data.output_file, source: "silt_drops" })
+                        }).then(function(r) { return r.json(); })
+                          .then(function(d) { showToast(d.success ? "Broadcast queued to mesh" : (d.error || "Broadcast failed"), d.success ? "success" : "error"); })
+                          .catch(function() { showToast("Mesh broadcast failed", "error"); });
+                    };
+
+                    showToast("Silt drop ready — " + data.output_file, "success");
+                    loadSiltDrops();
+                    journalismFile = null;
+                    journalismFileName.textContent = "";
+                    journalismFileInput.value = "";
+                })
+                .catch(function() {
+                    journalismEncodeBtn.disabled = false;
+                    journalismEncodeBtn.textContent = "Sink into Silt";
+                    showToast("Silt encoding failed", "error");
+                });
+        });
+    }
+
+    var journalismHashEl = document.getElementById("journalism-hash-key");
+    if (journalismHashEl) {
+        journalismHashEl.addEventListener("click", function() {
+            var key = journalismHashEl.textContent;
+            if (key && key !== "—") {
+                navigator.clipboard.writeText(key).then(function() {
+                    showToast("286-bit key copied", "success");
+                }).catch(function() {
+                    showToast("Copy failed", "error");
+                });
+            }
+        });
+    }
+
+    function loadSiltDrops() {
+        var list = document.getElementById("journalism-drops-list");
+        if (!list) return;
+        fetch("/api/journalism/drops")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.drops || data.drops.length === 0) {
+                    list.innerHTML = '<p class="loading">No drops yet.</p>';
+                    return;
+                }
+                var html = "";
+                data.drops.forEach(function(d) {
+                    html += '<div class="journalism-drop-row">';
+                    html += '<span class="journalism-drop-name" title="' + d.name + '">' + d.name + '</span>';
+                    html += '<span class="journalism-drop-meta">' + formatSize(d.size) + ' &middot; ' + d.modified + '</span>';
+                    html += '<div class="journalism-drop-actions">';
+                    html += '<button onclick="window._downloadSiltDrop(\'' + d.name + '\')">Download</button>';
+                    html += '<button onclick="window._deleteSiltDrop(\'' + d.name + '\')">Delete</button>';
+                    html += '</div></div>';
+                });
+                list.innerHTML = html;
+            })
+            .catch(function() {
+                list.innerHTML = '<p class="loading">Failed to load drops.</p>';
+            });
+    }
+
+    window._downloadSiltDrop = function(name) {
+        window.location.href = "/api/journalism/download/" + encodeURIComponent(name);
+    };
+
+    window._deleteSiltDrop = function(name) {
+        if (!confirm("Delete silt drop: " + name + "?")) return;
+        fetch("/api/journalism/delete/" + encodeURIComponent(name), { method: "DELETE" })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                showToast(data.success ? "Deleted " + name : (data.error || "Delete failed"), data.success ? "success" : "error");
+                loadSiltDrops();
+            })
+            .catch(function() { showToast("Delete failed", "error"); });
+    };
+
+    var journalismRefreshBtn = document.getElementById("journalism-refresh-btn");
+    if (journalismRefreshBtn) {
+        journalismRefreshBtn.addEventListener("click", loadSiltDrops);
+    }
+
+    var journalismPurgeBtn = document.getElementById("journalism-purge-btn");
+    if (journalismPurgeBtn) {
+        journalismPurgeBtn.addEventListener("click", function() {
+            if (!confirm("Purge ALL silt drops? This cannot be undone.")) return;
+            fetch("/api/journalism/purge", { method: "DELETE" })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    showToast(data.success ? "Purged " + data.purged + " drops" : "Purge failed", data.success ? "success" : "error");
+                    loadSiltDrops();
+                })
+                .catch(function() { showToast("Purge failed", "error"); });
+        });
+    }
+
+    var journalismDecodeBtn = document.getElementById("journalism-decode-btn");
+    if (journalismDecodeBtn) {
+        journalismDecodeBtn.addEventListener("click", function() {
+            var filename = document.getElementById("journalism-decode-file").value.trim();
+            var hashKey = document.getElementById("journalism-decode-key").value.trim();
+            if (!filename || !hashKey) {
+                showToast("Provide both filename and hash key", "error");
+                return;
+            }
+            fetch("/api/journalism/decode", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename: filename, hash_key: hashKey })
+            })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var result = document.getElementById("journalism-decode-result");
+                    if (data.error) {
+                        result.style.display = "block";
+                        result.innerHTML = '<span style="color:#ef4444;">Error: ' + data.error + '</span>';
+                        return;
+                    }
+                    result.style.display = "block";
+                    result.innerHTML = 'Extracted: <strong>' + data.filename + '</strong> (' + formatSize(data.size) + ') — <a href="' + data.download_url + '" style="color:#2dd4bf;">Download</a>';
+                    showToast("File extracted from silt", "success");
+                })
+                .catch(function() { showToast("Decode failed", "error"); });
         });
     }
 });

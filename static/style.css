@@ -4365,3 +4365,227 @@ body.beehive-active .pulse-dot { background:radial-gradient(circle,#4a9eff 0%,#2
     line-height: 1.6;
     font-style: italic;
 }
+
+.journalism-dropzone {
+    border: 2px dashed rgba(45, 212, 191, 0.35);
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: rgba(45, 212, 191, 0.04);
+    margin-bottom: 16px;
+}
+.journalism-dropzone:hover,
+.journalism-dropzone.drag-over {
+    border-color: rgba(45, 212, 191, 0.7);
+    background: rgba(45, 212, 191, 0.1);
+}
+.journalism-dropzone-icon {
+    font-size: 32px;
+    color: #2dd4bf;
+    margin-bottom: 8px;
+}
+.journalism-dropzone-text {
+    color: #999;
+    font-size: 14px;
+}
+.journalism-file-label {
+    color: #2dd4bf;
+    font-size: 13px;
+    margin-top: 8px;
+    font-weight: 600;
+}
+.journalism-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.journalism-label {
+    color: #aaa;
+    font-size: 13px;
+}
+.journalism-select {
+    background: #1a1a2e;
+    border: 1px solid #333;
+    color: #eee;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    flex: 1;
+    min-width: 200px;
+}
+.btn-journalism {
+    background: linear-gradient(135deg, #0d9488, #2dd4bf);
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+    transition: opacity 0.2s;
+}
+.btn-journalism:hover { opacity: 0.85; }
+.btn-journalism:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.btn-journalism-secondary {
+    background: transparent;
+    border: 1px solid #2dd4bf;
+    color: #2dd4bf;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+.btn-journalism-secondary:hover {
+    background: rgba(45, 212, 191, 0.1);
+}
+.journalism-result {
+    background: rgba(45, 212, 191, 0.06);
+    border: 1px solid rgba(45, 212, 191, 0.2);
+    border-radius: 10px;
+    padding: 18px;
+    margin: 16px 0;
+}
+.journalism-result h3 {
+    color: #2dd4bf;
+    margin: 0 0 12px 0;
+    font-size: 15px;
+}
+.journalism-result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.journalism-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.journalism-stat-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.journalism-stat-value {
+    font-size: 13px;
+    color: #eee;
+    word-break: break-all;
+}
+.journalism-hash-copyable {
+    cursor: pointer;
+    color: #2dd4bf;
+    font-family: monospace;
+    font-size: 12px;
+}
+.journalism-hash-copyable:hover {
+    text-decoration: underline;
+}
+.journalism-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.journalism-drops-section {
+    margin-top: 24px;
+}
+.journalism-drops-section h3 {
+    color: #ccc;
+    margin-bottom: 10px;
+}
+.journalism-drops-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.journalism-drops-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+.journalism-drop-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid #222;
+    gap: 10px;
+}
+.journalism-drop-row:hover {
+    background: rgba(45, 212, 191, 0.05);
+}
+.journalism-drop-name {
+    color: #eee;
+    font-size: 13px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.journalism-drop-meta {
+    color: #888;
+    font-size: 12px;
+    white-space: nowrap;
+}
+.journalism-drop-actions {
+    display: flex;
+    gap: 6px;
+}
+.journalism-drop-actions button {
+    background: transparent;
+    border: 1px solid #444;
+    color: #aaa;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+}
+.journalism-drop-actions button:hover {
+    border-color: #2dd4bf;
+    color: #2dd4bf;
+}
+.journalism-decode-section {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid #222;
+}
+.journalism-decode-section h3 {
+    color: #ccc;
+    margin-bottom: 6px;
+}
+.journalism-decode-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+.journalism-input {
+    background: #1a1a2e;
+    border: 1px solid #333;
+    color: #eee;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    flex: 1;
+    min-width: 150px;
+}
+.journalism-decode-result {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(45, 212, 191, 0.06);
+    border: 1px solid rgba(45, 212, 191, 0.2);
+    border-radius: 8px;
+    color: #eee;
+    font-size: 13px;
+}
+.journalism-encode-section {
+    margin-bottom: 16px;
+}

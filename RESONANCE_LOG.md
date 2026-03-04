@@ -552,3 +552,5 @@ Observations:
 | 2026-03-03 20:40:51 | DECODE | IMG-20260303-WA0023.jpg | ...82d0 | size=72953 |
 | 2026-03-03 21:19:49 | SILK_SIGNAL | heartbeat_432Hz.wav | ...d52c | signal=HEARTBEAT |
 | 2026-03-04 02:45:11 | SILK_SIGNAL | heartbeat_432Hz.wav | ...b7bb | signal=HEARTBEAT |
+| 2026-03-04 05:49:12 | SILT_JOURNALISM | silt_91178ad6_test_silt.wav | ...0cba | style=biophony_mesh |
+| 2026-03-04 05:54:46 | SILT_JOURNALISM | silt_504c260a_test_j.wav | ...7467 | style=midnight_pond |
