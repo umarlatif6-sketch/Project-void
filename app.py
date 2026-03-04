@@ -25,6 +25,9 @@ from void_engine.chronicle import RootChronicle
 from void_engine.founder_certs import create_founder_cert, batch_generate_certs, FOUNDER_ROOT_HASH
 from void_engine.divided_protocol import DividedProtocol
 from void_engine.beehive import BeehiveProtocol, MeshRouter, MeshPacket, simulate_two_node_exchange, _sanitize_for_json
+from void_engine.kinetic import KineticTransceiver, EXERCISE_WEIGHTS
+from void_engine.biological import BiologicalTransceiver
+from void_engine.silt_ledger import SiltLedger
 from generate_carriers import generate_custom_carrier, estimate_carrier_capacity, ALL_STYLES
 
 LOG_FILE = "RESONANCE_LOG.md"
@@ -527,6 +530,9 @@ _auto_heal = AutoHealDaemon(_diagnostics, _harness_sim, wallet=_wallet, ritual_h
 _divided = DividedProtocol(_diagnostics, _harness_sim, chronicle=_chronicle, wallet=_wallet)
 _beehive = BeehiveProtocol(machine_id="VOID-4000-PRIMARY")
 _mesh_router = MeshRouter(_beehive)
+_kinetic = KineticTransceiver(wallet=_wallet, chronicle=_chronicle)
+_biological = BiologicalTransceiver()
+_silt_ledger = SiltLedger(node_id=_beehive.node_id)
 
 _silk_context.bulk_update({
     "silk_strand_0_resistance": {"value": 3.1, "unit": "ohm"},
@@ -1558,6 +1564,151 @@ def mesh_simulate():
         return jsonify(result)
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
+
+
+@app.route("/api/kinetic/log-set", methods=["POST"])
+def kinetic_log_set():
+    try:
+        data = request.get_json(force=True)
+        exercise = data.get("exercise", "push_up")
+        reps = int(data.get("reps", 0))
+        duration_sec = float(data.get("duration_sec", 30.0))
+        heart_rate = int(data.get("heart_rate", 0))
+        result = _kinetic.log_set(exercise, reps, duration_sec, heart_rate)
+        if "error" in result:
+            return jsonify(result), 400
+        _silt_ledger.add_block(
+            {"type": "kinetic_set", "exercise": exercise, "reps": reps, "cc_earned": result.get("cc_earned", 0)},
+            _beehive.node_id,
+            _kinetic.get_status().get("stability_score", 0),
+            _biological.get_health_score().get("composite_score", 0)
+        )
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/kinetic/status")
+def kinetic_status():
+    status = _kinetic.get_status()
+    status["exercises"] = list(EXERCISE_WEIGHTS.keys())
+    return jsonify(status)
+
+
+@app.route("/api/kinetic/history")
+def kinetic_history():
+    return jsonify(_kinetic.get_history())
+
+
+@app.route("/api/biological/update-sensors", methods=["POST"])
+def biological_update_sensors():
+    try:
+        data = request.get_json(force=True)
+        result = _biological.update_sensors(
+            water_level=data.get("water_level"),
+            temperature=data.get("temperature"),
+            ph=data.get("ph"),
+            dissolved_oxygen=data.get("dissolved_oxygen")
+        )
+        if result.get("governance_triggered"):
+            for p in result.get("governance_proposals", []):
+                desc = p.get("intervention", p.get("proposal", "biological intervention"))
+                _silt_ledger.propose_vote(str(desc), _beehive.node_id)
+        return jsonify({"success": True, **result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/biological/impedance")
+def biological_impedance():
+    impedance = _biological.calculate_impedance()
+    return jsonify({
+        "whale_shelf": impedance.whale_multiplier,
+        "bird_shelf": impedance.bird_multiplier,
+        "insect_shelf": impedance.insect_multiplier,
+        "overall_attenuation": impedance.overall_attenuation,
+        "alerts": impedance.alerts,
+    })
+
+
+@app.route("/api/biological/health")
+def biological_health():
+    return jsonify(_biological.get_health_score())
+
+
+@app.route("/api/biological/govern", methods=["POST"])
+def biological_govern():
+    try:
+        data = request.get_json(force=True) if request.data else {}
+        intervention = data.get("intervention", "water_refill")
+        reason = data.get("reason", "Manual governance trigger")
+        result = _biological.trigger_governance_vote(intervention, reason)
+        if result.get("proposal"):
+            desc = result["proposal"].get("intervention", intervention)
+            prop_result = _silt_ledger.propose_vote(str(desc), _beehive.node_id)
+            result["ledger_proposal"] = prop_result
+        _silt_ledger.add_block(
+            {"type": "governance_trigger", "intervention": intervention},
+            _beehive.node_id,
+            _kinetic.get_status().get("stability_score", 0),
+            _biological.get_health_score().get("composite_score", 0)
+        )
+        return jsonify({"success": True, **result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/ledger/chain")
+def ledger_chain():
+    limit = request.args.get("limit", 50, type=int)
+    return jsonify({"blocks": _silt_ledger.get_chain(limit)})
+
+
+@app.route("/api/ledger/status")
+def ledger_status():
+    status = _silt_ledger.get_status()
+    integrity = status.get("integrity", {})
+    kinetic_w = _kinetic.get_status().get("stability_score", 0)
+    biological_w = _biological.get_health_score().get("composite_score", 0)
+    honor = 1.0
+    if status.get("relay_honor_scores"):
+        node_honor = status["relay_honor_scores"].get(_beehive.node_id[:8], None)
+        if node_honor is not None:
+            honor = node_honor
+    status["integrity_valid"] = integrity.get("valid", False)
+    status["relay_honor"] = status.get("relay_honor_scores", {})
+    status["voting_weight"] = {
+        "kinetic": kinetic_w,
+        "biological": biological_w,
+        "relay": honor,
+        "total": kinetic_w * 0.4 + biological_w * 0.4 + honor * 0.2,
+    }
+    return jsonify(status)
+
+
+@app.route("/api/ledger/vote", methods=["POST"])
+def ledger_vote():
+    try:
+        data = request.get_json(force=True)
+        proposal_id = data.get("proposal_id", "")
+        vote = data.get("vote", "yes")
+        if isinstance(vote, bool):
+            vote = "yes" if vote else "no"
+        kinetic_w = _kinetic.get_status().get("stability_score", 0)
+        biological_w = _biological.get_health_score().get("composite_score", 0)
+        result = _silt_ledger.cast_vote(
+            proposal_id, _beehive.node_id, vote,
+            kinetic_weight=kinetic_w,
+            biological_weight=biological_w
+        )
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/ledger/votes")
+def ledger_votes():
+    return jsonify({"proposals": _silt_ledger.get_proposals()})
 
 
 _start_time = __import__("time").time()

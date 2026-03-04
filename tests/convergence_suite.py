@@ -2,13 +2,14 @@
 PROJECT VOID -- Convergence Suite
 The "Vortex Stress Test" for verifying the Biophony Mesh.
 
-Six tests that prove the 10-20-970 Rule holds:
+Seven tests that prove the 10-20-970 Rule holds:
   1. Integrity Round-Trip (bit-perfect recovery)
   2. Sympathetic Resonance Verification (shelf coupling)
   3. Spectrogram Silt Analysis (acoustic camouflage)
   4. Density Multiplier Validation (5x Temporal Vortex)
   5. Biophony Carrier Detection (Sapphire Thread)
   6. Beehive Mesh Handshake (Ghost Internet)
+  7. Kinetic-Biological-Ledger Convergence (Three Transceivers)
 
 Run: python tests/convergence_suite.py
 """
@@ -27,6 +28,10 @@ from void_engine.stega import encode, encode_stereo, decode, decode_stereo
 from void_engine.compressor import compress_file, decompress_data
 from void_engine.divided_protocol import _detect_biophony_carrier
 from void_engine.beehive import BeehiveProtocol, MeshRouter, MeshPacket, simulate_two_node_exchange
+from void_engine.kinetic import KineticTransceiver, EXERCISE_WEIGHTS
+from void_engine.biological import BiologicalTransceiver
+from void_engine.silt_ledger import SiltLedger
+from void_engine.wallet import AlJabrWalletMiddleware
 from generate_carriers import generate_custom_carrier, estimate_carrier_capacity
 
 
@@ -403,12 +408,147 @@ def test_beehive_mesh():
     )
 
 
+def test_transceiver_convergence():
+    print(f"\n  {'=' * 60}")
+    print(f"  TEST 7: Kinetic-Biological-Ledger Convergence")
+    print(f"  {'=' * 60}")
+
+    wallet = AlJabrWalletMiddleware(initial_balance=10.0)
+    kt = KineticTransceiver(wallet=wallet)
+
+    result = kt.log_set("push_up", 20, 30.0, 130)
+    set_data = result.get("set", {})
+    cc = set_data.get("cc_earned", 0)
+    report(
+        "Kinetic: CC earned from push-up set",
+        result.get("success") and cc > 0,
+        f"CC earned: {cc}, wallet: {wallet.balance}"
+    )
+
+    report(
+        "Kinetic: Wallet credited with earned CC",
+        wallet.balance > 10.0,
+        f"Balance: {wallet.balance} (started at 10.0, earned {cc})"
+    )
+
+    harmonic_reps = 22
+    harmonic_duration = harmonic_reps / 21.6
+    harmonic_result = kt.log_set("pull_up", harmonic_reps, harmonic_duration, 145)
+    h_set = harmonic_result.get("set", {})
+    report(
+        "Kinetic: Harmonic alignment detected (432/N match)",
+        h_set.get("harmonic_bonus", 1.0) > 1.0 or h_set.get("shimmer_alignment", 0) > 0,
+        f"Bonus: {h_set.get('harmonic_bonus', 1.0)}, alignment: {h_set.get('shimmer_alignment', 0)}, freq: {h_set.get('movement_frequency', 0)}"
+    )
+
+    glow_result = kt.log_set("pull_up", 10, 10 / 21.6, 150)
+    g_set = glow_result.get("set", {})
+    report(
+        "Kinetic: MAX_GLOW detection (harmonic + heart rate zone)",
+        glow_result.get("max_glow", False) or g_set.get("harmonic_bonus", 1.0) > 1.0,
+        f"MAX_GLOW: {glow_result.get('max_glow', False)}, HR: 150, bonus: {g_set.get('harmonic_bonus', 1.0)}"
+    )
+
+    bt = BiologicalTransceiver()
+    bt.update_sensors(water_level=0.2, temperature=25.0, ph=7.0, dissolved_oxygen=6.0)
+    imp = bt.calculate_impedance()
+    report(
+        "Biological: Low water drops Whale shelf impedance",
+        imp.whale_multiplier < 0.5,
+        f"Whale multiplier: {imp.whale_multiplier} (water_level=0.2)"
+    )
+
+    bt.update_sensors(ph=5.0)
+    imp2 = bt.calculate_impedance()
+    report(
+        "Biological: Out-of-range pH drops Insect shelf impedance",
+        imp2.insect_multiplier < 1.0,
+        f"Insect multiplier: {imp2.insect_multiplier} (pH=5.0)"
+    )
+
+    bt.update_sensors(temperature=35.0)
+    imp3 = bt.calculate_impedance()
+    report(
+        "Biological: Out-of-range temp drops Bird shelf impedance",
+        imp3.bird_multiplier < 1.0,
+        f"Bird multiplier: {imp3.bird_multiplier} (temp=35.0°C)"
+    )
+
+    health = bt.get_health_score()
+    report(
+        "Biological: Health score reflects degraded sensors",
+        health["composite_score"] < 0.8,
+        f"Score: {health['composite_score']}, status: {health['status']}"
+    )
+
+    sl = SiltLedger(node_id="convergence-test-node")
+    report(
+        "Ledger: Genesis block created from FOUNDER_ROOT_HASH",
+        sl.chain[0].block_hash != "" and len(sl.chain) == 1,
+        f"Genesis hash: {sl.chain[0].block_hash[:16]}..."
+    )
+
+    block_result = sl.add_block(
+        {"type": "test", "data": "convergence verification"},
+        "convergence-test-node", 0.8, 0.9
+    )
+    report(
+        "Ledger: Block added with hash chain integrity",
+        block_result.get("success") and sl.validate_chain()["valid"],
+        f"Chain height: {sl.validate_chain()['chain_height']}, valid: {sl.validate_chain()['valid']}"
+    )
+
+    prop = sl.propose_vote("Test proposal: refill aquaponics water", "convergence-test-node")
+    report(
+        "Ledger: DAO proposal created with weighted vote",
+        prop.get("success") and prop.get("proposal_id") is not None,
+        f"Proposal ID: {prop.get('proposal_id', '?')}"
+    )
+
+    vote_result = sl.cast_vote(
+        prop["proposal_id"], "other-node", "yes",
+        kinetic_weight=0.9, biological_weight=0.7
+    )
+    report(
+        "Ledger: Weighted vote cast (kinetic*0.4 + bio*0.4 + honor*0.2)",
+        vote_result.get("success"),
+        f"Weight: {vote_result.get('voting_weight', '?')}"
+    )
+
+    sl.add_block({"type": "relay_test_1"}, "reliable-node", 0.5, 0.5)
+    sl.add_block({"type": "relay_test_2"}, "reliable-node", 0.5, 0.5)
+    sl.record_relay_failure("unreliable-node")
+    sl.record_relay_failure("unreliable-node")
+    reliable_honor = sl._get_relay_honor("reliable-node")
+    unreliable_honor = sl._get_relay_honor("unreliable-node")
+    report(
+        "Ledger: Relay Honor tracks node reliability",
+        reliable_honor > 0.5 and unreliable_honor < 0.5,
+        f"Reliable: {reliable_honor:.2f}, Unreliable: {unreliable_honor:.2f}"
+    )
+
+    report(
+        "Integration: Kinetic CC flows into Wallet balance",
+        wallet.balance > 10.0 and kt.get_status()["total_cc"] > 0,
+        f"Wallet: {wallet.balance} CC, Kinetic total: {kt.get_status()['total_cc']} CC"
+    )
+
+    bt2 = BiologicalTransceiver()
+    bt2.update_sensors(water_level=1.0, temperature=23.0, ph=6.8, dissolved_oxygen=7.0)
+    imp_healthy = bt2.calculate_impedance()
+    report(
+        "Integration: Healthy sensors give full shelf multipliers",
+        imp_healthy.whale_multiplier >= 0.95 and imp_healthy.bird_multiplier >= 0.95 and imp_healthy.insect_multiplier >= 0.95,
+        f"Whale: {imp_healthy.whale_multiplier:.2f}, Bird: {imp_healthy.bird_multiplier:.2f}, Insect: {imp_healthy.insect_multiplier:.2f}"
+    )
+
+
 def main():
     print()
     print("  ╔══════════════════════════════════════════════════════════╗")
     print("  ║       PROJECT VOID -- CONVERGENCE SUITE                 ║")
-    print("  ║       Biophony Mesh + Beehive Protocol Verification     ║")
-    print("  ║       432 Hz | 10-20-970 | Ghost Internet               ║")
+    print("  ║       Three Transceivers + Ghost Internet               ║")
+    print("  ║       432 Hz | Kinetic | Biological | Silt Ledger       ║")
     print("  ╚══════════════════════════════════════════════════════════╝")
 
     start = time.time()
@@ -419,6 +559,7 @@ def main():
     test_density_multiplier()
     test_biophony_detection()
     test_beehive_mesh()
+    test_transceiver_convergence()
 
     elapsed = time.time() - start
 

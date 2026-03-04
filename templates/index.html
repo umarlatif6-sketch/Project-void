@@ -35,6 +35,7 @@
             <button class="tab" data-tab="capacity">Capacity</button>
             <button class="tab" data-tab="silk">Silk Web</button>
             <button class="tab" data-tab="mesh">Mesh</button>
+            <button class="tab" data-tab="transceiver">Transceiver</button>
             <button class="tab" data-tab="files">Files</button>
             <button class="tab" data-tab="harness">Harness</button>
         </div>
@@ -479,6 +480,150 @@
                 <h3>Activity Log</h3>
                 <div id="mesh-activity-log" class="mesh-activity-log">
                     <div class="mesh-log-empty">No activity yet.</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="transceiver" class="panel">
+            <h2>Transceiver — Kinetic + Biological + Silt Ledger</h2>
+            <p class="desc">Unified feedback loop: physical movement generates CC, aquaponics sensors modulate shelf signals, and the Silt Ledger chains every action into a lightweight blockchain.</p>
+
+            <div class="transceiver-section kinetic-panel">
+                <h3>Kinetic Transceiver</h3>
+                <div class="kinetic-top-row">
+                    <div class="kinetic-gauge-wrap">
+                        <div class="kinetic-gauge-label">SHIMMER ALIGNMENT</div>
+                        <div class="kinetic-gauge-bar-bg">
+                            <div class="kinetic-gauge-bar" id="kinetic-shimmer-bar" style="width:0%"></div>
+                        </div>
+                        <div class="kinetic-gauge-value" id="kinetic-shimmer-val">0%</div>
+                    </div>
+                    <div class="kinetic-cc-counter">
+                        <div class="kinetic-cc-label">CC EARNED</div>
+                        <div class="kinetic-cc-value" id="kinetic-cc-earned">0.00</div>
+                    </div>
+                    <div class="kinetic-maxglow" id="kinetic-maxglow-indicator">
+                        <div class="maxglow-dot"></div>
+                        <span>MAX_GLOW</span>
+                    </div>
+                </div>
+                <div class="kinetic-form">
+                    <div class="form-group" style="flex:1;min-width:120px">
+                        <label>Exercise</label>
+                        <select id="kinetic-exercise" class="void-select">
+                            <option value="pull_up">Pull-Up</option>
+                            <option value="push_up" selected>Push-Up</option>
+                            <option value="squat">Squat</option>
+                            <option value="dip">Dip</option>
+                            <option value="plank_sec">Plank (sec)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="width:80px">
+                        <label>Reps</label>
+                        <input type="number" id="kinetic-reps" class="void-input" value="10" min="1" max="500">
+                    </div>
+                    <div class="form-group" style="width:100px">
+                        <label>Duration (s)</label>
+                        <input type="number" id="kinetic-duration" class="void-input" value="30" min="1" max="3600">
+                    </div>
+                    <div class="form-group" style="width:100px">
+                        <label>Heart Rate</label>
+                        <input type="number" id="kinetic-hr" class="void-input" value="120" min="40" max="220">
+                    </div>
+                    <button id="kinetic-log-btn" class="btn-kinetic">Log Set</button>
+                </div>
+                <div class="kinetic-stability-row">
+                    <span class="kinetic-stability-label">Stability Score:</span>
+                    <span id="kinetic-stability-val" class="kinetic-stability-value">0.00</span>
+                </div>
+                <div class="kinetic-sets-table-wrap">
+                    <table class="kinetic-sets-table" id="kinetic-sets-table">
+                        <thead><tr><th>Exercise</th><th>Reps</th><th>CC</th><th>Harmonic</th><th>Glow</th></tr></thead>
+                        <tbody id="kinetic-sets-body"><tr><td colspan="5" class="kinetic-empty">No sets logged yet</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="transceiver-section biological-panel">
+                <h3>Biological Transceiver</h3>
+                <div class="bio-top-row">
+                    <div class="bio-health-gauge">
+                        <div class="bio-health-label">BIOLOGICAL HEALTH</div>
+                        <div class="bio-health-value" id="bio-health-val">1.00</div>
+                    </div>
+                </div>
+                <div class="bio-sliders">
+                    <div class="bio-slider-group">
+                        <label>Water Level <span id="bio-water-val">0.80</span></label>
+                        <input type="range" id="bio-water" min="0" max="1" step="0.01" value="0.80" class="bio-range">
+                    </div>
+                    <div class="bio-slider-group">
+                        <label>Temperature (&deg;C) <span id="bio-temp-val">23.0</span></label>
+                        <input type="range" id="bio-temp" min="10" max="40" step="0.5" value="23" class="bio-range">
+                    </div>
+                    <div class="bio-slider-group">
+                        <label>pH <span id="bio-ph-val">6.8</span></label>
+                        <input type="range" id="bio-ph" min="4" max="10" step="0.1" value="6.8" class="bio-range">
+                    </div>
+                    <div class="bio-slider-group">
+                        <label>Dissolved O&#8322; (ppm) <span id="bio-do-val">7.5</span></label>
+                        <input type="range" id="bio-do" min="0" max="15" step="0.1" value="7.5" class="bio-range">
+                    </div>
+                </div>
+                <button id="bio-update-btn" class="btn-bio">Update Sensors</button>
+                <div class="bio-impedance-bars">
+                    <div class="bio-imp-row">
+                        <span class="bio-imp-label">Whale Shelf (Low)</span>
+                        <div class="bio-imp-bar-bg"><div class="bio-imp-bar" id="bio-imp-whale" style="width:100%"></div></div>
+                        <span class="bio-imp-val" id="bio-imp-whale-val">1.00</span>
+                    </div>
+                    <div class="bio-imp-row">
+                        <span class="bio-imp-label">Bird Shelf (Mid)</span>
+                        <div class="bio-imp-bar-bg"><div class="bio-imp-bar" id="bio-imp-bird" style="width:100%"></div></div>
+                        <span class="bio-imp-val" id="bio-imp-bird-val">1.00</span>
+                    </div>
+                    <div class="bio-imp-row">
+                        <span class="bio-imp-label">Insect Shelf (High)</span>
+                        <div class="bio-imp-bar-bg"><div class="bio-imp-bar" id="bio-imp-insect" style="width:100%"></div></div>
+                        <span class="bio-imp-val" id="bio-imp-insect-val">1.00</span>
+                    </div>
+                </div>
+                <div class="bio-alerts" id="bio-alerts"></div>
+                <button id="bio-govern-btn" class="btn-accent" style="margin-top:10px;">Trigger Governance Vote</button>
+            </div>
+
+            <div class="transceiver-section ledger-panel">
+                <h3>Silt Ledger (DAO 3.0)</h3>
+                <div class="ledger-top-row">
+                    <div class="ledger-stat">
+                        <span class="ledger-stat-label">Chain Height</span>
+                        <span class="ledger-stat-value" id="ledger-height">0</span>
+                    </div>
+                    <div class="ledger-stat">
+                        <span class="ledger-stat-label">Integrity</span>
+                        <span class="ledger-stat-value" id="ledger-integrity">—</span>
+                    </div>
+                    <div class="ledger-stat">
+                        <span class="ledger-stat-label">Relay Honor</span>
+                        <span class="ledger-stat-value" id="ledger-relay-honor">—</span>
+                    </div>
+                </div>
+                <div class="ledger-weight-breakdown">
+                    <span class="ledger-weight-label">Voting Weight:</span>
+                    <span id="ledger-vote-weight" class="ledger-weight-value">0.00</span>
+                    <span class="ledger-weight-detail" id="ledger-weight-detail">(K:0 + B:0 + R:0)</span>
+                </div>
+                <div class="ledger-blocks-wrap">
+                    <h4>Recent Blocks</h4>
+                    <div class="ledger-blocks" id="ledger-blocks-list">
+                        <div class="ledger-empty">No blocks yet</div>
+                    </div>
+                </div>
+                <div class="ledger-proposals-wrap">
+                    <h4>Active DAO Proposals</h4>
+                    <div class="ledger-proposals" id="ledger-proposals-list">
+                        <div class="ledger-empty">No active proposals</div>
+                    </div>
                 </div>
             </div>
         </div>

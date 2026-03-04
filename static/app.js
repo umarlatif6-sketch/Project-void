@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (tab.dataset.tab === "capacity") loadSelects();
             if (tab.dataset.tab === "visualizer") loadSelects();
             if (tab.dataset.tab === "silk") loadSilkFeed();
+            if (tab.dataset.tab === "transceiver") refreshTransceiverStatus();
         });
     });
 
@@ -3393,6 +3394,256 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     }
+
+    if (document.getElementById("kinetic-log-btn")) {
+        document.getElementById("kinetic-log-btn").addEventListener("click", async function() {
+            var btn = this;
+            var exercise = document.getElementById("kinetic-exercise").value;
+            var reps = parseInt(document.getElementById("kinetic-reps").value) || 0;
+            var duration_sec = parseFloat(document.getElementById("kinetic-duration").value) || 30;
+            var heart_rate = parseInt(document.getElementById("kinetic-hr").value) || 0;
+
+            if (reps <= 0) { showToast("Enter reps > 0", "error"); return; }
+
+            btn.disabled = true;
+            btn.textContent = "Logging...";
+
+            try {
+                var res = await fetch("/api/kinetic/log-set", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ exercise: exercise, reps: reps, duration_sec: duration_sec, heart_rate: heart_rate })
+                });
+                var data = await res.json();
+                if (data.error) {
+                    showToast("Kinetic: " + data.error, "error");
+                } else {
+                    showToast("Set logged! +" + (data.cc_earned || 0).toFixed(2) + " CC", "success");
+                    refreshTransceiverStatus();
+                }
+            } catch(e) {
+                showToast("Kinetic error: " + e.message, "error");
+            }
+            btn.disabled = false;
+            btn.textContent = "Log Set";
+        });
+    }
+
+    var bioSliders = ["bio-water", "bio-temp", "bio-ph", "bio-do"];
+    var bioValIds = ["bio-water-val", "bio-temp-val", "bio-ph-val", "bio-do-val"];
+    bioSliders.forEach(function(id, i) {
+        var slider = document.getElementById(id);
+        if (slider) {
+            slider.addEventListener("input", function() {
+                document.getElementById(bioValIds[i]).textContent = parseFloat(this.value).toFixed(id === "bio-water" ? 2 : 1);
+            });
+        }
+    });
+
+    if (document.getElementById("bio-update-btn")) {
+        document.getElementById("bio-update-btn").addEventListener("click", async function() {
+            var btn = this;
+            btn.disabled = true;
+            btn.textContent = "Updating...";
+            try {
+                var res = await fetch("/api/biological/update-sensors", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        water_level: parseFloat(document.getElementById("bio-water").value),
+                        temperature: parseFloat(document.getElementById("bio-temp").value),
+                        ph: parseFloat(document.getElementById("bio-ph").value),
+                        dissolved_oxygen: parseFloat(document.getElementById("bio-do").value)
+                    })
+                });
+                var data = await res.json();
+                if (data.error) {
+                    showToast("Biological: " + data.error, "error");
+                } else {
+                    showToast("Sensors updated", "success");
+                    refreshTransceiverStatus();
+                }
+            } catch(e) {
+                showToast("Biological error: " + e.message, "error");
+            }
+            btn.disabled = false;
+            btn.textContent = "Update Sensors";
+        });
+    }
+
+    if (document.getElementById("bio-govern-btn")) {
+        document.getElementById("bio-govern-btn").addEventListener("click", async function() {
+            var btn = this;
+            btn.disabled = true;
+            btn.textContent = "Triggering...";
+            try {
+                var res = await fetch("/api/biological/govern", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ intervention: "water_refill", reason: "Manual governance trigger" })
+                });
+                var data = await res.json();
+                if (data.error) {
+                    showToast("Governance: " + data.error, "error");
+                } else {
+                    showToast("Governance vote triggered", "success");
+                    refreshTransceiverStatus();
+                }
+            } catch(e) {
+                showToast("Governance error: " + e.message, "error");
+            }
+            btn.disabled = false;
+            btn.textContent = "Trigger Governance Vote";
+        });
+    }
+
+    async function refreshTransceiverStatus() {
+        try {
+            var [kinStatus, kinHistory, bioImp, bioHealth, ledgerStatus, ledgerChain, ledgerVotes] = await Promise.all([
+                fetch("/api/kinetic/status").then(function(r) { return r.json(); }),
+                fetch("/api/kinetic/history").then(function(r) { return r.json(); }),
+                fetch("/api/biological/impedance").then(function(r) { return r.json(); }),
+                fetch("/api/biological/health").then(function(r) { return r.json(); }),
+                fetch("/api/ledger/status").then(function(r) { return r.json(); }),
+                fetch("/api/ledger/chain?limit=20").then(function(r) { return r.json(); }),
+                fetch("/api/ledger/votes").then(function(r) { return r.json(); })
+            ]);
+
+            var shimmer = (kinStatus.shimmer_alignment || 0) * 100;
+            document.getElementById("kinetic-shimmer-bar").style.width = shimmer + "%";
+            document.getElementById("kinetic-shimmer-val").textContent = shimmer.toFixed(0) + "%";
+            document.getElementById("kinetic-cc-earned").textContent = (kinStatus.total_cc || 0).toFixed(2);
+            document.getElementById("kinetic-stability-val").textContent = (kinStatus.stability_score || 0).toFixed(2);
+
+            var glowEl = document.getElementById("kinetic-maxglow-indicator");
+            if (kinStatus.max_glow) {
+                glowEl.classList.add("active");
+            } else {
+                glowEl.classList.remove("active");
+            }
+
+            var sets = kinHistory.sets || kinHistory.history || [];
+            var tbody = document.getElementById("kinetic-sets-body");
+            if (sets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="kinetic-empty">No sets logged yet</td></tr>';
+            } else {
+                tbody.innerHTML = sets.slice(-10).reverse().map(function(s) {
+                    return '<tr>' +
+                        '<td>' + (s.exercise || "—") + '</td>' +
+                        '<td>' + (s.reps || 0) + '</td>' +
+                        '<td>' + (s.cc_earned || 0).toFixed(2) + '</td>' +
+                        '<td class="' + (s.harmonic_bonus && s.harmonic_bonus > 1 ? 'harmonic-yes' : 'harmonic-no') + '">' + (s.harmonic_bonus && s.harmonic_bonus > 1 ? s.harmonic_bonus.toFixed(1) + 'x' : '—') + '</td>' +
+                        '<td class="' + (s.max_glow ? 'glow-yes' : 'glow-no') + '">' + (s.max_glow ? 'GLOW' : '—') + '</td>' +
+                        '</tr>';
+                }).join("");
+            }
+
+            var whaleVal = bioImp.whale_shelf != null ? bioImp.whale_shelf : 1;
+            var birdVal = bioImp.bird_shelf != null ? bioImp.bird_shelf : 1;
+            var insectVal = bioImp.insect_shelf != null ? bioImp.insect_shelf : 1;
+
+            function setImpBar(barId, valId, val) {
+                var bar = document.getElementById(barId);
+                var valEl = document.getElementById(valId);
+                bar.style.width = (val * 100) + "%";
+                valEl.textContent = val.toFixed(2);
+                bar.className = "bio-imp-bar" + (val < 0.3 ? " critical" : val < 0.6 ? " warning" : "");
+                valEl.style.color = val < 0.3 ? "#f87171" : val < 0.6 ? "#fbbf24" : "#4ade80";
+            }
+            setImpBar("bio-imp-whale", "bio-imp-whale-val", whaleVal);
+            setImpBar("bio-imp-bird", "bio-imp-bird-val", birdVal);
+            setImpBar("bio-imp-insect", "bio-imp-insect-val", insectVal);
+
+            var healthVal = bioHealth.composite_score != null ? bioHealth.composite_score : 1;
+            var healthEl = document.getElementById("bio-health-val");
+            healthEl.textContent = healthVal.toFixed(2);
+            healthEl.style.color = healthVal < 0.3 ? "#f87171" : healthVal < 0.6 ? "#fbbf24" : "#4ade80";
+
+            var alertsEl = document.getElementById("bio-alerts");
+            var alerts = bioImp.alerts || [];
+            alertsEl.innerHTML = alerts.length ? alerts.map(function(a) { return '<div style="color:' + (a.level === "CRITICAL" ? "#f87171" : "#fbbf24") + '">[' + (a.level || "WARN") + '] ' + (a.message || a) + '</div>'; }).join("") : "";
+
+            document.getElementById("ledger-height").textContent = ledgerStatus.chain_height || 0;
+
+            var integrityEl = document.getElementById("ledger-integrity");
+            if (ledgerStatus.integrity_valid) {
+                integrityEl.textContent = "VALID";
+                integrityEl.style.color = "#4ade80";
+            } else if (ledgerStatus.integrity_valid === false) {
+                integrityEl.textContent = "BROKEN";
+                integrityEl.style.color = "#f87171";
+            } else {
+                integrityEl.textContent = "—";
+                integrityEl.style.color = "#4a9eff";
+            }
+
+            var honorScores = ledgerStatus.relay_honor || {};
+            var honorKeys = Object.keys(honorScores);
+            var honorText = honorKeys.length > 0 ? honorKeys.map(function(k) { return honorScores[k].toFixed(2); }).join(", ") : "—";
+            document.getElementById("ledger-relay-honor").textContent = honorText;
+
+            var vw = ledgerStatus.voting_weight || {};
+            var totalWeight = (vw.total || 0);
+            document.getElementById("ledger-vote-weight").textContent = totalWeight.toFixed(2);
+            document.getElementById("ledger-weight-detail").textContent = "(K:" + (vw.kinetic || 0).toFixed(1) + " + B:" + (vw.biological || 0).toFixed(1) + " + R:" + (vw.relay || 0).toFixed(1) + ")";
+
+            var blocks = ledgerChain.blocks || ledgerChain.chain || [];
+            var blocksEl = document.getElementById("ledger-blocks-list");
+            if (blocks.length === 0) {
+                blocksEl.innerHTML = '<div class="ledger-empty">No blocks yet</div>';
+            } else {
+                blocksEl.innerHTML = blocks.slice(-15).reverse().map(function(b) {
+                    var hashTail = b.block_hash ? "..." + b.block_hash.slice(-8) : "";
+                    var payloadStr = "";
+                    try {
+                        payloadStr = typeof b.payload === "string" ? b.payload : JSON.stringify(b.payload).slice(0, 60);
+                    } catch(e) { payloadStr = "—"; }
+                    return '<div class="ledger-block-row">' +
+                        '<span class="ledger-block-idx">#' + (b.block_index != null ? b.block_index : "?") + '</span>' +
+                        '<span class="ledger-block-hash">' + hashTail + '</span>' +
+                        '<span class="ledger-block-payload">' + payloadStr + '</span>' +
+                        '<span class="ledger-block-node">' + (b.node_id ? b.node_id.slice(0, 12) : "") + '</span>' +
+                        '</div>';
+                }).join("");
+            }
+
+            var proposals = ledgerVotes.proposals || ledgerVotes.votes || [];
+            var proposalsEl = document.getElementById("ledger-proposals-list");
+            if (proposals.length === 0) {
+                proposalsEl.innerHTML = '<div class="ledger-empty">No active proposals</div>';
+            } else {
+                proposalsEl.innerHTML = proposals.map(function(p) {
+                    var statusClass = p.status === "passed" ? "passed" : "active";
+                    return '<div class="ledger-proposal-row">' +
+                        '<span class="ledger-proposal-text">' + (p.proposal || p.description || "—") + '</span>' +
+                        '<span class="ledger-proposal-votes">' + (p.vote_count || 0) + ' votes (' + (p.weighted_score || 0).toFixed(2) + ')</span>' +
+                        '<span class="ledger-proposal-status ' + statusClass + '">' + (p.status || "active") + '</span>' +
+                        (p.status !== "passed" ? '<button class="btn-vote" onclick="voteOnProposal(\'' + (p.id || p.proposal_id || "") + '\')">Vote</button>' : '') +
+                        '</div>';
+                }).join("");
+            }
+
+        } catch(e) {}
+    }
+
+    window.voteOnProposal = async function(proposalId) {
+        try {
+            var res = await fetch("/api/ledger/vote", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ proposal_id: proposalId })
+            });
+            var data = await res.json();
+            if (data.error) {
+                showToast("Vote: " + data.error, "error");
+            } else {
+                showToast("Vote cast!", "success");
+                refreshTransceiverStatus();
+            }
+        } catch(e) {
+            showToast("Vote error: " + e.message, "error");
+        }
+    };
 
     document.getElementById("founder-export-seed-btn").addEventListener("click", function() {
         fetch("/api/harness/chronicle/export?mark_founder=true").then(r => r.json()).then(function(data) {
