@@ -53,6 +53,8 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Investor Pitch Deck Generator:** `GET /api/pitch/deck?target=otf|fpf|mozilla|general` generates a 6-slide landscape PDF pitch deck with gold-on-black aesthetic. Slides: Cover, Problem, Solution (live stats), Hardware (Genesis Kit 7 modules), Business Model (pricing tiers + funders), Call to Action (alignment + seal). Download buttons on `/sovereign` (Sovereign Edition card) and `/grants` (appears after generating pitch, pre-selects funder target). Built in `void_engine/pitch_deck.py`.
 - **Founder Vibe Detection:** JS on `/sovereign` tracks page time (3+ minutes) and calculator interaction to trigger a Silt Gold / Mycelium Green UI shift via `data-founder-vibe` attribute, with floating glyph watermarks and "Founding Node Edition" badge.
 
+- **User Guide:** `/guide` — a 15-section searchable user guide covering all features (encode, decode, carriers, burst, capacity, journalism, visualizer, mesh, messenger, hardware, demo, security, FAQ). Includes table of contents with anchor links and client-side search filter. Written in plain language for newcomers.
+
 - **Void Messenger:** A Telegram-style secure messaging system at `/messenger`. Users register/login with Al-Jabr 286 password hashing, search for other users, and exchange ChaCha20-Poly1305 encrypted messages stored in PostgreSQL. Features: conversation list with last message preview, real-time polling (3s), mobile-responsive with sidebar toggle, new chat modal with user search, message bubbles with sent/received styling. All messages stored encrypted in the database — plaintext never touches disk. Routes in `routes/messenger.py`, auth/crypto logic in `void_engine/messenger_auth.py`.
 
 ## External Dependencies

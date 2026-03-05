@@ -45,6 +45,11 @@ def sovereign_page():
     return render_template("sovereign.html")
 
 
+@core_bp.route("/guide")
+def guide_page():
+    return render_template("guide.html")
+
+
 @core_bp.route("/api/files")
 def list_files():
     def get_files(directory):
