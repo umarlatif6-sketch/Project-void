@@ -4,6 +4,7 @@ from routes.mesh import mesh_bp
 from routes.transceiver import transceiver_bp
 from routes.journalism import journalism_bp
 from routes.financial import financial_bp
+from routes.messenger import messenger_bp
 
 
 def register_blueprints(app):
@@ -13,3 +14,4 @@ def register_blueprints(app):
     app.register_blueprint(transceiver_bp)
     app.register_blueprint(journalism_bp)
     app.register_blueprint(financial_bp)
+    app.register_blueprint(messenger_bp)

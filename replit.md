@@ -53,14 +53,20 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Investor Pitch Deck Generator:** `GET /api/pitch/deck?target=otf|fpf|mozilla|general` generates a 6-slide landscape PDF pitch deck with gold-on-black aesthetic. Slides: Cover, Problem, Solution (live stats), Hardware (Genesis Kit 7 modules), Business Model (pricing tiers + funders), Call to Action (alignment + seal). Download buttons on `/sovereign` (Sovereign Edition card) and `/grants` (appears after generating pitch, pre-selects funder target). Built in `void_engine/pitch_deck.py`.
 - **Founder Vibe Detection:** JS on `/sovereign` tracks page time (3+ minutes) and calculator interaction to trigger a Silt Gold / Mycelium Green UI shift via `data-founder-vibe` attribute, with floating glyph watermarks and "Founding Node Edition" badge.
 
+- **Void Messenger:** A Telegram-style secure messaging system at `/messenger`. Users register/login with Al-Jabr 286 password hashing, search for other users, and exchange ChaCha20-Poly1305 encrypted messages stored in PostgreSQL. Features: conversation list with last message preview, real-time polling (3s), mobile-responsive with sidebar toggle, new chat modal with user search, message bubbles with sent/received styling. All messages stored encrypted in the database — plaintext never touches disk. Routes in `routes/messenger.py`, auth/crypto logic in `void_engine/messenger_auth.py`.
+
 ## External Dependencies
 - **Python:** 3.11
 - **numpy:** Used for audio sample manipulation and FFT operations.
 - **flask:** Provides the web UI server.
-- **cryptography:** Utilized for ChaCha20 header encryption.
+- **cryptography:** Utilized for ChaCha20 header encryption and messenger message encryption (ChaCha20-Poly1305).
 - **fpdf2:** Employed for generating Founder Certificate PDFs and Investor Pitch Deck PDFs.
+- **psycopg2-binary:** PostgreSQL adapter for the Void Messenger user/message database.
 - **werkzeug:** Handles secure filename operations.
 - **Standard Library:** Includes `zlib`, `lzma`, `wave`, `hashlib` for core functionalities.
+
+## Database
+- **PostgreSQL** (Replit built-in): Used for Void Messenger. Tables: `users`, `conversations`, `conversation_members`, `messages`. Messages are ChaCha20-Poly1305 encrypted before storage. Connection via `DATABASE_URL` env var.
 
 ## Key Data Files
 - **data/genesis_specs.json:** Full 4000-Series hardware manifest with 7 modules, CAD dimensions, materials, and resonance data.
