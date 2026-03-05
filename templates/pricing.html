@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Pricing</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .pricing-body { background: #0a0a0f; color: #d0d0d0; min-height: 100vh; font-family: 'Courier New', monospace; }
+        .pricing-nav { display: flex; align-items: center; gap: 20px; padding: 16px 32px; border-bottom: 1px solid #1a1a2e; flex-wrap: wrap; }
+        .pricing-nav-logo { display: flex; align-items: center; gap: 10px; font-weight: bold; color: #e0e0e0; text-decoration: none; font-size: 14px; }
+        .pricing-nav-logo span { color: #c9a84c; font-size: 18px; }
+        .pricing-nav-links { display: flex; gap: 16px; margin-left: auto; flex-wrap: wrap; }
+        .pricing-nav-links a { color: #888; text-decoration: none; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .pricing-nav-links a:hover { color: #e0e0e0; }
+        .pricing-nav-links a.active { color: #c9a84c; }
+
+        .pricing-hero { text-align: center; padding: 60px 20px 40px; }
+        .pricing-hero h1 { font-size: 32px; color: #e0e0e0; margin-bottom: 8px; letter-spacing: 4px; }
+        .pricing-hero p { color: #888; font-size: 14px; max-width: 600px; margin: 0 auto; }
+
+        .pricing-section-title { text-align: center; font-size: 14px; color: #c9a84c; text-transform: uppercase; letter-spacing: 3px; margin: 40px 0 24px; }
+        .pricing-section-sub { text-align: center; color: #666; font-size: 12px; margin-bottom: 32px; }
+
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; padding: 0 20px 60px; }
+
+        .pricing-card { background: #0d0d1a; border: 1px solid #1a1a2e; border-radius: 12px; padding: 32px 24px; position: relative; transition: border-color 0.3s; }
+        .pricing-card:hover { border-color: #2a2a4e; }
+        .pricing-card-featured { border-color: #c9a84c; }
+        .pricing-card-featured:hover { border-color: #e0c060; }
+
+        .pricing-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #c9a84c; color: #0a0a0f; font-size: 10px; padding: 4px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; white-space: nowrap; }
+        .pricing-badge-teal { background: #2dd4bf; }
+
+        .pricing-tier-name { font-size: 18px; color: #e0e0e0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 2px; }
+        .pricing-price { font-size: 36px; color: #c9a84c; font-weight: bold; margin: 16px 0 4px; }
+        .pricing-price-ghost { color: #2dd4bf; }
+        .pricing-price-sub { color: #666; font-size: 12px; margin-bottom: 20px; }
+
+        .pricing-features { list-style: none; padding: 0; margin: 0 0 24px; }
+        .pricing-features li { padding: 6px 0; font-size: 12px; color: #aaa; position: relative; padding-left: 20px; }
+        .pricing-features li::before { content: "\2713"; position: absolute; left: 0; color: #2dd4bf; font-weight: bold; }
+        .pricing-card-featured .pricing-features li::before { color: #c9a84c; }
+        .pricing-features li.disabled { color: #444; text-decoration: line-through; }
+        .pricing-features li.disabled::before { content: "\2717"; color: #444; }
+
+        .pricing-cta { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; text-align: center; text-decoration: none; transition: all 0.3s; }
+        .pricing-cta-ghost { background: transparent; border: 1px solid #2dd4bf; color: #2dd4bf; }
+        .pricing-cta-ghost:hover { background: rgba(45, 212, 191, 0.1); }
+        .pricing-cta-journalist { background: linear-gradient(135deg, #2dd4bf, #1a9a8a); color: #0a0a0f; }
+        .pricing-cta-journalist:hover { box-shadow: 0 0 20px rgba(45, 212, 191, 0.3); }
+        .pricing-cta-sovereign { background: linear-gradient(135deg, #c9a84c, #a08030); color: #0a0a0f; }
+        .pricing-cta-sovereign:hover { box-shadow: 0 0 20px rgba(201, 168, 76, 0.3); }
+        .pricing-cta-inquiry { background: transparent; border: 1px solid #c9a84c; color: #c9a84c; }
+        .pricing-cta-inquiry:hover { background: rgba(201, 168, 76, 0.1); }
+        .pricing-cta-current { background: #1a1a2e; color: #888; cursor: default; border: 1px solid #2a2a3e; }
+
+        .pricing-divider { border: none; border-top: 1px solid #1a1a2e; margin: 20px auto; max-width: 1000px; }
+
+        .pricing-comparison { max-width: 1000px; margin: 0 auto 60px; padding: 0 20px; overflow-x: auto; }
+        .pricing-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .pricing-table th { text-align: left; padding: 10px 12px; color: #c9a84c; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #1a1a2e; font-size: 11px; }
+        .pricing-table td { padding: 10px 12px; border-bottom: 1px solid #0d0d1a; color: #aaa; }
+        .pricing-table tr:hover td { background: #0d0d1a; }
+        .pricing-check { color: #2dd4bf; }
+        .pricing-gold { color: #c9a84c; }
+        .pricing-dash { color: #333; }
+
+        .pricing-footer { text-align: center; padding: 40px 20px; border-top: 1px solid #1a1a2e; color: #444; font-size: 11px; }
+
+        @media (max-width: 768px) {
+            .pricing-hero h1 { font-size: 24px; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .pricing-nav { padding: 12px 16px; }
+            .pricing-nav-links { gap: 10px; }
+        }
+    </style>
+</head>
+<body class="pricing-body">
+    <nav class="pricing-nav">
+        <a href="/launch" class="pricing-nav-logo"><span>&#9670;</span> PROJECT VOID</a>
+        <div class="pricing-nav-links">
+            <a href="/launch">Home</a>
+            <a href="/">Engine</a>
+            <a href="/demo">Demo</a>
+            <a href="/grants">Grants</a>
+            <a href="/sovereign">Hardware</a>
+            <a href="/guide">Guide</a>
+            <a href="/pricing" class="active">Pricing</a>
+            <a href="/messenger" style="color:#c9a84c">Messenger</a>
+            {% if is_logged_in %}
+            <a href="/api/auth/logout">Logout</a>
+            {% else %}
+            <a href="/login" style="color:#c9a84c">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <section class="pricing-hero">
+        <h1>CHOOSE YOUR SIGNAL</h1>
+        <p>Three software tiers for hiding truth in nature. Three hardware options for sovereign infrastructure. No surveillance. No compromise.</p>
+    </section>
+
+    <div class="pricing-section-title">Software Subscriptions</div>
+    <div class="pricing-section-sub">Monthly access to the steganography engine</div>
+
+    <div class="pricing-grid">
+        <div class="pricing-card">
+            <div class="pricing-tier-name">Ghost Node</div>
+            <div class="pricing-price pricing-price-ghost">FREE</div>
+            <div class="pricing-price-sub">Forever</div>
+            <ul class="pricing-features">
+                <li>1 MB upload limit</li>
+                <li>Standard 432 Hz carriers</li>
+                <li>Basic LSB encode/decode</li>
+                <li>Jitter scatter mode</li>
+                <li>Per-user data vault</li>
+                <li>Encrypted messaging</li>
+                <li class="disabled">Vortex / Chirp Sync scatter</li>
+                <li class="disabled">Silt Journalism port</li>
+                <li class="disabled">Mesh network hosting</li>
+                <li class="disabled">Custom Al-Jabr salts</li>
+            </ul>
+            {% if user_tier == 'ghost' %}
+            <span class="pricing-cta pricing-cta-current">Current Plan</span>
+            {% else %}
+            <a href="/login" class="pricing-cta pricing-cta-ghost">Start Free</a>
+            {% endif %}
+        </div>
+
+        <div class="pricing-card pricing-card-featured">
+            <div class="pricing-badge pricing-badge-teal">MOST POPULAR</div>
+            <div class="pricing-tier-name">Journalist</div>
+            <div class="pricing-price">&#163;28</div>
+            <div class="pricing-price-sub">per month</div>
+            <ul class="pricing-features">
+                <li>50 MB upload limit</li>
+                <li>All carrier styles</li>
+                <li>All scatter modes (Vortex + Chirp)</li>
+                <li>Silt Journalism port</li>
+                <li>Midnight Pond proof engine</li>
+                <li>Priority biophony carriers</li>
+                <li>Encrypted messaging</li>
+                <li>Per-user data vault</li>
+                <li class="disabled">Mesh network hosting</li>
+                <li class="disabled">Custom Al-Jabr salts</li>
+            </ul>
+            {% if user_tier == 'journalist' %}
+            <span class="pricing-cta pricing-cta-current">Current Plan</span>
+            {% elif is_logged_in %}
+            <button class="pricing-cta pricing-cta-journalist" onclick="subscribe('journalist')">Subscribe</button>
+            {% else %}
+            <a href="/login" class="pricing-cta pricing-cta-journalist">Sign Up to Subscribe</a>
+            {% endif %}
+        </div>
+
+        <div class="pricing-card pricing-card-featured" style="border-color: #c9a84c;">
+            <div class="pricing-badge">SOVEREIGN</div>
+            <div class="pricing-tier-name">Sovereign</div>
+            <div class="pricing-price">&#163;286</div>
+            <div class="pricing-price-sub">per month</div>
+            <ul class="pricing-features">
+                <li>Unlimited uploads</li>
+                <li>All carrier styles + custom</li>
+                <li>All scatter modes</li>
+                <li>Silt Journalism port</li>
+                <li>Mesh network node hosting</li>
+                <li>Custom Al-Jabr 286 salts</li>
+                <li>Founder Vibe UI (Silt Gold)</li>
+                <li>Priority support</li>
+                <li>Encrypted messaging</li>
+                <li>Full API access</li>
+            </ul>
+            {% if user_tier == 'sovereign' %}
+            <span class="pricing-cta pricing-cta-current">Current Plan</span>
+            {% elif is_logged_in %}
+            <button class="pricing-cta pricing-cta-sovereign" onclick="subscribe('sovereign')">Subscribe</button>
+            {% else %}
+            <a href="/login" class="pricing-cta pricing-cta-sovereign">Sign Up to Subscribe</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr class="pricing-divider">
+
+    <div class="pricing-section-title">Feature Comparison</div>
+    <div class="pricing-comparison">
+        <table class="pricing-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Ghost Node</th>
+                    <th>Journalist</th>
+                    <th>Sovereign</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Upload Limit</td><td>1 MB</td><td>50 MB</td><td>Unlimited</td></tr>
+                <tr><td>Encode / Decode</td><td class="pricing-check">&#10003;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
+                <tr><td>Jitter Scatter</td><td class="pricing-check">&#10003;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
+                <tr><td>Vortex Scatter</td><td class="pricing-dash">&#8212;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
+                <tr><td>Chirp Sync</td><td class="pricing-dash">&#8212;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
+                <tr><td>Silt Journalism</td><td class="pricing-dash">&#8212;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
+                <tr><td>Midnight Pond Proof</td><td class="pricing-dash">&#8212;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
+                <tr><td>Mesh Node Hosting</td><td class="pricing-dash">&#8212;</td><td class="pricing-dash">&#8212;</td><td class="pricing-gold">&#10003;</td></tr>
+                <tr><td>Custom Al-Jabr Salts</td><td class="pricing-dash">&#8212;</td><td class="pricing-dash">&#8212;</td><td class="pricing-gold">&#10003;</td></tr>
+                <tr><td>Founder Vibe UI</td><td class="pricing-dash">&#8212;</td><td class="pricing-dash">&#8212;</td><td class="pricing-gold">&#10003;</td></tr>
+                <tr><td>Encrypted Messenger</td><td class="pricing-check">&#10003;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
+                <tr><td>Data Vault</td><td class="pricing-check">&#10003;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr class="pricing-divider">
+
+    <div class="pricing-section-title">Hardware — 4000-Series Sovereign Node</div>
+    <div class="pricing-section-sub">Physical infrastructure for total sovereignty</div>
+
+    <div class="pricing-grid">
+        <div class="pricing-card">
+            <div class="pricing-tier-name">Pirate Build</div>
+            <div class="pricing-price">&#163;660</div>
+            <div class="pricing-price-sub">Genesis Kit + self-sourced parts</div>
+            <ul class="pricing-features">
+                <li>Full blueprint pack (7 schematics)</li>
+                <li>Component shopping list</li>
+                <li>PROJECT VOID software</li>
+                <li>DIY calibration guide</li>
+                <li>Community support</li>
+                <li class="disabled">Factory calibration</li>
+                <li class="disabled">Sapphire Thread wiring</li>
+                <li class="disabled">Founder Certificate</li>
+            </ul>
+            <a href="/sovereign#blueprints" class="pricing-cta pricing-cta-ghost">Download Blueprints</a>
+        </div>
+
+        <div class="pricing-card pricing-card-featured" style="border-color: #c9a84c;">
+            <div class="pricing-badge">SOVEREIGN EDITION</div>
+            <div class="pricing-tier-name">Sovereign Edition</div>
+            <div class="pricing-price">&#163;25,000</div>
+            <div class="pricing-price-sub">Fully assembled GEN-001 node</div>
+            <ul class="pricing-features">
+                <li>Factory-calibrated 432 Hz resonance</li>
+                <li>3-shelf biophony array</li>
+                <li>Sapphire Thread wiring</li>
+                <li>NVIDIA Jetson Orin Nano</li>
+                <li>Founder Certificate (PDF + seal)</li>
+                <li>1-year Sovereign Warranty</li>
+                <li>Priority mesh network peering</li>
+                <li>Sovereign software tier included</li>
+            </ul>
+            <a href="/sovereign#inquiry" class="pricing-cta pricing-cta-inquiry">Request Quote</a>
+        </div>
+
+        <div class="pricing-card">
+            <div class="pricing-badge" style="background:#2dd4bf;color:#0a0a0f;">COMMUNITY</div>
+            <div class="pricing-tier-name">Village Cluster</div>
+            <div class="pricing-price">&#163;150,000</div>
+            <div class="pricing-price-sub">7 linked nodes — "Seven Seas" deployment</div>
+            <ul class="pricing-features">
+                <li>7 fully assembled Sovereign Nodes</li>
+                <li>Pre-configured mesh topology</li>
+                <li>Community-wide encryption keys</li>
+                <li>Dedicated support channel</li>
+                <li>On-site installation guidance</li>
+                <li>7 Founder Certificates</li>
+                <li>3-year Sovereign Warranty</li>
+                <li>Priority firmware updates</li>
+            </ul>
+            <a href="/sovereign#inquiry" class="pricing-cta pricing-cta-inquiry">Contact Us</a>
+        </div>
+    </div>
+
+    <div class="pricing-footer">
+        Al-Jabr 286 Sovereign Hash &middot; 432 Hz &middot; All payments processed via Stripe &middot; Cancel anytime
+    </div>
+
+    <script>
+    function subscribe(tier) {
+        fetch('/api/subscribe/' + tier, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.url) {
+                window.location.href = data.url;
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(function(err) { alert('Error: ' + err.message); });
+    }
+    </script>
+</body>
+</html>

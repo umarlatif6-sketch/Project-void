@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session, redirect
 
 from void_engine.beehive import MeshPacket, simulate_two_node_exchange, _sanitize_for_json
+from routes.auth import TIER_LEVELS, _get_user_tier
 
 import routes.shared as shared
 
@@ -13,6 +14,10 @@ def _mesh_auth():
         if request.is_json or request.path.startswith("/api/"):
             return jsonify({"error": "Authentication required"}), 401
         return redirect("/login")
+    user_tier = _get_user_tier(session["user_id"])
+    session["tier"] = user_tier
+    if TIER_LEVELS.get(user_tier, 0) < TIER_LEVELS.get("sovereign", 2):
+        return jsonify({"error": "Mesh network hosting requires Sovereign tier. Upgrade at /pricing", "upgrade": True}), 403
 
 
 @mesh_bp.route("/api/mesh/connect", methods=["POST"])

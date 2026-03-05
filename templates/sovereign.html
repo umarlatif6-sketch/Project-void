@@ -20,6 +20,7 @@
             <a href="/grants" class="landing-nav-link">Grants</a>
             <a href="/sovereign" class="landing-nav-link active">Hardware</a>
             <a href="/guide" class="landing-nav-link">Guide</a>
+            <a href="/pricing" class="landing-nav-link">Pricing</a>
             <a href="/messenger" class="landing-nav-link" style="color:#c9a84c">Messenger</a>
             <a href="/login" class="landing-nav-link" style="color:#c9a84c">Login</a>
         </div>
@@ -227,11 +228,11 @@
 
         <section class="sov-section">
             <h2 class="sov-section-title">Pricing</h2>
-            <div class="sov-pricing-grid">
+            <div class="sov-pricing-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
                 <div class="sov-pricing-card">
                     <div class="sov-pricing-tier">Pirate Build</div>
-                    <div class="sov-pricing-price">FREE</div>
-                    <div class="sov-pricing-est">Self-sourced parts: ~&pound;450&ndash;660</div>
+                    <div class="sov-pricing-price">&pound;660</div>
+                    <div class="sov-pricing-est">Genesis Kit + self-sourced parts</div>
                     <ul class="sov-pricing-features">
                         <li>Download all 7 blueprint schematics</li>
                         <li>Full component list with specs</li>
@@ -252,7 +253,7 @@
                         <li>Pre-tuned 3-shelf biophony array</li>
                         <li>Certified Sapphire Thread wiring</li>
                         <li>Beehive mesh pre-configured</li>
-                        <li>Founder Certificate (NFT + PDF)</li>
+                        <li>Founder Certificate (PDF + seal)</li>
                         <li>Aquaponics reservoir installed</li>
                         <li>Kinetic flywheel balanced &amp; tested</li>
                         <li>1-year Sovereign Warranty</li>
@@ -261,7 +262,25 @@
                     <button class="sov-btn sov-btn-primary" id="inquire-sovereign-btn">Inquire About Sovereign Edition</button>
                     <a href="/api/pitch/deck" class="sov-btn sov-btn-outline" style="display:inline-block; text-decoration:none; margin-top:8px; text-align:center;" download>Download Investor Deck (PDF)</a>
                 </div>
+                <div class="sov-pricing-card">
+                    <div class="sov-pricing-badge" style="background:#2dd4bf;color:#0a0a0f;">COMMUNITY</div>
+                    <div class="sov-pricing-tier">Village Cluster</div>
+                    <div class="sov-pricing-price">&pound;150,000</div>
+                    <div class="sov-pricing-est">7 linked nodes &mdash; "Seven Seas" deployment</div>
+                    <ul class="sov-pricing-features">
+                        <li>7 fully assembled Sovereign Nodes</li>
+                        <li>Pre-configured mesh topology</li>
+                        <li>Community-wide encryption keys</li>
+                        <li>Dedicated support channel</li>
+                        <li>On-site installation guidance</li>
+                        <li>7 Founder Certificates</li>
+                        <li>3-year Sovereign Warranty</li>
+                        <li>Priority firmware updates</li>
+                    </ul>
+                    <button class="sov-btn sov-btn-primary" id="inquire-village-btn">Contact About Village Cluster</button>
+                </div>
             </div>
+            <p style="text-align:center; margin-top:16px; font-size:12px;"><a href="/pricing" style="color:#c9a84c;">View software subscription tiers &rarr;</a></p>
         </section>
 
         <section class="sov-section" id="calculator-section">
@@ -397,6 +416,12 @@
         var inquireBtn = document.getElementById('inquire-sovereign-btn');
         if (inquireBtn) {
             inquireBtn.addEventListener('click', function() {
+                document.getElementById('sovereign-inquiry-section').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+        var villageBtn = document.getElementById('inquire-village-btn');
+        if (villageBtn) {
+            villageBtn.addEventListener('click', function() {
                 document.getElementById('sovereign-inquiry-section').scrollIntoView({ behavior: 'smooth' });
             });
         }

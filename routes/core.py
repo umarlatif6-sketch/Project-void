@@ -46,7 +46,8 @@ def index():
                            is_founder=session.get("is_founder", False),
                            username=session.get("username", ""),
                            display_name=session.get("display_name", ""),
-                           user_role=session.get("role", "user"))
+                           user_role=session.get("role", "user"),
+                           user_tier=session.get("tier", "ghost"))
 
 
 @core_bp.route("/launch")
@@ -104,6 +105,22 @@ def upload_file():
     if not f.filename:
         return jsonify({"error": "No filename"}), 400
 
+    from routes.auth import TIER_LIMITS
+    tier = session.get("tier", "ghost")
+    limits = TIER_LIMITS.get(tier, TIER_LIMITS["ghost"])
+    max_mb = limits["upload_mb"]
+
+    if max_mb > 0:
+        f.seek(0, 2)
+        size_bytes = f.tell()
+        f.seek(0)
+        if size_bytes > max_mb * 1024 * 1024:
+            return jsonify({
+                "error": f"File exceeds {max_mb}MB limit for {tier.title()} tier. Upgrade at /pricing",
+                "upgrade": True,
+                "max_mb": max_mb,
+            }), 413
+
     filename = secure_filename(f.filename)
     dest = request.form.get("dest", "input")
     directory = _user_input_dir() if dest == "input" else _user_output_dir()
@@ -130,6 +147,15 @@ def encode_file():
 
     if not carrier or not payload:
         return jsonify({"error": "Carrier and payload files are required"}), 400
+
+    from routes.auth import TIER_LIMITS
+    tier = session.get("tier", "ghost")
+    limits = TIER_LIMITS.get(tier, TIER_LIMITS["ghost"])
+    allowed_scatter = limits["scatter_modes"]
+    if vortex and "vortex" not in allowed_scatter:
+        return jsonify({"error": "Vortex scatter requires Journalist tier or higher. Upgrade at /pricing", "upgrade": True}), 403
+    if chirp_sync and "chirp_sync" not in allowed_scatter:
+        return jsonify({"error": "Chirp Sync requires Journalist tier or higher. Upgrade at /pricing", "upgrade": True}), 403
 
     carrier_path = os.path.join(_user_input_dir(), carrier)
     payload_path = os.path.join(_user_input_dir(), payload)

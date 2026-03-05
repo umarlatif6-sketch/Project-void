@@ -7058,3 +7058,8 @@ body.beehive-active .pulse-dot { background:radial-gradient(circle,#4a9eff 0%,#2
         font-size: 50px;
     }
 }
+
+.tier-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: bold; letter-spacing: 1.5px; vertical-align: middle; margin-right: 6px; }
+.tier-ghost { background: #1a1a2e; color: #666; border: 1px solid #2a2a3e; }
+.tier-journalist { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.3); }
+.tier-sovereign { background: rgba(201, 168, 76, 0.15); color: #c9a84c; border: 1px solid rgba(201, 168, 76, 0.3); }

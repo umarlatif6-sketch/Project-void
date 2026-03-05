@@ -431,3 +431,10 @@ def founder_certificate():
         return jsonify({"error": "Certificate generation failed"}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@financial_bp.route("/pricing")
+def pricing_page():
+    return render_template("pricing.html",
+                           user_tier=session.get("tier", "ghost"),
+                           is_logged_in=bool(session.get("user_id")))

@@ -6,7 +6,7 @@
     <title>PROJECT VOID</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body data-demo="{{ 'true' if demo_mode else 'false' }}" {% if is_founder %}data-founder-vibe="true"{% endif %}>
+<body data-demo="{{ 'true' if demo_mode else 'false' }}" data-tier="{{ user_tier or 'ghost' }}" {% if is_founder %}data-founder-vibe="true"{% endif %}>
     {% if demo_mode %}
     <div class="demo-banner">
         <span class="demo-banner-icon">&#9670;</span>
@@ -38,7 +38,13 @@
         <a href="/sovereign" class="engine-nav-link">Hardware</a>
         <a href="/guide" class="engine-nav-link">Guide</a>
         <a href="/messenger" class="engine-nav-link engine-nav-gold">Messenger</a>
-        <span class="engine-nav-user">{{ display_name or username }} <a href="/api/auth/logout" class="engine-nav-link">Logout</a></span>
+        <a href="/pricing" class="engine-nav-link">Pricing</a>
+        <span class="engine-nav-user">
+            {% if user_tier == 'sovereign' %}<span class="tier-badge tier-sovereign">SOVEREIGN</span>
+            {% elif user_tier == 'journalist' %}<span class="tier-badge tier-journalist">JOURNALIST</span>
+            {% else %}<span class="tier-badge tier-ghost">GHOST</span>{% endif %}
+            {{ display_name or username }} <a href="/api/auth/logout" class="engine-nav-link">Logout</a>
+        </span>
     </nav>
 
     <main>

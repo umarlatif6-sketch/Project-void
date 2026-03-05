@@ -11,7 +11,7 @@ from void_engine.compressor import compress_file, decompress_data
 from void_engine.stega import encode, decode, encode_stereo, decode_stereo
 from void_engine.calculator import analyze_carrier
 from generate_carriers import generate_custom_carrier, ALL_STYLES
-from routes.auth import login_required
+from routes.auth import login_required, tier_required
 
 import routes.shared as shared
 
@@ -20,6 +20,7 @@ journalism_bp = Blueprint("journalism", __name__)
 
 @journalism_bp.route("/api/journalism/encode", methods=["POST"])
 @login_required
+@tier_required("journalist")
 def journalism_encode():
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400

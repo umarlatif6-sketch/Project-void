@@ -4196,4 +4196,20 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    var userTier = document.body.getAttribute('data-tier') || 'ghost';
+    var origFetch = window.fetch;
+    window.fetch = function() {
+        return origFetch.apply(this, arguments).then(function(resp) {
+            if (resp.status === 403 || resp.status === 413) {
+                var clone = resp.clone();
+                clone.json().then(function(data) {
+                    if (data.upgrade) {
+                        showToast(data.error + ' <a href="/pricing" style="color:#c9a84c;text-decoration:underline;">Upgrade</a>', 'error');
+                    }
+                }).catch(function() {});
+            }
+            return resp;
+        });
+    };
 });
