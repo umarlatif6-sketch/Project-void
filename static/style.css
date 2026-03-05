@@ -63,6 +63,18 @@ h1 {
     font-size: 12px;
     color: var(--success);
 }
+.engine-nav-sep {
+    color: var(--border);
+    margin-left: 4px;
+}
+.engine-nav-link {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 11px;
+}
+.engine-nav-link:hover {
+    color: var(--text);
+}
 
 .freq-badge {
     display: inline-block;
