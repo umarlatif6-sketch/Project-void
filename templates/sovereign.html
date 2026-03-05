@@ -196,6 +196,32 @@
             </div>
         </section>
 
+        <section class="sov-section" id="genesis-kit-section">
+            <h2 class="sov-section-title">The Genesis Kit</h2>
+            <p class="sov-section-desc">Every Sovereign Edition ships with 7 core modules — the organs of the machine. Each component is tuned to its resonance role in the harmonic stack.</p>
+
+            <div class="genesis-modules" id="genesis-modules"></div>
+
+            <div class="genesis-assembly">
+                <h3 class="genesis-assembly-title">Assembly Dimensions</h3>
+                <table class="genesis-cad-table">
+                    <thead>
+                        <tr>
+                            <th>Module</th>
+                            <th>X (mm)</th>
+                            <th>Y (mm)</th>
+                            <th>Z (mm)</th>
+                            <th>Material</th>
+                        </tr>
+                    </thead>
+                    <tbody id="genesis-cad-body"></tbody>
+                </table>
+                <div class="genesis-frame-note" id="genesis-frame-note"></div>
+            </div>
+
+            <div class="genesis-assembly-order" id="genesis-assembly-order"></div>
+        </section>
+
         <section class="sov-section">
             <h2 class="sov-section-title">Pricing</h2>
             <div class="sov-pricing-grid">
@@ -316,6 +342,20 @@
         </section>
 
     </main>
+
+    <div class="founder-vibe-badge" id="founder-vibe-badge">
+        <span class="founder-vibe-badge-icon">&#9670;</span>
+        <span class="founder-vibe-badge-text">Founding Node Edition</span>
+    </div>
+
+    <div class="founder-glyph-watermarks" id="founder-glyph-watermarks">
+        <span class="founder-glyph founder-glyph-1">α</span>
+        <span class="founder-glyph founder-glyph-2">ψ</span>
+        <span class="founder-glyph founder-glyph-3">Φ</span>
+        <span class="founder-glyph founder-glyph-4">Ω</span>
+        <span class="founder-glyph founder-glyph-5">σ</span>
+        <span class="founder-glyph founder-glyph-6">∞</span>
+    </div>
 
     <footer class="sov-footer">
         <div class="sov-footer-inner">
@@ -519,8 +559,34 @@
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     if (data.success) {
-                        status.textContent = 'Inquiry submitted successfully. We will be in touch.';
+                        status.innerHTML = 'Inquiry submitted. <a href="#" id="cert-download-link" class="sov-cert-link">Download your Founder Certificate (PDF)</a>';
                         status.className = 'sov-inquiry-status sov-inquiry-success';
+                        var certLink = document.getElementById('cert-download-link');
+                        certLink.addEventListener('click', function(ev) {
+                            ev.preventDefault();
+                            certLink.textContent = 'Generating certificate...';
+                            fetch('/api/founder/certificate', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ name: name, email: email })
+                            })
+                            .then(function(r) {
+                                if (!r.ok) throw new Error('Failed');
+                                return r.blob();
+                            })
+                            .then(function(blob) {
+                                var url = URL.createObjectURL(blob);
+                                var a = document.createElement('a');
+                                a.href = url;
+                                a.download = 'FOUNDER_SANAD.pdf';
+                                a.click();
+                                URL.revokeObjectURL(url);
+                                certLink.textContent = 'Certificate downloaded — check your downloads folder.';
+                            })
+                            .catch(function() {
+                                certLink.textContent = 'Certificate generation failed. Please try again.';
+                            });
+                        });
                         form.reset();
                     } else {
                         status.textContent = data.error || 'Submission failed.';
@@ -533,6 +599,87 @@
                     status.className = 'sov-inquiry-status sov-inquiry-error';
                     status.style.display = 'block';
                 });
+            });
+        }
+        fetch('/api/genesis/specs')
+        .then(function(r) { return r.json(); })
+        .then(function(specs) {
+            var container = document.getElementById('genesis-modules');
+            if (!container || !specs.modules) return;
+
+            specs.modules.forEach(function(mod) {
+                var card = document.createElement('div');
+                card.className = 'genesis-module-card';
+                var freqHtml = mod.frequency_hz ? '<span class="genesis-freq">' + mod.frequency_hz + ' Hz</span>' : '';
+                card.innerHTML =
+                    '<div class="genesis-module-header">' +
+                        '<span class="genesis-module-glyph">' + mod.glyph + '</span>' +
+                        '<div class="genesis-module-title">' +
+                            '<h4>' + mod.name + '</h4>' +
+                            '<span class="genesis-module-id">' + mod.id + '</span>' +
+                        '</div>' +
+                        freqHtml +
+                    '</div>' +
+                    '<div class="genesis-module-component">' + mod.component + '</div>' +
+                    '<p class="genesis-module-desc">' + mod.description + '</p>' +
+                    '<div class="genesis-module-meta">' +
+                        '<span class="genesis-meta-item">Material: ' + mod.material + '</span>' +
+                        '<span class="genesis-meta-item">Resonance: ' + mod.resonance + '</span>' +
+                    '</div>';
+                container.appendChild(card);
+            });
+
+            var cadBody = document.getElementById('genesis-cad-body');
+            specs.modules.forEach(function(mod) {
+                var row = document.createElement('tr');
+                row.innerHTML =
+                    '<td>' + mod.name + '</td>' +
+                    '<td>' + mod.cad.x_mm + '</td>' +
+                    '<td>' + mod.cad.y_mm + '</td>' +
+                    '<td>' + mod.cad.z_mm + '</td>' +
+                    '<td>' + mod.material + '</td>';
+                cadBody.appendChild(row);
+            });
+
+            if (specs.main_frame) {
+                var note = document.getElementById('genesis-frame-note');
+                note.innerHTML = 'Main Frame: ' + specs.main_frame.x_mm + ' x ' + specs.main_frame.y_mm + ' x ' + specs.main_frame.z_mm + ' mm | ' + specs.main_frame.material + ' | ' + specs.main_frame.weight_kg + ' kg';
+            }
+
+            if (specs.assembly_order) {
+                var orderEl = document.getElementById('genesis-assembly-order');
+                var steps = specs.assembly_order.map(function(step) {
+                    if (step === 'Niyyah' || step === 'Pulse') {
+                        return '<span class="genesis-ritual-step">' + step + '</span>';
+                    }
+                    return step;
+                });
+                orderEl.innerHTML = '<span class="genesis-order-label">Assembly Sequence:</span> ' + steps.join(' <span class="genesis-order-arrow">&rarr;</span> ');
+            }
+        })
+        .catch(function() {});
+
+        var founderVibeTriggered = false;
+        var VIBE_THRESHOLD_MS = 3 * 60 * 1000;
+        var pageStartTime = Date.now();
+
+        function triggerFounderVibe() {
+            if (founderVibeTriggered) return;
+            founderVibeTriggered = true;
+            document.body.setAttribute('data-founder-vibe', 'true');
+        }
+
+        var vibeTimer = setTimeout(function() {
+            triggerFounderVibe();
+        }, VIBE_THRESHOLD_MS);
+
+        var calcSection = document.getElementById('calculator-section');
+        if (calcSection) {
+            calcSection.addEventListener('click', function() {
+                triggerFounderVibe();
+            });
+            calcSection.addEventListener('change', function() {
+                triggerFounderVibe();
             });
         }
     })();

@@ -6,6 +6,7 @@ from flask import Blueprint, request, jsonify, send_file, current_app, render_te
 
 from void_engine.technical_brief import generate_technical_brief
 from generate_carriers import ALL_STYLES, estimate_carrier_capacity
+from void_engine.founder_certs import create_founder_cert_named, FOUNDER_ROOT_HASH
 
 import routes.shared as shared
 
@@ -383,3 +384,40 @@ def list_inquiries():
                 with open(fp) as fh:
                     inquiries.append(_json.load(fh))
     return jsonify({"inquiries": inquiries, "total": len(inquiries)})
+
+
+@financial_bp.route("/api/genesis/specs")
+def genesis_specs():
+    specs_path = os.path.join("data", "genesis_specs.json")
+    if not os.path.isfile(specs_path):
+        return jsonify({"error": "Genesis specs not found"}), 404
+    with open(specs_path) as f:
+        specs = _json.load(f)
+    return jsonify(specs)
+
+
+@financial_bp.route("/api/founder/certificate", methods=["POST"])
+def founder_certificate():
+    data = request.json or {}
+    name = data.get("name", "").strip()
+    email = data.get("email", "").strip()
+
+    if not name or not email:
+        return jsonify({"error": "Name and email are required"}), 400
+
+    try:
+        result = create_founder_cert_named(
+            owner_name=name,
+            owner_email=email,
+            output_dir=shared.OUTPUT_DIR,
+        )
+        if result.get("success"):
+            return send_file(
+                result["filepath"],
+                mimetype="application/pdf",
+                as_attachment=True,
+                download_name=result["filename"],
+            )
+        return jsonify({"error": "Certificate generation failed"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

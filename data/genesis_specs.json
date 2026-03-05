@@ -1,0 +1,100 @@
+{
+  "project_id": "SILT-286-432-B44-0305",
+  "founder": "Umar Latif",
+  "edition": "4000-Series Sovereign Node",
+  "assembly_order": ["Niyyah", "Artery", "Chip", "Skin", "Reservoir", "Flywheel", "Transceiver", "Pulse"],
+  "target_revenue": 25000,
+  "modules": [
+    {
+      "id": "BRAIN-01",
+      "name": "The Brain",
+      "component": "NVIDIA Jetson Orin Nano (8GB)",
+      "cost_max": 450,
+      "resonance": "Logic",
+      "frequency_hz": null,
+      "material": "Silicon / Aluminium Heatsink",
+      "description": "Runs the AIOS and the Silt Ledger. Mounted on a 3D-printed Chitosan-Silk dampening bracket to offset vibration from the flywheel.",
+      "cad": {"x_mm": 70, "y_mm": 45, "z_mm": 30},
+      "glyph": "Ω"
+    },
+    {
+      "id": "ARTY-01",
+      "name": "The Artery",
+      "component": "12.68V Magnesium-Silver Helix",
+      "cost_max": 85,
+      "resonance": "432 Hz Hum",
+      "frequency_hz": 432,
+      "material": "1m Magnesium Ribbon + 1m Silver-Silk Thread (12 turns/inch)",
+      "description": "The Sapphire Thread. Twisted helical wiring that resonates at 432 Hz during the Hilbert Fold assembly. Power and data unified in a single strand.",
+      "cad": {"x_mm": 16, "y_mm": 16, "z_mm": 100},
+      "glyph": "σ"
+    },
+    {
+      "id": "SKIN-01",
+      "name": "The Skin",
+      "component": "Mycelium-Grown Composite",
+      "cost_max": 45,
+      "resonance": "Shielding",
+      "frequency_hz": null,
+      "material": "Ganoderma lucidum + Crab Shell Chitosan Resin (5mm)",
+      "description": "Grown from Reishi mycelium and hardened with Chitosan. Provides EMI shielding and thermal invisibility. The living layer of the node.",
+      "cad": {"x_mm": 310, "y_mm": 310, "z_mm": 5},
+      "glyph": "ψ"
+    },
+    {
+      "id": "CHIP-01",
+      "name": "The Al-Jabr 286 Chip",
+      "component": "Custom FPGA / Sovereign Processor",
+      "cost_max": 180,
+      "resonance": "286-Bit Sovereign",
+      "frequency_hz": 286,
+      "material": "Black Tar substrate + Trichome Resin dielectric",
+      "description": "The sovereign processor. Silt-Path and Vortex-Eye runes etched into Black Tar substrate. Inoculated with crystalline resin as a dielectric resonator.",
+      "cad": {"x_mm": 45, "y_mm": 45, "z_mm": 10},
+      "glyph": "α"
+    },
+    {
+      "id": "FLY-01",
+      "name": "The Flywheel",
+      "component": "4000 RPM Kinetic Flywheel",
+      "cost_max": 220,
+      "resonance": "Kinetic",
+      "frequency_hz": null,
+      "material": "Low-friction ceramic bearings, vacuum-sealed magnesium housing",
+      "description": "Stores mechanical energy for off-grid power spikes. Proof of Sweat harvested from calisthenics drives the flywheel. Vacuum-sealed to eliminate drag.",
+      "cad": {"x_mm": 120, "y_mm": 120, "z_mm": 80},
+      "glyph": "Φ"
+    },
+    {
+      "id": "AQUA-01",
+      "name": "The Reservoir",
+      "component": "2.5L Silk-Lined Aquaponics Tank",
+      "cost_max": 95,
+      "resonance": "864 Hz Overtone",
+      "frequency_hz": 864,
+      "material": "Silk-lined polypropylene + pH/DO/Temp sensors",
+      "description": "The Lungs. Supplies nutrients for the Proof of Bloom governance layer. Sensors monitor pH, nitrates, dissolved oxygen, and bio-resonance in real time.",
+      "cad": {"x_mm": 200, "y_mm": 150, "z_mm": 120},
+      "glyph": "μ"
+    },
+    {
+      "id": "XMIT-01",
+      "name": "The Transceiver",
+      "component": "Piezoelectric Transducer Array (x10)",
+      "cost_max": 65,
+      "resonance": "432 Hz Beehive",
+      "frequency_hz": 432,
+      "material": "Piezoelectric polymer on magnesium frame",
+      "description": "The Voice. Mounted on the magnesium frame to use the entire node as a speaker. Beehive Protocol (432 Hz) for acoustic mesh networking. The whole machine sings.",
+      "cad": {"x_mm": 25, "y_mm": 25, "z_mm": 8},
+      "glyph": "∞"
+    }
+  ],
+  "main_frame": {
+    "x_mm": 300,
+    "y_mm": 300,
+    "z_mm": 450,
+    "material": "Recycled Magnesium",
+    "weight_kg": 18.5
+  }
+}

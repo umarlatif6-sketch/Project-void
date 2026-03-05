@@ -13,6 +13,7 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Web UI:** A dark-themed, mobile-responsive interface featuring 12 interactive tabs: Encode, Decode, Burst, Visualizer, Capacity, Silk Web, Mesh, Transceiver, Blueprint, Journalism, Files, and Harness.
 - **Visualizers:** Integrates Web Audio API-based spectrum and spectrograms, including a "Vocal Pocket Visualizer" specifically for Adriana Pocket, focusing on 432 Hz frequencies with real-time microphone input.
 - **Acoustic Feedback:** Incorporates "Sapphire Bubble" and "Sapphire Glow" effects for visual confirmation of signal processing.
+- **Founder Vibe Detection:** After 3+ minutes on `/sovereign` or calculator interaction, the UI shifts from standard accent to "Silt Gold" (#c9a84c) and "Deep Mycelium Green" (#2d6a4f), with Adriana SCL glyph watermarks in the margins and a pulsing "Founding Node Edition" badge.
 
 **Technical Implementations & Feature Specifications:**
 - **Audio Standard:** Uses 16-bit PCM WAV files with a 432 Hz base frequency ("Village Standard").
@@ -42,11 +43,14 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Silt Journalism Port:** A drag-and-drop interface for hiding files (up to 50MB) within auto-generated biophony carrier audio, utilizing Vortex scatter for camouflage.
 - **Financial Pathway Pages:** Includes a marketing **Landing Page**, a **Demo Mode**, a **Grant Application Package** page, and a **Sovereign Edition Product Page** for commercialization.
 - **Technical Brief PDF Generator:** Generates a professional 2-page PDF covering project details.
-- **Inquiry System:** A JSON-file-based system storing inquiries with `source_page` and `configuration` tracking fields.
+- **Inquiry System:** A JSON-file-based system storing inquiries with `source_page`, `configuration`, `organisation`, `phone`, `interest`, and `consent` tracking fields. Consent is required (returns 400 if missing). Forms on all 4 pages: landing, demo, sovereign, grants.
 - **Pitch Generator API:** `POST /api/pitch/generate` produces funder-aligned pitch documents (OTF, FPF, Mozilla, General) with live system stats, capacity demonstrations, and technical proof points. `GET /api/pitch/targets` lists available targets.
 - **Pricing Calculator:** Interactive "Build Your Own" calculator on `/sovereign` page — fetches 14 hardware components from `/api/blueprint/specs`, allows toggling self-source per component, live-updates price between £25,000 and self-source minimum (~£443-660), with "Request Custom Quote" pre-filling the inquiry form.
 - **Live Demo Proof:** `POST /api/demo/proof` generates a midnight_pond biophony carrier, embeds a sample payload via Vortex scatter at LSB-2, verifies integrity, and returns full metrics with download link. Available via "Live Proof" tab in demo mode.
-- **Admin Dashboard:** `/admin/leads` (SESSION_SECRET auth via query param `?token=`) shows inquiry analytics by type and source, recent inquiries table, source breakdown bar, and pitch previews for all funder targets.
+- **Admin Dashboard:** `/admin/leads` (SESSION_SECRET auth via query param `?token=`) shows inquiry analytics by type and source, recent inquiries table (with organisation, phone, interest, consent columns), source breakdown bar, and pitch previews for all funder targets.
+- **Genesis Kit Gallery:** `GET /api/genesis/specs` serves the full 4000-Series component manifest (7 modules: Brain, Artery, Skin, Al-Jabr Chip, Flywheel, Reservoir, Transceiver) with CAD dimensions, materials, and resonance data. Displayed as interactive cards on `/sovereign` page with assembly table and sequence.
+- **Founder Certificate Generator:** `POST /api/founder/certificate` accepts `{name, email}` and returns a PDF "Sanad" — gold-on-black certificate with Al-Jabr 286-bit seal, 5 articles of lineage, machine hash, root hash reference. Offered after successful sovereign inquiry submission.
+- **Founder Vibe Detection:** JS on `/sovereign` tracks page time (3+ minutes) and calculator interaction to trigger a Silt Gold / Mycelium Green UI shift via `data-founder-vibe` attribute, with floating glyph watermarks and "Founding Node Edition" badge.
 
 ## External Dependencies
 - **Python:** 3.11
@@ -56,3 +60,6 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **fpdf2:** Employed for generating Founder Certificate PDFs.
 - **werkzeug:** Handles secure filename operations.
 - **Standard Library:** Includes `zlib`, `lzma`, `wave`, `hashlib` for core functionalities.
+
+## Key Data Files
+- **data/genesis_specs.json:** Full 4000-Series hardware manifest with 7 modules, CAD dimensions, materials, and resonance data.
