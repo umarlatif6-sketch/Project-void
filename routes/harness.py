@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session, redirect
 
 from void_engine.diagnostics import SOVEREIGN_WARRANTY
 from void_engine.rituals import RITUAL_TYPES
@@ -8,6 +8,14 @@ from void_engine.founder_certs import create_founder_cert, batch_generate_certs,
 import routes.shared as shared
 
 harness_bp = Blueprint("harness", __name__)
+
+
+@harness_bp.before_request
+def _harness_auth():
+    if not session.get("user_id"):
+        if request.is_json or request.path.startswith("/api/"):
+            return jsonify({"error": "Authentication required"}), 401
+        return redirect("/login")
 
 
 @harness_bp.route("/api/harness/status")

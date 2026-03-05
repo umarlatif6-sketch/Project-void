@@ -11,6 +11,7 @@ from void_engine.compressor import compress_file, decompress_data
 from void_engine.stega import encode, decode, encode_stereo, decode_stereo
 from void_engine.calculator import analyze_carrier
 from generate_carriers import generate_custom_carrier, ALL_STYLES
+from routes.auth import login_required
 
 import routes.shared as shared
 
@@ -18,6 +19,7 @@ journalism_bp = Blueprint("journalism", __name__)
 
 
 @journalism_bp.route("/api/journalism/encode", methods=["POST"])
+@login_required
 def journalism_encode():
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
@@ -91,6 +93,7 @@ def journalism_encode():
 
 
 @journalism_bp.route("/api/journalism/decode", methods=["POST"])
+@login_required
 def journalism_decode():
     data = request.json
     filename = data.get("filename", "")
@@ -138,6 +141,7 @@ def journalism_decode():
 
 
 @journalism_bp.route("/api/journalism/drops")
+@login_required
 def journalism_drops():
     drops = []
     if os.path.isdir(shared.SILT_DIR):
@@ -154,6 +158,7 @@ def journalism_drops():
 
 
 @journalism_bp.route("/api/journalism/download/<filename>")
+@login_required
 def journalism_download(filename):
     safe = secure_filename(filename)
     path = os.path.join(shared.SILT_DIR, safe)
@@ -163,6 +168,7 @@ def journalism_download(filename):
 
 
 @journalism_bp.route("/api/journalism/delete/<filename>", methods=["DELETE"])
+@login_required
 def journalism_delete(filename):
     safe = secure_filename(filename)
     path = os.path.join(shared.SILT_DIR, safe)
@@ -173,6 +179,7 @@ def journalism_delete(filename):
 
 
 @journalism_bp.route("/api/journalism/purge", methods=["DELETE"])
+@login_required
 def journalism_purge():
     count = 0
     if os.path.isdir(shared.SILT_DIR):

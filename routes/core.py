@@ -4,7 +4,7 @@ import wave
 import time as _time
 import hashlib
 from datetime import datetime
-from flask import Blueprint, render_template, request, jsonify, send_file
+from flask import Blueprint, render_template, request, jsonify, send_file, session
 from werkzeug.utils import secure_filename
 
 from void_engine.compressor import compress_file, compress_bytes, decompress_data
@@ -12,17 +12,41 @@ from void_engine.stega import (encode, decode, encode_burst, check_resonance_pur
                                 encode_stereo, decode_stereo, find_harmonic_pockets)
 from void_engine.calculator import analyze_carrier, append_to_log
 from generate_carriers import generate_custom_carrier, estimate_carrier_capacity, ALL_STYLES
+from routes.auth import login_required
 
 import routes.shared as shared
 
 core_bp = Blueprint("core", __name__)
 
+
+def _user_input_dir():
+    username = session.get("username")
+    if username:
+        d = f"data/vaults/{username}/input_files"
+        os.makedirs(d, exist_ok=True)
+        return d
+    return shared.INPUT_DIR
+
+
+def _user_output_dir():
+    username = session.get("username")
+    if username:
+        d = f"data/vaults/{username}/output_audio"
+        os.makedirs(d, exist_ok=True)
+        return d
+    return shared.OUTPUT_DIR
+
 _proof_status = {"running": False, "result": None, "error": None, "started": None}
 
 
 @core_bp.route("/")
+@login_required
 def index():
-    return render_template("index.html")
+    return render_template("index.html",
+                           is_founder=session.get("is_founder", False),
+                           username=session.get("username", ""),
+                           display_name=session.get("display_name", ""),
+                           user_role=session.get("role", "user"))
 
 
 @core_bp.route("/launch")
@@ -51,6 +75,7 @@ def guide_page():
 
 
 @core_bp.route("/api/files")
+@login_required
 def list_files():
     def get_files(directory):
         if not os.path.isdir(directory):
@@ -64,12 +89,13 @@ def list_files():
         return result
 
     return jsonify({
-        "input": get_files(shared.INPUT_DIR),
-        "output": get_files(shared.OUTPUT_DIR),
+        "input": get_files(_user_input_dir()),
+        "output": get_files(_user_output_dir()),
     })
 
 
 @core_bp.route("/api/upload", methods=["POST"])
+@login_required
 def upload_file():
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
@@ -80,7 +106,7 @@ def upload_file():
 
     filename = secure_filename(f.filename)
     dest = request.form.get("dest", "input")
-    directory = shared.INPUT_DIR if dest == "input" else shared.OUTPUT_DIR
+    directory = _user_input_dir() if dest == "input" else _user_output_dir()
     filepath = os.path.join(directory, filename)
     f.save(filepath)
 
@@ -92,6 +118,7 @@ def upload_file():
 
 
 @core_bp.route("/api/encode", methods=["POST"])
+@login_required
 def encode_file():
     data = request.json
     carrier = data.get("carrier")
@@ -104,8 +131,8 @@ def encode_file():
     if not carrier or not payload:
         return jsonify({"error": "Carrier and payload files are required"}), 400
 
-    carrier_path = os.path.join(shared.INPUT_DIR, carrier)
-    payload_path = os.path.join(shared.INPUT_DIR, payload)
+    carrier_path = os.path.join(_user_input_dir(), carrier)
+    payload_path = os.path.join(_user_input_dir(), payload)
 
     if not os.path.exists(carrier_path):
         return jsonify({"error": f"Carrier file not found: {carrier}"}), 404
@@ -117,7 +144,7 @@ def encode_file():
 
         base_name = os.path.splitext(carrier)[0]
         output_name = f"{base_name}_void.wav"
-        output_path = os.path.join(shared.OUTPUT_DIR, output_name)
+        output_path = os.path.join(_user_output_dir(), output_name)
 
         with wave.open(carrier_path, "rb") as wf:
             n_channels = wf.getnchannels()
@@ -167,6 +194,7 @@ def encode_file():
 
 
 @core_bp.route("/api/burst", methods=["POST"])
+@login_required
 def burst_encode():
     data = request.json
     signal = data.get("signal", "")
@@ -179,7 +207,7 @@ def burst_encode():
     try:
         burst_id = uuid.uuid4().hex[:8]
         output_name = f"burst_432Hz_{burst_id}.wav"
-        output_path = os.path.join(shared.OUTPUT_DIR, output_name)
+        output_path = os.path.join(_user_output_dir(), output_name)
 
         hash_key = encode_burst(signal, output_path)
 
@@ -196,6 +224,7 @@ def burst_encode():
 
 
 @core_bp.route("/api/decode", methods=["POST"])
+@login_required
 def decode_file():
     data = request.json
     stego_file = data.get("stego_file")
@@ -206,7 +235,7 @@ def decode_file():
     if not stego_file or not hash_key:
         return jsonify({"error": "Encoded WAV file and Hash Key are required"}), 400
 
-    directory = shared.OUTPUT_DIR if source == "output" else shared.INPUT_DIR
+    directory = _user_output_dir() if source == "output" else _user_input_dir()
     stego_path = os.path.join(directory, stego_file)
 
     if not os.path.exists(stego_path):
@@ -223,7 +252,7 @@ def decode_file():
             compressed_data, name_ext, checksum = decode(stego_path, hash_key, lsb_depth)
         original_data = decompress_data(compressed_data)
 
-        output_path = os.path.join(shared.OUTPUT_DIR, name_ext)
+        output_path = os.path.join(_user_output_dir(), name_ext)
         with open(output_path, "wb") as f:
             f.write(original_data)
 
@@ -243,6 +272,7 @@ def decode_file():
 
 
 @core_bp.route("/api/capacity", methods=["POST"])
+@login_required
 def check_capacity():
     data = request.json
     filename = data.get("filename")
@@ -251,7 +281,7 @@ def check_capacity():
     if not filename:
         return jsonify({"error": "No file specified"}), 400
 
-    directory = shared.INPUT_DIR if source == "input" else shared.OUTPUT_DIR
+    directory = _user_input_dir() if source == "input" else _user_output_dir()
     filepath = os.path.join(directory, filename)
 
     if not os.path.exists(filepath):
@@ -266,11 +296,17 @@ def check_capacity():
 
 
 @core_bp.route("/api/download/<folder>/<filename>")
+@login_required
 def download_file(folder, filename):
     if folder not in ("input_files", "output_audio"):
         return jsonify({"error": "Invalid folder"}), 400
 
-    filepath = os.path.join(folder, secure_filename(filename))
+    username = session.get("username")
+    if username:
+        base = f"data/vaults/{username}"
+        filepath = os.path.join(base, folder, secure_filename(filename))
+    else:
+        filepath = os.path.join(folder, secure_filename(filename))
     if not os.path.exists(filepath):
         return jsonify({"error": "File not found"}), 404
 
@@ -278,11 +314,17 @@ def download_file(folder, filename):
 
 
 @core_bp.route("/api/delete/<folder>/<filename>", methods=["DELETE"])
+@login_required
 def delete_file(folder, filename):
     if folder not in ("input_files", "output_audio"):
         return jsonify({"error": "Invalid folder"}), 400
 
-    filepath = os.path.join(folder, secure_filename(filename))
+    username = session.get("username")
+    if username:
+        base = f"data/vaults/{username}"
+        filepath = os.path.join(base, folder, secure_filename(filename))
+    else:
+        filepath = os.path.join(folder, secure_filename(filename))
     if not os.path.exists(filepath):
         return jsonify({"error": "File not found"}), 404
 
@@ -291,6 +333,7 @@ def delete_file(folder, filename):
 
 
 @core_bp.route("/api/decode/audio", methods=["POST"])
+@login_required
 def decode_audio():
     if "audio" not in request.files:
         return jsonify({"error": "No audio file provided"}), 400
@@ -304,7 +347,7 @@ def decode_audio():
         else:
             return jsonify({"error": "No hash key provided and no Village Default Key set"}), 400
 
-    temp_path = os.path.join(shared.OUTPUT_DIR, f"_listener_capture_{uuid.uuid4().hex[:8]}.wav")
+    temp_path = os.path.join(_user_output_dir(), f"_listener_capture_{uuid.uuid4().hex[:8]}.wav")
     try:
         audio_file.save(temp_path)
 
@@ -313,7 +356,7 @@ def decode_audio():
         compressed_data, name_ext, checksum = decode(temp_path, hash_key, 1)
         original_data = decompress_data(compressed_data)
 
-        output_path = os.path.join(shared.OUTPUT_DIR, name_ext)
+        output_path = os.path.join(_user_output_dir(), name_ext)
         with open(output_path, "wb") as f:
             f.write(original_data)
 
@@ -337,6 +380,7 @@ def decode_audio():
 
 
 @core_bp.route("/api/settings/default-key", methods=["POST"])
+@login_required
 def set_default_key():
     data = request.json
     key = data.get("key", "").strip()
@@ -349,6 +393,7 @@ def set_default_key():
 
 
 @core_bp.route("/api/settings/default-key")
+@login_required
 def get_default_key():
     return jsonify({
         "has_key": shared.village_default_key is not None,
@@ -357,6 +402,7 @@ def get_default_key():
 
 
 @core_bp.route("/api/low-power", methods=["POST"])
+@login_required
 def toggle_low_power():
     data = request.json
     shared.low_power_mode = bool(data.get("enabled", False))
@@ -364,11 +410,13 @@ def toggle_low_power():
 
 
 @core_bp.route("/api/low-power")
+@login_required
 def get_low_power():
     return jsonify({"low_power": shared.low_power_mode})
 
 
 @core_bp.route("/api/silk/send", methods=["POST"])
+@login_required
 def silk_send():
     data = request.json
     raw_text = data.get("signal", "").strip()
@@ -392,6 +440,7 @@ def silk_send():
 
 
 @core_bp.route("/api/silk/signals")
+@login_required
 def silk_signals():
     limit = request.args.get("limit", 20, type=int)
     signals = shared.silk_ticker.get_signals(limit)
@@ -399,6 +448,7 @@ def silk_signals():
 
 
 @core_bp.route("/api/status")
+@login_required
 def system_status():
     import time
 
@@ -449,6 +499,7 @@ def system_status():
 
 
 @core_bp.route("/api/pockets", methods=["POST"])
+@login_required
 def scan_pockets():
     data = request.json
     filename = data.get("filename")
@@ -457,7 +508,7 @@ def scan_pockets():
     if not filename:
         return jsonify({"error": "No file specified"}), 400
 
-    directory = shared.INPUT_DIR if source == "input" else shared.OUTPUT_DIR
+    directory = _user_input_dir() if source == "input" else _user_output_dir()
     filepath = os.path.join(directory, filename)
 
     if not os.path.exists(filepath):
@@ -471,12 +522,14 @@ def scan_pockets():
 
 
 @core_bp.route("/api/purge", methods=["POST"])
+@login_required
 def purge_old_files():
     cutoff = _time.time() - 86400
     purged = []
-    if os.path.isdir(shared.OUTPUT_DIR):
-        for fname in os.listdir(shared.OUTPUT_DIR):
-            fpath = os.path.join(shared.OUTPUT_DIR, fname)
+    out_dir = _user_output_dir()
+    if os.path.isdir(out_dir):
+        for fname in os.listdir(out_dir):
+            fpath = os.path.join(out_dir, fname)
             if os.path.isfile(fpath) and os.path.getmtime(fpath) < cutoff:
                 try:
                     size = os.path.getsize(fpath)
@@ -494,6 +547,7 @@ def purge_old_files():
 
 
 @core_bp.route("/api/generate-carrier", methods=["POST"])
+@login_required
 def api_generate_carrier():
     data = request.json or {}
     duration_minutes = data.get("duration_minutes")
@@ -520,6 +574,7 @@ def api_generate_carrier():
 
 
 @core_bp.route("/api/carrier-estimate")
+@login_required
 def api_carrier_estimate():
     try:
         duration = float(request.args.get("duration", 1))

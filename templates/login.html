@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Sovereign Access</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #06060a;
+            --surface: #0d0d14;
+            --surface2: #13131d;
+            --border: #1a1a28;
+            --gold: #c9a84c;
+            --gold-dim: #8c7535;
+            --gold-glow: rgba(201, 168, 76, 0.15);
+            --teal: #2dd4bf;
+            --white: #c8c8c8;
+            --dim: #555;
+            --red: #e74c3c;
+            --green: #2d6a4f;
+            --font: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+        }
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: var(--font);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px 32px 32px;
+            position: relative;
+            box-shadow: 0 0 60px rgba(0,0,0,0.5);
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .login-logo-icon {
+            font-size: 36px;
+            color: var(--gold);
+            text-shadow: 0 0 30px var(--gold-glow);
+            margin-bottom: 12px;
+        }
+        .login-logo h1 {
+            font-size: 20px;
+            letter-spacing: 6px;
+            color: var(--white);
+            text-transform: uppercase;
+        }
+        .login-logo p {
+            font-size: 11px;
+            color: var(--gold-dim);
+            letter-spacing: 3px;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+        .login-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        .login-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: var(--dim);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            font-family: var(--font);
+            text-transform: uppercase;
+        }
+        .login-tab:hover { color: var(--white); }
+        .login-tab.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+        .login-form { display: none; }
+        .login-form.active { display: block; }
+        .login-field {
+            margin-bottom: 16px;
+        }
+        .login-field label {
+            display: block;
+            font-size: 10px;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .login-field input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--white);
+            font-family: var(--font);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .login-field input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px var(--gold-glow);
+        }
+        .login-field input::placeholder { color: var(--dim); font-size: 12px; }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gold);
+            color: var(--bg);
+            border: none;
+            border-radius: 6px;
+            font-family: var(--font);
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        .login-btn:hover {
+            background: #d4b45a;
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .login-error {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: var(--red);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .login-success {
+            background: rgba(45, 106, 79, 0.1);
+            border: 1px solid rgba(45, 106, 79, 0.3);
+            color: var(--teal);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .login-footer p {
+            font-size: 9px;
+            color: var(--dim);
+            letter-spacing: 2px;
+        }
+        .login-footer a {
+            color: var(--dim);
+            text-decoration: none;
+        }
+        .login-footer a:hover { color: var(--teal); }
+        .login-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .login-links a {
+            color: var(--dim);
+            font-size: 11px;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        .login-links a:hover { color: var(--teal); }
+        .login-border-glow {
+            position: absolute;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border-radius: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s;
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 30px var(--gold-glow), inset 0 0 30px var(--gold-glow);
+        }
+        .login-card.founder-glow .login-border-glow {
+            opacity: 1;
+        }
+        @media (max-width: 480px) {
+            .login-card { padding: 28px 20px 24px; }
+            .login-logo h1 { font-size: 16px; letter-spacing: 4px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card" id="login-card">
+        <div class="login-border-glow"></div>
+        <div class="login-logo">
+            <div class="login-logo-icon">&#9670;</div>
+            <h1>PROJECT VOID</h1>
+            <p>Sovereign Access</p>
+        </div>
+
+        <div class="login-tabs">
+            <button class="login-tab active" data-form="login-form">Login</button>
+            <button class="login-tab" data-form="register-form">Register</button>
+        </div>
+
+        <div class="login-error" id="login-error"></div>
+        <div class="login-success" id="login-success"></div>
+
+        <form class="login-form active" id="login-form" onsubmit="return handleLogin(event)">
+            <div class="login-field">
+                <label>Username</label>
+                <input type="text" id="login-username" placeholder="Enter your username" autocomplete="username" required>
+            </div>
+            <div class="login-field">
+                <label>Password</label>
+                <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="login-btn" id="login-btn">Enter the Vault</button>
+        </form>
+
+        <form class="login-form" id="register-form" onsubmit="return handleRegister(event)">
+            <div class="login-field">
+                <label>Username</label>
+                <input type="text" id="reg-username" placeholder="Choose a username (3-50 chars)" autocomplete="username" required minlength="3" maxlength="50">
+            </div>
+            <div class="login-field">
+                <label>Display Name</label>
+                <input type="text" id="reg-display" placeholder="How others will see you">
+            </div>
+            <div class="login-field">
+                <label>Password</label>
+                <input type="password" id="reg-password" placeholder="Minimum 6 characters" autocomplete="new-password" required minlength="6">
+            </div>
+            <div class="login-field">
+                <label>Confirm Password</label>
+                <input type="password" id="reg-confirm" placeholder="Re-enter your password" autocomplete="new-password" required>
+            </div>
+            <button type="submit" class="login-btn" id="reg-btn">Create Account</button>
+        </form>
+
+        <div class="login-footer">
+            <p>Al-Jabr 286 Sovereign Hash &middot; 432 Hz</p>
+        </div>
+    </div>
+
+    <div class="login-links">
+        <a href="/launch">Home</a>
+        <a href="/guide">Guide</a>
+        <a href="/demo">Demo</a>
+        <a href="/grants">Grants</a>
+    </div>
+
+    <script>
+    (function() {
+        var tabs = document.querySelectorAll('.login-tab');
+        var forms = document.querySelectorAll('.login-form');
+        var errorEl = document.getElementById('login-error');
+        var successEl = document.getElementById('login-success');
+
+        tabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                tabs.forEach(function(t) { t.classList.remove('active'); });
+                forms.forEach(function(f) { f.classList.remove('active'); });
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.form).classList.add('active');
+                errorEl.style.display = 'none';
+                successEl.style.display = 'none';
+            });
+        });
+
+        function showError(msg) {
+            errorEl.textContent = msg;
+            errorEl.style.display = 'block';
+            successEl.style.display = 'none';
+        }
+        function showSuccess(msg) {
+            successEl.textContent = msg;
+            successEl.style.display = 'block';
+            errorEl.style.display = 'none';
+        }
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            var btn = document.getElementById('login-btn');
+            btn.disabled = true;
+            btn.textContent = 'Authenticating...';
+            errorEl.style.display = 'none';
+
+            var username = document.getElementById('login-username').value.trim();
+            var password = document.getElementById('login-password').value;
+
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: username, password: password})
+            })
+            .then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
+            .then(function(res) {
+                if (res.ok) {
+                    if (res.data.is_founder) {
+                        document.getElementById('login-card').classList.add('founder-glow');
+                        showSuccess('Welcome home, Founder.');
+                        setTimeout(function() { window.location.href = '/'; }, 1200);
+                    } else {
+                        showSuccess('Access granted.');
+                        setTimeout(function() { window.location.href = '/'; }, 600);
+                    }
+                } else {
+                    showError(res.data.error || 'Login failed');
+                    btn.disabled = false;
+                    btn.textContent = 'Enter the Vault';
+                }
+            })
+            .catch(function() {
+                showError('Connection failed');
+                btn.disabled = false;
+                btn.textContent = 'Enter the Vault';
+            });
+            return false;
+        };
+
+        window.handleRegister = function(e) {
+            e.preventDefault();
+            var btn = document.getElementById('reg-btn');
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            errorEl.style.display = 'none';
+
+            var username = document.getElementById('reg-username').value.trim();
+            var display = document.getElementById('reg-display').value.trim();
+            var password = document.getElementById('reg-password').value;
+            var confirm = document.getElementById('reg-confirm').value;
+
+            if (password !== confirm) {
+                showError('Passwords do not match');
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+                return false;
+            }
+
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: username,
+                    display_name: display,
+                    password: password,
+                    confirm_password: confirm
+                })
+            })
+            .then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
+            .then(function(res) {
+                if (res.ok) {
+                    showSuccess('Account created. Entering the vault...');
+                    setTimeout(function() { window.location.href = '/'; }, 800);
+                } else {
+                    showError(res.data.error || 'Registration failed');
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account';
+                }
+            })
+            .catch(function() {
+                showError('Connection failed');
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            });
+            return false;
+        };
+    })();
+    </script>
+</body>
+</html>

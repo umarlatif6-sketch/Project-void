@@ -2,12 +2,13 @@ import os
 import uuid
 import json as _json
 from datetime import datetime
-from flask import Blueprint, request, jsonify, send_file, current_app, render_template
+from flask import Blueprint, request, jsonify, send_file, current_app, render_template, session
 
 from void_engine.technical_brief import generate_technical_brief
 from void_engine.pitch_deck import generate_pitch_deck
 from generate_carriers import ALL_STYLES, estimate_carrier_capacity
 from void_engine.founder_certs import create_founder_cert_named, FOUNDER_ROOT_HASH
+from routes.auth import admin_required
 
 import routes.shared as shared
 
@@ -357,26 +358,14 @@ def pitch_generate():
 
 
 @financial_bp.route("/admin/leads")
+@admin_required
 def admin_leads():
-    auth_ok = False
-    token = request.args.get("token", "")
-    if token and token == current_app.secret_key:
-        auth_ok = True
-    auth_header = request.headers.get("Authorization", "")
-    if auth_header == f"Bearer {current_app.secret_key}":
-        auth_ok = True
-    if not auth_ok:
-        return render_template("admin.html"), 200
     return render_template("admin.html")
 
 
 @financial_bp.route("/api/inquiries")
+@admin_required
 def list_inquiries():
-    auth = request.headers.get("Authorization", "")
-    expected = current_app.secret_key
-    if auth != f"Bearer {expected}":
-        return jsonify({"error": "Unauthorized"}), 401
-
     inquiries = []
     if os.path.isdir(shared.INQUIRY_DIR):
         for f in sorted(os.listdir(shared.INQUIRY_DIR)):

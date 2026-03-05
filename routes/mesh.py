@@ -1,10 +1,18 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session, redirect
 
 from void_engine.beehive import MeshPacket, simulate_two_node_exchange, _sanitize_for_json
 
 import routes.shared as shared
 
 mesh_bp = Blueprint("mesh", __name__)
+
+
+@mesh_bp.before_request
+def _mesh_auth():
+    if not session.get("user_id"):
+        if request.is_json or request.path.startswith("/api/"):
+            return jsonify({"error": "Authentication required"}), 401
+        return redirect("/login")
 
 
 @mesh_bp.route("/api/mesh/connect", methods=["POST"])

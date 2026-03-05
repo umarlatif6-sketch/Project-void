@@ -57,6 +57,8 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 
 - **Void Messenger:** A Telegram-style secure messaging system at `/messenger`. Users register/login with Al-Jabr 286 password hashing, search for other users, and exchange ChaCha20-Poly1305 encrypted messages stored in PostgreSQL. Features: conversation list with last message preview, real-time polling (3s), mobile-responsive with sidebar toggle, new chat modal with user search, message bubbles with sent/received styling. All messages stored encrypted in the database — plaintext never touches disk. Routes in `routes/messenger.py`, auth/crypto logic in `void_engine/messenger_auth.py`.
 
+- **Universal Al-Jabr Authentication ("Great Gate"):** Platform-wide auth system wrapping all engine routes behind login. Built in `routes/auth.py` with `login_required` and `admin_required` decorators. Reuses the Messenger's Al-Jabr 286 password hashing and PostgreSQL `users` table (extended with `role` column: `'user'`, `'founder'`, `'admin'`). Login page at `/login` (`templates/login.html`) — gold-on-black card with Login/Register tabs. Session keys: `user_id`, `username`, `display_name`, `role`, `is_founder`, `messenger_user_id`. Per-user data vaults at `data/vaults/{username}/input_files/` and `data/vaults/{username}/output_audio/`. Founder detection via `FOUNDER_USERNAME` env var — triggers Silt Gold UI theme (`data-founder-vibe`) and "Welcome home, Founder" greeting. Public routes (no auth): `/launch`, `/demo`, `/guide`, `/grants`, `/sovereign`, `/login`, `/api/inquiry`, `/api/demo/proof`, `/api/blueprint/specs`, `/api/genesis/specs`. Admin routes (`/admin/leads`, `/api/inquiries`) require `admin` or `founder` role.
+
 ## External Dependencies
 - **Python:** 3.11
 - **numpy:** Used for audio sample manipulation and FFT operations.
@@ -68,7 +70,7 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Standard Library:** Includes `zlib`, `lzma`, `wave`, `hashlib` for core functionalities.
 
 ## Database
-- **PostgreSQL** (Replit built-in): Used for Void Messenger. Tables: `users`, `conversations`, `conversation_members`, `messages`. Messages are ChaCha20-Poly1305 encrypted before storage. Connection via `DATABASE_URL` env var.
+- **PostgreSQL** (Replit built-in): Used for Void Messenger and Universal Auth. Tables: `users` (with `role` column), `conversations`, `conversation_members`, `messages`. Messages are ChaCha20-Poly1305 encrypted before storage. Passwords hashed with Al-Jabr 286. Connection via `DATABASE_URL` env var.
 
 ## Key Data Files
 - **data/genesis_specs.json:** Full 4000-Series hardware manifest with 7 modules, CAD dimensions, materials, and resonance data.

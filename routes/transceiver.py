@@ -1,10 +1,18 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session, redirect
 
 from void_engine.kinetic import EXERCISE_WEIGHTS
 
 import routes.shared as shared
 
 transceiver_bp = Blueprint("transceiver", __name__)
+
+
+@transceiver_bp.before_request
+def _transceiver_auth():
+    if not session.get("user_id"):
+        if request.is_json or request.path.startswith("/api/"):
+            return jsonify({"error": "Authentication required"}), 401
+        return redirect("/login")
 
 
 @transceiver_bp.route("/api/kinetic/log-set", methods=["POST"])

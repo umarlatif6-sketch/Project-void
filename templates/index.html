@@ -6,7 +6,7 @@
     <title>PROJECT VOID</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body data-demo="{{ 'true' if demo_mode else 'false' }}">
+<body data-demo="{{ 'true' if demo_mode else 'false' }}" {% if is_founder %}data-founder-vibe="true"{% endif %}>
     {% if demo_mode %}
     <div class="demo-banner">
         <span class="demo-banner-icon">&#9670;</span>
@@ -18,7 +18,7 @@
             <div class="logo-icon">&#9670;</div>
             <div>
                 <h1>PROJECT VOID</h1>
-                <p class="subtitle">Modular Steganography Engine v2.0</p>
+                <p class="subtitle">{% if is_founder %}Welcome home, Founder.{% else %}Modular Steganography Engine v2.0{% endif %}</p>
             </div>
         </div>
         <div class="status-bar">
@@ -38,6 +38,7 @@
         <a href="/sovereign" class="engine-nav-link">Hardware</a>
         <a href="/guide" class="engine-nav-link">Guide</a>
         <a href="/messenger" class="engine-nav-link engine-nav-gold">Messenger</a>
+        <span class="engine-nav-user">{{ display_name or username }} <a href="/api/auth/logout" class="engine-nav-link">Logout</a></span>
     </nav>
 
     <main>
@@ -1611,6 +1612,11 @@
 
     <div id="toast" class="toast"></div>
 
+    <script>
+    if (document.body.dataset.founderVibe === "true") {
+        document.body.classList.add("founder-vibe");
+    }
+    </script>
     <script src="/static/app.js"></script>
 </body>
 </html>

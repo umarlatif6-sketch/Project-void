@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session, render_template
+from flask import Blueprint, request, jsonify, session, render_template, redirect
 from void_engine.messenger_auth import (
     create_user,
     authenticate_user,
@@ -9,12 +9,28 @@ from void_engine.messenger_auth import (
     send_message,
     get_messages,
 )
+from routes.auth import _setup_session, login_required
 
 messenger_bp = Blueprint("messenger", __name__)
 
+_MESSENGER_PUBLIC_PATHS = {
+    "/api/messenger/register",
+    "/api/messenger/login",
+}
+
+
+@messenger_bp.before_request
+def _messenger_auth():
+    if request.path in _MESSENGER_PUBLIC_PATHS:
+        return None
+    if not session.get("user_id"):
+        if request.is_json or request.path.startswith("/api/"):
+            return jsonify({"error": "Authentication required"}), 401
+        return redirect("/login")
+
 
 def _require_login():
-    user_id = session.get("messenger_user_id")
+    user_id = session.get("messenger_user_id") or session.get("user_id")
     if not user_id:
         return None
     return user_id
@@ -48,7 +64,7 @@ def messenger_register():
     if not user:
         return jsonify({"error": "Username already taken"}), 409
 
-    session["messenger_user_id"] = user["id"]
+    _setup_session(user)
     return jsonify({"user": user}), 201
 
 
@@ -65,13 +81,13 @@ def messenger_login():
     if not user:
         return jsonify({"error": "Invalid username or password"}), 401
 
-    session["messenger_user_id"] = user["id"]
+    _setup_session(user)
     return jsonify({"user": user})
 
 
 @messenger_bp.route("/api/messenger/logout", methods=["POST"])
 def messenger_logout():
-    session.pop("messenger_user_id", None)
+    session.clear()
     return jsonify({"ok": True})
 
 
