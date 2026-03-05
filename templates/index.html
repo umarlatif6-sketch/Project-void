@@ -44,6 +44,7 @@
             <button class="tab" data-tab="transceiver">Transceiver</button>
             <button class="tab" data-tab="blueprint">Blueprint</button>
             <button class="tab" data-tab="journalism">Journalism</button>
+            <button class="tab" data-tab="proof">Live Proof</button>
             <button class="tab" data-tab="files">Files</button>
             <button class="tab" data-tab="harness">Harness</button>
         </div>
@@ -788,6 +789,76 @@
                 <div class="child-explain-title">&#127758; For a child to understand</div>
                 <div class="child-explain-text">"When our scientist friends write stories that have secret treasure maps hidden inside, our magic music box takes those maps and hides them inside the sound of crickets and birds singing. If anyone tries to listen, they just hear a beautiful night in the forest. But if you know the special 286-number code, the music box opens up and shows you the treasure map! The big bosses can never find it because they only know how to count to 256."</div>
             </div>
+        </div>
+
+        <div id="proof" class="panel">
+            <h2>Live Proof — End-to-End Steganography Demonstration</h2>
+            <p class="desc">Run a complete proof cycle: generate a biophony carrier, embed a document invisibly, verify integrity, and download the result. This demonstrates the full PROJECT VOID pipeline in one click.</p>
+
+            <div class="proof-workflow-box">
+                <div class="proof-steps">
+                    <div class="proof-step" id="proof-step-1">
+                        <span class="proof-step-num">1</span>
+                        <span class="proof-step-label">Generate 1-min Midnight Pond carrier</span>
+                    </div>
+                    <div class="proof-step" id="proof-step-2">
+                        <span class="proof-step-num">2</span>
+                        <span class="proof-step-label">Create sample payload (~5 KB document)</span>
+                    </div>
+                    <div class="proof-step" id="proof-step-3">
+                        <span class="proof-step-num">3</span>
+                        <span class="proof-step-label">Encode with Vortex scatter at LSB-2</span>
+                    </div>
+                    <div class="proof-step" id="proof-step-4">
+                        <span class="proof-step-num">4</span>
+                        <span class="proof-step-label">Analyze remaining capacity</span>
+                    </div>
+                    <div class="proof-step" id="proof-step-5">
+                        <span class="proof-step-num">5</span>
+                        <span class="proof-step-label">Decode &amp; verify integrity</span>
+                    </div>
+                </div>
+                <button id="proof-run-btn" class="btn-primary" style="margin-top:16px; font-size:15px; padding:12px 32px;">Run Live Proof</button>
+                <div id="proof-progress" class="proof-progress" style="display:none;">
+                    <div class="proof-progress-bar">
+                        <div class="proof-progress-fill" id="proof-progress-fill"></div>
+                    </div>
+                    <span id="proof-progress-text" class="proof-progress-text">Generating proof...</span>
+                </div>
+            </div>
+
+            <div id="proof-result" class="result-box" style="display:none;">
+                <h3>Proof Complete</h3>
+                <div class="result-grid">
+                    <div class="result-item"><span class="label">Proof ID</span><span id="proof-res-id" class="value"></span></div>
+                    <div class="result-item"><span class="label">Carrier Size</span><span id="proof-res-carrier-size" class="value"></span></div>
+                    <div class="result-item"><span class="label">Payload Size</span><span id="proof-res-payload-size" class="value"></span></div>
+                    <div class="result-item"><span class="label">Compressed Size</span><span id="proof-res-compressed" class="value"></span></div>
+                    <div class="result-item"><span class="label">Compression Ratio</span><span id="proof-res-ratio" class="value"></span></div>
+                    <div class="result-item"><span class="label">Scatter Mode</span><span id="proof-res-scatter" class="value"></span></div>
+                    <div class="result-item"><span class="label">LSB Depth</span><span id="proof-res-lsb" class="value"></span></div>
+                    <div class="result-item"><span class="label">Capacity Used</span><span id="proof-res-capacity-used" class="value"></span></div>
+                    <div class="result-item"><span class="label">Capacity Remaining</span><span id="proof-res-capacity-remain" class="value"></span></div>
+                    <div class="result-item"><span class="label">Integrity Check</span><span id="proof-res-integrity" class="value"></span></div>
+                </div>
+                <div class="hash-key-box">
+                    <span class="label">HASH KEY</span>
+                    <div class="hash-key-display">
+                        <code id="proof-res-hash"></code>
+                        <button id="copy-proof-hash-btn" class="btn-copy" title="Copy">&#9113;</button>
+                    </div>
+                </div>
+                <div class="proof-capacity-bar" style="margin-top:16px;">
+                    <div class="proof-capacity-label">Capacity Usage</div>
+                    <div class="cap-bar-wrap">
+                        <div class="cap-bar cap-bar-safe" id="proof-capacity-bar-fill" style="width:0%;"></div>
+                    </div>
+                    <span id="proof-capacity-bar-text" class="cap-value"></span>
+                </div>
+                <button id="download-proof-btn" class="btn-secondary" style="margin-top:12px;">Download Encoded WAV</button>
+            </div>
+
+            <div id="proof-error" class="inline-error" style="display:none;"></div>
         </div>
 
         <div id="files" class="panel">

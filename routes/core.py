@@ -2,11 +2,12 @@ import os
 import uuid
 import wave
 import time as _time
+import hashlib
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 
-from void_engine.compressor import compress_file, decompress_data
+from void_engine.compressor import compress_file, compress_bytes, decompress_data
 from void_engine.stega import (encode, decode, encode_burst, check_resonance_purity,
                                 encode_stereo, decode_stereo, find_harmonic_pockets)
 from void_engine.calculator import analyze_carrier, append_to_log
@@ -15,6 +16,8 @@ from generate_carriers import generate_custom_carrier, estimate_carrier_capacity
 import routes.shared as shared
 
 core_bp = Blueprint("core", __name__)
+
+_proof_status = {"running": False, "result": None, "error": None, "started": None}
 
 
 @core_bp.route("/")
@@ -528,3 +531,152 @@ def api_carrier_estimate():
         return jsonify({"success": True, **result})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@core_bp.route("/api/demo/proof", methods=["POST"])
+def demo_proof():
+    global _proof_status
+
+    if _proof_status["running"]:
+        return jsonify({"error": "A proof is already in progress"}), 409
+
+    _proof_status = {"running": True, "result": None, "error": None, "started": _time.time()}
+
+    try:
+        proof_id = uuid.uuid4().hex[:8]
+
+        sample_payload_text = (
+            "PROJECT VOID — Sovereign Node Technical Summary\n"
+            "================================================\n\n"
+            "The 4000-Series Sovereign Node is a modular steganography engine\n"
+            "built on the 432 Hz Village Standard. It encodes data invisibly\n"
+            "into biophony carriers — natural soundscapes of insects, birds,\n"
+            "and aquatic life — using LSB embedding with Vortex scatter.\n\n"
+            "Key Specifications:\n"
+            "- Carrier Types: Midnight Pond, Cicada Wall, Cricket Pulse\n"
+            "- Max Capacity: 1.8 GB per 5-hour carrier at LSB-2\n"
+            "- Scatter Modes: Linear, Jitter, Vortex (432 Hz spiral), Chirp Sync\n"
+            "- Compression: Adaptive ZLIB/LZMA with streaming support\n"
+            "- Encryption: ChaCha20 with Al-Jabr 286 key derivation\n"
+            "- Integrity: MD5 checksum + Ghost Offset authentication\n\n"
+            "Applications:\n"
+            "- Journalist source protection (SILT drops)\n"
+            "- Sovereign data transfer without metadata exposure\n"
+            "- Environmental monitoring with embedded telemetry\n"
+            "- Decentralized mesh communication via Beehive Protocol\n\n"
+            "This proof demonstrates a complete encode-decode cycle:\n"
+            f"Proof ID: {proof_id}\n"
+            f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            "Carrier: midnight_pond (1 minute biophony)\n"
+            "Encoding: Vortex scatter at LSB-2\n\n"
+            "The data you are reading was embedded invisibly inside a\n"
+            "natural soundscape and extracted with zero loss. The audio\n"
+            "file sounds like a pond at midnight. The data is undetectable\n"
+            "without the hash key.\n\n"
+            "— PROJECT VOID / 432 Hz Village Standard\n"
+        )
+        payload_bytes = sample_payload_text.encode("utf-8")
+        payload_size = len(payload_bytes)
+
+        payload_path = os.path.join(shared.INPUT_DIR, f"_proof_payload_{proof_id}.txt")
+        with open(payload_path, "wb") as f:
+            f.write(payload_bytes)
+
+        try:
+            carrier_result = generate_custom_carrier(1, "midnight_pond")
+            carrier_path = carrier_result["path"]
+            carrier_size = carrier_result["file_size"]
+
+            compressed, name, ext, orig_size = compress_file(payload_path, low_power=shared.low_power_mode)
+            compressed_size = len(compressed)
+            compression_ratio = round((1 - compressed_size / orig_size) * 100, 1) if orig_size > 0 else 0
+
+            output_name = f"proof_{proof_id}_void.wav"
+            output_path = os.path.join(shared.OUTPUT_DIR, output_name)
+
+            with wave.open(carrier_path, "rb") as wf:
+                n_channels = wf.getnchannels()
+
+            if n_channels == 2:
+                hash_key = encode_stereo(carrier_path, compressed, name, ext, output_path, 2, jitter=False, vortex=True, chirp_sync=False)
+            else:
+                hash_key = encode(carrier_path, compressed, name, ext, output_path, 2, jitter=False, vortex=True, chirp_sync=False)
+
+            encoded_size = os.path.getsize(output_path)
+
+            capacity_info = analyze_carrier(output_path)
+
+            total_capacity_lsb2 = capacity_info.get("capacity_2bit", 0)
+            capacity_used_pct = round((compressed_size / total_capacity_lsb2) * 100, 2) if total_capacity_lsb2 > 0 else 0
+            capacity_remaining = max(0, total_capacity_lsb2 - compressed_size)
+
+            with wave.open(output_path, "rb") as wf:
+                verify_channels = wf.getnchannels()
+
+            if verify_channels == 2:
+                dec_compressed, dec_name_ext, dec_checksum = decode_stereo(output_path, hash_key, 2)
+            else:
+                dec_compressed, dec_name_ext, dec_checksum = decode(output_path, hash_key, 2)
+
+            dec_data = decompress_data(dec_compressed)
+
+            original_md5 = hashlib.md5(compressed).hexdigest()
+            integrity_pass = (dec_checksum == original_md5) and (dec_data == payload_bytes)
+
+            if os.path.exists(carrier_path):
+                os.remove(carrier_path)
+            if os.path.exists(payload_path):
+                os.remove(payload_path)
+
+            shared._log_operation("DEMO_PROOF", output_name, hash_key, f"proof_id={proof_id}")
+
+            result = {
+                "success": True,
+                "proof_id": proof_id,
+                "carrier_size": carrier_size,
+                "carrier_style": "midnight_pond",
+                "carrier_duration": "1 minute",
+                "payload_size": payload_size,
+                "compressed_size": compressed_size,
+                "compression_ratio": compression_ratio,
+                "encoded_file_size": encoded_size,
+                "hash_key": hash_key,
+                "scatter_mode": "vortex",
+                "lsb_depth": 2,
+                "capacity_total": total_capacity_lsb2,
+                "capacity_used": compressed_size,
+                "capacity_used_pct": capacity_used_pct,
+                "capacity_remaining": capacity_remaining,
+                "integrity_check": "PASS" if integrity_pass else "FAIL",
+                "integrity_md5": original_md5,
+                "decoded_size": len(dec_data),
+                "download_url": f"/api/download/output_audio/{output_name}",
+                "output_file": output_name,
+            }
+
+            _proof_status = {"running": False, "result": result, "error": None, "started": None}
+            return jsonify(result)
+
+        except Exception as e:
+            if os.path.exists(payload_path):
+                os.remove(payload_path)
+            raise e
+
+    except Exception as e:
+        _proof_status = {"running": False, "result": None, "error": str(e), "started": None}
+        return jsonify({"error": f"Proof generation failed: {str(e)}"}), 500
+
+
+@core_bp.route("/api/demo/proof/status")
+def demo_proof_status():
+    elapsed = None
+    if _proof_status["started"]:
+        elapsed = round(_time.time() - _proof_status["started"], 1)
+
+    return jsonify({
+        "running": _proof_status["running"],
+        "has_result": _proof_status["result"] is not None,
+        "has_error": _proof_status["error"] is not None,
+        "error": _proof_status["error"],
+        "elapsed_seconds": elapsed,
+    })

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — PROJECT VOID</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .admin-page { background: var(--bg); min-height: 100vh; }
+        .admin-main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        .admin-title { font-size: 24px; letter-spacing: 3px; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }
+        .admin-sub { color: var(--text-dim); margin-bottom: 32px; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .admin-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+        .admin-stat-value { display: block; font-size: 28px; color: var(--accent); font-weight: bold; }
+        .admin-stat-label { display: block; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; }
+        .admin-section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 24px; }
+        .admin-section-title { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); margin-bottom: 16px; }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .admin-table th { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .admin-table td { padding: 8px 12px; border-bottom: 1px solid rgba(42,42,58,0.5); color: var(--text); }
+        .admin-table tr:hover td { background: var(--surface2); }
+        .admin-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .admin-tag-sovereign { background: rgba(124,92,255,0.2); color: var(--accent); }
+        .admin-tag-grant { background: rgba(74,222,128,0.2); color: var(--success); }
+        .admin-tag-demo { background: rgba(251,191,36,0.2); color: var(--warning); }
+        .admin-tag-general { background: rgba(136,136,152,0.2); color: var(--text-dim); }
+        .admin-source-bar { display: flex; height: 24px; border-radius: 6px; overflow: hidden; margin-top: 8px; margin-bottom: 16px; }
+        .admin-source-seg { display: flex; align-items: center; justify-content: center; font-size: 10px; letter-spacing: 0.5px; color: #fff; min-width: 40px; }
+        .admin-source-seg-sovereign { background: var(--accent); }
+        .admin-source-seg-grants { background: var(--success); }
+        .admin-source-seg-demo { background: var(--warning); }
+        .admin-source-seg-other { background: var(--text-dim); }
+        .admin-source-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-dim); }
+        .admin-source-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+        .admin-config { font-size: 11px; color: var(--text-dim); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .admin-pitch-preview { margin-top: 16px; }
+        .admin-pitch-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+        .admin-pitch-card h5 { color: var(--accent); margin-bottom: 8px; font-size: 13px; }
+        .admin-pitch-card p { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+        .admin-empty { text-align: center; color: var(--text-dim); padding: 32px; }
+        .admin-nav { display: flex; gap: 16px; margin-bottom: 24px; }
+        .admin-nav a { color: var(--accent); text-decoration: none; font-size: 13px; }
+        .admin-nav a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body class="admin-page">
+    <main class="admin-main">
+        <div class="admin-nav">
+            <a href="/launch">Home</a>
+            <a href="/sovereign">Hardware</a>
+            <a href="/grants">Grants</a>
+            <a href="/">Engine</a>
+        </div>
+
+        <h1 class="admin-title">Leads Dashboard</h1>
+        <p class="admin-sub">8-Day Revenue Sprint Command Center</p>
+
+        <div class="admin-grid" id="admin-stats"></div>
+
+        <div class="admin-section">
+            <h3 class="admin-section-title">Source Breakdown</h3>
+            <div class="admin-source-bar" id="admin-source-bar"></div>
+            <div class="admin-source-legend" id="admin-source-legend"></div>
+        </div>
+
+        <div class="admin-section">
+            <h3 class="admin-section-title">Recent Inquiries</h3>
+            <div id="admin-inquiries-body"></div>
+        </div>
+
+        <div class="admin-section">
+            <h3 class="admin-section-title">Pitch Previews</h3>
+            <div class="admin-pitch-preview" id="admin-pitch-preview"></div>
+        </div>
+    </main>
+
+    <script>
+    (function() {
+        var params = new URLSearchParams(window.location.search);
+        var token = params.get('token') || '';
+
+        fetch('/api/inquiries', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                document.getElementById('admin-inquiries-body').innerHTML = '<p class="admin-empty">' + data.error + '</p>';
+                return;
+            }
+
+            var inquiries = data.inquiries || [];
+            var byType = { sovereign: 0, grant: 0, demo: 0, general: 0 };
+            var bySource = {};
+            inquiries.forEach(function(inq) {
+                byType[inq.type] = (byType[inq.type] || 0) + 1;
+                var src = inq.source_page || 'unknown';
+                bySource[src] = (bySource[src] || 0) + 1;
+            });
+
+            var statsHtml = '';
+            statsHtml += '<div class="admin-stat"><span class="admin-stat-value">' + inquiries.length + '</span><span class="admin-stat-label">Total Inquiries</span></div>';
+            statsHtml += '<div class="admin-stat"><span class="admin-stat-value">' + (byType.sovereign || 0) + '</span><span class="admin-stat-label">Sovereign</span></div>';
+            statsHtml += '<div class="admin-stat"><span class="admin-stat-value">' + (byType.grant || 0) + '</span><span class="admin-stat-label">Grant</span></div>';
+            statsHtml += '<div class="admin-stat"><span class="admin-stat-value">' + (byType.demo || 0) + '</span><span class="admin-stat-label">Demo</span></div>';
+            statsHtml += '<div class="admin-stat"><span class="admin-stat-value">' + (byType.general || 0) + '</span><span class="admin-stat-label">General</span></div>';
+            document.getElementById('admin-stats').innerHTML = statsHtml;
+
+            var total = inquiries.length || 1;
+            var sourceColors = { sovereign: 'admin-source-seg-sovereign', grants: 'admin-source-seg-grants', demo: 'admin-source-seg-demo' };
+            var barHtml = '';
+            var legendHtml = '';
+            var dotColors = { sovereign: 'var(--accent)', grants: 'var(--success)', demo: 'var(--warning)' };
+            Object.keys(bySource).forEach(function(src) {
+                var pct = Math.max(5, (bySource[src] / total) * 100);
+                var cls = sourceColors[src] || 'admin-source-seg-other';
+                barHtml += '<div class="admin-source-seg ' + cls + '" style="width:' + pct + '%">' + src + ' ' + bySource[src] + '</div>';
+                var dc = dotColors[src] || 'var(--text-dim)';
+                legendHtml += '<span><span class="admin-source-dot" style="background:' + dc + '"></span>' + src + ': ' + bySource[src] + '</span>';
+            });
+            document.getElementById('admin-source-bar').innerHTML = barHtml || '<div class="admin-source-seg admin-source-seg-other" style="width:100%">No data</div>';
+            document.getElementById('admin-source-legend').innerHTML = legendHtml;
+
+            var recent = inquiries.slice(-20).reverse();
+            if (recent.length === 0) {
+                document.getElementById('admin-inquiries-body').innerHTML = '<p class="admin-empty">No inquiries yet.</p>';
+            } else {
+                var tableHtml = '<table class="admin-table"><thead><tr><th>Time</th><th>Name</th><th>Email</th><th>Type</th><th>Source</th><th>Config</th></tr></thead><tbody>';
+                recent.forEach(function(inq) {
+                    var tagClass = 'admin-tag-' + (inq.type || 'general');
+                    var ts = inq.timestamp ? new Date(inq.timestamp).toLocaleString() : '--';
+                    tableHtml += '<tr>';
+                    tableHtml += '<td>' + ts + '</td>';
+                    tableHtml += '<td>' + (inq.name || '--') + '</td>';
+                    tableHtml += '<td>' + (inq.email || '--') + '</td>';
+                    tableHtml += '<td><span class="admin-tag ' + tagClass + '">' + (inq.type || 'general') + '</span></td>';
+                    tableHtml += '<td>' + (inq.source_page || '--') + '</td>';
+                    tableHtml += '<td><span class="admin-config" title="' + (inq.configuration || '').replace(/"/g, '&quot;') + '">' + (inq.configuration || '--') + '</span></td>';
+                    tableHtml += '</tr>';
+                });
+                tableHtml += '</tbody></table>';
+                document.getElementById('admin-inquiries-body').innerHTML = tableHtml;
+            }
+        })
+        .catch(function() {
+            document.getElementById('admin-inquiries-body').innerHTML = '<p class="admin-empty">Failed to load inquiries.</p>';
+        });
+
+        var targets = ['otf', 'fpf', 'mozilla', 'general'];
+        var pitchContainer = document.getElementById('admin-pitch-preview');
+        var loaded = 0;
+        targets.forEach(function(t) {
+            fetch('/api/pitch/generate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({target: t})
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var card = document.createElement('div');
+                card.className = 'admin-pitch-card';
+                card.innerHTML = '<h5>' + data.alignment.funder + '</h5><p>' + data.alignment.headline + '</p><p>' + data.alignment.impact_statement + '</p>';
+                pitchContainer.appendChild(card);
+            })
+            .catch(function() {})
+            .finally(function() {
+                loaded++;
+                if (loaded === targets.length && pitchContainer.children.length === 0) {
+                    pitchContainer.innerHTML = '<p class="admin-empty">Failed to load pitch previews.</p>';
+                }
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -4003,4 +4003,145 @@ document.addEventListener("DOMContentLoaded", () => {
                 .catch(function() { showToast("Decode failed", "error"); });
         });
     }
+
+    var proofRunBtn = document.getElementById("proof-run-btn");
+    var proofLastFile = null;
+
+    function setProofStepState(stepNum, state) {
+        var el = document.getElementById("proof-step-" + stepNum);
+        if (!el) return;
+        el.className = "proof-step" + (state ? " proof-step-" + state : "");
+    }
+
+    function resetProofSteps() {
+        for (var i = 1; i <= 5; i++) setProofStepState(i, "");
+    }
+
+    function animateProofSteps(stepIndex) {
+        if (stepIndex > 5) return;
+        for (var i = 1; i <= 5; i++) {
+            if (i < stepIndex) setProofStepState(i, "done");
+            else if (i === stepIndex) setProofStepState(i, "active");
+            else setProofStepState(i, "");
+        }
+    }
+
+    if (proofRunBtn) {
+        proofRunBtn.addEventListener("click", async function() {
+            var btn = proofRunBtn;
+            var progressEl = document.getElementById("proof-progress");
+            var progressFill = document.getElementById("proof-progress-fill");
+            var progressText = document.getElementById("proof-progress-text");
+            var resultEl = document.getElementById("proof-result");
+            var errorEl = document.getElementById("proof-error");
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Running Proof...';
+            resultEl.style.display = "none";
+            errorEl.style.display = "none";
+            progressEl.style.display = "block";
+            progressFill.style.width = "0%";
+            progressText.textContent = "Initializing proof workflow...";
+            resetProofSteps();
+
+            var stepTimers = [
+                { step: 1, pct: 10, text: "Generating Midnight Pond carrier...", delay: 500 },
+                { step: 2, pct: 25, text: "Creating sample payload...", delay: 2000 },
+                { step: 3, pct: 50, text: "Encoding with Vortex scatter at LSB-2...", delay: 4000 },
+                { step: 4, pct: 70, text: "Analyzing capacity...", delay: 6000 },
+                { step: 5, pct: 85, text: "Decoding and verifying integrity...", delay: 8000 }
+            ];
+
+            var stepIntervals = [];
+            stepTimers.forEach(function(s) {
+                var tid = setTimeout(function() {
+                    animateProofSteps(s.step);
+                    progressFill.style.width = s.pct + "%";
+                    progressText.textContent = s.text;
+                }, s.delay);
+                stepIntervals.push(tid);
+            });
+
+            try {
+                var res = await fetch("/api/demo/proof", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({})
+                });
+                var data = await res.json();
+
+                stepIntervals.forEach(function(tid) { clearTimeout(tid); });
+
+                if (data.success) {
+                    for (var i = 1; i <= 5; i++) setProofStepState(i, "done");
+                    progressFill.style.width = "100%";
+                    progressText.textContent = "Proof complete!";
+
+                    document.getElementById("proof-res-id").textContent = data.proof_id;
+                    document.getElementById("proof-res-carrier-size").textContent = formatSize(data.carrier_size);
+                    document.getElementById("proof-res-payload-size").textContent = formatSize(data.payload_size);
+                    document.getElementById("proof-res-compressed").textContent = formatSize(data.compressed_size);
+                    document.getElementById("proof-res-ratio").textContent = data.compression_ratio + "%";
+                    document.getElementById("proof-res-scatter").textContent = "Vortex (432 Hz spiral)";
+                    document.getElementById("proof-res-lsb").textContent = "LSB-" + data.lsb_depth;
+                    document.getElementById("proof-res-capacity-used").textContent = formatSize(data.capacity_used) + " (" + data.capacity_used_pct + "%)";
+                    document.getElementById("proof-res-capacity-remain").textContent = formatSize(data.capacity_remaining);
+
+                    var integrityEl = document.getElementById("proof-res-integrity");
+                    integrityEl.textContent = data.integrity_check;
+                    integrityEl.className = data.integrity_check === "PASS" ? "value verified" : "value" ;
+
+                    document.getElementById("proof-res-hash").textContent = data.hash_key;
+
+                    var capBarFill = document.getElementById("proof-capacity-bar-fill");
+                    capBarFill.style.width = Math.min(data.capacity_used_pct, 100) + "%";
+                    document.getElementById("proof-capacity-bar-text").textContent = data.capacity_used_pct + "% used";
+
+                    proofLastFile = data.output_file;
+                    resultEl.style.display = "block";
+                    showToast("Live Proof complete — integrity " + data.integrity_check, "success");
+                } else {
+                    resetProofSteps();
+                    errorEl.innerHTML = '<div class="error-title">Error</div>' + (data.error || "Unknown error");
+                    errorEl.style.display = "block";
+                    showToast("Proof failed", "error");
+                }
+            } catch(e) {
+                stepIntervals.forEach(function(tid) { clearTimeout(tid); });
+                resetProofSteps();
+                errorEl.innerHTML = '<div class="error-title">Error</div>Request failed: ' + e.message;
+                errorEl.style.display = "block";
+                showToast("Proof failed", "error");
+            }
+
+            setTimeout(function() { progressEl.style.display = "none"; }, 2000);
+            btn.disabled = false;
+            btn.textContent = "Run Live Proof";
+        });
+    }
+
+    var copyProofHashBtn = document.getElementById("copy-proof-hash-btn");
+    if (copyProofHashBtn) {
+        copyProofHashBtn.addEventListener("click", function() {
+            var key = document.getElementById("proof-res-hash").textContent;
+            navigator.clipboard.writeText(key).then(function() {
+                showToast("Hash Key copied!", "success");
+            }).catch(function() {
+                var ta = document.createElement("textarea");
+                ta.value = key;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand("copy");
+                document.body.removeChild(ta);
+                showToast("Hash Key copied!", "success");
+            });
+        });
+    }
+
+    var downloadProofBtn = document.getElementById("download-proof-btn");
+    if (downloadProofBtn) {
+        downloadProofBtn.addEventListener("click", function() {
+            if (proofLastFile) window.open("/api/download/output_audio/" + proofLastFile, "_blank");
+        });
+    }
 });

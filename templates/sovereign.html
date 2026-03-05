@@ -234,6 +234,33 @@
             </div>
         </section>
 
+        <section class="sov-section" id="calculator-section">
+            <h2 class="sov-section-title">Build Your Own — Pricing Calculator</h2>
+            <p class="sov-section-desc">Toggle off any component you'll source yourself. The Sovereign Edition price adjusts in real time.</p>
+
+            <div class="calc-container">
+                <div class="calc-components" id="calc-components"></div>
+
+                <div class="calc-summary">
+                    <div class="calc-price-bar-wrap">
+                        <div class="calc-price-bar" id="calc-price-bar"></div>
+                    </div>
+                    <div class="calc-price-labels">
+                        <span class="calc-price-min" id="calc-price-min-label"></span>
+                        <span class="calc-price-max">&pound;25,000</span>
+                    </div>
+                    <div class="calc-total">
+                        <span class="calc-total-label">Your Custom Price:</span>
+                        <span class="calc-total-value" id="calc-total-value">&pound;25,000</span>
+                    </div>
+                    <div class="calc-savings" id="calc-savings" style="display:none;">
+                        <span>You save: <strong id="calc-savings-value">&pound;0</strong> by self-sourcing</span>
+                    </div>
+                    <button class="sov-btn sov-btn-primary" id="calc-request-quote-btn">Request Custom Quote</button>
+                </div>
+            </div>
+        </section>
+
         <section class="sov-section" id="sovereign-inquiry-section">
             <h2 class="sov-section-title">Inquire About Sovereign Edition</h2>
             <p class="sov-section-desc">Interested in the 4000-Series Sovereign Node? Fill out the form below and we will be in touch.</p>
@@ -300,6 +327,109 @@
             });
         }
 
+        var SOVEREIGN_PRICE = 25000;
+        var calcComponents = [];
+        var calcState = {};
+
+        function renderCalcComponents(components) {
+            var container = document.getElementById('calc-components');
+            container.innerHTML = '';
+            components.forEach(function(comp, i) {
+                calcState[i] = true;
+                var row = document.createElement('div');
+                row.className = 'calc-component-row';
+                row.innerHTML =
+                    '<div class="calc-comp-info">' +
+                        '<div class="calc-comp-name">' + comp.name + '</div>' +
+                        '<div class="calc-comp-role">' + comp.role + '</div>' +
+                        '<div class="calc-comp-price">&pound;' + comp.min + ' &ndash; &pound;' + comp.max + '</div>' +
+                    '</div>' +
+                    '<div class="calc-comp-toggle">' +
+                        '<label class="calc-toggle-label">' +
+                            '<input type="checkbox" checked data-index="' + i + '" data-max="' + comp.max + '">' +
+                            '<span class="calc-toggle-slider"></span>' +
+                            '<span class="calc-toggle-text">Included</span>' +
+                        '</label>' +
+                    '</div>';
+                container.appendChild(row);
+            });
+
+            container.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+                cb.addEventListener('change', function() {
+                    var idx = parseInt(this.getAttribute('data-index'));
+                    calcState[idx] = this.checked;
+                    var text = this.parentElement.querySelector('.calc-toggle-text');
+                    text.textContent = this.checked ? 'Included' : 'Self-source';
+                    this.closest('.calc-component-row').classList.toggle('calc-comp-excluded', !this.checked);
+                    updateCalcTotal(components);
+                });
+            });
+            updateCalcTotal(components);
+        }
+
+        function updateCalcTotal(components) {
+            var savings = 0;
+            components.forEach(function(comp, i) {
+                if (!calcState[i]) {
+                    savings += comp.max;
+                }
+            });
+            var total = SOVEREIGN_PRICE - savings;
+            var minTotal = SOVEREIGN_PRICE - components.reduce(function(s, c) { return s + c.max; }, 0);
+
+            document.getElementById('calc-total-value').textContent = '\u00A3' + total.toLocaleString();
+            document.getElementById('calc-price-min-label').textContent = '\u00A3' + minTotal.toLocaleString();
+
+            var pct = ((total - minTotal) / (SOVEREIGN_PRICE - minTotal)) * 100;
+            document.getElementById('calc-price-bar').style.width = pct + '%';
+
+            var savingsEl = document.getElementById('calc-savings');
+            if (savings > 0) {
+                savingsEl.style.display = 'block';
+                document.getElementById('calc-savings-value').textContent = '\u00A3' + savings.toLocaleString();
+            } else {
+                savingsEl.style.display = 'none';
+            }
+        }
+
+        fetch('/api/blueprint/specs')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                calcComponents = data.components || [];
+                renderCalcComponents(calcComponents);
+            })
+            .catch(function() {
+                document.getElementById('calc-components').innerHTML = '<p style="color:#f87171;">Failed to load components.</p>';
+            });
+
+        var quoteBtn = document.getElementById('calc-request-quote-btn');
+        if (quoteBtn) {
+            quoteBtn.addEventListener('click', function() {
+                var included = [];
+                var selfSourced = [];
+                calcComponents.forEach(function(comp, i) {
+                    if (calcState[i]) {
+                        included.push(comp.name);
+                    } else {
+                        selfSourced.push(comp.name);
+                    }
+                });
+                var savings = 0;
+                calcComponents.forEach(function(comp, i) {
+                    if (!calcState[i]) savings += comp.max;
+                });
+                var total = SOVEREIGN_PRICE - savings;
+                var configMsg = 'CUSTOM CONFIGURATION REQUEST\n' +
+                    'Custom Price: \u00A3' + total.toLocaleString() + '\n\n';
+                if (selfSourced.length > 0) {
+                    configMsg += 'Self-sourcing (' + selfSourced.length + ' components):\n- ' + selfSourced.join('\n- ') + '\n\n';
+                }
+                configMsg += 'Included (' + included.length + ' components):\n- ' + included.join('\n- ');
+                document.getElementById('sov-message').value = configMsg;
+                document.getElementById('sovereign-inquiry-section').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+
         var form = document.getElementById('sovereign-inquiry-form');
         if (form) {
             form.addEventListener('submit', function(e) {
@@ -320,6 +450,15 @@
                 status.className = 'sov-inquiry-status';
                 status.style.display = 'block';
 
+                var configSummary = '';
+                var selfSourced = [];
+                calcComponents.forEach(function(comp, i) {
+                    if (!calcState[i]) selfSourced.push(comp.name);
+                });
+                if (selfSourced.length > 0) {
+                    configSummary = 'Self-sourcing: ' + selfSourced.join(', ');
+                }
+
                 fetch('/api/inquiry', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -327,7 +466,9 @@
                         name: name,
                         email: email,
                         type: 'sovereign',
-                        message: message
+                        message: message,
+                        source_page: 'sovereign',
+                        configuration: configSummary
                     })
                 })
                 .then(function(r) { return r.json(); })

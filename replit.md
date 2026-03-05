@@ -42,7 +42,11 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Silt Journalism Port:** A drag-and-drop interface for hiding files (up to 50MB) within auto-generated biophony carrier audio, utilizing Vortex scatter for camouflage.
 - **Financial Pathway Pages:** Includes a marketing **Landing Page**, a **Demo Mode**, a **Grant Application Package** page, and a **Sovereign Edition Product Page** for commercialization.
 - **Technical Brief PDF Generator:** Generates a professional 2-page PDF covering project details.
-- **Inquiry System:** A simple JSON-file-based system for storing inquiries.
+- **Inquiry System:** A JSON-file-based system storing inquiries with `source_page` and `configuration` tracking fields.
+- **Pitch Generator API:** `POST /api/pitch/generate` produces funder-aligned pitch documents (OTF, FPF, Mozilla, General) with live system stats, capacity demonstrations, and technical proof points. `GET /api/pitch/targets` lists available targets.
+- **Pricing Calculator:** Interactive "Build Your Own" calculator on `/sovereign` page — fetches 14 hardware components from `/api/blueprint/specs`, allows toggling self-source per component, live-updates price between £25,000 and self-source minimum (~£443-660), with "Request Custom Quote" pre-filling the inquiry form.
+- **Live Demo Proof:** `POST /api/demo/proof` generates a midnight_pond biophony carrier, embeds a sample payload via Vortex scatter at LSB-2, verifies integrity, and returns full metrics with download link. Available via "Live Proof" tab in demo mode.
+- **Admin Dashboard:** `/admin/leads` (SESSION_SECRET auth via query param `?token=`) shows inquiry analytics by type and source, recent inquiries table, source breakdown bar, and pitch previews for all funder targets.
 
 ## External Dependencies
 - **Python:** 3.11
