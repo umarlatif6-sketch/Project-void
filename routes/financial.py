@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify, send_file, current_app, render_template
 
 from void_engine.technical_brief import generate_technical_brief
+from void_engine.pitch_deck import generate_pitch_deck
 from generate_carriers import ALL_STYLES, estimate_carrier_capacity
 from void_engine.founder_certs import create_founder_cert_named, FOUNDER_ROOT_HASH
 
@@ -384,6 +385,26 @@ def list_inquiries():
                 with open(fp) as fh:
                     inquiries.append(_json.load(fh))
     return jsonify({"inquiries": inquiries, "total": len(inquiries)})
+
+
+@financial_bp.route("/api/pitch/deck")
+def pitch_deck():
+    target = request.args.get("target", "general").strip().lower()
+    valid_targets = ("otf", "fpf", "mozilla", "general")
+    if target not in valid_targets:
+        target = "general"
+
+    try:
+        filepath = generate_pitch_deck(target=target, output_dir=shared.OUTPUT_DIR)
+        filename = os.path.basename(filepath)
+        return send_file(
+            filepath,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=filename,
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @financial_bp.route("/api/genesis/specs")

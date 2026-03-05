@@ -180,6 +180,7 @@
                     <option value="general">General / Custom Funder</option>
                 </select>
                 <button id="pitch-generate-btn" class="grants-download-btn">Generate Pitch</button>
+                <a id="pitch-deck-download" href="/api/pitch/deck" class="grants-download-btn" style="display:none; text-decoration:none; margin-left:8px; background:#c9a84c; color:#0a0a0a;" download>Download Pitch Deck (PDF)</a>
             </div>
             <div id="pitch-result" class="grants-pitch-result" style="display:none;">
                 <div class="grants-pitch-header">
@@ -314,6 +315,12 @@
                     result.style.display = 'block';
                     pitchBtn.textContent = 'Generate Pitch';
                     pitchBtn.disabled = false;
+
+                    var deckLink = document.getElementById('pitch-deck-download');
+                    if (deckLink) {
+                        deckLink.href = '/api/pitch/deck?target=' + encodeURIComponent(target);
+                        deckLink.style.display = 'inline-block';
+                    }
                 })
                 .catch(function() {
                     pitchBtn.textContent = 'Generate Pitch';

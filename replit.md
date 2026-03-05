@@ -50,6 +50,7 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Admin Dashboard:** `/admin/leads` (SESSION_SECRET auth via query param `?token=`) shows inquiry analytics by type and source, recent inquiries table (with organisation, phone, interest, consent columns), source breakdown bar, and pitch previews for all funder targets.
 - **Genesis Kit Gallery:** `GET /api/genesis/specs` serves the full 4000-Series component manifest (7 modules: Brain, Artery, Skin, Al-Jabr Chip, Flywheel, Reservoir, Transceiver) with CAD dimensions, materials, and resonance data. Displayed as interactive cards on `/sovereign` page with assembly table and sequence.
 - **Founder Certificate Generator:** `POST /api/founder/certificate` accepts `{name, email}` and returns a PDF "Sanad" — gold-on-black certificate with Al-Jabr 286-bit seal, 5 articles of lineage, machine hash, root hash reference. Offered after successful sovereign inquiry submission.
+- **Investor Pitch Deck Generator:** `GET /api/pitch/deck?target=otf|fpf|mozilla|general` generates a 6-slide landscape PDF pitch deck with gold-on-black aesthetic. Slides: Cover, Problem, Solution (live stats), Hardware (Genesis Kit 7 modules), Business Model (pricing tiers + funders), Call to Action (alignment + seal). Download buttons on `/sovereign` (Sovereign Edition card) and `/grants` (appears after generating pitch, pre-selects funder target). Built in `void_engine/pitch_deck.py`.
 - **Founder Vibe Detection:** JS on `/sovereign` tracks page time (3+ minutes) and calculator interaction to trigger a Silt Gold / Mycelium Green UI shift via `data-founder-vibe` attribute, with floating glyph watermarks and "Founding Node Edition" badge.
 
 ## External Dependencies
@@ -57,7 +58,7 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **numpy:** Used for audio sample manipulation and FFT operations.
 - **flask:** Provides the web UI server.
 - **cryptography:** Utilized for ChaCha20 header encryption.
-- **fpdf2:** Employed for generating Founder Certificate PDFs.
+- **fpdf2:** Employed for generating Founder Certificate PDFs and Investor Pitch Deck PDFs.
 - **werkzeug:** Handles secure filename operations.
 - **Standard Library:** Includes `zlib`, `lzma`, `wave`, `hashlib` for core functionalities.
 
