@@ -222,6 +222,12 @@
         <section class="grants-contact" id="grants-contact">
             <h3 class="grants-section-title">Contact &amp; Inquiries</h3>
             <p>Interested in supporting PROJECT VOID? Have questions about our technology or grant alignment? Send us an inquiry.</p>
+            <div class="grants-trust-strip">
+                <span class="grants-trust-item">89/89 Tests Passing</span>
+                <span class="grants-trust-item">286-Bit Sovereign Hash</span>
+                <span class="grants-trust-item">1.8 GB Capacity</span>
+                <span class="grants-trust-item">8 Carrier Styles</span>
+            </div>
             <form id="grants-inquiry-form" class="grants-form">
                 <input type="hidden" name="type" value="grant">
                 <div class="grants-form-row">
@@ -234,10 +240,29 @@
                         <input type="email" name="email" required placeholder="your@email.org">
                     </div>
                 </div>
+                <div class="grants-form-row">
+                    <div class="grants-form-group">
+                        <label>Organisation <span class="grants-optional">(optional)</span></label>
+                        <input type="text" name="organisation" placeholder="Your organisation">
+                    </div>
+                    <div class="grants-form-group">
+                        <label>Interest</label>
+                        <select name="interest" class="grants-select">
+                            <option value="Grant Partnership">Grant Partnership</option>
+                            <option value="Research Collaboration">Research Collaboration</option>
+                            <option value="Technical Evaluation">Technical Evaluation</option>
+                            <option value="General">General Inquiry</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="grants-form-group">
                     <label>Message</label>
                     <textarea name="message" rows="4" required placeholder="Tell us about your interest in PROJECT VOID..."></textarea>
                 </div>
+                <label class="grants-consent-label">
+                    <input type="checkbox" name="consent" required>
+                    <span>I agree to be contacted about PROJECT VOID grant opportunities.</span>
+                </label>
                 <button type="submit" class="grants-submit-btn">Send Inquiry</button>
                 <div id="grants-form-status" class="grants-form-status"></div>
             </form>
@@ -320,11 +345,20 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             var status = document.getElementById('grants-form-status');
+            var consentCb = form.querySelector('[name="consent"]');
+            if (!consentCb.checked) {
+                status.textContent = 'Please agree to be contacted before submitting.';
+                status.className = 'grants-form-status grants-form-error';
+                return;
+            }
             var formData = {
                 name: form.querySelector('[name="name"]').value,
                 email: form.querySelector('[name="email"]').value,
                 type: 'grant',
                 message: form.querySelector('[name="message"]').value,
+                organisation: form.querySelector('[name="organisation"]').value || '',
+                interest: form.querySelector('[name="interest"]').value || '',
+                consent: true,
                 source_page: 'grants'
             };
             status.textContent = 'Sending...';

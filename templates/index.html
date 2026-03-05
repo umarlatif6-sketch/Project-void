@@ -1561,6 +1561,46 @@
         </div>
     </main>
 
+    {% if demo_mode %}
+    <div id="demo-inquiry-banner" class="demo-inquiry-banner">
+        <div class="demo-inquiry-inner">
+            <div class="demo-inquiry-header">
+                <span class="demo-inquiry-icon">&#9670;</span>
+                <span class="demo-inquiry-title">Interested in PROJECT VOID?</span>
+                <button id="demo-inquiry-close" class="demo-inquiry-close" title="Close">&times;</button>
+            </div>
+            <form id="demo-inquiry-form" class="demo-inquiry-form">
+                <input type="hidden" name="type" value="demo">
+                <input type="hidden" name="source_page" value="demo">
+                <div class="demo-inquiry-fields">
+                    <input type="text" id="demo-inq-name" name="name" placeholder="Name" required class="demo-inq-input">
+                    <input type="email" id="demo-inq-email" name="email" placeholder="Email" required class="demo-inq-input">
+                    <input type="text" id="demo-inq-org" name="organisation" placeholder="Organisation (optional)" class="demo-inq-input">
+                </div>
+                <div class="demo-inquiry-fields">
+                    <select id="demo-inq-interest" name="interest" class="demo-inq-input">
+                        <option value="Technical Demo">Technical Demo</option>
+                        <option value="Sovereign Node">Sovereign Node</option>
+                        <option value="Grant Partnership">Grant Partnership</option>
+                        <option value="General">General Inquiry</option>
+                    </select>
+                    <input type="text" id="demo-inq-message" name="message" placeholder="Message (optional)" class="demo-inq-input demo-inq-message">
+                </div>
+                <div class="demo-inquiry-consent">
+                    <label class="demo-consent-label">
+                        <input type="checkbox" id="demo-inq-consent" name="consent" required>
+                        <span>I agree to be contacted about PROJECT VOID</span>
+                    </label>
+                </div>
+                <button type="submit" class="demo-inquiry-submit">Send Inquiry</button>
+            </form>
+            <div id="demo-inquiry-success" class="demo-inquiry-success" style="display:none;">
+                <span class="demo-inquiry-check">&#10003;</span> Inquiry sent — we'll be in touch.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <div id="toast" class="toast"></div>
 
     <script src="/static/app.js"></script>

@@ -264,6 +264,12 @@
         <section class="sov-section" id="sovereign-inquiry-section">
             <h2 class="sov-section-title">Inquire About Sovereign Edition</h2>
             <p class="sov-section-desc">Interested in the 4000-Series Sovereign Node? Fill out the form below and we will be in touch.</p>
+            <div class="sov-trust-strip">
+                <span class="sov-trust-item">89/89 Tests Passing</span>
+                <span class="sov-trust-item">286-Bit Sovereign Hash</span>
+                <span class="sov-trust-item">1.8 GB Capacity</span>
+                <span class="sov-trust-item">Founding Node Edition</span>
+            </div>
             <form id="sovereign-inquiry-form" class="sov-inquiry-form">
                 <div class="sov-form-row">
                     <div class="sov-form-group">
@@ -275,11 +281,35 @@
                         <input type="email" id="sov-email" name="email" required placeholder="you@example.com">
                     </div>
                 </div>
+                <div class="sov-form-row">
+                    <div class="sov-form-group">
+                        <label for="sov-org">Organisation <span class="sov-optional">(optional)</span></label>
+                        <input type="text" id="sov-org" name="organisation" placeholder="Your company or organisation">
+                    </div>
+                    <div class="sov-form-group">
+                        <label for="sov-phone">Phone <span class="sov-optional">(optional)</span></label>
+                        <input type="tel" id="sov-phone" name="phone" placeholder="+44 ...">
+                    </div>
+                </div>
+                <div class="sov-form-group">
+                    <label for="sov-interest">Interest</label>
+                    <select id="sov-interest" name="interest" class="sov-select">
+                        <option value="Sovereign Node">Sovereign Node Purchase</option>
+                        <option value="Custom Build">Custom Build Consultation</option>
+                        <option value="Technical Demo">Technical Demo</option>
+                        <option value="Partnership">Partnership / Reseller</option>
+                        <option value="General">General Inquiry</option>
+                    </select>
+                </div>
                 <div class="sov-form-group">
                     <label for="sov-message">Message</label>
                     <textarea id="sov-message" name="message" rows="4" placeholder="Tell us about your use case, location, or any questions..."></textarea>
                 </div>
                 <input type="hidden" name="type" value="sovereign">
+                <label class="sov-consent-label">
+                    <input type="checkbox" id="sov-consent" name="consent" required>
+                    <span>I agree to be contacted about PROJECT VOID and the Sovereign Node.</span>
+                </label>
                 <button type="submit" class="sov-btn sov-btn-primary">Submit Inquiry</button>
                 <div id="sov-inquiry-status" class="sov-inquiry-status" style="display:none;"></div>
             </form>
@@ -438,9 +468,20 @@
                 var name = document.getElementById('sov-name').value.trim();
                 var email = document.getElementById('sov-email').value.trim();
                 var message = document.getElementById('sov-message').value.trim();
+                var org = document.getElementById('sov-org').value.trim();
+                var phone = document.getElementById('sov-phone').value.trim();
+                var interest = document.getElementById('sov-interest').value;
+                var consentCb = document.getElementById('sov-consent');
 
                 if (!name || !email) {
                     status.textContent = 'Please provide your name and email.';
+                    status.className = 'sov-inquiry-status sov-inquiry-error';
+                    status.style.display = 'block';
+                    return;
+                }
+
+                if (!consentCb.checked) {
+                    status.textContent = 'Please agree to be contacted before submitting.';
                     status.className = 'sov-inquiry-status sov-inquiry-error';
                     status.style.display = 'block';
                     return;
@@ -467,6 +508,10 @@
                         email: email,
                         type: 'sovereign',
                         message: message,
+                        organisation: org,
+                        phone: phone,
+                        interest: interest,
+                        consent: true,
                         source_page: 'sovereign',
                         configuration: configSummary
                     })

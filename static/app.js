@@ -4144,4 +4144,56 @@ document.addEventListener("DOMContentLoaded", () => {
             if (proofLastFile) window.open("/api/download/output_audio/" + proofLastFile, "_blank");
         });
     }
+
+    var demoInquiryForm = document.getElementById("demo-inquiry-form");
+    var demoInquiryClose = document.getElementById("demo-inquiry-close");
+    var demoInquiryBanner = document.getElementById("demo-inquiry-banner");
+
+    if (demoInquiryClose && demoInquiryBanner) {
+        demoInquiryClose.addEventListener("click", function() {
+            demoInquiryBanner.classList.add("hidden");
+        });
+    }
+
+    if (demoInquiryForm) {
+        demoInquiryForm.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            var submitBtn = demoInquiryForm.querySelector(".demo-inquiry-submit");
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending...";
+
+            var payload = {
+                name: document.getElementById("demo-inq-name").value.trim(),
+                email: document.getElementById("demo-inq-email").value.trim(),
+                message: document.getElementById("demo-inq-message").value.trim(),
+                organisation: document.getElementById("demo-inq-org").value.trim(),
+                interest: document.getElementById("demo-inq-interest").value,
+                type: "demo",
+                source_page: "demo",
+                consent: document.getElementById("demo-inq-consent").checked
+            };
+
+            try {
+                var res = await fetch("/api/inquiry", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                var data = await res.json();
+                if (data.success) {
+                    demoInquiryForm.style.display = "none";
+                    document.getElementById("demo-inquiry-success").style.display = "block";
+                    showToast("Inquiry submitted!", "success");
+                } else {
+                    showToast(data.error || "Submission failed", "error");
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Send Inquiry";
+                }
+            } catch (err) {
+                showToast("Submission failed: " + err.message, "error");
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Send Inquiry";
+            }
+        });
+    }
 });

@@ -161,14 +161,25 @@ def submit_inquiry():
     if inquiry_type not in ("demo", "grant", "sovereign", "general"):
         inquiry_type = "general"
 
+    consent = data.get("consent", False)
+    if not consent:
+        return jsonify({"error": "Consent is required to submit an inquiry"}), 400
+
     source_page = data.get("source_page", "").strip()
     configuration = data.get("configuration", "").strip()
+    organisation = data.get("organisation", "").strip()
+    phone = data.get("phone", "").strip()
+    interest = data.get("interest", "").strip()
 
     inquiry = {
         "name": name,
         "email": email,
         "type": inquiry_type,
         "message": message,
+        "organisation": organisation,
+        "phone": phone,
+        "interest": interest,
+        "consent": True,
         "source_page": source_page,
         "configuration": configuration,
         "timestamp": datetime.now().isoformat(),

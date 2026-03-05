@@ -126,16 +126,21 @@
             if (recent.length === 0) {
                 document.getElementById('admin-inquiries-body').innerHTML = '<p class="admin-empty">No inquiries yet.</p>';
             } else {
-                var tableHtml = '<table class="admin-table"><thead><tr><th>Time</th><th>Name</th><th>Email</th><th>Type</th><th>Source</th><th>Config</th></tr></thead><tbody>';
+                var tableHtml = '<table class="admin-table"><thead><tr><th>Time</th><th>Name</th><th>Email</th><th>Org</th><th>Phone</th><th>Type</th><th>Interest</th><th>Source</th><th>Consent</th><th>Config</th></tr></thead><tbody>';
                 recent.forEach(function(inq) {
                     var tagClass = 'admin-tag-' + (inq.type || 'general');
                     var ts = inq.timestamp ? new Date(inq.timestamp).toLocaleString() : '--';
+                    var consentIcon = inq.consent ? '<span style="color:var(--success)">Y</span>' : '<span style="color:var(--text-dim)">-</span>';
                     tableHtml += '<tr>';
                     tableHtml += '<td>' + ts + '</td>';
                     tableHtml += '<td>' + (inq.name || '--') + '</td>';
                     tableHtml += '<td>' + (inq.email || '--') + '</td>';
+                    tableHtml += '<td>' + (inq.organisation || '--') + '</td>';
+                    tableHtml += '<td>' + (inq.phone || '--') + '</td>';
                     tableHtml += '<td><span class="admin-tag ' + tagClass + '">' + (inq.type || 'general') + '</span></td>';
+                    tableHtml += '<td>' + (inq.interest || '--') + '</td>';
                     tableHtml += '<td>' + (inq.source_page || '--') + '</td>';
+                    tableHtml += '<td>' + consentIcon + '</td>';
                     tableHtml += '<td><span class="admin-config" title="' + (inq.configuration || '').replace(/"/g, '&quot;') + '">' + (inq.configuration || '--') + '</span></td>';
                     tableHtml += '</tr>';
                 });

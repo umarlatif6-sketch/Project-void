@@ -87,9 +87,77 @@
     <section class="landing-demo-section" id="demo-section">
         <h2 class="landing-section-title">Request a Demo</h2>
         <p class="landing-demo-desc">Experience the full Silt Journalism engine. See how files vanish into nature and reappear on demand.</p>
-        <div class="landing-demo-actions">
-            <a href="/demo" class="landing-btn-primary">Try Demo Mode</a>
+
+        <div class="landing-trust-strip">
+            <div class="landing-trust-item">
+                <span class="landing-trust-value" id="trust-tests">89/89</span>
+                <span class="landing-trust-label">Tests Passing</span>
+            </div>
+            <div class="landing-trust-item">
+                <span class="landing-trust-value">286-Bit</span>
+                <span class="landing-trust-label">Sovereign Hash</span>
+            </div>
+            <div class="landing-trust-item">
+                <span class="landing-trust-value">1.8 GB</span>
+                <span class="landing-trust-label">Carrier Capacity</span>
+            </div>
+            <div class="landing-trust-item">
+                <span class="landing-trust-value">8</span>
+                <span class="landing-trust-label">Carrier Styles</span>
+            </div>
         </div>
+
+        <form class="landing-inquiry-form" id="landing-inquiry-form">
+            <input type="hidden" name="source_page" value="landing">
+            <input type="hidden" name="type" id="landing-inquiry-type" value="general">
+
+            <div class="landing-form-row">
+                <div class="landing-form-group">
+                    <label for="landing-name">Name *</label>
+                    <input type="text" id="landing-name" name="name" required placeholder="Your full name">
+                </div>
+                <div class="landing-form-group">
+                    <label for="landing-email">Email *</label>
+                    <input type="email" id="landing-email" name="email" required placeholder="you@organisation.com">
+                </div>
+            </div>
+
+            <div class="landing-form-row">
+                <div class="landing-form-group">
+                    <label for="landing-organisation">Organisation</label>
+                    <input type="text" id="landing-organisation" name="organisation" placeholder="Optional">
+                </div>
+                <div class="landing-form-group">
+                    <label for="landing-interest">Interest</label>
+                    <select id="landing-interest" name="interest">
+                        <option value="General Inquiry">General Inquiry</option>
+                        <option value="Sovereign Node">Sovereign Node</option>
+                        <option value="Grant Partnership">Grant Partnership</option>
+                        <option value="Press Freedom Tool">Press Freedom Tool</option>
+                        <option value="Technical Demo">Technical Demo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="landing-form-group">
+                <label for="landing-message">Message</label>
+                <textarea id="landing-message" name="message" rows="3" placeholder="Tell us about your use case or what you'd like to see in the demo"></textarea>
+            </div>
+
+            <div class="landing-form-group landing-consent-group">
+                <label class="landing-consent-label">
+                    <input type="checkbox" id="landing-consent" name="consent" required>
+                    <span>I agree to be contacted about PROJECT VOID</span>
+                </label>
+            </div>
+
+            <div class="landing-form-actions">
+                <button type="submit" class="landing-btn-primary" id="landing-submit-btn">Submit Inquiry</button>
+                <a href="/demo" class="landing-btn-secondary">Try Demo Mode</a>
+            </div>
+
+            <div class="landing-form-feedback" id="landing-form-feedback"></div>
+        </form>
     </section>
 
     <footer class="landing-footer">
@@ -127,6 +195,83 @@
 
         fetchStats();
         setInterval(fetchStats, 15000);
+
+        var interestTypeMap = {
+            'General Inquiry': 'general',
+            'Sovereign Node': 'sovereign',
+            'Grant Partnership': 'grant',
+            'Press Freedom Tool': 'general',
+            'Technical Demo': 'demo'
+        };
+
+        var interestSelect = document.getElementById('landing-interest');
+        var typeField = document.getElementById('landing-inquiry-type');
+        if (interestSelect) {
+            interestSelect.addEventListener('change', function() {
+                typeField.value = interestTypeMap[this.value] || 'general';
+            });
+        }
+
+        var form = document.getElementById('landing-inquiry-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var feedback = document.getElementById('landing-form-feedback');
+                var btn = document.getElementById('landing-submit-btn');
+
+                var payload = {
+                    name: document.getElementById('landing-name').value.trim(),
+                    email: document.getElementById('landing-email').value.trim(),
+                    organisation: document.getElementById('landing-organisation').value.trim(),
+                    interest: document.getElementById('landing-interest').value,
+                    message: document.getElementById('landing-message').value.trim(),
+                    type: typeField.value,
+                    source_page: 'landing',
+                    consent: document.getElementById('landing-consent').checked
+                };
+
+                if (!payload.name || !payload.email) {
+                    feedback.textContent = 'Name and email are required.';
+                    feedback.className = 'landing-form-feedback error';
+                    return;
+                }
+                if (!payload.consent) {
+                    feedback.textContent = 'Please agree to be contacted.';
+                    feedback.className = 'landing-form-feedback error';
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = 'Submitting...';
+                feedback.textContent = '';
+                feedback.className = 'landing-form-feedback';
+
+                fetch('/api/inquiry', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                })
+                .then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
+                .then(function(res) {
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Inquiry';
+                    if (res.ok && res.data.success) {
+                        feedback.textContent = 'Inquiry submitted successfully. We will be in touch.';
+                        feedback.className = 'landing-form-feedback success';
+                        form.reset();
+                    } else {
+                        feedback.textContent = res.data.error || 'Submission failed. Please try again.';
+                        feedback.className = 'landing-form-feedback error';
+                    }
+                })
+                .catch(function() {
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Inquiry';
+                    feedback.textContent = 'Network error. Please try again.';
+                    feedback.className = 'landing-form-feedback error';
+                });
+            });
+        }
     })();
     </script>
 </body>
