@@ -24,7 +24,7 @@ import time
 import uuid
 import threading
 import numpy as np
-from scipy.fft import fft
+from numpy.fft import fft
 from void_engine.al_jabr_286 import fatiha_286_hexdigest, fatiha_286_hexdigest_from_str, fatiha_286_truncated, fatiha_286_seed
 
 

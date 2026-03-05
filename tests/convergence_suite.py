@@ -127,8 +127,19 @@ def test_sympathetic_resonance():
 
     coupled = mesh._apply_sympathetic_resonance(whales, insects_raw)
 
-    from scipy.signal import hilbert as hilbert_fn
-    whale_env = np.abs(hilbert_fn(whales))
+    def _hilbert(x):
+        N = len(x)
+        X = np.fft.fft(x)
+        h = np.zeros(N)
+        if N > 0:
+            h[0] = 1
+            if N % 2 == 0:
+                h[N // 2] = 1
+                h[1:N // 2] = 2
+            else:
+                h[1:(N + 1) // 2] = 2
+        return np.fft.ifft(X * h)
+    whale_env = np.abs(_hilbert(whales))
     whale_env_norm = whale_env / (np.max(whale_env) + 1e-10)
 
     n_segments = 20

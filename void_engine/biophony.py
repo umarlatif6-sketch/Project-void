@@ -1,7 +1,19 @@
 import numpy as np
 import wave
 import os
-from scipy.signal import hilbert
+
+def hilbert(x):
+    N = len(x)
+    X = np.fft.fft(x)
+    h = np.zeros(N)
+    if N > 0:
+        h[0] = 1
+        if N % 2 == 0:
+            h[N // 2] = 1
+            h[1:N // 2] = 2
+        else:
+            h[1:(N + 1) // 2] = 2
+    return np.fft.ifft(X * h)
 
 VILLAGE_STANDARD_HZ = 432
 SAMPLE_RATE = 44100

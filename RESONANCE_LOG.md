@@ -554,3 +554,60 @@ Observations:
 | 2026-03-04 02:45:11 | SILK_SIGNAL | heartbeat_432Hz.wav | ...b7bb | signal=HEARTBEAT |
 | 2026-03-04 05:49:12 | SILT_JOURNALISM | silt_91178ad6_test_silt.wav | ...0cba | style=biophony_mesh |
 | 2026-03-04 05:54:46 | SILT_JOURNALISM | silt_504c260a_test_j.wav | ...7467 | style=midnight_pond |
+### 2026-03-04 06:22:13 — ambient_drone_60s.wav
+
+| Metric | Value |
+|---|---|
+| Duration | 60.0s |
+| Channels | 1 |
+| Sample Rate | 44,100 Hz |
+| Total Samples | 2,646,000 |
+| LSB1 Max Capacity | 322.9 KB |
+| LSB1 Surface Tension | 113.0 KB |
+| LSB1 Bubble Burst | 101.7 KB |
+| LSB1 Est. Real Data | ~339.1 KB to ~565.1 KB |
+| LSB2 Max Capacity | 645.9 KB |
+| LSB2 Surface Tension | 161.5 KB |
+| LSB2 Bubble Burst | 145.3 KB |
+| LSB2 Est. Real Data | ~484.5 KB to ~807.4 KB |
+
+---
+
+### 2026-03-04 06:22:31 — carrier_cicada-wall_1min.wav
+
+| Metric | Value |
+|---|---|
+| Duration | 60.0s |
+| Channels | 1 |
+| Sample Rate | 44,100 Hz |
+| Total Samples | 2,646,000 |
+| LSB1 Max Capacity | 322.9 KB |
+| LSB1 Surface Tension | 80.7 KB |
+| LSB1 Bubble Burst | 72.7 KB |
+| LSB1 Est. Real Data | ~242.2 KB to ~403.7 KB |
+| LSB2 Max Capacity | 645.9 KB |
+| LSB2 Surface Tension | 96.9 KB |
+| LSB2 Bubble Burst | 87.2 KB |
+| LSB2 Est. Real Data | ~290.7 KB to ~484.5 KB |
+
+---
+
+### 2026-03-04 06:22:59 — stereo_pocket_60s.wav
+
+| Metric | Value |
+|---|---|
+| Duration | 60.0s |
+| Channels | 2 |
+| Sample Rate | 44,100 Hz |
+| Total Samples | 5,292,000 |
+| LSB1 Max Capacity | 645.9 KB |
+| LSB1 Surface Tension | 226.1 KB |
+| LSB1 Bubble Burst | 203.5 KB |
+| LSB1 Est. Real Data | ~678.2 KB to ~1.1 MB |
+| LSB2 Max Capacity | 1.3 MB |
+| LSB2 Surface Tension | 323.0 KB |
+| LSB2 Bubble Burst | 290.7 KB |
+| LSB2 Est. Real Data | ~968.9 KB to ~1.6 MB |
+
+---
+
