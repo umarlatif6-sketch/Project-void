@@ -4411,6 +4411,120 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ── Vigilance Board ──
+    var vigSubmitBtn = document.getElementById("vig-submit-btn");
+    if (vigSubmitBtn) {
+        vigSubmitBtn.addEventListener("click", async function() {
+            var title = document.getElementById("vig-title").value.trim();
+            var severity = document.getElementById("vig-severity").value;
+            var category = document.getElementById("vig-category").value;
+            var description = document.getElementById("vig-description").value.trim();
+            var steps = document.getElementById("vig-steps").value.trim();
+            var statusEl = document.getElementById("vig-submit-status");
+
+            if (!title || title.length < 5) { showToast("Title must be at least 5 characters", "error"); return; }
+            if (!description || description.length < 20) { showToast("Description must be at least 20 characters", "error"); return; }
+
+            vigSubmitBtn.disabled = true;
+            vigSubmitBtn.textContent = "Submitting...";
+            try {
+                var res = await fetch("/api/vigilance/report", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: title, severity: severity, category: category, description: description, steps_to_reproduce: steps })
+                });
+                var data = await res.json();
+                if (data.error) {
+                    showToast(data.error, "error");
+                } else {
+                    showToast("Report #" + data.id + " submitted — potential bounty: " + data.bounty_potential + " VTX", "success");
+                    document.getElementById("vig-title").value = "";
+                    document.getElementById("vig-description").value = "";
+                    document.getElementById("vig-steps").value = "";
+                    _activateResonance('vigilance', title, 'vigilance');
+                    _pulseResonance('vigilance', title);
+                    _deactivateResonance('vigilance', 2500);
+                    loadVigMyReports();
+                    loadVigStats();
+                }
+            } catch(e) { showToast("Error: " + e.message, "error"); }
+            vigSubmitBtn.disabled = false;
+            vigSubmitBtn.textContent = "Submit Report";
+        });
+    }
+
+    async function loadVigMyReports() {
+        var el = document.getElementById("vig-my-reports");
+        if (!el) return;
+        try {
+            var res = await fetch("/api/vigilance/my-reports");
+            var data = await res.json();
+            if (!data.reports || data.reports.length === 0) {
+                el.innerHTML = '<p class="text-dim">No reports submitted yet. Be the first vigilant.</p>';
+                return;
+            }
+            el.innerHTML = '<table class="vig-table"><thead><tr><th>#</th><th>Title</th><th>Severity</th><th>Status</th><th>Reward</th><th>Date</th></tr></thead><tbody>' +
+                data.reports.map(function(r) {
+                    var rewarded = r.status === 'rewarded';
+                    return '<tr>' +
+                        '<td>' + r.id + '</td>' +
+                        '<td class="vig-report-title">' + _escHtml(r.title) + '</td>' +
+                        '<td><span class="vig-sev vig-sev-' + r.severity + '">' + r.severity + '</span></td>' +
+                        '<td><span class="vig-status vig-status-' + r.status + '">' + r.status + '</span></td>' +
+                        '<td>' + (rewarded ? '<span class="vig-vtx-reward">' + r.vtx_reward + ' VTX</span>' : '—') + '</td>' +
+                        '<td class="text-dim">' + (r.created_at ? r.created_at.substring(0,10) : '') + '</td>' +
+                    '</tr>';
+                }).join("") + '</tbody></table>';
+        } catch(e) { el.innerHTML = '<p class="text-dim">Failed to load reports.</p>'; }
+    }
+
+    async function loadVigLeaderboard() {
+        var el = document.getElementById("vig-leaderboard");
+        if (!el) return;
+        try {
+            var res = await fetch("/api/vigilance/leaderboard");
+            var data = await res.json();
+            if (!data.leaderboard || data.leaderboard.length === 0) {
+                el.innerHTML = '<p class="text-dim">No bug hunters yet.</p>';
+                return;
+            }
+            el.innerHTML = data.leaderboard.map(function(e) {
+                var medal = e.rank <= 3 ? ['', '\u2B50', '\u26A1', '\u2B55'][e.rank] : '';
+                return '<div class="vig-lb-row">' +
+                    '<span class="vig-lb-rank">' + medal + ' #' + e.rank + '</span>' +
+                    '<span class="vig-lb-name">' + _escHtml(e.username) + '</span>' +
+                    '<span class="vig-lb-stats">' + e.rewarded_count + '/' + e.report_count + ' verified</span>' +
+                    '<span class="vig-lb-vtx">' + e.total_vtx.toFixed(1) + ' VTX</span>' +
+                '</div>';
+            }).join("");
+        } catch(e) { el.innerHTML = '<p class="text-dim">Failed to load leaderboard.</p>'; }
+    }
+
+    async function loadVigStats() {
+        var el = document.getElementById("vig-stats");
+        if (!el) return;
+        try {
+            var res = await fetch("/api/vigilance/stats");
+            var data = await res.json();
+            el.innerHTML =
+                '<div class="vig-stat"><span class="vig-stat-val">' + data.total_reports + '</span><span class="vig-stat-lbl">Reports</span></div>' +
+                '<div class="vig-stat"><span class="vig-stat-val">' + (data.by_status.rewarded || 0) + '</span><span class="vig-stat-lbl">Verified</span></div>' +
+                '<div class="vig-stat"><span class="vig-stat-val">' + (data.by_status.pending || 0) + '</span><span class="vig-stat-lbl">Pending</span></div>' +
+                '<div class="vig-stat"><span class="vig-stat-val">' + data.total_vtx_paid.toFixed(1) + '</span><span class="vig-stat-lbl">VTX Paid</span></div>';
+        } catch(e) { el.innerHTML = '<p class="text-dim">Failed to load stats.</p>'; }
+    }
+
+    function _escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    var vigTab = document.querySelector('[data-tab="vigilance"]');
+    if (vigTab) {
+        vigTab.addEventListener("click", function() {
+            loadVigMyReports();
+            loadVigLeaderboard();
+            loadVigStats();
+        });
+    }
+
     var userTier = document.body.getAttribute('data-tier') || 'ghost';
     var origFetch = window.fetch;
     window.fetch = function() {

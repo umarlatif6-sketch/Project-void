@@ -62,6 +62,7 @@
             <button class="tab" data-tab="proof">Live Proof</button>
             <button class="tab" data-tab="files">Files</button>
             <button class="tab" data-tab="harness">Harness</button>
+            <button class="tab" data-tab="vigilance">Vigilance</button>
         </div>
 
         <div id="encode" class="panel active">
@@ -1586,6 +1587,93 @@
                 <h3>Context Injection Preview</h3>
                 <button id="harness-context-btn" class="btn-secondary">Generate SilkLink Context</button>
                 <pre id="harness-context-output" class="harness-context-pre"></pre>
+            </div>
+        </div>
+
+        <div id="vigilance" class="panel">
+            <h2>Vigilance — Proof of Vigilance Bug Bounty</h2>
+            <p class="panel-desc">Report vulnerabilities and earn VTX. Every verified bug strengthens the system.</p>
+            <div id="vigilance-resonance-container" class="resonance-container"></div>
+            <div id="vigilance-resonance-badge" class="resonance-badge"></div>
+
+            <div class="vigilance-layout">
+                <div class="vigilance-col-main">
+                    <div class="vigilance-section">
+                        <h3 class="section-title">Report a Bug</h3>
+                        <div class="form-group">
+                            <label for="vig-title">Title</label>
+                            <input type="text" id="vig-title" placeholder="Brief, descriptive title" class="input">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group" style="flex:1">
+                                <label for="vig-severity">Severity</label>
+                                <select id="vig-severity" class="input">
+                                    <option value="critical">Critical — 50 VTX</option>
+                                    <option value="high">High — 25 VTX</option>
+                                    <option value="medium" selected>Medium — 10 VTX</option>
+                                    <option value="low">Low — 5 VTX</option>
+                                    <option value="cosmetic">Cosmetic — 1 VTX</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex:1">
+                                <label for="vig-category">Category</label>
+                                <select id="vig-category" class="input">
+                                    <option value="">Select category</option>
+                                    <option value="security">Security</option>
+                                    <option value="crash">Crash</option>
+                                    <option value="ui">UI</option>
+                                    <option value="logic">Logic</option>
+                                    <option value="performance">Performance</option>
+                                    <option value="cosmetic">Cosmetic</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="vig-description">Description</label>
+                            <textarea id="vig-description" rows="4" class="input" placeholder="Detailed description of the bug or vulnerability..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="vig-steps">Steps to Reproduce (optional)</label>
+                            <textarea id="vig-steps" rows="3" class="input" placeholder="1. Go to...\n2. Click on...\n3. Observe..."></textarea>
+                        </div>
+                        <button id="vig-submit-btn" class="btn-primary">Submit Report</button>
+                        <div id="vig-submit-status" class="status-msg"></div>
+                    </div>
+
+                    <div class="vigilance-section">
+                        <h3 class="section-title">My Reports</h3>
+                        <div id="vig-my-reports" class="vig-reports-list">
+                            <p class="text-dim">Loading your reports...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vigilance-col-side">
+                    <div class="vigilance-section vig-bounty-card">
+                        <h3 class="section-title">Bounty Rates</h3>
+                        <div class="vig-bounty-table">
+                            <div class="vig-bounty-row"><span class="vig-sev vig-sev-critical">Critical</span><span class="vig-vtx">50 VTX</span></div>
+                            <div class="vig-bounty-row"><span class="vig-sev vig-sev-high">High</span><span class="vig-vtx">25 VTX</span></div>
+                            <div class="vig-bounty-row"><span class="vig-sev vig-sev-medium">Medium</span><span class="vig-vtx">10 VTX</span></div>
+                            <div class="vig-bounty-row"><span class="vig-sev vig-sev-low">Low</span><span class="vig-vtx">5 VTX</span></div>
+                            <div class="vig-bounty-row"><span class="vig-sev vig-sev-cosmetic">Cosmetic</span><span class="vig-vtx">1 VTX</span></div>
+                        </div>
+                    </div>
+
+                    <div class="vigilance-section">
+                        <h3 class="section-title">Stats</h3>
+                        <div id="vig-stats" class="vig-stats-grid">
+                            <p class="text-dim">Loading...</p>
+                        </div>
+                    </div>
+
+                    <div class="vigilance-section">
+                        <h3 class="section-title">Leaderboard</h3>
+                        <div id="vig-leaderboard" class="vig-leaderboard">
+                            <p class="text-dim">Loading...</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>

@@ -13,6 +13,14 @@ VTX_PER_MB = Decimal("1.0")
 VTX_MIN_MINT = Decimal("0.001")
 VTX_PER_RELAY = Decimal("0.1")
 
+VIGILANCE_BOUNTY = {
+    "critical": Decimal("50"),
+    "high": Decimal("25"),
+    "medium": Decimal("10"),
+    "low": Decimal("5"),
+    "cosmetic": Decimal("1"),
+}
+
 
 def _get_last_block(cur):
     cur.execute("SELECT block_index, block_hash FROM vortex_ledger ORDER BY block_index DESC LIMIT 1")
@@ -205,6 +213,30 @@ def get_chain_stats():
             "chain_type": "Al-Jabr 286-bit Sovereign Hash",
             "consensus": "Proof of Resonance",
         }
+    finally:
+        conn.close()
+
+
+def mint_vigilance(user_id, amount_decimal, report_id):
+    amount = amount_decimal.quantize(Decimal("0.0001"))
+    if amount <= 0:
+        return None
+    payload_hash = fatiha_286_hexdigest_from_str(f"vigilance_report_{report_id}")
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        block = _create_block(cur, "mint_vigilance", None, user_id, amount, payload_hash)
+        cur.execute(
+            "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id = %s",
+            (amount, user_id),
+        )
+        conn.commit()
+        block["vtx_earned"] = float(amount)
+        return block
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         conn.close()
 

@@ -10,7 +10,7 @@ No specific user preferences were provided in the original `replit.md` file.
 PROJECT VOID is built around a Flask-based web UI and a command-line interface, with the `void_engine` acting as the core component for all functionalities.
 
 **UI/UX Decisions:**
-- **Web UI:** A dark-themed, mobile-responsive interface featuring 12 interactive tabs: Encode, Decode, Burst, Visualizer, Capacity, Silk Web, Mesh, Transceiver, Blueprint, Journalism, Files, and Harness.
+- **Web UI:** A dark-themed, mobile-responsive interface featuring 13 interactive tabs: Encode, Decode, Burst, Visualizer, Capacity, Silk Web, Mesh, Transceiver, Blueprint, Journalism, Files, Harness, and Vigilance.
 - **Visualizers:** Integrates Web Audio API-based spectrum and spectrograms, including a "Vocal Pocket Visualizer" for Adriana Pocket, focusing on 432 Hz frequencies.
 - **Acoustic Feedback:** Incorporates "Sapphire Bubble" and "Sapphire Glow" effects for visual confirmation.
 - **Founder Vibe Detection:** Triggers a UI color shift to "Silt Gold" and "Deep Mycelium Green" with "Founding Node Edition" badge and glyph watermarks under specific interaction conditions.
@@ -57,6 +57,7 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Dual-Layer Revenue Model:** Three software subscription tiers (Ghost Node, Journalist, Sovereign) and three hardware tiers (Pirate Build, Sovereign Edition, Village Cluster). Stripe integration for payments and feature gating.
 - **VORTEX Currency (VTX):** Users earn VTX via "Proof of Resonance" (data encoding) and "Proof of Bloom" (mesh relay). Features peer-to-peer transfers and a wallet engine/UI.
 - **Messenger Silt Drops:** Steganographic file attachments within Messenger, where files are compressed, embedded in biophony carrier audio via Vortex scatter, and sent as messages, earning VTX.
+- **Proof of Vigilance (Bug Bounty):** Users submit vulnerability/bug reports via the Vigilance tab. Admin reviews and verifies reports, triggering automatic VTX bounty minting (critical=50, high=25, medium=10, low=5, cosmetic=1 VTX). Features leaderboard, stats, and resonance integration. Backend: `void_engine/vigilance.py`, routes: `routes/vigilance.py`, admin review queue on `/admin/leads`.
 
 ## External Dependencies
 - **Python:** 3.11

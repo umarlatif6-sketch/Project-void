@@ -166,6 +166,7 @@
         .wallet-tx-icon.mint { background: rgba(45,212,191,0.15); color: var(--teal); }
         .wallet-tx-icon.transfer { background: rgba(201,168,76,0.15); color: var(--gold); }
         .wallet-tx-icon.relay { background: rgba(45,106,79,0.2); color: var(--green); }
+        .wallet-tx-icon.vigilance { background: rgba(239,68,68,0.15); color: #ef4444; }
         .wallet-tx-details { flex: 1; min-width: 0; }
         .wallet-tx-type { color: var(--white); font-weight: bold; }
         .wallet-tx-time { color: var(--dim); font-size: 9px; }
@@ -772,6 +773,7 @@
                     var label = tx.tx_type || 'unknown';
                     var isCredit = true;
                     if (label === 'mint_resonance') { label = 'Resonance Mint'; iconChar = '&#9670;'; }
+                    else if (label === 'mint_vigilance') { label = 'Bug Bounty'; iconClass = 'vigilance'; iconChar = '&#128027;'; }
                     else if (label === 'mint_relay') { label = 'Relay Reward'; iconClass = 'relay'; iconChar = '&#8962;'; }
                     else if (label === 'transfer') {
                         if (currentUser && tx.from_user_id === currentUser.id) {

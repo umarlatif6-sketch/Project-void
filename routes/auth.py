@@ -62,6 +62,24 @@ def _ensure_columns():
             )
         """)
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS vigilance_reports (
+                id SERIAL PRIMARY KEY,
+                reporter_id INTEGER REFERENCES users(id) NOT NULL,
+                title VARCHAR(200) NOT NULL,
+                description TEXT NOT NULL,
+                severity VARCHAR(20) NOT NULL,
+                category VARCHAR(40),
+                steps_to_reproduce TEXT,
+                status VARCHAR(20) DEFAULT 'pending',
+                admin_notes TEXT,
+                vtx_reward DECIMAL(18,4) DEFAULT 0,
+                created_at TIMESTAMP DEFAULT NOW(),
+                reviewed_at TIMESTAMP,
+                reviewed_by INTEGER REFERENCES users(id)
+            )
+        """)
+
         conn.commit()
 
         _init_vortex_genesis(conn)

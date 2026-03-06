@@ -73,6 +73,12 @@
             <h3 class="admin-section-title">Pitch Previews</h3>
             <div class="admin-pitch-preview" id="admin-pitch-preview"></div>
         </div>
+
+        <div class="admin-section">
+            <h3 class="admin-section-title">Vigilance — Bug Bounty Review Queue</h3>
+            <div class="admin-grid" id="admin-vig-stats"></div>
+            <div id="admin-vig-queue" style="margin-top:16px;"></div>
+        </div>
     </main>
 
     <script>
@@ -176,6 +182,78 @@
                 }
             });
         });
+    })();
+
+    (function() {
+        function loadVigQueue() {
+            fetch('/api/vigilance/stats')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var el = document.getElementById('admin-vig-stats');
+                el.innerHTML =
+                    '<div class="admin-stat"><span class="admin-stat-value">' + data.total_reports + '</span><span class="admin-stat-label">Total Reports</span></div>' +
+                    '<div class="admin-stat"><span class="admin-stat-value">' + (data.by_status.pending || 0) + '</span><span class="admin-stat-label">Pending</span></div>' +
+                    '<div class="admin-stat"><span class="admin-stat-value">' + (data.by_status.rewarded || 0) + '</span><span class="admin-stat-label">Rewarded</span></div>' +
+                    '<div class="admin-stat"><span class="admin-stat-value">' + data.total_vtx_paid.toFixed(1) + '</span><span class="admin-stat-label">VTX Paid</span></div>';
+            })
+            .catch(function() {});
+
+            fetch('/api/vigilance/reports?status=pending')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var el = document.getElementById('admin-vig-queue');
+                var reports = data.reports || [];
+                if (reports.length === 0) {
+                    el.innerHTML = '<p style="color:#888;font-size:13px;">No pending reports to review.</p>';
+                    return;
+                }
+                el.innerHTML = reports.map(function(r) {
+                    return '<div class="admin-pitch-card" id="vig-card-' + r.id + '">' +
+                        '<h5>#' + r.id + ' — ' + escapeHtml(r.title) + '</h5>' +
+                        '<p><span class="vig-sev vig-sev-' + r.severity + '">' + r.severity + '</span> ' +
+                        (r.category ? '<span style="color:#888;font-size:11px;margin-left:8px;">' + r.category + '</span>' : '') +
+                        ' &middot; by <strong>' + escapeHtml(r.reporter_username) + '</strong> &middot; ' +
+                        (r.created_at ? r.created_at.substring(0,10) : '') + '</p>' +
+                        '<textarea class="admin-vig-notes" id="vig-notes-' + r.id + '" rows="1" placeholder="Admin notes (optional)"></textarea>' +
+                        '<div class="admin-vig-actions">' +
+                            '<button class="admin-vig-verify" onclick="reviewReport(' + r.id + ', \'verify\')">Verify &amp; Reward</button>' +
+                            '<button class="admin-vig-reject" onclick="reviewReport(' + r.id + ', \'reject\')">Reject</button>' +
+                            '<button class="admin-vig-duplicate" onclick="reviewReport(' + r.id + ', \'duplicate\')">Duplicate</button>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            })
+            .catch(function() {
+                document.getElementById('admin-vig-queue').innerHTML = '<p style="color:#888;">Failed to load vigilance queue.</p>';
+            });
+        }
+
+        function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+        window.reviewReport = function(id, action) {
+            var notes = (document.getElementById('vig-notes-' + id) || {}).value || '';
+            fetch('/api/vigilance/review/' + id, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({action: action, admin_notes: notes})
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                var card = document.getElementById('vig-card-' + id);
+                if (card) {
+                    var msg = action === 'verify' ? 'Verified & rewarded ' + data.vtx_reward + ' VTX to ' + data.reporter_username : (action === 'reject' ? 'Rejected' : 'Marked duplicate');
+                    card.innerHTML = '<p style="color:' + (action === 'verify' ? '#2dd4bf' : '#888') + ';font-size:13px;">' + msg + '</p>';
+                }
+                loadVigQueue();
+            })
+            .catch(function(e) { alert('Failed: ' + e.message); });
+        };
+
+        loadVigQueue();
     })();
     </script>
 </body>
