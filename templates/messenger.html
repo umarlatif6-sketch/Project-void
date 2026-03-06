@@ -132,6 +132,35 @@
         .silt-drop-btn { padding: 10px; background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--teal); font-family: var(--font); font-size: 16px; cursor: pointer; line-height: 1; }
         .silt-drop-btn:hover { border-color: var(--teal); background: rgba(45,212,191,0.1); }
 
+        .msg-gift-btn { background: none; border: none; color: var(--dim); font-size: 13px; cursor: pointer; padding: 2px 4px; opacity: 0.3; transition: opacity 0.2s, color 0.2s; font-family: var(--font); line-height: 1; position: absolute; top: 4px; right: -28px; }
+        .msg-gift-btn:hover { opacity: 1; color: var(--gold); }
+        .msg-bubble.received { position: relative; }
+
+        .gift-modal .modal { width: 320px; }
+        .gift-modal-balance { text-align: center; font-size: 11px; color: var(--dim); margin-bottom: 12px; }
+        .gift-modal-balance strong { color: var(--gold); font-size: 14px; }
+        .gift-quick-amounts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .gift-quick-btn { flex: 1; min-width: 50px; padding: 8px 4px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; color: var(--white); font-family: var(--font); font-size: 11px; cursor: pointer; text-align: center; transition: border-color 0.2s, color 0.2s; }
+        .gift-quick-btn:hover, .gift-quick-btn.selected { border-color: var(--gold); color: var(--gold); }
+        .gift-custom-input { width: 100%; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--white); font-family: var(--font); font-size: 12px; outline: none; margin-bottom: 10px; }
+        .gift-custom-input:focus { border-color: var(--gold); }
+        .gift-send-btn { width: 100%; padding: 10px; background: var(--gold); color: var(--bg); border: none; border-radius: 4px; font-family: var(--font); font-size: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+        .gift-send-btn:hover { background: var(--gold-dim); }
+        .gift-send-btn:disabled { opacity: 0.4; cursor: default; }
+
+        .gift-bubble { background: rgba(201,168,76,0.08) !important; border-color: var(--gold) !important; }
+        .gift-label { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--gold); margin-bottom: 6px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .gift-label .gift-glyph { font-size: 16px; }
+        .gift-amount-display { font-size: 18px; font-weight: bold; color: var(--gold); margin: 4px 0; }
+        .gift-chime-audio { width: 100%; height: 28px; margin: 4px 0; border-radius: 4px; }
+
+        @keyframes giftPulseSmall { 0% { box-shadow: 0 0 0 0 rgba(201,168,76,0.4); } 70% { box-shadow: 0 0 0 12px rgba(201,168,76,0); } 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); } }
+        @keyframes giftPulseMedium { 0% { box-shadow: 0 0 0 0 rgba(201,168,76,0.6); } 50% { box-shadow: 0 0 20px 20px rgba(201,168,76,0); } 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); } }
+        @keyframes sovereignFlash { 0% { background: var(--bg); } 25% { background: rgba(201,168,76,0.12); } 75% { background: rgba(201,168,76,0.06); } 100% { background: var(--bg); } }
+        .gift-resonance-small { animation: giftPulseSmall 1s ease-out 3; }
+        .gift-resonance-medium { animation: giftPulseMedium 1.2s ease-out 2; }
+        .gift-resonance-sovereign .chat-area { animation: sovereignFlash 3s ease-in-out 1; }
+
         .silt-modal .modal { width: 400px; }
         .silt-modal .silt-form-group { margin-bottom: 12px; }
         .silt-modal .silt-form-group label { display: block; font-size: 10px; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
@@ -169,6 +198,8 @@
         .wallet-tx-icon.vigilance { background: rgba(239,68,68,0.15); color: #ef4444; }
         .wallet-tx-icon.purchase { background: rgba(201,168,76,0.15); color: var(--gold); }
         .wallet-tx-icon.spend { background: rgba(124,92,255,0.15); color: #7c5cff; }
+        .wallet-tx-icon.gift-out { background: rgba(201,168,76,0.15); color: var(--gold); }
+        .wallet-tx-icon.gift-in { background: rgba(45,212,191,0.15); color: var(--teal); }
         .wallet-unlock-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 6px; font-size: 11px; }
         .wallet-unlock-info { flex: 1; min-width: 0; }
         .wallet-unlock-label { color: var(--white); font-weight: bold; font-size: 11px; }
@@ -379,6 +410,23 @@
                 <div class="silt-progress-bar"><div class="silt-progress-fill" id="silt-progress-fill"></div></div>
                 <div class="silt-progress-text" id="silt-progress-text">Embedding in silt...</div>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay gift-modal" id="gift-modal">
+        <div class="modal">
+            <button class="modal-close" id="gift-modal-close">&times;</button>
+            <h3>&#9670; Send Gift</h3>
+            <div class="gift-modal-balance">Balance: <strong id="gift-balance">0.0000</strong> VTX</div>
+            <div class="gift-quick-amounts">
+                <button class="gift-quick-btn" data-amount="1">1 VTX</button>
+                <button class="gift-quick-btn" data-amount="5">5 VTX</button>
+                <button class="gift-quick-btn" data-amount="10">10 VTX</button>
+                <button class="gift-quick-btn" data-amount="50">50 VTX</button>
+                <button class="gift-quick-btn" data-amount="100">100 VTX</button>
+            </div>
+            <input type="number" class="gift-custom-input" id="gift-custom-amount" placeholder="Custom amount" step="0.0001" min="0.0001">
+            <button class="gift-send-btn" id="gift-send-btn" disabled>Send Gift</button>
         </div>
     </div>
 
@@ -596,11 +644,27 @@
             var isSent = msg.sender_id === currentUser.id;
             var div = document.createElement('div');
             var isSilt = msg.attachment_type === 'silt_drop';
-            div.className = 'msg-bubble ' + (isSent ? 'sent' : 'received') + (isSilt ? ' silt-bubble' : '');
+            var isGift = msg.attachment_type === 'gift_chime' || (msg.content && msg.content.indexOf('[VTX Gift]') === 0);
+            div.className = 'msg-bubble ' + (isSent ? 'sent' : 'received') + (isSilt ? ' silt-bubble' : '') + (isGift ? ' gift-bubble' : '');
             var html = '';
             if (!isSent) html += '<div class="msg-sender">' + escHtml(msg.sender_display_name || msg.sender_username) + '</div>';
 
-            if (isSilt) {
+            if (isGift) {
+                var giftMatch = msg.content ? msg.content.match(/\[VTX Gift\]\s*([\d.]+)\s*VTX/) : null;
+                var giftAmt = giftMatch ? parseFloat(giftMatch[1]) : 0;
+                var glyph = giftAmt >= 100 ? '&#937;' : (giftAmt >= 10 ? '&#963;' : '&#968;');
+                html += '<div class="gift-label"><span class="gift-glyph">' + glyph + '</span> Vortex Gift</div>';
+                html += '<div class="gift-amount-display">' + giftAmt.toFixed(1) + ' VTX</div>';
+                if (msg.attachment_path) {
+                    html += '<audio class="gift-chime-audio" controls preload="none">'
+                        + '<source src="/api/messenger/silt-drop/' + msg.id + '/download" type="audio/wav">'
+                        + '</audio>';
+                }
+                if (!isSent && giftAmt > 0 && msg.id > lastMsgId) {
+                    var tier = giftAmt >= 100 ? 'sovereign' : (giftAmt >= 10 ? 'medium' : 'small');
+                    _triggerGiftResonance(tier, '');
+                }
+            } else if (isSilt) {
                 var fname = msg.attachment_filename || 'file';
                 var fsize = msg.attachment_size ? formatSize(msg.attachment_size) : '';
                 var style = msg.silt_carrier_style || 'biophony';
@@ -622,6 +686,9 @@
             }
 
             html += '<div class="msg-meta">' + formatTime(msg.created_at) + '</div>';
+            if (!isSent) {
+                html += '<button class="msg-gift-btn" title="Send Gift" data-msg-id="' + msg.id + '">&#9670;</button>';
+            }
             div.innerHTML = html;
             document.getElementById('chat-messages').appendChild(div);
             if (msg.id > lastMsgId) lastMsgId = msg.id;
@@ -790,6 +857,13 @@
                     else if (label === 'mint_purchase') { label = 'VTX Purchase'; iconClass = 'purchase'; iconChar = '&#128176;'; }
                     else if (label === 'mint_relay') { label = 'Relay Reward'; iconClass = 'relay'; iconChar = '&#8962;'; }
                     else if (label === 'spend') { label = 'Feature Unlock'; iconClass = 'spend'; iconChar = '&#128275;'; isCredit = false; }
+                    else if (label === 'gift') {
+                        if (currentUser && tx.from_user_id === currentUser.id) {
+                            label = 'Gift Sent'; iconClass = 'gift-out'; iconChar = '&#9670;'; isCredit = false;
+                        } else {
+                            label = 'Gift Received'; iconClass = 'gift-in'; iconChar = '&#9670;';
+                        }
+                    }
                     else if (label === 'transfer') {
                         if (currentUser && tx.from_user_id === currentUser.id) {
                             label = 'Sent'; iconClass = 'transfer'; iconChar = '&#8593;'; isCredit = false;
@@ -1011,6 +1085,108 @@
                     btn.disabled = false;
                     prog.style.display = 'none';
                 });
+        });
+        function _triggerGiftResonance(tier, hash) {
+            var chatArea = document.getElementById('chat-area');
+            if (tier === 'sovereign') {
+                chatArea.classList.add('gift-resonance-sovereign');
+                if (typeof ResonanceField !== 'undefined') {
+                    var container = document.getElementById('chat-messages');
+                    if (!resonanceField) resonanceField = new ResonanceField(container, {founder: false});
+                    resonanceField.activate(hash || 'sovereign_gift', 'vortex');
+                    setTimeout(function() { resonanceField.deactivate(); }, 3000);
+                }
+                setTimeout(function() { chatArea.classList.remove('gift-resonance-sovereign'); }, 3000);
+            } else if (tier === 'medium') {
+                var msgs = document.querySelectorAll('.gift-bubble');
+                var last = msgs.length ? msgs[msgs.length - 1] : null;
+                if (last) { last.classList.add('gift-resonance-medium'); setTimeout(function() { last.classList.remove('gift-resonance-medium'); }, 2500); }
+                if (typeof ResonanceField !== 'undefined') {
+                    var container = document.getElementById('chat-messages');
+                    if (!resonanceField) resonanceField = new ResonanceField(container, {founder: false});
+                    resonanceField.activate(hash || 'medium_gift', 'aqua');
+                    setTimeout(function() { resonanceField.deactivate(); }, 2000);
+                }
+            } else {
+                var msgs = document.querySelectorAll('.gift-bubble');
+                var last = msgs.length ? msgs[msgs.length - 1] : null;
+                if (last) { last.classList.add('gift-resonance-small'); setTimeout(function() { last.classList.remove('gift-resonance-small'); }, 3000); }
+            }
+        }
+
+        var giftTargetMsgId = null;
+        var giftSelectedAmount = null;
+
+        document.getElementById('chat-messages').addEventListener('click', function(e) {
+            var btn = e.target.closest('.msg-gift-btn');
+            if (!btn) return;
+            giftTargetMsgId = parseInt(btn.dataset.msgId);
+            giftSelectedAmount = null;
+            document.getElementById('gift-custom-amount').value = '';
+            document.getElementById('gift-send-btn').disabled = true;
+            document.querySelectorAll('.gift-quick-btn').forEach(function(b) { b.classList.remove('selected'); });
+            fetch('/api/wallet/balance').then(function(r) { return r.json(); }).then(function(data) {
+                document.getElementById('gift-balance').textContent = parseFloat(data.balance || 0).toFixed(4);
+            }).catch(function() {});
+            document.getElementById('gift-modal').classList.add('visible');
+        });
+
+        document.querySelectorAll('.gift-quick-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.gift-quick-btn').forEach(function(b) { b.classList.remove('selected'); });
+                btn.classList.add('selected');
+                giftSelectedAmount = parseFloat(btn.dataset.amount);
+                document.getElementById('gift-custom-amount').value = '';
+                document.getElementById('gift-send-btn').disabled = false;
+            });
+        });
+
+        document.getElementById('gift-custom-amount').addEventListener('input', function() {
+            var val = parseFloat(this.value);
+            document.querySelectorAll('.gift-quick-btn').forEach(function(b) { b.classList.remove('selected'); });
+            if (val > 0) {
+                giftSelectedAmount = val;
+                document.getElementById('gift-send-btn').disabled = false;
+            } else {
+                giftSelectedAmount = null;
+                document.getElementById('gift-send-btn').disabled = true;
+            }
+        });
+
+        document.getElementById('gift-modal-close').addEventListener('click', function() {
+            document.getElementById('gift-modal').classList.remove('visible');
+        });
+        document.getElementById('gift-modal').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('visible');
+        });
+
+        document.getElementById('gift-send-btn').addEventListener('click', function() {
+            if (!giftSelectedAmount || !giftTargetMsgId || !activeConvId) return;
+            var btn = document.getElementById('gift-send-btn');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            api('POST', '/api/messenger/gift', {
+                conversation_id: activeConvId,
+                message_id: giftTargetMsgId,
+                amount: giftSelectedAmount
+            }).then(function(data) {
+                btn.disabled = false;
+                btn.textContent = 'SEND GIFT';
+                if (data.error) {
+                    showToast(data.error, 'error');
+                    return;
+                }
+                document.getElementById('gift-modal').classList.remove('visible');
+                showToast('Gift sent! ' + giftSelectedAmount + ' VTX', 'teal');
+                _triggerGiftResonance(data.gift_tier, data.gift_hash || '');
+                loadMessages(activeConvId);
+                loadConversations();
+                loadWallet();
+            }).catch(function(err) {
+                btn.disabled = false;
+                btn.textContent = 'SEND GIFT';
+                showToast('Gift failed: ' + (err.message || 'Unknown error'), 'error');
+            });
         });
     })();
     </script>

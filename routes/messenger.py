@@ -432,6 +432,111 @@ def messenger_silt_decode(message_id):
         return jsonify({"error": f"Decode failed: {str(e)}"}), 500
 
 
+@messenger_bp.route("/api/messenger/gift", methods=["POST"])
+def messenger_gift():
+    user_id = _require_login()
+    if not user_id:
+        return jsonify({"error": "Not logged in"}), 401
+
+    data = request.get_json(silent=True) or {}
+    conv_id = data.get("conversation_id")
+    message_id = data.get("message_id")
+    amount = data.get("amount")
+
+    if not conv_id or not message_id or not amount:
+        return jsonify({"error": "conversation_id, message_id, and amount are required"}), 400
+
+    try:
+        amount = float(amount)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid amount"}), 400
+
+    if amount <= 0:
+        return jsonify({"error": "Amount must be positive"}), 400
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT 1 FROM conversation_members WHERE conversation_id = %s AND user_id = %s",
+            (conv_id, user_id),
+        )
+        if not cur.fetchone():
+            return jsonify({"error": "Not a member of this conversation"}), 403
+
+        cur.execute(
+            "SELECT sender_id FROM messages WHERE id = %s AND conversation_id = %s",
+            (message_id, conv_id),
+        )
+        msg_row = cur.fetchone()
+        if not msg_row:
+            return jsonify({"error": "Message not found"}), 404
+
+        recipient_id = msg_row[0]
+        if recipient_id == user_id:
+            return jsonify({"error": "Cannot gift yourself"}), 400
+
+    finally:
+        conn.close()
+
+    from void_engine.vortex_wallet import gift_transfer
+    result = gift_transfer(user_id, recipient_id, amount, message_id)
+
+    if "error" in result:
+        return jsonify(result), 400
+
+    gift_hash = result.get("gift_hash", result.get("block_hash", ""))
+
+    from void_engine.gift_chime import generate_gift_chime
+    try:
+        chime_path = generate_gift_chime(amount, gift_hash)
+    except Exception as e:
+        chime_path = None
+
+    gift_content = f"[VTX Gift] {amount} VTX"
+    from void_engine.messenger_auth import send_message as _send_msg
+    gift_msg = _send_msg(conv_id, user_id, gift_content)
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+
+        cur.execute(
+            """INSERT INTO vortex_gifts (sender_id, recipient_id, amount, message_id, conversation_id,
+                                         al_jabr_286_hash, chime_path, status)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, 'settled')""",
+            (user_id, recipient_id, amount, message_id, conv_id, gift_hash, chime_path),
+        )
+
+        if chime_path and gift_msg:
+            gift_msg_id = gift_msg.get("id") if isinstance(gift_msg, dict) else None
+            if gift_msg_id:
+                cur.execute(
+                    """UPDATE messages SET attachment_path = %s, attachment_type = 'gift_chime',
+                       attachment_filename = %s WHERE id = %s""",
+                    (chime_path, os.path.basename(chime_path), gift_msg_id),
+                )
+
+        conn.commit()
+    except Exception:
+        conn.rollback()
+    finally:
+        conn.close()
+
+    tier = "sovereign" if amount >= 100 else ("medium" if amount >= 10 else "small")
+
+    return jsonify({
+        "success": True,
+        "gift_hash": gift_hash,
+        "amount": amount,
+        "recipient_id": recipient_id,
+        "gift_tier": tier,
+        "chime_path": chime_path,
+        "block": result,
+    })
+
+
 @messenger_bp.route("/api/messenger/silt-drop/<int:message_id>/key")
 def messenger_silt_key(message_id):
     user_id = _require_login()

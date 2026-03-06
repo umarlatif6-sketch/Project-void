@@ -157,6 +157,49 @@ def transfer(from_user_id, to_user_id, amount_float):
         conn.close()
 
 
+def gift_transfer(from_user_id, to_user_id, amount_float, message_id=None):
+    amount = Decimal(str(amount_float)).quantize(Decimal("0.0001"))
+    if amount <= 0:
+        return {"error": "Amount must be positive"}
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s", (from_user_id,))
+        row = cur.fetchone()
+        if not row:
+            return {"error": "Sender not found"}
+        balance = row[0]
+        if balance < amount:
+            return {"error": f"Insufficient balance. You have {float(balance)} VTX"}
+
+        cur.execute("SELECT 1 FROM users WHERE id = %s", (to_user_id,))
+        if not cur.fetchone():
+            return {"error": "Recipient not found"}
+
+        payload_hash = fatiha_286_hexdigest_from_str(
+            f"gift_{from_user_id}_{to_user_id}_{amount}_{message_id}_{datetime.now(timezone.utc).isoformat()}"
+        )
+        block = _create_block(cur, "gift", from_user_id, to_user_id, amount, payload_hash)
+        cur.execute(
+            "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) - %s WHERE id = %s",
+            (amount, from_user_id),
+        )
+        cur.execute(
+            "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id = %s",
+            (amount, to_user_id),
+        )
+        conn.commit()
+        block["gifted"] = float(amount)
+        block["gift_hash"] = payload_hash
+        return block
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
 def get_balance(user_id):
     conn = _get_db()
     try:

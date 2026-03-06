@@ -91,6 +91,21 @@ def _ensure_columns():
             )
         """)
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS vortex_gifts (
+                id SERIAL PRIMARY KEY,
+                sender_id INTEGER REFERENCES users(id),
+                recipient_id INTEGER REFERENCES users(id),
+                amount DECIMAL(18,4),
+                message_id INTEGER,
+                conversation_id INTEGER,
+                al_jabr_286_hash VARCHAR(72),
+                chime_path VARCHAR(255),
+                status VARCHAR(20) DEFAULT 'settled',
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """)
+
         conn.commit()
 
         _init_vortex_genesis(conn)
