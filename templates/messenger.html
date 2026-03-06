@@ -370,6 +370,7 @@
 
     <div class="toast" id="toast"></div>
 
+    <script src="/static/resonance_visualizer.js"></script>
     <script>
     (function() {
         var currentUser = null;
@@ -377,6 +378,7 @@
         var pollTimer = null;
         var lastMsgId = 0;
         var siltFile = null;
+        var resonanceField = null;
 
         function api(method, url, data) {
             var opts = { method: method, headers: {'Content-Type': 'application/json'} };
@@ -892,6 +894,12 @@
             fill.style.width = '10%';
             text.textContent = 'Compressing payload...';
 
+            var modalEl = document.querySelector('#silt-drop-modal .modal');
+            if (!resonanceField) {
+                resonanceField = new ResonanceField(modalEl, { founder: document.body.hasAttribute('data-founder-vibe') });
+            }
+            resonanceField.activate('', 'encoding');
+
             var fd = new FormData();
             fd.append('file', siltFile);
             fd.append('conversation_id', activeConvId);
@@ -909,6 +917,7 @@
                 if (step < steps.length) {
                     fill.style.width = steps[step].pct;
                     text.textContent = steps[step].msg;
+                    if (resonanceField) resonanceField.pulseHash(Date.now().toString(16));
                     step++;
                 }
             }, 1500);
@@ -918,6 +927,7 @@
                 .then(function(res) {
                     clearInterval(stepTimer);
                     if (!res.ok) {
+                        if (resonanceField) resonanceField.deactivate();
                         if (res.data.upgrade) {
                             showToast('Silt Drops require Journalist tier. Upgrade at /pricing', 'error');
                         } else {
@@ -927,20 +937,25 @@
                         prog.style.display = 'none';
                         return;
                     }
+                    if (resonanceField && res.data.hash_key) {
+                        resonanceField.pulseHash(res.data.hash_key);
+                    }
                     fill.style.width = '100%';
                     text.textContent = 'Silt Drop sent! +' + parseFloat(res.data.vtx_earned || 0).toFixed(4) + ' VTX';
                     showToast('Silt Drop embedded! +' + parseFloat(res.data.vtx_earned || 0).toFixed(4) + ' VTX earned', 'teal');
                     setTimeout(function() {
+                        if (resonanceField) resonanceField.deactivate();
                         document.getElementById('silt-drop-modal').classList.remove('visible');
                         prog.style.display = 'none';
                         btn.disabled = false;
                         loadMessages(activeConvId);
                         loadConversations();
                         loadWallet();
-                    }, 1500);
+                    }, 2000);
                 })
                 .catch(function(err) {
                     clearInterval(stepTimer);
+                    if (resonanceField) resonanceField.deactivate();
                     showToast('Silt Drop failed: ' + (err.message || 'Unknown error'), 'error');
                     btn.disabled = false;
                     prog.style.display = 'none';

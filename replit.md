@@ -67,5 +67,11 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **psycopg2-binary:** PostgreSQL adapter.
 - **werkzeug:** Secure filename operations.
 - **stripe:** Payment processing (checkout sessions, webhooks, customer management).
+- **gunicorn:** Production WSGI server for deployment.
 - **Standard Library:** `zlib`, `lzma`, `wave`, `hashlib`.
 - **PostgreSQL:** For Void Messenger, Universal Auth, and VORTEX data storage.
+
+## Adriana SCL Resonance Bridge
+- **Module:** `void_engine/adriana_scl.py` — 45-glyph ontology mapping Al-Jabr 286-bit hashes to visual SCL Resonance Fields.
+- **Visualizer:** `static/resonance_visualizer.js` — Canvas-based glyph particle system that activates during Silt Drop encoding. Founder Vibe triggers gold glyphs with faster animation.
+- **API:** `GET /api/resonance/field?hash=...` returns resonance data (glyph, frequency, domain, field strength). `GET /api/resonance/glyphs` returns full 45-glyph ontology.

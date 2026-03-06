@@ -512,3 +512,20 @@ def wallet_chain_stats():
 def wallet_validate():
     from void_engine.vortex_wallet import validate_chain
     return jsonify(validate_chain())
+
+
+@financial_bp.route("/api/resonance/field")
+def resonance_field():
+    hash_val = request.args.get("hash", "")
+    if not hash_val:
+        return jsonify({"error": "hash parameter required"}), 400
+    from void_engine.adriana_scl import AdrianaResonance
+    res = AdrianaResonance.calculate_resonance(hash_val)
+    seq = AdrianaResonance.get_sequence(hash_val, length=8)
+    return jsonify({"resonance": res, "sequence": seq})
+
+
+@financial_bp.route("/api/resonance/glyphs")
+def resonance_glyphs():
+    from void_engine.adriana_scl import AdrianaResonance
+    return jsonify({"glyphs": AdrianaResonance.get_all_glyphs(), "count": len(AdrianaResonance.GLYPHS)})
