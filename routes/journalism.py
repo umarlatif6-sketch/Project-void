@@ -11,7 +11,7 @@ from void_engine.compressor import compress_file, decompress_data
 from void_engine.stega import encode, decode, encode_stereo, decode_stereo
 from void_engine.calculator import analyze_carrier
 from generate_carriers import generate_custom_carrier, ALL_STYLES
-from routes.auth import login_required, tier_required
+from routes.auth import login_required, admin_required, tier_required
 
 import routes.shared as shared
 
@@ -169,7 +169,7 @@ def journalism_download(filename):
 
 
 @journalism_bp.route("/api/journalism/delete/<filename>", methods=["DELETE"])
-@login_required
+@admin_required
 def journalism_delete(filename):
     safe = secure_filename(filename)
     path = os.path.join(shared.SILT_DIR, safe)
@@ -180,7 +180,7 @@ def journalism_delete(filename):
 
 
 @journalism_bp.route("/api/journalism/purge", methods=["DELETE"])
-@login_required
+@admin_required
 def journalism_purge():
     count = 0
     if os.path.isdir(shared.SILT_DIR):

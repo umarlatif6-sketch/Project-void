@@ -12,7 +12,7 @@ from void_engine.stega import (encode, decode, encode_burst, check_resonance_pur
                                 encode_stereo, decode_stereo, find_harmonic_pockets)
 from void_engine.calculator import analyze_carrier, append_to_log
 from generate_carriers import generate_custom_carrier, estimate_carrier_capacity, ALL_STYLES
-from routes.auth import login_required
+from routes.auth import login_required, _check_rate_limit
 
 import routes.shared as shared
 
@@ -148,6 +148,12 @@ def encode_file():
     if not carrier or not payload:
         return jsonify({"error": "Carrier and payload files are required"}), 400
 
+    from werkzeug.utils import secure_filename as _sf_enc
+    carrier = _sf_enc(carrier)
+    payload = _sf_enc(payload)
+    if not carrier or not payload:
+        return jsonify({"error": "Invalid file names"}), 400
+
     from routes.auth import TIER_LIMITS
     tier = session.get("tier", "ghost")
     limits = TIER_LIMITS.get(tier, TIER_LIMITS["ghost"])
@@ -261,8 +267,9 @@ def decode_file():
     if not stego_file or not hash_key:
         return jsonify({"error": "Encoded WAV file and Hash Key are required"}), 400
 
+    from werkzeug.utils import secure_filename as _sf
     directory = _user_output_dir() if source == "output" else _user_input_dir()
-    stego_path = os.path.join(directory, stego_file)
+    stego_path = os.path.join(directory, _sf(stego_file))
 
     if not os.path.exists(stego_path):
         return jsonify({"error": f"File not found: {stego_file}"}), 404
@@ -278,11 +285,12 @@ def decode_file():
             compressed_data, name_ext, checksum = decode(stego_path, hash_key, lsb_depth)
         original_data = decompress_data(compressed_data)
 
-        output_path = os.path.join(_user_output_dir(), name_ext)
+        safe_name = _sf(name_ext) if name_ext else "decoded_output"
+        output_path = os.path.join(_user_output_dir(), safe_name)
         with open(output_path, "wb") as f:
             f.write(original_data)
 
-        shared._log_operation("DECODE", name_ext, hash_key, f"size={len(original_data)}")
+        shared._log_operation("DECODE", safe_name, hash_key, f"size={len(original_data)}")
 
         return jsonify({
             "success": True,
@@ -382,11 +390,13 @@ def decode_audio():
         compressed_data, name_ext, checksum = decode(temp_path, hash_key, 1)
         original_data = decompress_data(compressed_data)
 
-        output_path = os.path.join(_user_output_dir(), name_ext)
+        from werkzeug.utils import secure_filename as _sf2
+        safe_name = _sf2(name_ext) if name_ext else "decoded_output"
+        output_path = os.path.join(_user_output_dir(), safe_name)
         with open(output_path, "wb") as f:
             f.write(original_data)
 
-        shared._log_operation("ACOUSTIC_DECODE", name_ext, hash_key, f"size={len(original_data)} snr={purity['snr_db']}dB")
+        shared._log_operation("ACOUSTIC_DECODE", safe_name, hash_key, f"size={len(original_data)} snr={purity['snr_db']}dB")
 
         return jsonify({
             "success": True,
@@ -621,6 +631,8 @@ def api_carrier_estimate():
 
 @core_bp.route("/api/demo/proof", methods=["POST"])
 def demo_proof():
+    if not _check_rate_limit():
+        return jsonify({"error": "Too many requests. Please wait and try again."}), 429
     global _proof_status
 
     if _proof_status["running"]:

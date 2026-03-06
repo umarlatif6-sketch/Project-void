@@ -80,7 +80,10 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Stripe Webhook Security:** Webhook endpoint rejects all requests when `STRIPE_WEBHOOK_SECRET` is not configured or when `Stripe-Signature` header is missing. No unsigned fallback.
 - **Subscription Success Route:** `/api/subscribe/success` only redirects — all tier activation handled exclusively by verified webhooks.
 - **Database Indexes:** 15 indexes including unique `block_index`, `from_user_id`/`to_user_id` on ledger, `conversation_id+created_at` on messages, `stripe_customer_id`/`stripe_subscription_id` on users, and gift/vigilance indexes.
-- **Rate Limiting:** In-memory IP-based rate limiter (10 requests/minute) on `/api/auth/login`, `/api/auth/register`, `/api/messenger/login`, `/api/messenger/register`. Returns 429 when exceeded. Auto-cleanup of stale entries.
+- **Rate Limiting:** In-memory IP-based rate limiter (10 requests/minute) on `/api/auth/login`, `/api/auth/register`, `/api/messenger/login`, `/api/messenger/register`, and public PDF generators (`/api/technical-brief`, `/api/pitch/deck`, `/api/pitch/generate`, `/api/founder/certificate`, `/api/demo/proof`). Returns 429 when exceeded. Auto-cleanup of stale entries.
+- **Path Traversal Prevention:** All decode endpoints sanitize `stego_file` input and decoded `name_ext` metadata via `secure_filename()` before writing to disk.
+- **Journalism Authorization:** Silt drop delete and purge endpoints upgraded from `login_required` to `admin_required` to prevent any-user deletion of shared files.
+- **Session Cookie Hardening:** `SESSION_COOKIE_HTTPONLY=True` and `SESSION_COOKIE_SAMESITE=Lax` set in Flask config to mitigate XSS and CSRF attacks on session cookies.
 
 ## Adriana SCL Resonance Bridge
 - **Module:** `void_engine/adriana_scl.py` — 45-glyph ontology mapping Al-Jabr 286-bit hashes to visual SCL Resonance Fields.

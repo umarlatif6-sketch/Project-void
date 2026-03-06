@@ -4,6 +4,7 @@ import json as _json
 from datetime import datetime
 from flask import Blueprint, request, jsonify, send_file, current_app, render_template, session
 
+from routes.auth import _check_rate_limit
 from void_engine.technical_brief import generate_technical_brief
 from void_engine.pitch_deck import generate_pitch_deck
 from generate_carriers import ALL_STYLES, estimate_carrier_capacity
@@ -94,6 +95,8 @@ def aljabr_protocol():
 
 @financial_bp.route("/api/technical-brief")
 def technical_brief():
+    if not _check_rate_limit():
+        return jsonify({"error": "Too many requests. Please wait and try again."}), 429
     try:
         filepath = generate_technical_brief(shared.OUTPUT_DIR)
         return send_file(filepath, as_attachment=True, download_name="PROJECT_VOID_Technical_Brief.pdf", mimetype="application/pdf")
@@ -229,6 +232,8 @@ def pitch_targets():
 
 @financial_bp.route("/api/pitch/generate", methods=["POST"])
 def pitch_generate():
+    if not _check_rate_limit():
+        return jsonify({"error": "Too many requests. Please wait and try again."}), 429
     data = request.json or {}
     target = data.get("target", "general").strip().lower()
 
@@ -378,6 +383,8 @@ def list_inquiries():
 
 @financial_bp.route("/api/pitch/deck")
 def pitch_deck():
+    if not _check_rate_limit():
+        return jsonify({"error": "Too many requests. Please wait and try again."}), 429
     target = request.args.get("target", "general").strip().lower()
     valid_targets = ("otf", "fpf", "mozilla", "general")
     if target not in valid_targets:
@@ -408,6 +415,8 @@ def genesis_specs():
 
 @financial_bp.route("/api/founder/certificate", methods=["POST"])
 def founder_certificate():
+    if not _check_rate_limit():
+        return jsonify({"error": "Too many requests. Please wait and try again."}), 429
     data = request.json or {}
     name = data.get("name", "").strip()
     email = data.get("email", "").strip()
