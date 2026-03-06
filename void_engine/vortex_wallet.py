@@ -35,7 +35,7 @@ VTX_UNLOCK_FEATURES = {
 
 
 def _get_last_block(cur):
-    cur.execute("SELECT block_index, block_hash FROM vortex_ledger ORDER BY block_index DESC LIMIT 1")
+    cur.execute("SELECT block_index, block_hash FROM vortex_ledger ORDER BY block_index DESC LIMIT 1 FOR UPDATE")
     row = cur.fetchone()
     if row:
         return row[0], row[1]
@@ -80,6 +80,13 @@ def mint_resonance(user_id, payload_size_bytes, payload_hash):
     conn = _get_db()
     try:
         cur = conn.cursor()
+        cur.execute(
+            "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'mint_resonance'",
+            (payload_hash,),
+        )
+        if cur.fetchone():
+            conn.close()
+            return {"already_minted": True, "payload_hash": payload_hash}
         block = _create_block(cur, "mint_resonance", None, user_id, amount, payload_hash, payload_size_bytes)
         cur.execute(
             "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id = %s",
@@ -95,15 +102,27 @@ def mint_resonance(user_id, payload_size_bytes, payload_hash):
         conn.close()
 
 
-def mint_relay(user_id, packets_relayed=1):
+def mint_relay(user_id, packets_relayed=1, relay_id=None):
     amount = (VTX_PER_RELAY * Decimal(packets_relayed)).quantize(Decimal("0.0001"))
     if amount <= 0:
         return None
 
+    if not relay_id:
+        relay_id = f"auto_{user_id}_{packets_relayed}_{int(datetime.now(timezone.utc).timestamp())}"
+
+    payload_hash = fatiha_286_hexdigest_from_str(f"relay_{user_id}_{relay_id}")
+
     conn = _get_db()
     try:
         cur = conn.cursor()
-        block = _create_block(cur, "mint_relay", None, user_id, amount)
+        cur.execute(
+            "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'mint_relay'",
+            (payload_hash,),
+        )
+        if cur.fetchone():
+            conn.close()
+            return {"already_minted": True, "relay_id": relay_id}
+        block = _create_block(cur, "mint_relay", None, user_id, amount, payload_hash)
         cur.execute(
             "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id = %s",
             (amount, user_id),
@@ -126,7 +145,7 @@ def transfer(from_user_id, to_user_id, amount_float):
     conn = _get_db()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s", (from_user_id,))
+        cur.execute("SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s FOR UPDATE", (from_user_id,))
         row = cur.fetchone()
         if not row:
             return {"error": "Sender not found"}
@@ -165,7 +184,7 @@ def gift_transfer(from_user_id, to_user_id, amount_float, message_id=None):
     conn = _get_db()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s", (from_user_id,))
+        cur.execute("SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s FOR UPDATE", (from_user_id,))
         row = cur.fetchone()
         if not row:
             return {"error": "Sender not found"}
@@ -281,6 +300,13 @@ def mint_vigilance(user_id, amount_decimal, report_id):
     conn = _get_db()
     try:
         cur = conn.cursor()
+        cur.execute(
+            "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'mint_vigilance'",
+            (payload_hash,),
+        )
+        if cur.fetchone():
+            conn.close()
+            return {"already_minted": True, "report_id": report_id}
         block = _create_block(cur, "mint_vigilance", None, user_id, amount, payload_hash)
         cur.execute(
             "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id = %s",
@@ -335,7 +361,7 @@ def spend_vtx(user_id, amount_decimal, purpose):
     conn = _get_db()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s", (user_id,))
+        cur.execute("SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s FOR UPDATE", (user_id,))
         row = cur.fetchone()
         if not row:
             return {"error": "User not found"}
@@ -369,7 +395,7 @@ def spend_vtx_with_unlock(user_id, amount_decimal, feature, duration):
     conn = _get_db()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s", (user_id,))
+        cur.execute("SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s FOR UPDATE", (user_id,))
         row = cur.fetchone()
         if not row:
             return {"error": "User not found"}

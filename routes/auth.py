@@ -1,10 +1,31 @@
 import os
+import time
 import functools
+from collections import defaultdict
 from flask import Blueprint, request, jsonify, session, redirect, render_template, url_for
 
 from void_engine.messenger_auth import create_user, authenticate_user, _get_db
 
 auth_bp = Blueprint("auth", __name__)
+
+_rate_limit_store = defaultdict(list)
+_RATE_LIMIT_WINDOW = 60
+_RATE_LIMIT_MAX = 10
+
+
+def _check_rate_limit():
+    ip = request.remote_addr or "unknown"
+    now = time.time()
+    _rate_limit_store[ip] = [t for t in _rate_limit_store[ip] if now - t < _RATE_LIMIT_WINDOW]
+    if len(_rate_limit_store[ip]) >= _RATE_LIMIT_MAX:
+        return False
+    _rate_limit_store[ip].append(now)
+    if len(_rate_limit_store) > 10000:
+        cutoff = now - _RATE_LIMIT_WINDOW * 2
+        stale = [k for k, v in _rate_limit_store.items() if not v or v[-1] < cutoff]
+        for k in stale:
+            del _rate_limit_store[k]
+    return True
 
 FOUNDER_USERNAME = os.environ.get("FOUNDER_USERNAME", "").lower().strip()
 
@@ -105,6 +126,18 @@ def _ensure_columns():
                 created_at TIMESTAMP DEFAULT NOW()
             )
         """)
+
+        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_block_index ON vortex_ledger(block_index)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_ledger_from ON vortex_ledger(from_user_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_ledger_to ON vortex_ledger(to_user_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_ledger_payload_hash ON vortex_ledger(payload_hash)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_messages_conv ON messages(conversation_id, created_at)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_users_stripe_cust ON users(stripe_customer_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_users_stripe_sub ON users(stripe_subscription_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_unlocks_user ON vtx_unlocks(user_id, expires_at)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_vigilance_reporter ON vigilance_reports(reporter_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_gifts_sender ON vortex_gifts(sender_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_gifts_recipient ON vortex_gifts(recipient_id)")
 
         conn.commit()
 
@@ -340,6 +373,8 @@ def login_page():
 
 @auth_bp.route("/api/auth/register", methods=["POST"])
 def auth_register():
+    if not _check_rate_limit():
+        return jsonify({"error": "Too many requests. Please wait and try again."}), 429
     data = request.json or {}
     username = (data.get("username") or "").strip().lower()
     display_name = (data.get("display_name") or "").strip()
@@ -371,6 +406,8 @@ def auth_register():
 
 @auth_bp.route("/api/auth/login", methods=["POST"])
 def auth_login():
+    if not _check_rate_limit():
+        return jsonify({"error": "Too many requests. Please wait and try again."}), 429
     data = request.json or {}
     username = (data.get("username") or "").strip()
     password = data.get("password") or ""

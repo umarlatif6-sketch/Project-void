@@ -73,6 +73,15 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Standard Library:** `zlib`, `lzma`, `wave`, `hashlib`.
 - **PostgreSQL:** For Void Messenger, Universal Auth, and VORTEX data storage.
 
+## Security & Integrity Hardening (Audit Fixes)
+- **Balance Race Conditions:** All balance-modifying functions (`transfer`, `gift_transfer`, `spend_vtx`, `spend_vtx_with_unlock`) use `SELECT ... FOR UPDATE` row locking to prevent concurrent double-spend.
+- **Ledger Sequence Integrity:** `_get_last_block()` uses `FOR UPDATE` lock; `block_index` has a `UNIQUE` database constraint preventing forked chains.
+- **Minting Idempotency:** `mint_resonance`, `mint_relay`, `mint_vigilance`, and `mint_purchase` all check for existing `payload_hash` before minting, preventing duplicate rewards.
+- **Stripe Webhook Security:** Webhook endpoint rejects all requests when `STRIPE_WEBHOOK_SECRET` is not configured or when `Stripe-Signature` header is missing. No unsigned fallback.
+- **Subscription Success Route:** `/api/subscribe/success` only redirects — all tier activation handled exclusively by verified webhooks.
+- **Database Indexes:** 15 indexes including unique `block_index`, `from_user_id`/`to_user_id` on ledger, `conversation_id+created_at` on messages, `stripe_customer_id`/`stripe_subscription_id` on users, and gift/vigilance indexes.
+- **Rate Limiting:** In-memory IP-based rate limiter (10 requests/minute) on `/api/auth/login`, `/api/auth/register`, `/api/messenger/login`, `/api/messenger/register`. Returns 429 when exceeded. Auto-cleanup of stale entries.
+
 ## Adriana SCL Resonance Bridge
 - **Module:** `void_engine/adriana_scl.py` — 45-glyph ontology mapping Al-Jabr 286-bit hashes to visual SCL Resonance Fields.
 - **Visualizer:** `static/resonance_visualizer.js` — Canvas-based glyph particle system. `ResonanceField(container, {founder})` → `.activate(hash, phase)` → `.pulseHash(hash)` → `.deactivate()`.

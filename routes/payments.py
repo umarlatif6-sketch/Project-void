@@ -103,32 +103,7 @@ def create_checkout(tier):
 @payments_bp.route("/api/subscribe/success")
 @login_required
 def checkout_success():
-    session_id = request.args.get("session_id")
-    if not session_id:
-        return redirect("/pricing")
-
-    try:
-        sc = get_stripe_client()
-        cs = sc.checkout.Session.retrieve(session_id)
-
-        if cs.payment_status == "paid":
-            tier = cs.metadata.get("tier", "journalist")
-            user_id = int(cs.metadata.get("user_id", session["user_id"]))
-            sub_id = cs.subscription
-
-            from datetime import datetime, timedelta, timezone
-            expires = datetime.now(timezone.utc) + timedelta(days=31)
-
-            _set_user_tier(user_id, tier, expires)
-            if sub_id:
-                _set_stripe_ids(user_id, subscription_id=sub_id)
-
-            session["tier"] = tier
-
-        return redirect("/")
-    except Exception as e:
-        current_app.logger.error(f"Checkout success error: {e}")
-        return redirect("/")
+    return redirect("/")
 
 
 @payments_bp.route("/api/subscribe/portal", methods=["POST"])
@@ -161,12 +136,12 @@ def stripe_webhook():
     try:
         sc = get_stripe_client()
         endpoint_secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
-        if endpoint_secret and sig_header:
-            event = sc.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        elif endpoint_secret:
+        if not endpoint_secret:
+            current_app.logger.error("STRIPE_WEBHOOK_SECRET not configured — rejecting webhook")
+            return jsonify({"error": "Webhook not configured"}), 500
+        if not sig_header:
             return jsonify({"error": "Missing Stripe-Signature header"}), 400
-        else:
-            event = json.loads(payload)
+        event = sc.Webhook.construct_event(payload, sig_header, endpoint_secret)
     except sc.error.SignatureVerificationError:
         return jsonify({"error": "Invalid signature"}), 400
     except Exception as e:

@@ -15,7 +15,7 @@ from void_engine.messenger_auth import (
     decrypt_message,
     _get_db,
 )
-from routes.auth import _setup_session, login_required, tier_required, TIER_LEVELS, _get_user_tier
+from routes.auth import _setup_session, login_required, tier_required, TIER_LEVELS, _get_user_tier, _check_rate_limit
 
 messenger_bp = Blueprint("messenger", __name__)
 
@@ -49,6 +49,8 @@ def messenger_page():
 
 @messenger_bp.route("/api/messenger/register", methods=["POST"])
 def messenger_register():
+    if not _check_rate_limit():
+        return jsonify({"error": "Too many requests. Please wait and try again."}), 429
     data = request.json or {}
     username = (data.get("username") or "").strip().lower()
     display_name = (data.get("display_name") or "").strip()
@@ -76,6 +78,8 @@ def messenger_register():
 
 @messenger_bp.route("/api/messenger/login", methods=["POST"])
 def messenger_login():
+    if not _check_rate_limit():
+        return jsonify({"error": "Too many requests. Please wait and try again."}), 429
     data = request.json or {}
     username = (data.get("username") or "").strip()
     password = data.get("password") or ""
