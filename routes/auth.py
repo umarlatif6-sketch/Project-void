@@ -16,50 +16,83 @@ TIER_LIMITS = {
 }
 
 
+def _ensure_column(cur, table, column, definition):
+    cur.execute(
+        "SELECT 1 FROM information_schema.columns WHERE table_name = %s AND column_name = %s",
+        (table, column),
+    )
+    if not cur.fetchone():
+        cur.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+
+
 def _ensure_columns():
     conn = _get_db()
     try:
         cur = conn.cursor()
-        cur.execute("""
-            SELECT column_name FROM information_schema.columns
-            WHERE table_name = 'users' AND column_name = 'role'
-        """)
-        if not cur.fetchone():
-            cur.execute("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user'")
+        _ensure_column(cur, "users", "role", "VARCHAR(20) DEFAULT 'user'")
+        _ensure_column(cur, "users", "tier", "VARCHAR(20) DEFAULT 'ghost'")
+        _ensure_column(cur, "users", "tier_expires_at", "TIMESTAMP")
+        _ensure_column(cur, "users", "stripe_customer_id", "VARCHAR(100)")
+        _ensure_column(cur, "users", "stripe_subscription_id", "VARCHAR(100)")
+        _ensure_column(cur, "users", "vortex_balance", "DECIMAL(18,4) DEFAULT 0")
+
+        _ensure_column(cur, "messages", "attachment_filename", "VARCHAR(255)")
+        _ensure_column(cur, "messages", "attachment_path", "VARCHAR(500)")
+        _ensure_column(cur, "messages", "attachment_size", "BIGINT")
+        _ensure_column(cur, "messages", "attachment_type", "VARCHAR(50)")
+        _ensure_column(cur, "messages", "silt_hash_key", "TEXT")
+        _ensure_column(cur, "messages", "silt_carrier_style", "VARCHAR(50)")
+        _ensure_column(cur, "messages", "vtx_earned", "DECIMAL(18,4) DEFAULT 0")
 
         cur.execute("""
-            SELECT column_name FROM information_schema.columns
-            WHERE table_name = 'users' AND column_name = 'tier'
+            CREATE TABLE IF NOT EXISTS vortex_ledger (
+                id SERIAL PRIMARY KEY,
+                block_index INTEGER NOT NULL,
+                timestamp TIMESTAMP DEFAULT NOW(),
+                previous_hash VARCHAR(72) NOT NULL,
+                tx_type VARCHAR(30) NOT NULL,
+                from_user_id INTEGER REFERENCES users(id),
+                to_user_id INTEGER REFERENCES users(id),
+                amount DECIMAL(18,4) NOT NULL,
+                payload_hash VARCHAR(72),
+                payload_size_bytes BIGINT,
+                block_hash VARCHAR(72) NOT NULL,
+                phase_key_signature VARCHAR(16),
+                node_id VARCHAR(72)
+            )
         """)
-        if not cur.fetchone():
-            cur.execute("ALTER TABLE users ADD COLUMN tier VARCHAR(20) DEFAULT 'ghost'")
-
-        cur.execute("""
-            SELECT column_name FROM information_schema.columns
-            WHERE table_name = 'users' AND column_name = 'tier_expires_at'
-        """)
-        if not cur.fetchone():
-            cur.execute("ALTER TABLE users ADD COLUMN tier_expires_at TIMESTAMP")
-
-        cur.execute("""
-            SELECT column_name FROM information_schema.columns
-            WHERE table_name = 'users' AND column_name = 'stripe_customer_id'
-        """)
-        if not cur.fetchone():
-            cur.execute("ALTER TABLE users ADD COLUMN stripe_customer_id VARCHAR(100)")
-
-        cur.execute("""
-            SELECT column_name FROM information_schema.columns
-            WHERE table_name = 'users' AND column_name = 'stripe_subscription_id'
-        """)
-        if not cur.fetchone():
-            cur.execute("ALTER TABLE users ADD COLUMN stripe_subscription_id VARCHAR(100)")
 
         conn.commit()
+
+        _init_vortex_genesis(conn)
     except Exception:
         conn.rollback()
     finally:
         conn.close()
+
+
+def _init_vortex_genesis(conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM vortex_ledger WHERE block_index = 0")
+        if cur.fetchone():
+            return
+        from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str, fatiha_286_truncated
+        cur.execute("SELECT id FROM users ORDER BY id LIMIT 1")
+        row = cur.fetchone()
+        genesis_user = row[0] if row else None
+        prev_hash = "0" * 72
+        genesis_data = f"0|{prev_hash}|VORTEX_GENESIS|mint_resonance|0"
+        block_hash = fatiha_286_hexdigest_from_str(genesis_data)
+        phase_sig = fatiha_286_truncated(genesis_data.encode("utf-8"), 16)
+        cur.execute(
+            """INSERT INTO vortex_ledger (block_index, previous_hash, tx_type, to_user_id, amount, payload_hash, block_hash, phase_key_signature, node_id)
+               VALUES (0, %s, 'mint_resonance', %s, 0, 'VORTEX_GENESIS', %s, %s, 'genesis')""",
+            (prev_hash, genesis_user, block_hash, phase_sig),
+        )
+        conn.commit()
+    except Exception:
+        conn.rollback()
 
 
 def _get_user_role(user_id):

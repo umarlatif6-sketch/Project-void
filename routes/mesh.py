@@ -93,10 +93,20 @@ def mesh_send():
             shared.beehive.stats["packets_sent"] += 1
             shared.beehive._log_event("BROADCAST_SENT", f"Broadcast {len(payload)} bytes")
 
+        vtx_reward = None
+        user_id = session.get("user_id")
+        if user_id:
+            try:
+                from void_engine.vortex_wallet import mint_relay
+                vtx_reward = mint_relay(user_id, 1)
+            except Exception:
+                pass
+
         return jsonify({
             "success": True,
             "packet": packet.to_dict(),
             "wallet": debit_result,
+            "vtx_reward": vtx_reward,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 400

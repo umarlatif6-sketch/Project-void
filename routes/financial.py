@@ -8,7 +8,7 @@ from void_engine.technical_brief import generate_technical_brief
 from void_engine.pitch_deck import generate_pitch_deck
 from generate_carriers import ALL_STYLES, estimate_carrier_capacity
 from void_engine.founder_certs import create_founder_cert_named, FOUNDER_ROOT_HASH
-from routes.auth import admin_required
+from routes.auth import admin_required, login_required
 
 import routes.shared as shared
 
@@ -438,3 +438,77 @@ def pricing_page():
     return render_template("pricing.html",
                            user_tier=session.get("tier", "ghost"),
                            is_logged_in=bool(session.get("user_id")))
+
+
+@financial_bp.route("/api/wallet/balance")
+@login_required
+def wallet_balance():
+    from void_engine.vortex_wallet import get_balance
+    user_id = session["user_id"]
+    balance = get_balance(user_id)
+    return jsonify({
+        "balance": balance,
+        "symbol": "VTX",
+        "tier": session.get("tier", "ghost"),
+    })
+
+
+@financial_bp.route("/api/wallet/ledger")
+@login_required
+def wallet_ledger():
+    from void_engine.vortex_wallet import get_ledger
+    user_id = session["user_id"]
+    limit = request.args.get("limit", 50, type=int)
+    entries = get_ledger(user_id, limit=min(limit, 200))
+    return jsonify({"transactions": entries, "ledger": entries, "symbol": "VTX"})
+
+
+@financial_bp.route("/api/wallet/transfer", methods=["POST"])
+@login_required
+def wallet_transfer():
+    from void_engine.vortex_wallet import transfer
+    from void_engine.messenger_auth import _get_db
+    data = request.json or {}
+    to_username = (data.get("to_username") or "").strip().lower()
+    amount = data.get("amount", 0)
+
+    if not to_username:
+        return jsonify({"error": "Recipient username is required"}), 400
+    try:
+        amount = float(amount)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid amount"}), 400
+    if amount <= 0:
+        return jsonify({"error": "Amount must be positive"}), 400
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM users WHERE username = %s", (to_username,))
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": f"User '{to_username}' not found"}), 404
+        to_user_id = row[0]
+    finally:
+        conn.close()
+
+    if to_user_id == session["user_id"]:
+        return jsonify({"error": "Cannot transfer to yourself"}), 400
+
+    result = transfer(session["user_id"], to_user_id, amount)
+    if "error" in result:
+        return jsonify(result), 400
+    return jsonify(result)
+
+
+@financial_bp.route("/api/wallet/chain-stats")
+def wallet_chain_stats():
+    from void_engine.vortex_wallet import get_chain_stats
+    return jsonify(get_chain_stats())
+
+
+@financial_bp.route("/api/wallet/validate")
+@login_required
+def wallet_validate():
+    from void_engine.vortex_wallet import validate_chain
+    return jsonify(validate_chain())

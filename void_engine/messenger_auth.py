@@ -240,7 +240,9 @@ def get_conversations(user_id):
         conn.close()
 
 
-def send_message(conversation_id, sender_id, content, message_type="text"):
+def send_message(conversation_id, sender_id, content, message_type="text",
+                  attachment_filename=None, attachment_path=None, attachment_size=None,
+                  attachment_type=None, silt_hash_key=None, silt_carrier_style=None, vtx_earned=0):
     conn = _get_db()
     try:
         cur = conn.cursor()
@@ -252,10 +254,21 @@ def send_message(conversation_id, sender_id, content, message_type="text"):
             return None
 
         encrypted, nonce = encrypt_message(content, conversation_id)
+
+        encrypted_hash_key = None
+        hash_key_nonce = None
+        if silt_hash_key:
+            encrypted_hash_key, hash_key_nonce = encrypt_message(silt_hash_key, conversation_id)
+            encrypted_hash_key = f"{hash_key_nonce}:{encrypted_hash_key}"
+
         cur.execute(
-            """INSERT INTO messages (conversation_id, sender_id, content_encrypted, content_nonce, message_type)
-               VALUES (%s, %s, %s, %s, %s) RETURNING id, created_at""",
-            (conversation_id, sender_id, encrypted, nonce, message_type),
+            """INSERT INTO messages (conversation_id, sender_id, content_encrypted, content_nonce, message_type,
+                                     attachment_filename, attachment_path, attachment_size, attachment_type,
+                                     silt_hash_key, silt_carrier_style, vtx_earned)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, created_at""",
+            (conversation_id, sender_id, encrypted, nonce, message_type,
+             attachment_filename, attachment_path, attachment_size, attachment_type,
+             encrypted_hash_key, silt_carrier_style, vtx_earned),
         )
         row = cur.fetchone()
         cur.execute("UPDATE users SET last_seen = NOW() WHERE id = %s", (sender_id,))
@@ -267,6 +280,11 @@ def send_message(conversation_id, sender_id, content, message_type="text"):
             "content": content,
             "message_type": message_type,
             "created_at": row[1].isoformat(),
+            "attachment_filename": attachment_filename,
+            "attachment_size": attachment_size,
+            "attachment_type": attachment_type,
+            "silt_carrier_style": silt_carrier_style,
+            "vtx_earned": float(vtx_earned) if vtx_earned else 0,
         }
     finally:
         conn.close()
@@ -283,9 +301,13 @@ def get_messages(conversation_id, user_id, before_id=None, limit=50):
         if not cur.fetchone():
             return None
 
+        _fields = """m.id, m.sender_id, m.content_encrypted, m.content_nonce, m.created_at, m.message_type,
+                     u.username, u.display_name,
+                     m.attachment_filename, m.attachment_size, m.attachment_type,
+                     m.silt_carrier_style, m.vtx_earned"""
         if before_id:
             cur.execute(
-                """SELECT m.id, m.sender_id, m.content_encrypted, m.content_nonce, m.created_at, m.message_type, u.username, u.display_name
+                f"""SELECT {_fields}
                    FROM messages m JOIN users u ON u.id = m.sender_id
                    WHERE m.conversation_id = %s AND m.id < %s
                    ORDER BY m.created_at DESC LIMIT %s""",
@@ -293,7 +315,7 @@ def get_messages(conversation_id, user_id, before_id=None, limit=50):
             )
         else:
             cur.execute(
-                """SELECT m.id, m.sender_id, m.content_encrypted, m.content_nonce, m.created_at, m.message_type, u.username, u.display_name
+                f"""SELECT {_fields}
                    FROM messages m JOIN users u ON u.id = m.sender_id
                    WHERE m.conversation_id = %s
                    ORDER BY m.created_at DESC LIMIT %s""",
@@ -306,7 +328,7 @@ def get_messages(conversation_id, user_id, before_id=None, limit=50):
                 content = decrypt_message(row[2], row[3], conversation_id)
             except Exception:
                 content = "[decryption failed]"
-            msgs.append({
+            msg = {
                 "id": row[0],
                 "sender_id": row[1],
                 "content": content,
@@ -314,7 +336,14 @@ def get_messages(conversation_id, user_id, before_id=None, limit=50):
                 "message_type": row[5],
                 "sender_username": row[6],
                 "sender_display_name": row[7],
-            })
+            }
+            if row[8]:
+                msg["attachment_filename"] = row[8]
+                msg["attachment_size"] = row[9]
+                msg["attachment_type"] = row[10]
+                msg["silt_carrier_style"] = row[11]
+                msg["vtx_earned"] = float(row[12]) if row[12] else 0
+            msgs.append(msg)
 
         msgs.reverse()
         return msgs
