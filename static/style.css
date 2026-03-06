@@ -7063,3 +7063,16 @@ body.beehive-active .pulse-dot { background:radial-gradient(circle,#4a9eff 0%,#2
 .tier-ghost { background: #1a1a2e; color: #666; border: 1px solid #2a2a3e; }
 .tier-journalist { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.3); }
 .tier-sovereign { background: rgba(201, 168, 76, 0.15); color: #c9a84c; border: 1px solid rgba(201, 168, 76, 0.3); }
+
+.resonance-badge { display: none; margin-top: 10px; padding: 10px 14px; background: rgba(10, 10, 15, 0.7); border: 1px solid rgba(45, 212, 191, 0.2); border-radius: 8px; }
+.resonance-badge.active { display: flex; align-items: center; gap: 14px; animation: resonanceFadeIn 0.5s ease; }
+.resonance-badge-glyph { font-size: 36px; line-height: 1; text-shadow: 0 0 12px currentColor; }
+.resonance-badge-info { flex: 1; font-size: 11px; letter-spacing: 0.5px; color: #888; }
+.resonance-badge-domain { color: #c8c8c8; font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+.resonance-badge-freq { color: #2dd4bf; }
+.resonance-badge-strength { margin-top: 4px; height: 3px; background: #1a1a28; border-radius: 2px; overflow: hidden; }
+.resonance-badge-strength-fill { height: 100%; background: linear-gradient(90deg, #2dd4bf, #c9a84c); border-radius: 2px; transition: width 0.6s ease; }
+[data-founder-vibe="true"] .resonance-badge { border-color: rgba(201, 168, 76, 0.3); }
+[data-founder-vibe="true"] .resonance-badge-freq { color: #c9a84c; }
+[data-founder-vibe="true"] .resonance-badge-strength-fill { background: linear-gradient(90deg, #c9a84c, #f0d078); }
+@keyframes resonanceFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }

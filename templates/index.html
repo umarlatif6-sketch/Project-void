@@ -171,6 +171,7 @@
                         <code id="res-hash-key"></code>
                         <button id="copy-hash-btn" class="btn-copy" title="Copy">&#9113;</button>
                     </div>
+                    <div id="encode-resonance-badge" class="resonance-badge"></div>
                 </div>
                 <div id="bubble-status-msg" style="display:none; margin-top:12px; padding:10px 14px; border-radius:6px; font-size:13px; letter-spacing:0.5px;"></div>
                 <button id="download-encoded-btn" class="btn-secondary">Download Encoded WAV</button>
@@ -247,6 +248,7 @@
                         <code id="burst-res-hash"></code>
                         <button id="copy-burst-hash-btn" class="btn-copy" title="Copy">&#9113;</button>
                     </div>
+                    <div id="burst-resonance-badge" class="resonance-badge"></div>
                 </div>
                 <button id="download-burst-btn" class="btn-secondary">Download Burst WAV</button>
             </div>
@@ -281,6 +283,10 @@
                     <input type="checkbox" id="viz-pocket-toggle">
                     <span class="toggle-label">Vocal Pocket</span>
                 </label>
+                <label class="viz-mode-toggle">
+                    <input type="checkbox" id="viz-resonance-toggle">
+                    <span class="toggle-label">Resonance</span>
+                </label>
             </div>
 
             <div class="viz-container" id="viz-container" style="display:none;">
@@ -296,6 +302,10 @@
                 <div class="viz-legend" id="viz-legend-pocket" style="display:none;">
                     <span class="viz-legend-item"><span class="viz-dot viz-dot-gold"></span> 432 Hz Breath Pulse</span>
                     <span class="viz-legend-item"><span class="viz-dot viz-dot-sapphire"></span> Adriana Pocket (open = data ready)</span>
+                </div>
+                <div class="viz-legend" id="viz-legend-resonance" style="display:none;">
+                    <span class="viz-legend-item"><span class="viz-dot viz-dot-gold"></span> Adriana Glyphs</span>
+                    <span class="viz-legend-item"><span class="viz-dot viz-dot-sapphire"></span> Frequency → Glyph Mapping</span>
                 </div>
                 <div class="viz-freq-info">
                     <span id="viz-peak-freq">Peak: --</span>
@@ -383,6 +393,7 @@
                     </div>
                 </div>
 
+                <div id="cap-resonance-badge" class="resonance-badge"></div>
                 <div class="cap-notes">
                     <p>Frequency: 432 Hz (Village Standard) — Sapphire Bubble acoustic camouflage</p>
                     <p>Below surface tension = bubble holds — audio sounds clean</p>
@@ -448,6 +459,7 @@
                         <code id="silk-res-hash"></code>
                         <button id="copy-silk-hash-btn" class="btn-copy" title="Copy">&#9113;</button>
                     </div>
+                    <div id="silk-resonance-badge" class="resonance-badge"></div>
                 </div>
             </div>
 
@@ -772,6 +784,7 @@
                     <div class="journalism-stat"><span class="journalism-stat-label">Scatter</span><span id="journalism-scatter" class="journalism-stat-value">vortex</span></div>
                     <div class="journalism-stat"><span class="journalism-stat-label">Duration</span><span id="journalism-duration" class="journalism-stat-value">—</span></div>
                 </div>
+                <div id="journalism-resonance-badge" class="resonance-badge"></div>
                 <div class="journalism-actions">
                     <button id="journalism-download-btn" class="btn-journalism">Download Nature Sound</button>
                     <button id="journalism-broadcast-btn" class="btn-journalism-secondary">Broadcast to Mesh</button>
@@ -862,6 +875,7 @@
                         <code id="proof-res-hash"></code>
                         <button id="copy-proof-hash-btn" class="btn-copy" title="Copy">&#9113;</button>
                     </div>
+                    <div id="proof-resonance-badge" class="resonance-badge"></div>
                 </div>
                 <div class="proof-capacity-bar" style="margin-top:16px;">
                     <div class="proof-capacity-label">Capacity Usage</div>
@@ -1623,6 +1637,7 @@
         document.body.classList.add("founder-vibe");
     }
     </script>
+    <script src="/static/resonance_visualizer.js"></script>
     <script src="/static/app.js"></script>
 </body>
 </html>

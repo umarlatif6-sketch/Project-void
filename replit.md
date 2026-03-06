@@ -73,5 +73,6 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 
 ## Adriana SCL Resonance Bridge
 - **Module:** `void_engine/adriana_scl.py` — 45-glyph ontology mapping Al-Jabr 286-bit hashes to visual SCL Resonance Fields.
-- **Visualizer:** `static/resonance_visualizer.js` — Canvas-based glyph particle system that activates during Silt Drop encoding. Founder Vibe triggers gold glyphs with faster animation.
+- **Visualizer:** `static/resonance_visualizer.js` — Canvas-based glyph particle system. `ResonanceField(container, {founder})` → `.activate(hash, phase)` → `.pulseHash(hash)` → `.deactivate()`.
 - **API:** `GET /api/resonance/field?hash=...` returns resonance data (glyph, frequency, domain, field strength). `GET /api/resonance/glyphs` returns full 45-glyph ontology.
+- **Platform-Wide Integration:** Resonance particles activate during Encode, Decode, Burst, Silk Web send, Mesh handshake/send, Journalism Silt Drop creation, Harness transpile/execute, and Live Proof demo. Resonance Glyph Badges (`.resonance-badge`) appear below hash key displays showing dominant glyph, domain, frequency, and field strength. Visualizer tab includes a "Resonance" mode mapping audio frequencies to live glyph particles. Login page features ambient floating glyphs with founder gold burst on authentication. Helper functions `_activateResonance`, `_pulseResonance`, `_deactivateResonance`, `_renderResonanceBadge` in `static/app.js` manage all subsystem integration.

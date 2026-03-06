@@ -47,6 +47,58 @@ document.addEventListener("DOMContentLoaded", () => {
         return bytes.toLocaleString() + " B";
     }
 
+    var _isFounder = document.body.dataset.founderVibe === "true";
+    var _resonanceFields = {};
+
+    function _getResonanceField(panelId) {
+        if (typeof ResonanceField === 'undefined') return null;
+        if (_resonanceFields[panelId]) return _resonanceFields[panelId];
+        var el = document.getElementById(panelId);
+        if (!el) return null;
+        var rf = new ResonanceField(el, { founder: _isFounder });
+        _resonanceFields[panelId] = rf;
+        return rf;
+    }
+
+    function _activateResonance(panelId, hash, phase) {
+        var rf = _getResonanceField(panelId);
+        if (rf) rf.activate(hash || '', phase || 'encoding');
+    }
+
+    function _pulseResonance(panelId, hash) {
+        var rf = _getResonanceField(panelId);
+        if (rf) rf.pulseHash(hash || '');
+    }
+
+    function _deactivateResonance(panelId, delay) {
+        var rf = _resonanceFields[panelId];
+        if (!rf) return;
+        if (delay) {
+            setTimeout(function() { rf.deactivate(); }, delay);
+        } else {
+            rf.deactivate();
+        }
+    }
+
+    function _renderResonanceBadge(badgeId, hashKey) {
+        var badge = document.getElementById(badgeId);
+        if (!badge || !hashKey) return;
+        fetch('/api/resonance/field?hash=' + encodeURIComponent(hashKey))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.glyph) return;
+                badge.innerHTML =
+                    '<span class="resonance-badge-glyph" style="color:' + (data.color || '#2dd4bf') + '">' + data.glyph + '</span>' +
+                    '<div class="resonance-badge-info">' +
+                        '<div class="resonance-badge-domain">' + (data.domain || 'unknown') + '</div>' +
+                        '<div class="resonance-badge-freq">' + (data.frequency || 432).toFixed(1) + ' Hz</div>' +
+                        '<div class="resonance-badge-strength"><div class="resonance-badge-strength-fill" style="width:' + Math.round((data.field_strength || 0) * 100) + '%"></div></div>' +
+                    '</div>';
+                badge.classList.add('active');
+            })
+            .catch(function() {});
+    }
+
     function showToast(msg, type, duration) {
         const toast = document.getElementById("toast");
         toast.textContent = msg;
@@ -398,6 +450,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = '<span class="spinner"></span>Encoding...';
         document.getElementById("encode-result").style.display = "none";
         document.getElementById("encode-error").style.display = "none";
+        _activateResonance('encode', '', 'encoding');
 
         try {
             const res = await fetch("/api/encode", {
@@ -431,14 +484,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const toastMsg = data.bubble_status === "burst" ? "BUBBLE BURST — encoded with distortion risk!" : "Sapphire Bubble sealed!";
                 showToast(toastMsg, data.bubble_status === "burst" ? "error" : "success");
+                _pulseResonance('encode', data.hash_key);
+                _renderResonanceBadge('encode-resonance-badge', data.hash_key);
+                _deactivateResonance('encode', 2500);
                 loadSelects();
             } else {
                 showInlineError("encode-error", data.error || "Unknown encoding error");
                 showToast("Encoding failed — see details below", "error");
+                _deactivateResonance('encode');
             }
         } catch (e) {
             showInlineError("encode-error", "Encoding failed: " + e.message);
             showToast("Encoding failed — see details below", "error");
+            _deactivateResonance('encode');
         }
 
         btn.disabled = false;
@@ -484,6 +542,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = '<span class="spinner"></span>Decoding...';
         document.getElementById("decode-result").style.display = "none";
         document.getElementById("decode-error").style.display = "none";
+        _activateResonance('decode', hashKey, 'decoding');
 
         try {
             const res = await fetch("/api/decode", {
@@ -500,14 +559,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("decode-result").style.display = "block";
                 lastDecodedFile = data.filename;
                 showToast("Decoding complete!", "success");
+                _pulseResonance('decode', hashKey);
+                _deactivateResonance('decode', 2500);
                 loadSelects();
             } else {
                 showInlineError("decode-error", data.error || "Unknown decoding error");
                 showToast("Decoding failed — see details below", "error");
+                _deactivateResonance('decode');
             }
         } catch (e) {
             showInlineError("decode-error", "Decoding failed: " + e.message);
             showToast("Decoding failed — see details below", "error");
+            _deactivateResonance('decode');
         }
 
         btn.disabled = false;
@@ -556,6 +619,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>Encoding Burst...';
         document.getElementById("burst-result").style.display = "none";
+        _activateResonance('burst', '', 'encoding');
 
         try {
             const res = await fetch("/api/burst", {
@@ -573,12 +637,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("burst-result").style.display = "block";
                 window._lastBurstFile = data.output_file;
                 showToast("Burst signal encoded!", "success");
+                _pulseResonance('burst', data.hash_key);
+                _renderResonanceBadge('burst-resonance-badge', data.hash_key);
+                _deactivateResonance('burst', 2500);
                 loadSelects();
             } else {
                 showToast(data.error, "error");
+                _deactivateResonance('burst');
             }
         } catch (e) {
             showToast("Burst encoding failed: " + e.message, "error");
+            _deactivateResonance('burst');
         }
 
         btn.disabled = false;
@@ -606,17 +675,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let vizSpectrogramMode = false;
     let vizPocketMode = false;
+    let vizResonanceMode = false;
     let spectrogramImageData = null;
     let pocketPhase = 0;
+    var vizResonanceParticles = [];
 
     function updateVizLegends() {
         const legendNormal = document.getElementById("viz-legend");
         const legendSpec = document.getElementById("viz-legend-spectrogram");
         const legendPocket = document.getElementById("viz-legend-pocket");
+        const legendResonance = document.getElementById("viz-legend-resonance");
         legendNormal.style.display = "none";
         legendSpec.style.display = "none";
         legendPocket.style.display = "none";
-        if (vizPocketMode) {
+        if (legendResonance) legendResonance.style.display = "none";
+        if (vizResonanceMode) {
+            if (legendResonance) legendResonance.style.display = "flex";
+        } else if (vizPocketMode) {
             legendPocket.style.display = "flex";
         } else if (vizSpectrogramMode) {
             legendSpec.style.display = "flex";
@@ -625,25 +700,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function _clearVizModes(except) {
+        if (except !== 'spectrogram') { vizSpectrogramMode = false; document.getElementById("viz-spectrogram-toggle").checked = false; }
+        if (except !== 'pocket') { vizPocketMode = false; document.getElementById("viz-pocket-toggle").checked = false; }
+        if (except !== 'resonance') { vizResonanceMode = false; var rt = document.getElementById("viz-resonance-toggle"); if (rt) rt.checked = false; }
+    }
+
     document.getElementById("viz-spectrogram-toggle").addEventListener("change", (e) => {
         vizSpectrogramMode = e.target.checked;
         spectrogramImageData = null;
-        if (vizSpectrogramMode) {
-            vizPocketMode = false;
-            document.getElementById("viz-pocket-toggle").checked = false;
-        }
+        if (vizSpectrogramMode) _clearVizModes('spectrogram');
         updateVizLegends();
     });
 
     document.getElementById("viz-pocket-toggle").addEventListener("change", (e) => {
         vizPocketMode = e.target.checked;
         pocketPhase = 0;
-        if (vizPocketMode) {
-            vizSpectrogramMode = false;
-            document.getElementById("viz-spectrogram-toggle").checked = false;
-        }
+        if (vizPocketMode) _clearVizModes('pocket');
         updateVizLegends();
     });
+
+    var vizResToggle = document.getElementById("viz-resonance-toggle");
+    if (vizResToggle) {
+        vizResToggle.addEventListener("change", function(e) {
+            vizResonanceMode = e.target.checked;
+            vizResonanceParticles = [];
+            if (vizResonanceMode) _clearVizModes('resonance');
+            updateVizLegends();
+        });
+    }
 
     let vizAudioCtx = null;
     let vizSource = null;
@@ -1017,7 +1102,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-            if (vizPocketMode) {
+            if (vizResonanceMode) {
+                drawResonanceViz(ctx, cw, ch, dataArr, maxBin, bin432, binWidth);
+            } else if (vizPocketMode) {
                 drawVocalPocket(ctx, cw, ch, dataArr, maxBin, bin432, binWidth);
             } else if (vizSpectrogramMode) {
                 drawSpectrogram(ctx, cw, ch, dataArr, maxBin, bin432, binWidth);
@@ -1156,6 +1243,82 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("viz-432-level").textContent = `432 Hz: ${dataArr[bin432] || 0}/255`;
         }
 
+        function drawResonanceViz(ctx, w, h, dataArr, maxBin, bin432, binWidth) {
+            ctx.fillStyle = "rgba(10, 10, 15, 0.15)";
+            ctx.fillRect(0, 0, w, h);
+
+            var peakVal = 0, peakBin = 0;
+            for (var i = 0; i < maxBin; i++) {
+                if (dataArr[i] > peakVal) { peakVal = dataArr[i]; peakBin = i; }
+            }
+            var peakFreq = peakBin * binWidth;
+            var energy = peakVal / 255;
+
+            var vizGlyphs = [
+                {g:"\u03b1",f:432.0,c:"#c9a84c"},{g:"\u03b2",f:433.2,c:"#2dd4bf"},{g:"\u03b3",f:434.0,c:"#60a5fa"},
+                {g:"\u03b4",f:434.8,c:"#a78bfa"},{g:"\u03b5",f:435.5,c:"#f87171"},{g:"\u03b6",f:429.0,c:"#92400e"},
+                {g:"\u03b7",f:430.5,c:"#2dd4bf"},{g:"\u03b8",f:431.0,c:"#fb923c"},{g:"\u03b9",f:432.5,c:"#34d399"},
+                {g:"\u03ba",f:433.7,c:"#f472b6"},{g:"\u03bb",f:436.0,c:"#60a5fa"},{g:"\u03bc",f:432.8,c:"#a3e635"},
+                {g:"\u03c0",f:432.0,c:"#e879f9"},{g:"\u03c3",f:435.1,c:"#c9a84c"},{g:"\u03c9",f:428.5,c:"#ef4444"},
+                {g:"\u0394",f:434.8,c:"#a78bfa"},{g:"\u03a3",f:435.1,c:"#c9a84c"},{g:"\u03a9",f:428.0,c:"#ef4444"},
+                {g:"\u221e",f:432.0,c:"#fbbf24"},{g:"\u25c6",f:432.0,c:"#c9a84c"}
+            ];
+
+            if (energy > 0.05) {
+                var bestGlyph = vizGlyphs[0];
+                var bestDist = 9999;
+                for (var gi = 0; gi < vizGlyphs.length; gi++) {
+                    var dist = Math.abs(vizGlyphs[gi].f - peakFreq);
+                    if (dist < bestDist) { bestDist = dist; bestGlyph = vizGlyphs[gi]; }
+                }
+                var count = Math.floor(energy * (_isFounder ? 6 : 3));
+                for (var ci = 0; ci < count; ci++) {
+                    vizResonanceParticles.push({
+                        x: Math.random() * w,
+                        y: h + 10,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: -(1 + Math.random() * 2 * energy),
+                        glyph: bestGlyph.g,
+                        color: _isFounder ? '#c9a84c' : bestGlyph.c,
+                        alpha: 0.5 + energy * 0.5,
+                        size: 14 + energy * 16,
+                        life: 80 + Math.floor(Math.random() * 60),
+                        pulse: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            var alive = [];
+            for (var pi = 0; pi < vizResonanceParticles.length; pi++) {
+                var p = vizResonanceParticles[pi];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                p.pulse += 0.06;
+                var fade = Math.min(1, p.life / 20);
+                var pf = 1 + Math.sin(p.pulse) * 0.12;
+                ctx.save();
+                ctx.globalAlpha = p.alpha * fade;
+                ctx.font = Math.round(p.size * pf) + 'px sans-serif';
+                ctx.fillStyle = p.color;
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = _isFounder ? 18 : 8;
+                ctx.textAlign = 'center';
+                ctx.fillText(p.glyph, p.x, p.y);
+                ctx.restore();
+                if (p.life > 0 && p.y > -20) alive.push(p);
+            }
+            vizResonanceParticles = alive;
+
+            ctx.fillStyle = _isFounder ? '#c9a84c' : '#2dd4bf';
+            ctx.font = '11px monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText('Resonance: ' + peakFreq.toFixed(0) + ' Hz  |  ' + vizResonanceParticles.length + ' glyphs', 10, 18);
+
+            document.getElementById("viz-peak-freq").textContent = 'Dominant: ' + peakFreq.toFixed(0) + ' Hz';
+            document.getElementById("viz-432-level").textContent = '432 Hz: ' + (dataArr[bin432] || 0) + '/255';
+        }
+
         function drawSpectrogram(ctx, w, h, dataArr, maxBin, bin432, binWidth) {
             if (!spectrogramImageData) {
                 ctx.fillStyle = "#0a0a0f";
@@ -1290,6 +1453,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 document.getElementById("cap-result").style.display = "block";
                 showToast("Analysis complete!", "success");
+                var capHash = (d.filename || '') + d.capacity_1bit + d.capacity_2bit;
+                var capHashHex = '';
+                for (var ci = 0; ci < capHash.length; ci++) capHashHex += capHash.charCodeAt(ci).toString(16);
+                _renderResonanceBadge('cap-resonance-badge', capHashHex.substring(0, 64));
             } else {
                 showToast(d.error, "error");
             }
@@ -1317,6 +1484,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>Sending Signal...';
         document.getElementById("silk-send-result").style.display = "none";
+        _activateResonance('silk', '', 'encoding');
 
         try {
             const res = await fetch("/api/silk/send", {
@@ -1343,13 +1511,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 silkPanel.classList.add("sapphire-glow");
                 setTimeout(() => silkPanel.classList.remove("sapphire-glow"), 2100);
 
+                _pulseResonance('silk', data.hash_key);
+                _renderResonanceBadge('silk-resonance-badge', data.hash_key);
+                _deactivateResonance('silk', 2500);
                 loadSilkFeed();
                 loadSelects();
             } else {
                 showToast(data.error, "error");
+                _deactivateResonance('silk');
             }
         } catch (e) {
             showToast("Signal failed: " + e.message, "error");
+            _deactivateResonance('silk');
         }
 
         btn.disabled = false;
@@ -1961,6 +2134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("adriana-transpile-btn")?.addEventListener("click", async () => {
         const expr = document.getElementById("adriana-input").value.trim();
         if (!expr) return showToast("Enter an Adriana expression", "error");
+        _activateResonance('harness', '', 'transpiling');
         try {
             const res = await fetch("/api/harness/adriana/transpile", {
                 method: "POST",
@@ -1968,14 +2142,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ expression: expr }),
             });
             const data = await res.json();
-            if (data.result) renderAdrianaResult(data.result, data.dry_runs);
+            if (data.result) {
+                renderAdrianaResult(data.result, data.dry_runs);
+                var txHash = '';
+                for (var ti = 0; ti < expr.length; ti++) txHash += expr.charCodeAt(ti).toString(16);
+                _pulseResonance('harness', txHash.substring(0, 64));
+            }
             else showToast(data.error || "Transpile failed", "error");
-        } catch(e) { showToast("Error: " + e.message, "error"); }
+            _deactivateResonance('harness', 2000);
+        } catch(e) { showToast("Error: " + e.message, "error"); _deactivateResonance('harness'); }
     });
 
     document.getElementById("adriana-execute-btn")?.addEventListener("click", async () => {
         const expr = document.getElementById("adriana-input").value.trim();
         if (!expr) return showToast("Enter an Adriana expression", "error");
+        _activateResonance('harness', '', 'executing');
         try {
             const res = await fetch("/api/harness/adriana/execute", {
                 method: "POST",
@@ -1983,7 +2164,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ expression: expr }),
             });
             const data = await res.json();
-            if (data.result) renderAdrianaResult(data.result, null, data.execution);
+            if (data.result) {
+                renderAdrianaResult(data.result, null, data.execution);
+                var exHash = '';
+                for (var ei = 0; ei < expr.length; ei++) exHash += expr.charCodeAt(ei).toString(16);
+                _pulseResonance('harness', exHash.substring(0, 64));
+            }
             if (data.success) {
                 showToast("Adriana: All commands executed", "success");
             } else if (data.partial) {
@@ -1993,8 +2179,9 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 showToast("Adriana: Execution blocked by safety pipeline", "error");
             }
+            _deactivateResonance('harness', 2000);
             loadHarnessStatus();
-        } catch(e) { showToast("Error: " + e.message, "error"); }
+        } catch(e) { showToast("Error: " + e.message, "error"); _deactivateResonance('harness'); }
     });
 
     document.getElementById("adriana-lexicon-btn")?.addEventListener("click", async () => {
@@ -3345,17 +3532,24 @@ document.addEventListener("DOMContentLoaded", () => {
             var msg = input.value.trim();
             if (!msg) { showToast("Enter a message to transmit", "error"); return; }
             meshSendBtn.disabled = true;
+            _activateResonance('mesh', '', 'transmitting');
             fetch("/api/mesh/send", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({message: msg}) }).then(function(r) { return r.json(); }).then(function(data) {
                 if (data.success) {
                     addMeshLog("TRANSMITTED", msg);
                     showToast("Message transmitted via mesh", "success");
+                    var meshHash = '';
+                    for (var mi = 0; mi < msg.length; mi++) meshHash += msg.charCodeAt(mi).toString(16);
+                    _pulseResonance('mesh', meshHash.substring(0, 64));
+                    _deactivateResonance('mesh', 2000);
                     input.value = "";
                     refreshMeshStatus();
                 } else {
                     showToast(data.error || "Transmit failed", "error");
+                    _deactivateResonance('mesh');
                 }
             }).catch(function(e) {
                 showToast("Transmit failed: " + e.message, "error");
+                _deactivateResonance('mesh');
             }).finally(function() {
                 meshSendBtn.disabled = !meshActive;
             });
@@ -3366,16 +3560,24 @@ document.addEventListener("DOMContentLoaded", () => {
     if (meshHandshakeBtn) {
         meshHandshakeBtn.addEventListener("click", function() {
             meshHandshakeBtn.disabled = true;
+            _activateResonance('mesh', '', 'handshake');
             fetch("/api/mesh/handshake", { method: "POST", headers: {"Content-Type": "application/json"}, body: "{}" }).then(function(r) { return r.json(); }).then(function(data) {
                 if (data.success) {
                     addMeshLog("HANDSHAKE", data.message || "432 Hz pulse sent");
                     showToast(data.message || "Handshake pulse sent", "success");
+                    var hsHash = data.node_id || data.message || '432';
+                    var hsHex = '';
+                    for (var hi = 0; hi < hsHash.length; hi++) hsHex += hsHash.charCodeAt(hi).toString(16);
+                    _pulseResonance('mesh', hsHex.substring(0, 64));
+                    _deactivateResonance('mesh', 2000);
                     refreshMeshStatus();
                 } else {
                     showToast(data.error || "Handshake failed", "error");
+                    _deactivateResonance('mesh');
                 }
             }).catch(function(e) {
                 showToast("Handshake failed: " + e.message, "error");
+                _deactivateResonance('mesh');
             }).finally(function() {
                 meshHandshakeBtn.disabled = false;
             });
@@ -3849,6 +4051,7 @@ document.addEventListener("DOMContentLoaded", () => {
             journalismEncodeBtn.disabled = true;
             journalismEncodeBtn.textContent = "Sinking into Silt...";
             document.getElementById("journalism-result").style.display = "none";
+            _activateResonance('journalism', '', 'encoding');
 
             fetch("/api/journalism/encode", { method: "POST", body: formData })
                 .then(function(r) { return r.json(); })
@@ -3857,6 +4060,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     journalismEncodeBtn.textContent = "Sink into Silt";
                     if (data.error) {
                         showToast(data.error, "error");
+                        _deactivateResonance('journalism');
                         return;
                     }
                     document.getElementById("journalism-result").style.display = "block";
@@ -3868,6 +4072,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById("journalism-carrier-style").textContent = data.carrier_style;
                     document.getElementById("journalism-scatter").textContent = data.scatter_mode;
                     document.getElementById("journalism-duration").textContent = data.carrier_duration_min + " min";
+                    _pulseResonance('journalism', data.hash_key);
+                    _renderResonanceBadge('journalism-resonance-badge', data.hash_key);
+                    _deactivateResonance('journalism', 2500);
 
                     document.getElementById("journalism-download-btn").onclick = function() {
                         window.location.href = "/api/journalism/download/" + encodeURIComponent(data.output_file);
@@ -3895,6 +4102,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     journalismEncodeBtn.disabled = false;
                     journalismEncodeBtn.textContent = "Sink into Silt";
                     showToast("Silt encoding failed", "error");
+                    _deactivateResonance('journalism');
                 });
         });
     }
@@ -4042,6 +4250,7 @@ document.addEventListener("DOMContentLoaded", () => {
             progressEl.style.display = "block";
             progressFill.style.width = "0%";
             progressText.textContent = "Initializing proof workflow...";
+            _activateResonance('proof', '', 'encoding');
             resetProofSteps();
 
             var stepTimers = [
@@ -4100,11 +4309,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     proofLastFile = data.output_file;
                     resultEl.style.display = "block";
                     showToast("Live Proof complete — integrity " + data.integrity_check, "success");
+                    _pulseResonance('proof', data.hash_key);
+                    _renderResonanceBadge('proof-resonance-badge', data.hash_key);
+                    _deactivateResonance('proof', 2500);
                 } else {
                     resetProofSteps();
                     errorEl.innerHTML = '<div class="error-title">Error</div>' + (data.error || "Unknown error");
                     errorEl.style.display = "block";
                     showToast("Proof failed", "error");
+                    _deactivateResonance('proof');
                 }
             } catch(e) {
                 stepIntervals.forEach(function(tid) { clearTimeout(tid); });
@@ -4112,6 +4325,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 errorEl.innerHTML = '<div class="error-title">Error</div>Request failed: ' + e.message;
                 errorEl.style.display = "block";
                 showToast("Proof failed", "error");
+                _deactivateResonance('proof');
             }
 
             setTimeout(function() { progressEl.style.display = "none"; }, 2000);
