@@ -3,6 +3,7 @@ import json
 from flask import Blueprint, request, jsonify, session, redirect, current_app
 from routes.auth import login_required, _set_user_tier, _set_stripe_ids, _get_stripe_customer_id, _get_user_by_stripe_customer, _get_user_by_stripe_subscription
 from routes.stripe_client import get_stripe_client, get_publishable_key
+from void_engine.vortex_wallet import VTX_PACKS, VTX_UNLOCK_FEATURES
 
 payments_bp = Blueprint("payments", __name__)
 
@@ -175,15 +176,28 @@ def stripe_webhook():
     data_obj = event.get("data", {}).get("object", {})
 
     if event_type == "checkout.session.completed":
-        tier = data_obj.get("metadata", {}).get("tier", "journalist")
-        user_id_str = data_obj.get("metadata", {}).get("user_id")
-        sub_id = data_obj.get("subscription")
-        if user_id_str:
-            from datetime import datetime, timedelta, timezone
-            expires = datetime.now(timezone.utc) + timedelta(days=31)
-            _set_user_tier(int(user_id_str), tier, expires)
-            if sub_id:
-                _set_stripe_ids(int(user_id_str), subscription_id=sub_id)
+        meta = data_obj.get("metadata", {})
+        if meta.get("type") == "vtx_purchase":
+            vtx_user_id = meta.get("user_id")
+            pack_name = meta.get("pack")
+            cs_id = data_obj.get("id", "")
+            if vtx_user_id and pack_name and pack_name in VTX_PACKS:
+                pack = VTX_PACKS[pack_name]
+                try:
+                    from void_engine.vortex_wallet import mint_purchase
+                    mint_purchase(int(vtx_user_id), pack["vtx"], cs_id)
+                except Exception as e:
+                    current_app.logger.error(f"VTX mint on webhook failed: {e}")
+        else:
+            tier = meta.get("tier", "journalist")
+            user_id_str = meta.get("user_id")
+            sub_id = data_obj.get("subscription")
+            if user_id_str:
+                from datetime import datetime, timedelta, timezone
+                expires = datetime.now(timezone.utc) + timedelta(days=31)
+                _set_user_tier(int(user_id_str), tier, expires)
+                if sub_id:
+                    _set_stripe_ids(int(user_id_str), subscription_id=sub_id)
 
     elif event_type == "invoice.paid":
         sub_id = data_obj.get("subscription")
@@ -211,3 +225,146 @@ def stripe_webhook():
                     _set_user_tier(user["id"], "ghost")
 
     return jsonify({"received": True}), 200
+
+
+@payments_bp.route("/api/vtx/packs")
+def vtx_packs():
+    packs = []
+    for key, pack in VTX_PACKS.items():
+        packs.append({
+            "id": key,
+            "label": pack["label"],
+            "vtx": float(pack["vtx"]),
+            "price_pence": pack["price_pence"],
+            "price_display": f"\u00a3{pack['price_pence'] / 100:.0f}",
+            "bonus": pack["bonus"],
+        })
+    return jsonify({"packs": packs})
+
+
+@payments_bp.route("/api/vtx/buy/<pack_name>", methods=["POST"])
+@login_required
+def vtx_buy(pack_name):
+    if pack_name not in VTX_PACKS:
+        return jsonify({"error": "Invalid VTX pack"}), 400
+
+    pack = VTX_PACKS[pack_name]
+    try:
+        sc = get_stripe_client()
+        user_id = session["user_id"]
+        username = session.get("username", "")
+        customer_id = _get_stripe_customer_id(user_id)
+
+        if not customer_id:
+            customer = sc.Customer.create(
+                metadata={"user_id": str(user_id), "username": username},
+            )
+            customer_id = customer.id
+            _set_stripe_ids(user_id, customer_id=customer_id)
+
+        domains = os.environ.get("REPLIT_DOMAINS", "localhost:5000").split(",")
+        base_url = f"https://{domains[0]}" if domains else "http://localhost:5000"
+
+        product_name = f"VOID VTX Credits - {pack['label']}"
+        products = sc.Product.search(query=f"name:'{product_name}'")
+        if products.data:
+            product = products.data[0]
+        else:
+            product = sc.Product.create(
+                name=product_name,
+                description=f"{int(pack['vtx'])} VTX Credits{' (' + pack['bonus'] + ')' if pack['bonus'] else ''}",
+                metadata={"type": "vtx_pack", "pack": pack_name},
+            )
+
+        checkout_session = sc.checkout.Session.create(
+            customer=customer_id,
+            payment_method_types=["card"],
+            line_items=[{
+                "price_data": {
+                    "currency": "gbp",
+                    "unit_amount": pack["price_pence"],
+                    "product": product.id,
+                },
+                "quantity": 1,
+            }],
+            mode="payment",
+            success_url=f"{base_url}/api/vtx/buy/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{base_url}/pricing",
+            metadata={
+                "type": "vtx_purchase",
+                "pack": pack_name,
+                "user_id": str(user_id),
+                "vtx_amount": str(int(pack["vtx"])),
+            },
+        )
+
+        return jsonify({"url": checkout_session.url})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@payments_bp.route("/api/vtx/buy/success")
+@login_required
+def vtx_buy_success():
+    return redirect("/messenger")
+
+
+@payments_bp.route("/api/vtx/unlocks")
+@login_required
+def vtx_unlocks_list():
+    features = []
+    for key, feat in VTX_UNLOCK_FEATURES.items():
+        features.append({
+            "id": key,
+            "label": feat["label"],
+            "cost": float(feat["cost"]),
+            "hours": feat["hours"],
+            "description": feat["description"],
+        })
+
+    from void_engine.messenger_auth import _get_db
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT feature, expires_at FROM vtx_unlocks WHERE user_id = %s AND expires_at > NOW()",
+            (session["user_id"],),
+        )
+        active = {}
+        for row in cur.fetchall():
+            active[row[0]] = row[1].isoformat() if row[1] else None
+    except Exception:
+        active = {}
+    finally:
+        conn.close()
+
+    return jsonify({"features": features, "active_unlocks": active})
+
+
+@payments_bp.route("/api/vtx/spend", methods=["POST"])
+@login_required
+def vtx_spend():
+    data = request.get_json(silent=True) or {}
+    feature = (data.get("feature") or "").strip()
+
+    if feature not in VTX_UNLOCK_FEATURES:
+        return jsonify({"error": "Invalid feature"}), 400
+
+    feat = VTX_UNLOCK_FEATURES[feature]
+
+    from void_engine.vortex_wallet import spend_vtx_with_unlock
+    from datetime import timedelta
+    result = spend_vtx_with_unlock(
+        session["user_id"], feat["cost"], feature, timedelta(hours=feat["hours"])
+    )
+    if "error" in result:
+        return jsonify(result), 400
+
+    return jsonify({
+        "success": True,
+        "feature": feature,
+        "label": feat["label"],
+        "spent": float(feat["cost"]),
+        "expires_at": result.get("expires_at", ""),
+        "block": result,
+    })

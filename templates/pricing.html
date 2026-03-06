@@ -271,6 +271,93 @@
         </div>
     </div>
 
+    <hr class="pricing-divider">
+
+    <div class="pricing-section-title">VTX Credits — Pay As You Go</div>
+    <div class="pricing-section-sub">Buy VTX credits to unlock features on demand. Earn VTX by encoding data, relaying mesh packets, or reporting bugs.</div>
+
+    {% if is_logged_in %}
+    <div style="text-align:center; margin-bottom: 24px;">
+        <span style="color:#888; font-size:12px;">Your Balance:</span>
+        <span id="vtx-pricing-balance" style="color:#c9a84c; font-size:20px; font-weight:bold; margin-left:8px;">...</span>
+        <span style="color:#c9a84c; font-size:12px;"> VTX</span>
+    </div>
+    {% endif %}
+
+    <div class="pricing-grid">
+        <div class="pricing-card">
+            <div class="pricing-tier-name">Starter</div>
+            <div class="pricing-price pricing-price-ghost">50 <span style="font-size:16px;">VTX</span></div>
+            <div class="pricing-price-sub">&#163;5 one-time</div>
+            <ul class="pricing-features">
+                <li>50 VTX credits</li>
+                <li>Unlock day passes for gated features</li>
+                <li>Transfer to other users</li>
+                <li>No expiry</li>
+            </ul>
+            {% if is_logged_in %}
+            <button class="pricing-cta pricing-cta-ghost" onclick="buyVtx('starter')">Buy 50 VTX</button>
+            {% else %}
+            <a href="/login" class="pricing-cta pricing-cta-ghost">Login to Buy</a>
+            {% endif %}
+        </div>
+
+        <div class="pricing-card pricing-card-featured" style="border-color: #2dd4bf;">
+            <div class="pricing-badge pricing-badge-teal">BEST VALUE</div>
+            <div class="pricing-tier-name">Builder</div>
+            <div class="pricing-price" style="color:#2dd4bf;">250 <span style="font-size:16px;">VTX</span></div>
+            <div class="pricing-price-sub">&#163;20 one-time &middot; 20% bonus</div>
+            <ul class="pricing-features">
+                <li>250 VTX credits (20% bonus)</li>
+                <li>All feature unlocks</li>
+                <li>Peer-to-peer transfers</li>
+                <li>Extended capacity unlocks</li>
+                <li>No expiry</li>
+            </ul>
+            {% if is_logged_in %}
+            <button class="pricing-cta pricing-cta-journalist" onclick="buyVtx('builder')">Buy 250 VTX</button>
+            {% else %}
+            <a href="/login" class="pricing-cta pricing-cta-journalist">Login to Buy</a>
+            {% endif %}
+        </div>
+
+        <div class="pricing-card pricing-card-featured" style="border-color: #c9a84c;">
+            <div class="pricing-badge">SOVEREIGN STACK</div>
+            <div class="pricing-tier-name">Sovereign Stack</div>
+            <div class="pricing-price">1000 <span style="font-size:16px;">VTX</span></div>
+            <div class="pricing-price-sub">&#163;65 one-time &middot; 35% bonus</div>
+            <ul class="pricing-features">
+                <li>1000 VTX credits (35% bonus)</li>
+                <li>All feature unlocks</li>
+                <li>Peer-to-peer transfers</li>
+                <li>Extended capacity + mesh passes</li>
+                <li>No expiry</li>
+            </ul>
+            {% if is_logged_in %}
+            <button class="pricing-cta pricing-cta-sovereign" onclick="buyVtx('sovereign_stack')">Buy 1000 VTX</button>
+            {% else %}
+            <a href="/login" class="pricing-cta pricing-cta-sovereign">Login to Buy</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="max-width:800px; margin: 0 auto 40px; padding: 24px; background:#0d0d1a; border:1px solid #1a1a2e; border-radius:12px;">
+        <div style="text-align:center; margin-bottom:16px; color:#c9a84c; font-size:13px; text-transform:uppercase; letter-spacing:2px;">Dual Economy</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; font-size:12px; color:#aaa;">
+            <div>
+                <div style="color:#e0e0e0; font-weight:bold; margin-bottom:6px;">Subscribe for Full Access</div>
+                <p style="line-height:1.6;">Monthly subscription unlocks all features at your tier level. Best for regular users who need consistent access to journalism, mesh, or sovereign features.</p>
+            </div>
+            <div>
+                <div style="color:#e0e0e0; font-weight:bold; margin-bottom:6px;">Pay-As-You-Go with VTX</div>
+                <p style="line-height:1.6;">Buy or earn VTX credits and spend them on 24-hour feature passes. Perfect for occasional use: 15 VTX for Journalism, 25 VTX for Mesh, 10 VTX for extended capacity.</p>
+            </div>
+        </div>
+        <div style="margin-top:16px; text-align:center; color:#666; font-size:11px;">
+            Earn VTX: 1 VTX/MB encoded &middot; 0.1 VTX/mesh relay &middot; 1-50 VTX/bug bounty
+        </div>
+    </div>
+
     <div class="pricing-footer">
         Al-Jabr 286 Sovereign Hash &middot; 432 Hz &middot; All payments processed via Stripe &middot; Cancel anytime
     </div>
@@ -291,6 +378,34 @@
         })
         .catch(function(err) { alert('Error: ' + err.message); });
     }
+
+    function buyVtx(pack) {
+        fetch('/api/vtx/buy/' + pack, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.url) {
+                window.location.href = data.url;
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(function(err) { alert('Error: ' + err.message); });
+    }
+
+    (function() {
+        var balEl = document.getElementById('vtx-pricing-balance');
+        if (balEl) {
+            fetch('/api/wallet/balance')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                balEl.textContent = (data.balance || 0).toFixed(1);
+            })
+            .catch(function() { balEl.textContent = '0'; });
+        }
+    })();
     </script>
 </body>
 </html>

@@ -63,6 +63,17 @@ def _ensure_columns():
         """)
 
         cur.execute("""
+            CREATE TABLE IF NOT EXISTS vtx_unlocks (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) NOT NULL,
+                feature VARCHAR(40) NOT NULL,
+                expires_at TIMESTAMP NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW(),
+                UNIQUE(user_id, feature)
+            )
+        """)
+
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS vigilance_reports (
                 id SERIAL PRIMARY KEY,
                 reporter_id INTEGER REFERENCES users(id) NOT NULL,
@@ -240,6 +251,27 @@ def admin_required(f):
     return decorated
 
 
+VTX_TIER_UNLOCK_MAP = {
+    "journalist": "journalism_day_pass",
+    "sovereign": "mesh_day_pass",
+}
+
+
+def _has_vtx_unlock(user_id, feature):
+    try:
+        conn = _get_db()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT 1 FROM vtx_unlocks WHERE user_id = %s AND feature = %s AND expires_at > NOW()",
+            (user_id, feature),
+        )
+        result = cur.fetchone() is not None
+        conn.close()
+        return result
+    except Exception:
+        return False
+
+
 def tier_required(min_tier):
     def decorator(f):
         @functools.wraps(f)
@@ -251,6 +283,9 @@ def tier_required(min_tier):
             user_tier = _get_user_tier(session["user_id"])
             session["tier"] = user_tier
             if TIER_LEVELS.get(user_tier, 0) < TIER_LEVELS.get(min_tier, 0):
+                unlock_feature = VTX_TIER_UNLOCK_MAP.get(min_tier)
+                if unlock_feature and _has_vtx_unlock(session["user_id"], unlock_feature):
+                    return f(*args, **kwargs)
                 tier_names = {"journalist": "Journalist", "sovereign": "Sovereign"}
                 name = tier_names.get(min_tier, min_tier)
                 return jsonify({"error": f"Upgrade to {name} tier to access this feature", "upgrade": True, "required_tier": min_tier}), 403
