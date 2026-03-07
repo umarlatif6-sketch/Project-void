@@ -79,7 +79,7 @@ def get_user_by_id(user_id):
     try:
         cur = conn.cursor()
         cur.execute(
-            "SELECT id, username, display_name, created_at, last_seen FROM users WHERE id = %s",
+            "SELECT id, username, display_name, created_at, last_seen, role, tier FROM users WHERE id = %s",
             (user_id,),
         )
         row = cur.fetchone()
@@ -91,6 +91,8 @@ def get_user_by_id(user_id):
             "display_name": row[2],
             "created_at": row[3].isoformat() if row[3] else None,
             "last_seen": row[4].isoformat() if row[4] else None,
+            "role": row[5] or "user",
+            "tier": row[6] or "ghost",
         }
     finally:
         conn.close()

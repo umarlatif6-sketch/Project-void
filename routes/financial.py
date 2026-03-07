@@ -538,3 +538,50 @@ def resonance_field():
 def resonance_glyphs():
     from void_engine.adriana_scl import AdrianaResonance
     return jsonify({"glyphs": AdrianaResonance.get_all_glyphs(), "count": len(AdrianaResonance.GLYPHS)})
+
+
+@financial_bp.route("/api/wallet/symmetry")
+@login_required
+def wallet_symmetry():
+    user_id = session.get("user_id") or session.get("messenger_user_id")
+    if not user_id:
+        return jsonify({"error": "Not logged in"}), 401
+
+    from void_engine.messenger_auth import _get_db
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT COUNT(*),
+                      COALESCE(SUM(CASE WHEN tx_type IN ('mint_resonance','mint_relay','mint_purchase','mint_vigilance') THEN amount ELSE 0 END), 0),
+                      COALESCE(SUM(CASE WHEN tx_type = 'gift' AND from_user_id = %s THEN amount ELSE 0 END), 0),
+                      COUNT(DISTINCT DATE(timestamp))
+               FROM vortex_ledger
+               WHERE (from_user_id = %s OR to_user_id = %s)
+                 AND timestamp >= NOW() - INTERVAL '7 days'""",
+            (user_id, user_id, user_id),
+        )
+        row = cur.fetchone()
+        total_tx = row[0] or 0
+        vtx_earned = float(row[1] or 0)
+        vtx_gifted = float(row[2] or 0)
+        streak_days = row[3] or 0
+
+        if total_tx == 0:
+            score = 0.0
+        elif total_tx <= 2:
+            score = 0.3
+        elif total_tx <= 5:
+            score = 0.6
+        else:
+            score = 1.0
+
+        return jsonify({
+            "symmetry_score": score,
+            "total_tx_7d": total_tx,
+            "vtx_earned_7d": round(vtx_earned, 4),
+            "vtx_gifted_7d": round(vtx_gifted, 4),
+            "streak_days": streak_days,
+        })
+    finally:
+        conn.close()

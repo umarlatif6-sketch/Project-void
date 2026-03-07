@@ -188,6 +188,27 @@
         .wallet-balance-amount { font-size: 28px; color: var(--gold); font-weight: bold; margin: 8px 0 4px; }
         .wallet-balance-label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; }
         .wallet-balance-symbol { font-size: 11px; color: var(--gold-dim); }
+        .symmetry-pulse-card { padding: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; }
+        .symmetry-label { font-size: 9px; color: var(--dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+        .symmetry-bar-track { height: 6px; background: #1a1a28; border-radius: 3px; overflow: hidden; position: relative; }
+        .symmetry-bar-fill { height: 100%; border-radius: 3px; width: 0%; transition: width 1s ease, background 1s ease, box-shadow 1s ease; }
+        .symmetry-bar-fill.dormant { background: #333; }
+        .symmetry-bar-fill.warming { background: var(--teal); box-shadow: 0 0 8px rgba(45, 212, 191, 0.4); animation: symmetryPulse 3s ease-in-out infinite; }
+        .symmetry-bar-fill.resonant { background: #4ade80; box-shadow: 0 0 12px rgba(74, 222, 128, 0.5); animation: symmetryPulse 2s ease-in-out infinite; }
+        .symmetry-bar-fill.sovereign-pulse { background: var(--gold); box-shadow: 0 0 16px rgba(201, 168, 76, 0.6); animation: symmetryPulseGold 1.5s ease-in-out infinite; }
+        @keyframes symmetryPulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+        @keyframes symmetryPulseGold { 0%, 100% { opacity: 0.8; box-shadow: 0 0 12px rgba(201, 168, 76, 0.4); } 50% { opacity: 1; box-shadow: 0 0 20px rgba(201, 168, 76, 0.8); } }
+        .symmetry-status { font-size: 10px; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase; }
+        .symmetry-status.dormant { color: #555; }
+        .symmetry-status.warming { color: var(--teal); }
+        .symmetry-status.resonant { color: #4ade80; }
+        .symmetry-status.sovereign-pulse { color: var(--gold); }
+        .symmetry-stats { font-size: 9px; color: var(--dim); margin-top: 4px; }
+        .sidebar-tier-badge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 8px; font-weight: bold; letter-spacing: 1px; margin-left: 6px; vertical-align: middle; }
+        .sidebar-tier-badge.ghost { background: #1a1a2e; color: #555; border: 1px solid #2a2a3e; }
+        .sidebar-tier-badge.journalist { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.3); }
+        .sidebar-tier-badge.sovereign { background: rgba(201, 168, 76, 0.15); color: #c9a84c; border: 1px solid rgba(201, 168, 76, 0.3); }
+        .sidebar-tier-badge.founder { background: rgba(201, 168, 76, 0.25); color: #c9a84c; border: 1px solid rgba(201, 168, 76, 0.5); }
         .wallet-section-title { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 6px; }
         .wallet-tx-list { flex: 1; overflow-y: auto; }
         .wallet-tx-item { display: flex; align-items: center; gap: 8px; padding: 8px; border-bottom: 1px solid var(--border); font-size: 11px; }
@@ -308,7 +329,7 @@
                 <div class="sidebar" id="sidebar">
                     <div class="sidebar-header">
                         <h3>Conversations</h3>
-                        <div class="sidebar-user"><span class="dot"></span><span id="current-username"></span></div>
+                        <div class="sidebar-user"><span class="dot"></span><span id="current-username"></span><span class="sidebar-tier-badge" id="sidebar-tier-badge" style="display:none;"></span></div>
                     </div>
                     <div class="sidebar-actions">
                         <button class="btn-new-chat" id="new-chat-btn">+ New Chat</button>
@@ -327,6 +348,14 @@
                             <div class="wallet-balance-amount" id="wallet-balance">0.0000</div>
                             <div class="wallet-balance-symbol">VTX</div>
                             <a href="/pricing#vtx" style="display:inline-block;margin-top:8px;padding:6px 16px;background:var(--gold);color:var(--bg);border-radius:4px;font-size:10px;font-weight:bold;text-decoration:none;letter-spacing:1px;">BUY VTX</a>
+                        </div>
+                        <div class="symmetry-pulse-card" id="symmetry-card">
+                            <div class="symmetry-label">Resonance Pulse</div>
+                            <div class="symmetry-bar-track">
+                                <div class="symmetry-bar-fill" id="symmetry-fill"></div>
+                            </div>
+                            <div class="symmetry-status" id="symmetry-status">Scanning...</div>
+                            <div class="symmetry-stats" id="symmetry-stats"></div>
                         </div>
                         <div class="wallet-section-title">VTX Unlocks</div>
                         <div id="wallet-unlocks" style="margin-bottom:12px;"></div>
@@ -476,6 +505,28 @@
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('chat-app').style.display = 'block';
             document.getElementById('current-username').textContent = user.username;
+            var tier = user.tier || 'ghost';
+            var role = user.role || 'user';
+            document.body.setAttribute('data-tier', tier);
+            if (role === 'founder') {
+                document.body.setAttribute('data-founder-vibe', 'true');
+            }
+            var badge = document.getElementById('sidebar-tier-badge');
+            if (role === 'founder') {
+                badge.textContent = 'FOUNDING NODE';
+                badge.className = 'sidebar-tier-badge founder';
+                badge.style.display = 'inline-block';
+            } else if (tier === 'sovereign') {
+                badge.textContent = 'SOVEREIGN';
+                badge.className = 'sidebar-tier-badge sovereign';
+                badge.style.display = 'inline-block';
+            } else if (tier === 'journalist') {
+                badge.textContent = 'JOURNALIST';
+                badge.className = 'sidebar-tier-badge journalist';
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
             loadConversations();
             loadWallet();
         }
@@ -908,6 +959,24 @@
                 el.innerHTML = '<p><strong>Chain:</strong> ' + (data.total_blocks || 0) + ' blocks &middot; '
                     + '<strong>Minted:</strong> ' + parseFloat(data.total_minted || 0).toFixed(4) + ' VTX &middot; '
                     + '<strong>Users:</strong> ' + (data.total_users_with_balance || 0) + '</p>';
+            }).catch(function() {});
+
+            fetch('/api/wallet/symmetry').then(function(r) { return r.json(); }).then(function(data) {
+                var fill = document.getElementById('symmetry-fill');
+                var status = document.getElementById('symmetry-status');
+                var stats = document.getElementById('symmetry-stats');
+                var score = data.symmetry_score || 0;
+                var pct = Math.round(score * 100);
+                var cls, label;
+                if (score <= 0.2) { cls = 'dormant'; label = 'Dormant'; }
+                else if (score <= 0.5) { cls = 'warming'; label = 'Warming'; }
+                else if (score <= 0.8) { cls = 'resonant'; label = 'Resonant'; }
+                else { cls = 'sovereign-pulse'; label = 'Sovereign Pulse'; }
+                fill.className = 'symmetry-bar-fill ' + cls;
+                fill.style.width = Math.max(pct, 4) + '%';
+                status.className = 'symmetry-status ' + cls;
+                status.textContent = label;
+                stats.textContent = '7d: ' + (data.total_tx_7d || 0) + ' transactions \u00b7 ' + (data.vtx_earned_7d || 0) + ' VTX earned \u00b7 ' + (data.streak_days || 0) + ' active days';
             }).catch(function() {});
         }
 
