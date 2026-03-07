@@ -6,7 +6,7 @@
     <title>PROJECT VOID</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body data-demo="{{ 'true' if demo_mode else 'false' }}" data-tier="{{ user_tier or 'ghost' }}" {% if is_founder %}data-founder-vibe="true"{% endif %}>
+<body class="engine-page" data-demo="{{ 'true' if demo_mode else 'false' }}" data-tier="{{ user_tier or 'ghost' }}" data-username="{{ username or '' }}" {% if is_founder %}data-founder-vibe="true"{% endif %}>
     {% if demo_mode %}
     <div class="demo-banner">
         <span class="demo-banner-icon">&#9670;</span>
@@ -47,6 +47,55 @@
             {{ display_name or username }} <a href="/api/auth/logout" class="engine-nav-link">Logout</a>
         </span>
     </nav>
+
+    <div id="void-command-bar" class="void-command-bar">
+        <div class="vcb-left">
+            <span class="vcb-vtx-icon">&#9670;</span>
+            <span class="vcb-vtx-label">VTX</span>
+            <span id="vcb-vtx-balance" class="vcb-vtx-balance">--</span>
+        </div>
+        <div class="vcb-center">
+            <span id="vcb-tier-badge" class="vcb-tier-badge">{{ user_tier or 'ghost' }}</span>
+            <span id="vcb-engine-status" class="vcb-engine-dot"></span>
+            <span id="vcb-engine-label" class="vcb-engine-label">Engine Active</span>
+            {% if user_tier == 'sovereign' %}
+            <span id="vcb-mesh-status" class="vcb-mesh-indicator">
+                <span class="vcb-mesh-dot"></span>
+                <span class="vcb-mesh-label">Mesh</span>
+            </span>
+            {% endif %}
+        </div>
+        <div class="vcb-right">
+            <button id="vcb-cmd-k-btn" class="vcb-cmd-k-btn" title="Quick Actions (Ctrl+K)">
+                <span class="vcb-cmd-k-icon">&#8984;K</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="void-cmd-overlay" class="void-cmd-overlay" style="display:none;">
+        <div class="void-cmd-modal">
+            <input type="text" id="void-cmd-input" class="void-cmd-input" placeholder="Type a command... encode, decode, gift vtx, mesh, wallet..." autocomplete="off" spellcheck="false">
+            <div id="void-cmd-results" class="void-cmd-results"></div>
+        </div>
+    </div>
+
+    <div id="sovereign-onboarding-overlay" class="sov-onboarding-overlay" style="display:none;">
+        <div class="sov-onboarding-backdrop"></div>
+        <div class="sov-onboarding-card">
+            <div class="sov-onboarding-glyph">&#9670;</div>
+            <div id="sov-onboarding-text" class="sov-onboarding-text"></div>
+            <div class="sov-onboarding-step-dots">
+                <span class="sov-step-dot active" data-step="0"></span>
+                <span class="sov-step-dot" data-step="1"></span>
+                <span class="sov-step-dot" data-step="2"></span>
+                <span class="sov-step-dot" data-step="3"></span>
+            </div>
+            <div class="sov-onboarding-actions">
+                <button id="sov-onboarding-skip" class="sov-onboarding-skip">Skip</button>
+                <button id="sov-onboarding-next" class="sov-onboarding-next">Next</button>
+            </div>
+        </div>
+    </div>
 
     <main>
         <div class="tabs">

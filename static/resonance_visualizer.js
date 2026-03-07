@@ -42,13 +42,18 @@
         this.active = false;
         this.raf = null;
         this.canvas = document.createElement('canvas');
-        this.canvas.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;pointer-events:none;z-index:5;';
+        this.canvas.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;z-index:5;';
         this.el.style.position = 'relative';
         this.el.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
+        this.tooltip = document.createElement('div');
+        this.tooltip.className = 'glyph-tooltip';
+        this.el.appendChild(this.tooltip);
         this._resize();
         var self = this;
         window.addEventListener('resize', function() { self._resize(); });
+        this.canvas.addEventListener('mousemove', function(e) { self._onMouseMove(e); });
+        this.canvas.addEventListener('mouseleave', function() { self._hideTooltip(); });
     }
 
     ResonanceField.prototype._resize = function() {
@@ -136,6 +141,42 @@
         this.particles = alive;
         var self = this;
         this.raf = requestAnimationFrame(function() { self._loop(); });
+    };
+
+    ResonanceField.prototype._onMouseMove = function(e) {
+        var rect = this.canvas.getBoundingClientRect();
+        var mx = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+        var my = (e.clientY - rect.top) * (this.canvas.height / rect.height);
+        var hit = null;
+        var hitDist = 30;
+        for (var i = 0; i < this.particles.length; i++) {
+            var p = this.particles[i];
+            var dx = p.x - mx;
+            var dy = p.y - my;
+            var d = Math.sqrt(dx * dx + dy * dy);
+            if (d < hitDist) {
+                hitDist = d;
+                hit = p;
+            }
+        }
+        if (hit) {
+            var score = Math.max(0, Math.min(100, Math.round(100 - Math.abs(hit.freq - 432.0) * 10)));
+            this.tooltip.innerHTML = '<span class="glyph-tooltip-glyph" style="color:' + hit.color + '">' + hit.glyph + '</span> ' +
+                '<span class="glyph-tooltip-freq">' + hit.freq.toFixed(1) + ' Hz</span>' +
+                '<span class="glyph-tooltip-score">' + score + '%</span>';
+            var elRect = this.el.getBoundingClientRect();
+            var tipX = e.clientX - elRect.left;
+            var tipY = e.clientY - elRect.top - 12;
+            this.tooltip.style.left = tipX + 'px';
+            this.tooltip.style.top = tipY + 'px';
+            this.tooltip.classList.add('visible');
+        } else {
+            this._hideTooltip();
+        }
+    };
+
+    ResonanceField.prototype._hideTooltip = function() {
+        this.tooltip.classList.remove('visible');
     };
 
     ResonanceField.prototype.pulseHash = function(hashHex) {

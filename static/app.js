@@ -4540,4 +4540,400 @@ document.addEventListener("DOMContentLoaded", () => {
             return resp;
         });
     };
+
+    window.VoidState = {
+        vtxBalance: null,
+        userTier: userTier,
+        engineOnline: true,
+        meshConnected: false,
+        _pollTimer: null,
+        _visHandler: null,
+
+        async refreshBalance() {
+            try {
+                var balEl = document.getElementById('vcb-vtx-balance');
+                if (balEl) balEl.classList.add('updating');
+                var res = await origFetch('/api/wallet/balance');
+                if (res.ok) {
+                    var data = await res.json();
+                    this.vtxBalance = data.balance;
+                    this.userTier = data.tier || this.userTier;
+                    if (balEl) {
+                        balEl.textContent = (typeof data.balance === 'number') ? data.balance.toFixed(1) : data.balance;
+                        setTimeout(function() { balEl.classList.remove('updating'); }, 400);
+                    }
+                    var tierEl = document.getElementById('vcb-tier-badge');
+                    if (tierEl) tierEl.textContent = (data.tier || this.userTier).toUpperCase();
+                } else {
+                    if (balEl) balEl.classList.remove('updating');
+                }
+            } catch(e) {
+                var balEl2 = document.getElementById('vcb-vtx-balance');
+                if (balEl2) balEl2.classList.remove('updating');
+            }
+        },
+
+        async refreshMeshStatus() {
+            var meshDot = document.getElementById('vcb-mesh-status');
+            if (!meshDot) return;
+            try {
+                var res = await origFetch('/api/mesh/status');
+                if (res.ok) {
+                    var data = await res.json();
+                    this.meshConnected = !!(data.connected || data.is_connected);
+                    var dot = meshDot.querySelector('.vcb-mesh-dot');
+                    if (dot) {
+                        if (this.meshConnected) dot.classList.add('connected');
+                        else dot.classList.remove('connected');
+                    }
+                }
+            } catch(e) {}
+        },
+
+        async refreshEngineStatus() {
+            try {
+                var res = await origFetch('/api/status');
+                if (res.ok) {
+                    this.engineOnline = true;
+                    var dot = document.getElementById('vcb-engine-status');
+                    var lbl = document.getElementById('vcb-engine-label');
+                    if (dot) dot.classList.remove('offline');
+                    if (lbl) lbl.textContent = 'Engine Active';
+                } else {
+                    this.engineOnline = false;
+                    var dot2 = document.getElementById('vcb-engine-status');
+                    var lbl2 = document.getElementById('vcb-engine-label');
+                    if (dot2) dot2.classList.add('offline');
+                    if (lbl2) lbl2.textContent = 'Engine Offline';
+                }
+            } catch(e) {
+                this.engineOnline = false;
+                var dot3 = document.getElementById('vcb-engine-status');
+                var lbl3 = document.getElementById('vcb-engine-label');
+                if (dot3) dot3.classList.add('offline');
+                if (lbl3) lbl3.textContent = 'Engine Offline';
+            }
+        },
+
+        async refreshAll() {
+            await Promise.all([
+                this.refreshBalance(),
+                this.refreshMeshStatus(),
+                this.refreshEngineStatus()
+            ]);
+        },
+
+        startPolling() {
+            var self = this;
+            self.refreshAll();
+            self._pollTimer = setInterval(function() { self.refreshAll(); }, 60000);
+            self._visHandler = function() {
+                if (!document.hidden) self.refreshAll();
+            };
+            document.addEventListener('visibilitychange', self._visHandler);
+        }
+    };
+
+    if (!isDemo) {
+        window.VoidState.startPolling();
+    }
+
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            if (!isDemo && window.VoidState) window.VoidState.refreshBalance();
+        });
+    });
+
+    var _cmdActions = [
+        { id: 'encode', icon: '\u25C6', name: 'Encode', desc: 'Hide a file inside audio', tab: 'encode' },
+        { id: 'decode', icon: '\u25C7', name: 'Decode', desc: 'Extract a file from audio', tab: 'decode' },
+        { id: 'burst', icon: '\u26A1', name: 'Burst Signal', desc: 'Quick short signal encoding', tab: 'burst' },
+        { id: 'visualizer', icon: '\u223F', name: 'Visualizer', desc: '432 Hz frequency spectrum', tab: 'visualizer' },
+        { id: 'capacity', icon: '\u2261', name: 'Capacity', desc: 'Carrier capacity analysis', tab: 'capacity' },
+        { id: 'silk', icon: '\u2042', name: 'Silk Web', desc: 'Signal relay network', tab: 'silk' },
+        { id: 'mesh', icon: '\u2A2F', name: 'Mesh', desc: 'Ghost Internet mesh network', tab: 'mesh' },
+        { id: 'transceiver', icon: '\u2B21', name: 'Transceiver', desc: 'Signal transceiver control', tab: 'transceiver' },
+        { id: 'blueprint', icon: '\u2B22', name: 'Blueprint', desc: 'Hardware schematics', tab: 'blueprint' },
+        { id: 'journalism', icon: '\u270E', name: 'Journalism', desc: 'Silt journalism drops', tab: 'journalism' },
+        { id: 'proof', icon: '\u2713', name: 'Live Proof', desc: 'Live proof panel', tab: 'proof' },
+        { id: 'files', icon: '\u2191', name: 'Files', desc: 'File manager', tab: 'files' },
+        { id: 'harness', icon: '\u2699', name: 'Harness', desc: 'Plankton-Orin harness', tab: 'harness' },
+        { id: 'vigilance', icon: '\u2691', name: 'Vigilance', desc: 'Bug bounty board', tab: 'vigilance' },
+        { id: 'wallet', icon: '\u25C6', name: 'Wallet', desc: 'VTX wallet & balance', url: '/pricing' },
+        { id: 'gift', icon: '\u2661', name: 'Gift VTX', desc: 'Send VTX to another user', url: '/messenger' },
+        { id: 'messenger', icon: '\u2709', name: 'Messenger', desc: 'Encrypted messaging', url: '/messenger' },
+        { id: 'sovereign', icon: '\u2B50', name: 'Sovereign', desc: 'Sovereign hardware page', url: '/sovereign' },
+        { id: 'pricing', icon: '\u2B50', name: 'Pricing', desc: 'Tier pricing page', url: '/pricing' },
+        { id: 'grants', icon: '\u2606', name: 'Grants', desc: 'Grant applications', url: '/grants' },
+        { id: 'guide', icon: '\u2139', name: 'Guide', desc: 'User guide', url: '/guide' }
+    ];
+
+    var _cmdOverlay = document.getElementById('void-cmd-overlay');
+    var _cmdInput = document.getElementById('void-cmd-input');
+    var _cmdResults = document.getElementById('void-cmd-results');
+    var _cmdSelectedIdx = -1;
+
+    function _cmdFuzzyMatch(query, text) {
+        query = query.toLowerCase();
+        text = text.toLowerCase();
+        if (text.indexOf(query) !== -1) return true;
+        var qi = 0;
+        for (var ti = 0; ti < text.length && qi < query.length; ti++) {
+            if (text[ti] === query[qi]) qi++;
+        }
+        return qi === query.length;
+    }
+
+    function _cmdRender(query) {
+        var filtered = _cmdActions;
+        if (query) {
+            filtered = _cmdActions.filter(function(a) {
+                return _cmdFuzzyMatch(query, a.name) || _cmdFuzzyMatch(query, a.desc) || _cmdFuzzyMatch(query, a.id);
+            });
+        }
+        _cmdSelectedIdx = filtered.length > 0 ? 0 : -1;
+        _cmdResults.innerHTML = filtered.map(function(a, i) {
+            return '<div class="void-cmd-item' + (i === 0 ? ' selected' : '') + '" data-idx="' + i + '" data-action-id="' + a.id + '">' +
+                '<span class="void-cmd-item-icon">' + a.icon + '</span>' +
+                '<div class="void-cmd-item-text">' +
+                    '<div class="void-cmd-item-name">' + a.name + '</div>' +
+                    '<div class="void-cmd-item-desc">' + a.desc + '</div>' +
+                '</div>' +
+                (a.tab ? '<span class="void-cmd-item-shortcut">TAB</span>' : '<span class="void-cmd-item-shortcut">NAV</span>') +
+            '</div>';
+        }).join('');
+        _cmdResults.querySelectorAll('.void-cmd-item').forEach(function(el) {
+            el.addEventListener('click', function() {
+                var aid = el.dataset.actionId;
+                _cmdExecuteAction(aid);
+            });
+        });
+    }
+
+    function _cmdExecuteAction(actionId) {
+        var action = _cmdActions.find(function(a) { return a.id === actionId; });
+        if (!action) return;
+        _cmdClose();
+        if (action.tab) {
+            var tabBtn = document.querySelector('.tab[data-tab="' + action.tab + '"]');
+            if (tabBtn) tabBtn.click();
+        } else if (action.url) {
+            window.location.href = action.url;
+        }
+    }
+
+    function _cmdOpen() {
+        if (!_cmdOverlay) return;
+        _cmdOverlay.style.display = 'flex';
+        _cmdInput.value = '';
+        _cmdRender('');
+        setTimeout(function() { _cmdInput.focus(); }, 50);
+    }
+
+    function _cmdClose() {
+        if (!_cmdOverlay) return;
+        _cmdOverlay.style.display = 'none';
+        _cmdInput.value = '';
+    }
+
+    if (_cmdInput) {
+        _cmdInput.addEventListener('input', function() {
+            _cmdRender(_cmdInput.value.trim());
+        });
+
+        _cmdInput.addEventListener('keydown', function(e) {
+            var items = _cmdResults.querySelectorAll('.void-cmd-item');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (_cmdSelectedIdx < items.length - 1) _cmdSelectedIdx++;
+                items.forEach(function(el, i) { el.classList.toggle('selected', i === _cmdSelectedIdx); });
+                if (items[_cmdSelectedIdx]) items[_cmdSelectedIdx].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (_cmdSelectedIdx > 0) _cmdSelectedIdx--;
+                items.forEach(function(el, i) { el.classList.toggle('selected', i === _cmdSelectedIdx); });
+                if (items[_cmdSelectedIdx]) items[_cmdSelectedIdx].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (_cmdSelectedIdx >= 0 && items[_cmdSelectedIdx]) {
+                    var aid = items[_cmdSelectedIdx].dataset.actionId;
+                    _cmdExecuteAction(aid);
+                }
+            } else if (e.key === 'Escape') {
+                _cmdClose();
+            }
+        });
+    }
+
+    if (_cmdOverlay) {
+        _cmdOverlay.addEventListener('click', function(e) {
+            if (e.target === _cmdOverlay) _cmdClose();
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            if (_cmdOverlay && _cmdOverlay.style.display !== 'none') {
+                _cmdClose();
+            } else {
+                _cmdOpen();
+            }
+        }
+        if (e.key === 'Escape' && _cmdOverlay && _cmdOverlay.style.display !== 'none') {
+            _cmdClose();
+        }
+    });
+
+    var cmdKBtn = document.getElementById('vcb-cmd-k-btn');
+    if (cmdKBtn) {
+        cmdKBtn.addEventListener('click', function() { _cmdOpen(); });
+    }
+
+    var _sovOnboardingSteps = [
+        {
+            text: "Welcome home, Sovereign. Let me show you what your tier unlocks.",
+            highlight: '#void-command-bar'
+        },
+        {
+            text: "The Mesh is yours to command. Host a node and join the Ghost Internet.",
+            highlight: '.tab[data-tab="mesh"]'
+        },
+        {
+            text: "Your Adriana learns your language. Speak naturally \u2014 she will mirror your resonance.",
+            highlight: '#resonance-handshake-btn'
+        },
+        {
+            text: "The Handshake proves your machine\u2019s identity. Try it now.",
+            highlight: '#resonance-handshake-btn'
+        }
+    ];
+
+    var _sovCurrentStep = 0;
+    var _sovTypingTimer = null;
+    var _sovHighlightedEl = null;
+
+    function _sovGetStorageKey() {
+        var username = document.body.getAttribute('data-username') || '';
+        return 'void_sovereign_onboarded' + (username ? '_' + username : '');
+    }
+
+    function _sovShouldShow() {
+        var tier = document.body.getAttribute('data-tier');
+        if (tier !== 'sovereign') return false;
+        if (isDemo) return false;
+        try {
+            return !localStorage.getItem(_sovGetStorageKey());
+        } catch(e) {
+            return false;
+        }
+    }
+
+    function _sovTypeText(el, text, cb) {
+        el.innerHTML = '';
+        var idx = 0;
+        var cursor = document.createElement('span');
+        cursor.className = 'sov-cursor';
+        el.appendChild(cursor);
+
+        function typeNext() {
+            if (idx < text.length) {
+                var charNode = document.createTextNode(text[idx]);
+                el.insertBefore(charNode, cursor);
+                idx++;
+                _sovTypingTimer = setTimeout(typeNext, 35);
+            } else {
+                setTimeout(function() {
+                    if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+                    if (cb) cb();
+                }, 400);
+            }
+        }
+        typeNext();
+    }
+
+    function _sovHighlight(selector) {
+        _sovClearHighlight();
+        if (!selector) return;
+        var el = document.querySelector(selector);
+        if (el) {
+            el.classList.add('sov-onboarding-highlight');
+            _sovHighlightedEl = el;
+        }
+    }
+
+    function _sovClearHighlight() {
+        if (_sovHighlightedEl) {
+            _sovHighlightedEl.classList.remove('sov-onboarding-highlight');
+            _sovHighlightedEl = null;
+        }
+    }
+
+    function _sovUpdateDots(step) {
+        var dots = document.querySelectorAll('.sov-step-dot');
+        dots.forEach(function(dot, i) {
+            dot.classList.remove('active', 'completed');
+            if (i === step) dot.classList.add('active');
+            else if (i < step) dot.classList.add('completed');
+        });
+    }
+
+    function _sovShowStep(step) {
+        if (_sovTypingTimer) { clearTimeout(_sovTypingTimer); _sovTypingTimer = null; }
+        _sovCurrentStep = step;
+        var textEl = document.getElementById('sov-onboarding-text');
+        var nextBtn = document.getElementById('sov-onboarding-next');
+        if (!textEl || !nextBtn) return;
+
+        if (step >= _sovOnboardingSteps.length) {
+            _sovComplete();
+            return;
+        }
+
+        var s = _sovOnboardingSteps[step];
+        _sovUpdateDots(step);
+        _sovHighlight(s.highlight);
+        nextBtn.textContent = (step === _sovOnboardingSteps.length - 1) ? 'FINISH' : 'NEXT';
+        nextBtn.disabled = true;
+
+        _sovTypeText(textEl, s.text, function() {
+            nextBtn.disabled = false;
+        });
+    }
+
+    function _sovComplete() {
+        if (_sovTypingTimer) { clearTimeout(_sovTypingTimer); _sovTypingTimer = null; }
+        _sovClearHighlight();
+        var overlay = document.getElementById('sovereign-onboarding-overlay');
+        if (overlay) overlay.style.display = 'none';
+        try {
+            localStorage.setItem(_sovGetStorageKey(), 'true');
+        } catch(e) {}
+    }
+
+    function _sovStart() {
+        var overlay = document.getElementById('sovereign-onboarding-overlay');
+        if (!overlay) return;
+        overlay.style.display = 'flex';
+        _sovShowStep(0);
+    }
+
+    var sovNextBtn = document.getElementById('sov-onboarding-next');
+    var sovSkipBtn = document.getElementById('sov-onboarding-skip');
+
+    if (sovNextBtn) {
+        sovNextBtn.addEventListener('click', function() {
+            _sovShowStep(_sovCurrentStep + 1);
+        });
+    }
+
+    if (sovSkipBtn) {
+        sovSkipBtn.addEventListener('click', function() {
+            _sovComplete();
+        });
+    }
+
+    if (_sovShouldShow()) {
+        setTimeout(function() { _sovStart(); }, 1500);
+    }
 });
