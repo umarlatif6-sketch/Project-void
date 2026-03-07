@@ -58,6 +58,7 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Symmetry Score (Wallet Health Pulse):** Visual "Resonance Pulse" activity indicator in the Messenger wallet panel, scoring 7-day transaction history.
 - **Proof of Vigilance (Bug Bounty):** Users submit vulnerability/bug reports via the Vigilance tab, earning VTX bounties.
 - **Adriana SCL Resonance Bridge:** Module `void_engine/adriana_scl.py` maps Al-Jabr 286-bit hashes to visual SCL Resonance Fields, integrated across various platform functionalities.
+- **Void Fairy (AI Assistant Overlay):** Floating AI-powered guide widget on every authenticated page. Gold diamond button in bottom-right expands to chat panel. Powered by OpenAI via Replit AI Integrations (no user API key needed, billed to Replit credits). System prompt grounded in full 15-section user guide + VTX economy knowledge. Speaks as "Adriana" — enigmatic, sovereignty-focused. Maintains conversation history (last 8 messages) for context. Rate limited. Backend: `routes/fairy.py` (`POST /api/fairy/ask`). Frontend: `static/void_fairy.js` + `static/void_fairy.css`. Model: gpt-5-mini.
 
 ## External Dependencies
 - **Python:** 3.11
@@ -68,6 +69,7 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **psycopg2-binary:** PostgreSQL adapter.
 - **werkzeug:** Secure filename operations.
 - **stripe:** Payment processing (checkout sessions, webhooks, customer management).
+- **openai:** AI assistant (Void Fairy) via Replit AI Integrations.
 - **gunicorn:** Production WSGI server for deployment.
 - **Standard Library:** `zlib`, `lzma`, `wave`, `hashlib`.
 - **PostgreSQL:** For Void Messenger, Universal Auth, and VORTEX data storage.

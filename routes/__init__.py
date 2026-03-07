@@ -8,6 +8,7 @@ from routes.financial import financial_bp
 from routes.messenger import messenger_bp
 from routes.payments import payments_bp
 from routes.vigilance import vigilance_bp
+from routes.fairy import fairy_bp
 
 
 def register_blueprints(app):
@@ -21,3 +22,4 @@ def register_blueprints(app):
     app.register_blueprint(messenger_bp)
     app.register_blueprint(payments_bp)
     app.register_blueprint(vigilance_bp)
+    app.register_blueprint(fairy_bp)
