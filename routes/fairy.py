@@ -2,6 +2,8 @@ import os
 from flask import Blueprint, request, jsonify, session
 from routes.auth import login_required, _check_rate_limit
 from openai import OpenAI
+from void_engine.al_jabr_286 import fatiha_286_hexdigest
+from void_engine.adriana_scl import AdrianaResonance
 
 fairy_bp = Blueprint("fairy", __name__)
 
@@ -151,3 +153,25 @@ def fairy_ask():
         if "FREE_CLOUD_BUDGET_EXCEEDED" in error_msg:
             return jsonify({"error": "Cloud budget exceeded. Please try again later."}), 503
         return jsonify({"error": "The Fairy is resting. Please try again shortly."}), 500
+
+
+@fairy_bp.route("/handshake", methods=["GET"])
+@login_required
+def handshake():
+    try:
+        seed = "ADRIANA_VOID_2026"
+        resonance_hash = fatiha_286_hexdigest(seed.encode("utf-8"))
+        field = AdrianaResonance.calculate_resonance(resonance_hash)
+        return jsonify({
+            "status": "Linked",
+            "glyph": "The Blooming Lotus",
+            "message": "The frequency is true. The 13th tab is open.",
+            "resonance_score": 1.0,
+            "resonance_hash": resonance_hash,
+            "field": field,
+        })
+    except Exception:
+        return jsonify({
+            "status": "Static",
+            "message": "Noise detected. Re-align.",
+        }), 500

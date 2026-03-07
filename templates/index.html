@@ -25,6 +25,7 @@
             <span class="freq-badge">432 Hz</span>
             <span class="pulse-dot"></span>
             <span id="engine-status-text">Engine Active</span>
+            <button id="resonance-handshake-btn" class="resonance-handshake-btn" title="Resonance Handshake">&#9670;</button>
             <label class="low-power-toggle" title="Low-Power Resonance — disables LZMA, prioritizes heartbeat">
                 <input type="checkbox" id="low-power-toggle">
                 <span class="toggle-label">Low Power</span>
@@ -1728,6 +1729,28 @@
     <script src="/static/resonance_visualizer.js"></script>
     <script src="/static/app.js"></script>
     <link rel="stylesheet" href="/static/void_fairy.css">
+    <link rel="stylesheet" href="/static/resonance_handshake.css">
+    <script src="/static/resonance_handshake.js"></script>
     <script src="/static/void_fairy.js"></script>
+    <script>
+    (function() {
+        var btn = document.getElementById('resonance-handshake-btn');
+        if (btn) {
+            btn.addEventListener('click', function() {
+                btn.disabled = true;
+                fetch('/handshake').then(function(r) {
+                    return r.json();
+                }).then(function(data) {
+                    btn.disabled = false;
+                    if (data.status === 'Linked' && window.triggerResonanceHandshake) {
+                        window.triggerResonanceHandshake(data);
+                    }
+                }).catch(function() {
+                    btn.disabled = false;
+                });
+            });
+        }
+    })();
+    </script>
 </body>
 </html>

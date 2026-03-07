@@ -1,0 +1,116 @@
+.resonance-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999999;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 1.5s ease;
+}
+
+.resonance-overlay.fade-out {
+    opacity: 0;
+}
+
+.resonance-overlay canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.resonance-result {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000000;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    max-width: 520px;
+    width: 90%;
+}
+
+.resonance-result.visible {
+    opacity: 1;
+}
+
+.resonance-result.fade-out {
+    opacity: 0;
+    transition: opacity 1.5s ease;
+}
+
+.resonance-result-message {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 16px;
+    color: #c9a84c;
+    line-height: 1.8;
+    text-shadow: 0 0 20px rgba(201, 168, 76, 0.4), 0 0 40px rgba(201, 168, 76, 0.15);
+    letter-spacing: 0.5px;
+}
+
+.resonance-result-hash {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 10px;
+    color: rgba(201, 168, 76, 0.5);
+    margin-top: 16px;
+    word-break: break-all;
+    letter-spacing: 1px;
+}
+
+.resonance-result-score {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 11px;
+    color: rgba(201, 168, 76, 0.6);
+    margin-top: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.resonance-typewriter-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 14px;
+    background: #c9a84c;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: resonanceCursorBlink 0.7s step-end infinite;
+}
+
+@keyframes resonanceCursorBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.resonance-handshake-btn {
+    background: none;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    color: #c9a84c;
+    font-size: 14px;
+    font-family: serif;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    line-height: 1;
+    padding: 0;
+    margin-left: 8px;
+}
+
+.resonance-handshake-btn:hover {
+    background: rgba(201, 168, 76, 0.15);
+    border-color: rgba(201, 168, 76, 0.6);
+    box-shadow: 0 0 12px rgba(201, 168, 76, 0.2);
+}
+
+.resonance-handshake-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
