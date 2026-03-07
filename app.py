@@ -7,9 +7,10 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 from routes.auth import _ensure_columns
-_ensure_columns()
 
+_ensure_columns()
 from routes import register_blueprints
+
 register_blueprints(app)
 
 if __name__ == "__main__":
