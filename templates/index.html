@@ -50,7 +50,8 @@
             {% if user_tier == 'sovereign' %}<span class="tier-badge tier-sovereign">SOVEREIGN</span>
             {% elif user_tier == 'journalist' %}<span class="tier-badge tier-journalist">JOURNALIST</span>
             {% else %}<span class="tier-badge tier-ghost">GHOST</span>{% endif %}
-            {{ display_name or username }} <a href="/api/auth/logout" class="engine-nav-link">Logout</a>
+            <span class="engine-nav-username">&#9670; {{ display_name or username }}</span>
+            <a href="/api/auth/logout" class="engine-nav-link engine-nav-logout">Logout</a>
         </span>
     </nav>
 
