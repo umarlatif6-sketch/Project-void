@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Vortex Proof — PROJECT VOID</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .proof-body { background: #0a0a0f; color: #d0d0d0; min-height: 100vh; font-family: 'Courier New', monospace; }
+        .proof-nav { display: flex; align-items: center; gap: 20px; padding: 16px 32px; border-bottom: 1px solid #1a1a2e; flex-wrap: wrap; }
+        .proof-nav-logo { display: flex; align-items: center; gap: 10px; font-weight: bold; color: #e0e0e0; text-decoration: none; font-size: 14px; }
+        .proof-nav-logo span { color: #c9a84c; font-size: 18px; }
+        .proof-nav-links { display: flex; gap: 16px; margin-left: auto; flex-wrap: wrap; }
+        .proof-nav-links a { color: #888; text-decoration: none; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .proof-nav-links a:hover { color: #e0e0e0; }
+        .proof-nav-links a.active { color: #c9a84c; }
+
+        .proof-hero { text-align: center; padding: 80px 20px 40px; position: relative; }
+        .proof-hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 40px; background: linear-gradient(to bottom, transparent, #c9a84c); }
+        .proof-hero-badge { display: inline-block; padding: 6px 20px; border: 1px solid #c9a84c; border-radius: 20px; font-size: 10px; color: #c9a84c; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 24px; }
+        .proof-hero h1 { font-size: 36px; color: #e0e0e0; margin-bottom: 12px; letter-spacing: 6px; text-transform: uppercase; }
+        .proof-hero h1 em { font-style: normal; color: #c9a84c; }
+        .proof-hero p { color: #888; font-size: 14px; max-width: 700px; margin: 0 auto 32px; line-height: 1.8; }
+
+        .proof-generate-section { text-align: center; padding: 0 20px 48px; }
+        .proof-generate-btn { display: inline-block; padding: 16px 48px; background: linear-gradient(135deg, #c9a84c, #a08030); color: #0a0a0f; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; cursor: pointer; transition: all 0.3s; }
+        .proof-generate-btn:hover { box-shadow: 0 0 30px rgba(201, 168, 76, 0.4); transform: translateY(-1px); }
+        .proof-generate-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+        .proof-status { margin-top: 16px; font-size: 12px; color: #888; letter-spacing: 1px; min-height: 20px; }
+        .proof-status.error { color: #f87171; }
+
+        .proof-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(201,168,76,0.3); border-top-color: #c9a84c; border-radius: 50%; animation: proofSpin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
+        @keyframes proofSpin { to { transform: rotate(360deg); } }
+
+        .proof-results { max-width: 1000px; margin: 0 auto; padding: 0 20px 60px; display: none; }
+
+        .proof-section-title { text-align: center; font-size: 14px; color: #c9a84c; text-transform: uppercase; letter-spacing: 3px; margin: 48px 0 24px; }
+        .proof-section-sub { text-align: center; color: #666; font-size: 12px; margin-bottom: 32px; }
+
+        .proof-table-wrap { background: #0d0d1a; border: 1px solid #1a1a2e; border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+        .proof-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .proof-table th { text-align: left; padding: 14px 20px; color: #c9a84c; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #1a1a2e; font-size: 11px; background: #0a0a12; }
+        .proof-table td { padding: 14px 20px; border-bottom: 1px solid #0d0d1a; color: #bbb; }
+        .proof-table tr:last-child td { border-bottom: none; }
+        .proof-table tr:hover td { background: rgba(201, 168, 76, 0.03); }
+        .proof-table .metric-name { color: #e0e0e0; font-weight: bold; }
+        .proof-table .val-clean { color: #2dd4bf; }
+        .proof-table .val-inoc { color: #c9a84c; }
+        .proof-table .val-delta { color: #4ade80; font-weight: bold; }
+        .proof-table .val-delta.negative { color: #f87171; }
+
+        .proof-audio-section { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px; }
+        .proof-audio-card { background: #0d0d1a; border: 1px solid #1a1a2e; border-radius: 12px; padding: 24px; }
+        .proof-audio-card.clean { border-color: rgba(45, 212, 191, 0.3); }
+        .proof-audio-card.inoculated { border-color: rgba(201, 168, 76, 0.3); }
+        .proof-audio-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+        .proof-audio-label.clean { color: #2dd4bf; }
+        .proof-audio-label.inoculated { color: #c9a84c; }
+        .proof-audio-title { font-size: 16px; color: #e0e0e0; margin-bottom: 16px; }
+        .proof-audio-player { width: 100%; margin-bottom: 16px; }
+        .proof-audio-player audio { width: 100%; height: 40px; }
+        .proof-download-btn { display: inline-block; padding: 10px 20px; border: 1px solid #2a2a4e; border-radius: 6px; color: #888; font-family: inherit; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; transition: all 0.2s; background: transparent; cursor: pointer; }
+        .proof-download-btn:hover { border-color: #c9a84c; color: #c9a84c; }
+
+        .proof-spectrogram-section { margin-bottom: 40px; }
+        .proof-spectrogram-wrap { background: #0d0d1a; border: 1px solid #1a1a2e; border-radius: 12px; padding: 24px; position: relative; }
+        .proof-spectrogram-label { position: absolute; top: 12px; right: 16px; font-size: 10px; color: #c9a84c; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; }
+        #proof-spectrogram-canvas { width: 100%; height: 300px; display: block; border-radius: 8px; background: #050508; }
+        .proof-spec-legend { display: flex; gap: 24px; margin-top: 12px; font-size: 11px; color: #666; justify-content: center; }
+        .proof-spec-legend-item { display: flex; align-items: center; gap: 6px; }
+        .proof-spec-dot { width: 10px; height: 10px; border-radius: 2px; }
+        .proof-spec-dot.silence { background: #050508; }
+        .proof-spec-dot.low { background: #1a0a3a; }
+        .proof-spec-dot.mid { background: #c9a84c; }
+        .proof-spec-dot.high { background: #ffd700; }
+
+        .proof-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+        .proof-meta-card { background: #0d0d1a; border: 1px solid #1a1a2e; border-radius: 8px; padding: 20px; text-align: center; }
+        .proof-meta-value { font-size: 24px; color: #c9a84c; font-weight: bold; margin-bottom: 4px; }
+        .proof-meta-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 2px; }
+
+        .proof-footer { text-align: center; padding: 40px 20px; border-top: 1px solid #1a1a2e; color: #444; font-size: 11px; }
+
+        @media (max-width: 768px) {
+            .proof-hero h1 { font-size: 24px; letter-spacing: 3px; }
+            .proof-audio-section { grid-template-columns: 1fr; }
+            .proof-nav { padding: 12px 16px; }
+            .proof-nav-links { gap: 10px; }
+            .proof-meta-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body class="proof-body">
+    <nav class="proof-nav">
+        <a href="/launch" class="proof-nav-logo"><span>&#9670;</span> PROJECT VOID</a>
+        <div class="proof-nav-links">
+            <a href="/launch">Home</a>
+            <a href="/">Engine</a>
+            <a href="/demo">Demo</a>
+            <a href="/grants">Grants</a>
+            <a href="/sovereign">Hardware</a>
+            <a href="/guide">Guide</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/proof" class="active">Proof</a>
+            <a href="/messenger" style="color:#c9a84c">Messenger</a>
+            <a href="/login" style="color:#c9a84c">Login</a>
+        </div>
+    </nav>
+
+    <section class="proof-hero">
+        <div class="proof-hero-badge">4000-Series Sovereign Node</div>
+        <h1>The <em>Vortex</em> Proof</h1>
+        <p>A side-by-side resonance comparison. One clean biophony carrier. One inoculated with a hidden payload via Vortex Scatter at LSB-2. Identical to the human ear. Invisible to institutional scanners. This is the evidence.</p>
+    </section>
+
+    <section class="proof-generate-section">
+        <button class="proof-generate-btn" id="proof-generate-btn" onclick="generateProof()">Generate Proof</button>
+        <div class="proof-status" id="proof-status"></div>
+    </section>
+
+    <section class="proof-results" id="proof-results">
+
+        <div class="proof-meta-grid" id="proof-meta-grid"></div>
+
+        <div class="proof-section-title">Technical Comparison</div>
+        <div class="proof-section-sub">Clean Carrier vs. Inoculated Carrier &mdash; measured after Vortex Scatter encoding at LSB-2</div>
+
+        <div class="proof-table-wrap">
+            <table class="proof-table" id="proof-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Clean Carrier</th>
+                        <th>Inoculated Carrier</th>
+                        <th>Delta</th>
+                    </tr>
+                </thead>
+                <tbody id="proof-table-body"></tbody>
+            </table>
+        </div>
+
+        <div class="proof-section-title">Audio Comparison</div>
+        <div class="proof-section-sub">Listen to both carriers. The inoculated file contains a hidden ~50 KB payload. Can you hear the difference?</div>
+
+        <div class="proof-audio-section">
+            <div class="proof-audio-card clean">
+                <div class="proof-audio-label clean">Original</div>
+                <div class="proof-audio-title">Clean Carrier</div>
+                <div class="proof-audio-player">
+                    <audio id="proof-audio-clean" controls preload="none"></audio>
+                </div>
+                <a class="proof-download-btn" id="proof-dl-clean" href="#" download>Download Clean WAV</a>
+            </div>
+            <div class="proof-audio-card inoculated">
+                <div class="proof-audio-label inoculated">Inoculated</div>
+                <div class="proof-audio-title">Vortex-Encoded Carrier</div>
+                <div class="proof-audio-player">
+                    <audio id="proof-audio-inoc" controls preload="none"></audio>
+                </div>
+                <a class="proof-download-btn" id="proof-dl-inoc" href="#" download>Download Inoculated WAV</a>
+            </div>
+        </div>
+
+        <div class="proof-spectrogram-section">
+            <div class="proof-section-title">Phase Inversion Residual</div>
+            <div class="proof-section-sub">Subtracting the clean signal from the inoculated reveals the hidden data pattern &mdash; the Golden Noise Spiral</div>
+            <div class="proof-spectrogram-wrap">
+                <div class="proof-spectrogram-label">Residual Spectrogram</div>
+                <canvas id="proof-spectrogram-canvas"></canvas>
+            </div>
+            <div class="proof-spec-legend">
+                <div class="proof-spec-legend-item"><div class="proof-spec-dot silence"></div> Silence</div>
+                <div class="proof-spec-legend-item"><div class="proof-spec-dot low"></div> Low Energy</div>
+                <div class="proof-spec-legend-item"><div class="proof-spec-dot mid"></div> Mid Energy</div>
+                <div class="proof-spec-legend-item"><div class="proof-spec-dot high"></div> Peak (Vortex Spiral)</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="proof-footer">
+        Al-Jabr 286 Sovereign Hash &middot; 432 Hz Village Standard &middot; PROJECT VOID
+    </footer>
+
+    <script>
+    var proofData = null;
+
+    function generateProof() {
+        var btn = document.getElementById('proof-generate-btn');
+        var status = document.getElementById('proof-status');
+        var results = document.getElementById('proof-results');
+
+        btn.disabled = true;
+        status.className = 'proof-status';
+        status.innerHTML = '<span class="proof-spinner"></span>Generating proof &mdash; creating carriers, encoding payload, measuring metrics...';
+        results.style.display = 'none';
+
+        fetch('/api/proof/generate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            if (data.error) {
+                status.className = 'proof-status error';
+                status.textContent = data.error;
+                return;
+            }
+            proofData = data;
+            status.textContent = '';
+            renderProof(data);
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            status.className = 'proof-status error';
+            status.textContent = 'Generation failed: ' + err.message;
+        });
+    }
+
+    function renderProof(d) {
+        var results = document.getElementById('proof-results');
+        results.style.display = 'block';
+
+        var metaGrid = document.getElementById('proof-meta-grid');
+        metaGrid.innerHTML =
+            metaCard(d.proof_id.toUpperCase(), 'Proof ID') +
+            metaCard(formatBytes(d.payload_size), 'Payload Size') +
+            metaCard(formatBytes(d.compressed_size), 'Compressed') +
+            metaCard('Vortex / LSB-2', 'Scatter Mode');
+
+        var tbody = document.getElementById('proof-table-body');
+        tbody.innerHTML =
+            tableRow('Peak Amplitude', d.clean.peak_db + ' dB', d.inoculated.peak_db + ' dB', formatDelta(d.delta.peak_db, ' dB')) +
+            tableRow('RMS Noise Floor', d.clean.rms_db + ' dB', d.inoculated.rms_db + ' dB', formatDelta(d.delta.rms_db, ' dB')) +
+            tableRow('Harmonic Distortion (THD)', d.clean.thd_pct + ' %', d.inoculated.thd_pct + ' %', formatDelta(d.delta.thd_pct, ' %')) +
+            tableRow('Steganographic Load', d.clean.load_kb + ' KB', d.inoculated.load_kb + ' KB', '+' + d.inoculated.load_kb + ' KB');
+
+        var audioClean = document.getElementById('proof-audio-clean');
+        var audioInoc = document.getElementById('proof-audio-inoc');
+        audioClean.src = d.clean.download_url;
+        audioInoc.src = d.inoculated.download_url;
+
+        document.getElementById('proof-dl-clean').href = d.clean.download_url;
+        document.getElementById('proof-dl-inoc').href = d.inoculated.download_url;
+
+        if (d.residual_spectrogram && d.residual_spectrogram.length > 0) {
+            drawSpectrogram(d.residual_spectrogram);
+        }
+
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function metaCard(value, label) {
+        return '<div class="proof-meta-card"><div class="proof-meta-value">' + value + '</div><div class="proof-meta-label">' + label + '</div></div>';
+    }
+
+    function tableRow(name, clean, inoc, delta) {
+        var deltaClass = 'val-delta';
+        return '<tr><td class="metric-name">' + name + '</td><td class="val-clean">' + clean + '</td><td class="val-inoc">' + inoc + '</td><td class="' + deltaClass + '">' + delta + '</td></tr>';
+    }
+
+    function formatDelta(val, unit) {
+        if (val === 0) return '0' + unit;
+        var sign = val > 0 ? '+' : '';
+        return sign + val + unit;
+    }
+
+    function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function drawSpectrogram(data) {
+        var canvas = document.getElementById('proof-spectrogram-canvas');
+        var ctx = canvas.getContext('2d');
+        var dpr = window.devicePixelRatio || 1;
+
+        var displayW = canvas.clientWidth;
+        var displayH = canvas.clientHeight;
+        canvas.width = displayW * dpr;
+        canvas.height = displayH * dpr;
+        ctx.scale(dpr, dpr);
+
+        var nFrames = data.length;
+        var nBins = data[0].length;
+        var cellW = displayW / nFrames;
+        var cellH = displayH / nBins;
+
+        ctx.fillStyle = '#050508';
+        ctx.fillRect(0, 0, displayW, displayH);
+
+        for (var f = 0; f < nFrames; f++) {
+            for (var b = 0; b < nBins; b++) {
+                var val = data[f][b];
+                var norm = (val + 96) / 96;
+                if (norm < 0) norm = 0;
+                if (norm > 1) norm = 1;
+
+                var r, g, bl;
+                if (norm < 0.25) {
+                    r = Math.floor(norm * 4 * 26);
+                    g = Math.floor(norm * 4 * 10);
+                    bl = Math.floor(norm * 4 * 58);
+                } else if (norm < 0.5) {
+                    var t = (norm - 0.25) * 4;
+                    r = Math.floor(26 + t * (120 - 26));
+                    g = Math.floor(10 + t * (60 - 10));
+                    bl = Math.floor(58 + t * (30 - 58));
+                } else if (norm < 0.75) {
+                    var t2 = (norm - 0.5) * 4;
+                    r = Math.floor(120 + t2 * (201 - 120));
+                    g = Math.floor(60 + t2 * (168 - 60));
+                    bl = Math.floor(30 + t2 * (76 - 30));
+                } else {
+                    var t3 = (norm - 0.75) * 4;
+                    r = Math.floor(201 + t3 * (255 - 201));
+                    g = Math.floor(168 + t3 * (215 - 168));
+                    bl = Math.floor(76 + t3 * (0 - 76));
+                }
+
+                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + bl + ')';
+                var y = displayH - (b + 1) * cellH;
+                ctx.fillRect(f * cellW, y, Math.ceil(cellW) + 1, Math.ceil(cellH) + 1);
+            }
+        }
+
+        ctx.fillStyle = 'rgba(201, 168, 76, 0.6)';
+        ctx.font = '10px monospace';
+        ctx.fillText('0 Hz', 4, displayH - 4);
+        ctx.fillText((proofData && proofData.sample_rate ? Math.floor(proofData.sample_rate / 2) : '22050') + ' Hz', 4, 14);
+        ctx.fillText('TIME \u2192', displayW - 60, displayH - 4);
+    }
+    </script>
+    <link rel="stylesheet" href="/static/void_fairy.css">
+    <link rel="stylesheet" href="/static/resonance_handshake.css">
+    <script src="/static/resonance_handshake.js"></script>
+    <script src="/static/void_fairy.js"></script>
+</body>
+</html>

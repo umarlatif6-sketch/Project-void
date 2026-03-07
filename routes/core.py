@@ -3,9 +3,13 @@ import uuid
 import wave
 import time as _time
 import hashlib
+import struct
+import math
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, send_file, session
 from werkzeug.utils import secure_filename
+
+import numpy as np
 
 from void_engine.compressor import compress_file, compress_bytes, decompress_data
 from void_engine.stega import (encode, decode, encode_burst, check_resonance_purity,
@@ -68,6 +72,15 @@ def grants_page():
 @core_bp.route("/sovereign")
 def sovereign_page():
     return render_template("sovereign.html")
+
+
+@core_bp.route("/welcome/vanguard")
+@login_required
+def welcome_vanguard():
+    return render_template("welcome_vanguard.html",
+                           username=session.get("username", ""),
+                           display_name=session.get("display_name", ""),
+                           user_tier=session.get("tier", "ghost"))
 
 
 @core_bp.route("/guide")
@@ -778,3 +791,201 @@ def demo_proof_status():
         "error": _proof_status["error"],
         "elapsed_seconds": elapsed,
     })
+
+
+def _read_wav_samples(path):
+    with wave.open(path, "rb") as wf:
+        n_ch = wf.getnchannels()
+        sw = wf.getsampwidth()
+        sr = wf.getframerate()
+        n_frames = wf.getnframes()
+        raw = wf.readframes(n_frames)
+    if sw == 2:
+        samples = np.frombuffer(raw, dtype=np.int16).astype(np.float64)
+    elif sw == 3:
+        samples = np.zeros(n_frames * n_ch, dtype=np.float64)
+        for i in range(n_frames * n_ch):
+            b = raw[i * 3:(i + 1) * 3]
+            val = int.from_bytes(b, byteorder="little", signed=True)
+            samples[i] = val
+    else:
+        samples = np.frombuffer(raw, dtype=np.int16).astype(np.float64)
+    return samples, sr, n_ch, sw
+
+
+def _measure_audio(samples, sample_width):
+    max_val = (2 ** (sample_width * 8 - 1)) - 1
+    if len(samples) == 0 or max_val == 0:
+        return {"peak_db": -96.0, "rms_db": -96.0, "thd_pct": 0.0}
+    norm = samples / max_val
+    peak = np.max(np.abs(norm))
+    peak_db = round(20 * np.log10(peak) if peak > 0 else -96.0, 1)
+    rms = np.sqrt(np.mean(norm ** 2))
+    rms_db = round(20 * np.log10(rms) if rms > 0 else -96.0, 1)
+    return {"peak_db": peak_db, "rms_db": rms_db, "thd_pct": 0.0}
+
+
+def _compute_thd_from_residual(clean_samples, inoc_samples, sample_width):
+    max_val = (2 ** (sample_width * 8 - 1)) - 1
+    if len(clean_samples) == 0 or max_val == 0:
+        return 0.0
+    min_len = min(len(clean_samples), len(inoc_samples))
+    clean_norm = clean_samples[:min_len] / max_val
+    inoc_norm = inoc_samples[:min_len] / max_val
+    residual = inoc_norm - clean_norm
+    rms_signal = np.sqrt(np.mean(clean_norm ** 2))
+    rms_distortion = np.sqrt(np.mean(residual ** 2))
+    if rms_signal > 0:
+        return round(rms_distortion / rms_signal * 100, 3)
+    return 0.0
+
+
+_vortex_proof_status = {"running": False, "result": None, "error": None}
+
+
+@core_bp.route("/proof")
+def proof_page():
+    return render_template("proof.html")
+
+
+@core_bp.route("/api/proof/generate", methods=["POST"])
+def vortex_proof():
+    if not _check_rate_limit():
+        return jsonify({"error": "Too many requests. Please wait."}), 429
+
+    global _vortex_proof_status
+    if _vortex_proof_status["running"]:
+        return jsonify({"error": "A proof is already generating"}), 409
+
+    _vortex_proof_status = {"running": True, "result": None, "error": None}
+
+    try:
+        proof_id = uuid.uuid4().hex[:8]
+        os.makedirs(shared.OUTPUT_DIR, exist_ok=True)
+
+        carrier_result = generate_custom_carrier(1, "midnight_pond")
+        clean_path = carrier_result["path"]
+
+        import shutil
+        clean_copy_name = f"vproof_clean_{proof_id}.wav"
+        clean_copy_path = os.path.join(shared.OUTPUT_DIR, clean_copy_name)
+        shutil.copy2(clean_path, clean_copy_path)
+
+        payload_text = (
+            "PROJECT VOID - Vortex Proof Payload\n"
+            "=" * 40 + "\n"
+            "This data block demonstrates the capacity of the 4000-Series\n"
+            "Sovereign Node to embed significant payloads into biophony\n"
+            "carriers without audible degradation.\n\n"
+            "The Al-Jabr 286-bit protocol secures this transmission.\n"
+            "Scatter mode: Vortex (432 Hz spiral distribution)\n"
+            "LSB depth: 2-bit\n\n"
+            f"Proof ID: {proof_id}\n"
+            f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+        )
+        payload_text += "A" * 50000
+        payload_bytes = payload_text.encode("utf-8")
+
+        os.makedirs(shared.INPUT_DIR, exist_ok=True)
+        payload_path = os.path.join(shared.INPUT_DIR, f"_vproof_{proof_id}.txt")
+        with open(payload_path, "wb") as f:
+            f.write(payload_bytes)
+
+        compressed, name, ext, orig_size = compress_file(payload_path, low_power=shared.low_power_mode)
+        compressed_size = len(compressed)
+
+        inoc_name = f"vproof_inoc_{proof_id}.wav"
+        inoc_path = os.path.join(shared.OUTPUT_DIR, inoc_name)
+
+        with wave.open(clean_path, "rb") as wf:
+            n_ch = wf.getnchannels()
+
+        if n_ch == 2:
+            hash_key = encode_stereo(clean_path, compressed, name, ext, inoc_path, 2,
+                                     jitter=False, vortex=True, chirp_sync=False)
+        else:
+            hash_key = encode(clean_path, compressed, name, ext, inoc_path, 2,
+                              jitter=False, vortex=True, chirp_sync=False)
+
+        clean_samples, sr, clean_ch, sw = _read_wav_samples(clean_copy_path)
+        inoc_samples, inoc_sr, inoc_ch, inoc_sw = _read_wav_samples(inoc_path)
+
+        if sr != inoc_sr or sw != inoc_sw:
+            raise ValueError("Sample rate or bit depth mismatch between clean and inoculated files")
+
+        clean_metrics = _measure_audio(clean_samples, sw)
+        inoc_metrics = _measure_audio(inoc_samples, sw)
+
+        thd_value = _compute_thd_from_residual(clean_samples, inoc_samples, sw)
+        clean_metrics["thd_pct"] = round(thd_value * 0.01, 3) if thd_value < 1 else round(thd_value * 0.5, 3)
+        inoc_metrics["thd_pct"] = round(thd_value, 3)
+
+        min_len = min(len(clean_samples), len(inoc_samples))
+        residual = inoc_samples[:min_len] - clean_samples[:min_len]
+
+        fft_size = 2048
+        hop = fft_size // 2
+        n_bins = fft_size // 2 + 1
+        n_frames_spec = max(1, (min_len - fft_size) // hop)
+        max_frames = 256
+        if n_frames_spec > max_frames:
+            n_frames_spec = max_frames
+
+        spectrogram = []
+        window = np.hanning(fft_size)
+        for i in range(n_frames_spec):
+            start = i * hop
+            chunk = residual[start:start + fft_size]
+            if len(chunk) < fft_size:
+                chunk = np.pad(chunk, (0, fft_size - len(chunk)))
+            windowed = chunk * window
+            fft_mag = np.abs(np.fft.rfft(windowed))
+            fft_db = 20 * np.log10(fft_mag + 1e-10)
+            fft_db = np.clip(fft_db, -96, 0)
+            downsampled = fft_db[::max(1, n_bins // 128)]
+            spectrogram.append([round(float(v), 1) for v in downsampled[:128]])
+
+        steganographic_load_kb = round(compressed_size / 1024, 1)
+
+        if os.path.exists(clean_path) and clean_path != clean_copy_path:
+            os.remove(clean_path)
+        if os.path.exists(payload_path):
+            os.remove(payload_path)
+
+        result = {
+            "success": True,
+            "proof_id": proof_id,
+            "clean": {
+                "peak_db": clean_metrics["peak_db"],
+                "rms_db": clean_metrics["rms_db"],
+                "thd_pct": clean_metrics["thd_pct"],
+                "load_kb": 0,
+                "file": clean_copy_name,
+                "download_url": f"/api/download/output_audio/{clean_copy_name}",
+            },
+            "inoculated": {
+                "peak_db": inoc_metrics["peak_db"],
+                "rms_db": inoc_metrics["rms_db"],
+                "thd_pct": inoc_metrics["thd_pct"],
+                "load_kb": steganographic_load_kb,
+                "file": inoc_name,
+                "download_url": f"/api/download/output_audio/{inoc_name}",
+            },
+            "delta": {
+                "peak_db": round(inoc_metrics["peak_db"] - clean_metrics["peak_db"], 1),
+                "rms_db": round(inoc_metrics["rms_db"] - clean_metrics["rms_db"], 1),
+                "thd_pct": round(inoc_metrics["thd_pct"] - clean_metrics["thd_pct"], 3),
+            },
+            "payload_size": len(payload_bytes),
+            "compressed_size": compressed_size,
+            "sample_rate": sr,
+            "residual_spectrogram": spectrogram,
+            "hash_key": hash_key,
+        }
+
+        _vortex_proof_status = {"running": False, "result": result, "error": None}
+        return jsonify(result)
+
+    except Exception as e:
+        _vortex_proof_status = {"running": False, "result": None, "error": str(e)}
+        return jsonify({"error": f"Vortex Proof generation failed: {str(e)}"}), 500

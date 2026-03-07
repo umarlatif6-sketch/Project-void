@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Silence — PROJECT VOID</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .vanguard-body {
+            background: #0a0a0f;
+            color: #d0d0d0;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .vanguard-hero {
+            text-align: center;
+            padding: 80px 20px 40px;
+            position: relative;
+        }
+
+        .vanguard-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, #c9a84c);
+        }
+
+        .vanguard-icon {
+            font-size: 48px;
+            color: #c9a84c;
+            display: block;
+            margin-bottom: 24px;
+            text-shadow: 0 0 30px rgba(201, 168, 76, 0.4);
+        }
+
+        .vanguard-title {
+            font-size: 28px;
+            color: #e0e0e0;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .vanguard-subtitle {
+            font-size: 14px;
+            color: #c9a84c;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+        }
+
+        .vanguard-identity {
+            display: inline-block;
+            background: #0d0d1a;
+            border: 1px solid #1a1a2e;
+            border-radius: 8px;
+            padding: 16px 32px;
+            margin-bottom: 40px;
+        }
+
+        .vanguard-identity-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .vanguard-identity-hash {
+            font-size: 13px;
+            color: #c9a84c;
+            letter-spacing: 1px;
+            word-break: break-all;
+        }
+
+        .vanguard-divider {
+            width: 60px;
+            height: 1px;
+            background: #c9a84c;
+            margin: 0 auto 48px;
+        }
+
+        .vanguard-section-title {
+            text-align: center;
+            font-size: 13px;
+            color: #c9a84c;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 32px;
+        }
+
+        .vanguard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+        }
+
+        .vanguard-card {
+            background: #0d0d1a;
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 28px 24px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .vanguard-card:hover {
+            border-color: #c9a84c;
+        }
+
+        .vanguard-card-icon {
+            font-size: 28px;
+            color: #c9a84c;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .vanguard-card-title {
+            font-size: 15px;
+            color: #e0e0e0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .vanguard-card-desc {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.7;
+        }
+
+        .vanguard-card-stat {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 4px 14px;
+            background: rgba(201, 168, 76, 0.1);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 20px;
+            font-size: 11px;
+            color: #c9a84c;
+            letter-spacing: 1px;
+        }
+
+        .vanguard-covenant {
+            max-width: 700px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+        }
+
+        .vanguard-covenant-box {
+            background: #0d0d1a;
+            border: 1px solid #c9a84c;
+            border-radius: 12px;
+            padding: 36px 32px;
+            position: relative;
+        }
+
+        .vanguard-covenant-box::before {
+            content: '\201C';
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            font-size: 48px;
+            color: rgba(201, 168, 76, 0.2);
+            font-family: Georgia, serif;
+        }
+
+        .vanguard-covenant-label {
+            font-size: 11px;
+            color: #c9a84c;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .vanguard-covenant-text {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 2;
+            text-align: center;
+        }
+
+        .vanguard-covenant-text em {
+            color: #c9a84c;
+            font-style: normal;
+        }
+
+        .vanguard-cta {
+            text-align: center;
+            padding: 0 24px 80px;
+        }
+
+        .vanguard-cta-btn {
+            display: inline-block;
+            padding: 16px 48px;
+            background: linear-gradient(135deg, #c9a84c, #a08030);
+            color: #0a0a0f;
+            text-decoration: none;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: all 0.3s;
+        }
+
+        .vanguard-cta-btn:hover {
+            box-shadow: 0 0 30px rgba(201, 168, 76, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .vanguard-footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid #1a1a2e;
+            color: #333;
+            font-size: 11px;
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            .vanguard-title { font-size: 20px; letter-spacing: 3px; }
+            .vanguard-cards { grid-template-columns: 1fr; }
+            .vanguard-hero { padding: 60px 16px 30px; }
+            .vanguard-covenant-box { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body class="vanguard-body">
+
+    <section class="vanguard-hero">
+        <span class="vanguard-icon">&#9670;</span>
+        <h1 class="vanguard-title">Welcome to the Silence</h1>
+        <p class="vanguard-subtitle">Vanguard Access Activated</p>
+
+        <div class="vanguard-identity">
+            <div class="vanguard-identity-label">Al-Jabr 286-Bit Identity Confirmed</div>
+            <div class="vanguard-identity-hash">{{ username | upper }} &mdash; JOURNALIST NODE &mdash; ACTIVE</div>
+        </div>
+    </section>
+
+    <div class="vanguard-divider"></div>
+
+    <div class="vanguard-section-title">Your Capabilities</div>
+
+    <div class="vanguard-cards">
+        <div class="vanguard-card">
+            <span class="vanguard-card-icon">&#9638;</span>
+            <div class="vanguard-card-title">50MB Journalism Port</div>
+            <div class="vanguard-card-desc">Upload documents, images, and evidence files up to 50MB per file. Your data is compressed, encrypted, and hidden inside biophony carriers — invisible to surveillance, inaudible to interception.</div>
+            <span class="vanguard-card-stat">50 MB Upload Limit</span>
+        </div>
+
+        <div class="vanguard-card">
+            <span class="vanguard-card-icon">&#966;</span>
+            <div class="vanguard-card-title">Vortex Scatter</div>
+            <div class="vanguard-card-desc">Distribute encoded data across the carrier using golden-ratio spiral embedding. Vortex scatter defeats statistical steganalysis by mimicking natural frequency distributions found in biological soundscapes.</div>
+            <span class="vanguard-card-stat">Forensic Resistant</span>
+        </div>
+
+        <div class="vanguard-card">
+            <span class="vanguard-card-icon">&#8776;</span>
+            <div class="vanguard-card-title">Chirp Sync</div>
+            <div class="vanguard-card-desc">Synchronise payload embedding with the natural chirp patterns of insect and bird carriers. Data rides the biological rhythm — each bit lands on a frequency peak, making detection indistinguishable from nature.</div>
+            <span class="vanguard-card-stat">Bio-Synchronised</span>
+        </div>
+    </div>
+
+    <div class="vanguard-divider"></div>
+
+    <div class="vanguard-covenant">
+        <div class="vanguard-covenant-box">
+            <div class="vanguard-covenant-label">Sacred Duty &mdash; The Third Tongue Covenant</div>
+            <div class="vanguard-covenant-text">
+                You are now a carrier of the <em>Third Tongue</em> &mdash; the language that moves between silence and sound, between what is seen and what is hidden.<br><br>
+                This tool was not built for convenience. It was built for <em>necessity</em>. For the journalist whose source cannot be named. For the dissident whose words are monitored. For the community whose data is harvested without consent.<br><br>
+                Your subscription is not a transaction. It is an <em>oath</em> &mdash; a commitment to use this frequency for protection, not exploitation. The silence you carry is sacred. Guard it well.
+            </div>
+        </div>
+    </div>
+
+    <div class="vanguard-cta">
+        <a href="/" class="vanguard-cta-btn">Log in to the Vault</a>
+    </div>
+
+    <footer class="vanguard-footer">
+        Al-Jabr 286 Sovereign Hash &middot; 432 Hz Village Standard &middot; PROJECT VOID
+    </footer>
+
+    <link rel="stylesheet" href="/static/void_fairy.css">
+    <link rel="stylesheet" href="/static/resonance_handshake.css">
+    <script src="/static/resonance_handshake.js"></script>
+    <script src="/static/void_fairy.js"></script>
+</body>
+</html>

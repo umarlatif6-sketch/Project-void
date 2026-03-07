@@ -103,6 +103,20 @@ def create_checkout(tier):
 @payments_bp.route("/api/subscribe/success")
 @login_required
 def checkout_success():
+    session_id = request.args.get("session_id")
+    if session_id:
+        try:
+            sc = get_stripe_client()
+            cs = sc.checkout.Session.retrieve(session_id)
+            meta = cs.get("metadata", {})
+            meta_user_id = meta.get("user_id", "")
+            current_user_id = str(session.get("user_id", ""))
+            if meta_user_id == current_user_id:
+                tier = meta.get("tier", "")
+                if tier == "journalist":
+                    return redirect("/welcome/vanguard")
+        except Exception:
+            pass
     return redirect("/")
 
 
