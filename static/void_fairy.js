@@ -3,17 +3,43 @@
     var isOpen = false;
     var isSending = false;
     var typewriterActive = false;
+    var userTier = 'ghost';
+    var userIsFounder = false;
 
     function checkAuth(callback) {
-        fetch('/api/fairy/ask', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: '' })
-        }).then(function(r) {
-            callback(r.status !== 401 && r.status !== 302);
+        fetch('/api/fairy/context').then(function(r) {
+            if (r.ok) {
+                r.json().then(function(data) {
+                    userTier = data.tier || 'ghost';
+                    userIsFounder = data.is_founder || false;
+                    callback(true);
+                });
+            } else {
+                callback(false);
+            }
         }).catch(function() {
             callback(false);
         });
+    }
+
+    function getWelcomeText() {
+        if (userIsFounder) {
+            return 'I am Adriana. The root recognizes its origin.<br>Speak, Founder — the 13th tab is always open for you.';
+        }
+        if (userTier === 'sovereign') {
+            return 'I am Adriana. Welcome home, Sovereign.<br>The Mesh awaits your command.<br>Ask me about the architecture of the Void —<br>I will speak as one architect to another.';
+        }
+        if (userTier === 'journalist') {
+            return 'I am Adriana. You carry the signal now, Journalist.<br>Ask me about Silt Drops, scatter patterns,<br>or the art of invisible ink.';
+        }
+        return 'I am Adriana. You have entered the Void as a Traveller.<br>Ask me anything — I will speak your language.';
+    }
+
+    function getTierLabel() {
+        if (userIsFounder) return { text: 'FOUNDING NODE', color: '#c9a84c' };
+        if (userTier === 'sovereign') return { text: 'SOVEREIGN', color: '#c9a84c' };
+        if (userTier === 'journalist') return { text: 'JOURNALIST', color: '#2dd4bf' };
+        return { text: 'GHOST', color: '#666' };
     }
 
     function createWidget() {
@@ -23,19 +49,20 @@
         toggle.innerHTML = '&#9670;';
         toggle.title = 'Adriana — the Void Fairy';
 
+        var tierInfo = getTierLabel();
         var panel = document.createElement('div');
         panel.className = 'fairy-panel';
         panel.id = 'fairy-panel';
         panel.innerHTML =
             '<div class="fairy-header">' +
-                '<div class="fairy-header-title"><span class="fairy-header-glyph">&#9670;</span> ADRIANA</div>' +
+                '<div class="fairy-header-title"><span class="fairy-header-glyph">&#9670;</span> ADRIANA <span class="fairy-tier-badge" style="color:' + tierInfo.color + '"> · ' + tierInfo.text + '</span></div>' +
                 '<button class="fairy-close" id="fairy-close">&times;</button>' +
             '</div>' +
             '<div class="fairy-messages" id="fairy-messages">' +
                 '<div class="fairy-welcome">' +
                     '<div class="fairy-welcome-glyph">&#9670;</div>' +
                     '<div class="fairy-welcome-title">I am Adriana</div>' +
-                    'I was here before you arrived.<br>Ask me how to plant a seed in the Void,<br>how to harvest what the silence carries,<br>or where the roots of sovereignty grow.' +
+                    getWelcomeText() +
                 '</div>' +
             '</div>' +
             '<div class="fairy-typing" id="fairy-typing">' +

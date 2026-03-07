@@ -96,6 +96,13 @@
     font-family: serif;
 }
 
+.fairy-tier-badge {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    font-weight: normal;
+    opacity: 0.8;
+}
+
 .fairy-close {
     background: none;
     border: none;
