@@ -362,6 +362,7 @@ def pitch_generate():
     return jsonify(pitch)
 
 
+@financial_bp.route("/admin")
 @financial_bp.route("/admin/leads")
 @admin_required
 def admin_leads():

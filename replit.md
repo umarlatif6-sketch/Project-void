@@ -15,6 +15,10 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Glass-Morphic UI:** Utilizes `backdrop-filter: blur()` for panels, tabs, and inputs, creating a modern aesthetic.
 - **Industries Page (`/industries`):** Public page showcasing 10 industry use cases (Law, Journalism, Healthcare, Finance, Human Rights, Military, Music, Cybersecurity, Education, Real Estate). Two-column card grid with teal accent tags. Linked from all nav bars.
 
+- **Favicon:** SVG diamond icon (`static/favicon.svg`) in teal, linked from all templates.
+- **Error Pages:** Custom branded 404 ("Signal Lost") and 500 ("Frequency Disrupted") pages with error handlers in `app.py`.
+- **Admin Dashboard:** `/admin` and `/admin/leads` (admin-only) — Leads Dashboard with inquiry tracking and pitch previews.
+
 **Technical Implementations & Feature Specifications:**
 - **Audio Standard:** Uses 16-bit PCM WAV files with a 432 Hz base frequency ("Village Standard").
 - **Compression:** Dual compression using zlib (level 9) and lzma (preset 9).
