@@ -65,6 +65,11 @@ def demo_page():
     return render_template("index.html", demo_mode=True)
 
 
+@core_bp.route("/industries")
+def industries_page():
+    return render_template("industries.html")
+
+
 @core_bp.route("/grants")
 def grants_page():
     return render_template("grants.html")

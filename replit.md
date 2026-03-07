@@ -13,6 +13,7 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Web UI:** A dark-themed, mobile-responsive interface with 13 interactive tabs, integrating Web Audio API-based spectrum and spectrograms. Features like "Vocal Pocket Visualizer," "Sapphire Bubble," "Sapphire Glow" effects, and "Founder Vibe Detection" enhance user experience.
 - **Theming:** Dynamic UI color shifts (e.g., "Silt Gold," "Deep Mycelium Green") and badges ("Founding Node Edition," "SOVEREIGN GUARDIAN") denote user tiers and special statuses. A "Sovereign Dashboard Theme" is applied to sovereign users.
 - **Glass-Morphic UI:** Utilizes `backdrop-filter: blur()` for panels, tabs, and inputs, creating a modern aesthetic.
+- **Industries Page (`/industries`):** Public page showcasing 10 industry use cases (Law, Journalism, Healthcare, Finance, Human Rights, Military, Music, Cybersecurity, Education, Real Estate). Two-column card grid with teal accent tags. Linked from all nav bars.
 
 **Technical Implementations & Feature Specifications:**
 - **Audio Standard:** Uses 16-bit PCM WAV files with a 432 Hz base frequency ("Village Standard").
