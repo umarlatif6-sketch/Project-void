@@ -6846,6 +6846,52 @@ body.beehive-active .pulse-dot { background:radial-gradient(circle,#4a9eff 0%,#2
     transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
+.guardian-badge {
+    display: none;
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    z-index: 100;
+    background: rgba(10, 10, 15, 0.92);
+    border: 2px solid #2dd4bf;
+    border-radius: 8px;
+    padding: 10px 18px;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transform: translateX(20px);
+    pointer-events: none;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.guardian-badge-icon {
+    color: #c9a84c;
+    font-size: 18px;
+    animation: guardianBadgePulse 2.315s ease-in-out infinite;
+}
+
+.guardian-badge-text {
+    color: #c9a84c;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    text-shadow: 0 0 8px rgba(45, 212, 191, 0.3);
+}
+
+@keyframes guardianBadgePulse {
+    0%, 100% { text-shadow: 0 0 6px rgba(45, 212, 191, 0.4); }
+    50% { text-shadow: 0 0 18px rgba(45, 212, 191, 0.9), 0 0 36px rgba(201, 168, 76, 0.3); }
+}
+
+[data-guardian="true"] .guardian-badge {
+    display: flex;
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
 .founder-vibe-badge-icon {
     color: #c9a84c;
     font-size: 18px;

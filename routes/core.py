@@ -48,6 +48,7 @@ _proof_status = {"running": False, "result": None, "error": None, "started": Non
 def index():
     return render_template("index.html",
                            is_founder=session.get("is_founder", False),
+                           is_guardian=session.get("is_guardian", False),
                            username=session.get("username", ""),
                            display_name=session.get("display_name", ""),
                            user_role=session.get("role", "user"),

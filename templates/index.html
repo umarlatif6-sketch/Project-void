@@ -6,7 +6,7 @@
     <title>PROJECT VOID</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="engine-page" data-demo="{{ 'true' if demo_mode else 'false' }}" data-tier="{{ user_tier or 'ghost' }}" data-username="{{ username or '' }}" {% if is_founder %}data-founder-vibe="true"{% endif %}>
+<body class="engine-page" data-demo="{{ 'true' if demo_mode else 'false' }}" data-tier="{{ user_tier or 'ghost' }}" data-username="{{ username or '' }}" {% if is_founder %}data-founder-vibe="true"{% endif %} {% if is_guardian %}data-guardian="true"{% endif %}>
     {% if demo_mode %}
     <div class="demo-banner">
         <span class="demo-banner-icon">&#9670;</span>
@@ -18,8 +18,12 @@
             <div class="logo-icon">&#9670;</div>
             <div>
                 <h1>PROJECT VOID</h1>
-                <p class="subtitle">{% if is_founder %}Welcome home, Founder.{% else %}Modular Steganography Engine v2.0{% endif %}</p>
+                <p class="subtitle">{% if is_founder %}Welcome home, Founder.{% elif is_guardian %}Welcome home, Guardian.{% else %}Modular Steganography Engine v2.0{% endif %}</p>
             </div>
+        </div>
+        <div class="guardian-badge">
+            <span class="guardian-badge-icon">&#9670;</span>
+            <span class="guardian-badge-text">SOVEREIGN GUARDIAN</span>
         </div>
         <div class="status-bar">
             <span class="freq-badge">432 Hz</span>

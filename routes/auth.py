@@ -28,6 +28,7 @@ def _check_rate_limit():
     return True
 
 FOUNDER_USERNAME = os.environ.get("FOUNDER_USERNAME", "").lower().strip()
+GUARDIAN_USERNAMES = {"anas"}
 
 TIER_LEVELS = {"ghost": 0, "journalist": 1, "sovereign": 2}
 TIER_LIMITS = {
@@ -349,15 +350,44 @@ def _setup_session(user, role=None):
         role = "founder"
         _set_user_role(user["id"], "founder")
     is_founder = role == "founder"
+    is_guardian = role == "guardian"
+    uname_lower = user.get("username", "").lower()
+    if uname_lower in GUARDIAN_USERNAMES and role not in ("founder", "guardian"):
+        role = "guardian"
+        is_guardian = True
+        _set_user_role(user["id"], "guardian")
+        try:
+            conn = _get_db()
+            cur = conn.cursor()
+            cur.execute("UPDATE users SET display_name = %s WHERE id = %s AND (display_name IS NULL OR display_name = %s)",
+                        ("Sana", user["id"], user["username"]))
+            conn.commit()
+            conn.close()
+            user["display_name"] = "Sana"
+        except Exception:
+            pass
+    if uname_lower in GUARDIAN_USERNAMES and role == "guardian":
+        is_guardian = True
     tier = _get_user_tier(user["id"])
     if is_founder and tier != "sovereign":
         tier = "sovereign"
         _set_user_tier(user["id"], "sovereign")
+    if is_guardian and tier != "sovereign":
+        tier = "sovereign"
+        _set_user_tier(user["id"], "sovereign")
+    if is_guardian:
+        try:
+            from decimal import Decimal
+            from void_engine.vortex_wallet import mint_purchase
+            mint_purchase(user["id"], Decimal("600"), f"family_genesis_{user['id']}")
+        except Exception:
+            pass
     session["user_id"] = user["id"]
     session["username"] = user["username"]
     session["display_name"] = user.get("display_name", user["username"])
     session["role"] = role
     session["is_founder"] = is_founder
+    session["is_guardian"] = is_guardian
     session["tier"] = tier
     session["messenger_user_id"] = user["id"]
     os.makedirs(f"data/vaults/{user['username']}/input_files", exist_ok=True)
