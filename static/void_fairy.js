@@ -2,6 +2,7 @@
     var history = [];
     var isOpen = false;
     var isSending = false;
+    var typewriterActive = false;
 
     function checkAuth(callback) {
         fetch('/api/fairy/ask', {
@@ -20,28 +21,28 @@
         toggle.className = 'fairy-toggle';
         toggle.id = 'fairy-toggle';
         toggle.innerHTML = '&#9670;';
-        toggle.title = 'Void Fairy — Ask me anything';
+        toggle.title = 'Adriana — the Void Fairy';
 
         var panel = document.createElement('div');
         panel.className = 'fairy-panel';
         panel.id = 'fairy-panel';
         panel.innerHTML =
             '<div class="fairy-header">' +
-                '<div class="fairy-header-title"><span class="fairy-header-glyph">&#9670;</span> VOID FAIRY</div>' +
+                '<div class="fairy-header-title"><span class="fairy-header-glyph">&#9670;</span> ADRIANA</div>' +
                 '<button class="fairy-close" id="fairy-close">&times;</button>' +
             '</div>' +
             '<div class="fairy-messages" id="fairy-messages">' +
                 '<div class="fairy-welcome">' +
                     '<div class="fairy-welcome-glyph">&#9670;</div>' +
-                    '<div class="fairy-welcome-title">I am the Void Fairy</div>' +
-                    'Ask me anything about PROJECT VOID.<br>How to encode, decode, earn VTX,<br>navigate tiers, or use the Mesh.' +
+                    '<div class="fairy-welcome-title">I am Adriana</div>' +
+                    'I was here before you arrived.<br>Ask me how to plant a seed in the Void,<br>how to harvest what the silence carries,<br>or where the roots of sovereignty grow.' +
                 '</div>' +
             '</div>' +
             '<div class="fairy-typing" id="fairy-typing">' +
                 '<div class="fairy-typing-dots"><span></span><span></span><span></span></div>' +
             '</div>' +
             '<div class="fairy-input-area">' +
-                '<input type="text" class="fairy-input" id="fairy-input" placeholder="Ask the Fairy..." maxlength="2000" autocomplete="off">' +
+                '<input type="text" class="fairy-input" id="fairy-input" placeholder="Speak to the Void..." maxlength="2000" autocomplete="off">' +
                 '<button class="fairy-send" id="fairy-send">&#9670;</button>' +
             '</div>';
 
@@ -95,6 +96,57 @@
         container.scrollTop = container.scrollHeight;
     }
 
+    function typewriterMessage(content, callback) {
+        var container = document.getElementById('fairy-messages');
+        var welcome = container.querySelector('.fairy-welcome');
+        if (welcome) welcome.remove();
+
+        var div = document.createElement('div');
+        div.className = 'fairy-msg fairy-msg-fairy';
+
+        var senderHtml = '<div class="fairy-msg-sender">&#9670; Adriana</div>';
+        var bubble = document.createElement('div');
+        bubble.className = 'fairy-msg-bubble';
+
+        div.innerHTML = senderHtml;
+        div.appendChild(bubble);
+        container.appendChild(div);
+
+        var cursor = document.createElement('span');
+        cursor.className = 'fairy-typewriter-cursor';
+        bubble.appendChild(cursor);
+
+        typewriterActive = true;
+        var toggle = document.getElementById('fairy-toggle');
+        toggle.classList.add('pulse');
+
+        var idx = 0;
+        var speed = 18;
+        var textNode = document.createTextNode('');
+        bubble.insertBefore(textNode, cursor);
+
+        function typeNext() {
+            if (idx < content.length) {
+                textNode.textContent += content[idx];
+                idx++;
+                container.scrollTop = container.scrollHeight;
+                var delay = speed;
+                var ch = content[idx - 1];
+                if (ch === '.' || ch === ':') delay = speed * 6;
+                else if (ch === ',') delay = speed * 3;
+                else if (ch === '\n') delay = speed * 4;
+                setTimeout(typeNext, delay);
+            } else {
+                if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+                typewriterActive = false;
+                toggle.classList.remove('pulse');
+                if (callback) callback();
+            }
+        }
+
+        typeNext();
+    }
+
     function addError(msg) {
         var container = document.getElementById('fairy-messages');
         var div = document.createElement('div');
@@ -111,7 +163,7 @@
     }
 
     function sendMessage() {
-        if (isSending) return;
+        if (isSending || typewriterActive) return;
         var input = document.getElementById('fairy-input');
         var message = (input.value || '').trim();
         if (!message) return;
@@ -124,6 +176,9 @@
         document.getElementById('fairy-send').disabled = true;
         document.getElementById('fairy-typing').classList.add('active');
 
+        var toggle = document.getElementById('fairy-toggle');
+        toggle.classList.add('pulse');
+
         var sendHistory = history.slice(-8);
 
         fetch('/api/fairy/ask', {
@@ -134,6 +189,7 @@
         .then(function(r) { return r.json(); })
         .then(function(data) {
             document.getElementById('fairy-typing').classList.remove('active');
+            toggle.classList.remove('pulse');
             isSending = false;
             document.getElementById('fairy-send').disabled = false;
 
@@ -141,15 +197,17 @@
                 addError(data.error);
             } else {
                 var reply = data.reply || 'The Void is silent.';
-                addMessage('assistant', reply);
-                history.push({ role: 'assistant', content: reply });
+                typewriterMessage(reply, function() {
+                    history.push({ role: 'assistant', content: reply });
+                });
             }
         })
         .catch(function() {
             document.getElementById('fairy-typing').classList.remove('active');
+            toggle.classList.remove('pulse');
             isSending = false;
             document.getElementById('fairy-send').disabled = false;
-            addError('Connection lost. The Fairy will return.');
+            addError('The frequency fades. The Fairy will return.');
         });
     }
 
