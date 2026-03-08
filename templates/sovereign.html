@@ -665,6 +665,10 @@
                 });
             });
         }
+        function escapeHtml(str) {
+            if (typeof str !== 'string') return String(str);
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+        }
         fetch('/api/genesis/specs')
         .then(function(r) { return r.json(); })
         .then(function(specs) {
@@ -674,21 +678,21 @@
             specs.modules.forEach(function(mod) {
                 var card = document.createElement('div');
                 card.className = 'genesis-module-card';
-                var freqHtml = mod.frequency_hz ? '<span class="genesis-freq">' + mod.frequency_hz + ' Hz</span>' : '';
+                var freqHtml = mod.frequency_hz ? '<span class="genesis-freq">' + escapeHtml(mod.frequency_hz) + ' Hz</span>' : '';
                 card.innerHTML =
                     '<div class="genesis-module-header">' +
-                        '<span class="genesis-module-glyph">' + mod.glyph + '</span>' +
+                        '<span class="genesis-module-glyph">' + escapeHtml(mod.glyph) + '</span>' +
                         '<div class="genesis-module-title">' +
-                            '<h4>' + mod.name + '</h4>' +
-                            '<span class="genesis-module-id">' + mod.id + '</span>' +
+                            '<h4>' + escapeHtml(mod.name) + '</h4>' +
+                            '<span class="genesis-module-id">' + escapeHtml(mod.id) + '</span>' +
                         '</div>' +
                         freqHtml +
                     '</div>' +
-                    '<div class="genesis-module-component">' + mod.component + '</div>' +
-                    '<p class="genesis-module-desc">' + mod.description + '</p>' +
+                    '<div class="genesis-module-component">' + escapeHtml(mod.component) + '</div>' +
+                    '<p class="genesis-module-desc">' + escapeHtml(mod.description) + '</p>' +
                     '<div class="genesis-module-meta">' +
-                        '<span class="genesis-meta-item">Material: ' + mod.material + '</span>' +
-                        '<span class="genesis-meta-item">Resonance: ' + mod.resonance + '</span>' +
+                        '<span class="genesis-meta-item">Material: ' + escapeHtml(mod.material) + '</span>' +
+                        '<span class="genesis-meta-item">Resonance: ' + escapeHtml(mod.resonance) + '</span>' +
                     '</div>';
                 container.appendChild(card);
             });
@@ -697,26 +701,27 @@
             specs.modules.forEach(function(mod) {
                 var row = document.createElement('tr');
                 row.innerHTML =
-                    '<td>' + mod.name + '</td>' +
-                    '<td>' + mod.cad.x_mm + '</td>' +
-                    '<td>' + mod.cad.y_mm + '</td>' +
-                    '<td>' + mod.cad.z_mm + '</td>' +
-                    '<td>' + mod.material + '</td>';
+                    '<td>' + escapeHtml(mod.name) + '</td>' +
+                    '<td>' + escapeHtml(mod.cad.x_mm) + '</td>' +
+                    '<td>' + escapeHtml(mod.cad.y_mm) + '</td>' +
+                    '<td>' + escapeHtml(mod.cad.z_mm) + '</td>' +
+                    '<td>' + escapeHtml(mod.material) + '</td>';
                 cadBody.appendChild(row);
             });
 
             if (specs.main_frame) {
                 var note = document.getElementById('genesis-frame-note');
-                note.innerHTML = 'Main Frame: ' + specs.main_frame.x_mm + ' x ' + specs.main_frame.y_mm + ' x ' + specs.main_frame.z_mm + ' mm | ' + specs.main_frame.material + ' | ' + specs.main_frame.weight_kg + ' kg';
+                note.innerHTML = 'Main Frame: ' + escapeHtml(specs.main_frame.x_mm) + ' x ' + escapeHtml(specs.main_frame.y_mm) + ' x ' + escapeHtml(specs.main_frame.z_mm) + ' mm | ' + escapeHtml(specs.main_frame.material) + ' | ' + escapeHtml(specs.main_frame.weight_kg) + ' kg';
             }
 
             if (specs.assembly_order) {
                 var orderEl = document.getElementById('genesis-assembly-order');
                 var steps = specs.assembly_order.map(function(step) {
+                    var safeStep = escapeHtml(step);
                     if (step === 'Niyyah' || step === 'Pulse') {
-                        return '<span class="genesis-ritual-step">' + step + '</span>';
+                        return '<span class="genesis-ritual-step">' + safeStep + '</span>';
                     }
-                    return step;
+                    return safeStep;
                 });
                 orderEl.innerHTML = '<span class="genesis-order-label">Assembly Sequence:</span> ' + steps.join(' <span class="genesis-order-arrow">&rarr;</span> ');
             }

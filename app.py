@@ -2,7 +2,10 @@ import os
 from flask import Flask, render_template
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "void-engine-dev-key")
+_secret = os.environ.get("SESSION_SECRET")
+if not _secret:
+    raise RuntimeError("SESSION_SECRET environment variable is required")
+app.secret_key = _secret
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 

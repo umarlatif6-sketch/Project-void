@@ -22,6 +22,13 @@ import routes.shared as shared
 
 core_bp = Blueprint("core", __name__)
 
+ALLOWED_EXTENSIONS = {'.wav', '.mp3', '.flac', '.ogg', '.txt', '.png', '.jpg', '.jpeg', '.pdf'}
+
+
+def _allowed_file(filename):
+    ext = os.path.splitext(filename)[1].lower()
+    return ext in ALLOWED_EXTENSIONS
+
 
 def _user_input_dir():
     username = session.get("username")
@@ -141,6 +148,10 @@ def upload_file():
             }), 413
 
     filename = secure_filename(f.filename)
+    if not _allowed_file(filename):
+        allowed = ', '.join(sorted(ALLOWED_EXTENSIONS))
+        return jsonify({"error": f"File type not allowed. Permitted extensions: {allowed}"}), 400
+
     dest = request.form.get("dest", "input")
     directory = _user_input_dir() if dest == "input" else _user_output_dir()
     filepath = os.path.join(directory, filename)

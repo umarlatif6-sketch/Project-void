@@ -1,3 +1,9 @@
+function escHtml(str) {
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(str));
+    return d.innerHTML;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const isDemo = document.body.getAttribute("data-demo") === "true";
     const tabs = document.querySelectorAll(".tab");
@@ -331,18 +337,36 @@ document.addEventListener("DOMContentLoaded", () => {
             el.innerHTML = '<p class="empty-msg">No files</p>';
             return;
         }
-        el.innerHTML = files.map(f => `
-            <div class="file-row">
-                <div class="file-info">
-                    <span class="file-name">${f.name}</span>
-                    <span class="file-size">${formatSize(f.size)}</span>
-                </div>
-                <div class="file-actions">
-                    <button class="btn-sm" onclick="downloadFile('${folder}', '${f.name}')">Download</button>
-                    <button class="btn-sm delete" onclick="deleteFile('${folder}', '${f.name}')">Delete</button>
-                </div>
-            </div>
-        `).join("");
+        el.innerHTML = '';
+        files.forEach(f => {
+            const row = document.createElement('div');
+            row.className = 'file-row';
+            const info = document.createElement('div');
+            info.className = 'file-info';
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'file-name';
+            nameSpan.textContent = f.name;
+            const sizeSpan = document.createElement('span');
+            sizeSpan.className = 'file-size';
+            sizeSpan.textContent = formatSize(f.size);
+            info.appendChild(nameSpan);
+            info.appendChild(sizeSpan);
+            const actions = document.createElement('div');
+            actions.className = 'file-actions';
+            const dlBtn = document.createElement('button');
+            dlBtn.className = 'btn-sm';
+            dlBtn.textContent = 'Download';
+            dlBtn.addEventListener('click', () => downloadFile(folder, f.name));
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-sm delete';
+            delBtn.textContent = 'Delete';
+            delBtn.addEventListener('click', () => deleteFile(folder, f.name));
+            actions.appendChild(dlBtn);
+            actions.appendChild(delBtn);
+            row.appendChild(info);
+            row.appendChild(actions);
+            el.appendChild(row);
+        });
     }
 
     window.downloadFile = (folder, name) => {
@@ -392,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
         for (const file of fileList) {
             const item = document.createElement("div");
             item.className = "upload-item";
-            item.innerHTML = `<span>${file.name}</span><span>Uploading...</span>`;
+            item.innerHTML = `<span>${escHtml(file.name)}</span><span>Uploading...</span>`;
             statusEl.appendChild(item);
 
             const fd = new FormData();
@@ -403,13 +427,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const res = await fetch("/api/upload", { method: "POST", body: fd });
                 const data = await res.json();
                 if (data.success) {
-                    item.innerHTML = `<span>${data.filename}</span><span style="color:var(--success)">${formatSize(data.size)}</span>`;
-                    showToast(`Uploaded ${data.filename}`, "success");
+                    item.innerHTML = `<span>${escHtml(data.filename)}</span><span style="color:var(--success)">${formatSize(data.size)}</span>`;
+                    showToast(`Uploaded ${escHtml(data.filename)}`, "success");
                 } else {
-                    item.innerHTML = `<span>${file.name}</span><span style="color:var(--error)">${data.error}</span>`;
+                    item.innerHTML = `<span>${escHtml(file.name)}</span><span style="color:var(--error)">${escHtml(data.error)}</span>`;
                 }
             } catch {
-                item.innerHTML = `<span>${file.name}</span><span style="color:var(--error)">Upload failed</span>`;
+                item.innerHTML = `<span>${escHtml(file.name)}</span><span style="color:var(--error)">Upload failed</span>`;
             }
         }
         loadSelects();
@@ -427,7 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function showInlineError(elementId, message) {
         const el = document.getElementById(elementId);
-        el.innerHTML = '<div class="error-title">Error</div>' + message;
+        el.innerHTML = '<div class="error-title">Error</div>' + escHtml(message);
         el.style.display = "block";
     }
 

@@ -83,6 +83,8 @@
     </main>
 
     <script>
+    function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
     (function() {
         var params = new URLSearchParams(window.location.search);
         var token = params.get('token') || '';
@@ -93,7 +95,7 @@
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.error) {
-                document.getElementById('admin-inquiries-body').innerHTML = '<p class="admin-empty">' + data.error + '</p>';
+                document.getElementById('admin-inquiries-body').innerHTML = '<p class="admin-empty">' + escapeHtml(data.error) + '</p>';
                 return;
             }
 
@@ -122,9 +124,9 @@
             Object.keys(bySource).forEach(function(src) {
                 var pct = Math.max(5, (bySource[src] / total) * 100);
                 var cls = sourceColors[src] || 'admin-source-seg-other';
-                barHtml += '<div class="admin-source-seg ' + cls + '" style="width:' + pct + '%">' + src + ' ' + bySource[src] + '</div>';
+                barHtml += '<div class="admin-source-seg ' + cls + '" style="width:' + pct + '%">' + escapeHtml(src) + ' ' + bySource[src] + '</div>';
                 var dc = dotColors[src] || 'var(--text-dim)';
-                legendHtml += '<span><span class="admin-source-dot" style="background:' + dc + '"></span>' + src + ': ' + bySource[src] + '</span>';
+                legendHtml += '<span><span class="admin-source-dot" style="background:' + dc + '"></span>' + escapeHtml(src) + ': ' + bySource[src] + '</span>';
             });
             document.getElementById('admin-source-bar').innerHTML = barHtml || '<div class="admin-source-seg admin-source-seg-other" style="width:100%">No data</div>';
             document.getElementById('admin-source-legend').innerHTML = legendHtml;
@@ -135,20 +137,22 @@
             } else {
                 var tableHtml = '<table class="admin-table"><thead><tr><th>Time</th><th>Name</th><th>Email</th><th>Org</th><th>Phone</th><th>Type</th><th>Interest</th><th>Source</th><th>Consent</th><th>Config</th></tr></thead><tbody>';
                 recent.forEach(function(inq) {
-                    var tagClass = 'admin-tag-' + (inq.type || 'general');
+                    var allowedTypes = ['sovereign', 'grant', 'demo', 'general'];
+                    var safeType = allowedTypes.indexOf(inq.type) !== -1 ? inq.type : 'general';
+                    var tagClass = 'admin-tag-' + safeType;
                     var ts = inq.timestamp ? new Date(inq.timestamp).toLocaleString() : '--';
                     var consentIcon = inq.consent ? '<span style="color:var(--success)">Y</span>' : '<span style="color:var(--text-dim)">-</span>';
                     tableHtml += '<tr>';
                     tableHtml += '<td>' + ts + '</td>';
-                    tableHtml += '<td>' + (inq.name || '--') + '</td>';
-                    tableHtml += '<td>' + (inq.email || '--') + '</td>';
-                    tableHtml += '<td>' + (inq.organisation || '--') + '</td>';
-                    tableHtml += '<td>' + (inq.phone || '--') + '</td>';
-                    tableHtml += '<td><span class="admin-tag ' + tagClass + '">' + (inq.type || 'general') + '</span></td>';
-                    tableHtml += '<td>' + (inq.interest || '--') + '</td>';
-                    tableHtml += '<td>' + (inq.source_page || '--') + '</td>';
+                    tableHtml += '<td>' + escapeHtml(inq.name || '--') + '</td>';
+                    tableHtml += '<td>' + escapeHtml(inq.email || '--') + '</td>';
+                    tableHtml += '<td>' + escapeHtml(inq.organisation || '--') + '</td>';
+                    tableHtml += '<td>' + escapeHtml(inq.phone || '--') + '</td>';
+                    tableHtml += '<td><span class="admin-tag ' + tagClass + '">' + escapeHtml(inq.type || 'general') + '</span></td>';
+                    tableHtml += '<td>' + escapeHtml(inq.interest || '--') + '</td>';
+                    tableHtml += '<td>' + escapeHtml(inq.source_page || '--') + '</td>';
                     tableHtml += '<td>' + consentIcon + '</td>';
-                    tableHtml += '<td><span class="admin-config" title="' + (inq.configuration || '').replace(/"/g, '&quot;') + '">' + (inq.configuration || '--') + '</span></td>';
+                    tableHtml += '<td><span class="admin-config" title="' + escapeHtml((inq.configuration || '').replace(/"/g, '&quot;')) + '">' + escapeHtml(inq.configuration || '--') + '</span></td>';
                     tableHtml += '</tr>';
                 });
                 tableHtml += '</tbody></table>';
@@ -172,7 +176,7 @@
             .then(function(data) {
                 var card = document.createElement('div');
                 card.className = 'admin-pitch-card';
-                card.innerHTML = '<h5>' + data.alignment.funder + '</h5><p>' + data.alignment.headline + '</p><p>' + data.alignment.impact_statement + '</p>';
+                card.innerHTML = '<h5>' + escapeHtml(data.alignment.funder) + '</h5><p>' + escapeHtml(data.alignment.headline) + '</p><p>' + escapeHtml(data.alignment.impact_statement) + '</p>';
                 pitchContainer.appendChild(card);
             })
             .catch(function() {})
@@ -211,8 +215,8 @@
                 el.innerHTML = reports.map(function(r) {
                     return '<div class="admin-pitch-card" id="vig-card-' + r.id + '">' +
                         '<h5>#' + r.id + ' — ' + escapeHtml(r.title) + '</h5>' +
-                        '<p><span class="vig-sev vig-sev-' + r.severity + '">' + r.severity + '</span> ' +
-                        (r.category ? '<span style="color:#888;font-size:11px;margin-left:8px;">' + r.category + '</span>' : '') +
+                        '<p><span class="vig-sev vig-sev-' + escapeHtml(r.severity) + '">' + escapeHtml(r.severity) + '</span> ' +
+                        (r.category ? '<span style="color:#888;font-size:11px;margin-left:8px;">' + escapeHtml(r.category) + '</span>' : '') +
                         ' &middot; by <strong>' + escapeHtml(r.reporter_username) + '</strong> &middot; ' +
                         (r.created_at ? r.created_at.substring(0,10) : '') + '</p>' +
                         '<textarea class="admin-vig-notes" id="vig-notes-' + r.id + '" rows="1" placeholder="Admin notes (optional)"></textarea>' +
@@ -228,8 +232,6 @@
                 document.getElementById('admin-vig-queue').innerHTML = '<p style="color:#888;">Failed to load vigilance queue.</p>';
             });
         }
-
-        function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
         window.reviewReport = function(id, action) {
             var notes = (document.getElementById('vig-notes-' + id) || {}).value || '';

@@ -126,7 +126,10 @@ def _get_conversation_key(conversation_id):
         row = cur.fetchone()
         if not row or not row[0]:
             raw_key = os.urandom(32)
-            master = fatiha_286_derive_key(os.environ.get("SESSION_SECRET", "void-engine-dev-key"))
+            _secret = os.environ.get("SESSION_SECRET")
+            if not _secret:
+                raise RuntimeError("SESSION_SECRET environment variable is required")
+            master = fatiha_286_derive_key(_secret)
             master_aead = ChaCha20Poly1305(master)
             nonce = os.urandom(12)
             encrypted_key = master_aead.encrypt(nonce, raw_key, None)
@@ -137,7 +140,10 @@ def _get_conversation_key(conversation_id):
         stored = base64.b64decode(row[0])
         nonce = stored[:12]
         encrypted_key = stored[12:]
-        master = fatiha_286_derive_key(os.environ.get("SESSION_SECRET", "void-engine-dev-key"))
+        _secret = os.environ.get("SESSION_SECRET")
+        if not _secret:
+            raise RuntimeError("SESSION_SECRET environment variable is required")
+        master = fatiha_286_derive_key(_secret)
         master_aead = ChaCha20Poly1305(master)
         return master_aead.decrypt(nonce, encrypted_key, None)
     finally:
