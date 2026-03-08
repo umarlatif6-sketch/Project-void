@@ -38,7 +38,17 @@ TIER_LIMITS = {
 }
 
 
+_ALLOWED_TABLES = {"users", "messages"}
+_ALLOWED_COLUMNS = {
+    "role", "tier", "tier_expires_at", "stripe_customer_id", "stripe_subscription_id",
+    "vortex_balance", "attachment_filename", "attachment_path", "attachment_size",
+    "attachment_type", "silt_hash_key", "silt_carrier_style", "vtx_earned",
+}
+
+
 def _ensure_column(cur, table, column, definition):
+    if table not in _ALLOWED_TABLES or column not in _ALLOWED_COLUMNS:
+        raise ValueError(f"Refusing unsafe DDL: table={table!r} column={column!r}")
     cur.execute(
         "SELECT 1 FROM information_schema.columns WHERE table_name = %s AND column_name = %s",
         (table, column),
