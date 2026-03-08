@@ -38,17 +38,31 @@ TIER_LIMITS = {
 }
 
 
-_ALLOWED_TABLES = {"users", "messages"}
-_ALLOWED_COLUMNS = {
-    "role", "tier", "tier_expires_at", "stripe_customer_id", "stripe_subscription_id",
-    "vortex_balance", "attachment_filename", "attachment_path", "attachment_size",
-    "attachment_type", "silt_hash_key", "silt_carrier_style", "vtx_earned",
+_COLUMN_DEFINITIONS = {
+    ("users", "role"):                   "VARCHAR(20) DEFAULT 'user'",
+    ("users", "tier"):                   "VARCHAR(20) DEFAULT 'ghost'",
+    ("users", "tier_expires_at"):        "TIMESTAMP",
+    ("users", "stripe_customer_id"):     "VARCHAR(100)",
+    ("users", "stripe_subscription_id"): "VARCHAR(100)",
+    ("users", "vortex_balance"):         "DECIMAL(18,4) DEFAULT 0",
+    ("messages", "attachment_filename"): "VARCHAR(255)",
+    ("messages", "attachment_path"):     "VARCHAR(500)",
+    ("messages", "attachment_size"):     "BIGINT",
+    ("messages", "attachment_type"):     "VARCHAR(50)",
+    ("messages", "silt_hash_key"):       "TEXT",
+    ("messages", "silt_carrier_style"):  "VARCHAR(50)",
+    ("messages", "vtx_earned"):          "DECIMAL(18,4) DEFAULT 0",
 }
 
+_ALLOWED_TABLES = {"users", "messages"}
+_ALLOWED_COLUMNS = {col for (_, col) in _COLUMN_DEFINITIONS}
 
-def _ensure_column(cur, table, column, definition):
-    if table not in _ALLOWED_TABLES or column not in _ALLOWED_COLUMNS:
+
+def _ensure_column(cur, table, column):
+    key = (table, column)
+    if key not in _COLUMN_DEFINITIONS:
         raise ValueError(f"Refusing unsafe DDL: table={table!r} column={column!r}")
+    definition = _COLUMN_DEFINITIONS[key]
     cur.execute(
         "SELECT 1 FROM information_schema.columns WHERE table_name = %s AND column_name = %s",
         (table, column),
@@ -61,20 +75,8 @@ def _ensure_columns():
     conn = _get_db()
     try:
         cur = conn.cursor()
-        _ensure_column(cur, "users", "role", "VARCHAR(20) DEFAULT 'user'")
-        _ensure_column(cur, "users", "tier", "VARCHAR(20) DEFAULT 'ghost'")
-        _ensure_column(cur, "users", "tier_expires_at", "TIMESTAMP")
-        _ensure_column(cur, "users", "stripe_customer_id", "VARCHAR(100)")
-        _ensure_column(cur, "users", "stripe_subscription_id", "VARCHAR(100)")
-        _ensure_column(cur, "users", "vortex_balance", "DECIMAL(18,4) DEFAULT 0")
-
-        _ensure_column(cur, "messages", "attachment_filename", "VARCHAR(255)")
-        _ensure_column(cur, "messages", "attachment_path", "VARCHAR(500)")
-        _ensure_column(cur, "messages", "attachment_size", "BIGINT")
-        _ensure_column(cur, "messages", "attachment_type", "VARCHAR(50)")
-        _ensure_column(cur, "messages", "silt_hash_key", "TEXT")
-        _ensure_column(cur, "messages", "silt_carrier_style", "VARCHAR(50)")
-        _ensure_column(cur, "messages", "vtx_earned", "DECIMAL(18,4) DEFAULT 0")
+        for (table, column) in _COLUMN_DEFINITIONS:
+            _ensure_column(cur, table, column)
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS vortex_ledger (
