@@ -3435,23 +3435,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderWarranty(data) {
         const el = document.getElementById("warranty-content");
-        let html = `<div class="warranty-title">${data.title}</div>`;
-        html += `<div class="warranty-subtitle">${data.subtitle}</div>`;
-        html += `<div class="warranty-preamble">${data.preamble}</div>`;
+        let html = `<div class="warranty-title">${escHtml(data.title)}</div>`;
+        html += `<div class="warranty-subtitle">${escHtml(data.subtitle)}</div>`;
+        html += `<div class="warranty-preamble">${escHtml(data.preamble)}</div>`;
 
         for (const article of data.articles) {
             html += `<div class="warranty-article">` +
                 `<div class="warranty-article-header">` +
-                `<div class="warranty-article-num">${article.number}</div>` +
-                `<div class="warranty-article-title">${article.title}</div>` +
+                `<div class="warranty-article-num">${escHtml(article.number)}</div>` +
+                `<div class="warranty-article-title">${escHtml(article.title)}</div>` +
                 `</div>` +
-                `<div class="warranty-article-text">${article.text}</div>` +
+                `<div class="warranty-article-text">${escHtml(article.text)}</div>` +
                 `</div>`;
         }
 
         html += `<div class="warranty-closing">` +
-            `<div class="warranty-closing-text">${data.closing}</div>` +
-            `<div class="warranty-seal">${data.seal}</div>` +
+            `<div class="warranty-closing-text">${escHtml(data.closing)}</div>` +
+            `<div class="warranty-seal">${escHtml(data.seal)}</div>` +
             `</div>`;
 
         el.innerHTML = html;
@@ -3459,22 +3459,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderWarrantyMachineId(data) {
         if (data.machine_id) {
-            let html = `<div class="warranty-machine-id">Machine ID: ${data.machine_id}</div>`;
-            html += `<div class="warranty-title">${data.title}</div>`;
-            html += `<div class="warranty-subtitle">${data.subtitle}</div>`;
-            html += `<div class="warranty-preamble">${data.preamble}</div>`;
+            let html = `<div class="warranty-machine-id">Machine ID: ${escHtml(data.machine_id)}</div>`;
+            html += `<div class="warranty-title">${escHtml(data.title)}</div>`;
+            html += `<div class="warranty-subtitle">${escHtml(data.subtitle)}</div>`;
+            html += `<div class="warranty-preamble">${escHtml(data.preamble)}</div>`;
             for (const article of data.articles) {
                 html += `<div class="warranty-article">` +
                     `<div class="warranty-article-header">` +
-                    `<div class="warranty-article-num">${article.number}</div>` +
-                    `<div class="warranty-article-title">${article.title}</div>` +
+                    `<div class="warranty-article-num">${escHtml(article.number)}</div>` +
+                    `<div class="warranty-article-title">${escHtml(article.title)}</div>` +
                     `</div>` +
-                    `<div class="warranty-article-text">${article.text}</div>` +
+                    `<div class="warranty-article-text">${escHtml(article.text)}</div>` +
                     `</div>`;
             }
             html += `<div class="warranty-closing">` +
-                `<div class="warranty-closing-text">${data.closing}</div>` +
-                `<div class="warranty-seal">${data.seal}</div>` +
+                `<div class="warranty-closing-text">${escHtml(data.closing)}</div>` +
+                `<div class="warranty-seal">${escHtml(data.seal)}</div>` +
                 `</div>`;
             document.getElementById("warranty-content").innerHTML = html;
         }
