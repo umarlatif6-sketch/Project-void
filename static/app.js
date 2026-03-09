@@ -1630,18 +1630,43 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            feed.innerHTML = data.signals.map(s => `
-                <div class="silk-entry">
-                    <div class="silk-entry-left">
-                        <span class="silk-signal-text">${s.signal}</span>
-                        <span class="silk-entry-meta">${s.timestamp} &middot; ${s.output_file}</span>
-                    </div>
-                    <div class="silk-entry-right">
-                        <span class="silk-status">${s.status}</span>
-                        <span class="silk-hash-tail">${s.hash_tail}</span>
-                    </div>
-                </div>
-            `).join("");
+            feed.innerHTML = "";
+            data.signals.forEach(s => {
+                const entry = document.createElement("div");
+                entry.className = "silk-entry";
+
+                const left = document.createElement("div");
+                left.className = "silk-entry-left";
+
+                const signalText = document.createElement("span");
+                signalText.className = "silk-signal-text";
+                signalText.textContent = s.signal;
+
+                const meta = document.createElement("span");
+                meta.className = "silk-entry-meta";
+                meta.textContent = `${s.timestamp} \u00b7 ${s.output_file}`;
+
+                left.appendChild(signalText);
+                left.appendChild(meta);
+
+                const right = document.createElement("div");
+                right.className = "silk-entry-right";
+
+                const status = document.createElement("span");
+                status.className = "silk-status";
+                status.textContent = s.status;
+
+                const hashTail = document.createElement("span");
+                hashTail.className = "silk-hash-tail";
+                hashTail.textContent = s.hash_tail;
+
+                right.appendChild(status);
+                right.appendChild(hashTail);
+
+                entry.appendChild(left);
+                entry.appendChild(right);
+                feed.appendChild(entry);
+            });
         } catch {
             feed.innerHTML = '<p class="loading">Failed to load signals</p>';
         }
