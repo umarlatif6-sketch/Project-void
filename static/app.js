@@ -2776,8 +2776,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const isCredit = tx.tx_type === "credit" || tx.tx_type === "genesis";
                 const amtClass = isCredit ? "positive" : (tx.amount > 0 ? "negative" : "");
                 const amtStr = tx.amount > 0 ? (isCredit ? "+" : "-") + tx.amount.toFixed(2) : "---";
+                const safeTxTypeClass = tx.tx_type.replace(/[^a-zA-Z0-9_-]/g, '');
                 return `<div class="wallet-tx-row">` +
-                    `<span class="wallet-tx-type ${escHtml(tx.tx_type)}">${escHtml(tx.tx_type)}</span>` +
+                    `<span class="wallet-tx-type ${safeTxTypeClass}">${escHtml(tx.tx_type)}</span>` +
                     `<span class="wallet-tx-amount ${amtClass}">${amtStr}</span>` +
                     `<span class="wallet-tx-desc">${escHtml(tx.description)}</span>` +
                     `<span class="wallet-tx-balance">${tx.balance_after.toFixed(2)} CC</span>` +
