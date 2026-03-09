@@ -3353,20 +3353,67 @@ document.addEventListener("DOMContentLoaded", () => {
         const sortOrder = { "CRITICAL": 0, "WARNING": 1, "NOMINAL": 2 };
         const sorted = [...data.findings].sort((a, b) => sortOrder[a.severity] - sortOrder[b.severity]);
 
-        findingsEl.innerHTML = sorted.map(f => {
+        findingsEl.innerHTML = "";
+        sorted.forEach(f => {
             const meterPct = f.threshold > 0 ? Math.min((f.value / f.threshold) * 100, 100) : (f.severity === "NOMINAL" ? 30 : 80);
-            return `<div class="diag-card sev-${escHtml(f.severity)}">` +
-                `<div class="diag-card-header">` +
-                `<div class="diag-glyph">${escHtml(f.glyph)}</div>` +
-                `<span class="diag-root-code">${escHtml(f.root_code)}</span>` +
-                `<span class="diag-severity">${escHtml(f.severity)}</span>` +
-                `</div>` +
-                `<div class="diag-semantic">${escHtml(f.semantic_error)}</div>` +
-                `<div class="diag-physical">${escHtml(f.physical_reality)}</div>` +
-                (f.solution_command ? `<div class="diag-solution"><span class="diag-solution-cmd">${escHtml(f.solution_command)}</span>${escHtml(f.solution_text)}</div>` : `<div class="diag-solution">${escHtml(f.solution_text)}</div>`) +
-                (f.threshold > 0 ? `<div class="diag-meter"><div class="diag-meter-fill" style="width:${meterPct}%"></div></div>` : '') +
-                `</div>`;
-        }).join("");
+
+            const card = document.createElement("div");
+            card.className = "diag-card sev-" + f.severity;
+
+            const header = document.createElement("div");
+            header.className = "diag-card-header";
+
+            const glyph = document.createElement("div");
+            glyph.className = "diag-glyph";
+            glyph.textContent = f.glyph;
+
+            const rootCode = document.createElement("span");
+            rootCode.className = "diag-root-code";
+            rootCode.textContent = f.root_code;
+
+            const severitySpan = document.createElement("span");
+            severitySpan.className = "diag-severity";
+            severitySpan.textContent = f.severity;
+
+            header.appendChild(glyph);
+            header.appendChild(rootCode);
+            header.appendChild(severitySpan);
+
+            const semantic = document.createElement("div");
+            semantic.className = "diag-semantic";
+            semantic.textContent = f.semantic_error;
+
+            const physical = document.createElement("div");
+            physical.className = "diag-physical";
+            physical.textContent = f.physical_reality;
+
+            const solution = document.createElement("div");
+            solution.className = "diag-solution";
+            if (f.solution_command) {
+                const cmdSpan = document.createElement("span");
+                cmdSpan.className = "diag-solution-cmd";
+                cmdSpan.textContent = f.solution_command;
+                solution.appendChild(cmdSpan);
+            }
+            solution.appendChild(document.createTextNode(f.solution_text));
+
+            card.appendChild(header);
+            card.appendChild(semantic);
+            card.appendChild(physical);
+            card.appendChild(solution);
+
+            if (f.threshold > 0) {
+                const meter = document.createElement("div");
+                meter.className = "diag-meter";
+                const fill = document.createElement("div");
+                fill.className = "diag-meter-fill";
+                fill.style.width = meterPct + "%";
+                meter.appendChild(fill);
+                card.appendChild(meter);
+            }
+
+            findingsEl.appendChild(card);
+        });
     }
 
     document.getElementById("warranty-btn").addEventListener("click", async () => {
