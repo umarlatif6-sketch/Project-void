@@ -3156,33 +3156,69 @@ document.addEventListener("DOMContentLoaded", () => {
                 : "Protocol Failed — Check step details below";
 
             const detailsEl = document.getElementById("divided-step-details");
-            detailsEl.innerHTML = (data.steps || []).map(step => {
+            detailsEl.innerHTML = "";
+            const stepsFragment = document.createDocumentFragment();
+            (data.steps || []).forEach(step => {
                 let info = "";
                 if (step.result) {
-                    if (step.index === 1) info = escapeHtml(step.result.summary || "");
-                    if (step.index === 2) info = `SNR: ${escapeHtml(String(step.result.carrier_snr_db || 0))} dB | Resonance: ${escapeHtml(String(step.result.resonance_score || 0))}`;
-                    if (step.index === 3) info = `Axiom: ${escapeHtml(step.result.axiom_result || "")} | RPM: ${escapeHtml(String(step.result.motion_rpm || 0))}`;
-                    if (step.index === 4) info = `${escapeHtml(formatSize(step.result.original_size || 0))} → ${escapeHtml(formatSize(step.result.compressed_size || 0))} (vortex)`;
-                    if (step.index === 5) info = step.result.committed ? `Chronicle #${escapeHtml(String(step.result.chronicle_id))} | ${escapeHtml(String(step.result.wallet_charged))} CC` : "Not committed";
+                    if (step.index === 1) info = step.result.summary || "";
+                    if (step.index === 2) info = `SNR: ${step.result.carrier_snr_db || 0} dB | Resonance: ${step.result.resonance_score || 0}`;
+                    if (step.index === 3) info = `Axiom: ${step.result.axiom_result || ""} | RPM: ${step.result.motion_rpm || 0}`;
+                    if (step.index === 4) info = `${formatSize(step.result.original_size || 0)} → ${formatSize(step.result.compressed_size || 0)} (vortex)`;
+                    if (step.index === 5) info = step.result.committed ? `Chronicle #${step.result.chronicle_id} | ${step.result.wallet_charged} CC` : "Not committed";
                 }
-                if (step.error) info = escapeHtml(step.error);
-                const safeStatus = escapeHtml(step.status);
-                return `<div class="divided-detail-row">` +
-                    `<div class="divided-detail-code">${escapeHtml(step.root_code)}</div>` +
-                    `<div class="divided-detail-name">${escapeHtml(step.name)}</div>` +
-                    `<div class="divided-detail-info">${info}</div>` +
-                    `<div class="divided-detail-badge ${safeStatus}">${safeStatus.toUpperCase()}</div>` +
-                    `</div>`;
-            }).join("");
+                if (step.error) info = step.error;
+
+                const row = document.createElement("div");
+                row.className = "divided-detail-row";
+
+                const codeEl = document.createElement("div");
+                codeEl.className = "divided-detail-code";
+                codeEl.textContent = step.root_code;
+
+                const nameEl = document.createElement("div");
+                nameEl.className = "divided-detail-name";
+                nameEl.textContent = step.name;
+
+                const infoEl = document.createElement("div");
+                infoEl.className = "divided-detail-info";
+                infoEl.textContent = info;
+
+                const badgeEl = document.createElement("div");
+                badgeEl.className = `divided-detail-badge ${step.status || ""}`;
+                badgeEl.textContent = (step.status || "").toUpperCase();
+
+                row.appendChild(codeEl);
+                row.appendChild(nameEl);
+                row.appendChild(infoEl);
+                row.appendChild(badgeEl);
+                stepsFragment.appendChild(row);
+            });
+            detailsEl.appendChild(stepsFragment);
 
             const finalEl = document.getElementById("divided-final");
+            finalEl.innerHTML = "";
             if (data.success && data.hash_key) {
-                finalEl.innerHTML = `<div style="color:#888;font-size:10px;margin-bottom:4px;">HASH KEY (save this!)</div>` +
-                    `<div class="hash-display">${escapeHtml(data.hash_key)}</div>` +
-                    `<div style="margin-top:8px;font-size:11px;color:var(--text-muted);">` +
-                    `Output: ${escapeHtml(data.output_file)} | Scatter: ${escapeHtml(data.scatter_mode)} | Chain: ${escapeHtml(data.chain)} | Duration: ${escapeHtml(data.total_duration_ms.toFixed(0))}ms</div>`;
+                const labelEl = document.createElement("div");
+                labelEl.style.cssText = "color:#888;font-size:10px;margin-bottom:4px;";
+                labelEl.textContent = "HASH KEY (save this!)";
+
+                const hashEl = document.createElement("div");
+                hashEl.className = "hash-display";
+                hashEl.textContent = data.hash_key;
+
+                const metaEl = document.createElement("div");
+                metaEl.style.cssText = "margin-top:8px;font-size:11px;color:var(--text-muted);";
+                metaEl.textContent = `Output: ${data.output_file} | Scatter: ${data.scatter_mode} | Chain: ${data.chain} | Duration: ${data.total_duration_ms.toFixed(0)}ms`;
+
+                finalEl.appendChild(labelEl);
+                finalEl.appendChild(hashEl);
+                finalEl.appendChild(metaEl);
             } else {
-                finalEl.innerHTML = `<div style="color:#ff4444;font-size:12px;">Protocol terminated at failed step. Duration: ${escapeHtml((data.total_duration_ms || 0).toFixed(0))}ms</div>`;
+                const errEl = document.createElement("div");
+                errEl.style.cssText = "color:#ff4444;font-size:12px;";
+                errEl.textContent = `Protocol terminated at failed step. Duration: ${(data.total_duration_ms || 0).toFixed(0)}ms`;
+                finalEl.appendChild(errEl);
             }
 
             document.getElementById("divided-result").style.display = "block";
