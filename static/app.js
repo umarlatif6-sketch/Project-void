@@ -2935,12 +2935,26 @@ document.addEventListener("DOMContentLoaded", () => {
         outcomeEl.appendChild(cmdSpan);
 
         const statsEl = document.getElementById("consensus-stats");
-        statsEl.innerHTML = [
-            { label: "Energy", value: escapeHtml(data.energy_pct) + "%" },
-            { label: "Turns", value: escapeHtml(data.total_turns) },
-            { label: "Total Chars", value: escapeHtml(data.total_chars) },
-            { label: "Intent", value: escapeHtml(data.consensus_intent) },
-        ].map(s => `<div class="cs-stat"><span class="cs-label">${s.label}</span> <span class="cs-value">${s.value}</span></div>`).join("");
+        statsEl.innerHTML = '';
+        [
+            { label: "Energy", value: String(data.energy_pct ?? '') + "%" },
+            { label: "Turns", value: String(data.total_turns ?? '') },
+            { label: "Total Chars", value: String(data.total_chars ?? '') },
+            { label: "Intent", value: String(data.consensus_intent ?? '') },
+        ].forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'cs-stat';
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'cs-label';
+            labelSpan.textContent = s.label;
+            const valueSpan = document.createElement('span');
+            valueSpan.className = 'cs-value';
+            valueSpan.textContent = s.value;
+            div.appendChild(labelSpan);
+            div.appendChild(document.createTextNode(' '));
+            div.appendChild(valueSpan);
+            statsEl.appendChild(div);
+        });
 
         const traceEl = document.getElementById("consensus-trace");
         traceEl.innerHTML = '<div class="trace-header"><span>#</span><span>Agent</span><span>Command</span><span>Intent</span></div>' +
