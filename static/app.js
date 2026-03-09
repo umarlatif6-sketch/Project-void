@@ -2460,13 +2460,24 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderAdrianaLexicon(lex) {
         const renderGroup = (containerId, title, entries) => {
             const el = document.getElementById(containerId);
-            el.innerHTML = `<h4>${escHtml(title)}</h4>` +
-                entries.map(e =>
-                    `<span class="lex-entry" title="${escHtml(e.description)} → ${escHtml(e.python_equivalent)}">` +
-                    `<span class="lex-glyph">${escHtml(e.glyph)}</span>` +
-                    `<span class="lex-key">${escHtml(e.key)}</span>` +
-                    `</span>`
-                ).join("");
+            el.textContent = "";
+            const h4 = document.createElement("h4");
+            h4.textContent = title;
+            el.appendChild(h4);
+            entries.forEach(e => {
+                const entrySpan = document.createElement("span");
+                entrySpan.className = "lex-entry";
+                entrySpan.title = e.description + " \u2192 " + e.python_equivalent;
+                const glyphSpan = document.createElement("span");
+                glyphSpan.className = "lex-glyph";
+                glyphSpan.textContent = e.glyph;
+                const keySpan = document.createElement("span");
+                keySpan.className = "lex-key";
+                keySpan.textContent = e.key;
+                entrySpan.appendChild(glyphSpan);
+                entrySpan.appendChild(keySpan);
+                el.appendChild(entrySpan);
+            });
         };
         renderGroup("adriana-lex-entities", "Entities (Subjects)", lex.entity || []);
         renderGroup("adriana-lex-conditions", "Conditions (Qualifiers)", lex.condition || []);
