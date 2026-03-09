@@ -2101,10 +2101,25 @@ document.addEventListener("DOMContentLoaded", () => {
             for (const a of data.active_alerts) {
                 const div = document.createElement("div");
                 div.className = "harness-loop-alert";
-                div.innerHTML =
-                    `<span class="alert-id">${escHtml(a.alert_id)}</span>` +
-                    `<div class="alert-msg">${escHtml(a.message)}</div>` +
-                    `<div class="alert-diag">${a.diagnostic_suggestions.slice(0, 3).map(d => "\u2022 " + escHtml(d)).join("<br>")}</div>`;
+
+                const spanId = document.createElement("span");
+                spanId.className = "alert-id";
+                spanId.textContent = a.alert_id;
+
+                const divMsg = document.createElement("div");
+                divMsg.className = "alert-msg";
+                divMsg.textContent = a.message;
+
+                const divDiag = document.createElement("div");
+                divDiag.className = "alert-diag";
+                a.diagnostic_suggestions.slice(0, 3).forEach((d, i) => {
+                    if (i > 0) divDiag.appendChild(document.createElement("br"));
+                    divDiag.appendChild(document.createTextNode("\u2022 " + d));
+                });
+
+                div.appendChild(spanId);
+                div.appendChild(divMsg);
+                div.appendChild(divDiag);
                 alertsEl.appendChild(div);
             }
         });
