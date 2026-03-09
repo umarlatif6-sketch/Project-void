@@ -161,9 +161,21 @@
         }
         if (hit) {
             var score = Math.max(0, Math.min(100, Math.round(100 - Math.abs(hit.freq - 432.0) * 10)));
-            this.tooltip.innerHTML = '<span class="glyph-tooltip-glyph" style="color:' + hit.color + '">' + hit.glyph + '</span> ' +
-                '<span class="glyph-tooltip-freq">' + hit.freq.toFixed(1) + ' Hz</span>' +
-                '<span class="glyph-tooltip-score">' + score + '%</span>';
+            this.tooltip.textContent = '';
+            var glyphSpan = document.createElement('span');
+            glyphSpan.className = 'glyph-tooltip-glyph';
+            glyphSpan.style.color = hit.color;
+            glyphSpan.textContent = hit.glyph;
+            var freqSpan = document.createElement('span');
+            freqSpan.className = 'glyph-tooltip-freq';
+            freqSpan.textContent = hit.freq.toFixed(1) + ' Hz';
+            var scoreSpan = document.createElement('span');
+            scoreSpan.className = 'glyph-tooltip-score';
+            scoreSpan.textContent = score + '%';
+            this.tooltip.appendChild(glyphSpan);
+            this.tooltip.appendChild(document.createTextNode(' '));
+            this.tooltip.appendChild(freqSpan);
+            this.tooltip.appendChild(scoreSpan);
             var elRect = this.el.getBoundingClientRect();
             var tipX = e.clientX - elRect.left;
             var tipY = e.clientY - elRect.top - 12;
