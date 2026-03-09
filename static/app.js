@@ -2432,11 +2432,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const comp = result.compression || {};
         document.getElementById("aljabr-compression").innerHTML =
-            `<div class="ratio-value">${comp.ratio || 0}x</div>` +
+            `<div class="ratio-value">${Number(comp.ratio) || 0}x</div>` +
             `<div class="ratio-label">COMPRESSION RATIO</div>` +
             `<div style="margin-top:6px; font-size:10px; color:#888;">` +
-            `${comp.aljabr_chars || 0} chars \u2192 ${comp.python_chars || 0} chars<br>` +
-            `${comp.root_count || 0} roots, ${comp.pattern_count || 0} patterns \u2192 ${comp.action_count || 0} actions</div>`;
+            `${Number(comp.aljabr_chars) || 0} chars \u2192 ${Number(comp.python_chars) || 0} chars<br>` +
+            `${Number(comp.root_count) || 0} roots, ${Number(comp.pattern_count) || 0} patterns \u2192 ${Number(comp.action_count) || 0} actions</div>`;
 
         const cmdsEl = document.getElementById("aljabr-commands");
         cmdsEl.innerHTML = (result.commands || []).map(c =>
