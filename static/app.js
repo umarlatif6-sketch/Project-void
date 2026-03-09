@@ -2548,12 +2548,26 @@ document.addEventListener("DOMContentLoaded", () => {
         resultEl.style.display = "block";
 
         const comp = result.compression || {};
-        document.getElementById("aljabr-compression").innerHTML =
-            `<div class="ratio-value">${Number(comp.ratio) || 0}x</div>` +
-            `<div class="ratio-label">COMPRESSION RATIO</div>` +
-            `<div style="margin-top:6px; font-size:10px; color:#888;">` +
-            `${Number(comp.aljabr_chars) || 0} chars \u2192 ${Number(comp.python_chars) || 0} chars<br>` +
-            `${Number(comp.root_count) || 0} roots, ${Number(comp.pattern_count) || 0} patterns \u2192 ${Number(comp.action_count) || 0} actions</div>`;
+        const compressionEl = document.getElementById("aljabr-compression");
+        compressionEl.innerHTML = "";
+        const ratioDiv = document.createElement("div");
+        ratioDiv.className = "ratio-value";
+        ratioDiv.textContent = (Number(comp.ratio) || 0) + "x";
+        compressionEl.appendChild(ratioDiv);
+        const ratioLabelDiv = document.createElement("div");
+        ratioLabelDiv.className = "ratio-label";
+        ratioLabelDiv.textContent = "COMPRESSION RATIO";
+        compressionEl.appendChild(ratioLabelDiv);
+        const detailDiv = document.createElement("div");
+        detailDiv.style.cssText = "margin-top:6px; font-size:10px; color:#888;";
+        detailDiv.appendChild(document.createTextNode(
+            `${Number(comp.aljabr_chars) || 0} chars \u2192 ${Number(comp.python_chars) || 0} chars`
+        ));
+        detailDiv.appendChild(document.createElement("br"));
+        detailDiv.appendChild(document.createTextNode(
+            `${Number(comp.root_count) || 0} roots, ${Number(comp.pattern_count) || 0} patterns \u2192 ${Number(comp.action_count) || 0} actions`
+        ));
+        compressionEl.appendChild(detailDiv);
 
         const cmdsEl = document.getElementById("aljabr-commands");
         cmdsEl.innerHTML = (result.commands || []).map(c =>
