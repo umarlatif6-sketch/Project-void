@@ -2692,37 +2692,42 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch(e) {}
     })();
 
+    function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
     function renderConsensusResult(data) {
         const wrap = document.getElementById("consensus-result");
         wrap.style.display = "block";
 
         const outcomeEl = document.getElementById("consensus-outcome");
-        outcomeEl.innerHTML = `<span class="consensus-verdict ${data.success ? 'pass' : 'fail'}">${data.outcome}</span>` +
-            `<span class="consensus-cmd">${data.consensus_command}</span>`;
+        outcomeEl.innerHTML = `<span class="consensus-verdict ${data.success ? 'pass' : 'fail'}">${escapeHtml(data.outcome)}</span>` +
+            `<span class="consensus-cmd">${escapeHtml(data.consensus_command)}</span>`;
 
         const statsEl = document.getElementById("consensus-stats");
         statsEl.innerHTML = [
-            { label: "Energy", value: data.energy_pct + "%" },
-            { label: "Turns", value: data.total_turns },
-            { label: "Total Chars", value: data.total_chars },
-            { label: "Intent", value: data.consensus_intent },
+            { label: "Energy", value: escapeHtml(data.energy_pct) + "%" },
+            { label: "Turns", value: escapeHtml(data.total_turns) },
+            { label: "Total Chars", value: escapeHtml(data.total_chars) },
+            { label: "Intent", value: escapeHtml(data.consensus_intent) },
         ].map(s => `<div class="cs-stat"><span class="cs-label">${s.label}</span> <span class="cs-value">${s.value}</span></div>`).join("");
 
         const traceEl = document.getElementById("consensus-trace");
         traceEl.innerHTML = '<div class="trace-header"><span>#</span><span>Agent</span><span>Command</span><span>Intent</span></div>' +
             (data.trace || []).map(t =>
                 `<div class="trace-row ${t.agent === 'Agent A' ? 'agent-a' : 'agent-b'}">` +
-                `<span>${t.turn}</span>` +
-                `<span><strong>${t.agent}</strong><br><span class="trace-role">${t.agent_role}</span></span>` +
-                `<span class="trace-cmd">${t.command}</span>` +
-                `<span class="trace-intent">${t.intent}</span>` +
+                `<span>${escapeHtml(t.turn)}</span>` +
+                `<span><strong>${escapeHtml(t.agent)}</strong><br><span class="trace-role">${escapeHtml(t.agent_role)}</span></span>` +
+                `<span class="trace-cmd">${escapeHtml(t.command)}</span>` +
+                `<span class="trace-intent">${escapeHtml(t.intent)}</span>` +
                 `</div>`
             ).join("");
 
         const finalEl = document.getElementById("consensus-final");
         finalEl.innerHTML = `<div class="consensus-final-label">CONSENSUS COMMAND</div>` +
-            `<div class="consensus-final-cmd">${data.consensus_command}</div>` +
-            `<div class="consensus-final-intent">${data.consensus_intent}</div>`;
+            `<div class="consensus-final-cmd">${escapeHtml(data.consensus_command)}</div>` +
+            `<div class="consensus-final-intent">${escapeHtml(data.consensus_intent)}</div>`;
 
         const execEl = document.getElementById("consensus-execution");
         if (data.execution_results && data.execution_results.length) {
@@ -2730,9 +2735,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 data.execution_results.map(er =>
                     `<div class="consensus-exec-row">` +
                     `<span class="dr-verdict ${er.executed ? 'dr-pass' : 'dr-fail'}">${er.executed ? 'DONE' : 'BLOCKED'}</span>` +
-                    `<span class="dr-root">${er.root || ''}.${er.pattern || ''}</span>` +
-                    `<span>${er.narrative || ''}</span>` +
-                    (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${er.blocked_by}]</span>` : '') +
+                    `<span class="dr-root">${escapeHtml(er.root)}.${escapeHtml(er.pattern)}</span>` +
+                    `<span>${escapeHtml(er.narrative)}</span>` +
+                    (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${escapeHtml(er.blocked_by)}]</span>` : '') +
                     (er.wallet_result ? `<span style="color:#eab308;font-size:10px;">[${er.wallet_result.balance != null ? er.wallet_result.balance + ' CC' : ''}]</span>` : '') +
                     `</div>`
                 ).join("");
