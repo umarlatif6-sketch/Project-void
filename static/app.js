@@ -2607,7 +2607,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const pyEl = document.getElementById("aljabr-python");
-        pyEl.innerHTML = `<div class="py-label">Python Equivalent</div><pre>${escHtml(comp.python_equivalent || "# no equivalent")}</pre>`;
+        pyEl.replaceChildren();
+        const _pyLabel = document.createElement("div");
+        _pyLabel.className = "py-label";
+        _pyLabel.textContent = "Python Equivalent";
+        const _pyPre = document.createElement("pre");
+        _pyPre.textContent = comp.python_equivalent || "# no equivalent";
+        pyEl.appendChild(_pyLabel);
+        pyEl.appendChild(_pyPre);
 
         const drEl = document.getElementById("aljabr-dry-runs");
         if (dryRuns) {
