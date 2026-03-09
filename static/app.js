@@ -2043,9 +2043,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (loopStats) {
                 const ls = data.loop_detector;
                 loopStats.innerHTML =
-                    `Detections: <span class="harness-loop-stat">${ls.total_detections}</span> | ` +
-                    `Active: <span class="harness-loop-stat">${ls.active_alerts}</span> | ` +
-                    `Tracked: <span class="harness-loop-stat">${ls.tracked_signatures}</span>`;
+                    `Detections: <span class="harness-loop-stat">${Number(ls.total_detections)}</span> | ` +
+                    `Active: <span class="harness-loop-stat">${Number(ls.active_alerts)}</span> | ` +
+                    `Tracked: <span class="harness-loop-stat">${Number(ls.tracked_signatures)}</span>`;
             }
         });
 
