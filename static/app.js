@@ -448,12 +448,23 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function setUploadItemSpans(item, nameText, statusText, statusColor) {
+        item.textContent = "";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = nameText;
+        const statusSpan = document.createElement("span");
+        statusSpan.textContent = statusText;
+        if (statusColor) statusSpan.style.color = statusColor;
+        item.appendChild(nameSpan);
+        item.appendChild(statusSpan);
+    }
+
     async function uploadFiles(fileList, statusEl, dest) {
-        statusEl.innerHTML = "";
+        statusEl.textContent = "";
         for (const file of fileList) {
             const item = document.createElement("div");
             item.className = "upload-item";
-            item.innerHTML = `<span>${escHtml(file.name)}</span><span>Uploading...</span>`;
+            setUploadItemSpans(item, file.name, "Uploading...");
             statusEl.appendChild(item);
 
             const fd = new FormData();
@@ -464,13 +475,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const res = await fetch("/api/upload", { method: "POST", body: fd });
                 const data = await res.json();
                 if (data.success) {
-                    item.innerHTML = `<span>${escHtml(data.filename)}</span><span style="color:var(--success)">${formatSize(data.size)}</span>`;
+                    setUploadItemSpans(item, data.filename, formatSize(data.size), "var(--success)");
                     showToast(`Uploaded ${escHtml(data.filename)}`, "success");
                 } else {
-                    item.innerHTML = `<span>${escHtml(file.name)}</span><span style="color:var(--error)">${escHtml(data.error)}</span>`;
+                    setUploadItemSpans(item, file.name, data.error, "var(--error)");
                 }
             } catch {
-                item.innerHTML = `<span>${escHtml(file.name)}</span><span style="color:var(--error)">Upload failed</span>`;
+                setUploadItemSpans(item, file.name, "Upload failed", "var(--error)");
             }
         }
         loadSelects();
