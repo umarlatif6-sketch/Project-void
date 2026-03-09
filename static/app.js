@@ -318,9 +318,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await res.json();
                 if (data.success) {
                     statusEl.className = "gen-status gen-success";
-                    statusEl.innerHTML = 'Generated: <strong>' + escHtml(data.filename) + '</strong> (' +
-                        formatSize(data.file_size) + ')' +
-                        (data.chirp_count ? ' | ' + data.chirp_count.toLocaleString() + ' chirp peaks' : '');
+                    statusEl.textContent = '';
+                    const _genPrefix = document.createTextNode('Generated: ');
+                    const _genStrong = document.createElement('strong');
+                    _genStrong.textContent = data.filename;
+                    const _genSuffix = document.createTextNode(
+                        ' (' + formatSize(data.file_size) + ')' +
+                        (data.chirp_count ? ' | ' + data.chirp_count.toLocaleString() + ' chirp peaks' : '')
+                    );
+                    statusEl.appendChild(_genPrefix);
+                    statusEl.appendChild(_genStrong);
+                    statusEl.appendChild(_genSuffix);
                     showToast("Carrier generated: " + data.filename, "success");
                     await loadSelects();
                     const carrierSel = document.getElementById("carrier-select");
