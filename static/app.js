@@ -2570,9 +2570,29 @@ document.addEventListener("DOMContentLoaded", () => {
         compressionEl.appendChild(detailDiv);
 
         const cmdsEl = document.getElementById("aljabr-commands");
-        cmdsEl.innerHTML = (result.commands || []).map(c =>
-            `<div class="aljabr-cmd"><span class="cmd-root">${escHtml(c.root)}</span><span class="cmd-pat">.${escHtml(c.pattern)}</span> ${escHtml(c.action_type)} \u2192 ${escHtml(c.narrative)}</div>`
-        ).join("") || '<div style="color:#666;">No commands generated</div>';
+        cmdsEl.textContent = "";
+        const _commands = result.commands || [];
+        if (_commands.length === 0) {
+            const _emptyDiv = document.createElement("div");
+            _emptyDiv.style.color = "#666";
+            _emptyDiv.textContent = "No commands generated";
+            cmdsEl.appendChild(_emptyDiv);
+        } else {
+            _commands.forEach(c => {
+                const _cmdDiv = document.createElement("div");
+                _cmdDiv.className = "aljabr-cmd";
+                const _rootSpan = document.createElement("span");
+                _rootSpan.className = "cmd-root";
+                _rootSpan.textContent = c.root;
+                const _patSpan = document.createElement("span");
+                _patSpan.className = "cmd-pat";
+                _patSpan.textContent = "." + c.pattern;
+                _cmdDiv.appendChild(_rootSpan);
+                _cmdDiv.appendChild(_patSpan);
+                _cmdDiv.appendChild(document.createTextNode(" " + c.action_type + " \u2192 " + c.narrative));
+                cmdsEl.appendChild(_cmdDiv);
+            });
+        }
 
         const pyEl = document.getElementById("aljabr-python");
         pyEl.innerHTML = `<div class="py-label">Python Equivalent</div><pre>${escHtml(comp.python_equivalent || "# no equivalent")}</pre>`;
