@@ -3244,15 +3244,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         findingsEl.innerHTML = sorted.map(f => {
             const meterPct = f.threshold > 0 ? Math.min((f.value / f.threshold) * 100, 100) : (f.severity === "NOMINAL" ? 30 : 80);
-            return `<div class="diag-card sev-${f.severity}">` +
+            return `<div class="diag-card sev-${escHtml(f.severity)}">` +
                 `<div class="diag-card-header">` +
-                `<div class="diag-glyph">${f.glyph}</div>` +
-                `<span class="diag-root-code">${f.root_code}</span>` +
-                `<span class="diag-severity">${f.severity}</span>` +
+                `<div class="diag-glyph">${escHtml(f.glyph)}</div>` +
+                `<span class="diag-root-code">${escHtml(f.root_code)}</span>` +
+                `<span class="diag-severity">${escHtml(f.severity)}</span>` +
                 `</div>` +
-                `<div class="diag-semantic">${f.semantic_error}</div>` +
-                `<div class="diag-physical">${f.physical_reality}</div>` +
-                (f.solution_command ? `<div class="diag-solution"><span class="diag-solution-cmd">${f.solution_command}</span>${f.solution_text}</div>` : `<div class="diag-solution">${f.solution_text}</div>`) +
+                `<div class="diag-semantic">${escHtml(f.semantic_error)}</div>` +
+                `<div class="diag-physical">${escHtml(f.physical_reality)}</div>` +
+                (f.solution_command ? `<div class="diag-solution"><span class="diag-solution-cmd">${escHtml(f.solution_command)}</span>${escHtml(f.solution_text)}</div>` : `<div class="diag-solution">${escHtml(f.solution_text)}</div>`) +
                 (f.threshold > 0 ? `<div class="diag-meter"><div class="diag-meter-fill" style="width:${meterPct}%"></div></div>` : '') +
                 `</div>`;
         }).join("");
