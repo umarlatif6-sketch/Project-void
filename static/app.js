@@ -2396,7 +2396,12 @@ document.addEventListener("DOMContentLoaded", () => {
         ).join("") || '<div style="color:#666;">No commands generated</div>';
 
         const pyEl = document.getElementById("adriana-python");
-        pyEl.innerHTML = `<div class="py-label">Python Equivalent</div>${escHtml(comp.python_equivalent || "# no equivalent")}`;
+        pyEl.innerHTML = "";
+        const pyLabel = document.createElement("div");
+        pyLabel.className = "py-label";
+        pyLabel.textContent = "Python Equivalent";
+        pyEl.appendChild(pyLabel);
+        pyEl.appendChild(document.createTextNode(comp.python_equivalent || "# no equivalent"));
 
         const drEl = document.getElementById("adriana-dry-runs");
         if (dryRuns) {
