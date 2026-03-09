@@ -93,13 +93,36 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (!data.glyph) return;
-                badge.innerHTML =
-                    '<span class="resonance-badge-glyph" style="color:' + (data.color || '#2dd4bf') + '">' + data.glyph + '</span>' +
-                    '<div class="resonance-badge-info">' +
-                        '<div class="resonance-badge-domain">' + (data.domain || 'unknown') + '</div>' +
-                        '<div class="resonance-badge-freq">' + (data.frequency || 432).toFixed(1) + ' Hz</div>' +
-                        '<div class="resonance-badge-strength"><div class="resonance-badge-strength-fill" style="width:' + Math.round((data.field_strength || 0) * 100) + '%"></div></div>' +
-                    '</div>';
+                var glyphSpan = document.createElement('span');
+                glyphSpan.className = 'resonance-badge-glyph';
+                glyphSpan.style.color = data.color || '#2dd4bf';
+                glyphSpan.textContent = data.glyph;
+
+                var domainDiv = document.createElement('div');
+                domainDiv.className = 'resonance-badge-domain';
+                domainDiv.textContent = data.domain || 'unknown';
+
+                var freqDiv = document.createElement('div');
+                freqDiv.className = 'resonance-badge-freq';
+                freqDiv.textContent = (data.frequency || 432).toFixed(1) + ' Hz';
+
+                var strengthFill = document.createElement('div');
+                strengthFill.className = 'resonance-badge-strength-fill';
+                strengthFill.style.width = Math.round((data.field_strength || 0) * 100) + '%';
+
+                var strengthDiv = document.createElement('div');
+                strengthDiv.className = 'resonance-badge-strength';
+                strengthDiv.appendChild(strengthFill);
+
+                var infoDiv = document.createElement('div');
+                infoDiv.className = 'resonance-badge-info';
+                infoDiv.appendChild(domainDiv);
+                infoDiv.appendChild(freqDiv);
+                infoDiv.appendChild(strengthDiv);
+
+                badge.textContent = '';
+                badge.appendChild(glyphSpan);
+                badge.appendChild(infoDiv);
                 badge.classList.add('active');
             })
             .catch(function() {});
