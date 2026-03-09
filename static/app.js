@@ -202,18 +202,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const capacityBytes = Math.max(0, Math.floor(capacityBits / 8) - headerBytes);
         const payloadBytes = payloadFile.size;
 
+        function _setFitMessage(el, iconChar, message) {
+            const icon = document.createElement('span');
+            icon.className = 'fit-icon';
+            icon.textContent = iconChar;
+            el.replaceChildren(icon, document.createTextNode(' ' + message));
+        }
         if (capacityBytes === 0) {
             fitEl.className = "fit-check fit-fail";
-            fitEl.innerHTML = '<span class="fit-icon">&#10006;</span> Carrier too small — no usable capacity for data embedding.';
+            _setFitMessage(fitEl, '\u2716', 'Carrier too small \u2014 no usable capacity for data embedding.');
         } else if (payloadBytes <= capacityBytes * 0.5) {
             fitEl.className = "fit-check fit-ok";
-            fitEl.innerHTML = '<span class="fit-icon">&#9679;</span> Payload fits comfortably — ' + formatSize(payloadBytes) + ' payload vs ' + formatSize(capacityBytes) + ' capacity at LSB ' + lsb + ' (compression will reduce further)';
+            _setFitMessage(fitEl, '\u25cf', 'Payload fits comfortably \u2014 ' + formatSize(payloadBytes) + ' payload vs ' + formatSize(capacityBytes) + ' capacity at LSB ' + lsb + ' (compression will reduce further)');
         } else if (payloadBytes <= capacityBytes) {
             fitEl.className = "fit-check fit-warn";
-            fitEl.innerHTML = '<span class="fit-icon">&#9888;</span> Tight fit — ' + formatSize(payloadBytes) + ' payload vs ' + formatSize(capacityBytes) + ' capacity at LSB ' + lsb + '. May work if compression is effective.';
+            _setFitMessage(fitEl, '\u26a0', 'Tight fit \u2014 ' + formatSize(payloadBytes) + ' payload vs ' + formatSize(capacityBytes) + ' capacity at LSB ' + lsb + '. May work if compression is effective.');
         } else {
             fitEl.className = "fit-check fit-fail";
-            fitEl.innerHTML = '<span class="fit-icon">&#10006;</span> Payload too large — ' + formatSize(payloadBytes) + ' payload exceeds ' + formatSize(capacityBytes) + ' capacity at LSB ' + lsb + '. Use a longer carrier WAV or switch to LSB Depth 2.';
+            _setFitMessage(fitEl, '\u2716', 'Payload too large \u2014 ' + formatSize(payloadBytes) + ' payload exceeds ' + formatSize(capacityBytes) + ' capacity at LSB ' + lsb + '. Use a longer carrier WAV or switch to LSB Depth 2.');
         }
         fitEl.style.display = "block";
     }
