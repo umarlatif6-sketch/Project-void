@@ -2957,15 +2957,41 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const traceEl = document.getElementById("consensus-trace");
-        traceEl.innerHTML = '<div class="trace-header"><span>#</span><span>Agent</span><span>Command</span><span>Intent</span></div>' +
-            (data.trace || []).map(t =>
-                `<div class="trace-row ${t.agent === 'Agent A' ? 'agent-a' : 'agent-b'}">` +
-                `<span>${escapeHtml(t.turn)}</span>` +
-                `<span><strong>${escapeHtml(t.agent)}</strong><br><span class="trace-role">${escapeHtml(t.agent_role)}</span></span>` +
-                `<span class="trace-cmd">${escapeHtml(t.command)}</span>` +
-                `<span class="trace-intent">${escapeHtml(t.intent)}</span>` +
-                `</div>`
-            ).join("");
+        traceEl.innerHTML = '';
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'trace-header';
+        ['#', 'Agent', 'Command', 'Intent'].forEach(text => {
+            const s = document.createElement('span');
+            s.textContent = text;
+            headerDiv.appendChild(s);
+        });
+        traceEl.appendChild(headerDiv);
+        (data.trace || []).forEach(t => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'trace-row ' + (t.agent === 'Agent A' ? 'agent-a' : 'agent-b');
+            const turnSpan = document.createElement('span');
+            turnSpan.textContent = t.turn ?? '';
+            rowDiv.appendChild(turnSpan);
+            const agentSpan = document.createElement('span');
+            const agentStrong = document.createElement('strong');
+            agentStrong.textContent = t.agent ?? '';
+            agentSpan.appendChild(agentStrong);
+            agentSpan.appendChild(document.createElement('br'));
+            const roleSpan = document.createElement('span');
+            roleSpan.className = 'trace-role';
+            roleSpan.textContent = t.agent_role ?? '';
+            agentSpan.appendChild(roleSpan);
+            rowDiv.appendChild(agentSpan);
+            const cmdSpan = document.createElement('span');
+            cmdSpan.className = 'trace-cmd';
+            cmdSpan.textContent = t.command ?? '';
+            rowDiv.appendChild(cmdSpan);
+            const intentSpan = document.createElement('span');
+            intentSpan.className = 'trace-intent';
+            intentSpan.textContent = t.intent ?? '';
+            rowDiv.appendChild(intentSpan);
+            traceEl.appendChild(rowDiv);
+        });
 
         const finalEl = document.getElementById("consensus-final");
         finalEl.innerHTML = '';
