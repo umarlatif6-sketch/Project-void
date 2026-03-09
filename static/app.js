@@ -2684,28 +2684,63 @@ document.addEventListener("DOMContentLoaded", () => {
         const manifest = data.manifest || {};
         const patterns = data.patterns || {};
 
-        let html = '<div class="aljabr-roots-header">ROOT MANIFEST</div>';
-        html += '<div class="aljabr-patterns-row">';
+        panel.textContent = '';
+
+        const header = document.createElement('div');
+        header.className = 'aljabr-roots-header';
+        header.textContent = 'ROOT MANIFEST';
+        panel.appendChild(header);
+
+        const patternsRow = document.createElement('div');
+        patternsRow.className = 'aljabr-patterns-row';
         for (const [code, info] of Object.entries(patterns)) {
-            html += `<span class="pat-tag" title="${escHtml(info.verb)}">${escHtml(code)} ${escHtml(info.name)}</span>`;
+            const tag = document.createElement('span');
+            tag.className = 'pat-tag';
+            tag.title = info.verb;
+            tag.textContent = code + ' ' + info.name;
+            patternsRow.appendChild(tag);
         }
-        html += '</div>';
+        panel.appendChild(patternsRow);
 
         const domainLabels = {aqua:"Aquaponics",flywheel:"Flywheel",silk:"Silk Wiring",pressure:"Pressure",system:"System"};
         for (const [domain, roots] of Object.entries(manifest)) {
             if (!roots.length) continue;
-            html += `<div class="aljabr-domain-group"><div class="aljabr-domain-label">${escHtml(domainLabels[domain] || domain)}</div>`;
+            const group = document.createElement('div');
+            group.className = 'aljabr-domain-group';
+
+            const label = document.createElement('div');
+            label.className = 'aljabr-domain-label';
+            label.textContent = domainLabels[domain] || domain;
+            group.appendChild(label);
+
             for (const r of roots) {
-                html += `<div class="aljabr-root-entry">` +
-                    `<span class="root-code">${escHtml(r.root)}</span>` +
-                    `<span class="root-essence">${escHtml(r.essence)}</span>` +
-                    `<span class="root-desc">${escHtml(r.description)}</span>` +
-                    `<span class="root-patterns">${escHtml((r.available_patterns||[]).join(" "))}</span>` +
-                    `</div>`;
+                const entry = document.createElement('div');
+                entry.className = 'aljabr-root-entry';
+
+                const rootCode = document.createElement('span');
+                rootCode.className = 'root-code';
+                rootCode.textContent = r.root;
+
+                const essence = document.createElement('span');
+                essence.className = 'root-essence';
+                essence.textContent = r.essence;
+
+                const desc = document.createElement('span');
+                desc.className = 'root-desc';
+                desc.textContent = r.description;
+
+                const patSpan = document.createElement('span');
+                patSpan.className = 'root-patterns';
+                patSpan.textContent = (r.available_patterns || []).join(' ');
+
+                entry.appendChild(rootCode);
+                entry.appendChild(essence);
+                entry.appendChild(desc);
+                entry.appendChild(patSpan);
+                group.appendChild(entry);
             }
-            html += '</div>';
+            panel.appendChild(group);
         }
-        panel.innerHTML = html;
     }
 
     async function loadWalletStatus() {
