@@ -1950,7 +1950,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const item = document.createElement("div");
             item.className = "sensor-item";
             const label = key.replace(/_/g, " ");
-            item.innerHTML = `<span class="sensor-label">${label}</span><span class="sensor-value">${val}</span>`;
+            item.innerHTML = `<span class="sensor-label">${escHtml(label)}</span><span class="sensor-value">${escHtml(String(val))}</span>`;
             el.appendChild(item);
         }
     }
@@ -1971,7 +1971,7 @@ document.addEventListener("DOMContentLoaded", () => {
             row.className = "harness-check-item";
             row.innerHTML =
                 `<div class="harness-check-icon ${check.verdict.toLowerCase()}">${icons[check.verdict] || "?"}</div>` +
-                `<span class="harness-check-msg">${check.message}</span>`;
+                `<span class="harness-check-msg">${escHtml(check.message)}</span>`;
             checksEl.appendChild(row);
         }
     }
@@ -2061,9 +2061,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const div = document.createElement("div");
                 div.className = "harness-loop-alert";
                 div.innerHTML =
-                    `<span class="alert-id">${a.alert_id}</span>` +
-                    `<div class="alert-msg">${a.message}</div>` +
-                    `<div class="alert-diag">${a.diagnostic_suggestions.slice(0, 3).map(d => "\u2022 " + d).join("<br>")}</div>`;
+                    `<span class="alert-id">${escHtml(a.alert_id)}</span>` +
+                    `<div class="alert-msg">${escHtml(a.message)}</div>` +
+                    `<div class="alert-diag">${a.diagnostic_suggestions.slice(0, 3).map(d => "\u2022 " + escHtml(d)).join("<br>")}</div>`;
                 alertsEl.appendChild(div);
             }
         });
@@ -2319,11 +2319,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const cmdsEl = document.getElementById("adriana-commands");
         cmdsEl.innerHTML = (result.commands || []).map(c =>
-            `<div class="adriana-cmd">${c.action_type} → ${c.narrative}</div>`
+            `<div class="adriana-cmd">${escHtml(c.action_type)} → ${escHtml(c.narrative)}</div>`
         ).join("") || '<div style="color:#666;">No commands generated</div>';
 
         const pyEl = document.getElementById("adriana-python");
-        pyEl.innerHTML = `<div class="py-label">Python Equivalent</div>${comp.python_equivalent || "# no equivalent"}`;
+        pyEl.innerHTML = `<div class="py-label">Python Equivalent</div>${escHtml(comp.python_equivalent || "# no equivalent")}`;
 
         const drEl = document.getElementById("adriana-dry-runs");
         if (dryRuns) {
@@ -2332,8 +2332,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     const ok = dr.boundary_allowed && dr.checklist_verdict === "PASS";
                     return `<div class="adriana-dry-run">` +
                         `<span class="dr-verdict ${ok ? 'dr-pass' : 'dr-fail'}">${ok ? 'SAFE' : 'BLOCKED'}</span>` +
-                        `<span>${dr.action.type}</span>` +
-                        `<span style="color:#666;">${dr.checklist_verdict}</span>` +
+                        `<span>${escHtml(dr.action.type)}</span>` +
+                        `<span style="color:#666;">${escHtml(dr.checklist_verdict)}</span>` +
                         `</div>`;
                 }).join("");
         } else if (execResults) {
@@ -2341,9 +2341,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 execResults.map(er => {
                     return `<div class="adriana-dry-run">` +
                         `<span class="dr-verdict ${er.executed ? 'dr-pass' : 'dr-fail'}">${er.executed ? 'DONE' : 'BLOCKED'}</span>` +
-                        `<span>${er.action.type}</span>` +
-                        `<span style="color:#888;font-size:10px;">${er.narrative}</span>` +
-                        (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${er.blocked_by}]</span>` : '') +
+                        `<span>${escHtml(er.action.type)}</span>` +
+                        `<span style="color:#888;font-size:10px;">${escHtml(er.narrative)}</span>` +
+                        (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${escHtml(er.blocked_by)}]</span>` : '') +
                         `</div>`;
                 }).join("");
         } else {
@@ -2354,11 +2354,11 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderAdrianaLexicon(lex) {
         const renderGroup = (containerId, title, entries) => {
             const el = document.getElementById(containerId);
-            el.innerHTML = `<h4>${title}</h4>` +
+            el.innerHTML = `<h4>${escHtml(title)}</h4>` +
                 entries.map(e =>
-                    `<span class="lex-entry" title="${e.description} → ${e.python_equivalent}">` +
-                    `<span class="lex-glyph">${e.glyph}</span>` +
-                    `<span class="lex-key">${e.key}</span>` +
+                    `<span class="lex-entry" title="${escHtml(e.description)} → ${escHtml(e.python_equivalent)}">` +
+                    `<span class="lex-glyph">${escHtml(e.glyph)}</span>` +
+                    `<span class="lex-key">${escHtml(e.key)}</span>` +
                     `</span>`
                 ).join("");
         };
@@ -2440,11 +2440,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const cmdsEl = document.getElementById("aljabr-commands");
         cmdsEl.innerHTML = (result.commands || []).map(c =>
-            `<div class="aljabr-cmd"><span class="cmd-root">${c.root}</span><span class="cmd-pat">.${c.pattern}</span> ${c.action_type} \u2192 ${c.narrative}</div>`
+            `<div class="aljabr-cmd"><span class="cmd-root">${escHtml(c.root)}</span><span class="cmd-pat">.${escHtml(c.pattern)}</span> ${escHtml(c.action_type)} \u2192 ${escHtml(c.narrative)}</div>`
         ).join("") || '<div style="color:#666;">No commands generated</div>';
 
         const pyEl = document.getElementById("aljabr-python");
-        pyEl.innerHTML = `<div class="py-label">Python Equivalent</div><pre>${comp.python_equivalent || "# no equivalent"}</pre>`;
+        pyEl.innerHTML = `<div class="py-label">Python Equivalent</div><pre>${escHtml(comp.python_equivalent || "# no equivalent")}</pre>`;
 
         const drEl = document.getElementById("aljabr-dry-runs");
         if (dryRuns) {
@@ -2453,9 +2453,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     const ok = dr.boundary_allowed && dr.checklist_verdict === "PASS";
                     return `<div class="aljabr-dry-run">` +
                         `<span class="dr-verdict ${ok ? 'dr-pass' : 'dr-fail'}">${ok ? 'SAFE' : 'BLOCKED'}</span>` +
-                        `<span class="dr-root">${dr.root}.${dr.pattern}</span>` +
-                        `<span>${dr.action.type}</span>` +
-                        `<span style="color:#666;">${dr.checklist_verdict}</span>` +
+                        `<span class="dr-root">${escHtml(dr.root)}.${escHtml(dr.pattern)}</span>` +
+                        `<span>${escHtml(dr.action.type)}</span>` +
+                        `<span style="color:#666;">${escHtml(dr.checklist_verdict)}</span>` +
                         `</div>`;
                 }).join("");
         } else if (execResults) {
@@ -2463,10 +2463,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 execResults.map(er => {
                     return `<div class="aljabr-dry-run">` +
                         `<span class="dr-verdict ${er.executed ? 'dr-pass' : 'dr-fail'}">${er.executed ? 'DONE' : 'BLOCKED'}</span>` +
-                        `<span class="dr-root">${er.root}.${er.pattern}</span>` +
-                        `<span>${er.action.type}</span>` +
-                        `<span style="color:#888;font-size:10px;">${er.narrative}</span>` +
-                        (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${er.blocked_by}]</span>` : '') +
+                        `<span class="dr-root">${escHtml(er.root)}.${escHtml(er.pattern)}</span>` +
+                        `<span>${escHtml(er.action.type)}</span>` +
+                        `<span style="color:#888;font-size:10px;">${escHtml(er.narrative)}</span>` +
+                        (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${escHtml(er.blocked_by)}]</span>` : '') +
                         `</div>`;
                 }).join("");
         } else {
@@ -2489,13 +2489,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const domainLabels = {aqua:"Aquaponics",flywheel:"Flywheel",silk:"Silk Wiring",pressure:"Pressure",system:"System"};
         for (const [domain, roots] of Object.entries(manifest)) {
             if (!roots.length) continue;
-            html += `<div class="aljabr-domain-group"><div class="aljabr-domain-label">${domainLabels[domain] || domain}</div>`;
+            html += `<div class="aljabr-domain-group"><div class="aljabr-domain-label">${escHtml(domainLabels[domain] || domain)}</div>`;
             for (const r of roots) {
                 html += `<div class="aljabr-root-entry">` +
-                    `<span class="root-code">${r.root}</span>` +
-                    `<span class="root-essence">${r.essence}</span>` +
-                    `<span class="root-desc">${r.description}</span>` +
-                    `<span class="root-patterns">${(r.available_patterns||[]).join(" ")}</span>` +
+                    `<span class="root-code">${escHtml(r.root)}</span>` +
+                    `<span class="root-essence">${escHtml(r.essence)}</span>` +
+                    `<span class="root-desc">${escHtml(r.description)}</span>` +
+                    `<span class="root-patterns">${escHtml((r.available_patterns||[]).join(" "))}</span>` +
                     `</div>`;
             }
             html += '</div>';
@@ -2537,11 +2537,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const amtClass = isCredit ? "positive" : (tx.amount > 0 ? "negative" : "");
                 const amtStr = tx.amount > 0 ? (isCredit ? "+" : "-") + tx.amount.toFixed(2) : "---";
                 return `<div class="wallet-tx-row">` +
-                    `<span class="wallet-tx-type ${tx.tx_type}">${tx.tx_type}</span>` +
+                    `<span class="wallet-tx-type ${escHtml(tx.tx_type)}">${escHtml(tx.tx_type)}</span>` +
                     `<span class="wallet-tx-amount ${amtClass}">${amtStr}</span>` +
-                    `<span class="wallet-tx-desc">${tx.description}</span>` +
+                    `<span class="wallet-tx-desc">${escHtml(tx.description)}</span>` +
                     `<span class="wallet-tx-balance">${tx.balance_after.toFixed(2)} CC</span>` +
-                    (tx.root_command ? `<span style="color:#eab308;font-size:9px;">${tx.root_command}</span>` : '') +
+                    (tx.root_command ? `<span style="color:#eab308;font-size:9px;">${escHtml(tx.root_command)}</span>` : '') +
                     `</div>`;
             }).join("");
         } catch(e) {}
