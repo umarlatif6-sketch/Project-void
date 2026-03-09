@@ -3009,19 +3009,40 @@ document.addEventListener("DOMContentLoaded", () => {
         finalEl.appendChild(finalIntentDiv);
 
         const execEl = document.getElementById("consensus-execution");
+        execEl.replaceChildren();
         if (data.execution_results && data.execution_results.length) {
-            execEl.innerHTML = '<div style="color:#888;font-size:10px;margin-bottom:4px;">EXECUTION TRACE</div>' +
-                data.execution_results.map(er =>
-                    `<div class="consensus-exec-row">` +
-                    `<span class="dr-verdict ${er.executed ? 'dr-pass' : 'dr-fail'}">${er.executed ? 'DONE' : 'BLOCKED'}</span>` +
-                    `<span class="dr-root">${escapeHtml(er.root)}.${escapeHtml(er.pattern)}</span>` +
-                    `<span>${escapeHtml(er.narrative)}</span>` +
-                    (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${escapeHtml(er.blocked_by)}]</span>` : '') +
-                    (er.wallet_result ? `<span style="color:#eab308;font-size:10px;">[${er.wallet_result.balance != null ? escapeHtml(String(er.wallet_result.balance)) + ' CC' : ''}]</span>` : '') +
-                    `</div>`
-                ).join("");
-        } else {
-            execEl.innerHTML = "";
+            const traceLabel = document.createElement('div');
+            traceLabel.style.cssText = 'color:#888;font-size:10px;margin-bottom:4px;';
+            traceLabel.textContent = 'EXECUTION TRACE';
+            execEl.appendChild(traceLabel);
+            data.execution_results.forEach(er => {
+                const row = document.createElement('div');
+                row.className = 'consensus-exec-row';
+                const verdict = document.createElement('span');
+                verdict.className = `dr-verdict ${er.executed ? 'dr-pass' : 'dr-fail'}`;
+                verdict.textContent = er.executed ? 'DONE' : 'BLOCKED';
+                row.appendChild(verdict);
+                const rootSpan = document.createElement('span');
+                rootSpan.className = 'dr-root';
+                rootSpan.textContent = `${er.root ?? ''}.${er.pattern ?? ''}`;
+                row.appendChild(rootSpan);
+                const narrativeSpan = document.createElement('span');
+                narrativeSpan.textContent = er.narrative ?? '';
+                row.appendChild(narrativeSpan);
+                if (er.blocked_by) {
+                    const blockedSpan = document.createElement('span');
+                    blockedSpan.style.cssText = 'color:#f87171;font-size:10px;';
+                    blockedSpan.textContent = `[${er.blocked_by}]`;
+                    row.appendChild(blockedSpan);
+                }
+                if (er.wallet_result) {
+                    const walletSpan = document.createElement('span');
+                    walletSpan.style.cssText = 'color:#eab308;font-size:10px;';
+                    walletSpan.textContent = er.wallet_result.balance != null ? `[${er.wallet_result.balance} CC]` : '[]';
+                    row.appendChild(walletSpan);
+                }
+                execEl.appendChild(row);
+            });
         }
 
         if (data.wallet) {
