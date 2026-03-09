@@ -92,7 +92,13 @@
         welcomeTitleEl.className = 'fairy-welcome-title';
         welcomeTitleEl.textContent = 'I am Adriana';
         var welcomeText = document.createElement('div');
-        welcomeText.innerHTML = getWelcomeText();
+        var welcomeParts = getWelcomeText().split('<br>');
+        welcomeParts.forEach(function(part, i) {
+            welcomeText.appendChild(document.createTextNode(part));
+            if (i < welcomeParts.length - 1) {
+                welcomeText.appendChild(document.createElement('br'));
+            }
+        });
         welcomeDiv.appendChild(welcomeGlyph);
         welcomeDiv.appendChild(welcomeTitleEl);
         welcomeDiv.appendChild(welcomeText);
