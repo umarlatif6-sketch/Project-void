@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await res.json();
                 if (data.success) {
                     statusEl.className = "gen-status gen-success";
-                    statusEl.innerHTML = 'Generated: <strong>' + data.filename + '</strong> (' +
+                    statusEl.innerHTML = 'Generated: <strong>' + escHtml(data.filename) + '</strong> (' +
                         formatSize(data.file_size) + ')' +
                         (data.chirp_count ? ' | ' + data.chirp_count.toLocaleString() + ' chirp peaks' : '');
                     showToast("Carrier generated: " + data.filename, "success");
