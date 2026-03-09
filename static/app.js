@@ -2371,13 +2371,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const compAcGlyphs = Number(comp.adriana_glyphs) || 0;
         const compPyTokens = Number(comp.python_tokens) || 0;
         const compDensity = Number(comp.density) || 0;
-        document.getElementById("adriana-compression").innerHTML =
-            `<div class="ratio-value">${compRatio}x</div>` +
-            `<div class="ratio-label">COMPRESSION RATIO</div>` +
-            `<div style="margin-top:6px; font-size:10px; color:#888;">` +
-            `${compAcChars} chars → ${compPyChars} chars<br>` +
-            `${compAcGlyphs} glyphs → ${compPyTokens} tokens<br>` +
-            `Density: ${compDensity}%</div>`;
+        const compressionEl = document.getElementById("adriana-compression");
+        compressionEl.innerHTML = "";
+        const ratioDiv = document.createElement("div");
+        ratioDiv.className = "ratio-value";
+        ratioDiv.textContent = compRatio + "x";
+        compressionEl.appendChild(ratioDiv);
+        const ratioLabelDiv = document.createElement("div");
+        ratioLabelDiv.className = "ratio-label";
+        ratioLabelDiv.textContent = "COMPRESSION RATIO";
+        compressionEl.appendChild(ratioLabelDiv);
+        const detailDiv = document.createElement("div");
+        detailDiv.style.cssText = "margin-top:6px; font-size:10px; color:#888;";
+        detailDiv.appendChild(document.createTextNode(compAcChars + " chars \u2192 " + compPyChars + " chars"));
+        detailDiv.appendChild(document.createElement("br"));
+        detailDiv.appendChild(document.createTextNode(compAcGlyphs + " glyphs \u2192 " + compPyTokens + " tokens"));
+        detailDiv.appendChild(document.createElement("br"));
+        detailDiv.appendChild(document.createTextNode("Density: " + compDensity + "%"));
+        compressionEl.appendChild(detailDiv);
 
         const cmdsEl = document.getElementById("adriana-commands");
         cmdsEl.innerHTML = (result.commands || []).map(c =>
