@@ -59,25 +59,73 @@
         var panel = document.createElement('div');
         panel.className = 'fairy-panel';
         panel.id = 'fairy-panel';
-        panel.innerHTML =
-            '<div class="fairy-header">' +
-                '<div class="fairy-header-title"><span class="fairy-header-glyph">&#9670;</span> ADRIANA <span class="fairy-tier-badge" style="color:' + tierInfo.color + '"> · ' + tierInfo.text + '</span></div>' +
-                '<button class="fairy-close" id="fairy-close">&times;</button>' +
-            '</div>' +
-            '<div class="fairy-messages" id="fairy-messages">' +
-                '<div class="fairy-welcome">' +
-                    '<div class="fairy-welcome-glyph">&#9670;</div>' +
-                    '<div class="fairy-welcome-title">I am Adriana</div>' +
-                    getWelcomeText() +
-                '</div>' +
-            '</div>' +
-            '<div class="fairy-typing" id="fairy-typing">' +
-                '<div class="fairy-typing-dots"><span></span><span></span><span></span></div>' +
-            '</div>' +
-            '<div class="fairy-input-area">' +
-                '<input type="text" class="fairy-input" id="fairy-input" placeholder="Speak to the Void..." maxlength="2000" autocomplete="off">' +
-                '<button class="fairy-send" id="fairy-send">&#9670;</button>' +
-            '</div>';
+        var header = document.createElement('div');
+        header.className = 'fairy-header';
+        var headerTitle = document.createElement('div');
+        headerTitle.className = 'fairy-header-title';
+        var headerGlyph = document.createElement('span');
+        headerGlyph.className = 'fairy-header-glyph';
+        headerGlyph.textContent = '\u25C6';
+        var tierBadge = document.createElement('span');
+        tierBadge.className = 'fairy-tier-badge';
+        tierBadge.style.color = tierInfo.color;
+        tierBadge.textContent = ' \u00B7 ' + tierInfo.text;
+        headerTitle.appendChild(headerGlyph);
+        headerTitle.appendChild(document.createTextNode(' ADRIANA '));
+        headerTitle.appendChild(tierBadge);
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'fairy-close';
+        closeBtn.id = 'fairy-close';
+        closeBtn.textContent = '\u00D7';
+        header.appendChild(headerTitle);
+        header.appendChild(closeBtn);
+
+        var messagesDiv = document.createElement('div');
+        messagesDiv.className = 'fairy-messages';
+        messagesDiv.id = 'fairy-messages';
+        var welcomeDiv = document.createElement('div');
+        welcomeDiv.className = 'fairy-welcome';
+        var welcomeGlyph = document.createElement('div');
+        welcomeGlyph.className = 'fairy-welcome-glyph';
+        welcomeGlyph.textContent = '\u25C6';
+        var welcomeTitleEl = document.createElement('div');
+        welcomeTitleEl.className = 'fairy-welcome-title';
+        welcomeTitleEl.textContent = 'I am Adriana';
+        var welcomeText = document.createElement('div');
+        welcomeText.innerHTML = getWelcomeText();
+        welcomeDiv.appendChild(welcomeGlyph);
+        welcomeDiv.appendChild(welcomeTitleEl);
+        welcomeDiv.appendChild(welcomeText);
+        messagesDiv.appendChild(welcomeDiv);
+
+        var typingDiv = document.createElement('div');
+        typingDiv.className = 'fairy-typing';
+        typingDiv.id = 'fairy-typing';
+        var typingDots = document.createElement('div');
+        typingDots.className = 'fairy-typing-dots';
+        typingDots.innerHTML = '<span></span><span></span><span></span>';
+        typingDiv.appendChild(typingDots);
+
+        var inputArea = document.createElement('div');
+        inputArea.className = 'fairy-input-area';
+        var inputEl = document.createElement('input');
+        inputEl.type = 'text';
+        inputEl.className = 'fairy-input';
+        inputEl.id = 'fairy-input';
+        inputEl.placeholder = 'Speak to the Void...';
+        inputEl.maxLength = 2000;
+        inputEl.autocomplete = 'off';
+        var sendBtn = document.createElement('button');
+        sendBtn.className = 'fairy-send';
+        sendBtn.id = 'fairy-send';
+        sendBtn.textContent = '\u25C6';
+        inputArea.appendChild(inputEl);
+        inputArea.appendChild(sendBtn);
+
+        panel.appendChild(header);
+        panel.appendChild(messagesDiv);
+        panel.appendChild(typingDiv);
+        panel.appendChild(inputArea);
 
         document.body.appendChild(panel);
         document.body.appendChild(toggle);
