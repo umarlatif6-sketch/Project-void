@@ -3518,9 +3518,26 @@ document.addEventListener("DOMContentLoaded", () => {
         flash.style.display = "block";
         flash.style.background = `radial-gradient(circle, ${color}40, transparent 70%)`;
         flash.style.boxShadow = `0 0 60px ${color}60, inset 0 0 40px ${color}30`;
-        flash.innerHTML = `<div class="ritual-flash-glyph" style="color:${color}">${ritual.visual}</div>` +
-            `<div class="ritual-flash-name" style="color:${color}">${ritual.name}</div>` +
-            `<div class="ritual-flash-root">${ritual.root}</div>`;
+
+        flash.replaceChildren();
+
+        const glyph = document.createElement("div");
+        glyph.className = "ritual-flash-glyph";
+        glyph.style.color = color;
+        glyph.textContent = ritual.visual;
+
+        const nameEl = document.createElement("div");
+        nameEl.className = "ritual-flash-name";
+        nameEl.style.color = color;
+        nameEl.textContent = ritual.name;
+
+        const rootEl = document.createElement("div");
+        rootEl.className = "ritual-flash-root";
+        rootEl.textContent = ritual.root;
+
+        flash.appendChild(glyph);
+        flash.appendChild(nameEl);
+        flash.appendChild(rootEl);
 
         setTimeout(() => {
             flash.style.display = "none";
@@ -3531,15 +3548,44 @@ document.addEventListener("DOMContentLoaded", () => {
         const el = document.getElementById("ritual-last-result");
         el.style.display = "block";
         const r = data.ritual;
-        el.innerHTML = `<div class="ritual-result-card" style="border-color:${r.color}">` +
-            `<div class="ritual-result-header">` +
-            `<span class="ritual-result-name" style="color:${r.color}">${r.name}</span>` +
-            `<span class="ritual-result-root">${r.root}</span>` +
-            `</div>` +
-            `<div class="ritual-result-intent">${r.intent}</div>` +
-            `<div class="ritual-result-desc">${r.description}</div>` +
-            `<div class="ritual-result-snap">Before: ${r.scan_before} | After: ${r.scan_after}</div>` +
-            `</div>`;
+
+        const card = document.createElement("div");
+        card.className = "ritual-result-card";
+        card.style.borderColor = r.color;
+
+        const header = document.createElement("div");
+        header.className = "ritual-result-header";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "ritual-result-name";
+        nameSpan.style.color = r.color;
+        nameSpan.textContent = r.name;
+
+        const rootSpan = document.createElement("span");
+        rootSpan.className = "ritual-result-root";
+        rootSpan.textContent = r.root;
+
+        header.appendChild(nameSpan);
+        header.appendChild(rootSpan);
+
+        const intent = document.createElement("div");
+        intent.className = "ritual-result-intent";
+        intent.textContent = r.intent;
+
+        const desc = document.createElement("div");
+        desc.className = "ritual-result-desc";
+        desc.textContent = r.description;
+
+        const snap = document.createElement("div");
+        snap.className = "ritual-result-snap";
+        snap.textContent = `Before: ${r.scan_before} | After: ${r.scan_after}`;
+
+        card.appendChild(header);
+        card.appendChild(intent);
+        card.appendChild(desc);
+        card.appendChild(snap);
+
+        el.replaceChildren(card);
     }
 
     async function loadRitualHistory() {
