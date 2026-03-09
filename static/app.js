@@ -1997,9 +1997,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const icons = { PASS: "\u2713", FAIL: "\u2717", RECONSIDER: "?" };
             const row = document.createElement("div");
             row.className = "harness-check-item";
-            row.innerHTML =
-                `<div class="harness-check-icon ${check.verdict.toLowerCase()}">${icons[check.verdict] || "?"}</div>` +
-                `<span class="harness-check-msg">${escHtml(check.message)}</span>`;
+            const icon = document.createElement("div");
+            icon.className = "harness-check-icon " + check.verdict.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+            icon.textContent = icons[check.verdict] || "?";
+            const msg = document.createElement("span");
+            msg.className = "harness-check-msg";
+            msg.textContent = check.message;
+            row.appendChild(icon);
+            row.appendChild(msg);
             checksEl.appendChild(row);
         }
     }
