@@ -2981,7 +2981,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     `<span class="dr-root">${escapeHtml(er.root)}.${escapeHtml(er.pattern)}</span>` +
                     `<span>${escapeHtml(er.narrative)}</span>` +
                     (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${escapeHtml(er.blocked_by)}]</span>` : '') +
-                    (er.wallet_result ? `<span style="color:#eab308;font-size:10px;">[${er.wallet_result.balance != null ? er.wallet_result.balance + ' CC' : ''}]</span>` : '') +
+                    (er.wallet_result ? `<span style="color:#eab308;font-size:10px;">[${er.wallet_result.balance != null ? escapeHtml(String(er.wallet_result.balance)) + ' CC' : ''}]</span>` : '') +
                     `</div>`
                 ).join("");
         } else {
