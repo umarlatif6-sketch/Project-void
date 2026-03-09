@@ -2772,19 +2772,47 @@ document.addEventListener("DOMContentLoaded", () => {
                 el.innerHTML = '<div style="color:#888;font-size:10px;padding:8px;">No transactions yet.</div>';
                 return;
             }
-            el.innerHTML = data.ledger.reverse().map(tx => {
+            const frag = document.createDocumentFragment();
+            data.ledger.reverse().forEach(tx => {
                 const isCredit = tx.tx_type === "credit" || tx.tx_type === "genesis";
                 const amtClass = isCredit ? "positive" : (tx.amount > 0 ? "negative" : "");
                 const amtStr = tx.amount > 0 ? (isCredit ? "+" : "-") + tx.amount.toFixed(2) : "---";
                 const safeTxTypeClass = tx.tx_type.replace(/[^a-zA-Z0-9_-]/g, '');
-                return `<div class="wallet-tx-row">` +
-                    `<span class="wallet-tx-type ${safeTxTypeClass}">${escHtml(tx.tx_type)}</span>` +
-                    `<span class="wallet-tx-amount ${amtClass}">${amtStr}</span>` +
-                    `<span class="wallet-tx-desc">${escHtml(tx.description)}</span>` +
-                    `<span class="wallet-tx-balance">${tx.balance_after.toFixed(2)} CC</span>` +
-                    (tx.root_command ? `<span style="color:#eab308;font-size:9px;">${escHtml(tx.root_command)}</span>` : '') +
-                    `</div>`;
-            }).join("");
+
+                const row = document.createElement("div");
+                row.className = "wallet-tx-row";
+
+                const typeSpan = document.createElement("span");
+                typeSpan.className = "wallet-tx-type " + safeTxTypeClass;
+                typeSpan.textContent = tx.tx_type;
+                row.appendChild(typeSpan);
+
+                const amtSpan = document.createElement("span");
+                amtSpan.className = "wallet-tx-amount " + amtClass;
+                amtSpan.textContent = amtStr;
+                row.appendChild(amtSpan);
+
+                const descSpan = document.createElement("span");
+                descSpan.className = "wallet-tx-desc";
+                descSpan.textContent = tx.description;
+                row.appendChild(descSpan);
+
+                const balSpan = document.createElement("span");
+                balSpan.className = "wallet-tx-balance";
+                balSpan.textContent = tx.balance_after.toFixed(2) + " CC";
+                row.appendChild(balSpan);
+
+                if (tx.root_command) {
+                    const cmdSpan = document.createElement("span");
+                    cmdSpan.style.cssText = "color:#eab308;font-size:9px;";
+                    cmdSpan.textContent = tx.root_command;
+                    row.appendChild(cmdSpan);
+                }
+
+                frag.appendChild(row);
+            });
+            el.textContent = "";
+            el.appendChild(frag);
         } catch(e) {}
     }
 
