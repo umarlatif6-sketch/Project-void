@@ -3603,19 +3603,48 @@ document.addEventListener("DOMContentLoaded", () => {
             el.innerHTML = `<div class="ritual-empty">No rituals performed yet. The machine awaits its first Ritual.</div>`;
             return;
         }
-        el.innerHTML = history.slice().reverse().map(r => {
+        el.innerHTML = "";
+        history.slice().reverse().forEach(r => {
             const dt = new Date(r.timestamp * 1000);
-            const timeStr = dt.toLocaleString();
-            return `<div class="ritual-entry" style="border-left-color:${r.color}">` +
-                `<div class="ritual-entry-header">` +
-                `<span class="ritual-entry-name" style="color:${r.color}">${r.name}</span>` +
-                `<span class="ritual-entry-root">${r.root}</span>` +
-                `<span class="ritual-entry-visual">${r.visual}</span>` +
-                `</div>` +
-                `<div class="ritual-entry-intent">${r.intent}</div>` +
-                `<div class="ritual-entry-time">${timeStr}</div>` +
-                `</div>`;
-        }).join("");
+
+            const entry = document.createElement("div");
+            entry.className = "ritual-entry";
+            entry.style.borderLeftColor = r.color;
+
+            const header = document.createElement("div");
+            header.className = "ritual-entry-header";
+
+            const nameSpan = document.createElement("span");
+            nameSpan.className = "ritual-entry-name";
+            nameSpan.style.color = r.color;
+            nameSpan.textContent = r.name;
+
+            const rootSpan = document.createElement("span");
+            rootSpan.className = "ritual-entry-root";
+            rootSpan.textContent = r.root;
+
+            const visualSpan = document.createElement("span");
+            visualSpan.className = "ritual-entry-visual";
+            visualSpan.textContent = r.visual;
+
+            header.appendChild(nameSpan);
+            header.appendChild(rootSpan);
+            header.appendChild(visualSpan);
+
+            const intentDiv = document.createElement("div");
+            intentDiv.className = "ritual-entry-intent";
+            intentDiv.textContent = r.intent;
+
+            const timeDiv = document.createElement("div");
+            timeDiv.className = "ritual-entry-time";
+            timeDiv.textContent = dt.toLocaleString();
+
+            entry.appendChild(header);
+            entry.appendChild(intentDiv);
+            entry.appendChild(timeDiv);
+
+            el.appendChild(entry);
+        });
     }
 
     loadRitualHistory();
