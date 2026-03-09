@@ -647,6 +647,9 @@ def api_carrier_estimate():
     except (ValueError, TypeError):
         return jsonify({"error": "duration must be a number"}), 400
 
+    if math.isnan(duration) or math.isinf(duration):
+        return jsonify({"error": "duration must be a finite number"}), 400
+
     style = request.args.get("style", "drone")
 
     if style not in ALL_STYLES:
