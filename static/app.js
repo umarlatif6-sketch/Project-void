@@ -2968,9 +2968,19 @@ document.addEventListener("DOMContentLoaded", () => {
             ).join("");
 
         const finalEl = document.getElementById("consensus-final");
-        finalEl.innerHTML = `<div class="consensus-final-label">CONSENSUS COMMAND</div>` +
-            `<div class="consensus-final-cmd">${escapeHtml(data.consensus_command)}</div>` +
-            `<div class="consensus-final-intent">${escapeHtml(data.consensus_intent)}</div>`;
+        finalEl.innerHTML = '';
+        const finalLabelDiv = document.createElement('div');
+        finalLabelDiv.className = 'consensus-final-label';
+        finalLabelDiv.textContent = 'CONSENSUS COMMAND';
+        const finalCmdDiv = document.createElement('div');
+        finalCmdDiv.className = 'consensus-final-cmd';
+        finalCmdDiv.textContent = data.consensus_command ?? '';
+        const finalIntentDiv = document.createElement('div');
+        finalIntentDiv.className = 'consensus-final-intent';
+        finalIntentDiv.textContent = data.consensus_intent ?? '';
+        finalEl.appendChild(finalLabelDiv);
+        finalEl.appendChild(finalCmdDiv);
+        finalEl.appendChild(finalIntentDiv);
 
         const execEl = document.getElementById("consensus-execution");
         if (data.execution_results && data.execution_results.length) {
