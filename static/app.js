@@ -3224,10 +3224,19 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("diagnostics-summary").textContent = data.summary;
 
         const countsEl = document.getElementById("diagnostics-counts");
-        countsEl.innerHTML =
-            `<span class="dc-crit">${data.critical_count} CRITICAL</span>` +
-            `<span class="dc-warn">${data.warning_count} WARNING</span>` +
-            `<span class="dc-nom">${data.nominal_count} NOMINAL</span>`;
+        countsEl.textContent = "";
+        const critSpan = document.createElement("span");
+        critSpan.className = "dc-crit";
+        critSpan.textContent = data.critical_count + " CRITICAL";
+        const warnSpan = document.createElement("span");
+        warnSpan.className = "dc-warn";
+        warnSpan.textContent = data.warning_count + " WARNING";
+        const nomSpan = document.createElement("span");
+        nomSpan.className = "dc-nom";
+        nomSpan.textContent = data.nominal_count + " NOMINAL";
+        countsEl.appendChild(critSpan);
+        countsEl.appendChild(warnSpan);
+        countsEl.appendChild(nomSpan);
 
         const findingsEl = document.getElementById("diagnostics-findings");
         const sortOrder = { "CRITICAL": 0, "WARNING": 1, "NOMINAL": 2 };
