@@ -3282,14 +3282,29 @@ document.addEventListener("DOMContentLoaded", () => {
         outcomeEl.className = "harness-chaos-outcome " + (report.seal_survived ? "pass" : "fail");
 
         const statsEl = document.getElementById("chaos-stats");
-        statsEl.innerHTML = [
+        statsEl.innerHTML = "";
+        [
             { label: "Test ID", value: report.test_id },
             { label: "Steps", value: report.completed_steps + "/" + report.total_steps },
             { label: "Max Pressure", value: report.max_pressure_reached + " atm" },
             { label: "Min Seal", value: report.min_seal_integrity + "%" },
             { label: "AC Activated Step", value: report.air_curtain_activated_at_step || "N/A" },
             { label: "Duration", value: (report.duration_seconds || 0) + "s" },
-        ].map(s => `<div class="chaos-stat"><span class="stat-label">${s.label}</span><br><span class="stat-value">${escHtml(String(s.value))}</span></div>`).join("");
+        ].forEach(s => {
+            const div = document.createElement("div");
+            div.className = "chaos-stat";
+            const labelSpan = document.createElement("span");
+            labelSpan.className = "stat-label";
+            labelSpan.textContent = s.label;
+            const br = document.createElement("br");
+            const valueSpan = document.createElement("span");
+            valueSpan.className = "stat-value";
+            valueSpan.textContent = String(s.value);
+            div.appendChild(labelSpan);
+            div.appendChild(br);
+            div.appendChild(valueSpan);
+            statsEl.appendChild(div);
+        });
 
         const stepsEl = document.getElementById("chaos-steps-log");
         let html = '<div class="chaos-step-row header"><span>#</span><span>Boil</span><span>Press</span><span>Seal</span><span>AC</span><span>Chk</span><span>Response</span></div>';
