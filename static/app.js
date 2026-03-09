@@ -2488,7 +2488,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let html = '<div class="aljabr-roots-header">ROOT MANIFEST</div>';
         html += '<div class="aljabr-patterns-row">';
         for (const [code, info] of Object.entries(patterns)) {
-            html += `<span class="pat-tag" title="${info.verb}">${code} ${info.name}</span>`;
+            html += `<span class="pat-tag" title="${escHtml(info.verb)}">${escHtml(code)} ${escHtml(info.name)}</span>`;
         }
         html += '</div>';
 
