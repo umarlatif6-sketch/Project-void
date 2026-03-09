@@ -315,7 +315,7 @@ def get_messages(conversation_id, user_id, before_id=None, limit=50):
                      m.silt_carrier_style, m.vtx_earned"""
         if before_id:
             cur.execute(
-                f"""SELECT {_fields}
+                "SELECT " + _fields + """
                    FROM messages m JOIN users u ON u.id = m.sender_id
                    WHERE m.conversation_id = %s AND m.id < %s
                    ORDER BY m.created_at DESC LIMIT %s""",
@@ -323,7 +323,7 @@ def get_messages(conversation_id, user_id, before_id=None, limit=50):
             )
         else:
             cur.execute(
-                f"""SELECT {_fields}
+                "SELECT " + _fields + """
                    FROM messages m JOIN users u ON u.id = m.sender_id
                    WHERE m.conversation_id = %s
                    ORDER BY m.created_at DESC LIMIT %s""",
