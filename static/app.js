@@ -2404,28 +2404,56 @@ document.addEventListener("DOMContentLoaded", () => {
         pyEl.appendChild(document.createTextNode(comp.python_equivalent || "# no equivalent"));
 
         const drEl = document.getElementById("adriana-dry-runs");
+        drEl.innerHTML = "";
         if (dryRuns) {
-            drEl.innerHTML = "<div style='color:#888;font-size:10px;margin-bottom:4px;'>SAFETY DRY-RUN</div>" +
-                dryRuns.map(dr => {
-                    const ok = dr.boundary_allowed && dr.checklist_verdict === "PASS";
-                    return `<div class="adriana-dry-run">` +
-                        `<span class="dr-verdict ${ok ? 'dr-pass' : 'dr-fail'}">${ok ? 'SAFE' : 'BLOCKED'}</span>` +
-                        `<span>${escHtml(dr.action.type)}</span>` +
-                        `<span style="color:#666;">${escHtml(dr.checklist_verdict)}</span>` +
-                        `</div>`;
-                }).join("");
+            const drHeader = document.createElement("div");
+            drHeader.style.cssText = "color:#888;font-size:10px;margin-bottom:4px;";
+            drHeader.textContent = "SAFETY DRY-RUN";
+            drEl.appendChild(drHeader);
+            dryRuns.forEach(dr => {
+                const ok = dr.boundary_allowed && dr.checklist_verdict === "PASS";
+                const row = document.createElement("div");
+                row.className = "adriana-dry-run";
+                const verdictSpan = document.createElement("span");
+                verdictSpan.className = "dr-verdict " + (ok ? "dr-pass" : "dr-fail");
+                verdictSpan.textContent = ok ? "SAFE" : "BLOCKED";
+                row.appendChild(verdictSpan);
+                const typeSpan = document.createElement("span");
+                typeSpan.textContent = dr.action.type;
+                row.appendChild(typeSpan);
+                const checkSpan = document.createElement("span");
+                checkSpan.style.color = "#666";
+                checkSpan.textContent = dr.checklist_verdict;
+                row.appendChild(checkSpan);
+                drEl.appendChild(row);
+            });
         } else if (execResults) {
-            drEl.innerHTML = "<div style='color:#888;font-size:10px;margin-bottom:4px;'>EXECUTION RESULTS</div>" +
-                execResults.map(er => {
-                    return `<div class="adriana-dry-run">` +
-                        `<span class="dr-verdict ${er.executed ? 'dr-pass' : 'dr-fail'}">${er.executed ? 'DONE' : 'BLOCKED'}</span>` +
-                        `<span>${escHtml(er.action.type)}</span>` +
-                        `<span style="color:#888;font-size:10px;">${escHtml(er.narrative)}</span>` +
-                        (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${escHtml(er.blocked_by)}]</span>` : '') +
-                        `</div>`;
-                }).join("");
-        } else {
-            drEl.innerHTML = "";
+            const erHeader = document.createElement("div");
+            erHeader.style.cssText = "color:#888;font-size:10px;margin-bottom:4px;";
+            erHeader.textContent = "EXECUTION RESULTS";
+            drEl.appendChild(erHeader);
+            execResults.forEach(er => {
+                const row = document.createElement("div");
+                row.className = "adriana-dry-run";
+                const verdictSpan = document.createElement("span");
+                verdictSpan.className = "dr-verdict " + (er.executed ? "dr-pass" : "dr-fail");
+                verdictSpan.textContent = er.executed ? "DONE" : "BLOCKED";
+                row.appendChild(verdictSpan);
+                const typeSpan = document.createElement("span");
+                typeSpan.textContent = er.action.type;
+                row.appendChild(typeSpan);
+                const narSpan = document.createElement("span");
+                narSpan.style.cssText = "color:#888;font-size:10px;";
+                narSpan.textContent = er.narrative;
+                row.appendChild(narSpan);
+                if (er.blocked_by) {
+                    const blockedSpan = document.createElement("span");
+                    blockedSpan.style.cssText = "color:#f87171;font-size:10px;";
+                    blockedSpan.textContent = "[" + er.blocked_by + "]";
+                    row.appendChild(blockedSpan);
+                }
+                drEl.appendChild(row);
+            });
         }
     }
 
