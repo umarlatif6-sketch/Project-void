@@ -45,7 +45,7 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Dual-Layer Revenue Model:** Software subscription tiers (Ghost Node, Journalist, Sovereign) and hardware tiers (Pirate Build, Sovereign Edition, Village Cluster).
 
 ## Security Hardening (Applied)
-- **XSS Protection:** All dynamic user-controlled content rendered via `innerHTML` is escaped using `escapeHtml()`/`escHtml()` helpers across `templates/admin.html`, `static/app.js`, and `templates/sovereign.html`. File list rendering in `app.js` uses DOM API (`createElement`/`textContent`/`addEventListener`) instead of inline HTML/onclick.
+- **XSS Protection:** All dynamic/server-controlled content in `static/app.js` is rendered using safe DOM APIs (`createElement`/`textContent`/`appendChild`/`addEventListener`). No `innerHTML` is used with dynamic data — only for clearing elements or inserting static HTML strings. Unused `escHtml`/`escapeHtml`/`_escHtml` helper functions have been removed. Dynamic URLs assigned to `href` are validated against an allowlist of safe schemes (`/`, `http://`, `https://`). Templates (`admin.html`, `sovereign.html`) still use `escapeHtml()` helpers for inline rendering.
 - **Secret Management:** `SESSION_SECRET` env var is required at startup — app raises `RuntimeError` if missing. No hardcoded fallback keys in `app.py` or `void_engine/messenger_auth.py`.
 - **Upload Whitelist:** `/api/upload` restricts file extensions to: `.wav`, `.mp3`, `.flac`, `.ogg`, `.txt`, `.png`, `.jpg`, `.jpeg`, `.pdf`. Defined in `routes/core.py` via `ALLOWED_EXTENSIONS`.
 

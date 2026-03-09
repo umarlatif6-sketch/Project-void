@@ -1,8 +1,3 @@
-function escHtml(str) {
-    var d = document.createElement('div');
-    d.appendChild(document.createTextNode(str));
-    return d.innerHTML;
-}
 
 function buildSelectOptions(files, emptyLabel, suffixFn) {
     const frag = document.createDocumentFragment();
@@ -497,7 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await res.json();
                 if (data.success) {
                     setUploadItemSpans(item, data.filename, formatSize(data.size), "var(--success)");
-                    showToast(`Uploaded ${escHtml(data.filename)}`, "success");
+                    showToast("Uploaded " + data.filename, "success");
                 } else {
                     setUploadItemSpans(item, file.name, data.error, "var(--error)");
                 }
@@ -2942,10 +2937,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch(e) {}
     })();
 
-    function escapeHtml(str) {
-        if (str == null) return '';
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
 
     function renderConsensusResult(data) {
         const wrap = document.getElementById("consensus-result");
@@ -3264,14 +3255,6 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.textContent = "Execute Protocol";
     });
 
-    function escHtml(str) {
-        return String(str)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
-    }
-
     function renderChaosReport(report) {
         const wrap = document.getElementById("chaos-test-result");
         if (!wrap) return;
@@ -3307,21 +3290,46 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const stepsEl = document.getElementById("chaos-steps-log");
-        let html = '<div class="chaos-step-row header"><span>#</span><span>Boil</span><span>Press</span><span>Seal</span><span>AC</span><span>Chk</span><span>Response</span></div>';
+        stepsEl.innerHTML = '';
+        const headerRow = document.createElement('div');
+        headerRow.className = 'chaos-step-row header';
+        ['#', 'Boil', 'Press', 'Seal', 'AC', 'Chk', 'Response'].forEach(function(t) {
+            const sp = document.createElement('span');
+            sp.textContent = t;
+            headerRow.appendChild(sp);
+        });
+        stepsEl.appendChild(headerRow);
         for (const s of report.steps) {
             const pClass = s.internal_pressure_atm >= 1.5 ? "step-danger" : s.internal_pressure_atm >= 1.3 ? "step-warn" : "step-ok";
             const sealClass = s.seal_integrity_pct <= 50 ? "step-danger" : s.seal_integrity_pct <= 80 ? "step-warn" : "step-ok";
-            html += `<div class="chaos-step-row">` +
-                `<span>${escHtml(s.step)}</span>` +
-                `<span>${s.boil_rate.toFixed(3)}</span>` +
-                `<span class="${pClass}">${s.internal_pressure_atm.toFixed(3)}</span>` +
-                `<span class="${sealClass}">${s.seal_integrity_pct.toFixed(1)}%</span>` +
-                `<span>${s.air_curtain_active ? s.air_curtain_velocity_ms.toFixed(0) + "m/s" : "OFF"}</span>` +
-                `<span>${escHtml(s.checklist_verdict)}</span>` +
-                `<span style="font-size:10px;">${escHtml(s.auto_response)}</span>` +
-                `</div>`;
+            const row = document.createElement('div');
+            row.className = 'chaos-step-row';
+            const spStep = document.createElement('span');
+            spStep.textContent = String(s.step);
+            const spBoil = document.createElement('span');
+            spBoil.textContent = s.boil_rate.toFixed(3);
+            const spPress = document.createElement('span');
+            spPress.className = pClass;
+            spPress.textContent = s.internal_pressure_atm.toFixed(3);
+            const spSeal = document.createElement('span');
+            spSeal.className = sealClass;
+            spSeal.textContent = s.seal_integrity_pct.toFixed(1) + '%';
+            const spAC = document.createElement('span');
+            spAC.textContent = s.air_curtain_active ? s.air_curtain_velocity_ms.toFixed(0) + 'm/s' : 'OFF';
+            const spChk = document.createElement('span');
+            spChk.textContent = String(s.checklist_verdict);
+            const spResp = document.createElement('span');
+            spResp.style.fontSize = '10px';
+            spResp.textContent = String(s.auto_response);
+            row.appendChild(spStep);
+            row.appendChild(spBoil);
+            row.appendChild(spPress);
+            row.appendChild(spSeal);
+            row.appendChild(spAC);
+            row.appendChild(spChk);
+            row.appendChild(spResp);
+            stepsEl.appendChild(row);
         }
-        stepsEl.innerHTML = html;
     }
 
     document.getElementById("diagnostics-scan-btn").addEventListener("click", async () => {
@@ -3448,50 +3456,67 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    function _buildWarrantyDOM(el, data, skipClear) {
+        if (!skipClear) el.innerHTML = '';
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'warranty-title';
+        titleDiv.textContent = data.title;
+        el.appendChild(titleDiv);
+        const subtitleDiv = document.createElement('div');
+        subtitleDiv.className = 'warranty-subtitle';
+        subtitleDiv.textContent = data.subtitle;
+        el.appendChild(subtitleDiv);
+        const preambleDiv = document.createElement('div');
+        preambleDiv.className = 'warranty-preamble';
+        preambleDiv.textContent = data.preamble;
+        el.appendChild(preambleDiv);
+        for (const article of data.articles) {
+            const artDiv = document.createElement('div');
+            artDiv.className = 'warranty-article';
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'warranty-article-header';
+            const numDiv = document.createElement('div');
+            numDiv.className = 'warranty-article-num';
+            numDiv.textContent = article.number;
+            const artTitleDiv = document.createElement('div');
+            artTitleDiv.className = 'warranty-article-title';
+            artTitleDiv.textContent = article.title;
+            headerDiv.appendChild(numDiv);
+            headerDiv.appendChild(artTitleDiv);
+            const textDiv = document.createElement('div');
+            textDiv.className = 'warranty-article-text';
+            textDiv.textContent = article.text;
+            artDiv.appendChild(headerDiv);
+            artDiv.appendChild(textDiv);
+            el.appendChild(artDiv);
+        }
+        const closingDiv = document.createElement('div');
+        closingDiv.className = 'warranty-closing';
+        const closingText = document.createElement('div');
+        closingText.className = 'warranty-closing-text';
+        closingText.textContent = data.closing;
+        const sealDiv = document.createElement('div');
+        sealDiv.className = 'warranty-seal';
+        sealDiv.textContent = data.seal;
+        closingDiv.appendChild(closingText);
+        closingDiv.appendChild(sealDiv);
+        el.appendChild(closingDiv);
+    }
+
     function renderWarranty(data) {
         const el = document.getElementById("warranty-content");
-        let html = `<div class="warranty-title">${escHtml(data.title)}</div>`;
-        html += `<div class="warranty-subtitle">${escHtml(data.subtitle)}</div>`;
-        html += `<div class="warranty-preamble">${escHtml(data.preamble)}</div>`;
-
-        for (const article of data.articles) {
-            html += `<div class="warranty-article">` +
-                `<div class="warranty-article-header">` +
-                `<div class="warranty-article-num">${escHtml(article.number)}</div>` +
-                `<div class="warranty-article-title">${escHtml(article.title)}</div>` +
-                `</div>` +
-                `<div class="warranty-article-text">${escHtml(article.text)}</div>` +
-                `</div>`;
-        }
-
-        html += `<div class="warranty-closing">` +
-            `<div class="warranty-closing-text">${escHtml(data.closing)}</div>` +
-            `<div class="warranty-seal">${escHtml(data.seal)}</div>` +
-            `</div>`;
-
-        el.innerHTML = html;
+        _buildWarrantyDOM(el, data);
     }
 
     function renderWarrantyMachineId(data) {
         if (data.machine_id) {
-            let html = `<div class="warranty-machine-id">Machine ID: ${escHtml(data.machine_id)}</div>`;
-            html += `<div class="warranty-title">${escHtml(data.title)}</div>`;
-            html += `<div class="warranty-subtitle">${escHtml(data.subtitle)}</div>`;
-            html += `<div class="warranty-preamble">${escHtml(data.preamble)}</div>`;
-            for (const article of data.articles) {
-                html += `<div class="warranty-article">` +
-                    `<div class="warranty-article-header">` +
-                    `<div class="warranty-article-num">${escHtml(article.number)}</div>` +
-                    `<div class="warranty-article-title">${escHtml(article.title)}</div>` +
-                    `</div>` +
-                    `<div class="warranty-article-text">${escHtml(article.text)}</div>` +
-                    `</div>`;
-            }
-            html += `<div class="warranty-closing">` +
-                `<div class="warranty-closing-text">${escHtml(data.closing)}</div>` +
-                `<div class="warranty-seal">${escHtml(data.seal)}</div>` +
-                `</div>`;
-            document.getElementById("warranty-content").innerHTML = html;
+            const el = document.getElementById("warranty-content");
+            el.innerHTML = '';
+            const machineIdDiv = document.createElement('div');
+            machineIdDiv.className = 'warranty-machine-id';
+            machineIdDiv.textContent = 'Machine ID: ' + data.machine_id;
+            el.appendChild(machineIdDiv);
+            _buildWarrantyDOM(el, data, true);
         }
     }
 
@@ -3704,49 +3729,89 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    function escapeHtml(str) {
-        return String(str ?? "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#39;");
-    }
-
     function renderAutoHealResult(data) {
         const wrap = document.getElementById("autoheal-result");
         wrap.style.display = "block";
 
         const healedEl = document.getElementById("autoheal-healed");
+        healedEl.textContent = '';
+        var healedTitle = document.createElement('div');
+        healedTitle.className = 'ah-section-title';
+        healedTitle.textContent = 'Auto-Healed';
+        healedEl.appendChild(healedTitle);
         if (data.healed && data.healed.length > 0) {
-            healedEl.innerHTML = `<div class="ah-section-title">Auto-Healed</div>` +
-                data.healed.map(h =>
-                    `<div class="ah-heal-card">` +
-                    `<span class="ah-heal-root">${escapeHtml(h.root)}</span>` +
-                    `<span class="ah-heal-domain">${escapeHtml(h.domain)}</span>` +
-                    `<span class="ah-heal-desc">${escapeHtml(h.description)}</span>` +
-                    `</div>`
-                ).join("");
+            data.healed.forEach(function(h) {
+                var card = document.createElement('div');
+                card.className = 'ah-heal-card';
+                var rootSpan = document.createElement('span');
+                rootSpan.className = 'ah-heal-root';
+                rootSpan.textContent = h.root;
+                var domainSpan = document.createElement('span');
+                domainSpan.className = 'ah-heal-domain';
+                domainSpan.textContent = h.domain;
+                var descSpan = document.createElement('span');
+                descSpan.className = 'ah-heal-desc';
+                descSpan.textContent = h.description;
+                card.appendChild(rootSpan);
+                card.appendChild(domainSpan);
+                card.appendChild(descSpan);
+                healedEl.appendChild(card);
+            });
         } else {
-            healedEl.innerHTML = `<div class="ah-section-title">Auto-Healed</div><div class="ah-none">No auto-repairs needed</div>`;
+            var healedNone = document.createElement('div');
+            healedNone.className = 'ah-none';
+            healedNone.textContent = 'No auto-repairs needed';
+            healedEl.appendChild(healedNone);
         }
 
         const alertsEl = document.getElementById("autoheal-alerts");
+        alertsEl.textContent = '';
+        var alertsTitle = document.createElement('div');
+        alertsTitle.className = 'ah-section-title ah-alert-title';
+        alertsTitle.textContent = 'Ritual Requests';
+        alertsEl.appendChild(alertsTitle);
         if (data.alerts && data.alerts.length > 0) {
-            alertsEl.innerHTML = `<div class="ah-section-title ah-alert-title">Ritual Requests</div>` +
-                data.alerts.map(a =>
-                    `<div class="ah-alert-card">` +
-                    `<div class="ah-alert-header">` +
-                    `<span class="ah-alert-severity sev-${escapeHtml(a.severity)}">${escapeHtml(a.severity)}</span>` +
-                    `<span class="ah-alert-root">${escapeHtml(a.root_code)}</span>` +
-                    `</div>` +
-                    `<div class="ah-alert-msg">${escapeHtml(a.message)}</div>` +
-                    (a.ritual_name ? `<div class="ah-alert-ritual">Required Ritual: <strong>${escapeHtml(a.ritual_name)}</strong></div>` : '') +
-                    `<div class="ah-alert-fix">Fix: <code>${escapeHtml(a.fix_command)}</code></div>` +
-                    `</div>`
-                ).join("");
+            data.alerts.forEach(function(a) {
+                var card = document.createElement('div');
+                card.className = 'ah-alert-card';
+                var header = document.createElement('div');
+                header.className = 'ah-alert-header';
+                var sevSpan = document.createElement('span');
+                sevSpan.className = 'ah-alert-severity sev-' + String(a.severity ?? '');
+                sevSpan.textContent = a.severity;
+                var rootSpan = document.createElement('span');
+                rootSpan.className = 'ah-alert-root';
+                rootSpan.textContent = a.root_code;
+                header.appendChild(sevSpan);
+                header.appendChild(rootSpan);
+                card.appendChild(header);
+                var msgDiv = document.createElement('div');
+                msgDiv.className = 'ah-alert-msg';
+                msgDiv.textContent = a.message;
+                card.appendChild(msgDiv);
+                if (a.ritual_name) {
+                    var ritualDiv = document.createElement('div');
+                    ritualDiv.className = 'ah-alert-ritual';
+                    ritualDiv.appendChild(document.createTextNode('Required Ritual: '));
+                    var ritualStrong = document.createElement('strong');
+                    ritualStrong.textContent = a.ritual_name;
+                    ritualDiv.appendChild(ritualStrong);
+                    card.appendChild(ritualDiv);
+                }
+                var fixDiv = document.createElement('div');
+                fixDiv.className = 'ah-alert-fix';
+                fixDiv.appendChild(document.createTextNode('Fix: '));
+                var fixCode = document.createElement('code');
+                fixCode.textContent = a.fix_command;
+                fixDiv.appendChild(fixCode);
+                card.appendChild(fixDiv);
+                alertsEl.appendChild(card);
+            });
         } else {
-            alertsEl.innerHTML = `<div class="ah-section-title ah-alert-title">Ritual Requests</div><div class="ah-none">No alerts — The Village is at peace</div>`;
+            var alertsNone = document.createElement('div');
+            alertsNone.className = 'ah-none';
+            alertsNone.textContent = 'No alerts \u2014 The Village is at peace';
+            alertsEl.appendChild(alertsNone);
         }
     }
 
@@ -3839,18 +3904,45 @@ document.addEventListener("DOMContentLoaded", () => {
             const matchesEl = document.getElementById("chronicle-matches");
             resultEl.style.display = "block";
 
+            matchesEl.textContent = '';
             if (!data.matches || data.matches.length === 0) {
-                matchesEl.innerHTML = '<div class="chronicle-empty">No ancestral matches found for current sensor state.</div>';
+                var emptyDiv = document.createElement('div');
+                emptyDiv.className = 'chronicle-empty';
+                emptyDiv.textContent = 'No ancestral matches found for current sensor state.';
+                matchesEl.appendChild(emptyDiv);
             } else {
-                matchesEl.innerHTML = '<div style="font-size:0.8em;color:var(--text-muted);margin-bottom:8px;">ANCESTRAL MATCHES</div>' +
-                    data.matches.map(m =>
-                        '<div class="ancestor-card">' +
-                        '<div class="ancestor-similarity">Match: ' + (m.similarity * 100).toFixed(1) + '%</div>' +
-                        '<div class="ancestor-command">' + m.proven_command + '</div>' +
-                        '<div class="ancestor-intent">' + m.proven_intent + '</div>' +
-                        '<div class="ancestor-domains">' + m.matched_domains.map(d => '<span class="ancestor-domain-tag">' + d + '</span>').join("") + '</div>' +
-                        '</div>'
-                    ).join("");
+                var matchHeader = document.createElement('div');
+                matchHeader.style.fontSize = '0.8em';
+                matchHeader.style.color = 'var(--text-muted)';
+                matchHeader.style.marginBottom = '8px';
+                matchHeader.textContent = 'ANCESTRAL MATCHES';
+                matchesEl.appendChild(matchHeader);
+                data.matches.forEach(function(m) {
+                    var card = document.createElement('div');
+                    card.className = 'ancestor-card';
+                    var simDiv = document.createElement('div');
+                    simDiv.className = 'ancestor-similarity';
+                    simDiv.textContent = 'Match: ' + (m.similarity * 100).toFixed(1) + '%';
+                    var cmdDiv = document.createElement('div');
+                    cmdDiv.className = 'ancestor-command';
+                    cmdDiv.textContent = m.proven_command;
+                    var intentDiv = document.createElement('div');
+                    intentDiv.className = 'ancestor-intent';
+                    intentDiv.textContent = m.proven_intent;
+                    var domainsDiv = document.createElement('div');
+                    domainsDiv.className = 'ancestor-domains';
+                    m.matched_domains.forEach(function(d) {
+                        var tag = document.createElement('span');
+                        tag.className = 'ancestor-domain-tag';
+                        tag.textContent = d;
+                        domainsDiv.appendChild(tag);
+                    });
+                    card.appendChild(simDiv);
+                    card.appendChild(cmdDiv);
+                    card.appendChild(intentDiv);
+                    card.appendChild(domainsDiv);
+                    matchesEl.appendChild(card);
+                });
             }
             showToast("Ancestors queried", "success");
         }).catch(() => {
@@ -3869,18 +3961,40 @@ document.addEventListener("DOMContentLoaded", () => {
             const prophEl = document.getElementById("chronicle-prophecies");
             resultEl.style.display = "block";
 
+            prophEl.textContent = '';
             if (!data.prophecies || data.prophecies.length === 0) {
-                prophEl.innerHTML = '<div class="chronicle-empty">No prophecies — the V2 Pastor sees no imminent crisis patterns.</div>';
+                var emptyProphDiv = document.createElement('div');
+                emptyProphDiv.className = 'chronicle-empty';
+                emptyProphDiv.textContent = 'No prophecies \u2014 the V2 Pastor sees no imminent crisis patterns.';
+                prophEl.appendChild(emptyProphDiv);
             } else {
-                prophEl.innerHTML = '<div style="font-size:0.8em;color:#FFD700;margin-bottom:8px;">V2 PASTOR PROPHECIES</div>' +
-                    data.prophecies.map(p =>
-                        '<div class="prophecy-card">' +
-                        '<div class="prophecy-name">' + p.pattern_name.replace(/_/g, " ") + '</div>' +
-                        '<div class="prophecy-command">' + p.prophecy_command + '</div>' +
-                        '<div class="prophecy-intent">' + p.prophecy_intent + '</div>' +
-                        '<div class="prophecy-confidence">Confidence: ' + (p.confidence * 100).toFixed(0) + '% | Supporting: ' + p.supporting_entries + ' entries | ' + p.trigger_domain + ' → ' + p.consequence_domain + '</div>' +
-                        '</div>'
-                    ).join("");
+                var prophHeader = document.createElement('div');
+                prophHeader.style.fontSize = '0.8em';
+                prophHeader.style.color = '#FFD700';
+                prophHeader.style.marginBottom = '8px';
+                prophHeader.textContent = 'V2 PASTOR PROPHECIES';
+                prophEl.appendChild(prophHeader);
+                data.prophecies.forEach(function(p) {
+                    var card = document.createElement('div');
+                    card.className = 'prophecy-card';
+                    var nameDiv = document.createElement('div');
+                    nameDiv.className = 'prophecy-name';
+                    nameDiv.textContent = p.pattern_name.replace(/_/g, " ");
+                    var cmdDiv = document.createElement('div');
+                    cmdDiv.className = 'prophecy-command';
+                    cmdDiv.textContent = p.prophecy_command;
+                    var intentDiv = document.createElement('div');
+                    intentDiv.className = 'prophecy-intent';
+                    intentDiv.textContent = p.prophecy_intent;
+                    var confDiv = document.createElement('div');
+                    confDiv.className = 'prophecy-confidence';
+                    confDiv.textContent = 'Confidence: ' + (p.confidence * 100).toFixed(0) + '% | Supporting: ' + p.supporting_entries + ' entries | ' + p.trigger_domain + ' \u2192 ' + p.consequence_domain;
+                    card.appendChild(nameDiv);
+                    card.appendChild(cmdDiv);
+                    card.appendChild(intentDiv);
+                    card.appendChild(confDiv);
+                    prophEl.appendChild(card);
+                });
             }
             showToast("Prophecy complete", "success");
         }).catch(() => {
@@ -4011,13 +4125,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 var resultEl = document.getElementById("founder-result");
                 var contentEl = document.getElementById("founder-result-content");
                 resultEl.style.display = "block";
-                contentEl.innerHTML = '<div class="founder-cert-result">' +
-                    '<div class="cert-icon">CERT</div>' +
-                    '<div class="cert-details">' +
-                    '<div class="cert-filename">' + data.filename + '</div>' +
-                    '<div class="cert-seal">Seal: ' + data.seal + '</div>' +
-                    '<a href="/api/download/output_audio/' + data.filename + '" class="btn-founder-secondary" style="text-decoration:none;display:inline-block;margin-top:8px;">Download Certificate</a>' +
-                    '</div></div>';
+                contentEl.textContent = '';
+                var certResult = document.createElement('div');
+                certResult.className = 'founder-cert-result';
+                var certIcon = document.createElement('div');
+                certIcon.className = 'cert-icon';
+                certIcon.textContent = 'CERT';
+                var certDetails = document.createElement('div');
+                certDetails.className = 'cert-details';
+                var certFilename = document.createElement('div');
+                certFilename.className = 'cert-filename';
+                certFilename.textContent = data.filename;
+                var certSeal = document.createElement('div');
+                certSeal.className = 'cert-seal';
+                certSeal.textContent = 'Seal: ' + data.seal;
+                var certLink = document.createElement('a');
+                certLink.href = '/api/download/output_audio/' + encodeURIComponent(data.filename);
+                certLink.className = 'btn-founder-secondary';
+                certLink.style.textDecoration = 'none';
+                certLink.style.display = 'inline-block';
+                certLink.style.marginTop = '8px';
+                certLink.textContent = 'Download Certificate';
+                certDetails.appendChild(certFilename);
+                certDetails.appendChild(certSeal);
+                certDetails.appendChild(certLink);
+                certResult.appendChild(certIcon);
+                certResult.appendChild(certDetails);
+                contentEl.appendChild(certResult);
                 showToast("Founder Certificate generated: " + data.filename, "success");
             }
         }).catch(function() {
@@ -4041,10 +4175,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 var resultEl = document.getElementById("founder-result");
                 var contentEl = document.getElementById("founder-result-content");
                 resultEl.style.display = "block";
-                contentEl.innerHTML = '<div class="founder-batch-result">' +
-                    '<div class="batch-count">' + data.generated + ' Certificates Generated</div>' +
-                    '<div class="batch-list">' + data.filenames.slice(0, 5).join(", ") + (data.generated > 5 ? ", ..." : "") + '</div>' +
-                    '</div>';
+                contentEl.textContent = '';
+                var batchResult = document.createElement('div');
+                batchResult.className = 'founder-batch-result';
+                var batchCount = document.createElement('div');
+                batchCount.className = 'batch-count';
+                batchCount.textContent = data.generated + ' Certificates Generated';
+                var batchList = document.createElement('div');
+                batchList.className = 'batch-list';
+                batchList.textContent = data.filenames.slice(0, 5).join(", ") + (data.generated > 5 ? ", ..." : "");
+                batchResult.appendChild(batchCount);
+                batchResult.appendChild(batchList);
+                contentEl.appendChild(batchResult);
                 showToast(data.generated + " Founder Certificates generated", "success");
             }
         }).catch(function() {
@@ -4072,12 +4214,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 var resultEl = document.getElementById("founder-result");
                 var contentEl = document.getElementById("founder-result-content");
                 resultEl.style.display = "block";
-                contentEl.innerHTML = '<div class="founder-kit-result">' +
-                    '<div class="kit-title">Genesis Kit Packaged</div>' +
-                    '<div class="kit-hash">Root Hash: ' + data.founder_root_hash + '</div>' +
-                    '<div class="kit-entries">Chronicle: ' + data.genesis_seed.total_entries + ' entries | Episodic: ' + data.genesis_seed.total_episodic + '</div>' +
-                    '<div class="kit-instructions">' + data.instructions + '</div>' +
-                    '</div>';
+                contentEl.textContent = '';
+                var kitResult = document.createElement('div');
+                kitResult.className = 'founder-kit-result';
+                var kitTitle = document.createElement('div');
+                kitTitle.className = 'kit-title';
+                kitTitle.textContent = 'Genesis Kit Packaged';
+                var kitHash = document.createElement('div');
+                kitHash.className = 'kit-hash';
+                kitHash.textContent = 'Root Hash: ' + data.founder_root_hash;
+                var kitEntries = document.createElement('div');
+                kitEntries.className = 'kit-entries';
+                kitEntries.textContent = 'Chronicle: ' + data.genesis_seed.total_entries + ' entries | Episodic: ' + data.genesis_seed.total_episodic;
+                var kitInstructions = document.createElement('div');
+                kitInstructions.className = 'kit-instructions';
+                kitInstructions.textContent = data.instructions;
+                kitResult.appendChild(kitTitle);
+                kitResult.appendChild(kitHash);
+                kitResult.appendChild(kitEntries);
+                kitResult.appendChild(kitInstructions);
+                contentEl.appendChild(kitResult);
 
                 showToast("Genesis Kit exported with Founder Wisdom", "success");
                 loadFounderStatus();
@@ -4101,7 +4257,18 @@ document.addEventListener("DOMContentLoaded", () => {
         var timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
         var entry = document.createElement("div");
         entry.className = "mesh-log-entry";
-        entry.innerHTML = '<span class="mesh-log-time">' + timeStr + '</span><span class="mesh-log-event">' + event + '</span><span class="mesh-log-detail">' + detail + '</span>';
+        var logTime = document.createElement('span');
+        logTime.className = 'mesh-log-time';
+        logTime.textContent = timeStr;
+        var logEvent = document.createElement('span');
+        logEvent.className = 'mesh-log-event';
+        logEvent.textContent = event;
+        var logDetail = document.createElement('span');
+        logDetail.className = 'mesh-log-detail';
+        logDetail.textContent = detail;
+        entry.appendChild(logTime);
+        entry.appendChild(logEvent);
+        entry.appendChild(logDetail);
         log.prepend(entry);
     }
 
@@ -4126,21 +4293,36 @@ document.addEventListener("DOMContentLoaded", () => {
             updateMeshStateBadge(data.state || "dark");
 
             var grid = document.getElementById("mesh-neighbors-grid");
+            grid.textContent = '';
             if (data.neighbors && data.neighbors.length > 0) {
-                grid.innerHTML = data.neighbors.map(function(n) {
+                data.neighbors.forEach(function(n) {
                     var signalClass = "mesh-signal-strong";
                     if (n.signal < 0.5) signalClass = "mesh-signal-weak";
                     else if (n.signal < 0.8) signalClass = "mesh-signal-medium";
-                    var cardClass = n.state === "dark" ? "mesh-neighbor-card dark" : "mesh-neighbor-card active";
-                    return '<div class="' + cardClass + '">' +
-                        '<div class="mesh-neighbor-id">' + (n.node_id || "unknown") + '</div>' +
-                        '<div class="mesh-neighbor-stat">State: ' + (n.state || "unknown") + '</div>' +
-                        '<div class="mesh-neighbor-stat">Hops: ' + (n.hops || 0) + '</div>' +
-                        '<div class="mesh-signal-bar ' + signalClass + '"></div>' +
-                        '</div>';
-                }).join("");
+                    var card = document.createElement('div');
+                    card.className = n.state === "dark" ? "mesh-neighbor-card dark" : "mesh-neighbor-card active";
+                    var nId = document.createElement('div');
+                    nId.className = 'mesh-neighbor-id';
+                    nId.textContent = n.node_id || "unknown";
+                    var nState = document.createElement('div');
+                    nState.className = 'mesh-neighbor-stat';
+                    nState.textContent = 'State: ' + (n.state || "unknown");
+                    var nHops = document.createElement('div');
+                    nHops.className = 'mesh-neighbor-stat';
+                    nHops.textContent = 'Hops: ' + (n.hops || 0);
+                    var nSignal = document.createElement('div');
+                    nSignal.className = 'mesh-signal-bar ' + signalClass;
+                    card.appendChild(nId);
+                    card.appendChild(nState);
+                    card.appendChild(nHops);
+                    card.appendChild(nSignal);
+                    grid.appendChild(card);
+                });
             } else {
-                grid.innerHTML = '<div class="mesh-empty">No neighbors detected.</div>';
+                var emptyDiv = document.createElement('div');
+                emptyDiv.className = 'mesh-empty';
+                emptyDiv.textContent = 'No neighbors detected.';
+                grid.appendChild(emptyDiv);
             }
         }).catch(function() {});
     }
@@ -4261,24 +4443,45 @@ document.addEventListener("DOMContentLoaded", () => {
             fetch("/api/mesh/simulate", { method: "POST", headers: {"Content-Type": "application/json"}, body: "{}" }).then(function(r) { return r.json(); }).then(function(data) {
                 simResult.style.display = "block";
                 if (data.success) {
-                    var html = '<div><strong>Two-Node Simulation</strong></div>';
+                    simContent.textContent = '';
+                    var simTitle = document.createElement('div');
+                    var simTitleStrong = document.createElement('strong');
+                    simTitleStrong.textContent = 'Two-Node Simulation';
+                    simTitle.appendChild(simTitleStrong);
+                    simContent.appendChild(simTitle);
                     if (data.steps && data.steps.length) {
                         data.steps.forEach(function(step) {
-                            var cls = step.pass ? "sim-pass" : "sim-fail";
-                            html += '<div class="' + cls + '">' + (step.pass ? "✓" : "✗") + ' ' + step.description + '</div>';
+                            var stepDiv = document.createElement('div');
+                            stepDiv.className = step.pass ? "sim-pass" : "sim-fail";
+                            stepDiv.textContent = (step.pass ? "✓" : "✗") + ' ' + step.description;
+                            simContent.appendChild(stepDiv);
                         });
                     }
-                    if (data.summary) html += '<div style="margin-top:8px;"><strong>' + data.summary + '</strong></div>';
-                    simContent.innerHTML = html;
+                    if (data.summary) {
+                        var summaryDiv = document.createElement('div');
+                        summaryDiv.style.marginTop = '8px';
+                        var summaryStrong = document.createElement('strong');
+                        summaryStrong.textContent = data.summary;
+                        summaryDiv.appendChild(summaryStrong);
+                        simContent.appendChild(summaryDiv);
+                    }
                     addMeshLog("SIMULATION", data.summary || "Two-node sim complete");
                     showToast("Simulation complete", "success");
                 } else {
-                    simContent.innerHTML = '<div class="sim-fail">' + (data.error || "Simulation failed") + '</div>';
+                    simContent.textContent = '';
+                    var errDiv = document.createElement('div');
+                    errDiv.className = 'sim-fail';
+                    errDiv.textContent = data.error || "Simulation failed";
+                    simContent.appendChild(errDiv);
                     showToast(data.error || "Simulation failed", "error");
                 }
             }).catch(function(e) {
                 simResult.style.display = "block";
-                simContent.innerHTML = '<div class="sim-fail">Simulation error: ' + e.message + '</div>';
+                simContent.textContent = '';
+                var catchErr = document.createElement('div');
+                catchErr.className = 'sim-fail';
+                catchErr.textContent = 'Simulation error: ' + e.message;
+                simContent.appendChild(catchErr);
             }).finally(function() {
                 meshSimulateBtn.disabled = false;
                 meshSimulateBtn.textContent = "Run Two-Node Simulation";
@@ -4418,15 +4621,28 @@ document.addEventListener("DOMContentLoaded", () => {
             if (sets.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="kinetic-empty">No sets logged yet</td></tr>';
             } else {
-                tbody.innerHTML = sets.slice(-10).reverse().map(function(s) {
-                    return '<tr>' +
-                        '<td>' + (s.exercise || "—") + '</td>' +
-                        '<td>' + (s.reps || 0) + '</td>' +
-                        '<td>' + (s.cc_earned || 0).toFixed(2) + '</td>' +
-                        '<td class="' + (s.harmonic_bonus && s.harmonic_bonus > 1 ? 'harmonic-yes' : 'harmonic-no') + '">' + (s.harmonic_bonus && s.harmonic_bonus > 1 ? s.harmonic_bonus.toFixed(1) + 'x' : '—') + '</td>' +
-                        '<td class="' + (s.max_glow ? 'glow-yes' : 'glow-no') + '">' + (s.max_glow ? 'GLOW' : '—') + '</td>' +
-                        '</tr>';
-                }).join("");
+                tbody.innerHTML = '';
+                sets.slice(-10).reverse().forEach(function(s) {
+                    var tr = document.createElement('tr');
+                    var tdExercise = document.createElement('td');
+                    tdExercise.textContent = s.exercise || "—";
+                    var tdReps = document.createElement('td');
+                    tdReps.textContent = s.reps || 0;
+                    var tdCc = document.createElement('td');
+                    tdCc.textContent = (s.cc_earned || 0).toFixed(2);
+                    var tdHarmonic = document.createElement('td');
+                    tdHarmonic.className = (s.harmonic_bonus && s.harmonic_bonus > 1 ? 'harmonic-yes' : 'harmonic-no');
+                    tdHarmonic.textContent = (s.harmonic_bonus && s.harmonic_bonus > 1 ? s.harmonic_bonus.toFixed(1) + 'x' : '—');
+                    var tdGlow = document.createElement('td');
+                    tdGlow.className = s.max_glow ? 'glow-yes' : 'glow-no';
+                    tdGlow.textContent = s.max_glow ? 'GLOW' : '—';
+                    tr.appendChild(tdExercise);
+                    tr.appendChild(tdReps);
+                    tr.appendChild(tdCc);
+                    tr.appendChild(tdHarmonic);
+                    tr.appendChild(tdGlow);
+                    tbody.appendChild(tr);
+                });
             }
 
             var whaleVal = bioImp.whale_shelf != null ? bioImp.whale_shelf : 1;
@@ -4452,7 +4668,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             var alertsEl = document.getElementById("bio-alerts");
             var alerts = bioImp.alerts || [];
-            alertsEl.innerHTML = alerts.length ? alerts.map(function(a) { return '<div style="color:' + (a.level === "CRITICAL" ? "#f87171" : "#fbbf24") + '">[' + (a.level || "WARN") + '] ' + (a.message || a) + '</div>'; }).join("") : "";
+            alertsEl.innerHTML = '';
+            if (alerts.length) {
+                alerts.forEach(function(a) {
+                    var alertDiv = document.createElement('div');
+                    alertDiv.style.color = a.level === "CRITICAL" ? "#f87171" : "#fbbf24";
+                    alertDiv.textContent = '[' + (a.level || "WARN") + '] ' + (a.message || a);
+                    alertsEl.appendChild(alertDiv);
+                });
+            }
 
             document.getElementById("ledger-height").textContent = ledgerStatus.chain_height || 0;
 
@@ -4483,19 +4707,33 @@ document.addEventListener("DOMContentLoaded", () => {
             if (blocks.length === 0) {
                 blocksEl.innerHTML = '<div class="ledger-empty">No blocks yet</div>';
             } else {
-                blocksEl.innerHTML = blocks.slice(-15).reverse().map(function(b) {
+                blocksEl.innerHTML = '';
+                blocks.slice(-15).reverse().forEach(function(b) {
                     var hashTail = b.block_hash ? "..." + b.block_hash.slice(-8) : "";
                     var payloadStr = "";
                     try {
                         payloadStr = typeof b.payload === "string" ? b.payload : JSON.stringify(b.payload).slice(0, 60);
                     } catch(e) { payloadStr = "—"; }
-                    return '<div class="ledger-block-row">' +
-                        '<span class="ledger-block-idx">#' + (b.block_index != null ? b.block_index : "?") + '</span>' +
-                        '<span class="ledger-block-hash">' + hashTail + '</span>' +
-                        '<span class="ledger-block-payload">' + payloadStr + '</span>' +
-                        '<span class="ledger-block-node">' + (b.node_id ? b.node_id.slice(0, 12) : "") + '</span>' +
-                        '</div>';
-                }).join("");
+                    var row = document.createElement('div');
+                    row.className = 'ledger-block-row';
+                    var idxSpan = document.createElement('span');
+                    idxSpan.className = 'ledger-block-idx';
+                    idxSpan.textContent = '#' + (b.block_index != null ? b.block_index : "?");
+                    var hashSpan = document.createElement('span');
+                    hashSpan.className = 'ledger-block-hash';
+                    hashSpan.textContent = hashTail;
+                    var payloadSpan = document.createElement('span');
+                    payloadSpan.className = 'ledger-block-payload';
+                    payloadSpan.textContent = payloadStr;
+                    var nodeSpan = document.createElement('span');
+                    nodeSpan.className = 'ledger-block-node';
+                    nodeSpan.textContent = b.node_id ? b.node_id.slice(0, 12) : "";
+                    row.appendChild(idxSpan);
+                    row.appendChild(hashSpan);
+                    row.appendChild(payloadSpan);
+                    row.appendChild(nodeSpan);
+                    blocksEl.appendChild(row);
+                });
             }
 
             var proposals = ledgerVotes.proposals || ledgerVotes.votes || [];
@@ -4503,15 +4741,33 @@ document.addEventListener("DOMContentLoaded", () => {
             if (proposals.length === 0) {
                 proposalsEl.innerHTML = '<div class="ledger-empty">No active proposals</div>';
             } else {
-                proposalsEl.innerHTML = proposals.map(function(p) {
+                proposalsEl.innerHTML = '';
+                proposals.forEach(function(p) {
                     var statusClass = p.status === "passed" ? "passed" : "active";
-                    return '<div class="ledger-proposal-row">' +
-                        '<span class="ledger-proposal-text">' + (p.proposal || p.description || "—") + '</span>' +
-                        '<span class="ledger-proposal-votes">' + (p.vote_count || 0) + ' votes (' + (p.weighted_score || 0).toFixed(2) + ')</span>' +
-                        '<span class="ledger-proposal-status ' + statusClass + '">' + (p.status || "active") + '</span>' +
-                        (p.status !== "passed" ? '<button class="btn-vote" onclick="voteOnProposal(\'' + (p.id || p.proposal_id || "") + '\')">Vote</button>' : '') +
-                        '</div>';
-                }).join("");
+                    var row = document.createElement('div');
+                    row.className = 'ledger-proposal-row';
+                    var textSpan = document.createElement('span');
+                    textSpan.className = 'ledger-proposal-text';
+                    textSpan.textContent = p.proposal || p.description || "—";
+                    var votesSpan = document.createElement('span');
+                    votesSpan.className = 'ledger-proposal-votes';
+                    votesSpan.textContent = (p.vote_count || 0) + ' votes (' + (p.weighted_score || 0).toFixed(2) + ')';
+                    var statusSpan = document.createElement('span');
+                    statusSpan.className = 'ledger-proposal-status ' + statusClass;
+                    statusSpan.textContent = p.status || "active";
+                    row.appendChild(textSpan);
+                    row.appendChild(votesSpan);
+                    row.appendChild(statusSpan);
+                    if (p.status !== "passed") {
+                        var voteBtn = document.createElement('button');
+                        voteBtn.className = 'btn-vote';
+                        voteBtn.textContent = 'Vote';
+                        var proposalId = p.id || p.proposal_id || "";
+                        voteBtn.addEventListener('click', function() { voteOnProposal(proposalId); });
+                        row.appendChild(voteBtn);
+                    }
+                    proposalsEl.appendChild(row);
+                });
             }
 
             refreshResonanceContract();
@@ -4798,17 +5054,32 @@ document.addEventListener("DOMContentLoaded", () => {
                     list.innerHTML = '<p class="loading">No drops yet.</p>';
                     return;
                 }
-                var html = "";
+                list.innerHTML = '';
                 data.drops.forEach(function(d) {
-                    html += '<div class="journalism-drop-row">';
-                    html += '<span class="journalism-drop-name" title="' + d.name + '">' + d.name + '</span>';
-                    html += '<span class="journalism-drop-meta">' + formatSize(d.size) + ' &middot; ' + d.modified + '</span>';
-                    html += '<div class="journalism-drop-actions">';
-                    html += '<button onclick="window._downloadSiltDrop(\'' + d.name + '\')">Download</button>';
-                    html += '<button onclick="window._deleteSiltDrop(\'' + d.name + '\')">Delete</button>';
-                    html += '</div></div>';
+                    var row = document.createElement('div');
+                    row.className = 'journalism-drop-row';
+                    var nameSpan = document.createElement('span');
+                    nameSpan.className = 'journalism-drop-name';
+                    nameSpan.title = d.name;
+                    nameSpan.textContent = d.name;
+                    var metaSpan = document.createElement('span');
+                    metaSpan.className = 'journalism-drop-meta';
+                    metaSpan.textContent = formatSize(d.size) + ' \u00b7 ' + d.modified;
+                    var actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'journalism-drop-actions';
+                    var dlBtn = document.createElement('button');
+                    dlBtn.textContent = 'Download';
+                    dlBtn.addEventListener('click', (function(name) { return function() { window._downloadSiltDrop(name); }; })(d.name));
+                    var delBtn = document.createElement('button');
+                    delBtn.textContent = 'Delete';
+                    delBtn.addEventListener('click', (function(name) { return function() { window._deleteSiltDrop(name); }; })(d.name));
+                    actionsDiv.appendChild(dlBtn);
+                    actionsDiv.appendChild(delBtn);
+                    row.appendChild(nameSpan);
+                    row.appendChild(metaSpan);
+                    row.appendChild(actionsDiv);
+                    list.appendChild(row);
                 });
-                list.innerHTML = html;
             })
             .catch(function() {
                 list.innerHTML = '<p class="loading">Failed to load drops.</p>';
@@ -4868,11 +5139,30 @@ document.addEventListener("DOMContentLoaded", () => {
                     var result = document.getElementById("journalism-decode-result");
                     if (data.error) {
                         result.style.display = "block";
-                        result.innerHTML = '<span style="color:#ef4444;">Error: ' + data.error + '</span>';
+                        result.innerHTML = '';
+                        var errSpan = document.createElement('span');
+                        errSpan.style.color = '#ef4444';
+                        errSpan.textContent = 'Error: ' + data.error;
+                        result.appendChild(errSpan);
                         return;
                     }
                     result.style.display = "block";
-                    result.innerHTML = 'Extracted: <strong>' + data.filename + '</strong> (' + formatSize(data.size) + ') — <a href="' + data.download_url + '" style="color:#2dd4bf;">Download</a>';
+                    result.innerHTML = '';
+                    result.appendChild(document.createTextNode('Extracted: '));
+                    var fnStrong = document.createElement('strong');
+                    fnStrong.textContent = data.filename;
+                    result.appendChild(fnStrong);
+                    result.appendChild(document.createTextNode(' (' + formatSize(data.size) + ') \u2014 '));
+                    var dlLink = document.createElement('a');
+                    var dlUrl = String(data.download_url || '');
+                    if (dlUrl.startsWith('/') || dlUrl.startsWith('http://') || dlUrl.startsWith('https://')) {
+                        dlLink.href = dlUrl;
+                    } else {
+                        dlLink.href = '#';
+                    }
+                    dlLink.style.color = '#2dd4bf';
+                    dlLink.textContent = 'Download';
+                    result.appendChild(dlLink);
                     showToast("File extracted from silt", "success");
                 })
                 .catch(function() { showToast("Decode failed", "error"); });
@@ -4981,7 +5271,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     _deactivateResonance('proof', 2500);
                 } else {
                     resetProofSteps();
-                    errorEl.innerHTML = '<div class="error-title">Error</div>' + (data.error || "Unknown error");
+                    errorEl.innerHTML = '';
+                    var errTitle1 = document.createElement('div');
+                    errTitle1.className = 'error-title';
+                    errTitle1.textContent = 'Error';
+                    errorEl.appendChild(errTitle1);
+                    errorEl.appendChild(document.createTextNode(data.error || "Unknown error"));
                     errorEl.style.display = "block";
                     showToast("Proof failed", "error");
                     _deactivateResonance('proof');
@@ -4989,7 +5284,12 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch(e) {
                 stepIntervals.forEach(function(tid) { clearTimeout(tid); });
                 resetProofSteps();
-                errorEl.innerHTML = '<div class="error-title">Error</div>Request failed: ' + e.message;
+                errorEl.innerHTML = '';
+                var errTitle2 = document.createElement('div');
+                errTitle2.className = 'error-title';
+                errTitle2.textContent = 'Error';
+                errorEl.appendChild(errTitle2);
+                errorEl.appendChild(document.createTextNode('Request failed: ' + e.message));
                 errorEl.style.display = "block";
                 showToast("Proof failed", "error");
                 _deactivateResonance('proof');
@@ -5127,22 +5427,72 @@ document.addEventListener("DOMContentLoaded", () => {
             var res = await fetch("/api/vigilance/my-reports");
             var data = await res.json();
             if (!data.reports || data.reports.length === 0) {
-                el.innerHTML = '<p class="text-dim">No reports submitted yet. Be the first vigilant.</p>';
+                el.textContent = '';
+                var emptyP = document.createElement('p');
+                emptyP.className = 'text-dim';
+                emptyP.textContent = 'No reports submitted yet. Be the first vigilant.';
+                el.appendChild(emptyP);
                 return;
             }
-            el.innerHTML = '<table class="vig-table"><thead><tr><th>#</th><th>Title</th><th>Severity</th><th>Status</th><th>Reward</th><th>Date</th></tr></thead><tbody>' +
-                data.reports.map(function(r) {
-                    var rewarded = r.status === 'rewarded';
-                    return '<tr>' +
-                        '<td>' + r.id + '</td>' +
-                        '<td class="vig-report-title">' + _escHtml(r.title) + '</td>' +
-                        '<td><span class="vig-sev vig-sev-' + r.severity + '">' + r.severity + '</span></td>' +
-                        '<td><span class="vig-status vig-status-' + r.status + '">' + r.status + '</span></td>' +
-                        '<td>' + (rewarded ? '<span class="vig-vtx-reward">' + r.vtx_reward + ' VTX</span>' : '—') + '</td>' +
-                        '<td class="text-dim">' + (r.created_at ? r.created_at.substring(0,10) : '') + '</td>' +
-                    '</tr>';
-                }).join("") + '</tbody></table>';
-        } catch(e) { el.innerHTML = '<p class="text-dim">Failed to load reports.</p>'; }
+            el.textContent = '';
+            var table = document.createElement('table');
+            table.className = 'vig-table';
+            var thead = document.createElement('thead');
+            var headRow = document.createElement('tr');
+            ['#', 'Title', 'Severity', 'Status', 'Reward', 'Date'].forEach(function(h) {
+                var th = document.createElement('th');
+                th.textContent = h;
+                headRow.appendChild(th);
+            });
+            thead.appendChild(headRow);
+            table.appendChild(thead);
+            var tbody = document.createElement('tbody');
+            data.reports.forEach(function(r) {
+                var tr = document.createElement('tr');
+                var tdId = document.createElement('td');
+                tdId.textContent = r.id;
+                var tdTitle = document.createElement('td');
+                tdTitle.className = 'vig-report-title';
+                tdTitle.textContent = r.title;
+                var tdSev = document.createElement('td');
+                var sevSpan = document.createElement('span');
+                sevSpan.className = 'vig-sev vig-sev-' + r.severity;
+                sevSpan.textContent = r.severity;
+                tdSev.appendChild(sevSpan);
+                var tdStatus = document.createElement('td');
+                var statusSpan = document.createElement('span');
+                statusSpan.className = 'vig-status vig-status-' + r.status;
+                statusSpan.textContent = r.status;
+                tdStatus.appendChild(statusSpan);
+                var tdReward = document.createElement('td');
+                if (r.status === 'rewarded') {
+                    var rewardSpan = document.createElement('span');
+                    rewardSpan.className = 'vig-vtx-reward';
+                    rewardSpan.textContent = r.vtx_reward + ' VTX';
+                    tdReward.appendChild(rewardSpan);
+                } else {
+                    tdReward.textContent = '\u2014';
+                }
+                var tdDate = document.createElement('td');
+                tdDate.className = 'text-dim';
+                tdDate.textContent = r.created_at ? r.created_at.substring(0, 10) : '';
+                tr.appendChild(tdId);
+                tr.appendChild(tdTitle);
+                tr.appendChild(tdSev);
+                tr.appendChild(tdStatus);
+                tr.appendChild(tdReward);
+                tr.appendChild(tdDate);
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            el.appendChild(table);
+        } catch(e) {
+            el.textContent = '';
+            var errP = document.createElement('p');
+            errP.className = 'text-dim';
+            errP.textContent = 'Failed to load reports.';
+            el.appendChild(errP);
+        }
     }
 
     async function loadVigLeaderboard() {
@@ -5152,19 +5502,43 @@ document.addEventListener("DOMContentLoaded", () => {
             var res = await fetch("/api/vigilance/leaderboard");
             var data = await res.json();
             if (!data.leaderboard || data.leaderboard.length === 0) {
-                el.innerHTML = '<p class="text-dim">No bug hunters yet.</p>';
+                el.textContent = '';
+                var emptyP = document.createElement('p');
+                emptyP.className = 'text-dim';
+                emptyP.textContent = 'No bug hunters yet.';
+                el.appendChild(emptyP);
                 return;
             }
-            el.innerHTML = data.leaderboard.map(function(e) {
-                var medal = e.rank <= 3 ? ['', '\u2B50', '\u26A1', '\u2B55'][e.rank] : '';
-                return '<div class="vig-lb-row">' +
-                    '<span class="vig-lb-rank">' + medal + ' #' + e.rank + '</span>' +
-                    '<span class="vig-lb-name">' + _escHtml(e.username) + '</span>' +
-                    '<span class="vig-lb-stats">' + e.rewarded_count + '/' + e.report_count + ' verified</span>' +
-                    '<span class="vig-lb-vtx">' + e.total_vtx.toFixed(1) + ' VTX</span>' +
-                '</div>';
-            }).join("");
-        } catch(e) { el.innerHTML = '<p class="text-dim">Failed to load leaderboard.</p>'; }
+            el.textContent = '';
+            data.leaderboard.forEach(function(entry) {
+                var row = document.createElement('div');
+                row.className = 'vig-lb-row';
+                var medal = entry.rank <= 3 ? ['', '\u2B50', '\u26A1', '\u2B55'][entry.rank] : '';
+                var rankSpan = document.createElement('span');
+                rankSpan.className = 'vig-lb-rank';
+                rankSpan.textContent = medal + ' #' + entry.rank;
+                var nameSpan = document.createElement('span');
+                nameSpan.className = 'vig-lb-name';
+                nameSpan.textContent = entry.username;
+                var statsSpan = document.createElement('span');
+                statsSpan.className = 'vig-lb-stats';
+                statsSpan.textContent = entry.rewarded_count + '/' + entry.report_count + ' verified';
+                var vtxSpan = document.createElement('span');
+                vtxSpan.className = 'vig-lb-vtx';
+                vtxSpan.textContent = entry.total_vtx.toFixed(1) + ' VTX';
+                row.appendChild(rankSpan);
+                row.appendChild(nameSpan);
+                row.appendChild(statsSpan);
+                row.appendChild(vtxSpan);
+                el.appendChild(row);
+            });
+        } catch(e) {
+            el.textContent = '';
+            var errP = document.createElement('p');
+            errP.className = 'text-dim';
+            errP.textContent = 'Failed to load leaderboard.';
+            el.appendChild(errP);
+        }
     }
 
     async function loadVigStats() {
@@ -5173,15 +5547,34 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             var res = await fetch("/api/vigilance/stats");
             var data = await res.json();
-            el.innerHTML =
-                '<div class="vig-stat"><span class="vig-stat-val">' + data.total_reports + '</span><span class="vig-stat-lbl">Reports</span></div>' +
-                '<div class="vig-stat"><span class="vig-stat-val">' + (data.by_status.rewarded || 0) + '</span><span class="vig-stat-lbl">Verified</span></div>' +
-                '<div class="vig-stat"><span class="vig-stat-val">' + (data.by_status.pending || 0) + '</span><span class="vig-stat-lbl">Pending</span></div>' +
-                '<div class="vig-stat"><span class="vig-stat-val">' + data.total_vtx_paid.toFixed(1) + '</span><span class="vig-stat-lbl">VTX Paid</span></div>';
-        } catch(e) { el.innerHTML = '<p class="text-dim">Failed to load stats.</p>'; }
+            el.textContent = '';
+            var statsData = [
+                { val: data.total_reports, lbl: 'Reports' },
+                { val: data.by_status.rewarded || 0, lbl: 'Verified' },
+                { val: data.by_status.pending || 0, lbl: 'Pending' },
+                { val: data.total_vtx_paid.toFixed(1), lbl: 'VTX Paid' }
+            ];
+            statsData.forEach(function(s) {
+                var statDiv = document.createElement('div');
+                statDiv.className = 'vig-stat';
+                var valSpan = document.createElement('span');
+                valSpan.className = 'vig-stat-val';
+                valSpan.textContent = s.val;
+                var lblSpan = document.createElement('span');
+                lblSpan.className = 'vig-stat-lbl';
+                lblSpan.textContent = s.lbl;
+                statDiv.appendChild(valSpan);
+                statDiv.appendChild(lblSpan);
+                el.appendChild(statDiv);
+            });
+        } catch(e) {
+            el.textContent = '';
+            var errP = document.createElement('p');
+            errP.className = 'text-dim';
+            errP.textContent = 'Failed to load stats.';
+            el.appendChild(errP);
+        }
     }
-
-    function _escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
     var vigTab = document.querySelector('[data-tab="vigilance"]');
     if (vigTab) {
@@ -5359,21 +5752,35 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
         _cmdSelectedIdx = filtered.length > 0 ? 0 : -1;
-        _cmdResults.innerHTML = filtered.map(function(a, i) {
-            return '<div class="void-cmd-item' + (i === 0 ? ' selected' : '') + '" data-idx="' + i + '" data-action-id="' + a.id + '">' +
-                '<span class="void-cmd-item-icon">' + a.icon + '</span>' +
-                '<div class="void-cmd-item-text">' +
-                    '<div class="void-cmd-item-name">' + a.name + '</div>' +
-                    '<div class="void-cmd-item-desc">' + a.desc + '</div>' +
-                '</div>' +
-                (a.tab ? '<span class="void-cmd-item-shortcut">TAB</span>' : '<span class="void-cmd-item-shortcut">NAV</span>') +
-            '</div>';
-        }).join('');
-        _cmdResults.querySelectorAll('.void-cmd-item').forEach(function(el) {
-            el.addEventListener('click', function() {
-                var aid = el.dataset.actionId;
-                _cmdExecuteAction(aid);
+        _cmdResults.textContent = '';
+        filtered.forEach(function(a, i) {
+            var item = document.createElement('div');
+            item.className = 'void-cmd-item' + (i === 0 ? ' selected' : '');
+            item.dataset.idx = i;
+            item.dataset.actionId = a.id;
+            var iconSpan = document.createElement('span');
+            iconSpan.className = 'void-cmd-item-icon';
+            iconSpan.textContent = a.icon;
+            var textDiv = document.createElement('div');
+            textDiv.className = 'void-cmd-item-text';
+            var nameDiv = document.createElement('div');
+            nameDiv.className = 'void-cmd-item-name';
+            nameDiv.textContent = a.name;
+            var descDiv = document.createElement('div');
+            descDiv.className = 'void-cmd-item-desc';
+            descDiv.textContent = a.desc;
+            textDiv.appendChild(nameDiv);
+            textDiv.appendChild(descDiv);
+            var shortcutSpan = document.createElement('span');
+            shortcutSpan.className = 'void-cmd-item-shortcut';
+            shortcutSpan.textContent = a.tab ? 'TAB' : 'NAV';
+            item.appendChild(iconSpan);
+            item.appendChild(textDiv);
+            item.appendChild(shortcutSpan);
+            item.addEventListener('click', function() {
+                _cmdExecuteAction(a.id);
             });
+            _cmdResults.appendChild(item);
         });
     }
 
