@@ -2391,9 +2391,21 @@ document.addEventListener("DOMContentLoaded", () => {
         compressionEl.appendChild(detailDiv);
 
         const cmdsEl = document.getElementById("adriana-commands");
-        cmdsEl.innerHTML = (result.commands || []).map(c =>
-            `<div class="adriana-cmd">${escHtml(c.action_type)} → ${escHtml(c.narrative)}</div>`
-        ).join("") || '<div style="color:#666;">No commands generated</div>';
+        cmdsEl.innerHTML = "";
+        const cmds = result.commands || [];
+        if (cmds.length === 0) {
+            const noCmd = document.createElement("div");
+            noCmd.style.color = "#666";
+            noCmd.textContent = "No commands generated";
+            cmdsEl.appendChild(noCmd);
+        } else {
+            cmds.forEach(c => {
+                const cmdDiv = document.createElement("div");
+                cmdDiv.className = "adriana-cmd";
+                cmdDiv.textContent = c.action_type + " \u2192 " + c.narrative;
+                cmdsEl.appendChild(cmdDiv);
+            });
+        }
 
         const pyEl = document.getElementById("adriana-python");
         pyEl.innerHTML = "";
