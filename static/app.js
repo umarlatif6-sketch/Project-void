@@ -1971,7 +1971,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const item = document.createElement("div");
             item.className = "sensor-item";
             const label = key.replace(/_/g, " ");
-            item.innerHTML = `<span class="sensor-label">${escHtml(label)}</span><span class="sensor-value">${escHtml(String(val))}</span>`;
+            const labelSpan = document.createElement("span");
+            labelSpan.className = "sensor-label";
+            labelSpan.textContent = label;
+            const valueSpan = document.createElement("span");
+            valueSpan.className = "sensor-value";
+            valueSpan.textContent = String(val);
+            item.appendChild(labelSpan);
+            item.appendChild(valueSpan);
             el.appendChild(item);
         }
     }
