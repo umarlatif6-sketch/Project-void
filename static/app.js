@@ -4,6 +4,24 @@ function escHtml(str) {
     return d.innerHTML;
 }
 
+function buildSelectOptions(files, emptyLabel, suffixFn) {
+    const frag = document.createDocumentFragment();
+    if (!files.length) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = emptyLabel;
+        frag.appendChild(opt);
+    } else {
+        files.forEach(function(f) {
+            const opt = document.createElement('option');
+            opt.value = f.name;
+            opt.textContent = f.name + ' (' + formatSize(f.size) + ')' + (suffixFn ? suffixFn(f) : '');
+            frag.appendChild(opt);
+        });
+    }
+    return frag;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const isDemo = document.body.getAttribute("data-demo") === "true";
     const tabs = document.querySelectorAll(".tab");
@@ -149,17 +167,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const stego = document.getElementById("stego-select");
 
         const wavFiles = data.input.filter(f => f.name.toLowerCase().endsWith(".wav"));
-        carrier.innerHTML = wavFiles.length
-            ? wavFiles.map(f => `<option value="${f.name}">${f.name} (${formatSize(f.size)})</option>`).join("")
-            : '<option value="">No WAV files in input_files/</option>';
+        carrier.replaceChildren(buildSelectOptions(wavFiles, 'No WAV files in input_files/'));
 
-        payload.innerHTML = data.input.length
-            ? data.input.map(f => {
-                const isWav = f.name.toLowerCase().endsWith(".wav");
-                const tag = isWav ? " [WAV AUDIO]" : "";
-                return `<option value="${f.name}">${f.name} (${formatSize(f.size)})${tag}</option>`;
-            }).join("")
-            : '<option value="">No files in input_files/</option>';
+        payload.replaceChildren(buildSelectOptions(data.input, 'No files in input_files/', function(f) {
+            return f.name.toLowerCase().endsWith(".wav") ? " [WAV AUDIO]" : "";
+        }));
 
         updateStegoSelect(data);
         updateCapSelect(data);
@@ -319,9 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const source = document.querySelector('input[name="decode-source"]:checked').value;
         const files = source === "output" ? data.output : data.input;
         const wavFiles = files.filter(f => f.name.toLowerCase().endsWith(".wav"));
-        stego.innerHTML = wavFiles.length
-            ? wavFiles.map(f => `<option value="${f.name}">${f.name} (${formatSize(f.size)})</option>`).join("")
-            : '<option value="">No WAV files found</option>';
+        stego.replaceChildren(buildSelectOptions(wavFiles, 'No WAV files found'));
     }
 
     document.querySelectorAll('input[name="decode-source"]').forEach(r => {
@@ -336,9 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const source = document.querySelector('input[name="cap-source"]:checked').value;
         const files = source === "output" ? data.output : data.input;
         const wavFiles = files.filter(f => f.name.toLowerCase().endsWith(".wav"));
-        sel.innerHTML = wavFiles.length
-            ? wavFiles.map(f => `<option value="${f.name}">${f.name} (${formatSize(f.size)})</option>`).join("")
-            : '<option value="">No WAV files found</option>';
+        sel.replaceChildren(buildSelectOptions(wavFiles, 'No WAV files found'));
     }
 
     document.querySelectorAll('input[name="cap-source"]').forEach(r => {
@@ -634,9 +642,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const source = document.querySelector('input[name="viz-source"]:checked').value;
         const files = source === "output" ? data.output : data.input;
         const wavFiles = files.filter(f => f.name.toLowerCase().endsWith(".wav"));
-        sel.innerHTML = wavFiles.length
-            ? wavFiles.map(f => `<option value="${f.name}">${f.name} (${formatSize(f.size)})</option>`).join("")
-            : '<option value="">No WAV files found</option>';
+        sel.replaceChildren(buildSelectOptions(wavFiles, 'No WAV files found'));
     }
 
     document.querySelectorAll('input[name="viz-source"]').forEach(r => {
@@ -2681,16 +2687,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const payloadSel = document.getElementById("divided-payload");
         if (!carrierSel || !payloadSel) return;
         const wavFiles = fileData.input.filter(f => f.name.toLowerCase().endsWith(".wav"));
-        carrierSel.innerHTML = wavFiles.length
-            ? wavFiles.map(f => `<option value="${f.name}">${f.name} (${formatSize(f.size)})</option>`).join("")
-            : '<option value="">No WAV files</option>';
-        payloadSel.innerHTML = fileData.input.length
-            ? fileData.input.map(f => {
-                const isWav = f.name.toLowerCase().endsWith(".wav");
-                const tag = isWav ? " [WAV]" : "";
-                return `<option value="${f.name}">${f.name} (${formatSize(f.size)})${tag}</option>`;
-            }).join("")
-            : '<option value="">No files</option>';
+        carrierSel.replaceChildren(buildSelectOptions(wavFiles, 'No WAV files'));
+        payloadSel.replaceChildren(buildSelectOptions(fileData.input, 'No files', function(f) {
+            return f.name.toLowerCase().endsWith(".wav") ? " [WAV]" : "";
+        }));
     }
 
     (async function loadDividedReadiness() {
