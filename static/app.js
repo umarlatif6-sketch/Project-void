@@ -2075,10 +2075,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const loopStats = document.getElementById("harness-loop-stats");
             if (loopStats) {
                 const ls = data.loop_detector;
-                loopStats.innerHTML =
-                    `Detections: <span class="harness-loop-stat">${Number(ls.total_detections)}</span> | ` +
-                    `Active: <span class="harness-loop-stat">${Number(ls.active_alerts)}</span> | ` +
-                    `Tracked: <span class="harness-loop-stat">${Number(ls.tracked_signatures)}</span>`;
+                const makeStatSpan = (val) => {
+                    const span = document.createElement("span");
+                    span.className = "harness-loop-stat";
+                    span.textContent = String(Number(val));
+                    return span;
+                };
+                loopStats.textContent = "";
+                loopStats.append(
+                    "Detections: ", makeStatSpan(ls.total_detections),
+                    " | Active: ", makeStatSpan(ls.active_alerts),
+                    " | Tracked: ", makeStatSpan(ls.tracked_signatures)
+                );
             }
         });
 
