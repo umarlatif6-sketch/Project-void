@@ -3186,7 +3186,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const pClass = s.internal_pressure_atm >= 1.5 ? "step-danger" : s.internal_pressure_atm >= 1.3 ? "step-warn" : "step-ok";
             const sealClass = s.seal_integrity_pct <= 50 ? "step-danger" : s.seal_integrity_pct <= 80 ? "step-warn" : "step-ok";
             html += `<div class="chaos-step-row">` +
-                `<span>${s.step}</span>` +
+                `<span>${escHtml(s.step)}</span>` +
                 `<span>${s.boil_rate.toFixed(3)}</span>` +
                 `<span class="${pClass}">${s.internal_pressure_atm.toFixed(3)}</span>` +
                 `<span class="${sealClass}">${s.seal_integrity_pct.toFixed(1)}%</span>` +
