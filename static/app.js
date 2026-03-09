@@ -3689,6 +3689,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    function escapeHtml(str) {
+        return String(str ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
     function renderAutoHealResult(data) {
         const wrap = document.getElementById("autoheal-result");
         wrap.style.display = "block";
@@ -3698,9 +3707,9 @@ document.addEventListener("DOMContentLoaded", () => {
             healedEl.innerHTML = `<div class="ah-section-title">Auto-Healed</div>` +
                 data.healed.map(h =>
                     `<div class="ah-heal-card">` +
-                    `<span class="ah-heal-root">${h.root}</span>` +
-                    `<span class="ah-heal-domain">${h.domain}</span>` +
-                    `<span class="ah-heal-desc">${h.description}</span>` +
+                    `<span class="ah-heal-root">${escapeHtml(h.root)}</span>` +
+                    `<span class="ah-heal-domain">${escapeHtml(h.domain)}</span>` +
+                    `<span class="ah-heal-desc">${escapeHtml(h.description)}</span>` +
                     `</div>`
                 ).join("");
         } else {
@@ -3713,12 +3722,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 data.alerts.map(a =>
                     `<div class="ah-alert-card">` +
                     `<div class="ah-alert-header">` +
-                    `<span class="ah-alert-severity sev-${a.severity}">${a.severity}</span>` +
-                    `<span class="ah-alert-root">${a.root_code}</span>` +
+                    `<span class="ah-alert-severity sev-${escapeHtml(a.severity)}">${escapeHtml(a.severity)}</span>` +
+                    `<span class="ah-alert-root">${escapeHtml(a.root_code)}</span>` +
                     `</div>` +
-                    `<div class="ah-alert-msg">${a.message}</div>` +
-                    (a.ritual_name ? `<div class="ah-alert-ritual">Required Ritual: <strong>${a.ritual_name}</strong></div>` : '') +
-                    `<div class="ah-alert-fix">Fix: <code>${a.fix_command}</code></div>` +
+                    `<div class="ah-alert-msg">${escapeHtml(a.message)}</div>` +
+                    (a.ritual_name ? `<div class="ah-alert-ritual">Required Ritual: <strong>${escapeHtml(a.ritual_name)}</strong></div>` : '') +
+                    `<div class="ah-alert-fix">Fix: <code>${escapeHtml(a.fix_command)}</code></div>` +
                     `</div>`
                 ).join("");
         } else {
