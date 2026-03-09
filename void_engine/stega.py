@@ -1,3 +1,4 @@
+import math
 import wave
 import struct
 import hashlib
@@ -473,7 +474,7 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     samples = apply_dither_mask(samples, seed=dither_seed)
 
     header_bits = np.unpackbits(np.frombuffer(header, dtype=np.uint8))
-    header_samples = HEADER_SIZE * 8 // bits_per_sample
+    header_samples = math.ceil(HEADER_SIZE * 8 / bits_per_sample)
     if lsb_depth == 2:
         pad_len = (2 - (len(header_bits) % 2)) % 2
         if pad_len:
@@ -780,7 +781,7 @@ def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: 
     pn_chip_len = max(1, pn_chip_len)
 
     header_bits = np.unpackbits(np.frombuffer(header, dtype=np.uint8))
-    header_samples = HEADER_SIZE * 8 // bits_per_sample
+    header_samples = math.ceil(HEADER_SIZE * 8 / bits_per_sample)
     if lsb_depth == 2:
         pad_len = (2 - (len(header_bits) % 2)) % 2
         if pad_len:
@@ -880,7 +881,7 @@ def decode_stereo(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple
     bits_per_sample = lsb_depth
 
     ghost_offset = _compute_ghost_offset(passphrase, total_samples)
-    header_samples = HEADER_SIZE * 8 // bits_per_sample
+    header_samples = math.ceil(HEADER_SIZE * 8 / bits_per_sample)
 
     header_raw_bits = _extract_bits_at(right, ghost_offset, header_samples, lsb_depth)
     header_bits = header_raw_bits[:HEADER_SIZE * 8]
@@ -966,7 +967,7 @@ def decode(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple[bytes,
     bits_per_sample = lsb_depth
 
     ghost_offset = _compute_ghost_offset(passphrase, total_samples)
-    header_samples = HEADER_SIZE * 8 // bits_per_sample
+    header_samples = math.ceil(HEADER_SIZE * 8 / bits_per_sample)
 
     header_raw_bits = _extract_bits_at(samples, ghost_offset, header_samples, lsb_depth)
     header_bits = header_raw_bits[:HEADER_SIZE * 8]

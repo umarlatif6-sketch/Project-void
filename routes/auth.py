@@ -1,5 +1,6 @@
 import os
 import time
+import logging
 import functools
 from collections import defaultdict
 from flask import Blueprint, request, jsonify, session, redirect, render_template, url_for
@@ -156,6 +157,7 @@ def _ensure_columns():
 
         _init_vortex_genesis(conn)
     except Exception:
+        logging.exception("Schema migration failed in _ensure_columns")
         conn.rollback()
     finally:
         conn.close()

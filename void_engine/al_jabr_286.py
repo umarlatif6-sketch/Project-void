@@ -160,14 +160,18 @@ def verify_286_signature(data: bytes, signature: bytes) -> bool:
     """
     Verify that a 286-bit signature matches the given data.
     """
+    if len(signature) == 0 or len(signature) != TOTAL_BYTES:
+        return False
     expected = fatiha_286_hash(data)
-    return expected[:len(signature)] == signature[:len(expected)]
+    return expected == signature
 
 
 def verify_286_hex_signature(data: bytes, hex_signature: str) -> bool:
     """
     Verify that a truncated hex signature matches.
     """
+    if len(hex_signature) == 0:
+        return False
     expected = fatiha_286_hexdigest(data)
     return expected[:len(hex_signature)] == hex_signature
 

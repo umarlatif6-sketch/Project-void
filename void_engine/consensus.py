@@ -13,9 +13,12 @@ Night Cycle Daemon: Automated mode that runs consensus on interval,
 giving the 4000-series self-management capability.
 """
 
+import logging
 import time
 import threading
 from typing import Dict, List, Optional
+
+logger = logging.getLogger(__name__)
 from dataclasses import dataclass, field
 
 
@@ -187,7 +190,7 @@ class ConsensusEngine:
         if self._wallet:
             wallet_snapshot = self._wallet.get_status()
 
-        outcome_text = "SLM Achieved" if all(r.get("executed", False) for r in execution_results) else "Partial Consensus"
+        outcome_text = "SLM Achieved" if execution_results and all(r.get("executed", False) for r in execution_results) else "Partial Consensus"
         if adopted_proven_root:
             outcome_text = "Proven Root — " + outcome_text
 
@@ -654,7 +657,7 @@ class ConsensusEngine:
             try:
                 self.run_consensus()
             except Exception:
-                pass
+                logger.exception("Night cycle consensus run failed")
             self._night_cycle_stop.wait(self._night_cycle_interval)
         self._night_cycle_active = False
 

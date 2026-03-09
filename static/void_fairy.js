@@ -219,7 +219,7 @@
         }).then(function(data) {
             document.getElementById('fairy-typing').classList.remove('active');
 
-            if (data.status === 'Linked' && window.triggerResonanceHandshake) {
+            if (data.status === 'Linked' && typeof window.triggerResonanceHandshake === 'function') {
                 window.triggerResonanceHandshake(data);
             }
 

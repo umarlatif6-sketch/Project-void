@@ -254,10 +254,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const style = document.getElementById("gen-style").value;
         const panel = document.getElementById("gen-estimate");
         try {
-            const res = await fetch(`/api/carrier-estimate?duration=${dur}&style=${style}`);
+            const res = await fetch(`/api/carrier-estimate?duration=${encodeURIComponent(dur)}&style=${encodeURIComponent(style)}`);
             const d = await res.json();
             if (!d.success) return;
             panel.style.display = "block";
+            var existingErr = document.getElementById("est-error");
+            if (existingErr) existingErr.style.display = "none";
             document.getElementById("est-wav-size").textContent = formatSize(d.wav_size);
             document.getElementById("est-lsb1").textContent = formatSize(d.raw_lsb1);
             document.getElementById("est-lsb2").textContent = formatSize(d.raw_lsb2);
@@ -280,7 +282,18 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 shelfEl.style.display = "none";
             }
-        } catch(e) { /* silent */ }
+        } catch(e) {
+            var errMsg = document.getElementById("est-error");
+            if (!errMsg) {
+                errMsg = document.createElement("div");
+                errMsg.id = "est-error";
+                errMsg.style.color = "var(--error, #ff6b6b)";
+                errMsg.style.marginTop = "0.5rem";
+                panel.appendChild(errMsg);
+            }
+            errMsg.textContent = "Failed to load carrier estimate.";
+            errMsg.style.display = "block";
+        }
     }
 
     const genBtn = document.getElementById("gen-carrier-btn");

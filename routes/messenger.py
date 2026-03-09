@@ -36,7 +36,7 @@ def _messenger_auth():
 
 
 def _require_login():
-    user_id = session.get("messenger_user_id") or session.get("user_id")
+    user_id = session.get("user_id")
     if not user_id:
         return None
     return user_id
@@ -148,7 +148,6 @@ def messenger_create_conversation():
     if not other_username:
         return jsonify({"error": "Username is required"}), 400
 
-    from void_engine.messenger_auth import _get_db
     conn = _get_db()
     try:
         cur = conn.cursor()

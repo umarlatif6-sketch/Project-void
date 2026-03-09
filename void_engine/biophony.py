@@ -4,16 +4,23 @@ import os
 
 def hilbert(x):
     N = len(x)
+    if N == 0:
+        return np.array([], dtype=complex)
+    padded = N % 2 == 1
+    if padded:
+        x = np.append(x, 0.0)
+        M = N + 1
+    else:
+        M = N
     X = np.fft.fft(x)
-    h = np.zeros(N)
-    if N > 0:
-        h[0] = 1
-        if N % 2 == 0:
-            h[N // 2] = 1
-            h[1:N // 2] = 2
-        else:
-            h[1:(N + 1) // 2] = 2
-    return np.fft.ifft(X * h)
+    h = np.zeros(M)
+    h[0] = 1
+    h[M // 2] = 1
+    h[1:M // 2] = 2
+    result = np.fft.ifft(X * h)
+    if padded:
+        result = result[:N]
+    return result
 
 VILLAGE_STANDARD_HZ = 432
 SAMPLE_RATE = 44100
@@ -68,7 +75,7 @@ class BiophonyMesh:
                 jitter_s = rng.uniform(-0.3, 0.3)
                 tap_time = tap_j * tap_interval + (bird_i * tap_interval / n_birds) + jitter_s
                 tap_start = int(tap_time * self.sr)
-                if tap_start < 0 or tap_start + tap_len >= n:
+                if tap_start < 0 or tap_start + tap_len > n:
                     continue
 
                 t_tap = np.arange(tap_len) / self.sr

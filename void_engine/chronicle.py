@@ -184,7 +184,7 @@ class RootChronicle:
     def __init__(self, db_path: str = None, machine_id: str = "VOID-4000-UNKNOWN"):
         self._db_path = db_path or CHRONICLE_DB_PATH
         self._machine_id = machine_id
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._init_db()
 
     def _init_db(self):
@@ -288,7 +288,7 @@ class RootChronicle:
         )
 
     def _record_episodic(self, snapshot: Dict):
-        with self._get_conn() as conn:
+        with self._lock, self._get_conn() as conn:
             last_rows = conn.execute("""
                 SELECT domain, sensor_key, value FROM episodic_memory
                 ORDER BY timestamp DESC LIMIT 20
@@ -373,13 +373,13 @@ class RootChronicle:
                 if not isinstance(curr_val, (int, float)) or not isinstance(stored_val, (int, float)):
                     continue
 
-                if stored_val == 0:
-                    if curr_val == 0:
-                        matched_keys += 1
-                        matched_domains.add(section)
+                max_abs = max(abs(curr_val), abs(stored_val))
+                if max_abs < 1e-9:
+                    matched_keys += 1
+                    matched_domains.add(section)
                     continue
 
-                ratio = abs(curr_val - stored_val) / max(abs(stored_val), 1.0)
+                ratio = abs(curr_val - stored_val) / max(max_abs, 1e-9)
                 if ratio < 0.20:
                     matched_keys += 1
                     matched_domains.add(section)
