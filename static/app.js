@@ -3784,17 +3784,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 timeline.innerHTML = '<div class="chronicle-empty">No entries yet. Run Consensus to build the Chronicle.</div>';
                 return;
             }
-            timeline.innerHTML = data.entries.map(e => {
+            timeline.innerHTML = "";
+            data.entries.forEach(e => {
                 const t = new Date(e.timestamp * 1000);
                 const time = t.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
                 const cls = e.success ? "success" : "partial";
-                return '<div class="chronicle-entry ' + cls + '">' +
-                    '<span class="ce-time">' + time + '</span>' +
-                    '<span class="ce-cmd" title="' + (e.consensus_intent || "") + '">' + e.consensus_command + '</span>' +
-                    '<span class="ce-energy">' + e.energy_pct + '%</span>' +
-                    '<span class="ce-outcome">' + e.outcome + '</span>' +
-                    '</div>';
-            }).join("");
+                const div = document.createElement("div");
+                div.className = "chronicle-entry " + cls;
+                const timeSpan = document.createElement("span");
+                timeSpan.className = "ce-time";
+                timeSpan.textContent = time;
+                const cmdSpan = document.createElement("span");
+                cmdSpan.className = "ce-cmd";
+                cmdSpan.title = e.consensus_intent || "";
+                cmdSpan.textContent = e.consensus_command;
+                const energySpan = document.createElement("span");
+                energySpan.className = "ce-energy";
+                energySpan.textContent = e.energy_pct + "%";
+                const outcomeSpan = document.createElement("span");
+                outcomeSpan.className = "ce-outcome";
+                outcomeSpan.textContent = e.outcome;
+                div.appendChild(timeSpan);
+                div.appendChild(cmdSpan);
+                div.appendChild(energySpan);
+                div.appendChild(outcomeSpan);
+                timeline.appendChild(div);
+            });
         }).catch(() => {});
     }
 
