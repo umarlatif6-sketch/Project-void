@@ -2309,13 +2309,19 @@ document.addEventListener("DOMContentLoaded", () => {
         resultEl.style.display = "block";
 
         const comp = result.compression || {};
+        const compRatio = Number(comp.ratio) || 0;
+        const compAcChars = Number(comp.adriana_chars) || 0;
+        const compPyChars = Number(comp.python_chars) || 0;
+        const compAcGlyphs = Number(comp.adriana_glyphs) || 0;
+        const compPyTokens = Number(comp.python_tokens) || 0;
+        const compDensity = Number(comp.density) || 0;
         document.getElementById("adriana-compression").innerHTML =
-            `<div class="ratio-value">${comp.ratio || 0}x</div>` +
+            `<div class="ratio-value">${compRatio}x</div>` +
             `<div class="ratio-label">COMPRESSION RATIO</div>` +
             `<div style="margin-top:6px; font-size:10px; color:#888;">` +
-            `${comp.adriana_chars || 0} chars → ${comp.python_chars || 0} chars<br>` +
-            `${comp.adriana_glyphs || 0} glyphs → ${comp.python_tokens || 0} tokens<br>` +
-            `Density: ${comp.density || 0}%</div>`;
+            `${compAcChars} chars → ${compPyChars} chars<br>` +
+            `${compAcGlyphs} glyphs → ${compPyTokens} tokens<br>` +
+            `Density: ${compDensity}%</div>`;
 
         const cmdsEl = document.getElementById("adriana-commands");
         cmdsEl.innerHTML = (result.commands || []).map(c =>
