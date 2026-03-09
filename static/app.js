@@ -3153,6 +3153,14 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.textContent = "Execute Protocol";
     });
 
+    function escHtml(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
     function renderChaosReport(report) {
         const wrap = document.getElementById("chaos-test-result");
         if (!wrap) return;
@@ -3164,11 +3172,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const statsEl = document.getElementById("chaos-stats");
         statsEl.innerHTML = [
-            { label: "Test ID", value: report.test_id },
+            { label: "Test ID", value: escHtml(report.test_id) },
             { label: "Steps", value: report.completed_steps + "/" + report.total_steps },
             { label: "Max Pressure", value: report.max_pressure_reached + " atm" },
             { label: "Min Seal", value: report.min_seal_integrity + "%" },
-            { label: "AC Activated Step", value: report.air_curtain_activated_at_step || "N/A" },
+            { label: "AC Activated Step", value: escHtml(report.air_curtain_activated_at_step || "N/A") },
             { label: "Duration", value: (report.duration_seconds || 0) + "s" },
         ].map(s => `<div class="chaos-stat"><span class="stat-label">${s.label}</span><br><span class="stat-value">${s.value}</span></div>`).join("");
 
@@ -3183,8 +3191,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 `<span class="${pClass}">${s.internal_pressure_atm.toFixed(3)}</span>` +
                 `<span class="${sealClass}">${s.seal_integrity_pct.toFixed(1)}%</span>` +
                 `<span>${s.air_curtain_active ? s.air_curtain_velocity_ms.toFixed(0) + "m/s" : "OFF"}</span>` +
-                `<span>${s.checklist_verdict}</span>` +
-                `<span style="font-size:10px;">${s.auto_response}</span>` +
+                `<span>${escHtml(s.checklist_verdict)}</span>` +
+                `<span style="font-size:10px;">${escHtml(s.auto_response)}</span>` +
                 `</div>`;
         }
         stepsEl.innerHTML = html;
