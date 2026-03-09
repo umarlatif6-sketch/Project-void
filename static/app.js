@@ -3283,13 +3283,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const statsEl = document.getElementById("chaos-stats");
         statsEl.innerHTML = [
-            { label: "Test ID", value: escHtml(report.test_id) },
+            { label: "Test ID", value: report.test_id },
             { label: "Steps", value: report.completed_steps + "/" + report.total_steps },
             { label: "Max Pressure", value: report.max_pressure_reached + " atm" },
             { label: "Min Seal", value: report.min_seal_integrity + "%" },
-            { label: "AC Activated Step", value: escHtml(report.air_curtain_activated_at_step || "N/A") },
+            { label: "AC Activated Step", value: report.air_curtain_activated_at_step || "N/A" },
             { label: "Duration", value: (report.duration_seconds || 0) + "s" },
-        ].map(s => `<div class="chaos-stat"><span class="stat-label">${s.label}</span><br><span class="stat-value">${s.value}</span></div>`).join("");
+        ].map(s => `<div class="chaos-stat"><span class="stat-label">${s.label}</span><br><span class="stat-value">${escHtml(String(s.value))}</span></div>`).join("");
 
         const stepsEl = document.getElementById("chaos-steps-log");
         let html = '<div class="chaos-step-row header"><span>#</span><span>Boil</span><span>Press</span><span>Seal</span><span>AC</span><span>Chk</span><span>Response</span></div>';
