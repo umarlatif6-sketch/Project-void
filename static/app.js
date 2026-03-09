@@ -499,7 +499,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function showInlineError(elementId, message) {
         const el = document.getElementById(elementId);
-        el.innerHTML = '<div class="error-title">Error</div>' + escHtml(message);
+        el.innerHTML = '';
+        const title = document.createElement('div');
+        title.className = 'error-title';
+        title.textContent = 'Error';
+        el.appendChild(title);
+        el.appendChild(document.createTextNode(message));
         el.style.display = "block";
     }
 
