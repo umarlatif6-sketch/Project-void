@@ -3032,7 +3032,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const ready = data.ready;
             el.className = "divided-readiness " + (ready ? "ready" : "not-ready");
             const checks = data.checks || {};
-            el.innerHTML = ready
+            el.textContent = ready
                 ? `System Ready — ${checks.system_status || "NOMINAL"} | RPM: ${checks.flywheel_rpm || 0} | Chronicle: ${checks.chronicle_available ? "ON" : "OFF"} | Wallet: ${checks.wallet_available ? "ON" : "OFF"}`
                 : `System Not Ready — ${checks.critical_issues || 0} critical issue(s) detected. Run SLM.V scan first.`;
 
