@@ -2924,8 +2924,15 @@ document.addEventListener("DOMContentLoaded", () => {
         wrap.style.display = "block";
 
         const outcomeEl = document.getElementById("consensus-outcome");
-        outcomeEl.innerHTML = `<span class="consensus-verdict ${data.success ? 'pass' : 'fail'}">${escapeHtml(data.outcome)}</span>` +
-            `<span class="consensus-cmd">${escapeHtml(data.consensus_command)}</span>`;
+        outcomeEl.innerHTML = '';
+        const verdictSpan = document.createElement('span');
+        verdictSpan.className = `consensus-verdict ${data.success ? 'pass' : 'fail'}`;
+        verdictSpan.textContent = data.outcome ?? '';
+        outcomeEl.appendChild(verdictSpan);
+        const cmdSpan = document.createElement('span');
+        cmdSpan.className = 'consensus-cmd';
+        cmdSpan.textContent = data.consensus_command ?? '';
+        outcomeEl.appendChild(cmdSpan);
 
         const statsEl = document.getElementById("consensus-stats");
         statsEl.innerHTML = [
