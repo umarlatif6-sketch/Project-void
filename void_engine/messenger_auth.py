@@ -309,13 +309,12 @@ def get_messages(conversation_id, user_id, before_id=None, limit=50):
         if not cur.fetchone():
             return None
 
-        _fields = """m.id, m.sender_id, m.content_encrypted, m.content_nonce, m.created_at, m.message_type,
-                     u.username, u.display_name,
-                     m.attachment_filename, m.attachment_size, m.attachment_type,
-                     m.silt_carrier_style, m.vtx_earned"""
         if before_id:
             cur.execute(
-                "SELECT " + _fields + """
+                """SELECT m.id, m.sender_id, m.content_encrypted, m.content_nonce, m.created_at, m.message_type,
+                          u.username, u.display_name,
+                          m.attachment_filename, m.attachment_size, m.attachment_type,
+                          m.silt_carrier_style, m.vtx_earned
                    FROM messages m JOIN users u ON u.id = m.sender_id
                    WHERE m.conversation_id = %s AND m.id < %s
                    ORDER BY m.created_at DESC LIMIT %s""",
@@ -323,7 +322,10 @@ def get_messages(conversation_id, user_id, before_id=None, limit=50):
             )
         else:
             cur.execute(
-                "SELECT " + _fields + """
+                """SELECT m.id, m.sender_id, m.content_encrypted, m.content_nonce, m.created_at, m.message_type,
+                          u.username, u.display_name,
+                          m.attachment_filename, m.attachment_size, m.attachment_type,
+                          m.silt_carrier_style, m.vtx_earned
                    FROM messages m JOIN users u ON u.id = m.sender_id
                    WHERE m.conversation_id = %s
                    ORDER BY m.created_at DESC LIMIT %s""",
