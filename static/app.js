@@ -2748,7 +2748,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.wallet) {
             const walletLine = document.createElement("div");
             walletLine.style.cssText = "margin-top:8px;padding:6px 10px;background:rgba(234,179,8,0.06);border:1px solid rgba(234,179,8,0.2);border-radius:4px;font-size:11px;font-family:monospace;color:#eab308;";
-            walletLine.innerHTML = `WALLET: ${data.wallet.balance.toFixed(2)} CC | Earned: ${data.wallet.total_earned.toFixed(2)} | Spent: ${data.wallet.total_spent.toFixed(2)}${data.wallet.frozen ? ' | <span style="color:#f87171;">FROZEN</span>' : ''}`;
+            walletLine.textContent = `WALLET: ${data.wallet.balance.toFixed(2)} CC | Earned: ${data.wallet.total_earned.toFixed(2)} | Spent: ${data.wallet.total_spent.toFixed(2)}`;
+            if (data.wallet.frozen) {
+                const frozenSpan = document.createElement("span");
+                frozenSpan.style.color = "#f87171";
+                frozenSpan.textContent = " | FROZEN";
+                walletLine.appendChild(frozenSpan);
+            }
             execEl.appendChild(walletLine);
         }
     }
