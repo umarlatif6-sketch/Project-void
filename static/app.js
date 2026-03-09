@@ -2617,30 +2617,65 @@ document.addEventListener("DOMContentLoaded", () => {
         pyEl.appendChild(_pyPre);
 
         const drEl = document.getElementById("aljabr-dry-runs");
+        drEl.replaceChildren();
         if (dryRuns) {
-            drEl.innerHTML = "<div style='color:#888;font-size:10px;margin-bottom:4px;'>SAFETY DRY-RUN</div>" +
-                dryRuns.map(dr => {
-                    const ok = dr.boundary_allowed && dr.checklist_verdict === "PASS";
-                    return `<div class="aljabr-dry-run">` +
-                        `<span class="dr-verdict ${ok ? 'dr-pass' : 'dr-fail'}">${ok ? 'SAFE' : 'BLOCKED'}</span>` +
-                        `<span class="dr-root">${escHtml(dr.root)}.${escHtml(dr.pattern)}</span>` +
-                        `<span>${escHtml(dr.action.type)}</span>` +
-                        `<span style="color:#666;">${escHtml(dr.checklist_verdict)}</span>` +
-                        `</div>`;
-                }).join("");
+            const drLabel = document.createElement("div");
+            drLabel.style.cssText = "color:#888;font-size:10px;margin-bottom:4px;";
+            drLabel.textContent = "SAFETY DRY-RUN";
+            drEl.appendChild(drLabel);
+            dryRuns.forEach(dr => {
+                const ok = dr.boundary_allowed && dr.checklist_verdict === "PASS";
+                const row = document.createElement("div");
+                row.className = "aljabr-dry-run";
+                const verdict = document.createElement("span");
+                verdict.className = "dr-verdict " + (ok ? "dr-pass" : "dr-fail");
+                verdict.textContent = ok ? "SAFE" : "BLOCKED";
+                const root = document.createElement("span");
+                root.className = "dr-root";
+                root.textContent = dr.root + "." + dr.pattern;
+                const type = document.createElement("span");
+                type.textContent = dr.action.type;
+                const check = document.createElement("span");
+                check.style.color = "#666";
+                check.textContent = dr.checklist_verdict;
+                row.appendChild(verdict);
+                row.appendChild(root);
+                row.appendChild(type);
+                row.appendChild(check);
+                drEl.appendChild(row);
+            });
         } else if (execResults) {
-            drEl.innerHTML = "<div style='color:#888;font-size:10px;margin-bottom:4px;'>EXECUTION RESULTS</div>" +
-                execResults.map(er => {
-                    return `<div class="aljabr-dry-run">` +
-                        `<span class="dr-verdict ${er.executed ? 'dr-pass' : 'dr-fail'}">${er.executed ? 'DONE' : 'BLOCKED'}</span>` +
-                        `<span class="dr-root">${escHtml(er.root)}.${escHtml(er.pattern)}</span>` +
-                        `<span>${escHtml(er.action.type)}</span>` +
-                        `<span style="color:#888;font-size:10px;">${escHtml(er.narrative)}</span>` +
-                        (er.blocked_by ? `<span style="color:#f87171;font-size:10px;">[${escHtml(er.blocked_by)}]</span>` : '') +
-                        `</div>`;
-                }).join("");
+            const erLabel = document.createElement("div");
+            erLabel.style.cssText = "color:#888;font-size:10px;margin-bottom:4px;";
+            erLabel.textContent = "EXECUTION RESULTS";
+            drEl.appendChild(erLabel);
+            execResults.forEach(er => {
+                const row = document.createElement("div");
+                row.className = "aljabr-dry-run";
+                const verdict = document.createElement("span");
+                verdict.className = "dr-verdict " + (er.executed ? "dr-pass" : "dr-fail");
+                verdict.textContent = er.executed ? "DONE" : "BLOCKED";
+                const root = document.createElement("span");
+                root.className = "dr-root";
+                root.textContent = er.root + "." + er.pattern;
+                const type = document.createElement("span");
+                type.textContent = er.action.type;
+                const narrative = document.createElement("span");
+                narrative.style.cssText = "color:#888;font-size:10px;";
+                narrative.textContent = er.narrative;
+                row.appendChild(verdict);
+                row.appendChild(root);
+                row.appendChild(type);
+                row.appendChild(narrative);
+                if (er.blocked_by) {
+                    const blocked = document.createElement("span");
+                    blocked.style.cssText = "color:#f87171;font-size:10px;";
+                    blocked.textContent = "[" + er.blocked_by + "]";
+                    row.appendChild(blocked);
+                }
+                drEl.appendChild(row);
+            });
         } else {
-            drEl.innerHTML = "";
         }
     }
 
