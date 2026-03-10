@@ -236,7 +236,6 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
     jitter_map = _generate_jitter_map(passphrase, data_samples, data_start, carrier_samples)
 
     print(f"    Data Samples:     {data_samples:,}")
-    print(f"    Fragment Count:   {len(jitter_map)} Plankton packets")
     print()
 
     plankton_lines = []
