@@ -546,7 +546,6 @@ def encode(carrier_path: str, payload: bytes, file_name: str, extension: str,
     print(f"         Capacity:   {capacity // 8:,} bytes")
     print(f"         Used:       {full_payload_size:,} bytes ({usage_pct:.1f}%)")
     print(f"         Checksum:   {checksum}")
-    print(f"         Ghost Offset: {ghost_offset:,} samples")
     print(f"         Dither Mask: Applied (seed {dither_seed}){scatter_info}")
 
     return passphrase
