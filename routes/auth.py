@@ -141,6 +141,13 @@ def _ensure_columns():
             )
         """)
 
+        cur.execute("LOCK TABLE vortex_ledger IN EXCLUSIVE MODE")
+        cur.execute("""
+            DELETE FROM vortex_ledger
+            WHERE id NOT IN (
+                SELECT MIN(id) FROM vortex_ledger GROUP BY block_index
+            )
+        """)
         cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_block_index ON vortex_ledger(block_index)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_ledger_from ON vortex_ledger(from_user_id)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_ledger_to ON vortex_ledger(to_user_id)")
@@ -166,8 +173,10 @@ def _ensure_columns():
 def _init_vortex_genesis(conn):
     try:
         cur = conn.cursor()
+        cur.execute("LOCK TABLE vortex_ledger IN EXCLUSIVE MODE")
         cur.execute("SELECT 1 FROM vortex_ledger WHERE block_index = 0")
         if cur.fetchone():
+            conn.commit()
             return
         from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str, fatiha_286_truncated
         cur.execute("SELECT id FROM users ORDER BY id LIMIT 1")
