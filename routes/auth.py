@@ -141,6 +141,49 @@ def _ensure_columns():
             )
         """)
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS blueprint_tokens (
+                id SERIAL PRIMARY KEY,
+                token_hash VARCHAR(72) NOT NULL UNIQUE,
+                tier VARCHAR(20) NOT NULL,
+                title VARCHAR(200) NOT NULL,
+                description TEXT,
+                edition_number INTEGER NOT NULL,
+                total_editions INTEGER NOT NULL,
+                price_gbp INTEGER NOT NULL,
+                price_vtx DECIMAL(18,4) NOT NULL,
+                image_path VARCHAR(500),
+                metadata_json TEXT,
+                minted_at TIMESTAMP DEFAULT NOW(),
+                minted_by INTEGER REFERENCES users(id),
+                status VARCHAR(20) DEFAULT 'available'
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS token_ownership (
+                id SERIAL PRIMARY KEY,
+                token_id INTEGER REFERENCES blueprint_tokens(id) NOT NULL,
+                owner_id INTEGER REFERENCES users(id) NOT NULL,
+                purchased_at TIMESTAMP DEFAULT NOW(),
+                purchase_type VARCHAR(20) NOT NULL,
+                stripe_session_id VARCHAR(200),
+                vtx_ledger_block_id INTEGER,
+                transfer_from_id INTEGER REFERENCES users(id)
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS manufacturing_fund (
+                id SERIAL PRIMARY KEY,
+                token_id INTEGER REFERENCES blueprint_tokens(id) NOT NULL,
+                amount_gbp INTEGER NOT NULL,
+                purpose VARCHAR(40) NOT NULL,
+                allocated_at TIMESTAMP DEFAULT NOW(),
+                status VARCHAR(20) DEFAULT 'pledged'
+            )
+        """)
+
         cur.execute("LOCK TABLE vortex_ledger IN EXCLUSIVE MODE")
         cur.execute("""
             DELETE FROM vortex_ledger
@@ -159,6 +202,24 @@ def _ensure_columns():
         cur.execute("CREATE INDEX IF NOT EXISTS idx_vigilance_reporter ON vigilance_reports(reporter_id)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_gifts_sender ON vortex_gifts(sender_id)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_gifts_recipient ON vortex_gifts(recipient_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_blueprint_tokens_tier ON blueprint_tokens(tier)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_blueprint_tokens_status ON blueprint_tokens(status)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_token_ownership_owner ON token_ownership(owner_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_token_ownership_token ON token_ownership(token_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_mfg_fund_token ON manufacturing_fund(token_id)")
+        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_ownership_stripe_session ON token_ownership(stripe_session_id) WHERE stripe_session_id IS NOT NULL")
+
+        for chk_name, chk_sql in [
+            ("chk_bt_tier", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_tier CHECK (tier IN ('common','rare','legendary'))"),
+            ("chk_bt_status", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_status CHECK (status IN ('available','reserved','sold'))"),
+            ("chk_to_type", "ALTER TABLE token_ownership ADD CONSTRAINT chk_to_type CHECK (purchase_type IN ('vtx','stripe'))"),
+            ("chk_mf_purpose", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_purpose CHECK (purpose IN ('capex','materials','assembly'))"),
+            ("chk_mf_status", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_status CHECK (status IN ('pledged','spent'))"),
+        ]:
+            try:
+                cur.execute(chk_sql)
+            except Exception:
+                pass
 
         conn.commit()
 

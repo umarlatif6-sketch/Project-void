@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Blueprint Token Marketplace</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .mp-body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+        .mp-hero {
+            text-align: center;
+            padding: 100px 20px 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .mp-hero-badge {
+            display: inline-block;
+            background: rgba(201, 168, 76, 0.15);
+            color: #c9a84c;
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+        .mp-hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0 0 12px;
+            color: #fff;
+        }
+        .mp-hero-title .mp-gold { color: #c9a84c; }
+        .mp-hero-sub {
+            font-size: 1.1rem;
+            color: #999;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        .mp-fund-tracker {
+            max-width: 700px;
+            margin: 0 auto 50px;
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 28px 32px;
+        }
+        .mp-fund-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 16px;
+        }
+        .mp-fund-label {
+            font-size: 0.8rem;
+            color: #888;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .mp-fund-amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #c9a84c;
+        }
+        .mp-fund-goal {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .mp-fund-bar-wrap {
+            background: #1a1a2a;
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .mp-fund-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #c9a84c, #e0c068);
+            border-radius: 6px;
+            transition: width 0.8s ease;
+            min-width: 2px;
+        }
+        .mp-fund-breakdown {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .mp-fund-item {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        .mp-fund-item span {
+            color: #bbb;
+            font-weight: 600;
+        }
+
+        .mp-section-title {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #fff;
+            margin: 50px 0 12px;
+        }
+        .mp-section-sub {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .mp-tier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+        .mp-card {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+        .mp-card:hover {
+            transform: translateY(-2px);
+        }
+        .mp-card.tier-common {
+            border-color: rgba(124, 92, 255, 0.3);
+        }
+        .mp-card.tier-common:hover {
+            border-color: rgba(124, 92, 255, 0.6);
+        }
+        .mp-card.tier-rare {
+            border-color: rgba(0, 191, 165, 0.3);
+        }
+        .mp-card.tier-rare:hover {
+            border-color: rgba(0, 191, 165, 0.6);
+        }
+        .mp-card.tier-legendary {
+            border-color: rgba(201, 168, 76, 0.3);
+        }
+        .mp-card.tier-legendary:hover {
+            border-color: rgba(201, 168, 76, 0.6);
+        }
+        .mp-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .mp-tier-badge {
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .mp-tier-badge.common {
+            background: rgba(124, 92, 255, 0.15);
+            color: #7c5cff;
+        }
+        .mp-tier-badge.rare {
+            background: rgba(0, 191, 165, 0.15);
+            color: #00bfa5;
+        }
+        .mp-tier-badge.legendary {
+            background: rgba(201, 168, 76, 0.15);
+            color: #c9a84c;
+        }
+        .mp-edition {
+            font-size: 0.7rem;
+            color: #555;
+        }
+        .mp-card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .mp-card-desc {
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            flex-grow: 1;
+        }
+        .mp-card-price {
+            margin-bottom: 16px;
+        }
+        .mp-price-fiat {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .mp-price-vtx {
+            font-size: 0.8rem;
+            color: #888;
+            margin-left: 8px;
+        }
+        .mp-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .mp-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: inherit;
+            letter-spacing: 0.5px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s, opacity 0.2s;
+            text-align: center;
+        }
+        .mp-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .mp-btn-vtx {
+            background: rgba(124, 92, 255, 0.2);
+            color: #7c5cff;
+            border: 1px solid rgba(124, 92, 255, 0.3);
+        }
+        .mp-btn-vtx:hover:not(:disabled) {
+            background: rgba(124, 92, 255, 0.35);
+        }
+        .mp-btn-stripe {
+            background: rgba(201, 168, 76, 0.2);
+            color: #c9a84c;
+            border: 1px solid rgba(201, 168, 76, 0.3);
+        }
+        .mp-btn-stripe:hover:not(:disabled) {
+            background: rgba(201, 168, 76, 0.35);
+        }
+        .mp-btn-sold {
+            background: rgba(255, 255, 255, 0.05);
+            color: #555;
+            border: 1px solid #222;
+            flex: 1;
+        }
+        .mp-status-sold {
+            color: #555;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mp-collection {
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+        .mp-collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+        .mp-owned-card {
+            background: #12121a;
+            border: 1px solid #2a2a3a;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .mp-owned-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .mp-owned-meta {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .mp-empty {
+            text-align: center;
+            color: #555;
+            font-size: 0.85rem;
+            padding: 30px;
+            background: #12121a;
+            border: 1px dashed #1e1e2e;
+            border-radius: 10px;
+        }
+
+        .mp-hash-display {
+            font-size: 0.65rem;
+            color: #555;
+            font-family: monospace;
+            margin-top: 4px;
+        }
+
+        .mp-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #12121a;
+            border: 1px solid #2a2a3a;
+            border-radius: 8px;
+            padding: 14px 24px;
+            color: #e0e0e0;
+            font-size: 0.85rem;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+        .mp-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .mp-toast.error {
+            border-color: rgba(255, 82, 82, 0.4);
+            color: #ff5252;
+        }
+        .mp-toast.success {
+            border-color: rgba(76, 175, 80, 0.4);
+            color: #4caf50;
+        }
+
+        @media (max-width: 700px) {
+            .mp-hero-title { font-size: 2rem; }
+            .mp-tier-grid { grid-template-columns: 1fr; }
+            .mp-fund-header { flex-direction: column; gap: 8px; }
+        }
+    </style>
+</head>
+<body class="mp-body">
+    <nav class="landing-nav">
+        <div class="landing-nav-brand">
+            <span class="landing-nav-icon">&#9670;</span>
+            <span class="landing-nav-title">PROJECT VOID</span>
+        </div>
+        <div class="landing-nav-links">
+            <a href="/launch" class="landing-nav-link">Home</a>
+            <a href="/" class="landing-nav-link">Engine</a>
+            <a href="/download" class="landing-nav-link">Download</a>
+            <a href="/sovereign" class="landing-nav-link">Hardware</a>
+            <a href="/marketplace" class="landing-nav-link active" style="color:#c9a84c">Marketplace</a>
+            <a href="/messenger" class="landing-nav-link">Messenger</a>
+            <a href="/login" class="landing-nav-link">Login</a>
+        </div>
+    </nav>
+
+    <section class="mp-hero">
+        <div class="mp-hero-badge">SOVEREIGN CRYPTOGRAPHIC DEEDS</div>
+        <h1 class="mp-hero-title">BLUEPRINT <span class="mp-gold">TOKENS</span></h1>
+        <p class="mp-hero-sub">
+            Each token is a <strong style="color:#fff">Manufacturing Slot</strong> for the 4000-Series Sovereign Node.
+            Your purchase funds the physical machine. Every pound is tracked on the Vortex Ledger
+            with Al-Jabr 286-bit hashing. This is not speculation — this is infrastructure.
+        </p>
+    </section>
+
+    <div class="mp-fund-tracker" id="fundTracker">
+        <div class="mp-fund-header">
+            <div>
+                <div class="mp-fund-label">Manufacturing Fund</div>
+                <div class="mp-fund-amount" id="fundRaised">Loading...</div>
+            </div>
+            <div class="mp-fund-goal">Goal: <span id="fundGoal">--</span></div>
+        </div>
+        <div class="mp-fund-bar-wrap">
+            <div class="mp-fund-bar" id="fundBar" style="width: 0%"></div>
+        </div>
+        <div class="mp-fund-breakdown" id="fundBreakdown"></div>
+    </div>
+
+    <h2 class="mp-section-title">Legendary Tier</h2>
+    <p class="mp-section-sub">Full 4000-Series Sovereign Node. Delivered. Calibrated. Sovereign.</p>
+    <div class="mp-tier-grid" id="legendaryGrid"></div>
+
+    <h2 class="mp-section-title">Rare Tier</h2>
+    <p class="mp-section-sub">Fractional machine ownership. Earn yield from the community node.</p>
+    <div class="mp-tier-grid" id="rareGrid"></div>
+
+    <h2 class="mp-section-title">Common Tier</h2>
+    <p class="mp-section-sub">Software suite access. Enter the Vibe-Coding environment.</p>
+    <div class="mp-tier-grid" id="commonGrid"></div>
+
+    {% if user_id %}
+    <h2 class="mp-section-title">Your Collection</h2>
+    <p class="mp-section-sub">Blueprint Tokens you own</p>
+    <div class="mp-collection">
+        {% if collection %}
+        <div class="mp-collection-grid">
+            {% for token in collection %}
+            <div class="mp-owned-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span class="mp-tier-badge {{ token.tier }}">{{ token.tier }}</span>
+                    <span class="mp-edition">{{ token.edition }}</span>
+                </div>
+                <div class="mp-owned-title">{{ token.title }}</div>
+                <div class="mp-owned-meta">Purchased: {{ token.purchased_at[:10] if token.purchased_at else 'N/A' }}</div>
+                <div class="mp-owned-meta">Via: {{ token.purchase_type | upper }}</div>
+                <div class="mp-hash-display">{{ token.token_hash }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="mp-empty">You don't own any Blueprint Tokens yet. Acquire one above to join the manufacturing network.</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="mp-toast" id="mpToast"></div>
+
+    <script>
+        const isLoggedIn = {{ 'true' if user_id else 'false' }};
+
+        function showToast(msg, type) {
+            const t = document.getElementById('mpToast');
+            t.textContent = msg;
+            t.className = 'mp-toast show ' + (type || '');
+            setTimeout(() => { t.className = 'mp-toast'; }, 4000);
+        }
+
+        function renderCard(token) {
+            const sold = token.status !== 'available';
+            const tierClass = 'tier-' + token.tier;
+            let actions = '';
+            if (sold) {
+                actions = '<button class="mp-btn mp-btn-sold" disabled>SOLD</button>';
+            } else if (!isLoggedIn) {
+                actions = '<a href="/login" class="mp-btn mp-btn-stripe" style="text-decoration:none">Login to Buy</a>';
+            } else {
+                actions = `
+                    <button class="mp-btn mp-btn-vtx" onclick="buyVTX(${token.id})">Buy with VTX</button>
+                    <button class="mp-btn mp-btn-stripe" onclick="buyStripe(${token.id})">Buy with Card</button>
+                `;
+            }
+            return `
+                <div class="mp-card ${tierClass}">
+                    <div class="mp-card-header">
+                        <span class="mp-tier-badge ${token.tier}">${token.tier}</span>
+                        <span class="mp-edition">#${token.edition_number} of ${token.total_editions}</span>
+                    </div>
+                    <div class="mp-card-title">${token.title}</div>
+                    <div class="mp-card-desc">${token.description || ''}</div>
+                    <div class="mp-card-price">
+                        <span class="mp-price-fiat">${token.price_display}</span>
+                        <span class="mp-price-vtx">or ${token.price_vtx} VTX</span>
+                    </div>
+                    <div class="mp-card-actions">${actions}</div>
+                    <div class="mp-hash-display">${token.token_hash}</div>
+                </div>
+            `;
+        }
+
+        async function loadListings() {
+            try {
+                const res = await fetch('/api/marketplace/listings');
+                const data = await res.json();
+                if (data.listings) {
+                    const grids = {
+                        legendary: document.getElementById('legendaryGrid'),
+                        rare: document.getElementById('rareGrid'),
+                        common: document.getElementById('commonGrid'),
+                    };
+                    for (const [tier, tokens] of Object.entries(data.listings)) {
+                        if (grids[tier]) {
+                            if (tokens.length === 0) {
+                                grids[tier].innerHTML = '<div class="mp-empty">No tokens in this tier yet.</div>';
+                            } else {
+                                grids[tier].innerHTML = tokens.map(renderCard).join('');
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load listings', e);
+            }
+        }
+
+        async function loadFundStatus() {
+            try {
+                const res = await fetch('/api/marketplace/fund-status');
+                const data = await res.json();
+                document.getElementById('fundRaised').textContent = data.total_raised_display || '\u00a30';
+                document.getElementById('fundGoal').textContent = data.goal_display || '--';
+                document.getElementById('fundBar').style.width = (data.progress_percent || 0) + '%';
+                const bd = document.getElementById('fundBreakdown');
+                if (data.breakdown) {
+                    bd.innerHTML = Object.entries(data.breakdown).map(([k, v]) =>
+                        `<div class="mp-fund-item">${k}: <span>${v.display}</span></div>`
+                    ).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load fund status', e);
+            }
+        }
+
+        async function buyVTX(tokenId) {
+            if (!isLoggedIn) { window.location.href = '/login'; return; }
+            try {
+                const res = await fetch('/api/marketplace/buy/vtx', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token_id: tokenId }),
+                });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    showToast('Token acquired! Welcome to the manufacturing network.', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                }
+            } catch (e) {
+                showToast('Purchase failed. Please try again.', 'error');
+            }
+        }
+
+        async function buyStripe(tokenId) {
+            if (!isLoggedIn) { window.location.href = '/login'; return; }
+            try {
+                const res = await fetch('/api/marketplace/buy/stripe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token_id: tokenId }),
+                });
+                const data = await res.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    showToast(data.error || 'Checkout failed', 'error');
+                }
+            } catch (e) {
+                showToast('Checkout failed. Please try again.', 'error');
+            }
+        }
+
+        loadListings();
+        loadFundStatus();
+    </script>
+</body>
+</html>

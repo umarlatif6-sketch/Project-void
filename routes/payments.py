@@ -166,7 +166,17 @@ def stripe_webhook():
 
     if event_type == "checkout.session.completed":
         meta = data_obj.get("metadata", {})
-        if meta.get("type") == "vtx_purchase":
+        if meta.get("type") == "nft_purchase":
+            nft_token_id = meta.get("token_id")
+            nft_user_id = meta.get("user_id")
+            cs_id = data_obj.get("id", "")
+            if nft_token_id and nft_user_id and data_obj.get("payment_status") == "paid":
+                try:
+                    from void_engine.blueprint_nft import purchase_token_fiat
+                    purchase_token_fiat(int(nft_token_id), int(nft_user_id), cs_id)
+                except Exception as e:
+                    current_app.logger.error(f"NFT fiat purchase on webhook failed: {e}")
+        elif meta.get("type") == "vtx_purchase":
             vtx_user_id = meta.get("user_id")
             pack_name = meta.get("pack")
             cs_id = data_obj.get("id", "")

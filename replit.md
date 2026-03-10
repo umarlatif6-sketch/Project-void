@@ -74,6 +74,38 @@ The project operates as a Brain + Body architecture:
 
 **Download Page:** `/download` serves the node download page. `/download/engine` dynamically ZIPs the `void_node/` directory and serves `void_engine_node.zip`.
 
+## NFT Marketplace (Blueprint Tokens)
+The Vortex Marketplace is a DePIN (Decentralized Physical Infrastructure Network) system where NFTs represent Manufacturing Slots for the 4000-Series Sovereign Node machine. Built on the existing Al-Jabr 286-bit hashing and Vortex Ledger infrastructure.
+
+**Tiers:**
+- **Common (£28 / 50 VTX):** "Vibe-Coder Access" — software suite access (10 editions)
+- **Rare (£660 / 1,000 VTX):** "Fractional Node" — fractional machine ownership with yield (5 editions)
+- **Legendary (£25,000 / 40,000 VTX):** "Sovereign Machine" — full physical machine delivery (2 editions)
+
+**Database Tables:**
+- `blueprint_tokens` — Token registry with 286-bit hash, tier, pricing, edition info, status
+- `token_ownership` — Ownership records with purchase type (VTX or Stripe) and transfer history
+- `manufacturing_fund` — Trustless escrow tracking CapEx/materials/assembly allocation per token
+
+**Key Files:**
+- `void_engine/blueprint_nft.py` — Core engine: minting, purchases (VTX + fiat), listings, fund tracking, seeding
+- `routes/marketplace.py` — Blueprint with marketplace page, listings/collection/fund-status APIs, Stripe checkout
+- `templates/marketplace.html` — Dark-themed marketplace UI with tier cards, fund tracker, buy buttons
+
+**Routes:**
+- `GET /marketplace` — Marketplace page
+- `GET /api/marketplace/listings` — All tokens grouped by tier
+- `GET /api/marketplace/token/<id>` — Token detail with ownership history
+- `GET /api/marketplace/collection` — Logged-in user's owned tokens
+- `POST /api/marketplace/buy/vtx` — Purchase with VTX (debits balance, logs to Vortex Ledger)
+- `POST /api/marketplace/buy/stripe` — Creates Stripe checkout session
+- `GET /api/marketplace/callback` — Stripe success callback, finalizes ownership
+- `GET /api/marketplace/fund-status` — Manufacturing fund transparency data
+
+**Stripe Webhook:** Extended in `routes/payments.py` to handle `type: "nft_purchase"` metadata on checkout completion.
+
+**Seeding:** `seed_initial_collection()` runs on app startup (via `app.py`) to create the genesis drop of 17 tokens if none exist.
+
 ## External Dependencies
 - **Python:** 3.11
 - **numpy:** Audio sample manipulation and FFT operations.

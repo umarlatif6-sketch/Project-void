@@ -20,11 +20,19 @@ app.secret_key = _secret
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
-try:
+def _startup_migrations():
     from routes.auth import _ensure_columns
+    _ensure_columns()
+    try:
+        from void_engine.blueprint_nft import seed_initial_collection
+        seed_initial_collection()
+    except Exception as e:
+        logger.error("Blueprint token seeding failed: %s", e)
+
+try:
     from routes import register_blueprints
     register_blueprints(app)
-    threading.Thread(target=_ensure_columns, daemon=True).start()
+    threading.Thread(target=_startup_migrations, daemon=True).start()
     logger.info("Blueprints registered successfully")
 except Exception as e:
     logger.exception("FATAL: Failed to register blueprints during startup: %s", e)
