@@ -51,8 +51,9 @@ _proof_status = {"running": False, "result": None, "error": None, "started": Non
 
 
 @core_bp.route("/")
-@login_required
 def index():
+    if not session.get("user_id"):
+        return render_template("login.html"), 200
     return render_template("index.html",
                            is_founder=session.get("is_founder", False),
                            is_guardian=session.get("is_guardian", False),
