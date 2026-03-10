@@ -225,7 +225,6 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
     print(f"    Sample Rate:      {sr} Hz")
     print(f"    Carrier Size:     {_format_size(carrier_size)}")
     print(f"    Total Samples:    {carrier_samples:,}")
-    print(f"    Ghost Offset:     {ghost_offset:,} samples")
     print()
 
     print("  PHASE 4: PLANKTON FRAGMENTATION (Fly Jitter)")
