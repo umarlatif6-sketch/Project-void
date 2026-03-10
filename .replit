@@ -50,4 +50,5 @@ FOUNDER_USERNAME = "adriana"
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--timeout=120", "--workers=2", "--reuse-port", "app:app"]
+run = ["gunicorn", "--bind=0.0.0.0:5904", "--timeout=120", "--workers=2", "--reuse-port", "app:app"]
+build = ["pip", "install", "-r", "requirements.txt"]

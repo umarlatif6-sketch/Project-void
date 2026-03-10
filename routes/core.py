@@ -52,15 +52,21 @@ _proof_status = {"running": False, "result": None, "error": None, "started": Non
 
 @core_bp.route("/")
 def index():
-    if not session.get("user_id"):
-        return render_template("login.html"), 200
-    return render_template("index.html",
-                           is_founder=session.get("is_founder", False),
-                           is_guardian=session.get("is_guardian", False),
-                           username=session.get("username", ""),
-                           display_name=session.get("display_name", ""),
-                           user_role=session.get("role", "user"),
-                           user_tier=session.get("tier", "ghost"))
+    import logging
+    _log = logging.getLogger(__name__)
+    try:
+        if not session.get("user_id"):
+            return render_template("login.html"), 200
+        return render_template("index.html",
+                               is_founder=session.get("is_founder", False),
+                               is_guardian=session.get("is_guardian", False),
+                               username=session.get("username", ""),
+                               display_name=session.get("display_name", ""),
+                               user_role=session.get("role", "user"),
+                               user_tier=session.get("tier", "ghost"))
+    except Exception as e:
+        _log.exception("Error rendering index route: %s", e)
+        return "<html><body><h1>THE VOID ENGINE</h1></body></html>", 200
 
 
 @core_bp.route("/launch")
