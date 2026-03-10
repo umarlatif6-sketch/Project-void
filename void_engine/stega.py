@@ -938,7 +938,6 @@ def decode_stereo(stego_path: str, passphrase: str, lsb_depth: int = 1) -> tuple
     print(f"         Channel:    RIGHT (Adriana Pocket)")
     print(f"         File:       {name_ext}")
     print(f"         Data size:  {data_size:,} bytes (compressed)")
-    print(f"         Checksum:   VERIFIED{jitter_info}")
 
     return compressed_data, name_ext, stored_checksum
 
