@@ -183,7 +183,6 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
 
     print(f"    Header Size:      {HEADER_SIZE} bytes (ChaCha20 encrypted)")
     print(f"    Payload Size:     {_format_size(len(compressed))}")
-    print(f"    Total Embedded:   {_format_size(total_payload)}")
     print()
 
     use_existing_carrier = carrier_path_override and os.path.exists(carrier_path_override)
