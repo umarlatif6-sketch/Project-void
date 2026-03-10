@@ -341,7 +341,6 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
     print(f"  Compression:        {winner} won ({_format_time(win_time)}, peak {_format_size(int(win_peak))})")
     print(f"  LZMA CPU Time:      {_format_time(lzma_time)}")
     print(f"  Compressed Size:    {_format_size(len(compressed))}")
-    print(f"  Plankton Fragments: {len(jitter_map)} packets")
     print(f"  Surface Tension:    {surface_tension:.4f} ({surface_tension * 100:.2f}%)")
     print(f"  Resonance Purity:   {purity.get('quality', 'N/A')} ({purity.get('snr_db', 0):.1f} dB)")
     print(f"  Integrity:          {integrity}")
