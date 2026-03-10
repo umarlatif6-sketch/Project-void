@@ -255,7 +255,7 @@ def run_benchmark(media_path: str, output_wav: str = "output_audio/media_test_vo
             plankton_lines.append(f"| {i+1} | {offset:,} | {size:,} | {gap_str} | {depth_pct} |")
 
         print()
-        print(f"    Chunk Stats:      min={min(chunk_sizes):,} / max={max(chunk_sizes):,} / avg={sum(chunk_sizes)//len(chunk_sizes):,}")
+
         print(f"    Gap Stats:        min={min(gaps):,} / max={max(gaps):,} / avg={sum(gaps)//len(gaps):,}")
         print(f"    Scatter Range:    {jitter_map[0][0]:,} → {jitter_map[-1][0] + jitter_map[-1][1]:,} samples")
         print(f"    Coverage:         {((jitter_map[-1][0] + jitter_map[-1][1]) - jitter_map[0][0]):,} samples span")
