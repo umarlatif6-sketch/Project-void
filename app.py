@@ -1,4 +1,5 @@
 import os
+import threading
 from flask import Flask, render_template
 
 app = Flask(__name__)
@@ -10,11 +11,11 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 from routes.auth import _ensure_columns
-
-_ensure_columns()
 from routes import register_blueprints
 
 register_blueprints(app)
+
+threading.Thread(target=_ensure_columns, daemon=True).start()
 
 
 @app.route("/health")
