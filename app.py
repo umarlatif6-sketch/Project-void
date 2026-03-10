@@ -1,13 +1,11 @@
 import os
-import sys
 import logging
 import threading
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    stream=sys.stdout,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -15,34 +13,27 @@ app = Flask(__name__)
 
 _secret = os.environ.get("SESSION_SECRET")
 if not _secret:
-    logger.critical(
-        "SESSION_SECRET environment variable is not set. "
-        "The application cannot start without it. "
-        "Set this secret in the Deployments secrets panel."
-    )
-    sys.exit(1)
+    logger.error("FATAL: SESSION_SECRET environment variable is not set")
+    raise RuntimeError("SESSION_SECRET environment variable is required")
 
 app.secret_key = _secret
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
-logger.info("Registering application blueprints...")
-
 try:
     from routes.auth import _ensure_columns
     from routes import register_blueprints
     register_blueprints(app)
-    logger.info("Blueprints registered successfully.")
-except Exception as exc:
-    logger.critical("Failed to register blueprints: %s", exc, exc_info=True)
-    sys.exit(1)
-
-threading.Thread(target=_ensure_columns, daemon=True).start()
+    threading.Thread(target=_ensure_columns, daemon=True).start()
+    logger.info("Blueprints registered successfully")
+except Exception as e:
+    logger.exception("FATAL: Failed to register blueprints during startup: %s", e)
+    raise
 
 
 @app.route("/health")
 def health_check():
-    return jsonify({"status": "ok"}), 200
+    return "ok", 200
 
 
 @app.errorhandler(404)
@@ -52,7 +43,7 @@ def page_not_found(e):
 
 @app.errorhandler(500)
 def internal_error(e):
-    logger.error("Internal server error: %s", e, exc_info=True)
+    logger.exception("Internal server error: %s", e)
     return render_template("500.html"), 500
 
 
