@@ -45,7 +45,6 @@ def run_test():
         print("\n  [ENCODING]")
         compressed, name, ext, orig_size = compress_file(secret_path)
         hash_key = encode(wav_path, compressed, name, ext, output_path, lsb_depth=depth)
-        print(f"  Hash Key: {hash_key}")
 
         print("\n  [DECODING]")
         compressed_out, name_ext, checksum_out = decode(output_path, hash_key, lsb_depth=depth)
