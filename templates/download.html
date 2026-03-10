@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Become a Node</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .dl-body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+        .dl-hero {
+            text-align: center;
+            padding: 100px 20px 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .dl-hero-badge {
+            display: inline-block;
+            background: rgba(124, 92, 255, 0.15);
+            color: #7c5cff;
+            border: 1px solid rgba(124, 92, 255, 0.3);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+        .dl-hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0 0 12px;
+            color: #fff;
+        }
+        .dl-hero-title .dl-accent {
+            color: #7c5cff;
+        }
+        .dl-hero-title .dl-gold {
+            color: #c9a84c;
+        }
+        .dl-hero-sub {
+            font-size: 1.15rem;
+            color: #999;
+            max-width: 680px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+        .dl-node-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(124, 92, 255, 0.1);
+            border: 1px solid rgba(124, 92, 255, 0.2);
+            padding: 10px 24px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            font-size: 0.9rem;
+        }
+        .dl-node-count .dl-pulse {
+            width: 8px; height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: dl-pulse-anim 2s infinite;
+        }
+        @keyframes dl-pulse-anim {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.6); }
+            50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
+        }
+        .dl-modes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+        .dl-mode-card {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 32px 28px;
+            text-align: left;
+        }
+        .dl-mode-card.dl-heavy {
+            border-color: rgba(201, 168, 76, 0.3);
+        }
+        .dl-mode-card.dl-light {
+            border-color: rgba(124, 92, 255, 0.3);
+        }
+        .dl-mode-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        .dl-mode-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .dl-heavy .dl-mode-title { color: #c9a84c; }
+        .dl-light .dl-mode-title { color: #7c5cff; }
+        .dl-mode-desc {
+            color: #999;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .dl-mode-specs {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .dl-mode-specs li {
+            color: #bbb;
+            font-size: 0.8rem;
+            padding: 4px 0;
+            border-bottom: 1px solid #1a1a2a;
+        }
+        .dl-mode-specs li:last-child { border-bottom: none; }
+        .dl-mode-specs li::before {
+            content: "\25C6 ";
+            color: #555;
+            font-size: 0.65rem;
+        }
+        .dl-download-section {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px 30px;
+        }
+        .dl-download-btn {
+            display: inline-block;
+            background: #7c5cff;
+            color: #fff;
+            text-decoration: none;
+            padding: 16px 48px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: inherit;
+            letter-spacing: 1px;
+            transition: background 0.2s, transform 0.1s;
+            margin-bottom: 16px;
+        }
+        .dl-download-btn:hover {
+            background: #6a4ce0;
+            transform: translateY(-1px);
+        }
+        .dl-download-size {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 40px;
+        }
+        .dl-install-section {
+            max-width: 700px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+        .dl-section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .dl-steps {
+            display: grid;
+            gap: 20px;
+        }
+        .dl-step {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 10px;
+            padding: 24px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .dl-step-num {
+            background: rgba(124, 92, 255, 0.15);
+            color: #7c5cff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .dl-step-content h4 {
+            color: #fff;
+            margin: 0 0 6px;
+            font-size: 1rem;
+        }
+        .dl-step-content p {
+            color: #999;
+            margin: 0;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .dl-code {
+            display: inline-block;
+            background: #0d0d15;
+            border: 1px solid #2a2a3a;
+            color: #c9a84c;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            margin-top: 6px;
+        }
+        .dl-arch-section {
+            max-width: 700px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+        .dl-arch-diagram {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+        }
+        .dl-arch-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 12px 0;
+        }
+        .dl-arch-box {
+            background: #0d0d15;
+            border: 1px solid #2a2a3a;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        .dl-arch-box.dl-brain {
+            border-color: rgba(124, 92, 255, 0.4);
+            color: #7c5cff;
+        }
+        .dl-arch-box.dl-body-box {
+            border-color: rgba(201, 168, 76, 0.4);
+            color: #c9a84c;
+        }
+        .dl-arch-arrow {
+            color: #444;
+            font-size: 1.2rem;
+        }
+        .dl-arch-label {
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .dl-blueprints-link {
+            text-align: center;
+            margin: 30px auto 50px;
+        }
+        .dl-blueprints-btn {
+            display: inline-block;
+            border: 1px solid rgba(201, 168, 76, 0.4);
+            color: #c9a84c;
+            text-decoration: none;
+            padding: 12px 36px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        .dl-blueprints-btn:hover {
+            background: rgba(201, 168, 76, 0.1);
+        }
+        .dl-footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid #1a1a2a;
+            color: #555;
+            font-size: 0.8rem;
+        }
+        .dl-footer a {
+            color: #7c5cff;
+            text-decoration: none;
+        }
+        @media (max-width: 700px) {
+            .dl-modes { grid-template-columns: 1fr; }
+            .dl-hero-title { font-size: 2rem; }
+            .dl-arch-row { flex-direction: column; gap: 8px; }
+        }
+    </style>
+</head>
+<body class="dl-body">
+    <nav class="landing-nav">
+        <div class="landing-nav-brand">
+            <span class="landing-nav-icon">&#9670;</span>
+            <span class="landing-nav-title">PROJECT VOID</span>
+        </div>
+        <div class="landing-nav-links">
+            <a href="/launch" class="landing-nav-link">Home</a>
+            <a href="/" class="landing-nav-link">Engine</a>
+            <a href="/download" class="landing-nav-link active" style="color:#c9a84c">Download</a>
+            <a href="/sovereign" class="landing-nav-link">Hardware</a>
+            <a href="/messenger" class="landing-nav-link">Messenger</a>
+            <a href="/login" class="landing-nav-link">Login</a>
+        </div>
+    </nav>
+
+    <section class="dl-hero">
+        <div class="dl-hero-badge">VOID NODE PACKAGE</div>
+        <h1 class="dl-hero-title">Become a <span class="dl-accent">Node</span></h1>
+        <p class="dl-hero-sub">
+            This is not an app. This is the <strong style="color:#fff">Body</strong> of the machine.
+            Your GPU or CPU becomes part of the mesh — processing resonance,
+            running steganography, and connecting back to the Command Center.
+            The web app is the Brain. Your hardware is the Body.
+        </p>
+        <div class="dl-node-count">
+            <span class="dl-pulse"></span>
+            <span id="active-nodes">0</span> active nodes on the mesh
+        </div>
+    </section>
+
+    <div class="dl-modes">
+        <div class="dl-mode-card dl-heavy">
+            <div class="dl-mode-icon">&#9889;</div>
+            <div class="dl-mode-title">Heavy Mode</div>
+            <p class="dl-mode-desc">For machines with NVIDIA GPUs (CUDA). Runs high-frequency resonance calculations on the GPU. Full processing power for the mesh.</p>
+            <ul class="dl-mode-specs">
+                <li>NVIDIA GPU with CUDA support</li>
+                <li>Orin / RTX / Tesla compatible</li>
+                <li>GPU-accelerated 432 Hz resonance</li>
+                <li>Full mesh relay capacity</li>
+                <li>Maximum vibration speed</li>
+            </ul>
+        </div>
+        <div class="dl-mode-card dl-light">
+            <div class="dl-mode-icon">&#9671;</div>
+            <div class="dl-mode-title">Light Mode</div>
+            <p class="dl-mode-desc">For CPU-only machines. Uses numpy for processing. Still contributes to the mesh network, but at a lower vibration speed.</p>
+            <ul class="dl-mode-specs">
+                <li>Any modern CPU (x86/ARM)</li>
+                <li>Python 3.11+ required</li>
+                <li>CPU-based resonance processing</li>
+                <li>Mesh relay participation</li>
+                <li>Lower vibration, still sovereign</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="dl-download-section">
+        <a href="/download/engine" class="dl-download-btn">Download Void Engine Node</a>
+        <div class="dl-download-size">void_engine_node.zip</div>
+    </div>
+
+    <section class="dl-install-section">
+        <h2 class="dl-section-title">Quick Start</h2>
+        <div class="dl-steps">
+            <div class="dl-step">
+                <div class="dl-step-num">1</div>
+                <div class="dl-step-content">
+                    <h4>Download & Unzip</h4>
+                    <p>Download the package above and extract it to any folder on your machine.</p>
+                </div>
+            </div>
+            <div class="dl-step">
+                <div class="dl-step-num">2</div>
+                <div class="dl-step-content">
+                    <h4>Install</h4>
+                    <p>Run the install script for your operating system:</p>
+                    <div class="dl-code">./install.sh</div>
+                    <span style="color:#555; font-size:0.8rem;"> (Linux/Mac) or </span>
+                    <div class="dl-code">install.bat</div>
+                    <span style="color:#555; font-size:0.8rem;"> (Windows)</span>
+                </div>
+            </div>
+            <div class="dl-step">
+                <div class="dl-step-num">3</div>
+                <div class="dl-step-content">
+                    <h4>Launch Your Node</h4>
+                    <p>Start the Void Engine and connect to the Command Center:</p>
+                    <div class="dl-code">python void_launcher.py</div>
+                    <p style="margin-top:8px;">Your hardware will be detected automatically. GPU users enter Heavy Mode. CPU users enter Light Mode. Both join the mesh.</p>
+                </div>
+            </div>
+            <div class="dl-step">
+                <div class="dl-step-num">4</div>
+                <div class="dl-step-content">
+                    <h4>You Are Now Part of the Machine</h4>
+                    <p>Your node dials home to the Command Center, authenticates with the 432 Hz handshake, and begins contributing to the sovereign mesh network.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dl-arch-section">
+        <h2 class="dl-section-title">Architecture</h2>
+        <div class="dl-arch-diagram">
+            <div class="dl-arch-row">
+                <div class="dl-arch-box dl-brain">Command Center (Web App)</div>
+            </div>
+            <div class="dl-arch-row">
+                <div class="dl-arch-arrow">&#8597;</div>
+            </div>
+            <div class="dl-arch-label">432 Hz Handshake &middot; Mesh Protocol &middot; Blueprint Sync</div>
+            <div class="dl-arch-row" style="margin-top: 16px;">
+                <div class="dl-arch-box dl-body-box">Your Node (GPU/CPU)</div>
+                <div class="dl-arch-box dl-body-box">Node 2</div>
+                <div class="dl-arch-box dl-body-box">Node N</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="dl-blueprints-link">
+        <a href="/sovereign" class="dl-blueprints-btn">View Machine Blueprints</a>
+    </div>
+
+    <footer class="dl-footer">
+        <span>&#9670; PROJECT VOID &mdash; 286-Bit Sovereign</span>
+        <br>
+        <a href="/launch">Home</a> &middot; <a href="/">Engine</a> &middot; <a href="/sovereign">Hardware</a>
+    </footer>
+
+    <script>
+    (function() {
+        fetch('/api/node/count')
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success) {
+                    document.getElementById('active-nodes').textContent = d.total_nodes;
+                }
+            })
+            .catch(function() {});
+    })();
+    </script>
+</body>
+</html>

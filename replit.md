@@ -53,6 +53,27 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **Production Config:** Gunicorn runs with `--timeout=120 --workers=2 --reuse-port` for autoscale deployment.
 - **OpenAI Data Sanitization (GDPR-A5-28 / CCPA / NIST-800-53):** `routes/fairy.py` sanitizes all data before sending to OpenAI API. `_sanitize_for_llm()` redacts PII (emails, phone numbers, SSNs, credit cards) and auth tokens (JWTs, bearer tokens, API keys, AWS keys, GitHub tokens, high-entropy hex/base64 strings). `display_name` and `user_id` are excluded from OpenAI message payloads. `_build_adaptive_context()` has no direct `session` access — all auth resolution happens in route handlers. Sensitive stdout leakage (ghost_offset) removed from `void_engine/media_bench.py`.
 
+## Hybrid Architecture (Option 3)
+The project operates as a Brain + Body architecture:
+- **Brain (Web App / Command Center):** The deployed Flask app stores blueprints, coordinates the global mesh, and serves as the node registry. Available at the published URL.
+- **Body (Local Node):** A downloadable Python package (`void_node/`) that users install on their own GPU/CPU hardware. Detects CUDA for Heavy Mode (GPU-accelerated) or falls back to Light Mode (CPU/numpy). Connects back to the Command Center via `/api/node/register` and the 432 Hz phase-key handshake.
+
+**Node System:**
+- `void_node/void_launcher.py` — Entry point: hardware detection, dial-home, handshake authentication
+- `void_node/void_cli.py` — CLI for local encode/decode/analysis operations
+- `void_node/setup.py` — Package installer (`pip install -e .` → `void-engine` command)
+- `void_node/void_engine/` — Core engine modules (stega, beehive, al_jabr_286, etc.)
+- `void_node/install.sh` / `install.bat` — Platform install scripts
+
+**Node API Endpoints (no session auth required):**
+- `POST /api/node/register` — Register a local node with hardware info
+- `POST /api/node/heartbeat` — Keep-alive signal (requires X-Void-Node-Token header)
+- `GET /api/node/status/<node_id>` — Check node status
+- `GET /api/node/count` — Active node count
+- `GET /api/node/list` — List all active nodes
+
+**Download Page:** `/download` serves the node download page. `/download/engine` dynamically ZIPs the `void_node/` directory and serves `void_engine_node.zip`.
+
 ## External Dependencies
 - **Python:** 3.11
 - **numpy:** Audio sample manipulation and FFT operations.
@@ -64,5 +85,6 @@ PROJECT VOID is built around a Flask-based web UI and a command-line interface, 
 - **stripe:** Payment processing.
 - **openai:** AI assistant (Void Fairy) via Replit AI Integrations.
 - **gunicorn:** Production WSGI server.
+- **requests:** HTTP client (used by local node launcher for dial-home).
 - **Standard Library:** `zlib`, `lzma`, `wave`, `hashlib`.
 - **PostgreSQL:** For Void Messenger, Universal Auth, and VORTEX data storage.

@@ -74,6 +74,34 @@ def landing():
     return render_template("landing.html")
 
 
+@core_bp.route("/download")
+def download_page():
+    return render_template("download.html")
+
+
+@core_bp.route("/download/engine")
+def download_engine():
+    import io
+    import zipfile
+
+    void_node_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "void_node")
+    if not os.path.isdir(void_node_dir):
+        return jsonify({"error": "Package not found"}), 404
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for root, dirs, files in os.walk(void_node_dir):
+            dirs[:] = [d for d in dirs if d not in ("__pycache__", ".git", "venv")]
+            for fname in files:
+                if fname.endswith((".pyc", ".pyo")):
+                    continue
+                full = os.path.join(root, fname)
+                arc = os.path.join("void_engine_node", os.path.relpath(full, void_node_dir))
+                zf.write(full, arc)
+    buf.seek(0)
+    return send_file(buf, mimetype="application/zip", as_attachment=True, download_name="void_engine_node.zip")
+
+
 @core_bp.route("/demo")
 def demo_page():
     return render_template("index.html", demo_mode=True)
