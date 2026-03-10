@@ -172,12 +172,16 @@
         var div = document.createElement('div');
         div.className = 'fairy-msg ' + (role === 'user' ? 'fairy-msg-user' : 'fairy-msg-fairy');
 
-        var html = '';
         if (role === 'assistant') {
-            html += '<div class="fairy-msg-sender">&#9670; Adriana</div>';
+            var sender = document.createElement('div');
+            sender.className = 'fairy-msg-sender';
+            sender.textContent = '\u25C6 Adriana';
+            div.appendChild(sender);
         }
-        html += '<div class="fairy-msg-bubble">' + escapeHtml(content) + '</div>';
-        div.innerHTML = html;
+        var bubble = document.createElement('div');
+        bubble.className = 'fairy-msg-bubble';
+        bubble.textContent = content;
+        div.appendChild(bubble);
 
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
@@ -238,15 +242,12 @@
         var container = document.getElementById('fairy-messages');
         var div = document.createElement('div');
         div.className = 'fairy-msg fairy-msg-fairy';
-        div.innerHTML = '<div class="fairy-msg-bubble fairy-error">' + escapeHtml(msg) + '</div>';
+        var bubble = document.createElement('div');
+        bubble.className = 'fairy-msg-bubble fairy-error';
+        bubble.textContent = msg;
+        div.appendChild(bubble);
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
-    }
-
-    function escapeHtml(text) {
-        var d = document.createElement('div');
-        d.textContent = text;
-        return d.innerHTML;
     }
 
     var SPECIAL_COMMANDS = {
