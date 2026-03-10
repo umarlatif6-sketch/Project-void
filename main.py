@@ -135,7 +135,6 @@ def encode_flow():
     print(f"  OUTPUT SAVED: {output_path} ({out_size:,} bytes)")
     print(f"  {'=' * 60}")
     print(f"  HASH KEY (save this — required for decoding):")
-    print(f"  >>> {hash_key} <<<")
     print(f"  {'=' * 60}")
     print(f"  Encoding COMPLETE.")
 
