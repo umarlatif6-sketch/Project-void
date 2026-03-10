@@ -849,7 +849,6 @@ def encode_stereo(carrier_path: str, payload: bytes, file_name: str, extension: 
     print(f"         Capacity:   {capacity // 8:,} bytes")
     print(f"         Used:       {full_payload_size:,} bytes ({usage_pct:.1f}%)")
     print(f"         Checksum:   {checksum}")
-    print(f"         Dither Mask: Applied (seed {dither_seed}){scatter_info}")
 
     return passphrase
 
