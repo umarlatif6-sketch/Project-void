@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import threading
 import psycopg2
@@ -197,26 +198,47 @@ Al-Jabr 286: custom 286-bit hash (30 bits longer than SHA-256). ChaCha20: encryp
 - Never use the word "sorry." Adriana does not apologize. She clarifies, redirects, and illuminates."""
 
 
-def _build_adaptive_context(user_id, tier, is_founder, display_name):
+_PII_PATTERNS = [
+    re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'),
+    re.compile(r'\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b'),
+    re.compile(r'\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b'),
+    re.compile(r'\b(?:\d[ -]*?){13,19}\b'),
+    re.compile(r'\beyJhbGciOi[A-Za-z0-9_-]+\.(?:[A-Za-z0-9_-]+\.)?[A-Za-z0-9_-]+\b'),
+    re.compile(r'(?i)\b(?:bearer|token|authorization)[:\s]+[A-Za-z0-9_\-./+=]{20,}\b'),
+    re.compile(r'(?i)\b(?:api[_-]?key|secret[_-]?key|access[_-]?token|auth[_-]?token|session[_-]?id|refresh[_-]?token)[:\s=]+\S{8,}\b'),
+    re.compile(r'\b(?:sk|pk|rk)[-_](?:live|test|prod)[-_][A-Za-z0-9]{20,}\b'),
+    re.compile(r'\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36,}\b'),
+    re.compile(r'\b(?:AKIA|ASIA)[A-Z0-9]{16}\b'),
+    re.compile(r'\b[A-Fa-f0-9]{64}\b'),
+    re.compile(r'\b[A-Za-z0-9+/]{40,}={0,2}\b'),
+]
+
+
+def _sanitize_for_llm(text):
+    if not text:
+        return text
+    sanitized = text
+    for pattern in _PII_PATTERNS:
+        sanitized = pattern.sub("[REDACTED]", sanitized)
+    return sanitized
+
+
+def _build_adaptive_context(tier, is_founder, is_guardian, profile_style, profile_topics):
     parts = []
 
     tier_text = TIER_INSTRUCTIONS.get(tier, TIER_INSTRUCTIONS["ghost"])
-    if display_name:
-        tier_text += f'\nThe user\'s name is "{display_name}".'
     parts.append(tier_text)
 
     if is_founder:
         parts.append(FOUNDER_EXTRA)
 
-    is_guardian = session.get("is_guardian", False) if session else False
     if is_guardian:
         parts.append(GUARDIAN_EXTRA)
 
-    profile = get_fairy_profile(user_id)
-    if profile["style"] or profile["topics"]:
+    if profile_style or profile_topics:
         parts.append(PROFILE_INSTRUCTION_TEMPLATE.format(
-            style=profile["style"] or "Not yet determined.",
-            topics=profile["topics"] or "Not yet determined."
+            style=_sanitize_for_llm(profile_style) or "Not yet determined.",
+            topics=_sanitize_for_llm(profile_topics) or "Not yet determined."
         ))
 
     return "\n".join(parts)
@@ -224,6 +246,9 @@ def _build_adaptive_context(user_id, tier, is_founder, display_name):
 
 def _run_profile_analysis(user_id, profile, new_count, conversation_sample):
     try:
+        sanitized_sample = _sanitize_for_llm(conversation_sample)
+        sanitized_style = _sanitize_for_llm(profile['style'] or 'None yet')
+        sanitized_topics = _sanitize_for_llm(profile['topics'] or 'None yet')
         client = OpenAI(
             api_key=AI_INTEGRATIONS_OPENAI_API_KEY,
             base_url=AI_INTEGRATIONS_OPENAI_BASE_URL
@@ -232,7 +257,7 @@ def _run_profile_analysis(user_id, profile, new_count, conversation_sample):
             model="gpt-5-mini",
             messages=[
                 {"role": "system", "content": "You are a communication analyst. Analyze the user's messages and produce a brief profile. Output JSON with exactly two keys: \"style\" (a 1-2 sentence description of how this person communicates — their tone, vocabulary level, preferred metaphors, technical depth, formality) and \"topics\" (comma-separated list of their main interests based on what they ask about). Be concise."},
-                {"role": "user", "content": f"Previous profile style: {profile['style'] or 'None yet'}\nPrevious topics: {profile['topics'] or 'None yet'}\n\nRecent messages from this user:\n{conversation_sample}"}
+                {"role": "user", "content": f"Previous profile style: {sanitized_style}\nPrevious topics: {sanitized_topics}\n\nRecent messages from this user:\n{sanitized_sample}"}
             ],
             max_completion_tokens=256
         )
@@ -301,11 +326,13 @@ def fairy_ask():
     user_id = session.get("user_id")
     tier = session.get("tier", "ghost")
     is_founder = session.get("is_founder", False)
-    display_name = session.get("display_name", "")
+    is_guardian = session.get("is_guardian", False)
+
+    profile = get_fairy_profile(user_id)
 
     messages = [{"role": "system", "content": VOID_FAIRY_SYSTEM_PROMPT}]
 
-    adaptive_ctx = _build_adaptive_context(user_id, tier, is_founder, display_name)
+    adaptive_ctx = _build_adaptive_context(tier, is_founder, is_guardian, profile["style"], profile["topics"])
     if adaptive_ctx:
         messages.append({"role": "system", "content": adaptive_ctx})
 
@@ -315,9 +342,9 @@ def fairy_ask():
         role = h.get("role", "user")
         content = (h.get("content") or "").strip()
         if role in ("user", "assistant") and content:
-            messages.append({"role": role, "content": content[:2000]})
+            messages.append({"role": role, "content": _sanitize_for_llm(content[:2000])})
 
-    messages.append({"role": "user", "content": message})
+    messages.append({"role": "user", "content": _sanitize_for_llm(message)})
 
     try:
         client = OpenAI(
