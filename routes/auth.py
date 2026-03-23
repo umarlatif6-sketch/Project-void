@@ -221,6 +221,30 @@ def _ensure_columns():
             )
         """)
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS yield_events (
+                id SERIAL PRIMARY KEY,
+                amount_gbp INTEGER NOT NULL,
+                amount_vtx DECIMAL(18,4) NOT NULL,
+                notes TEXT,
+                posted_at TIMESTAMP DEFAULT NOW(),
+                posted_by INTEGER REFERENCES users(id),
+                idempotency_key VARCHAR(72) UNIQUE
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS yield_claims (
+                id SERIAL PRIMARY KEY,
+                owner_id INTEGER REFERENCES users(id) NOT NULL,
+                token_id INTEGER REFERENCES blueprint_tokens(id) NOT NULL,
+                event_id INTEGER REFERENCES yield_events(id) NOT NULL,
+                amount_vtx DECIMAL(18,4) NOT NULL,
+                claimed_at TIMESTAMP,
+                UNIQUE(owner_id, token_id, event_id)
+            )
+        """)
+
         _market_seed_rows = [
             ("nft_common",          "Blueprint Token — Common (Vibe-Coder Access)",   2800,    50,    True),
             ("nft_rare",            "Blueprint Token — Rare (Fractional Node)",        66000,   1000,  True),
@@ -261,8 +285,8 @@ def _ensure_columns():
             ("chk_mf_purpose", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_purpose CHECK (purpose IN ('capex','materials','assembly'))"),
             ("chk_mf_status", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_status CHECK (status IN ('pledged','spent'))"),
         ]:
+            cur.execute(f"SAVEPOINT {chk_name}")
             try:
-                cur.execute(f"SAVEPOINT {chk_name}")
                 cur.execute(chk_sql)
                 cur.execute(f"RELEASE SAVEPOINT {chk_name}")
                 conn.commit()
@@ -272,6 +296,19 @@ def _ensure_columns():
                     conn.rollback()
                 except Exception:
                     pass
+
+        cur.execute(
+            "SELECT 1 FROM information_schema.columns WHERE table_name = 'yield_events' AND column_name = 'idempotency_key'"
+        )
+        if not cur.fetchone():
+            cur.execute("SAVEPOINT sp_yield_idem")
+            try:
+                cur.execute("ALTER TABLE yield_events ADD COLUMN idempotency_key VARCHAR(72) UNIQUE")
+                cur.execute("RELEASE SAVEPOINT sp_yield_idem")
+            except Exception:
+                cur.execute("ROLLBACK TO SAVEPOINT sp_yield_idem")
+
+        conn.commit()
 
         _init_vortex_genesis(conn)
     except Exception:

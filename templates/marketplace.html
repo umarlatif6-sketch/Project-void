@@ -299,6 +299,60 @@
             border-radius: 10px;
         }
 
+        .mp-yield-banner {
+            background: rgba(201, 168, 76, 0.08);
+            border: 1px solid rgba(201, 168, 76, 0.35);
+            border-radius: 10px;
+            padding: 20px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .mp-yield-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .mp-yield-label {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #888;
+        }
+        .mp-yield-amount {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #c9a84c;
+        }
+        .mp-yield-sub {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        .mp-btn-claim {
+            background: rgba(201, 168, 76, 0.2);
+            color: #c9a84c;
+            border: 1px solid rgba(201, 168, 76, 0.5);
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mp-btn-claim:hover:not(:disabled) {
+            background: rgba(201, 168, 76, 0.35);
+        }
+        .mp-btn-claim:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
         .mp-hash-display {
             font-size: 0.65rem;
             color: #555;
@@ -604,6 +658,23 @@
     <h2 class="mp-section-title">Your Collection</h2>
     <p class="mp-section-sub">Blueprint Tokens you own</p>
     <div class="mp-collection">
+        {% set has_yield_tokens = collection | selectattr("tier", "in", ["rare", "legendary"]) | list %}
+        {% if has_yield_tokens %}
+        <div class="mp-yield-banner" id="yieldBanner">
+            <div class="mp-yield-info">
+                <div class="mp-yield-label">Pending Yield</div>
+                <div class="mp-yield-amount" id="yieldAmount">
+                    {% if pending_yield > 0 %}{{ "%.4f"|format(pending_yield) }} VTX{% else %}0 VTX{% endif %}
+                </div>
+                <div class="mp-yield-sub">Yield from your Rare and Legendary token holdings — claimable as VTX.</div>
+            </div>
+            {% if pending_yield > 0 %}
+            <button class="mp-btn-claim" id="claimYieldBtn" onclick="claimYield()">Claim All Yield</button>
+            {% else %}
+            <button class="mp-btn-claim" disabled>No Yield Pending</button>
+            {% endif %}
+        </div>
+        {% endif %}
         {% if collection %}
         <div class="mp-collection-grid">
             {% for token in collection %}
@@ -838,6 +909,25 @@
                 }
             } catch (e) {
                 showToast('Checkout failed. Please try again.', 'error');
+            }
+        }
+
+        async function claimYield() {
+            const btn = document.getElementById('claimYieldBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Claiming...'; }
+            try {
+                const res = await fetch('/api/marketplace/yield/claim', { method: 'POST' });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                    if (btn) { btn.disabled = false; btn.textContent = 'Claim All Yield'; }
+                } else {
+                    showToast(`Claimed ${data.claimed_vtx.toFixed(4)} VTX — added to your wallet!`, 'success');
+                    setTimeout(() => location.reload(), 2000);
+                }
+            } catch (e) {
+                showToast('Claim failed. Please try again.', 'error');
+                if (btn) { btn.disabled = false; btn.textContent = 'Claim All Yield'; }
             }
         }
 

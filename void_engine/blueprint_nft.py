@@ -412,6 +412,184 @@ def get_manufacturing_fund_status():
         conn.close()
 
 
+def post_yield_event(amount_vtx, notes, admin_id, amount_gbp=0, idempotency_key=None):
+    amount = Decimal(str(amount_vtx)).quantize(Decimal("0.0001"))
+    if amount <= 0:
+        return {"error": "amount_vtx must be positive"}
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+
+        if idempotency_key:
+            cur.execute(
+                "SELECT id FROM yield_events WHERE idempotency_key = %s",
+                (idempotency_key,),
+            )
+            existing = cur.fetchone()
+            if existing:
+                logger.info("yield_event idempotency hit: key=%s event_id=%s", idempotency_key, existing[0])
+                return {"success": True, "event_id": existing[0], "already_posted": True}
+
+        cur.execute(
+            """SELECT tow.owner_id, bt.id, bt.tier
+               FROM token_ownership tow
+               JOIN blueprint_tokens bt ON bt.id = tow.token_id
+               WHERE bt.tier IN ('rare', 'legendary')
+               ORDER BY bt.tier, tow.owner_id"""
+        )
+        rows = cur.fetchall()
+        if not rows:
+            return {"error": "No Rare or Legendary token holders found"}
+
+        total_units = Decimal("0")
+        for (owner_id, token_id, tier) in rows:
+            total_units += Decimal("10") if tier == "legendary" else Decimal("1")
+
+        if total_units == 0:
+            return {"error": "No eligible token holders"}
+
+        unit_value = amount / total_units
+
+        try:
+            cur.execute(
+                """INSERT INTO yield_events (amount_gbp, amount_vtx, notes, posted_by, idempotency_key)
+                   VALUES (%s, %s, %s, %s, %s) RETURNING id""",
+                (int(amount_gbp), amount, notes, admin_id, idempotency_key),
+            )
+            event_id = cur.fetchone()[0]
+        except Exception as insert_exc:
+            conn.rollback()
+            if idempotency_key and "unique" in str(insert_exc).lower():
+                cur2 = conn.cursor()
+                cur2.execute("SELECT id FROM yield_events WHERE idempotency_key = %s", (idempotency_key,))
+                row = cur2.fetchone()
+                if row:
+                    return {"success": True, "event_id": row[0], "already_posted": True}
+            raise
+
+        claims_inserted = 0
+        for (owner_id, token_id, tier) in rows:
+            weight = Decimal("10") if tier == "legendary" else Decimal("1")
+            claim_amount = (unit_value * weight).quantize(Decimal("0.0001"))
+            if claim_amount <= 0:
+                continue
+            cur.execute(
+                """INSERT INTO yield_claims (owner_id, token_id, event_id, amount_vtx)
+                   VALUES (%s, %s, %s, %s)
+                   ON CONFLICT (owner_id, token_id, event_id) DO NOTHING""",
+                (owner_id, token_id, event_id, claim_amount),
+            )
+            claims_inserted += 1
+
+        conn.commit()
+        return {
+            "success": True,
+            "event_id": event_id,
+            "total_vtx": float(amount),
+            "total_units": float(total_units),
+            "unit_value": float(unit_value),
+            "claims_inserted": claims_inserted,
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("post_yield_event failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def get_pending_yield(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT COALESCE(SUM(amount_vtx), 0)
+               FROM yield_claims
+               WHERE owner_id = %s AND claimed_at IS NULL""",
+            (user_id,),
+        )
+        total = cur.fetchone()[0]
+        return float(total)
+    finally:
+        conn.close()
+
+
+def claim_yield(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT id, amount_vtx
+               FROM yield_claims
+               WHERE owner_id = %s AND claimed_at IS NULL
+               FOR UPDATE""",
+            (user_id,),
+        )
+        rows = cur.fetchall()
+        if not rows:
+            return {"error": "No pending yield to claim"}
+
+        total = sum(Decimal(str(r[1])) for r in rows).quantize(Decimal("0.0001"))
+        if total <= 0:
+            return {"error": "No pending yield to claim"}
+
+        from void_engine.vortex_wallet import _create_block
+        payload_hash = fatiha_286_hexdigest_from_str(f"yield_claim|{user_id}|{datetime.now(timezone.utc).isoformat()}")
+        block = _create_block(cur, "yield_claim", None, user_id, total, payload_hash)
+
+        cur.execute(
+            "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id = %s",
+            (total, user_id),
+        )
+
+        claim_ids = [r[0] for r in rows]
+        cur.execute(
+            "UPDATE yield_claims SET claimed_at = NOW() WHERE id = ANY(%s)",
+            (claim_ids,),
+        )
+
+        conn.commit()
+        return {
+            "success": True,
+            "claimed_vtx": float(total),
+            "block": block,
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("claim_yield failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def get_yield_events(limit=20):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT ye.id, ye.amount_gbp, ye.amount_vtx, ye.notes, ye.posted_at, u.username
+               FROM yield_events ye
+               LEFT JOIN users u ON u.id = ye.posted_by
+               ORDER BY ye.posted_at DESC LIMIT %s""",
+            (limit,),
+        )
+        rows = cur.fetchall()
+        return [
+            {
+                "id": r[0],
+                "amount_gbp_display": f"\u00a3{r[1] / 100:.2f}" if r[1] else "\u00a30.00",
+                "amount_vtx": float(r[2]),
+                "notes": r[3],
+                "posted_at": r[4].strftime("%Y-%m-%d %H:%M") if r[4] else "",
+                "posted_by": r[5] or "admin",
+            }
+            for r in rows
+        ]
+    finally:
+        conn.close()
+
+
 def seed_initial_collection():
     conn = _get_db()
     try:

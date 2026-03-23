@@ -10,6 +10,8 @@ from void_engine.blueprint_nft import (
     get_manufacturing_fund_status,
     purchase_token_vtx,
     purchase_token_fiat,
+    get_pending_yield,
+    claim_yield,
     TIER_CONFIG,
 )
 from void_engine.adriana_scl import generate_token_story
@@ -23,12 +25,19 @@ marketplace_bp = Blueprint("marketplace", __name__)
 def marketplace_page():
     user_id = session.get("user_id")
     collection = []
+    pending_yield = 0.0
     if user_id:
         try:
             collection = get_user_collection(user_id)
         except Exception as e:
             logger.error("Failed to load user collection: %s", e)
-    return render_template("marketplace.html", collection=collection, user_id=user_id)
+        try:
+            has_yield_eligible = any(t["tier"] in ("rare", "legendary") for t in collection)
+            if has_yield_eligible:
+                pending_yield = get_pending_yield(user_id)
+        except Exception as e:
+            logger.error("Failed to load pending yield: %s", e)
+    return render_template("marketplace.html", collection=collection, user_id=user_id, pending_yield=pending_yield)
 
 
 @marketplace_bp.route("/api/marketplace/listings")
@@ -222,3 +231,27 @@ def api_token_story(token_id):
     except Exception as e:
         logger.error("Token story error: %s", e)
         return jsonify({"error": "Failed to generate story"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/yield/pending")
+@login_required
+def api_yield_pending():
+    try:
+        pending = get_pending_yield(session["user_id"])
+        return jsonify({"pending_vtx": pending})
+    except Exception as e:
+        logger.error("Yield pending error: %s", e)
+        return jsonify({"error": "Failed to load pending yield"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/yield/claim", methods=["POST"])
+@login_required
+def api_yield_claim():
+    try:
+        result = claim_yield(session["user_id"])
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Yield claim error: %s", e)
+        return jsonify({"error": "Claim failed"}), 500

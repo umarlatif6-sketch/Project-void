@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Blueprint, request, redirect, render_template
+from flask import Blueprint, request, redirect, render_template, session
 from routes.auth import admin_required
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,8 @@ def admin_market_get():
     conn = _get_db()
     updated = request.args.get("updated")
     error = request.args.get("error")
+    yield_error = request.args.get("yield_error")
+    yield_posted = request.args.get("yield_posted")
     try:
         cur = conn.cursor()
         cur.execute(
@@ -44,7 +46,22 @@ def admin_market_get():
     finally:
         conn.close()
 
-    return render_template("admin_market.html", configs=configs, updated=updated, error=error)
+    from void_engine.blueprint_nft import get_yield_events
+    try:
+        yield_events = get_yield_events(10)
+    except Exception as e:
+        logger.error("Failed to load yield_events: %s", e)
+        yield_events = []
+
+    return render_template(
+        "admin_market.html",
+        configs=configs,
+        updated=updated,
+        error=error,
+        yield_error=yield_error,
+        yield_posted=yield_posted,
+        yield_events=yield_events,
+    )
 
 
 @admin_bp.route("/admin/market", methods=["POST"])
@@ -85,3 +102,29 @@ def admin_market_post():
         conn.close()
 
     return redirect(f"/admin/market?updated={item_key}")
+
+
+@admin_bp.route("/admin/yield", methods=["POST"])
+@admin_required
+def admin_post_yield():
+    from void_engine.blueprint_nft import post_yield_event
+    try:
+        amount_vtx = float(request.form.get("amount_vtx", 0))
+        amount_gbp_str = request.form.get("amount_gbp", "0").replace(",", "").replace("£", "").strip()
+        try:
+            amount_gbp = round(float(amount_gbp_str) * 100)
+        except (ValueError, TypeError):
+            amount_gbp = 0
+        notes = (request.form.get("notes") or "").strip()
+        idempotency_key = (request.form.get("idempotency_key") or "").strip() or None
+    except (ValueError, TypeError):
+        return redirect("/admin/market?yield_error=invalid_input")
+
+    if amount_vtx <= 0:
+        return redirect("/admin/market?yield_error=invalid_input")
+
+    admin_id = session.get("user_id")
+    result = post_yield_event(amount_vtx, notes or None, admin_id, amount_gbp, idempotency_key)
+    if "error" in result:
+        return redirect(f"/admin/market?yield_error={result['error']}")
+    return redirect(f"/admin/market?yield_posted={result['event_id']}")

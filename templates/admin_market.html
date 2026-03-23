@@ -49,6 +49,90 @@
         </div>
         {% endif %}
 
+        {% if yield_posted %}
+        <div style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); border-radius: 6px; padding: 10px 16px; color: var(--success, #4ade80); margin-bottom: 16px; font-size: 13px;">
+            Yield event #{{ yield_posted }} posted successfully — claims distributed to all Rare and Legendary holders.
+        </div>
+        {% endif %}
+        {% if yield_error %}
+        <div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 10px 16px; color: var(--error, #ef4444); margin-bottom: 16px; font-size: 13px;">
+            Yield error: {{ yield_error }}
+        </div>
+        {% endif %}
+
+        <div class="admin-section">
+            <div class="admin-section-title">Post Yield Event</div>
+            <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 16px;">
+                Distribute VTX yield to all current Rare and Legendary token holders.
+                Rare tokens = 1 unit weight. Legendary tokens = 10 unit weight.
+            </p>
+            <form method="POST" action="/admin/yield" id="yieldForm" style="display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap;">
+                <input type="hidden" name="idempotency_key" id="yieldIdempotencyKey">
+                <div>
+                    <label style="display:block; color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Total VTX to Distribute *</label>
+                    <input type="number" name="amount_vtx" class="edit-input" step="0.0001" min="0.0001" placeholder="e.g. 500" required style="width: 140px;">
+                </div>
+                <div>
+                    <label style="display:block; color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Revenue (£ GBP, optional)</label>
+                    <input type="text" name="amount_gbp" class="edit-input" placeholder="e.g. 200.00" style="width: 120px;">
+                </div>
+                <div style="flex:1; min-width: 200px;">
+                    <label style="display:block; color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Notes</label>
+                    <input type="text" name="notes" class="edit-input" placeholder="e.g. Compute revenue March 2026" style="width: 100%;">
+                </div>
+                <button type="submit" class="save-btn" style="background: #c9a84c;">Post Yield</button>
+            </form>
+            <script>
+                (function() {
+                    function uuidv4() {
+                        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                            return v.toString(16);
+                        });
+                    }
+                    var keyField = document.getElementById('yieldIdempotencyKey');
+                    if (keyField) { keyField.value = uuidv4(); }
+                    var form = document.getElementById('yieldForm');
+                    if (form) {
+                        form.addEventListener('submit', function() {
+                            var btn = form.querySelector('button[type="submit"]');
+                            if (btn) { btn.disabled = true; btn.textContent = 'Posting...'; }
+                        });
+                    }
+                })();
+            </script>
+        </div>
+
+        {% if yield_events %}
+        <div class="admin-section">
+            <div class="admin-section-title">Recent Yield Events</div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>VTX Distributed</th>
+                        <th>Revenue (GBP)</th>
+                        <th>Notes</th>
+                        <th>Posted By</th>
+                        <th>Posted At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ev in yield_events %}
+                    <tr>
+                        <td>{{ ev.id }}</td>
+                        <td style="color: #c9a84c; font-weight: 600;">{{ ev.amount_vtx }} VTX</td>
+                        <td>{{ ev.amount_gbp_display }}</td>
+                        <td style="color: var(--text-dim);">{{ ev.notes or '—' }}</td>
+                        <td>{{ ev.posted_by }}</td>
+                        <td class="updated-dim">{{ ev.posted_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
         <div class="admin-section">
             <div class="admin-section-title">Configurable Price Items</div>
             {% if configs %}
