@@ -209,6 +209,34 @@ def _ensure_columns():
         cur.execute("CREATE INDEX IF NOT EXISTS idx_mfg_fund_token ON manufacturing_fund(token_id)")
         cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_ownership_stripe_session ON token_ownership(stripe_session_id) WHERE stripe_session_id IS NOT NULL")
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS market_configs (
+                id SERIAL PRIMARY KEY,
+                item_key VARCHAR(50) NOT NULL UNIQUE,
+                display_name VARCHAR(200) NOT NULL,
+                gbp_pence INTEGER NOT NULL,
+                vtx_cost DECIMAL(18,4) NOT NULL,
+                is_active BOOLEAN DEFAULT TRUE,
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        """)
+
+        _market_seed_rows = [
+            ("nft_common",          "Blueprint Token — Common (Vibe-Coder Access)",   2800,    50,    True),
+            ("nft_rare",            "Blueprint Token — Rare (Fractional Node)",        66000,   1000,  True),
+            ("nft_legendary",       "Blueprint Token — Legendary (Sovereign Machine)", 2500000, 40000, True),
+            ("vtx_starter",         "VTX Pack — Starter (50 VTX)",                    500,     0,     True),
+            ("vtx_builder",         "VTX Pack — Builder (250 VTX)",                   2000,    0,     True),
+            ("vtx_sovereign_stack", "VTX Pack — Sovereign Stack (1000 VTX)",          6500,    0,     True),
+        ]
+        for (item_key, display_name, gbp_pence, vtx_cost, is_active) in _market_seed_rows:
+            cur.execute(
+                """INSERT INTO market_configs (item_key, display_name, gbp_pence, vtx_cost, is_active)
+                   VALUES (%s, %s, %s, %s, %s)
+                   ON CONFLICT (item_key) DO NOTHING""",
+                (item_key, display_name, gbp_pence, vtx_cost, is_active),
+            )
+
         for chk_name, chk_sql in [
             ("chk_bt_tier", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_tier CHECK (tier IN ('common','rare','legendary'))"),
             ("chk_bt_status", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_status CHECK (status IN ('available','reserved','sold'))"),

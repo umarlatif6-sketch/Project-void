@@ -11,6 +11,7 @@ from routes.vigilance import vigilance_bp
 from routes.fairy import fairy_bp
 from routes.node import node_bp
 from routes.marketplace import marketplace_bp
+from routes.admin import admin_bp
 
 
 def register_blueprints(app):
@@ -27,3 +28,4 @@ def register_blueprints(app):
     app.register_blueprint(fairy_bp)
     app.register_blueprint(node_bp)
     app.register_blueprint(marketplace_bp)
+    app.register_blueprint(admin_bp)

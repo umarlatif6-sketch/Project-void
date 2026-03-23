@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Pricing — Admin — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .admin-page { background: var(--bg); min-height: 100vh; }
+        .admin-main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        .admin-title { font-size: 24px; letter-spacing: 3px; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }
+        .admin-sub { color: var(--text-dim); margin-bottom: 32px; }
+        .admin-section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 24px; }
+        .admin-section-title { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); margin-bottom: 16px; }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .admin-table th { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .admin-table td { padding: 8px 12px; border-bottom: 1px solid rgba(42,42,58,0.5); color: var(--text); vertical-align: middle; }
+        .admin-table tr:hover td { background: var(--surface2); }
+        .edit-input { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: 4px 8px; font-size: 13px; width: 100px; }
+        .edit-input:focus { outline: none; border-color: var(--accent); }
+        .save-btn { background: var(--accent); color: #fff; border: none; border-radius: 4px; padding: 5px 14px; font-size: 12px; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
+        .save-btn:hover { opacity: 0.85; }
+        .active-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .active-yes { background: rgba(74,222,128,0.15); color: var(--success); }
+        .active-no { background: rgba(239,68,68,0.15); color: var(--error, #ef4444); }
+        .back-link { color: var(--text-dim); text-decoration: none; font-size: 13px; letter-spacing: 1px; }
+        .back-link:hover { color: var(--accent); }
+        .key-code { font-family: monospace; color: var(--text-dim); font-size: 12px; }
+        select.edit-input { width: auto; }
+        .updated-dim { color: var(--text-dim); font-size: 11px; }
+    </style>
+</head>
+<body class="admin-page">
+    <div class="admin-main">
+        <div style="margin-bottom: 24px;">
+            <a href="/admin" class="back-link">&larr; Admin Dashboard</a>
+        </div>
+        <div class="admin-title">Market Pricing</div>
+        <div class="admin-sub">Live price configuration — changes take effect immediately on the next checkout.</div>
+        {% if updated %}
+        <div style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); border-radius: 6px; padding: 10px 16px; color: var(--success, #4ade80); margin-bottom: 16px; font-size: 13px;">
+            Price updated for <strong>{{ updated }}</strong> — effective on next checkout.
+        </div>
+        {% endif %}
+        {% if error %}
+        <div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 10px 16px; color: var(--error, #ef4444); margin-bottom: 16px; font-size: 13px;">
+            {% if error == 'invalid_input' %}Invalid input — please check your values and try again.{% elif error == 'db_error' %}Database error — update failed. Check logs.{% else %}Update failed.{% endif %}
+        </div>
+        {% endif %}
+
+        <div class="admin-section">
+            <div class="admin-section-title">Configurable Price Items</div>
+            {% if configs %}
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Item Key</th>
+                        <th>Display Name</th>
+                        <th>GBP Price (£)</th>
+                        <th>VTX Cost</th>
+                        <th>Active</th>
+                        <th>Last Updated</th>
+                        <th>Save</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in configs %}
+                    <tr>
+                        <td><span class="key-code">{{ c.item_key }}</span></td>
+                        <td>{{ c.display_name }}</td>
+                        <td colspan="5">
+                            <form method="POST" action="/admin/market" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <input type="hidden" name="item_key" value="{{ c.item_key }}">
+                                <label style="color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">GBP £</label>
+                                <input type="number" name="gbp_pounds" class="edit-input" step="0.01" min="0"
+                                       value="{{ c.gbp_display }}" required>
+                                <label style="color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">VTX</label>
+                                <input type="number" name="vtx_cost" class="edit-input" step="0.0001" min="0"
+                                       value="{{ c.vtx_cost }}" required>
+                                <label style="color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Active</label>
+                                <select name="is_active" class="edit-input">
+                                    <option value="1" {% if c.is_active %}selected{% endif %}>Yes</option>
+                                    <option value="0" {% if not c.is_active %}selected{% endif %}>No</option>
+                                </select>
+                                <span class="updated-dim">{{ c.updated_at }}</span>
+                                <button type="submit" class="save-btn">Save</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: var(--text-dim);">No market configs found. Run the startup migration first.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

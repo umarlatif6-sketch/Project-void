@@ -106,6 +106,17 @@ def buy_with_stripe():
             conn.close()
             return jsonify({"error": "Token is no longer available"}), 400
 
+        from void_engine.economy import get_market_price
+        item_key = f"nft_{token[1]}"
+        try:
+            market = get_market_price(item_key)
+        except RuntimeError:
+            conn.close()
+            raise
+        if not market:
+            conn.close()
+            return jsonify({"error": "This NFT tier is not currently available for purchase"}), 404
+
         cur.execute("UPDATE blueprint_tokens SET status = 'reserved' WHERE id = %s", (int(token_id),))
         conn.commit()
         conn.close()
@@ -135,7 +146,7 @@ def buy_with_stripe():
             line_items=[{
                 "price_data": {
                     "currency": "gbp",
-                    "unit_amount": token[3],
+                    "unit_amount": market["gbp"],
                     "product_data": {
                         "name": product_name,
                         "description": f"Blueprint Token #{token[0]} - {tier_label} Tier - Manufacturing Slot",

@@ -228,14 +228,18 @@ def stripe_webhook():
 
 @payments_bp.route("/api/vtx/packs")
 def vtx_packs():
+    from void_engine.economy import get_market_price
     packs = []
     for key, pack in VTX_PACKS.items():
+        market = get_market_price(f"vtx_{key}")
+        if not market:
+            continue
         packs.append({
             "id": key,
             "label": pack["label"],
             "vtx": float(pack["vtx"]),
-            "price_pence": pack["price_pence"],
-            "price_display": f"\u00a3{pack['price_pence'] / 100:.0f}",
+            "price_pence": market["gbp"],
+            "price_display": f"\u00a3{market['gbp'] / 100:.0f}",
             "bonus": pack["bonus"],
         })
     return jsonify({"packs": packs})
@@ -246,6 +250,12 @@ def vtx_packs():
 def vtx_buy(pack_name):
     if pack_name not in VTX_PACKS:
         return jsonify({"error": "Invalid VTX pack"}), 400
+
+    from void_engine.economy import get_market_price
+    item_key = f"vtx_{pack_name}"
+    market = get_market_price(item_key)
+    if not market:
+        return jsonify({"error": "This VTX pack is not currently available"}), 404
 
     pack = VTX_PACKS[pack_name]
     try:
@@ -281,7 +291,7 @@ def vtx_buy(pack_name):
             line_items=[{
                 "price_data": {
                     "currency": "gbp",
-                    "unit_amount": pack["price_pence"],
+                    "unit_amount": market["gbp"],
                     "product": product.id,
                 },
                 "quantity": 1,
