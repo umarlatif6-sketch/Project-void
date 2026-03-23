@@ -52,3 +52,7 @@ FOUNDER_USERNAME = "adriana"
 deploymentTarget = "autoscale"
 run = ["gunicorn", "--bind=0.0.0.0:5904", "--timeout=120", "--workers=2", "--reuse-port", "app:app"]
 build = ["pip", "install", "-r", "requirements.txt"]
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 60000
