@@ -38,7 +38,7 @@ def api_chronicle():
 def adriana_verify():
     token_id = request.args.get("token_id")
     if not token_id:
-        return jsonify({"valid": False, "error": "token_id required"}), 400
+        return jsonify({"licensed": False, "error": "token_id required"}), 400
     try:
         import os
         import psycopg2
@@ -46,11 +46,11 @@ def adriana_verify():
         try:
             cur = conn.cursor()
             cur.execute(
-                """SELECT bt.id, bt.tier, bt.title, bt.status,
-                          tow.owner_id, u.username
+                """SELECT bt.id, bt.tier, bt.token_hash,
+                          bt.edition_number, bt.total_editions, bt.status,
+                          tow.owner_id
                    FROM blueprint_tokens bt
                    LEFT JOIN token_ownership tow ON tow.token_id = bt.id
-                   LEFT JOIN users u ON u.id = tow.owner_id
                    WHERE bt.id = %s
                    ORDER BY tow.purchased_at DESC
                    LIMIT 1""",
@@ -61,25 +61,22 @@ def adriana_verify():
             conn.close()
 
         if not row:
-            return jsonify({"valid": False, "error": "Token not found"})
+            return jsonify({"licensed": False, "error": "Token not found"})
 
-        is_sold = row[3] == "sold"
-        has_owner = row[4] is not None
+        is_sold = row[5] == "sold"
+        has_owner = row[6] is not None
+        licensed = is_sold and has_owner
 
         return jsonify({
-            "valid":        is_sold and has_owner,
-            "token_id":     row[0],
-            "tier":         row[1],
-            "title":        row[2],
-            "status":       row[3],
-            "owner":        row[5] if has_owner else None,
-            "commercial_licence": is_sold and has_owner,
-            "licence_type": "commercial" if (is_sold and has_owner) else "personal-mit",
-            "sdk_url":      "/download/adriana-sdk",
+            "licensed":  licensed,
+            "tier":      row[1],
+            "edition":   f"{row[3]}/{row[4]}" if row[3] and row[4] else None,
+            "token_hash": row[2][:16] + "..." if row[2] else None,
+            "sdk_url":   "/download/adriana-sdk",
         })
     except Exception as e:
         logger.error("Adriana verify error: %s", e)
-        return jsonify({"valid": False, "error": "Verification failed"}), 500
+        return jsonify({"licensed": False, "error": "Verification failed"}), 500
 
 
 @chronicle_bp.route("/download/adriana-sdk")

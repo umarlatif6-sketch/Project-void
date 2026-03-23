@@ -321,6 +321,16 @@ _CHAPTERS_BY_TIER = {
 }
 
 
+def _chapter_translation(glyphs):
+    """
+    Compose a human-readable sentence from a 3-glyph SCL expression.
+    Entity → Condition → Action pattern.
+    """
+    meanings = [AdrianaResonance.GLYPHS[g]["meaning"] for g in glyphs]
+    parts = [m.split("/")[0].strip() for m in meanings]
+    return f"Where {parts[0]} meets {parts[1]}, {parts[2]} emerges."
+
+
 def generate_token_story(token):
     """
     Generate a multi-chapter story for a Blueprint Token.
@@ -329,26 +339,33 @@ def generate_token_story(token):
         token: dict with keys 'tier', 'token_hash', 'edition_number', 'total_editions',
                'title', and optionally 'id'.
 
+    Each chapter uses successive 16-bit (4 hex-char) segments of the token hash,
+    combined with edition_number and total_editions to seed unique poem derivation.
+
     Returns:
         dict with:
-          - tier        : token tier
+          - tier         : token tier
           - chapter_count: how many chapters this tier unlocks
-          - chapters    : list of chapter dicts, each containing:
-              - number    : chapter number (1-9)
-              - milestone : milestone name
-              - title     : chapter title
-              - body      : narrative text
-              - poem      : 3-glyph poem dict (glyphs, meanings, poem string)
-              - domain    : color domain key
-              - domain_color: hex color
-          - locked_count: chapters not yet unlocked by this tier
+          - chapters     : list of chapter dicts, each containing:
+              - chapter      : chapter number (1-9)
+              - milestone    : milestone name
+              - title        : chapter title
+              - glyphs       : list of 3 glyph strings
+              - translation  : human-readable sentence derived from glyph meanings
+              - body         : narrative text
+              - domain       : color domain key
+              - domain_color : hex color
+          - locked_count : chapters not yet unlocked by this tier
     """
     tier = token.get("tier", "common")
     hex_hash = token.get("token_hash", "").replace("...", "").strip()
+    edition = int(token.get("edition_number") or 1)
+    total = int(token.get("total_editions") or 1)
     unlocked = _CHAPTERS_BY_TIER.get(tier, 3)
 
     clean = "".join(c for c in hex_hash if c in "0123456789abcdefABCDEF")
-    clean = clean.ljust(54, "0")
+    edition_salt = f"{edition:04x}{total:04x}"
+    combined = (clean + edition_salt).ljust(108, "0")
 
     glyph_keys = list(AdrianaResonance.GLYPHS.keys())
     entities   = glyph_keys[:19]
@@ -357,31 +374,24 @@ def generate_token_story(token):
 
     chapters = []
     for i, meta in enumerate(_STORY_CHAPTERS[:unlocked]):
-        offset = (i * 6) % max(len(clean) - 5, 1)
-        seg_a = int(clean[offset:offset + 2].ljust(2, "0"), 16)
-        seg_b = int(clean[offset + 2:offset + 4].ljust(2, "0"), 16)
-        seg_c = int(clean[offset + 4:offset + 6].ljust(2, "0"), 16)
+        offset = (i * 12) % max(len(combined) - 11, 1)
+        seg_a = int(combined[offset:offset + 4].ljust(4, "0"), 16)
+        seg_b = int(combined[offset + 4:offset + 8].ljust(4, "0"), 16)
+        seg_c = int(combined[offset + 8:offset + 12].ljust(4, "0"), 16)
 
         e = entities[seg_a % len(entities)]
         c = conditions[seg_b % len(conditions)]
         a = actions[seg_c % len(actions)]
 
-        poem = {
-            "glyphs":   [e, c, a],
-            "meanings": [
-                AdrianaResonance.GLYPHS[e]["meaning"],
-                AdrianaResonance.GLYPHS[c]["meaning"],
-                AdrianaResonance.GLYPHS[a]["meaning"],
-            ],
-            "poem": f"{e}-{c}-{a}",
-        }
+        glyphs = [e, c, a]
 
         chapters.append({
-            "number":       meta["number"],
+            "chapter":      meta["number"],
             "milestone":    meta["milestone"],
             "title":        meta["title"],
+            "glyphs":       glyphs,
+            "translation":  _chapter_translation(glyphs),
             "body":         meta["body"],
-            "poem":         poem,
             "domain":       meta["domain"],
             "domain_color": AdrianaResonance.DOMAIN_COLORS.get(meta["domain"], "#c9a84c"),
         })

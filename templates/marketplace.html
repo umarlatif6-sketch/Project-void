@@ -720,10 +720,10 @@
                     </div>
                 `;
                 for (const ch of story.chapters) {
-                    const g = ch.poem.glyphs;
+                    const g = ch.glyphs;
                     html += `
                         <div class="mp-chapter">
-                            <div class="mp-chapter-num">Chapter ${ch.number}</div>
+                            <div class="mp-chapter-num">Chapter ${ch.chapter}</div>
                             <div class="mp-chapter-milestone">${ch.milestone}</div>
                             <div class="mp-chapter-title">${ch.title}</div>
                             <div class="mp-chapter-poem">
@@ -733,6 +733,7 @@
                                 <span class="mp-chapter-sep">—</span>
                                 <span class="mp-chapter-glyph">${g[2]}</span>
                             </div>
+                            <div class="mp-chapter-body" style="font-style:italic;color:#777;font-size:0.78rem;margin-bottom:8px">${ch.translation}</div>
                             <div class="mp-chapter-body">${ch.body}</div>
                         </div>
                     `;

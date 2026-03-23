@@ -307,8 +307,13 @@
                     {% endif %}
                     <div class="chr-body-text">{{ entry.body_text }}</div>
                     {% if entry.al_jabr_hash %}
-                    <div class="chr-hash">&#8203;Al-Jabr: {{ entry.al_jabr_hash }}</div>
+                    <div class="chr-hash">Al-Jabr: {{ entry.al_jabr_hash }}</div>
                     {% endif %}
+                    <div style="margin-top:12px">
+                        <a href="/marketplace" style="font-size:0.72rem;color:#444;text-decoration:none;border-bottom:1px dotted #333;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='#444'">
+                            View token stories from this era &rarr;
+                        </a>
+                    </div>
                 </div>
             </div>
             {% endfor %}

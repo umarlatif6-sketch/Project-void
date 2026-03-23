@@ -145,7 +145,7 @@ def get_chronicle():
             """SELECT id, chapter_number, title, subtitle, glyph_sequence, body_text,
                       posted_at, al_jabr_hash
                FROM chronicle_entries
-               ORDER BY chapter_number ASC, posted_at ASC"""
+               ORDER BY chapter_number DESC, posted_at DESC"""
         )
         rows = cur.fetchall()
         entries = []
@@ -228,27 +228,49 @@ pip install adriana-sdk  # coming soon to PyPI
 ## Quick Start
 
 ```python
-from adriana_sdk import AdrianaResonance, hash_to_sovereign_poem, generate_token_story
+from adriana_sdk import (
+    AdrianaResonance,
+    GlyphPoem, GlyphExtension,
+    hash_to_sovereign_poem,
+    generate_poem,
+    encode_message,
+    decode_glyphs,
+    generate_token_story,
+)
 
-# Get a sovereign poem from any 286-bit hex hash
-poem = hash_to_sovereign_poem("a3f9b12c8e...")
-print(poem["poem"])        # e.g. "σ-⚡-∞"
-print(poem["meanings"])    # e.g. ["Summation/Ledger", "Spark/Ignite", "Loop/Eternal"]
+# --- Sovereign poem from any hex hash ---
+poem = hash_to_sovereign_poem("a3f9b12c8e6d4a7c...")
+print(poem.poem)         # e.g. "σ-⚡-∞"
+print(poem.meanings)     # e.g. ["Summation/Ledger", "Spark/Ignite", "Loop/Eternal"]
+print(poem.translation)  # e.g. "Where Summation meets Spark, Loop emerges."
 
-# Generate a full token story (3/6/9 chapters by tier)
+# --- Poem from any seed string ---
+p = generate_poem("project void", length=3)
+print(p)                 # GlyphPoem stringifies to the dash-joined glyph form
+
+# --- Encode / decode messages ---
+encoded = encode_message("VOID")
+print(encoded)           # space-separated glyphs
+meanings = decode_glyphs(encoded)
+print(meanings)          # list of meaning strings
+
+# --- Custom glyph extension ---
+ext = GlyphExtension(name="Sovereignty", glyphs=["σ", "⚡", "∞"], domain="ledger")
+print(ext.to_poem())     # GlyphPoem from the extension's first 3 glyphs
+
+# --- Token story (3/6/9 chapters by tier) ---
 story = generate_token_story({
     "tier": "rare",
-    "token_hash": "a3f9b12c8e6d4a7c...",
+    "token_hash": "a3f9b12c8e6d4a7c",
     "edition_number": 2,
     "total_editions": 5,
-    "title": "Fractional Node",
 })
 for ch in story["chapters"]:
-    print(f"Chapter {ch['number']}: {ch['title']}")
-    print(f"  Poem: {ch['poem']['poem']}")
-    print(f"  {ch['body'][:80]}...")
+    print(f"Chapter {ch['chapter']}: {ch['title']}")
+    print(f"  Glyphs: {'-'.join(ch['glyphs'])}")
+    print(f"  {ch['translation']}")
 
-# Resonance field from any hash
+# --- Resonance field from any hash ---
 field = AdrianaResonance.calculate_resonance("a3f9b12c...")
 print(field["glyph"], field["meta"]["meaning"], field["harmonic_state"])
 ```
@@ -263,10 +285,10 @@ See `adriana_sdk/lexicon.py` for the full ontology with frequencies, meanings, a
 ```python
 import requests
 
-def verify_commercial_licence(token_id, base_url):
+def verify_commercial_licence(token_id, base_url="https://void.app"):
     r = requests.get(f"{base_url}/api/adriana/verify?token_id={token_id}")
     data = r.json()
-    return data.get("valid", False)
+    return data.get("licensed", False)
 ```
 
 ## Architecture
@@ -288,10 +310,28 @@ Adriana Sovereign Coded Language — Open SDK v1.0
 https://projectvoid.io
 """
 
-from adriana_sdk.core import AdrianaResonance, hash_to_sovereign_poem, generate_token_story
+from adriana_sdk.core import (
+    AdrianaResonance,
+    GlyphPoem,
+    GlyphExtension,
+    hash_to_sovereign_poem,
+    generate_poem,
+    encode_message,
+    decode_glyphs,
+    generate_token_story,
+)
 
 __version__ = "1.0.0"
-__all__ = ["AdrianaResonance", "hash_to_sovereign_poem", "generate_token_story"]
+__all__ = [
+    "AdrianaResonance",
+    "GlyphPoem",
+    "GlyphExtension",
+    "hash_to_sovereign_poem",
+    "generate_poem",
+    "encode_message",
+    "decode_glyphs",
+    "generate_token_story",
+]
 '''
 
 _SDK_CORE = '''\
@@ -300,10 +340,54 @@ Adriana SCL Core — Resonance Bridge v1.0
 
 This module is extracted from the PROJECT VOID Engine.
 Licence: MIT for personal use. Commercial use requires a VOID Blueprint Token.
+Verify at: https://void.app/api/adriana/verify?token_id=<ID>
 """
 
+from dataclasses import dataclass, field as dc_field
+from typing import List, Optional
 from adriana_sdk.lexicon import GLYPHS, DOMAIN_COLORS
 
+
+# ---------------------------------------------------------------------------
+# Data classes
+# ---------------------------------------------------------------------------
+
+@dataclass
+class GlyphPoem:
+    """A 3-glyph SCL expression derived from a hash or seed string."""
+    glyphs: List[str]
+    meanings: List[str]
+    translation: str
+    poem: str       # "glyph0-glyph1-glyph2" display form
+
+    def __str__(self):
+        return self.poem
+
+
+@dataclass
+class GlyphExtension:
+    """
+    A named extension point for custom glyph-domain mappings.
+    Useful for attaching domain-specific semantics to the Adriana lexicon.
+    """
+    name: str
+    glyphs: List[str]
+    domain: str
+    description: str = ""
+    metadata: dict = dc_field(default_factory=dict)
+
+    def to_poem(self) -> GlyphPoem:
+        """Render the first 3 extension glyphs as a GlyphPoem."""
+        g = (self.glyphs + ["α", "α", "α"])[:3]
+        meanings = [GLYPHS.get(x, {}).get("meaning", "Unknown") for x in g]
+        parts = [m.split("/")[0].strip() for m in meanings]
+        translation = f"Where {parts[0]} meets {parts[1]}, {parts[2]} emerges."
+        return GlyphPoem(glyphs=g, meanings=meanings, translation=translation, poem="-".join(g))
+
+
+# ---------------------------------------------------------------------------
+# Core engine class
+# ---------------------------------------------------------------------------
 
 class AdrianaResonance:
     GLYPHS = GLYPHS
@@ -319,11 +403,14 @@ class AdrianaResonance:
         glyph_key = glyph_keys[seed]
         meta = GLYPHS[glyph_key]
         field_strength = round((int(clean[:2], 16) / 255) * 100, 2)
-        secondary_idx = int(clean[2:4], 16) % len(glyph_keys)
-        secondary_key = glyph_keys[secondary_idx]
-        tertiary_idx = int(clean[4:6], 16) % len(glyph_keys)
-        tertiary_key = glyph_keys[tertiary_idx]
-        harmonic = "resonant" if field_strength >= 80 else "aligned" if field_strength >= 50 else "drifting" if field_strength >= 25 else "dormant"
+        secondary_key = glyph_keys[int(clean[2:4], 16) % len(glyph_keys)]
+        tertiary_key = glyph_keys[int(clean[4:6], 16) % len(glyph_keys)]
+        harmonic = (
+            "resonant" if field_strength >= 80
+            else "aligned" if field_strength >= 50
+            else "drifting" if field_strength >= 25
+            else "dormant"
+        )
         return {
             "glyph": glyph_key,
             "meta": meta,
@@ -336,92 +423,177 @@ class AdrianaResonance:
 
     @staticmethod
     def get_sequence(data_hash, length=6):
-        clean = _clean_hex(data_hash)
-        if len(clean) < 2:
-            clean = clean.ljust(12, "0")
+        clean = _clean_hex(data_hash).ljust(12, "0")
         glyph_keys = list(GLYPHS.keys())
         seq = []
         for i in range(length):
             start = (i * 2) % max(len(clean) - 1, 1)
             idx = int(clean[start:start + 2].ljust(2, "0"), 16) % len(glyph_keys)
             g = glyph_keys[idx]
-            seq.append({
-                "glyph": g,
-                "meta": GLYPHS[g],
-                "color": DOMAIN_COLORS.get(GLYPHS[g]["domain"], "#c9a84c"),
-            })
+            seq.append({"glyph": g, "meta": GLYPHS[g], "color": DOMAIN_COLORS.get(GLYPHS[g]["domain"], "#c9a84c")})
         return seq
 
     @staticmethod
     def get_all_glyphs():
-        result = {}
-        for g, meta in GLYPHS.items():
-            result[g] = {**meta, "color": DOMAIN_COLORS.get(meta["domain"], "#c9a84c")}
-        return result
+        return {g: {**meta, "color": DOMAIN_COLORS.get(meta["domain"], "#c9a84c")} for g, meta in GLYPHS.items()}
 
+
+# ---------------------------------------------------------------------------
+# Helper functions
+# ---------------------------------------------------------------------------
 
 def _clean_hex(h):
     return "".join(c for c in h if c in "0123456789abcdefABCDEF")
 
 
-def hash_to_sovereign_poem(hex_hash):
-    clean = _clean_hex(hex_hash).ljust(18, "0")[:18]
-    seg_a = int(clean[0:6], 16)
-    seg_b = int(clean[6:12], 16)
-    seg_c = int(clean[12:18], 16)
+def _pick_entity_condition_action(combined, offset):
+    """Pick an entity, condition, and action glyph from a hex string at offset using 4-char (16-bit) segments."""
     glyph_keys = list(GLYPHS.keys())
     entities   = glyph_keys[:19]
     conditions = glyph_keys[19:29]
     actions    = glyph_keys[29:45]
-    e = entities[seg_a % len(entities)]
-    c = conditions[seg_b % len(conditions)]
-    a = actions[seg_c % len(actions)]
-    return {
-        "glyphs":   [e, c, a],
-        "meanings": [GLYPHS[e]["meaning"], GLYPHS[c]["meaning"], GLYPHS[a]["meaning"]],
-        "poem":     f"{e}-{c}-{a}",
-    }
+    seg_a = int(combined[offset:offset + 4].ljust(4, "0"), 16)
+    seg_b = int(combined[offset + 4:offset + 8].ljust(4, "0"), 16)
+    seg_c = int(combined[offset + 8:offset + 12].ljust(4, "0"), 16)
+    return entities[seg_a % len(entities)], conditions[seg_b % len(conditions)], actions[seg_c % len(actions)]
+
+
+def _make_translation(glyphs):
+    """Compose a human-readable sentence from a 3-glyph Entity-Condition-Action sequence."""
+    meanings = [GLYPHS.get(g, {}).get("meaning", "Unknown") for g in glyphs]
+    parts = [m.split("/")[0].strip() for m in meanings]
+    return f"Where {parts[0]} meets {parts[1]}, {parts[2]} emerges."
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+def hash_to_sovereign_poem(hex_hash: str) -> GlyphPoem:
+    """Derive a deterministic sovereign 3-glyph poem from any hex hash string."""
+    combined = _clean_hex(hex_hash).ljust(12, "0")
+    e, c, a = _pick_entity_condition_action(combined, 0)
+    glyphs = [e, c, a]
+    meanings = [GLYPHS[g]["meaning"] for g in glyphs]
+    return GlyphPoem(
+        glyphs=glyphs,
+        meanings=meanings,
+        translation=_make_translation(glyphs),
+        poem=f"{e}-{c}-{a}",
+    )
+
+
+def generate_poem(seed_string: str, length: int = 3) -> GlyphPoem:
+    """
+    Generate a GlyphPoem from any arbitrary seed string (not necessarily hex).
+    The string is converted to a hex digest via Python\'s built-in hash, making it
+    deterministic within a process. For cross-process determinism, pass a hex hash.
+
+    Args:
+        seed_string: Any string to seed the poem.
+        length:      Number of glyphs to include (1-45). Default 3.
+
+    Returns:
+        GlyphPoem with `length` glyphs (translation always uses first 3).
+    """
+    # Convert seed to hex; use sha256 if available, else fallback
+    try:
+        import hashlib
+        h = hashlib.sha256(seed_string.encode()).hexdigest()
+    except Exception:
+        h = format(abs(hash(seed_string)), "x")
+    combined = h.ljust(length * 4, "0")
+    glyph_keys = list(GLYPHS.keys())
+    glyphs = []
+    for i in range(length):
+        offset = (i * 4) % max(len(combined) - 3, 1)
+        idx = int(combined[offset:offset + 4].ljust(4, "0"), 16) % len(glyph_keys)
+        glyphs.append(glyph_keys[idx])
+    meanings = [GLYPHS[g]["meaning"] for g in glyphs]
+    first3 = (glyphs + ["α", "α", "α"])[:3]
+    translation = _make_translation(first3)
+    return GlyphPoem(glyphs=glyphs, meanings=meanings, translation=translation, poem="-".join(glyphs))
+
+
+def encode_message(text: str) -> str:
+    """
+    Encode a plain-text message into a glyph string.
+    Each character is mapped to a glyph from the 45-glyph lexicon using its Unicode
+    ordinal modulo 45. Returns glyphs separated by spaces.
+
+    Args:
+        text: Plain-text string to encode.
+
+    Returns:
+        Space-separated glyph string.
+    """
+    glyph_keys = list(GLYPHS.keys())
+    return " ".join(glyph_keys[ord(ch) % len(glyph_keys)] for ch in text)
+
+
+def decode_glyphs(glyph_string: str) -> List[str]:
+    """
+    Decode a glyph string (space-separated) into a list of human-readable meanings.
+    Unrecognised glyphs are returned as "[unknown]".
+
+    Args:
+        glyph_string: Space-separated glyph symbols (as produced by encode_message).
+
+    Returns:
+        List of meaning strings, one per glyph.
+    """
+    return [GLYPHS[g]["meaning"] if g in GLYPHS else "[unknown]" for g in glyph_string.split()]
 
 
 _STORY_CHAPTERS = [
-    {"number": 1, "milestone": "Genesis",        "title": "The Engine Awakens",            "domain": "genesis",   "body": "The first seed was planted in the void. Code breathed life into the ENGINE — a steganography core built on Al-Jabr 286-bit hashing, resonating at 432 Hz."},
-    {"number": 2, "milestone": "The Signal",     "title": "First 432 Hz Transmission",     "domain": "signal",    "body": "A frequency was chosen — not arbitrary, but sovereign. 432 Hz became the carrier of every packet, every hash, every handshake the VOID ENGINE made with the outside world."},
-    {"number": 3, "milestone": "The Mesh",       "title": "Beehive Protocol Activates",    "domain": "mesh",      "body": "Nodes found each other. The Beehive Protocol emerged — a peer mesh where every Body node echoes the Brain\'s ledger, distributing trust across geography and time."},
-    {"number": 4, "milestone": "The Economy",    "title": "VTX Ledger Ignites",            "domain": "ledger",    "body": "Value entered the system. The Vortex Token (VTX) was issued — not minted by speculation but earned through participation, computation, and proof of work."},
-    {"number": 5, "milestone": "The Deed",       "title": "Blueprint Tokens Minted",       "domain": "forge",     "body": "Manufacturing slots opened. Each Blueprint Token became a deed — a cryptographic claim on the physical 4000-Series Sovereign Node being built."},
-    {"number": 6, "milestone": "The Drop",       "title": "VOID Mystery Collection Opens", "domain": "vortex",    "body": "The void released 1,000 unknowns. The VOID Mystery Collection launched — blind mints on a bonding curve, each token sealed until the moment of reveal."},
-    {"number": 7, "milestone": "The Unknown I",  "title": "Signal Unspoken",               "domain": "resonance", "body": "Beyond the sixth chapter, the lexicon grows quiet. There are frequencies the Adriana Protocol cannot yet name."},
-    {"number": 8, "milestone": "The Unknown II", "title": "Breath Unmeasured",             "domain": "temporal",  "body": "The Engine exhales. This chapter has no complete English translation — it exists as pure glyph-state."},
-    {"number": 9, "milestone": "The Sovereign Seal", "title": "Engine Eternal",            "domain": "finality",  "body": "Finality. This token has witnessed the full arc of PROJECT VOID — from genesis seed to sovereign machine."},
+    {"number": 1, "milestone": "Genesis",            "title": "The Engine Awakens",            "domain": "genesis",   "body": "The first seed was planted in the void. Code breathed life into the ENGINE — a steganography core built on Al-Jabr 286-bit hashing, resonating at 432 Hz."},
+    {"number": 2, "milestone": "The Signal",         "title": "First 432 Hz Transmission",     "domain": "signal",    "body": "A frequency was chosen — not arbitrary, but sovereign. 432 Hz became the carrier of every packet, every hash, every handshake the VOID ENGINE made with the outside world."},
+    {"number": 3, "milestone": "The Mesh",           "title": "Beehive Protocol Activates",    "domain": "mesh",      "body": "Nodes found each other. The Beehive Protocol emerged — a peer mesh where every Body node echoes the Brain\'s ledger, distributing trust across geography and time."},
+    {"number": 4, "milestone": "The Economy",        "title": "VTX Ledger Ignites",            "domain": "ledger",    "body": "Value entered the system. The Vortex Token (VTX) was issued — not minted by speculation but earned through participation, computation, and proof of work."},
+    {"number": 5, "milestone": "The Deed",           "title": "Blueprint Tokens Minted",       "domain": "forge",     "body": "Manufacturing slots opened. Each Blueprint Token became a deed — a cryptographic claim on the physical 4000-Series Sovereign Node being built."},
+    {"number": 6, "milestone": "The Drop",           "title": "VOID Mystery Collection Opens", "domain": "vortex",    "body": "The void released 1,000 unknowns. The VOID Mystery Collection launched — blind mints on a bonding curve, each token sealed until the moment of reveal."},
+    {"number": 7, "milestone": "The Unknown I",      "title": "Signal Unspoken",               "domain": "resonance", "body": "Beyond the sixth chapter, the lexicon grows quiet. There are frequencies the Adriana Protocol cannot yet name."},
+    {"number": 8, "milestone": "The Unknown II",     "title": "Breath Unmeasured",             "domain": "temporal",  "body": "The Engine exhales. This chapter has no complete English translation — it exists as pure glyph-state."},
+    {"number": 9, "milestone": "The Sovereign Seal", "title": "Engine Eternal",                "domain": "finality",  "body": "Finality. This token has witnessed the full arc of PROJECT VOID — from genesis seed to sovereign machine."},
 ]
 
 _CHAPTERS_BY_TIER = {"common": 3, "rare": 6, "legendary": 9}
 
 
-def generate_token_story(token):
+def generate_token_story(token: dict) -> dict:
+    """
+    Generate a multi-chapter story for a Blueprint Token.
+
+    Each chapter uses successive 16-bit (4 hex-char) segments of the token hash,
+    combined with edition_number and total_editions as a salt.
+
+    Returns:
+        {
+          tier, chapter_count, locked_count,
+          chapters: [{chapter, milestone, title, glyphs, translation, body, domain, domain_color}]
+        }
+    """
     tier = token.get("tier", "common")
     hex_hash = token.get("token_hash", "").replace("...", "").strip()
+    edition = int(token.get("edition_number") or 1)
+    total = int(token.get("total_editions") or 1)
     unlocked = _CHAPTERS_BY_TIER.get(tier, 3)
-    clean = _clean_hex(hex_hash).ljust(54, "0")
-    glyph_keys = list(GLYPHS.keys())
-    entities   = glyph_keys[:19]
-    conditions = glyph_keys[19:29]
-    actions    = glyph_keys[29:45]
+
+    edition_salt = f"{edition:04x}{total:04x}"
+    combined = (_clean_hex(hex_hash) + edition_salt).ljust(108, "0")
+
     chapters = []
     for i, meta in enumerate(_STORY_CHAPTERS[:unlocked]):
-        offset = (i * 6) % max(len(clean) - 5, 1)
-        seg_a = int(clean[offset:offset + 2].ljust(2, "0"), 16)
-        seg_b = int(clean[offset + 2:offset + 4].ljust(2, "0"), 16)
-        seg_c = int(clean[offset + 4:offset + 6].ljust(2, "0"), 16)
-        e = entities[seg_a % len(entities)]
-        c = conditions[seg_b % len(conditions)]
-        a = actions[seg_c % len(actions)]
+        offset = (i * 12) % max(len(combined) - 11, 1)
+        e, c, a = _pick_entity_condition_action(combined, offset)
+        glyphs = [e, c, a]
         chapters.append({
-            "number":       meta["number"],
+            "chapter":      meta["number"],
             "milestone":    meta["milestone"],
             "title":        meta["title"],
+            "glyphs":       glyphs,
+            "translation":  _make_translation(glyphs),
             "body":         meta["body"],
-            "poem":         {"glyphs": [e, c, a], "meanings": [GLYPHS[e]["meaning"], GLYPHS[c]["meaning"], GLYPHS[a]["meaning"]], "poem": f"{e}-{c}-{a}"},
             "domain":       meta["domain"],
             "domain_color": DOMAIN_COLORS.get(meta["domain"], "#c9a84c"),
         })
