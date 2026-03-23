@@ -237,6 +237,23 @@ def _ensure_columns():
                 (item_key, display_name, gbp_pence, vtx_cost, is_active),
             )
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS chronicle_entries (
+                id SERIAL PRIMARY KEY,
+                chapter_number INTEGER NOT NULL DEFAULT 0,
+                title VARCHAR(200) NOT NULL,
+                subtitle VARCHAR(300),
+                glyph_sequence VARCHAR(200) NOT NULL DEFAULT '',
+                body_text TEXT NOT NULL DEFAULT '',
+                posted_at TIMESTAMP DEFAULT NOW(),
+                posted_by INTEGER REFERENCES users(id),
+                al_jabr_hash VARCHAR(72)
+            )
+        """)
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_chronicle_chapter ON chronicle_entries(chapter_number)")
+
+        conn.commit()
+
         for chk_name, chk_sql in [
             ("chk_bt_tier", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_tier CHECK (tier IN ('common','rare','legendary'))"),
             ("chk_bt_status", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_status CHECK (status IN ('available','reserved','sold'))"),
@@ -245,11 +262,16 @@ def _ensure_columns():
             ("chk_mf_status", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_status CHECK (status IN ('pledged','spent'))"),
         ]:
             try:
+                cur.execute(f"SAVEPOINT {chk_name}")
                 cur.execute(chk_sql)
+                cur.execute(f"RELEASE SAVEPOINT {chk_name}")
+                conn.commit()
             except Exception:
-                pass
-
-        conn.commit()
+                try:
+                    cur.execute(f"ROLLBACK TO SAVEPOINT {chk_name}")
+                    conn.rollback()
+                except Exception:
+                    pass
 
         _init_vortex_genesis(conn)
     except Exception:

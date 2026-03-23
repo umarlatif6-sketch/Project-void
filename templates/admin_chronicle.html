@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Chronicle</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body { background: #0a0a0f; color: #e0e0e0; font-family: 'SF Mono', monospace; }
+        .ac-wrap { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+        .ac-title { font-size: 1.8rem; font-weight: 700; color: #2dd4bf; margin-bottom: 8px; padding-top: 20px; }
+        .ac-sub { font-size: 0.8rem; color: #555; margin-bottom: 40px; }
+        .ac-alert { padding: 12px 18px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 24px; }
+        .ac-alert.success { background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.3); color: #4caf50; }
+        .ac-alert.error { background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.3); color: #ff5252; }
+
+        .ac-form-box {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 40px;
+        }
+        .ac-form-title { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 20px; }
+        .ac-form-row { margin-bottom: 16px; }
+        .ac-label { display: block; font-size: 0.72rem; color: #888; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+        .ac-input, .ac-textarea {
+            width: 100%; box-sizing: border-box;
+            background: #0d0d15;
+            border: 1px solid #2a2a3a;
+            border-radius: 6px;
+            padding: 10px 14px;
+            color: #e0e0e0;
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+        .ac-input:focus, .ac-textarea:focus { outline: none; border-color: #2dd4bf; }
+        .ac-textarea { min-height: 100px; resize: vertical; }
+        .ac-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .ac-form-grid { grid-template-columns: 1fr; } }
+        .ac-btn {
+            background: rgba(45,212,191,0.15);
+            border: 1px solid rgba(45,212,191,0.3);
+            color: #2dd4bf;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .ac-btn:hover { background: rgba(45,212,191,0.25); }
+        .ac-btn-delete {
+            background: rgba(255,82,82,0.1);
+            border-color: rgba(255,82,82,0.3);
+            color: #ff5252;
+            padding: 6px 14px;
+            font-size: 0.72rem;
+        }
+        .ac-btn-delete:hover { background: rgba(255,82,82,0.2); }
+
+        .ac-entries { }
+        .ac-entry-card {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .ac-entry-main { flex: 1; }
+        .ac-entry-ch { font-size: 0.65rem; color: #2dd4bf; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+        .ac-entry-title { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 4px; }
+        .ac-entry-glyphs { font-size: 1.1rem; margin-bottom: 8px; }
+        .ac-entry-body { font-size: 0.78rem; color: #888; line-height: 1.5; }
+        .ac-entry-hash { font-size: 0.6rem; color: #333; font-family: monospace; margin-top: 8px; }
+        .ac-nav { margin-bottom: 30px; }
+        .ac-nav a { color: #555; text-decoration: none; font-size: 0.8rem; }
+        .ac-nav a:hover { color: #2dd4bf; }
+    </style>
+</head>
+<body>
+<div class="ac-wrap">
+    <div class="ac-nav"><a href="/admin/market">&larr; Admin Market</a> &nbsp; <a href="/chronicle">View Public Chronicle</a></div>
+    <div class="ac-title">Chronicle Admin</div>
+    <div class="ac-sub">Add and manage PROJECT VOID milestone entries for the public Chronicle.</div>
+
+    {% if updated %}
+    <div class="ac-alert success">
+        {% if updated == 'added' %}Entry added to the Chronicle.{% elif updated == 'deleted' %}Entry removed from the Chronicle.{% else %}Updated.{% endif %}
+    </div>
+    {% endif %}
+    {% if error %}
+    <div class="ac-alert error">Error: {{ error }}</div>
+    {% endif %}
+
+    <div class="ac-form-box">
+        <div class="ac-form-title">Add Chronicle Entry</div>
+        <form method="POST" action="/admin/chronicle">
+            <input type="hidden" name="action" value="add">
+            <div class="ac-form-grid">
+                <div class="ac-form-row">
+                    <label class="ac-label">Chapter Number</label>
+                    <input class="ac-input" type="number" name="chapter_number" min="0" max="99" value="0" required>
+                </div>
+                <div class="ac-form-row">
+                    <label class="ac-label">Glyph Sequence (e.g. ◆-γ-⚡)</label>
+                    <input class="ac-input" type="text" name="glyph_sequence" placeholder="◆-γ-⚡" required>
+                </div>
+            </div>
+            <div class="ac-form-row">
+                <label class="ac-label">Title</label>
+                <input class="ac-input" type="text" name="title" placeholder="The Engine Awakens" required>
+            </div>
+            <div class="ac-form-row">
+                <label class="ac-label">Subtitle / Milestone (optional)</label>
+                <input class="ac-input" type="text" name="subtitle" placeholder="Milestone: Genesis">
+            </div>
+            <div class="ac-form-row">
+                <label class="ac-label">Body Text</label>
+                <textarea class="ac-textarea" name="body_text" placeholder="Describe this project milestone..." required></textarea>
+            </div>
+            <button type="submit" class="ac-btn">+ Add Entry</button>
+        </form>
+    </div>
+
+    <div class="ac-entries">
+        {% if entries %}
+            {% for entry in entries %}
+            <div class="ac-entry-card">
+                <div class="ac-entry-main">
+                    <div class="ac-entry-ch">Chapter {{ entry.chapter_number }} {% if entry.subtitle %}— {{ entry.subtitle }}{% endif %}</div>
+                    <div class="ac-entry-title">{{ entry.title }}</div>
+                    <div class="ac-entry-glyphs">{{ entry.glyph_sequence }}</div>
+                    <div class="ac-entry-body">{{ entry.body_text[:200] }}{% if entry.body_text|length > 200 %}...{% endif %}</div>
+                    {% if entry.al_jabr_hash %}
+                    <div class="ac-entry-hash">Al-Jabr: {{ entry.al_jabr_hash }}</div>
+                    {% endif %}
+                </div>
+                <form method="POST" action="/admin/chronicle" style="flex-shrink:0">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="entry_id" value="{{ entry.id }}">
+                    <button type="submit" class="ac-btn ac-btn-delete" onclick="return confirm('Delete this chronicle entry?')">Delete</button>
+                </form>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align:center;color:#444;padding:40px;border:1px dashed #1e1e2e;border-radius:10px;">No chronicle entries yet.</div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

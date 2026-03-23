@@ -12,6 +12,7 @@ from void_engine.blueprint_nft import (
     purchase_token_fiat,
     TIER_CONFIG,
 )
+from void_engine.adriana_scl import generate_token_story
 
 logger = logging.getLogger(__name__)
 
@@ -208,3 +209,16 @@ def api_fund_status():
     except Exception as e:
         logger.error("Fund status error: %s", e)
         return jsonify({"error": "Failed to load fund status"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/token/<int:token_id>/story")
+def api_token_story(token_id):
+    try:
+        token = get_token_detail(token_id)
+        if not token:
+            return jsonify({"error": "Token not found"}), 404
+        story = generate_token_story(token)
+        return jsonify({"story": story, "token_id": token_id})
+    except Exception as e:
+        logger.error("Token story error: %s", e)
+        return jsonify({"error": "Failed to generate story"}), 500

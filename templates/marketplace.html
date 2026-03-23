@@ -419,6 +419,126 @@
             color: #4caf50;
         }
 
+        .mp-story-btn {
+            display: block;
+            width: 100%;
+            margin-top: 8px;
+            padding: 7px;
+            background: rgba(45,212,191,0.06);
+            border: 1px solid rgba(45,212,191,0.15);
+            border-radius: 5px;
+            color: #2dd4bf;
+            font-family: inherit;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+        .mp-story-btn:hover { background: rgba(45,212,191,0.12); }
+
+        .mp-story-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .mp-story-modal.open { display: flex; }
+        .mp-story-panel {
+            background: #0f0f18;
+            border: 1px solid #2a2a3a;
+            border-radius: 14px;
+            max-width: 640px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 32px 36px;
+        }
+        .mp-story-close {
+            float: right;
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 1.2rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .mp-story-close:hover { color: #fff; }
+        .mp-story-header { margin-bottom: 24px; }
+        .mp-story-tier {
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #2dd4bf;
+            margin-bottom: 6px;
+        }
+        .mp-story-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .mp-chapter {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #1a1a2a;
+        }
+        .mp-chapter:last-child { border-bottom: none; margin-bottom: 0; }
+        .mp-chapter-num {
+            font-size: 0.6rem;
+            color: #444;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .mp-chapter-milestone {
+            font-size: 0.7rem;
+            color: #2dd4bf;
+            margin-bottom: 6px;
+        }
+        .mp-chapter-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .mp-chapter-poem {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+        .mp-chapter-glyph {
+            font-size: 1.1rem;
+            padding: 3px 7px;
+            border-radius: 4px;
+            background: rgba(45,212,191,0.07);
+            border: 1px solid rgba(45,212,191,0.15);
+        }
+        .mp-chapter-sep { color: #333; }
+        .mp-chapter-body {
+            font-size: 0.82rem;
+            color: #999;
+            line-height: 1.65;
+        }
+        .mp-story-locked {
+            text-align: center;
+            color: #333;
+            padding: 20px;
+            border: 1px dashed #1e1e2e;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-top: 16px;
+        }
+        .mp-story-loading {
+            text-align: center;
+            color: #555;
+            padding: 40px;
+        }
+
         @media (max-width: 700px) {
             .mp-hero-title { font-size: 2rem; }
             .mp-tier-grid { grid-template-columns: 1fr; }
@@ -438,6 +558,7 @@
             <a href="/download" class="landing-nav-link">Download</a>
             <a href="/sovereign" class="landing-nav-link">Hardware</a>
             <a href="/marketplace" class="landing-nav-link active" style="color:#c9a84c">Marketplace</a>
+            <a href="/chronicle" class="landing-nav-link">Chronicle</a>
             <a href="/messenger" class="landing-nav-link">Messenger</a>
             <a href="/login" class="landing-nav-link">Login</a>
         </div>
@@ -506,6 +627,13 @@
 
     <div class="mp-toast" id="mpToast"></div>
 
+    <div class="mp-story-modal" id="storyModal">
+        <div class="mp-story-panel" id="storyPanel">
+            <button class="mp-story-close" onclick="closeStory()">&times;</button>
+            <div id="storyContent"><div class="mp-story-loading">Loading story...</div></div>
+        </div>
+    </div>
+
     <script>
         const isLoggedIn = {{ 'true' if user_id else 'false' }};
 
@@ -549,6 +677,7 @@
                     <button class="mp-btn mp-btn-stripe" onclick="buyStripe(${token.id})">Buy with Card</button>
                 `;
             }
+            const chapCount = token.tier === 'legendary' ? 9 : token.tier === 'rare' ? 6 : 3;
             return `
                 <div class="mp-card ${tierClass}">
                     <div class="mp-card-header">
@@ -564,9 +693,70 @@
                     </div>
                     <div class="mp-card-actions">${actions}</div>
                     <div class="mp-hash-display">${token.token_hash}</div>
+                    <button class="mp-story-btn" onclick="openStory(${token.id}, '${token.title.replace(/'/g, "\\'")}', '${token.tier}')">
+                        &#9654; Read Token Story (${chapCount} chapters)
+                    </button>
                 </div>
             `;
         }
+
+        async function openStory(tokenId, title, tier) {
+            const modal = document.getElementById('storyModal');
+            const content = document.getElementById('storyContent');
+            content.innerHTML = '<div class="mp-story-loading">Loading story...</div>';
+            modal.classList.add('open');
+            try {
+                const res = await fetch(`/api/marketplace/token/${tokenId}/story`);
+                const data = await res.json();
+                if (data.error) {
+                    content.innerHTML = `<div class="mp-story-loading" style="color:#ff5252">${data.error}</div>`;
+                    return;
+                }
+                const story = data.story;
+                let html = `
+                    <div class="mp-story-header">
+                        <div class="mp-story-tier">${story.tier} &bull; ${story.chapter_count} Chapters Unlocked</div>
+                        <div class="mp-story-title">${title}</div>
+                    </div>
+                `;
+                for (const ch of story.chapters) {
+                    const g = ch.poem.glyphs;
+                    html += `
+                        <div class="mp-chapter">
+                            <div class="mp-chapter-num">Chapter ${ch.number}</div>
+                            <div class="mp-chapter-milestone">${ch.milestone}</div>
+                            <div class="mp-chapter-title">${ch.title}</div>
+                            <div class="mp-chapter-poem">
+                                <span class="mp-chapter-glyph">${g[0]}</span>
+                                <span class="mp-chapter-sep">—</span>
+                                <span class="mp-chapter-glyph">${g[1]}</span>
+                                <span class="mp-chapter-sep">—</span>
+                                <span class="mp-chapter-glyph">${g[2]}</span>
+                            </div>
+                            <div class="mp-chapter-body">${ch.body}</div>
+                        </div>
+                    `;
+                }
+                if (story.locked_count > 0) {
+                    html += `
+                        <div class="mp-story-locked">
+                            ${story.locked_count} chapter${story.locked_count > 1 ? 's' : ''} locked &mdash;
+                            upgrade to a higher tier token to unlock the full story.
+                        </div>
+                    `;
+                }
+                content.innerHTML = html;
+            } catch (e) {
+                content.innerHTML = '<div class="mp-story-loading" style="color:#ff5252">Failed to load story.</div>';
+            }
+        }
+
+        function closeStory() {
+            document.getElementById('storyModal').classList.remove('open');
+        }
+        document.getElementById('storyModal').addEventListener('click', function(e) {
+            if (e.target === this) closeStory();
+        });
 
         async function loadListings() {
             try {

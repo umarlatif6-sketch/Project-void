@@ -28,6 +28,11 @@ def _startup_migrations():
         seed_initial_collection()
     except Exception as e:
         logger.error("Blueprint token seeding failed: %s", e)
+    try:
+        from void_engine.chronicle_adriana import seed_chronicle
+        seed_chronicle()
+    except Exception as e:
+        logger.error("Chronicle seeding failed: %s", e)
 
 try:
     from routes import register_blueprints

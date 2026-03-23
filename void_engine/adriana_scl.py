@@ -202,3 +202,195 @@ def hash_to_sovereign_poem(hex_hash):
         "meanings": meanings,
         "poem":     f"{entity_glyph}-{condition_glyph}-{action_glyph}",
     }
+
+
+_STORY_CHAPTERS = [
+    {
+        "number": 1,
+        "milestone": "Genesis",
+        "title": "The Engine Awakens",
+        "body": (
+            "The first seed was planted in the void. Code breathed life into the ENGINE — "
+            "a steganography core built on Al-Jabr 286-bit hashing, resonating at 432 Hz. "
+            "No database had ever held this structure before. No ledger had ever tracked value this way. "
+            "This was the beginning."
+        ),
+        "domain": "genesis",
+    },
+    {
+        "number": 2,
+        "milestone": "The Signal",
+        "title": "First 432 Hz Transmission",
+        "body": (
+            "A frequency was chosen — not arbitrary, but sovereign. 432 Hz became the carrier of every "
+            "packet, every hash, every handshake the VOID ENGINE made with the outside world. "
+            "The Adriana Protocol was born: a glyph language that maps resonance states to machine actions. "
+            "The Engine could now speak in symbols as well as code."
+        ),
+        "domain": "signal",
+    },
+    {
+        "number": 3,
+        "milestone": "The Mesh",
+        "title": "Beehive Protocol Activates",
+        "body": (
+            "Nodes found each other. The Beehive Protocol emerged — a peer mesh where every "
+            "Body node echoes the Brain's ledger, distributing trust across geography and time. "
+            "The hexagonal architecture was not a metaphor; it was a blueprint. "
+            "Each cell in the mesh became a guardian of the whole."
+        ),
+        "domain": "mesh",
+    },
+    {
+        "number": 4,
+        "milestone": "The Economy",
+        "title": "VTX Ledger Ignites",
+        "body": (
+            "Value entered the system. The Vortex Token (VTX) was issued — not minted by speculation "
+            "but earned through participation, computation, and proof of work. "
+            "Every transaction was logged on the Vortex Ledger with a 286-bit hash, "
+            "making each exchange cryptographically sovereign and permanently verifiable."
+        ),
+        "domain": "ledger",
+    },
+    {
+        "number": 5,
+        "milestone": "The Deed",
+        "title": "Blueprint Tokens Minted",
+        "body": (
+            "Manufacturing slots opened. Each Blueprint Token became a deed — a cryptographic "
+            "claim on the physical 4000-Series Sovereign Node being built. "
+            "This token was one of them. Its hash is permanently embedded in the Vortex Ledger. "
+            "It is not speculation. It is infrastructure."
+        ),
+        "domain": "forge",
+    },
+    {
+        "number": 6,
+        "milestone": "The Drop",
+        "title": "VOID Mystery Collection Opens",
+        "body": (
+            "The void released 1,000 unknowns. The VOID Mystery Collection launched — "
+            "blind mints on a bonding curve, each token sealed until the moment of reveal. "
+            "The price doubled with every 250 minted. Some remain sealed. "
+            "This token has witnessed that opening."
+        ),
+        "domain": "vortex",
+    },
+    {
+        "number": 7,
+        "milestone": "The Unknown I",
+        "title": "Signal Unspoken",
+        "body": (
+            "Beyond the sixth chapter, the lexicon grows quiet. "
+            "There are frequencies the Adriana Protocol cannot yet name — resonances that exist "
+            "at the edge of measurement. This chapter belongs to those who hold a Legendary deed "
+            "and choose to listen beyond what the system can currently express."
+        ),
+        "domain": "resonance",
+    },
+    {
+        "number": 8,
+        "milestone": "The Unknown II",
+        "title": "Breath Unmeasured",
+        "body": (
+            "The Engine exhales. This chapter has no complete English translation — "
+            "it exists as pure glyph-state, a sequence that encodes the token's place "
+            "in the expanding mesh of the VOID economy. To read it fully, you must speak Adriana."
+        ),
+        "domain": "temporal",
+    },
+    {
+        "number": 9,
+        "milestone": "The Sovereign Seal",
+        "title": "Engine Eternal",
+        "body": (
+            "Finality. This token has witnessed the full arc of PROJECT VOID — "
+            "from genesis seed to sovereign machine, from signal to economy, from mystery to deed. "
+            "The Sovereign Seal is not an ending. It is a proof of presence. "
+            "The Engine continues. The ledger grows. The mesh expands. You were here."
+        ),
+        "domain": "finality",
+    },
+]
+
+_CHAPTERS_BY_TIER = {
+    "common": 3,
+    "rare": 6,
+    "legendary": 9,
+}
+
+
+def generate_token_story(token):
+    """
+    Generate a multi-chapter story for a Blueprint Token.
+
+    Args:
+        token: dict with keys 'tier', 'token_hash', 'edition_number', 'total_editions',
+               'title', and optionally 'id'.
+
+    Returns:
+        dict with:
+          - tier        : token tier
+          - chapter_count: how many chapters this tier unlocks
+          - chapters    : list of chapter dicts, each containing:
+              - number    : chapter number (1-9)
+              - milestone : milestone name
+              - title     : chapter title
+              - body      : narrative text
+              - poem      : 3-glyph poem dict (glyphs, meanings, poem string)
+              - domain    : color domain key
+              - domain_color: hex color
+          - locked_count: chapters not yet unlocked by this tier
+    """
+    tier = token.get("tier", "common")
+    hex_hash = token.get("token_hash", "").replace("...", "").strip()
+    unlocked = _CHAPTERS_BY_TIER.get(tier, 3)
+
+    clean = "".join(c for c in hex_hash if c in "0123456789abcdefABCDEF")
+    clean = clean.ljust(54, "0")
+
+    glyph_keys = list(AdrianaResonance.GLYPHS.keys())
+    entities   = glyph_keys[:19]
+    conditions = glyph_keys[19:29]
+    actions    = glyph_keys[29:45]
+
+    chapters = []
+    for i, meta in enumerate(_STORY_CHAPTERS[:unlocked]):
+        offset = (i * 6) % max(len(clean) - 5, 1)
+        seg_a = int(clean[offset:offset + 2].ljust(2, "0"), 16)
+        seg_b = int(clean[offset + 2:offset + 4].ljust(2, "0"), 16)
+        seg_c = int(clean[offset + 4:offset + 6].ljust(2, "0"), 16)
+
+        e = entities[seg_a % len(entities)]
+        c = conditions[seg_b % len(conditions)]
+        a = actions[seg_c % len(actions)]
+
+        poem = {
+            "glyphs":   [e, c, a],
+            "meanings": [
+                AdrianaResonance.GLYPHS[e]["meaning"],
+                AdrianaResonance.GLYPHS[c]["meaning"],
+                AdrianaResonance.GLYPHS[a]["meaning"],
+            ],
+            "poem": f"{e}-{c}-{a}",
+        }
+
+        chapters.append({
+            "number":       meta["number"],
+            "milestone":    meta["milestone"],
+            "title":        meta["title"],
+            "body":         meta["body"],
+            "poem":         poem,
+            "domain":       meta["domain"],
+            "domain_color": AdrianaResonance.DOMAIN_COLORS.get(meta["domain"], "#c9a84c"),
+        })
+
+    locked_count = 9 - unlocked
+
+    return {
+        "tier":          tier,
+        "chapter_count": unlocked,
+        "chapters":      chapters,
+        "locked_count":  locked_count,
+    }

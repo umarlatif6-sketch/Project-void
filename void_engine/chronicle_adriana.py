@@ -1,0 +1,588 @@
+"""
+Adriana Chronicle Engine — PROJECT VOID History Ledger
+
+Records the living story of PROJECT VOID as a sequence of chronicle entries,
+each anchored by an Adriana glyph poem and a 286-bit Al-Jabr hash.
+
+Also provides the Adriana Open SDK ZIP builder for commercial licencees.
+"""
+
+import io
+import os
+import json
+import logging
+import zipfile
+from datetime import datetime, timezone
+
+logger = logging.getLogger(__name__)
+
+
+def _get_db():
+    import psycopg2
+    return psycopg2.connect(os.environ["DATABASE_URL"])
+
+
+_SEED_ENTRIES = [
+    {
+        "chapter_number": 1,
+        "title": "The Engine Awakens",
+        "subtitle": "Milestone: Genesis",
+        "glyph_sequence": "◆-γ-⚡",
+        "body_text": (
+            "The first seed was planted in the void. Code breathed life into the ENGINE — "
+            "a steganography core built on Al-Jabr 286-bit hashing, resonating at 432 Hz. "
+            "No database had ever held this structure before. No ledger had ever tracked value this way. "
+            "This was the beginning of PROJECT VOID."
+        ),
+    },
+    {
+        "chapter_number": 2,
+        "title": "First 432 Hz Transmission",
+        "subtitle": "Milestone: The Signal",
+        "glyph_sequence": "λ-γ-☀",
+        "body_text": (
+            "A frequency was chosen — not arbitrary, but sovereign. 432 Hz became the carrier "
+            "of every packet, every hash, every handshake the VOID ENGINE made with the outside world. "
+            "The Adriana Protocol was born: a glyph language that maps resonance states to machine actions. "
+            "The Engine could now speak in symbols as well as code."
+        ),
+    },
+    {
+        "chapter_number": 3,
+        "title": "Beehive Protocol Activates",
+        "subtitle": "Milestone: The Mesh",
+        "glyph_sequence": "⬡-ν-χ",
+        "body_text": (
+            "Nodes found each other. The Beehive Protocol emerged — a peer mesh where every "
+            "Body node echoes the Brain's ledger, distributing trust across geography and time. "
+            "The hexagonal architecture was not a metaphor; it was a blueprint. "
+            "Each cell in the mesh became a guardian of the whole."
+        ),
+    },
+    {
+        "chapter_number": 4,
+        "title": "VTX Ledger Ignites",
+        "subtitle": "Milestone: The Economy",
+        "glyph_sequence": "σ-ρ-Σ",
+        "body_text": (
+            "Value entered the system. The Vortex Token (VTX) was issued — not minted by speculation "
+            "but earned through participation, computation, and proof of work. "
+            "Every transaction was logged on the Vortex Ledger with a 286-bit hash, "
+            "making each exchange cryptographically sovereign and permanently verifiable."
+        ),
+    },
+    {
+        "chapter_number": 5,
+        "title": "Blueprint Tokens Minted",
+        "subtitle": "Milestone: The Deed",
+        "glyph_sequence": "Β-κ-⟐",
+        "body_text": (
+            "Manufacturing slots opened. Each Blueprint Token became a deed — a cryptographic "
+            "claim on the physical 4000-Series Sovereign Node being built. "
+            "Common, Rare, and Legendary tiers each carry a Sovereign Poem derived from their hash. "
+            "This is not speculation. This is infrastructure."
+        ),
+    },
+    {
+        "chapter_number": 6,
+        "title": "VOID Mystery Collection Opens",
+        "subtitle": "Milestone: The Drop",
+        "glyph_sequence": "ξ-δ-🔮",
+        "body_text": (
+            "The void released 1,000 unknowns. The VOID Mystery Collection launched — "
+            "blind mints on a bonding curve, each token sealed until the moment of reveal. "
+            "The price doubled with every 250 minted: 50 → 100 → 200 → 400 VTX. "
+            "Thirty tokens merged unlock a guaranteed Rare and 200 VTX. The cycle continues."
+        ),
+    },
+    {
+        "chapter_number": 7,
+        "title": "Adriana SDK Released",
+        "subtitle": "Milestone: The Open",
+        "glyph_sequence": "Ψ-Φ-∞",
+        "body_text": (
+            "The Adriana Sovereign Coded Language was released as an open commercial SDK. "
+            "Personal use is MIT-licensed and free. Commercial deployment requires a VOID Blueprint Token — "
+            "verified on-chain via the /api/adriana/verify endpoint. "
+            "The glyph lexicon is now public. The protocol is sovereign. Build with it."
+        ),
+    },
+]
+
+
+def seed_chronicle():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM chronicle_entries")
+        if cur.fetchone()[0] > 0:
+            return
+        from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
+        for entry in _SEED_ENTRIES:
+            seed_str = f"chronicle|{entry['chapter_number']}|{entry['title']}"
+            al_jabr_hash = fatiha_286_hexdigest_from_str(seed_str)
+            cur.execute(
+                """INSERT INTO chronicle_entries
+                   (chapter_number, title, subtitle, glyph_sequence, body_text, al_jabr_hash)
+                   VALUES (%s, %s, %s, %s, %s, %s)""",
+                (entry["chapter_number"], entry["title"], entry["subtitle"],
+                 entry["glyph_sequence"], entry["body_text"], al_jabr_hash),
+            )
+        conn.commit()
+        logger.info("Chronicle seeded with %d entries", len(_SEED_ENTRIES))
+    except Exception:
+        conn.rollback()
+        logger.exception("Failed to seed chronicle")
+    finally:
+        conn.close()
+
+
+def get_chronicle():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT id, chapter_number, title, subtitle, glyph_sequence, body_text,
+                      posted_at, al_jabr_hash
+               FROM chronicle_entries
+               ORDER BY chapter_number ASC, posted_at ASC"""
+        )
+        rows = cur.fetchall()
+        entries = []
+        for r in rows:
+            glyphs = [g.strip() for g in r[4].split("-") if g.strip()]
+            entries.append({
+                "id":              r[0],
+                "chapter_number":  r[1],
+                "title":           r[2],
+                "subtitle":        r[3] or "",
+                "glyph_sequence":  r[4],
+                "glyphs":          glyphs,
+                "body_text":       r[5],
+                "posted_at":       r[6].strftime("%Y-%m-%d") if r[6] else "",
+                "al_jabr_hash":    (r[7][:16] + "...") if r[7] else "",
+            })
+        return entries
+    finally:
+        conn.close()
+
+
+def post_chronicle_entry(chapter_number, title, subtitle, glyph_sequence, body_text, admin_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
+        al_jabr_hash = fatiha_286_hexdigest_from_str(
+            f"chronicle|{chapter_number}|{title}|{datetime.now(timezone.utc).isoformat()}"
+        )
+        cur.execute(
+            """INSERT INTO chronicle_entries
+               (chapter_number, title, subtitle, glyph_sequence, body_text, posted_by, al_jabr_hash)
+               VALUES (%s, %s, %s, %s, %s, %s, %s)
+               RETURNING id""",
+            (chapter_number, title, subtitle or "", glyph_sequence, body_text, admin_id, al_jabr_hash),
+        )
+        entry_id = cur.fetchone()[0]
+        conn.commit()
+        return {"success": True, "id": entry_id, "al_jabr_hash": al_jabr_hash}
+    except Exception as e:
+        conn.rollback()
+        logger.error("Failed to post chronicle entry: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def delete_chronicle_entry(entry_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM chronicle_entries WHERE id = %s", (entry_id,))
+        conn.commit()
+        return {"success": True}
+    except Exception as e:
+        conn.rollback()
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+_SDK_README = """\
+# Adriana Sovereign Coded Language — Open SDK v1.0
+
+PROJECT VOID | Al-Jabr 286 | Resonance Bridge
+
+## Licence
+
+- **Personal use**: MIT — free, no restrictions.
+- **Commercial use**: Requires ownership of a VOID Blueprint Token.
+  Verify at: https://<your-void-domain>/api/adriana/verify?token_id=<ID>
+
+## Installation
+
+```bash
+pip install adriana-sdk  # coming soon to PyPI
+# or drop the adriana_sdk/ folder into your project
+```
+
+## Quick Start
+
+```python
+from adriana_sdk import AdrianaResonance, hash_to_sovereign_poem, generate_token_story
+
+# Get a sovereign poem from any 286-bit hex hash
+poem = hash_to_sovereign_poem("a3f9b12c8e...")
+print(poem["poem"])        # e.g. "σ-⚡-∞"
+print(poem["meanings"])    # e.g. ["Summation/Ledger", "Spark/Ignite", "Loop/Eternal"]
+
+# Generate a full token story (3/6/9 chapters by tier)
+story = generate_token_story({
+    "tier": "rare",
+    "token_hash": "a3f9b12c8e6d4a7c...",
+    "edition_number": 2,
+    "total_editions": 5,
+    "title": "Fractional Node",
+})
+for ch in story["chapters"]:
+    print(f"Chapter {ch['number']}: {ch['title']}")
+    print(f"  Poem: {ch['poem']['poem']}")
+    print(f"  {ch['body'][:80]}...")
+
+# Resonance field from any hash
+field = AdrianaResonance.calculate_resonance("a3f9b12c...")
+print(field["glyph"], field["meta"]["meaning"], field["harmonic_state"])
+```
+
+## Glyph Lexicon
+
+45 glyphs across entity, condition, and action categories.
+See `adriana_sdk/lexicon.py` for the full ontology with frequencies, meanings, and domain colors.
+
+## Licence Verification (Commercial)
+
+```python
+import requests
+
+def verify_commercial_licence(token_id, base_url):
+    r = requests.get(f"{base_url}/api/adriana/verify?token_id={token_id}")
+    data = r.json()
+    return data.get("valid", False)
+```
+
+## Architecture
+
+- **Al-Jabr 286**: Custom 286-bit hash function — see `adriana_sdk/al_jabr_stub.py`
+- **Resonance Field**: Maps hash bytes to glyph/frequency/domain states
+- **Sovereign Poem**: Deterministic 3-glyph expression from any 286-bit hash
+- **Token Story**: Multi-chapter narrative engine (3/6/9 chapters by NFT tier)
+- **Chronicle**: Project history ledger — query `/api/chronicle` on any VOID node
+
+## Contact
+
+PROJECT VOID | https://github.com/void-engine
+"""
+
+_SDK_INIT = '''\
+"""
+Adriana Sovereign Coded Language — Open SDK v1.0
+https://projectvoid.io
+"""
+
+from adriana_sdk.core import AdrianaResonance, hash_to_sovereign_poem, generate_token_story
+
+__version__ = "1.0.0"
+__all__ = ["AdrianaResonance", "hash_to_sovereign_poem", "generate_token_story"]
+'''
+
+_SDK_CORE = '''\
+"""
+Adriana SCL Core — Resonance Bridge v1.0
+
+This module is extracted from the PROJECT VOID Engine.
+Licence: MIT for personal use. Commercial use requires a VOID Blueprint Token.
+"""
+
+from adriana_sdk.lexicon import GLYPHS, DOMAIN_COLORS
+
+
+class AdrianaResonance:
+    GLYPHS = GLYPHS
+    DOMAIN_COLORS = DOMAIN_COLORS
+
+    @staticmethod
+    def calculate_resonance(data_hash):
+        clean = _clean_hex(data_hash)
+        if len(clean) < 6:
+            clean = clean.ljust(6, "0")
+        glyph_keys = list(GLYPHS.keys())
+        seed = int(clean[-4:], 16) % len(glyph_keys)
+        glyph_key = glyph_keys[seed]
+        meta = GLYPHS[glyph_key]
+        field_strength = round((int(clean[:2], 16) / 255) * 100, 2)
+        secondary_idx = int(clean[2:4], 16) % len(glyph_keys)
+        secondary_key = glyph_keys[secondary_idx]
+        tertiary_idx = int(clean[4:6], 16) % len(glyph_keys)
+        tertiary_key = glyph_keys[tertiary_idx]
+        harmonic = "resonant" if field_strength >= 80 else "aligned" if field_strength >= 50 else "drifting" if field_strength >= 25 else "dormant"
+        return {
+            "glyph": glyph_key,
+            "meta": meta,
+            "field_strength": field_strength,
+            "secondary_glyph": secondary_key,
+            "tertiary_glyph": tertiary_key,
+            "domain_color": DOMAIN_COLORS.get(meta["domain"], "#c9a84c"),
+            "harmonic_state": harmonic,
+        }
+
+    @staticmethod
+    def get_sequence(data_hash, length=6):
+        clean = _clean_hex(data_hash)
+        if len(clean) < 2:
+            clean = clean.ljust(12, "0")
+        glyph_keys = list(GLYPHS.keys())
+        seq = []
+        for i in range(length):
+            start = (i * 2) % max(len(clean) - 1, 1)
+            idx = int(clean[start:start + 2].ljust(2, "0"), 16) % len(glyph_keys)
+            g = glyph_keys[idx]
+            seq.append({
+                "glyph": g,
+                "meta": GLYPHS[g],
+                "color": DOMAIN_COLORS.get(GLYPHS[g]["domain"], "#c9a84c"),
+            })
+        return seq
+
+    @staticmethod
+    def get_all_glyphs():
+        result = {}
+        for g, meta in GLYPHS.items():
+            result[g] = {**meta, "color": DOMAIN_COLORS.get(meta["domain"], "#c9a84c")}
+        return result
+
+
+def _clean_hex(h):
+    return "".join(c for c in h if c in "0123456789abcdefABCDEF")
+
+
+def hash_to_sovereign_poem(hex_hash):
+    clean = _clean_hex(hex_hash).ljust(18, "0")[:18]
+    seg_a = int(clean[0:6], 16)
+    seg_b = int(clean[6:12], 16)
+    seg_c = int(clean[12:18], 16)
+    glyph_keys = list(GLYPHS.keys())
+    entities   = glyph_keys[:19]
+    conditions = glyph_keys[19:29]
+    actions    = glyph_keys[29:45]
+    e = entities[seg_a % len(entities)]
+    c = conditions[seg_b % len(conditions)]
+    a = actions[seg_c % len(actions)]
+    return {
+        "glyphs":   [e, c, a],
+        "meanings": [GLYPHS[e]["meaning"], GLYPHS[c]["meaning"], GLYPHS[a]["meaning"]],
+        "poem":     f"{e}-{c}-{a}",
+    }
+
+
+_STORY_CHAPTERS = [
+    {"number": 1, "milestone": "Genesis",        "title": "The Engine Awakens",            "domain": "genesis",   "body": "The first seed was planted in the void. Code breathed life into the ENGINE — a steganography core built on Al-Jabr 286-bit hashing, resonating at 432 Hz."},
+    {"number": 2, "milestone": "The Signal",     "title": "First 432 Hz Transmission",     "domain": "signal",    "body": "A frequency was chosen — not arbitrary, but sovereign. 432 Hz became the carrier of every packet, every hash, every handshake the VOID ENGINE made with the outside world."},
+    {"number": 3, "milestone": "The Mesh",       "title": "Beehive Protocol Activates",    "domain": "mesh",      "body": "Nodes found each other. The Beehive Protocol emerged — a peer mesh where every Body node echoes the Brain\'s ledger, distributing trust across geography and time."},
+    {"number": 4, "milestone": "The Economy",    "title": "VTX Ledger Ignites",            "domain": "ledger",    "body": "Value entered the system. The Vortex Token (VTX) was issued — not minted by speculation but earned through participation, computation, and proof of work."},
+    {"number": 5, "milestone": "The Deed",       "title": "Blueprint Tokens Minted",       "domain": "forge",     "body": "Manufacturing slots opened. Each Blueprint Token became a deed — a cryptographic claim on the physical 4000-Series Sovereign Node being built."},
+    {"number": 6, "milestone": "The Drop",       "title": "VOID Mystery Collection Opens", "domain": "vortex",    "body": "The void released 1,000 unknowns. The VOID Mystery Collection launched — blind mints on a bonding curve, each token sealed until the moment of reveal."},
+    {"number": 7, "milestone": "The Unknown I",  "title": "Signal Unspoken",               "domain": "resonance", "body": "Beyond the sixth chapter, the lexicon grows quiet. There are frequencies the Adriana Protocol cannot yet name."},
+    {"number": 8, "milestone": "The Unknown II", "title": "Breath Unmeasured",             "domain": "temporal",  "body": "The Engine exhales. This chapter has no complete English translation — it exists as pure glyph-state."},
+    {"number": 9, "milestone": "The Sovereign Seal", "title": "Engine Eternal",            "domain": "finality",  "body": "Finality. This token has witnessed the full arc of PROJECT VOID — from genesis seed to sovereign machine."},
+]
+
+_CHAPTERS_BY_TIER = {"common": 3, "rare": 6, "legendary": 9}
+
+
+def generate_token_story(token):
+    tier = token.get("tier", "common")
+    hex_hash = token.get("token_hash", "").replace("...", "").strip()
+    unlocked = _CHAPTERS_BY_TIER.get(tier, 3)
+    clean = _clean_hex(hex_hash).ljust(54, "0")
+    glyph_keys = list(GLYPHS.keys())
+    entities   = glyph_keys[:19]
+    conditions = glyph_keys[19:29]
+    actions    = glyph_keys[29:45]
+    chapters = []
+    for i, meta in enumerate(_STORY_CHAPTERS[:unlocked]):
+        offset = (i * 6) % max(len(clean) - 5, 1)
+        seg_a = int(clean[offset:offset + 2].ljust(2, "0"), 16)
+        seg_b = int(clean[offset + 2:offset + 4].ljust(2, "0"), 16)
+        seg_c = int(clean[offset + 4:offset + 6].ljust(2, "0"), 16)
+        e = entities[seg_a % len(entities)]
+        c = conditions[seg_b % len(conditions)]
+        a = actions[seg_c % len(actions)]
+        chapters.append({
+            "number":       meta["number"],
+            "milestone":    meta["milestone"],
+            "title":        meta["title"],
+            "body":         meta["body"],
+            "poem":         {"glyphs": [e, c, a], "meanings": [GLYPHS[e]["meaning"], GLYPHS[c]["meaning"], GLYPHS[a]["meaning"]], "poem": f"{e}-{c}-{a}"},
+            "domain":       meta["domain"],
+            "domain_color": DOMAIN_COLORS.get(meta["domain"], "#c9a84c"),
+        })
+    return {"tier": tier, "chapter_count": unlocked, "chapters": chapters, "locked_count": 9 - unlocked}
+'''
+
+_SDK_LEXICON = '''\
+"""
+Adriana Glyph Lexicon — 45-glyph ontology for PROJECT VOID
+Frequencies, meanings, and domain color assignments.
+"""
+
+GLYPHS = {
+    "α":  {"name": "Alpha",         "frequency": 432.0, "meaning": "Origin/Seed",         "domain": "genesis"},
+    "β":  {"name": "Beta",          "frequency": 433.2, "meaning": "Growth/Sprout",        "domain": "aqua"},
+    "γ":  {"name": "Gamma",         "frequency": 434.0, "meaning": "Signal/Pulse",         "domain": "signal"},
+    "δ":  {"name": "Delta",         "frequency": 434.8, "meaning": "Change/Shift",         "domain": "transform"},
+    "ε":  {"name": "Epsilon",       "frequency": 435.5, "meaning": "Threshold/Edge",       "domain": "boundary"},
+    "ζ":  {"name": "Zeta",          "frequency": 429.0, "meaning": "Depth/Root",           "domain": "soil"},
+    "η":  {"name": "Eta",           "frequency": 430.5, "meaning": "Flow/Current",         "domain": "aqua"},
+    "θ":  {"name": "Theta",         "frequency": 431.0, "meaning": "Heat/Warmth",          "domain": "environment"},
+    "ι":  {"name": "Iota",          "frequency": 432.5, "meaning": "Particle/Grain",       "domain": "data"},
+    "κ":  {"name": "Kappa",         "frequency": 433.7, "meaning": "Key/Lock",             "domain": "security"},
+    "λ":  {"name": "Lambda",        "frequency": 436.0, "meaning": "Wave/Carry",           "domain": "signal"},
+    "μ":  {"name": "Mu",            "frequency": 432.8, "meaning": "Measure/Weight",       "domain": "metrics"},
+    "ν":  {"name": "Nu",            "frequency": 431.5, "meaning": "Node/Link",            "domain": "mesh"},
+    "ξ":  {"name": "Xi",            "frequency": 437.0, "meaning": "Scatter/Spread",       "domain": "vortex"},
+    "ο":  {"name": "Omicron",       "frequency": 432.2, "meaning": "Circle/Return",        "domain": "cycle"},
+    "π":  {"name": "Pi",            "frequency": 432.0, "meaning": "Ratio/Balance",        "domain": "harmony"},
+    "ρ":  {"name": "Rho",           "frequency": 433.0, "meaning": "Density/Mass",         "domain": "data"},
+    "σ":  {"name": "Sigma",         "frequency": 435.1, "meaning": "Summation/Ledger",     "domain": "ledger"},
+    "τ":  {"name": "Tau",           "frequency": 434.5, "meaning": "Time/Tick",            "domain": "temporal"},
+    "υ":  {"name": "Upsilon",       "frequency": 430.0, "meaning": "Vessel/Container",     "domain": "vault"},
+    "φ":  {"name": "Phi-Lower",     "frequency": 442.0, "meaning": "Spiral/Fibonacci",     "domain": "vortex"},
+    "χ":  {"name": "Chi",           "frequency": 436.5, "meaning": "Cross/Junction",       "domain": "mesh"},
+    "ψ":  {"name": "Psi",           "frequency": 438.5, "meaning": "Breath/Spirit",        "domain": "resonance"},
+    "ω":  {"name": "Omega-Lower",   "frequency": 428.5, "meaning": "Rest/Complete",        "domain": "finality"},
+    "Α":  {"name": "Alpha-Cap",     "frequency": 432.0, "meaning": "Authority/Source",     "domain": "governance"},
+    "Β":  {"name": "Beta-Cap",      "frequency": 433.2, "meaning": "Builder/Forge",        "domain": "forge"},
+    "Γ":  {"name": "Gamma-Cap",     "frequency": 434.0, "meaning": "Gate/Portal",          "domain": "gateway"},
+    "Δ":  {"name": "Delta-Cap",     "frequency": 434.8, "meaning": "Transform/Evolve",     "domain": "transform"},
+    "Θ":  {"name": "Theta-Cap",     "frequency": 431.0, "meaning": "Shield/Guard",         "domain": "security"},
+    "Λ":  {"name": "Lambda-Cap",    "frequency": 436.0, "meaning": "Carrier/Bridge",       "domain": "signal"},
+    "Ξ":  {"name": "Xi-Cap",        "frequency": 437.0, "meaning": "Archive/Store",        "domain": "vault"},
+    "Π":  {"name": "Pi-Cap",        "frequency": 432.0, "meaning": "Foundation/Base",      "domain": "genesis"},
+    "Σ":  {"name": "Sigma-Cap",     "frequency": 435.1, "meaning": "Total/Aggregate",      "domain": "ledger"},
+    "Φ":  {"name": "Phi",           "frequency": 442.2, "meaning": "Golden Ratio/Structure","domain": "harmony"},
+    "Ψ":  {"name": "Psi-Cap",       "frequency": 438.5, "meaning": "Sovereign Mind",       "domain": "resonance"},
+    "Ω":  {"name": "Omega",         "frequency": 428.0, "meaning": "Finality/Vault",       "domain": "finality"},
+    "∞":  {"name": "Infinity",      "frequency": 432.0, "meaning": "Loop/Eternal",         "domain": "cycle"},
+    "◆":  {"name": "Void Diamond",  "frequency": 432.0, "meaning": "Core/Engine",          "domain": "genesis"},
+    "⬡":  {"name": "Hexagon",       "frequency": 435.0, "meaning": "Mesh Cell",            "domain": "mesh"},
+    "⟐":  {"name": "Lozenge",       "frequency": 433.5, "meaning": "Silt Drop",            "domain": "silt"},
+    "☽":  {"name": "Crescent",      "frequency": 429.5, "meaning": "Rest Phase",           "domain": "temporal"},
+    "☀":  {"name": "Sun",           "frequency": 440.0, "meaning": "Peak/Broadcast",       "domain": "signal"},
+    "⚡": {"name": "Lightning",     "frequency": 441.0, "meaning": "Spark/Ignite",         "domain": "forge"},
+    "🌊": {"name": "Wave",          "frequency": 430.0, "meaning": "Tide/Surge",           "domain": "aqua"},
+    "🔮": {"name": "Crystal",       "frequency": 432.0, "meaning": "Prophecy/Foresight",   "domain": "resonance"},
+}
+
+DOMAIN_COLORS = {
+    "genesis":    "#c9a84c",
+    "aqua":       "#2dd4bf",
+    "signal":     "#60a5fa",
+    "transform":  "#a78bfa",
+    "boundary":   "#f87171",
+    "soil":       "#92400e",
+    "environment":"#fb923c",
+    "data":       "#34d399",
+    "security":   "#f472b6",
+    "metrics":    "#a3e635",
+    "mesh":       "#22d3ee",
+    "vortex":     "#818cf8",
+    "cycle":      "#fbbf24",
+    "harmony":    "#e879f9",
+    "ledger":     "#c9a84c",
+    "temporal":   "#6366f1",
+    "vault":      "#475569",
+    "resonance":  "#2dd4bf",
+    "finality":   "#ef4444",
+    "governance": "#c9a84c",
+    "forge":      "#f97316",
+    "gateway":    "#8b5cf6",
+    "silt":       "#2dd4bf",
+}
+'''
+
+_SDK_AL_JABR_STUB = '''\
+"""
+Al-Jabr 286 — Stub for SDK consumers.
+
+The full Al-Jabr 286-bit hash function is proprietary to PROJECT VOID.
+This stub provides a SHA-256-based approximation for testing.
+For production use with VOID nodes, use the official client library.
+"""
+
+import hashlib
+
+
+def fatiha_286_hexdigest_from_str(text):
+    """SHA-256 approximation of Al-Jabr 286 — for testing only."""
+    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    return (digest * 3)[:72]
+
+
+def fatiha_286_truncated(data, length=16):
+    digest = hashlib.sha256(data).hexdigest()
+    return digest[:length]
+'''
+
+_SDK_SETUP = '''\
+from setuptools import setup, find_packages
+
+setup(
+    name="adriana-sdk",
+    version="1.0.0",
+    description="Adriana Sovereign Coded Language — Open SDK for PROJECT VOID",
+    packages=find_packages(),
+    python_requires=">=3.8",
+    classifiers=[
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3",
+    ],
+)
+'''
+
+
+def build_adriana_sdk_zip():
+    """
+    Build an in-memory ZIP containing the Adriana Open SDK.
+    Returns a bytes object ready to send as a file download.
+    """
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        def add(path, content):
+            zf.writestr(path, content)
+
+        add("adriana_sdk/README.md",          _SDK_README)
+        add("adriana_sdk/__init__.py",        _SDK_INIT)
+        add("adriana_sdk/core.py",            _SDK_CORE)
+        add("adriana_sdk/lexicon.py",         _SDK_LEXICON)
+        add("adriana_sdk/al_jabr_stub.py",    _SDK_AL_JABR_STUB)
+        add("adriana_sdk/setup.py",           _SDK_SETUP)
+
+        licence_text = (
+            "MIT License\n\n"
+            "Copyright (c) 2025 PROJECT VOID\n\n"
+            "Permission is hereby granted, free of charge, to any person obtaining a copy "
+            "of this software and associated documentation files (the 'Software'), to deal "
+            "in the Software without restriction, including without limitation the rights "
+            "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell "
+            "copies of the Software, and to permit persons to whom the Software is furnished "
+            "to do so, subject to the following conditions:\n\n"
+            "The above copyright notice and this permission notice shall be included in all "
+            "copies or substantial portions of the Software.\n\n"
+            "COMMERCIAL USE: Any commercial deployment, product, or service built with or "
+            "incorporating this SDK requires ownership of a VOID Blueprint Token. "
+            "Verification: GET /api/adriana/verify?token_id=<ID> on any VOID node.\n\n"
+            "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND."
+        )
+        add("adriana_sdk/LICENCE.txt", licence_text)
+
+    buf.seek(0)
+    return buf.read()

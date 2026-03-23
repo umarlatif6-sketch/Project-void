@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Chronicle</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .chr-body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+        .chr-hero {
+            text-align: center;
+            padding: 100px 20px 50px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .chr-hero-badge {
+            display: inline-block;
+            background: rgba(45, 212, 191, 0.1);
+            color: #2dd4bf;
+            border: 1px solid rgba(45, 212, 191, 0.25);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+        .chr-hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0 0 14px;
+            color: #fff;
+        }
+        .chr-hero-title .chr-accent { color: #2dd4bf; }
+        .chr-hero-sub {
+            font-size: 1rem;
+            color: #777;
+            line-height: 1.7;
+            max-width: 640px;
+            margin: 0 auto 32px;
+        }
+        .chr-sdk-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(201, 168, 76, 0.12);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            color: #c9a84c;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+        }
+        .chr-sdk-cta:hover {
+            background: rgba(201, 168, 76, 0.22);
+        }
+        .chr-sdk-note {
+            font-size: 0.7rem;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .chr-timeline {
+            max-width: 760px;
+            margin: 60px auto 80px;
+            padding: 0 20px;
+            position: relative;
+        }
+        .chr-timeline::before {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, #1e1e2e 5%, #1e1e2e 95%, transparent);
+        }
+
+        .chr-entry {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 48px;
+            position: relative;
+        }
+        .chr-entry-dot {
+            flex-shrink: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #2dd4bf;
+            margin-top: 6px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(45, 212, 191, 0.4);
+            align-self: flex-start;
+            margin-left: 18px;
+        }
+        .chr-entry-content {
+            flex: 1;
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 24px 28px;
+            transition: border-color 0.3s;
+        }
+        .chr-entry-content:hover {
+            border-color: rgba(45, 212, 191, 0.2);
+        }
+        .chr-entry-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .chr-chapter-badge {
+            font-size: 0.6rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            background: rgba(45, 212, 191, 0.1);
+            color: #2dd4bf;
+            border: 1px solid rgba(45, 212, 191, 0.2);
+            padding: 3px 10px;
+            border-radius: 10px;
+        }
+        .chr-subtitle {
+            font-size: 0.72rem;
+            color: #555;
+            letter-spacing: 0.5px;
+        }
+        .chr-date {
+            font-size: 0.68rem;
+            color: #444;
+            margin-left: auto;
+        }
+        .chr-entry-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 14px;
+        }
+        .chr-glyphs {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .chr-glyph {
+            font-size: 1.3rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(45, 212, 191, 0.07);
+            border: 1px solid rgba(45, 212, 191, 0.15);
+            cursor: default;
+        }
+        .chr-glyph-sep {
+            color: #333;
+            font-size: 0.9rem;
+        }
+        .chr-glyph-label {
+            font-size: 0.6rem;
+            color: #444;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-right: 4px;
+        }
+        .chr-body-text {
+            font-size: 0.85rem;
+            color: #999;
+            line-height: 1.7;
+        }
+        .chr-hash {
+            font-size: 0.6rem;
+            color: #333;
+            font-family: monospace;
+            margin-top: 14px;
+        }
+
+        .chr-empty {
+            text-align: center;
+            color: #555;
+            padding: 60px;
+            background: #12121a;
+            border: 1px dashed #1e1e2e;
+            border-radius: 12px;
+        }
+
+        .chr-licence {
+            max-width: 760px;
+            margin: 0 auto 80px;
+            padding: 0 20px;
+        }
+        .chr-licence-box {
+            background: #0d0d15;
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 28px 32px;
+        }
+        .chr-licence-title {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #c9a84c;
+            margin-bottom: 14px;
+        }
+        .chr-licence-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 600px) {
+            .chr-licence-grid { grid-template-columns: 1fr; }
+        }
+        .chr-licence-item {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 8px;
+            padding: 16px 20px;
+        }
+        .chr-licence-item-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .chr-licence-item-desc {
+            font-size: 0.75rem;
+            color: #777;
+            line-height: 1.5;
+        }
+        .chr-licence-item-desc a {
+            color: #2dd4bf;
+            text-decoration: none;
+        }
+
+        @media (max-width: 700px) {
+            .chr-hero-title { font-size: 2rem; }
+            .chr-timeline::before { left: 12px; }
+            .chr-entry-dot { margin-left: 6px; }
+        }
+    </style>
+</head>
+<body class="chr-body">
+    <nav class="landing-nav">
+        <div class="landing-nav-brand">
+            <span class="landing-nav-icon">&#9670;</span>
+            <span class="landing-nav-title">PROJECT VOID</span>
+        </div>
+        <div class="landing-nav-links">
+            <a href="/launch" class="landing-nav-link">Home</a>
+            <a href="/" class="landing-nav-link">Engine</a>
+            <a href="/download" class="landing-nav-link">Download</a>
+            <a href="/sovereign" class="landing-nav-link">Hardware</a>
+            <a href="/marketplace" class="landing-nav-link">Marketplace</a>
+            <a href="/chronicle" class="landing-nav-link active" style="color:#2dd4bf">Chronicle</a>
+            <a href="/messenger" class="landing-nav-link">Messenger</a>
+            <a href="/login" class="landing-nav-link">Login</a>
+        </div>
+    </nav>
+
+    <section class="chr-hero">
+        <div class="chr-hero-badge">Living Project History</div>
+        <h1 class="chr-hero-title">THE <span class="chr-accent">CHRONICLE</span></h1>
+        <p class="chr-hero-sub">
+            Every milestone in PROJECT VOID is anchored by an Adriana glyph poem and a 286-bit Al-Jabr hash.
+            This is not a blog. It is a ledger of events — immutable, sovereign, and publicly verifiable.
+        </p>
+        <a href="/download/adriana-sdk" class="chr-sdk-cta">
+            <span>&#8659;</span> Download Adriana SDK v1.0
+        </a>
+        <div class="chr-sdk-note">MIT for personal use &bull; VOID Blueprint Token required for commercial deployment</div>
+    </section>
+
+    <div class="chr-timeline">
+        {% if entries %}
+            {% for entry in entries %}
+            <div class="chr-entry">
+                <div class="chr-entry-dot"></div>
+                <div class="chr-entry-content">
+                    <div class="chr-entry-meta">
+                        <span class="chr-chapter-badge">Chapter {{ entry.chapter_number }}</span>
+                        {% if entry.subtitle %}
+                        <span class="chr-subtitle">{{ entry.subtitle }}</span>
+                        {% endif %}
+                        {% if entry.posted_at %}
+                        <span class="chr-date">{{ entry.posted_at }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="chr-entry-title">{{ entry.title }}</div>
+                    {% if entry.glyphs %}
+                    <div class="chr-glyphs">
+                        <span class="chr-glyph-label">Glyph</span>
+                        {% for glyph in entry.glyphs %}
+                            <span class="chr-glyph">{{ glyph }}</span>
+                            {% if not loop.last %}<span class="chr-glyph-sep">—</span>{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="chr-body-text">{{ entry.body_text }}</div>
+                    {% if entry.al_jabr_hash %}
+                    <div class="chr-hash">&#8203;Al-Jabr: {{ entry.al_jabr_hash }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="chr-empty">The chronicle is being written. Check back soon.</div>
+        {% endif %}
+    </div>
+
+    <div class="chr-licence">
+        <div class="chr-licence-box">
+            <div class="chr-licence-title">Adriana SDK — Licence Model</div>
+            <div class="chr-licence-grid">
+                <div class="chr-licence-item">
+                    <div class="chr-licence-item-title">Personal Use — MIT Free</div>
+                    <div class="chr-licence-item-desc">
+                        Use the Adriana SCL in any personal project, research, or open-source work.
+                        No token required. No restrictions. Just build.
+                    </div>
+                </div>
+                <div class="chr-licence-item">
+                    <div class="chr-licence-item-title">Commercial Use — Token Required</div>
+                    <div class="chr-licence-item-desc">
+                        Building a product or service with Adriana? You need a VOID Blueprint Token.
+                        Verify via <a href="/api/adriana/verify?token_id=1">/api/adriana/verify</a>
+                        or acquire a token on the <a href="/marketplace">Marketplace</a>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
