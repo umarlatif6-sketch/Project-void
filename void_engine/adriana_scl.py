@@ -156,3 +156,49 @@ def _harmonic_state(strength):
     if strength >= 25:
         return "drifting"
     return "dormant"
+
+
+def hash_to_sovereign_poem(hex_hash):
+    """
+    Deterministically derive a 3-glyph Sovereign Poem from a 286-bit Al-Jabr hex hash.
+
+    Uses the first 72 bits (18 hex chars, split into three 24-bit / 6-hex-char segments)
+    to select one glyph from each of three sub-groups of the 45-glyph GLYPHS lexicon:
+      - Entity glyphs  : first 19 entries
+      - Condition glyphs: next 10 entries (indices 19–28)
+      - Action glyphs  : last 16 entries (indices 29–44)
+
+    Returns a dict with:
+      - glyphs  : list of 3 glyph strings
+      - meanings: list of 3 meaning strings
+      - poem    : formatted string e.g. "σ-⚡-📡"
+    """
+    clean = "".join(c for c in hex_hash if c in "0123456789abcdefABCDEF")
+    clean = clean.ljust(18, "0")[:18]
+
+    seg_a = int(clean[0:6], 16)
+    seg_b = int(clean[6:12], 16)
+    seg_c = int(clean[12:18], 16)
+
+    glyph_keys = list(AdrianaResonance.GLYPHS.keys())
+
+    entities   = glyph_keys[:19]
+    conditions = glyph_keys[19:29]
+    actions    = glyph_keys[29:45]
+
+    entity_glyph    = entities[seg_a % len(entities)]
+    condition_glyph = conditions[seg_b % len(conditions)]
+    action_glyph    = actions[seg_c % len(actions)]
+
+    glyphs   = [entity_glyph, condition_glyph, action_glyph]
+    meanings = [
+        AdrianaResonance.GLYPHS[entity_glyph]["meaning"],
+        AdrianaResonance.GLYPHS[condition_glyph]["meaning"],
+        AdrianaResonance.GLYPHS[action_glyph]["meaning"],
+    ]
+
+    return {
+        "glyphs":   glyphs,
+        "meanings": meanings,
+        "poem":     f"{entity_glyph}-{condition_glyph}-{action_glyph}",
+    }

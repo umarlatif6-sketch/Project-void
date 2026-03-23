@@ -5,6 +5,7 @@ from decimal import Decimal
 from datetime import datetime, timezone
 from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str, fatiha_286_truncated
 from void_engine.vortex_wallet import _create_block
+from void_engine.adriana_scl import hash_to_sovereign_poem
 
 logger = logging.getLogger(__name__)
 
@@ -277,6 +278,7 @@ def get_marketplace_listings():
                 "price_vtx": float(r[8]),
                 "status": r[9],
                 "minted_at": r[10].isoformat() if r[10] else None,
+                "sovereign_poem": hash_to_sovereign_poem(r[1]),
             }
             if r[2] in listings:
                 listings[r[2]].append(token)
@@ -346,6 +348,7 @@ def get_token_detail(token_id):
             "metadata": json.loads(r[9]) if r[9] else {},
             "minted_at": r[10].isoformat() if r[10] else None,
             "status": r[11],
+            "sovereign_poem": hash_to_sovereign_poem(r[1]),
         }
 
         cur.execute(

@@ -306,6 +306,89 @@
             margin-top: 4px;
         }
 
+        .mp-sovereign-poem {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 12px 0 10px;
+        }
+        .mp-poem-label {
+            font-size: 0.6rem;
+            color: #555;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .mp-poem-glyphs {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+        .mp-poem-glyph {
+            font-size: 1.1rem;
+            cursor: default;
+            position: relative;
+            padding: 2px 5px;
+            border-radius: 4px;
+            background: rgba(45, 212, 191, 0.06);
+            border: 1px solid rgba(45, 212, 191, 0.15);
+            transition: text-shadow 0.2s;
+        }
+        .mp-poem-glyph:hover {
+            text-shadow: 0 0 8px rgba(45, 212, 191, 0.7), 0 0 16px rgba(139, 92, 246, 0.4);
+        }
+        .mp-poem-sep {
+            color: #444;
+            font-size: 0.85rem;
+        }
+        .mp-card.tier-common .mp-poem-glyph {
+            border-color: rgba(124, 92, 255, 0.2);
+            background: rgba(124, 92, 255, 0.06);
+        }
+        .mp-card.tier-common .mp-poem-glyph:hover {
+            text-shadow: 0 0 8px rgba(124, 92, 255, 0.7), 0 0 16px rgba(45, 212, 191, 0.4);
+        }
+        .mp-card.tier-rare .mp-poem-glyph {
+            border-color: rgba(0, 191, 165, 0.2);
+            background: rgba(0, 191, 165, 0.06);
+        }
+        .mp-card.tier-rare .mp-poem-glyph:hover {
+            text-shadow: 0 0 8px rgba(0, 191, 165, 0.7), 0 0 16px rgba(139, 92, 246, 0.4);
+        }
+        .mp-card.tier-legendary .mp-poem-glyph {
+            border-color: rgba(201, 168, 76, 0.25);
+            background: rgba(201, 168, 76, 0.07);
+        }
+        .mp-card.tier-legendary .mp-poem-glyph:hover {
+            text-shadow: 0 0 8px rgba(201, 168, 76, 0.8), 0 0 16px rgba(201, 168, 76, 0.4);
+        }
+
+        [data-tooltip] {
+            position: relative;
+        }
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            color: #ccc;
+            font-size: 0.65rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            border: 1px solid #2a2a4a;
+            z-index: 10;
+        }
+        [data-tooltip]:hover::after {
+            opacity: 1;
+        }
+
         .mp-toast {
             position: fixed;
             bottom: 30px;
@@ -433,6 +516,25 @@
             setTimeout(() => { t.className = 'mp-toast'; }, 4000);
         }
 
+        function renderSovereignPoem(token) {
+            const poem = token.sovereign_poem;
+            if (!poem || !poem.glyphs || poem.glyphs.length < 3) return '';
+            const g = poem.glyphs;
+            const m = poem.meanings;
+            return `
+                <div class="mp-sovereign-poem">
+                    <span class="mp-poem-label">Poem</span>
+                    <div class="mp-poem-glyphs">
+                        <span class="mp-poem-glyph" data-tooltip="${m[0]}">${g[0]}</span>
+                        <span class="mp-poem-sep">—</span>
+                        <span class="mp-poem-glyph" data-tooltip="${m[1]}">${g[1]}</span>
+                        <span class="mp-poem-sep">—</span>
+                        <span class="mp-poem-glyph" data-tooltip="${m[2]}">${g[2]}</span>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderCard(token) {
             const sold = token.status !== 'available';
             const tierClass = 'tier-' + token.tier;
@@ -454,6 +556,7 @@
                         <span class="mp-edition">#${token.edition_number} of ${token.total_editions}</span>
                     </div>
                     <div class="mp-card-title">${token.title}</div>
+                    ${renderSovereignPoem(token)}
                     <div class="mp-card-desc">${token.description || ''}</div>
                     <div class="mp-card-price">
                         <span class="mp-price-fiat">${token.price_display}</span>
