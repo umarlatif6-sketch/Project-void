@@ -1,4 +1,5 @@
 import os
+import math
 import logging
 from flask import Blueprint, request, redirect, render_template, session
 from routes.auth import admin_required
@@ -75,6 +76,8 @@ def admin_market_post():
 
     try:
         vtx_cost = float(request.form.get("vtx_cost", 0))
+        if math.isnan(vtx_cost):
+            vtx_cost = None
     except (ValueError, TypeError):
         vtx_cost = None
 
