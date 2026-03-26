@@ -34,51 +34,8 @@ def api_chronicle():
         return jsonify({"error": "Failed to load chronicle"}), 500
 
 
-@chronicle_bp.route("/api/adriana/verify")
-def adriana_verify():
-    token_id = request.args.get("token_id")
-    if not token_id:
-        return jsonify({"licensed": False, "error": "token_id required"}), 400
-    try:
-        import os
-        import psycopg2
-        conn = psycopg2.connect(os.environ["DATABASE_URL"])
-        try:
-            cur = conn.cursor()
-            cur.execute(
-                """SELECT bt.id, bt.tier, bt.token_hash,
-                          bt.edition_number, bt.total_editions, bt.status,
-                          tow.owner_id
-                   FROM blueprint_tokens bt
-                   LEFT JOIN token_ownership tow ON tow.token_id = bt.id
-                   WHERE bt.id = %s
-                   ORDER BY tow.purchased_at DESC
-                   LIMIT 1""",
-                (int(token_id),),
-            )
-            row = cur.fetchone()
-        finally:
-            conn.close()
-
-        if not row:
-            return jsonify({"licensed": False, "error": "Token not found"})
-
-        # Public licence check: a token is commercially licensed when it has
-        # an owner, regardless of mutable status (sold/revealed/sealed/merged
-        # are all valid states for owned tokens in the VOID ecosystem).
-        has_owner = row[6] is not None
-        licensed = has_owner
-
-        return jsonify({
-            "licensed":   licensed,
-            "tier":       row[1],
-            "edition":    f"{row[3]}/{row[4]}" if row[3] and row[4] else None,
-            "token_hash": row[2][:16] + "..." if row[2] else None,
-            "sdk_url":    "/download/adriana-sdk",
-        })
-    except Exception as e:
-        logger.error("Adriana verify error: %s", e)
-        return jsonify({"licensed": False, "error": "Verification failed"}), 500
+# NOTE: /api/adriana/verify is the canonical implementation in routes/marketplace.py
+# (api_adriana_verify). Chronicle blueprint does not duplicate it.
 
 
 @chronicle_bp.route("/download/adriana-sdk")

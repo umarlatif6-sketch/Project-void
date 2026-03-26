@@ -489,3 +489,53 @@ def api_mystery_collection():
     except Exception as e:
         logger.error("Mystery collection error: %s", e)
         return jsonify({"error": "Failed to load collection"}), 500
+
+
+@marketplace_bp.route("/api/adriana/verify")
+def api_adriana_verify():
+    """
+    Public commercial-licence check for a VOID Blueprint Token.
+
+    Query: ?token_id=<int>
+    Returns: {licensed, tier, edition, token_hash, sdk_url}
+
+    licensed=true when the token has an owner regardless of its mutable lifecycle
+    status (sold/revealed/sealed/merged are all valid owned-token states).
+    """
+    token_id = request.args.get("token_id")
+    if not token_id:
+        return jsonify({"licensed": False, "error": "token_id required"}), 400
+    try:
+        import psycopg2
+        conn = psycopg2.connect(os.environ["DATABASE_URL"])
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                """SELECT bt.id, bt.tier, bt.token_hash,
+                          bt.edition_number, bt.total_editions, bt.status,
+                          tow.owner_id
+                   FROM blueprint_tokens bt
+                   LEFT JOIN token_ownership tow ON tow.token_id = bt.id
+                   WHERE bt.id = %s
+                   ORDER BY tow.purchased_at DESC
+                   LIMIT 1""",
+                (int(token_id),),
+            )
+            row = cur.fetchone()
+        finally:
+            conn.close()
+
+        if not row:
+            return jsonify({"licensed": False, "error": "Token not found"})
+
+        licensed = row[6] is not None   # has an owner
+        return jsonify({
+            "licensed":   licensed,
+            "tier":       row[1],
+            "edition":    f"{row[3]}/{row[4]}" if row[3] and row[4] else None,
+            "token_hash": row[2][:16] + "..." if row[2] else None,
+            "sdk_url":    "/download/adriana-sdk",
+        })
+    except Exception as e:
+        logger.error("Adriana verify error: %s", e)
+        return jsonify({"licensed": False, "error": "Verification failed"}), 500

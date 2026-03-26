@@ -159,6 +159,7 @@ def get_chronicle():
                 "glyph_sequence":  r[4],
                 "glyphs":          glyphs,
                 "body_text":       r[5],
+                "english_text":    r[5],
                 "posted_at":       r[6].strftime("%Y-%m-%d") if r[6] else "",
                 "al_jabr_hash":    (r[7][:16] + "...") if r[7] else "",
             })
