@@ -2,6 +2,7 @@ import os
 import logging
 import threading
 from psycopg2 import pool as pg_pool
+from psycopg2 import extensions as pg_ext
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,11 @@ class _PooledConn:
     def close(self):
         real = object.__getattribute__(self, "_real_conn")
         try:
+            try:
+                if real.info.transaction_status != pg_ext.TRANSACTION_STATUS_IDLE:
+                    real.rollback()
+            except Exception:
+                pass
             _get_pool().putconn(real)
         except Exception as e:
             logger.warning("Failed to return connection to pool: %s", e)
