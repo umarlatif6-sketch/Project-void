@@ -260,6 +260,7 @@ def get_marketplace_listings():
             """SELECT id, token_hash, tier, title, description, edition_number, total_editions,
                       price_gbp, price_vtx, status, minted_at
                FROM blueprint_tokens
+               WHERE collection = 'genesis' OR collection IS NULL
                ORDER BY tier, edition_number"""
         )
         rows = cur.fetchall()
@@ -499,6 +500,103 @@ def post_yield_event(amount_vtx, notes, admin_id, amount_gbp=0, idempotency_key=
         conn.close()
 
 
+def get_mystery_price():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT minted_count, base_price_vtx, price_step_threshold, step_multiplier, total_supply FROM mystery_collection LIMIT 1")
+        row = cur.fetchone()
+        if not row:
+            return {"error": "Mystery collection not initialized"}
+        minted, base_price, threshold, multiplier, total_supply = row
+        minted = int(minted)
+        total_supply = int(total_supply)
+        threshold = int(threshold)
+        remaining = total_supply - minted
+        sold_out = remaining <= 0
+        max_step = (total_supply - 1) // threshold
+        step = min(minted // threshold, max_step) if not sold_out else max_step
+        price = Decimal(str(base_price)) * (Decimal(str(multiplier)) ** step)
+        return {
+            "minted_count": minted,
+            "total_supply": total_supply,
+            "remaining": remaining,
+            "current_price_vtx": float(price),
+            "step": step,
+            "sold_out": sold_out,
+            "next_step_at": (step + 1) * threshold if not sold_out and (step + 1) * threshold < total_supply else None,
+        }
+    finally:
+        conn.close()
+
+
+def buy_mystery_token(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT id, minted_count, base_price_vtx, price_step_threshold, step_multiplier, total_supply FROM mystery_collection LIMIT 1 FOR UPDATE")
+        row = cur.fetchone()
+        if not row:
+            return {"error": "Mystery collection not initialized"}
+        mc_id, minted, base_price, threshold, multiplier, total_supply = row
+        if int(minted) >= int(total_supply):
+            return {"error": "Mystery collection is sold out"}
+
+        step = int(minted) // int(threshold)
+        price = Decimal(str(base_price)) * (Decimal(str(multiplier)) ** step)
+
+        cur.execute("SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s FOR UPDATE", (user_id,))
+        bal_row = cur.fetchone()
+        if not bal_row:
+            return {"error": "User not found"}
+        balance = bal_row[0]
+        if balance < price:
+            return {"error": f"Insufficient VTX. Need {float(price)}, have {float(balance)}"}
+
+        token_hash = _generate_token_hash("mystery", "VOID Mystery", minted + 1, total_supply)
+        metadata = {
+            "collection": "mystery",
+            "minted_epoch": datetime.now(timezone.utc).isoformat(),
+            "edition": f"{minted + 1}/{total_supply}",
+            "phase_sig": fatiha_286_truncated(token_hash.encode("utf-8"), 16),
+        }
+        cur.execute(
+            """INSERT INTO blueprint_tokens
+               (token_hash, tier, title, description, edition_number, total_editions,
+                price_gbp, price_vtx, metadata_json, minted_by, status, collection)
+               VALUES (%s, 'mystery', 'VOID Mystery', 'A sealed VOID Mystery token. Click Reveal to discover your tier.', %s, %s, 0, %s, %s, %s, 'sealed', 'mystery')
+               RETURNING id""",
+            (token_hash, minted + 1, total_supply, price, json.dumps(metadata), user_id),
+        )
+        token_id = cur.fetchone()[0]
+
+        payload_hash = fatiha_286_hexdigest_from_str(f"mystery_buy|{token_id}|{user_id}")
+        block = _create_block(cur, "mystery_buy", user_id, None, price, payload_hash)
+
+        cur.execute("UPDATE users SET vortex_balance = vortex_balance - %s WHERE id = %s", (price, user_id))
+        cur.execute("UPDATE mystery_collection SET minted_count = minted_count + 1, updated_at = NOW() WHERE id = %s", (mc_id,))
+
+        cur.execute(
+            """INSERT INTO token_ownership (token_id, owner_id, purchase_type, vtx_ledger_block_id)
+               VALUES (%s, %s, 'vtx', %s)""",
+            (token_id, user_id, block["block_index"]),
+        )
+        conn.commit()
+        return {
+            "success": True,
+            "token_id": token_id,
+            "token_hash": token_hash,
+            "spent_vtx": float(price),
+            "status": "sealed",
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("Mystery buy failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
 def get_pending_yield(user_id):
     conn = _get_db()
     try:
@@ -511,6 +609,66 @@ def get_pending_yield(user_id):
         )
         total = cur.fetchone()[0]
         return float(total)
+    finally:
+        conn.close()
+
+
+def reveal_mystery_token(token_id, user_id):
+    import random
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT bt.id, bt.token_hash, bt.tier, bt.status, tow.owner_id
+               FROM blueprint_tokens bt
+               JOIN token_ownership tow ON tow.token_id = bt.id
+               WHERE bt.id = %s AND tow.owner_id = %s AND bt.collection = 'mystery'
+               FOR UPDATE""",
+            (token_id, user_id),
+        )
+        row = cur.fetchone()
+        if not row:
+            return {"error": "Token not found or not owned by you"}
+        _, token_hash, current_tier, status, _ = row
+        if status == "revealed":
+            return {"error": "Token already revealed"}
+        if status not in ("sealed",):
+            return {"error": f"Cannot reveal token with status '{status}'"}
+
+        reveal_seed = fatiha_286_hexdigest_from_str(f"reveal|{token_hash}|{datetime.now(timezone.utc).isoformat()}")
+
+        if current_tier == "mystery":
+            rng = random.Random(int(reveal_seed[:8], 16))
+            roll = rng.random()
+            if roll < 0.70:
+                tier = "common"
+            elif roll < 0.95:
+                tier = "rare"
+            else:
+                tier = "legendary"
+        else:
+            tier = current_tier
+
+        poem = hash_to_sovereign_poem(reveal_seed)
+        revealed_at = datetime.now(timezone.utc)
+
+        cur.execute(
+            "UPDATE blueprint_tokens SET tier = %s, status = 'revealed', token_hash = %s, revealed_at = %s WHERE id = %s",
+            (tier, reveal_seed, revealed_at, token_id),
+        )
+        conn.commit()
+        return {
+            "success": True,
+            "token_id": token_id,
+            "tier": tier,
+            "reveal_hash": reveal_seed,
+            "revealed_at": revealed_at.isoformat(),
+            "sovereign_poem": poem,
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("Reveal failed: %s", e)
+        return {"error": str(e)}
     finally:
         conn.close()
 
@@ -563,6 +721,161 @@ def claim_yield(user_id):
         conn.close()
 
 
+def free_daily_mint(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT last_free_mint_at FROM users WHERE id = %s FOR UPDATE", (user_id,))
+        row = cur.fetchone()
+        if not row:
+            return {"error": "User not found"}
+        last_mint = row[0]
+        now = datetime.now(timezone.utc)
+        if last_mint is not None:
+            if last_mint.tzinfo is None:
+                last_mint = last_mint.replace(tzinfo=timezone.utc)
+            elapsed = (now - last_mint).total_seconds()
+            cooldown = 86400
+            if elapsed < cooldown:
+                return {"error": "cooldown", "seconds_remaining": int(cooldown - elapsed)}
+
+        cur.execute("SELECT minted_count, total_supply FROM mystery_collection LIMIT 1 FOR UPDATE")
+        mc_row = cur.fetchone()
+        if not mc_row:
+            return {"error": "Mystery collection not initialized"}
+        minted, total_supply = mc_row
+        if int(minted) >= int(total_supply):
+            return {"error": "Mystery collection is sold out"}
+
+        token_hash = _generate_token_hash("common", "VOID Mystery Free", minted + 1, total_supply)
+        metadata = {
+            "collection": "mystery",
+            "free_mint": True,
+            "minted_epoch": now.isoformat(),
+            "edition": f"{minted + 1}/{total_supply}",
+            "phase_sig": fatiha_286_truncated(token_hash.encode("utf-8"), 16),
+        }
+        cur.execute(
+            """INSERT INTO blueprint_tokens
+               (token_hash, tier, title, description, edition_number, total_editions,
+                price_gbp, price_vtx, metadata_json, minted_by, status, collection)
+               VALUES (%s, 'common', 'VOID Mystery', 'A sealed VOID Mystery token (free daily mint).', %s, %s, 0, 0, %s, %s, 'sealed', 'mystery')
+               RETURNING id""",
+            (token_hash, minted + 1, total_supply, json.dumps(metadata), user_id),
+        )
+        token_id = cur.fetchone()[0]
+
+        cur.execute("UPDATE mystery_collection SET minted_count = minted_count + 1, updated_at = NOW()")
+        cur.execute("UPDATE users SET last_free_mint_at = %s WHERE id = %s", (now, user_id))
+
+        cur.execute(
+            """INSERT INTO token_ownership (token_id, owner_id, purchase_type)
+               VALUES (%s, %s, 'free')""",
+            (token_id, user_id),
+        )
+        conn.commit()
+        return {
+            "success": True,
+            "token_id": token_id,
+            "token_hash": token_hash,
+            "tier": "common",
+            "status": "sealed",
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("Free mint failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def merge_tokens(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT bt.id FROM blueprint_tokens bt
+               JOIN token_ownership tow ON tow.token_id = bt.id
+               WHERE tow.owner_id = %s
+                 AND bt.collection = 'mystery'
+                 AND bt.tier = 'common'
+                 AND bt.status IN ('sealed', 'revealed')
+               ORDER BY tow.purchased_at ASC
+               FOR UPDATE OF bt""",
+            (user_id,),
+        )
+        eligible = [r[0] for r in cur.fetchall()]
+        if len(eligible) < 30:
+            return {"error": f"Need 30 eligible Common tokens to merge. You have {len(eligible)}."}
+
+        burn_ids = eligible[:30]
+        cur.execute(
+            "UPDATE blueprint_tokens SET status = 'merged' WHERE id = ANY(%s)",
+            (burn_ids,),
+        )
+
+        cur.execute("SELECT minted_count, total_supply FROM mystery_collection LIMIT 1 FOR UPDATE")
+        mc_row = cur.fetchone()
+        if not mc_row:
+            return {"error": "Mystery collection not initialized"}
+        minted, total_supply = mc_row
+        if int(minted) >= int(total_supply):
+            return {"error": "Mystery collection is sold out — cannot mint merge reward"}
+
+        token_hash = _generate_token_hash("rare", "VOID Mystery Merge Reward", minted + 1, total_supply)
+        now = datetime.now(timezone.utc)
+        metadata = {
+            "collection": "mystery",
+            "merge_reward": True,
+            "merged_count": 30,
+            "minted_epoch": now.isoformat(),
+            "edition": f"{minted + 1}/{total_supply}",
+            "phase_sig": fatiha_286_truncated(token_hash.encode("utf-8"), 16),
+        }
+        cur.execute(
+            """INSERT INTO blueprint_tokens
+               (token_hash, tier, title, description, edition_number, total_editions,
+                price_gbp, price_vtx, metadata_json, minted_by, status, collection)
+               VALUES (%s, 'rare', 'VOID Mystery', 'A Rare VOID Mystery token earned by merging 30 Common tokens.', %s, %s, 0, 0, %s, %s, 'sealed', 'mystery')
+               RETURNING id""",
+            (token_hash, minted + 1, total_supply, json.dumps(metadata), user_id),
+        )
+        new_token_id = cur.fetchone()[0]
+
+        cur.execute("UPDATE mystery_collection SET minted_count = minted_count + 1, updated_at = NOW()")
+
+        cur.execute(
+            """INSERT INTO token_ownership (token_id, owner_id, purchase_type)
+               VALUES (%s, %s, 'merge')""",
+            (new_token_id, user_id),
+        )
+
+        bonus_vtx = Decimal("200")
+        payload_hash = fatiha_286_hexdigest_from_str(f"merge_bonus|{user_id}|{new_token_id}|{now.isoformat()}")
+        block = _create_block(cur, "merge_bonus", None, user_id, bonus_vtx, payload_hash)
+        cur.execute(
+            "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id = %s",
+            (bonus_vtx, user_id),
+        )
+
+        conn.commit()
+        return {
+            "success": True,
+            "burned": 30,
+            "new_token_id": new_token_id,
+            "tier": "rare",
+            "status": "sealed",
+            "vtx_bonus": float(bonus_vtx),
+            "block": block,
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("Merge failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
 def get_yield_events(limit=20):
     conn = _get_db()
     try:
@@ -586,6 +899,59 @@ def get_yield_events(limit=20):
             }
             for r in rows
         ]
+    finally:
+        conn.close()
+
+
+def get_mystery_collection(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT bt.id, bt.token_hash, bt.tier, bt.title, bt.status,
+                      bt.edition_number, bt.total_editions, tow.purchased_at, tow.purchase_type
+               FROM token_ownership tow
+               JOIN blueprint_tokens bt ON bt.id = tow.token_id
+               WHERE tow.owner_id = %s AND bt.collection = 'mystery'
+               ORDER BY tow.purchased_at DESC""",
+            (user_id,),
+        )
+        rows = cur.fetchall()
+        tokens = []
+        for r in rows:
+            token_id, token_hash, tier, title, status, edition_num, total_editions, purchased_at, purchase_type = r
+            poem = None
+            if status == "revealed":
+                poem = hash_to_sovereign_poem(token_hash)
+            tokens.append({
+                "id": token_id,
+                "token_hash": token_hash[:16] + "...",
+                "tier": tier,
+                "title": title,
+                "status": status,
+                "edition": f"{edition_num}/{total_editions}",
+                "purchased_at": purchased_at.isoformat() if purchased_at else None,
+                "purchase_type": purchase_type,
+                "sovereign_poem": poem,
+            })
+
+        cur.execute("SELECT last_free_mint_at FROM users WHERE id = %s", (user_id,))
+        user_row = cur.fetchone()
+        seconds_remaining = 0
+        if user_row and user_row[0]:
+            last_free_mint_at = user_row[0]
+            if last_free_mint_at.tzinfo is None:
+                last_free_mint_at = last_free_mint_at.replace(tzinfo=timezone.utc)
+            elapsed = (datetime.now(timezone.utc) - last_free_mint_at).total_seconds()
+            seconds_remaining = max(0, int(86400 - elapsed))
+
+        eligible_common = sum(1 for t in tokens if t["tier"] == "common" and t["status"] in ("sealed", "revealed"))
+
+        return {
+            "tokens": tokens,
+            "seconds_remaining": seconds_remaining,
+            "eligible_common_count": eligible_common,
+        }
     finally:
         conn.close()
 

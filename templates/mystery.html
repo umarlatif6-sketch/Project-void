@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Mystery Drop</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .mys-hero {
+            text-align: center;
+            padding: 100px 20px 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .mys-badge {
+            display: inline-block;
+            background: rgba(124, 92, 255, 0.15);
+            color: #7c5cff;
+            border: 1px solid rgba(124, 92, 255, 0.3);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+        .mys-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0 0 12px;
+            color: #fff;
+        }
+        .mys-title .mys-accent { color: #7c5cff; }
+        .mys-sub {
+            font-size: 1rem;
+            color: #999;
+            max-width: 680px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        .mys-supply-panel {
+            max-width: 700px;
+            margin: 0 auto 30px;
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 28px 32px;
+        }
+        .mys-supply-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .mys-supply-label {
+            font-size: 0.75rem;
+            color: #888;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .mys-supply-count {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #7c5cff;
+        }
+        .mys-price-tag {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        .mys-price-label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        .mys-bar-wrap {
+            background: #1a1a2a;
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .mys-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7c5cff, #a78bfa);
+            border-radius: 6px;
+            transition: width 0.8s ease;
+            min-width: 2px;
+        }
+        .mys-steps {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.72rem;
+            color: #666;
+        }
+        .mys-step-item { white-space: nowrap; }
+        .mys-step-item.active { color: #a78bfa; font-weight: 600; }
+
+        .mys-actions {
+            max-width: 700px;
+            margin: 0 auto 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 600px) {
+            .mys-actions { grid-template-columns: 1fr; }
+            .mys-title { font-size: 2rem; }
+        }
+
+        .mys-action-card {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .mys-action-title {
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .mys-action-desc {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .mys-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s, opacity 0.2s;
+            letter-spacing: 0.5px;
+        }
+        .mys-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .mys-btn-buy {
+            background: rgba(124, 92, 255, 0.2);
+            color: #7c5cff;
+            border: 1px solid rgba(124, 92, 255, 0.4);
+        }
+        .mys-btn-buy:hover:not(:disabled) { background: rgba(124, 92, 255, 0.35); }
+        .mys-btn-free {
+            background: rgba(45, 212, 191, 0.15);
+            color: #2dd4bf;
+            border: 1px solid rgba(45, 212, 191, 0.3);
+        }
+        .mys-btn-free:hover:not(:disabled) { background: rgba(45, 212, 191, 0.28); }
+        .mys-btn-merge {
+            background: rgba(201, 168, 76, 0.15);
+            color: #c9a84c;
+            border: 1px solid rgba(201, 168, 76, 0.3);
+        }
+        .mys-btn-merge:hover:not(:disabled) { background: rgba(201, 168, 76, 0.28); }
+
+        .mys-cooldown {
+            font-size: 0.72rem;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .mys-merge-progress {
+            font-size: 0.72rem;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .mys-collection-section {
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+        .mys-section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #fff;
+            margin: 40px 0 20px;
+            text-align: center;
+        }
+        .mys-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .mys-token-card {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        .mys-token-card.sealed {
+            border-color: rgba(124, 92, 255, 0.25);
+        }
+        .mys-token-card.revealed.tier-common {
+            border-color: rgba(124, 92, 255, 0.4);
+        }
+        .mys-token-card.revealed.tier-rare {
+            border-color: rgba(0, 191, 165, 0.4);
+        }
+        .mys-token-card.revealed.tier-legendary {
+            border-color: rgba(201, 168, 76, 0.4);
+        }
+        .mys-token-card.merged {
+            border-color: #222;
+            opacity: 0.5;
+        }
+
+        .mys-mystery-glyph {
+            font-size: 2.8rem;
+            margin-bottom: 12px;
+            animation: mys-pulse 3s ease-in-out infinite;
+        }
+        @keyframes mys-pulse {
+            0%, 100% { text-shadow: 0 0 10px rgba(124, 92, 255, 0.5); }
+            50% { text-shadow: 0 0 25px rgba(124, 92, 255, 0.9), 0 0 40px rgba(167, 139, 250, 0.4); }
+        }
+
+        .mys-token-tier {
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .tier-badge-common { background: rgba(124, 92, 255, 0.15); color: #7c5cff; }
+        .tier-badge-rare { background: rgba(0, 191, 165, 0.15); color: #00bfa5; }
+        .tier-badge-legendary { background: rgba(201, 168, 76, 0.15); color: #c9a84c; }
+        .tier-badge-mystery { background: rgba(124, 92, 255, 0.12); color: #a78bfa; }
+        .tier-badge-merged { background: rgba(80, 80, 80, 0.15); color: #555; }
+
+        .mys-token-edition {
+            font-size: 0.65rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .mys-poem-row {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin: 8px 0 12px;
+            font-size: 1.1rem;
+        }
+        .mys-poem-sep { color: #444; }
+
+        .mys-reveal-btn {
+            width: 100%;
+            padding: 9px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: inherit;
+            background: rgba(124, 92, 255, 0.2);
+            color: #7c5cff;
+            border: 1px solid rgba(124, 92, 255, 0.35);
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: auto;
+        }
+        .mys-reveal-btn:hover { background: rgba(124, 92, 255, 0.35); }
+
+        .mys-empty {
+            text-align: center;
+            color: #555;
+            font-size: 0.85rem;
+            padding: 30px;
+            background: #12121a;
+            border: 1px dashed #1e1e2e;
+            border-radius: 10px;
+        }
+
+        .mys-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #12121a;
+            border: 1px solid #2a2a3a;
+            border-radius: 8px;
+            padding: 14px 24px;
+            color: #e0e0e0;
+            font-size: 0.85rem;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            max-width: 320px;
+        }
+        .mys-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .mys-toast.error { border-color: rgba(255, 82, 82, 0.4); color: #ff5252; }
+        .mys-toast.success { border-color: rgba(76, 175, 80, 0.4); color: #4caf50; }
+
+        .mys-login-notice {
+            text-align: center;
+            color: #666;
+            font-size: 0.85rem;
+            padding: 20px;
+            margin: 0 auto 30px;
+            max-width: 500px;
+        }
+        .mys-login-notice a { color: #7c5cff; text-decoration: none; }
+        .mys-login-notice a:hover { text-decoration: underline; }
+
+        .mys-tier-desc {
+            font-size: 0.72rem;
+            color: #666;
+            margin: 6px 0 0;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <nav class="landing-nav">
+        <div class="landing-nav-brand">
+            <span class="landing-nav-icon">&#9670;</span>
+            <span class="landing-nav-title">PROJECT VOID</span>
+        </div>
+        <div class="landing-nav-links">
+            <a href="/launch" class="landing-nav-link">Home</a>
+            <a href="/" class="landing-nav-link">Engine</a>
+            <a href="/download" class="landing-nav-link">Download</a>
+            <a href="/sovereign" class="landing-nav-link">Hardware</a>
+            <a href="/marketplace" class="landing-nav-link">Marketplace</a>
+            <a href="/mystery" class="landing-nav-link active" style="color:#7c5cff">Mystery Drop</a>
+            <a href="/messenger" class="landing-nav-link">Messenger</a>
+            <a href="/login" class="landing-nav-link">Login</a>
+        </div>
+    </nav>
+
+    <section class="mys-hero">
+        <div class="mys-badge">VOID Mystery Collection</div>
+        <h1 class="mys-title">MYSTERY <span class="mys-accent">DROP</span></h1>
+        <p class="mys-sub">
+            1,000 sealed mystery tokens on a live bonding curve. Price steps up every 250 minted.
+            Each token is revealed on-demand — your tier and Sovereign Poem are born at the moment of opening.
+            Claim one free token daily. Merge 30 Commons for a guaranteed Rare + 200 VTX bonus.
+        </p>
+    </section>
+
+    <div class="mys-supply-panel" id="supplyPanel">
+        <div class="mys-supply-row">
+            <div>
+                <div class="mys-supply-label">Remaining Supply</div>
+                <div class="mys-supply-count" id="supplyCount">— / 1000</div>
+            </div>
+            <div style="text-align:right">
+                <div class="mys-price-label">Current Price</div>
+                <div class="mys-price-tag" id="currentPrice">— VTX</div>
+            </div>
+        </div>
+        <div class="mys-bar-wrap">
+            <div class="mys-bar" id="supplyBar" style="width:0%"></div>
+        </div>
+        <div class="mys-steps">
+            <span class="mys-step-item" id="step0">0–249: 50 VTX</span>
+            <span class="mys-step-item" id="step1">250–499: 100 VTX</span>
+            <span class="mys-step-item" id="step2">500–749: 200 VTX</span>
+            <span class="mys-step-item" id="step3">750–999: 400 VTX</span>
+        </div>
+    </div>
+
+    {% if user_id %}
+    <div class="mys-actions" id="actionsPanel">
+        <div class="mys-action-card">
+            <div class="mys-action-title">Buy Mystery Token</div>
+            <div class="mys-action-desc">Spend VTX at the current bonding curve price. Token is sealed until you reveal it.</div>
+            <button class="mys-btn mys-btn-buy" id="buyBtn" onclick="buyToken()">Buy for <span id="buyPrice">—</span> VTX</button>
+        </div>
+        <div class="mys-action-card">
+            <div class="mys-action-title">Free Daily Mint</div>
+            <div class="mys-action-desc">Claim 1 free Common token every 24 hours. Sealed until you choose to reveal.</div>
+            <button class="mys-btn mys-btn-free" id="freeMintBtn" onclick="freeMint()">Claim Free Token</button>
+            <div class="mys-cooldown" id="cooldownText"></div>
+        </div>
+        <div class="mys-action-card" style="grid-column: 1 / -1;">
+            <div class="mys-action-title">Merge 30 Commons → 1 Rare + 200 VTX</div>
+            <div class="mys-action-desc">Burn 30 Common tokens (sealed or revealed) to receive 1 guaranteed Rare sealed token and 200 VTX bonus. Your collection resets for the next cycle.</div>
+            <button class="mys-btn mys-btn-merge" id="mergeBtn" onclick="mergeTokens()" disabled>Merge</button>
+            <div class="mys-merge-progress" id="mergeProgress">Loading...</div>
+        </div>
+    </div>
+    {% else %}
+    <div class="mys-login-notice">
+        <a href="/login">Log in</a> to buy, claim free tokens, and manage your Mystery collection.
+    </div>
+    {% endif %}
+
+    {% if user_id %}
+    <div class="mys-collection-section">
+        <h2 class="mys-section-title">Your Mystery Collection</h2>
+        <div class="mys-card-grid" id="cardGrid">
+            <div class="mys-empty">Loading your tokens...</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mys-toast" id="toast"></div>
+
+    <script>
+        const IS_LOGGED_IN = {{ 'true' if user_id else 'false' }};
+        let priceData = null;
+        let collectionData = null;
+        let cooldownInterval = null;
+
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'mys-toast show' + (type ? ' ' + type : '');
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => { t.className = 'mys-toast'; }, 4000);
+        }
+
+        async function loadPrice() {
+            try {
+                const res = await fetch('/api/mystery/price');
+                const data = await res.json();
+                if (data.error) return;
+                priceData = data;
+                const remaining = data.remaining;
+                const total = data.total_supply;
+                const pct = ((total - remaining) / total * 100).toFixed(1);
+                if (data.sold_out) {
+                    document.getElementById('supplyCount').textContent = 'SOLD OUT';
+                    document.getElementById('currentPrice').textContent = '—';
+                } else {
+                    document.getElementById('supplyCount').textContent = `${remaining} / ${total} remaining`;
+                    document.getElementById('currentPrice').textContent = `${data.current_price_vtx} VTX`;
+                }
+                document.getElementById('supplyBar').style.width = pct + '%';
+                const buyPriceEl = document.getElementById('buyPrice');
+                if (buyPriceEl) buyPriceEl.textContent = data.sold_out ? 'N/A' : data.current_price_vtx;
+
+                const stepEls = ['step0','step1','step2','step3'];
+                stepEls.forEach((id, i) => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.toggle('active', data.step === i);
+                });
+            } catch (e) {
+                console.error('Failed to load mystery price:', e);
+            }
+        }
+
+        async function loadCollection() {
+            if (!IS_LOGGED_IN) return;
+            try {
+                const res = await fetch('/api/mystery/collection');
+                const data = await res.json();
+                if (data.error) return;
+                collectionData = data;
+                renderCards(data.tokens);
+                updateCooldown(data.seconds_remaining);
+                updateMergeProgress(data.eligible_common_count);
+            } catch (e) {
+                console.error('Failed to load mystery collection:', e);
+            }
+        }
+
+        function renderCards(tokens) {
+            const grid = document.getElementById('cardGrid');
+            if (!grid) return;
+            if (!tokens || tokens.length === 0) {
+                grid.innerHTML = '<div class="mys-empty">No mystery tokens yet. Buy or claim your first one above.</div>';
+                return;
+            }
+            grid.innerHTML = tokens.map(t => {
+                const statusClass = t.status === 'revealed' ? `revealed tier-${t.tier}` : t.status;
+                let tierBadgeClass = `tier-badge-${t.tier}`;
+                let content = '';
+                if (t.status === 'sealed') {
+                    content = `
+                        <div class="mys-mystery-glyph">?</div>
+                        <span class="mys-token-tier ${tierBadgeClass}">Sealed</span>
+                        <div class="mys-token-edition">${t.edition}</div>
+                        <button class="mys-reveal-btn" onclick="revealToken(${t.id})">Reveal</button>
+                    `;
+                } else if (t.status === 'revealed') {
+                    const poem = t.sovereign_poem;
+                    const poemRow = poem ? `
+                        <div class="mys-poem-row">
+                            <span>${poem.glyphs[0]}</span>
+                            <span class="mys-poem-sep">—</span>
+                            <span>${poem.glyphs[1]}</span>
+                            <span class="mys-poem-sep">—</span>
+                            <span>${poem.glyphs[2]}</span>
+                        </div>
+                        <div style="font-size:0.65rem;color:#666;">${poem.meanings.join(' · ')}</div>
+                    ` : '';
+                    content = `
+                        <span class="mys-token-tier ${tierBadgeClass}">${t.tier.charAt(0).toUpperCase() + t.tier.slice(1)}</span>
+                        <div class="mys-token-edition">${t.edition}</div>
+                        ${poemRow}
+                    `;
+                } else if (t.status === 'merged') {
+                    content = `
+                        <span class="mys-token-tier tier-badge-merged">Merged</span>
+                        <div class="mys-token-edition">${t.edition}</div>
+                    `;
+                }
+                return `<div class="mys-token-card ${statusClass}">${content}</div>`;
+            }).join('');
+        }
+
+        function updateCooldown(secondsRemaining) {
+            if (cooldownInterval) clearInterval(cooldownInterval);
+            const btn = document.getElementById('freeMintBtn');
+            const txt = document.getElementById('cooldownText');
+            if (!btn || !txt) return;
+
+            if (secondsRemaining <= 0) {
+                btn.disabled = false;
+                txt.textContent = 'Ready to claim!';
+                return;
+            }
+
+            btn.disabled = true;
+            let secs = secondsRemaining;
+            function tick() {
+                if (secs <= 0) {
+                    clearInterval(cooldownInterval);
+                    btn.disabled = false;
+                    txt.textContent = 'Ready to claim!';
+                    return;
+                }
+                const h = Math.floor(secs / 3600);
+                const m = Math.floor((secs % 3600) / 60);
+                const s = secs % 60;
+                txt.textContent = `Next free mint in ${h}h ${m}m ${s}s`;
+                secs--;
+            }
+            tick();
+            cooldownInterval = setInterval(tick, 1000);
+        }
+
+        function updateMergeProgress(count) {
+            const btn = document.getElementById('mergeBtn');
+            const txt = document.getElementById('mergeProgress');
+            if (!btn || !txt) return;
+            if (count >= 30) {
+                btn.disabled = false;
+                txt.textContent = `${count} eligible Common tokens — ready to merge!`;
+            } else {
+                btn.disabled = true;
+                txt.textContent = `${count}/30 Common tokens — ${30 - count} more needed to merge`;
+            }
+        }
+
+        async function buyToken() {
+            const btn = document.getElementById('buyBtn');
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/mystery/buy', { method: 'POST' });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    showToast(`Sealed mystery token minted! Spent ${data.spent_vtx} VTX.`, 'success');
+                    await loadPrice();
+                    await loadCollection();
+                }
+            } catch (e) {
+                console.error('Buy token failed:', e);
+                showToast('Purchase failed. Please try again.', 'error');
+            }
+            btn.disabled = false;
+        }
+
+        async function freeMint() {
+            const btn = document.getElementById('freeMintBtn');
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/mystery/free-mint', { method: 'POST' });
+                const data = await res.json();
+                if (data.error && data.error !== 'cooldown') {
+                    showToast(data.error, 'error');
+                    btn.disabled = false;
+                } else if (data.error === 'cooldown') {
+                    showToast(`Cooldown active. ${data.seconds_remaining}s remaining.`, 'error');
+                    updateCooldown(data.seconds_remaining);
+                } else {
+                    showToast('Free mystery token claimed!', 'success');
+                    await loadPrice();
+                    await loadCollection();
+                }
+            } catch (e) {
+                console.error('Free mint failed:', e);
+                showToast('Mint failed. Please try again.', 'error');
+                btn.disabled = false;
+            }
+        }
+
+        async function mergeTokens() {
+            const btn = document.getElementById('mergeBtn');
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/mystery/merge', { method: 'POST' });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                    btn.disabled = false;
+                } else {
+                    showToast(`Merge complete! 30 Commons burned → 1 Rare token + ${data.vtx_bonus} VTX bonus.`, 'success');
+                    await loadPrice();
+                    await loadCollection();
+                }
+            } catch (e) {
+                console.error('Merge failed:', e);
+                showToast('Merge failed. Please try again.', 'error');
+                btn.disabled = false;
+            }
+        }
+
+        async function revealToken(tokenId) {
+            try {
+                const res = await fetch(`/api/mystery/reveal/${tokenId}`, { method: 'POST' });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    const tierLabel = data.tier.charAt(0).toUpperCase() + data.tier.slice(1);
+                    const poem = data.sovereign_poem ? data.sovereign_poem.poem : '';
+                    showToast(`Revealed: ${tierLabel}! ${poem}`, 'success');
+                    await loadCollection();
+                }
+            } catch (e) {
+                console.error('Reveal token failed:', e);
+                showToast('Reveal failed. Please try again.', 'error');
+            }
+        }
+
+        loadPrice();
+        loadCollection();
+        setInterval(loadPrice, 30000);
+    </script>
+</body>
+</html>

@@ -46,6 +46,7 @@ _COLUMN_DEFINITIONS = {
     ("users", "stripe_customer_id"):     "VARCHAR(100)",
     ("users", "stripe_subscription_id"): "VARCHAR(100)",
     ("users", "vortex_balance"):         "DECIMAL(18,4) DEFAULT 0",
+    ("users", "last_free_mint_at"):      "TIMESTAMP",
     ("messages", "attachment_filename"): "VARCHAR(255)",
     ("messages", "attachment_path"):     "VARCHAR(500)",
     ("messages", "attachment_size"):     "BIGINT",
@@ -160,6 +161,18 @@ def _ensure_columns():
             )
         """)
 
+        cur.execute(
+            "SELECT 1 FROM information_schema.columns WHERE table_name = 'blueprint_tokens' AND column_name = 'collection'"
+        )
+        if not cur.fetchone():
+            cur.execute("ALTER TABLE blueprint_tokens ADD COLUMN collection VARCHAR(20) DEFAULT 'genesis'")
+
+        cur.execute(
+            "SELECT 1 FROM information_schema.columns WHERE table_name = 'blueprint_tokens' AND column_name = 'revealed_at'"
+        )
+        if not cur.fetchone():
+            cur.execute("ALTER TABLE blueprint_tokens ADD COLUMN revealed_at TIMESTAMP")
+
         cur.execute("""
             CREATE TABLE IF NOT EXISTS token_ownership (
                 id SERIAL PRIMARY KEY,
@@ -183,6 +196,24 @@ def _ensure_columns():
                 status VARCHAR(20) DEFAULT 'pledged'
             )
         """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS mystery_collection (
+                id SERIAL PRIMARY KEY,
+                total_supply INTEGER NOT NULL DEFAULT 1000,
+                minted_count INTEGER NOT NULL DEFAULT 0,
+                base_price_vtx DECIMAL(18,4) NOT NULL DEFAULT 50,
+                price_step_threshold INTEGER NOT NULL DEFAULT 250,
+                step_multiplier DECIMAL(5,2) NOT NULL DEFAULT 2.0,
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        """)
+        cur.execute("SELECT COUNT(*) FROM mystery_collection")
+        if cur.fetchone()[0] == 0:
+            cur.execute(
+                """INSERT INTO mystery_collection (total_supply, minted_count, base_price_vtx, price_step_threshold, step_multiplier)
+                   VALUES (1000, 0, 50, 250, 2.0)"""
+            )
 
         cur.execute("LOCK TABLE vortex_ledger IN EXCLUSIVE MODE")
         cur.execute("""
@@ -318,26 +349,37 @@ def _ensure_columns():
         """)
         cur.execute("CREATE INDEX IF NOT EXISTS idx_chronicle_chapter ON chronicle_entries(chapter_number)")
 
-        conn.commit()
-
+        table_map = {
+            "chk_bt_tier": "blueprint_tokens",
+            "chk_bt_status": "blueprint_tokens",
+            "chk_to_type": "token_ownership",
+            "chk_mf_purpose": "manufacturing_fund",
+            "chk_mf_status": "manufacturing_fund",
+        }
         for chk_name, chk_sql in [
-            ("chk_bt_tier", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_tier CHECK (tier IN ('common','rare','legendary'))"),
-            ("chk_bt_status", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_status CHECK (status IN ('available','reserved','sold'))"),
-            ("chk_to_type", "ALTER TABLE token_ownership ADD CONSTRAINT chk_to_type CHECK (purchase_type IN ('vtx','stripe'))"),
+            ("chk_bt_tier", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_tier CHECK (tier IN ('common','rare','legendary','mystery'))"),
+            ("chk_bt_status", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_status CHECK (status IN ('available','reserved','sold','sealed','revealed','merged'))"),
+            ("chk_to_type", "ALTER TABLE token_ownership ADD CONSTRAINT chk_to_type CHECK (purchase_type IN ('vtx','stripe','free','merge'))"),
             ("chk_mf_purpose", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_purpose CHECK (purpose IN ('capex','materials','assembly'))"),
             ("chk_mf_status", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_status CHECK (status IN ('pledged','spent'))"),
         ]:
-            cur.execute(f"SAVEPOINT {chk_name}")
+            cur.execute("SAVEPOINT chk_savepoint")
             try:
                 cur.execute(chk_sql)
-                cur.execute(f"RELEASE SAVEPOINT {chk_name}")
-                conn.commit()
+                cur.execute("RELEASE SAVEPOINT chk_savepoint")
             except Exception:
-                try:
-                    cur.execute(f"ROLLBACK TO SAVEPOINT {chk_name}")
-                    conn.rollback()
-                except Exception:
-                    pass
+                cur.execute("ROLLBACK TO SAVEPOINT chk_savepoint")
+                cur.execute("RELEASE SAVEPOINT chk_savepoint")
+                tbl = table_map.get(chk_name)
+                if tbl:
+                    cur.execute("SAVEPOINT chk_drop_savepoint")
+                    try:
+                        cur.execute(f"ALTER TABLE {tbl} DROP CONSTRAINT IF EXISTS {chk_name}")
+                        cur.execute(chk_sql)
+                        cur.execute("RELEASE SAVEPOINT chk_drop_savepoint")
+                    except Exception:
+                        cur.execute("ROLLBACK TO SAVEPOINT chk_drop_savepoint")
+                        cur.execute("RELEASE SAVEPOINT chk_drop_savepoint")
 
         conn.commit()
 

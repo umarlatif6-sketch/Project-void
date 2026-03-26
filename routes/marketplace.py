@@ -21,6 +21,12 @@ from void_engine.blueprint_nft import (
     end_rental,
     get_secondary_listings,
     get_rental_offers,
+    get_mystery_price,
+    buy_mystery_token,
+    reveal_mystery_token,
+    free_daily_mint,
+    merge_tokens,
+    get_mystery_collection,
     TIER_CONFIG,
 )
 from void_engine.adriana_scl import generate_token_story
@@ -307,6 +313,37 @@ def api_list_token():
         return jsonify({"error": "Failed to list token"}), 500
 
 
+@marketplace_bp.route("/mystery")
+def mystery_page():
+    user_id = session.get("user_id")
+    return render_template("mystery.html", user_id=user_id)
+
+
+@marketplace_bp.route("/api/mystery/price")
+def api_mystery_price():
+    try:
+        price_data = get_mystery_price()
+        if "error" in price_data:
+            return jsonify(price_data), 500
+        return jsonify(price_data)
+    except Exception as e:
+        logger.error("Mystery price error: %s", e)
+        return jsonify({"error": "Failed to load price"}), 500
+
+
+@marketplace_bp.route("/api/mystery/buy", methods=["POST"])
+@login_required
+def api_mystery_buy():
+    try:
+        result = buy_mystery_token(session["user_id"])
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Mystery buy error: %s", e)
+        return jsonify({"error": "Purchase failed"}), 500
+
+
 @marketplace_bp.route("/api/marketplace/unlist", methods=["POST"])
 @login_required
 def api_unlist_token():
@@ -341,6 +378,19 @@ def api_buy_secondary():
     except Exception as e:
         logger.error("Secondary purchase error: %s", e)
         return jsonify({"error": "Purchase failed"}), 500
+
+
+@marketplace_bp.route("/api/mystery/reveal/<int:token_id>", methods=["POST"])
+@login_required
+def api_mystery_reveal(token_id):
+    try:
+        result = reveal_mystery_token(token_id, session["user_id"])
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Mystery reveal error: %s", e)
+        return jsonify({"error": "Reveal failed"}), 500
 
 
 @marketplace_bp.route("/api/marketplace/rent/offer", methods=["POST"])
@@ -384,6 +434,34 @@ def api_rent_book():
         return jsonify({"error": "Failed to book rental"}), 500
 
 
+@marketplace_bp.route("/api/mystery/free-mint", methods=["POST"])
+@login_required
+def api_mystery_free_mint():
+    try:
+        result = free_daily_mint(session["user_id"])
+        if "error" in result:
+            if result.get("error") == "cooldown":
+                return jsonify(result), 429
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Free mint error: %s", e)
+        return jsonify({"error": "Free mint failed"}), 500
+
+
+@marketplace_bp.route("/api/mystery/merge", methods=["POST"])
+@login_required
+def api_mystery_merge():
+    try:
+        result = merge_tokens(session["user_id"])
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Merge error: %s", e)
+        return jsonify({"error": "Merge failed"}), 500
+
+
 @marketplace_bp.route("/api/marketplace/rent/end", methods=["POST"])
 @login_required
 def api_rent_end():
@@ -400,3 +478,14 @@ def api_rent_end():
     except Exception as e:
         logger.error("Rent end error: %s", e)
         return jsonify({"error": "Failed to end rental"}), 500
+
+
+@marketplace_bp.route("/api/mystery/collection")
+@login_required
+def api_mystery_collection():
+    try:
+        data = get_mystery_collection(session["user_id"])
+        return jsonify(data)
+    except Exception as e:
+        logger.error("Mystery collection error: %s", e)
+        return jsonify({"error": "Failed to load collection"}), 500
