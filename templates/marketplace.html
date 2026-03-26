@@ -938,7 +938,10 @@
                     </div>
                     <div class="mp-card-actions">${actions}</div>
                     <div class="mp-hash-display">${escapeHtml(token.token_hash)}</div>
-                    <button class="mp-story-btn" onclick="openStory(${token.id}, ${JSON.stringify(token.title)}, ${JSON.stringify(token.tier)})">
+                    <button class="mp-story-btn mp-story-btn-card"
+                        data-token-id="${token.id}"
+                        data-token-title="${escapeHtml(token.title)}"
+                        data-token-tier="${escapeHtml(token.tier)}">
                         &#9654; Read Token Story (${chapCount} chapters)
                     </button>
                 </div>
@@ -1002,6 +1005,15 @@
         }
         document.getElementById('storyModal').addEventListener('click', function(e) {
             if (e.target === this) closeStory();
+        });
+
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.mp-story-btn-card');
+            if (!btn) return;
+            const tokenId = btn.dataset.tokenId;
+            const title = btn.dataset.tokenTitle;
+            const tier = btn.dataset.tokenTier;
+            openStory(tokenId, title, tier);
         });
 
         async function loadListings() {
