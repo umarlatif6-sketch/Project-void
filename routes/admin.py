@@ -2,6 +2,7 @@ import os
 import logging
 from flask import Blueprint, request, redirect, render_template, session
 from routes.auth import admin_required
+from void_engine.db_pool import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -9,8 +10,7 @@ admin_bp = Blueprint("admin", __name__)
 
 
 def _get_db():
-    import psycopg2
-    return psycopg2.connect(os.environ["DATABASE_URL"])
+    return get_db()
 
 
 @admin_bp.route("/admin/market", methods=["GET"])

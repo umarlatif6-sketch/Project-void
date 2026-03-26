@@ -1,13 +1,13 @@
 import os
 import base64
-import psycopg2
 from datetime import datetime
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from void_engine.al_jabr_286 import fatiha_286_hexdigest, fatiha_286_derive_key
+from void_engine.db_pool import get_db
 
 
 def _get_db():
-    return psycopg2.connect(os.environ["DATABASE_URL"])
+    return get_db()
 
 
 def _generate_salt():

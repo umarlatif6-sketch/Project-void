@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Node Portfolio — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-border: #222;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-red: #ff5252;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .snp-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .snp-nav-brand {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+        }
+        .snp-nav-links { display: flex; gap: 20px; }
+        .snp-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .snp-nav-link:hover, .snp-nav-link.active { color: var(--void-gold); }
+
+        /* ── HERO ── */
+        .snp-hero {
+            text-align: center;
+            padding: 80px 32px 40px;
+            background: radial-gradient(ellipse at 50% 0%, #1a1200 0%, var(--void-bg) 70%);
+            border-bottom: 1px solid var(--void-border);
+        }
+        .snp-hero-badge {
+            display: inline-block;
+            background: var(--void-gold);
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 20px;
+        }
+        .snp-hero-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin: 0 0 12px;
+            text-transform: uppercase;
+        }
+        .snp-hero-sub {
+            color: #888;
+            font-size: 0.9rem;
+            max-width: 680px;
+            margin: 0 auto 28px;
+            line-height: 1.7;
+        }
+
+        /* Adriana poem banner */
+        .snp-poem-banner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            margin: 0 auto 0;
+            padding: 18px;
+            border: 1px solid #2a2000;
+            background: rgba(201,168,76,0.05);
+            max-width: 560px;
+            border-radius: 4px;
+        }
+        .snp-poem-glyphs {
+            font-size: 1.8rem;
+            letter-spacing: 16px;
+            color: var(--void-gold);
+        }
+        .snp-poem-meaning {
+            font-size: 0.72rem;
+            color: #666;
+            letter-spacing: 2px;
+        }
+        .snp-poem-translation {
+            font-size: 0.82rem;
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            max-width: 480px;
+            line-height: 1.6;
+        }
+        .snp-poem-label {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--void-gold);
+            opacity: 0.6;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        /* ── MAIN ── */
+        .snp-main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 56px;
+        }
+
+        /* section headings */
+        .snp-section-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .snp-section-num {
+            font-size: 0.62rem;
+            letter-spacing: 3px;
+            color: var(--void-gold);
+            opacity: 0.7;
+        }
+        .snp-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-text);
+        }
+        .snp-section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--void-border);
+        }
+
+        /* ── SECTION 1: LIVE METRICS ── */
+        .snp-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        .snp-metric-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 18px 16px;
+            text-align: center;
+        }
+        .snp-metric-val {
+            font-size: 1.7rem;
+            font-weight: 900;
+            color: var(--void-gold);
+            letter-spacing: 1px;
+            line-height: 1.1;
+        }
+        .snp-metric-label {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+
+        /* ── SECTION 2: NOVOSIBIRSK NODE NARRATIVE ── */
+        .snp-narrative-body {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-left: 3px solid var(--void-gold);
+            border-radius: 4px;
+            padding: 28px 32px;
+            line-height: 1.8;
+            font-size: 0.88rem;
+            color: #bbb;
+        }
+        .snp-narrative-body p { margin: 0 0 16px; }
+        .snp-narrative-body p:last-child { margin-bottom: 0; }
+        .snp-narrative-highlight { color: var(--void-gold); font-weight: 700; }
+
+        /* ── SECTION 3: ECOSYSTEM ARCHITECTURE ── */
+        .snp-arch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .snp-arch-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 20px;
+        }
+        .snp-arch-icon {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+        .snp-arch-name {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--void-teal);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .snp-arch-desc {
+            font-size: 0.76rem;
+            color: #777;
+            line-height: 1.6;
+        }
+
+        /* ── SECTION 4: TOKEN ECONOMY ── */
+        .snp-token-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        .snp-token-table th {
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            border-bottom: 1px solid var(--void-border);
+            text-transform: uppercase;
+        }
+        .snp-token-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #1a1a1a;
+            color: #bbb;
+        }
+        .snp-token-table tr:last-child td { border-bottom: none; }
+        .snp-token-pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 2px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .snp-token-pill.legendary { background: rgba(201,168,76,0.15); color: var(--void-gold); }
+        .snp-token-pill.rare { background: rgba(0,191,165,0.12); color: var(--void-teal); }
+        .snp-token-pill.common { background: rgba(124,92,255,0.12); color: var(--void-violet); }
+
+        /* ── SECTION 5: DEPIN / DePIN CLAIM MAP ── */
+        .snp-depin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .snp-depin-card {
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 18px;
+            background: var(--void-surface);
+        }
+        .snp-depin-region {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .snp-depin-status {
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .snp-depin-status.live { color: var(--void-teal); }
+        .snp-depin-status.pending { color: var(--void-gold); }
+        .snp-depin-status.reserved { color: #555; }
+        .snp-depin-coords {
+            font-size: 0.68rem;
+            color: #444;
+            margin-top: 6px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ── SECTION 6: ADRIANA SCL SDK ── */
+        .snp-sdk-block {
+            background: #0d0d0d;
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 28px 32px;
+        }
+        .snp-sdk-row {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+        .snp-sdk-col { flex: 1; min-width: 220px; }
+        .snp-sdk-col-title {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: var(--void-gold);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .snp-sdk-item {
+            font-size: 0.78rem;
+            color: #888;
+            padding: 4px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .snp-sdk-item:last-child { border-bottom: none; }
+        .snp-sdk-code {
+            background: #050505;
+            border: 1px solid #1e1e1e;
+            border-radius: 3px;
+            padding: 14px 18px;
+            font-size: 0.72rem;
+            color: var(--void-teal);
+            overflow-x: auto;
+            margin-top: 16px;
+            white-space: pre;
+        }
+
+        /* ── HASH DISPLAY (al-jabr) ── */
+        .snp-hash-block {
+            background: #060606;
+            border: 1px solid #1a1a1a;
+            border-radius: 4px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .snp-hash-label {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--void-gold);
+            opacity: 0.7;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .snp-hash-value {
+            font-family: 'Courier New', monospace;
+            font-size: 0.72rem;
+            color: #555;
+            word-break: break-all;
+            flex: 1;
+        }
+        .snp-hash-ts {
+            font-size: 0.65rem;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        /* ── GRIDUL-286 FOOTER ── */
+        .snp-footer {
+            border-top: 1px solid var(--void-border);
+            padding: 32px;
+            text-align: center;
+            background: #060606;
+        }
+        .snp-footer-brand {
+            font-size: 0.65rem;
+            letter-spacing: 4px;
+            color: var(--void-gold);
+            margin-bottom: 6px;
+        }
+        .snp-footer-node {
+            font-size: 0.72rem;
+            color: #444;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+        .snp-footer-glyphs {
+            font-size: 1.4rem;
+            letter-spacing: 12px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .snp-footer-hash {
+            font-family: 'Courier New', monospace;
+            font-size: 0.62rem;
+            color: #2a2a2a;
+            word-break: break-all;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .snp-footer-line {
+            font-size: 0.6rem;
+            color: #2a2a2a;
+            letter-spacing: 2px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .snp-hero-title { font-size: 1.8rem; }
+            .snp-sdk-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="snp-nav">
+    <div class="snp-nav-brand">&#9670; PROJECT VOID</div>
+    <div class="snp-nav-links">
+        <a href="/launch" class="snp-nav-link">Home</a>
+        <a href="/" class="snp-nav-link">Engine</a>
+        <a href="/sovereign" class="snp-nav-link">Hardware</a>
+        <a href="/marketplace" class="snp-nav-link">Marketplace</a>
+        <a href="/mystery" class="snp-nav-link">Mystery</a>
+        <a href="/chronicle" class="snp-nav-link">Chronicle</a>
+        <a href="/sovereign-node" class="snp-nav-link active">Node Portfolio</a>
+    </div>
+</nav>
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<section class="snp-hero">
+    <div class="snp-hero-badge">SOVEREIGN NODE PORTFOLIO</div>
+    <h1 class="snp-hero-title">Gridul-286<br>Novosibirsk</h1>
+    <p class="snp-hero-sub">
+        A sovereign research node in the PROJECT VOID DePIN ecosystem.
+        Steganography at 286-bit depth. VTX economy participation.
+        Adriana SCL resonance layer. Operating at the edge of the mesh.
+    </p>
+
+    {% if poem %}
+    <div class="snp-poem-banner">
+        <div class="snp-poem-label">Adriana Resonance — Page Invocation</div>
+        <div class="snp-poem-glyphs">
+            {% for g in poem.glyphs %}{{ g }}{% if not loop.last %} — {% endif %}{% endfor %}
+        </div>
+        <div class="snp-poem-meaning">
+            {% for m in poem.meanings %}{{ m }}{% if not loop.last %} · {% endif %}{% endfor %}
+        </div>
+        {% if poem.translation %}
+        <div class="snp-poem-translation">{{ poem.translation }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+
+<!-- ══════════════════════ MAIN ══════════════════════ -->
+<main class="snp-main">
+
+    <!-- AL-JABR PAGE HASH -->
+    <div class="snp-hash-block">
+        <span class="snp-hash-label">Al-Jabr 286 Page Hash</span>
+        <span class="snp-hash-value">{{ page_hash }}</span>
+        <span class="snp-hash-ts">{{ timestamp }}</span>
+    </div>
+
+    <!-- ── SECTION 1: LIVE NETWORK METRICS ── -->
+    <section>
+        <div class="snp-section-head">
+            <span class="snp-section-num">01</span>
+            <span class="snp-section-title">Live Network Metrics</span>
+            <span class="snp-section-line"></span>
+        </div>
+        <div class="snp-metrics-grid">
+            <div class="snp-metric-card">
+                <div class="snp-metric-val">{{ metrics.total_users }}</div>
+                <div class="snp-metric-label">Registered Nodes</div>
+            </div>
+            <div class="snp-metric-card">
+                <div class="snp-metric-val">{{ metrics.active_nodes }}</div>
+                <div class="snp-metric-label">Active Mesh Nodes</div>
+            </div>
+            <div class="snp-metric-card">
+                <div class="snp-metric-val">{{ metrics.vtx_in_circulation }}</div>
+                <div class="snp-metric-label">VTX in Circulation</div>
+            </div>
+            <div class="snp-metric-card">
+                <div class="snp-metric-val">{{ metrics.tokens_minted }}</div>
+                <div class="snp-metric-label">Blueprint Tokens Minted</div>
+            </div>
+            <div class="snp-metric-card">
+                <div class="snp-metric-val">{{ metrics.tokens_sold }}</div>
+                <div class="snp-metric-label">Tokens Deployed</div>
+            </div>
+            <div class="snp-metric-card">
+                <div class="snp-metric-val">{{ metrics.yield_distributed }}</div>
+                <div class="snp-metric-label">VTX Yield Distributed</div>
+            </div>
+            <div class="snp-metric-card">
+                <div class="snp-metric-val">{{ metrics.total_messages }}</div>
+                <div class="snp-metric-label">Encrypted Messages</div>
+            </div>
+            <div class="snp-metric-card">
+                <div class="snp-metric-val">{{ metrics.chronicle_chapters }}</div>
+                <div class="snp-metric-label">Chronicle Chapters</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION 2: NOVOSIBIRSK NODE NARRATIVE ── -->
+    <section>
+        <div class="snp-section-head">
+            <span class="snp-section-num">02</span>
+            <span class="snp-section-title">Novosibirsk Node — Research Narrative</span>
+            <span class="snp-section-line"></span>
+        </div>
+        <div class="snp-narrative-body">
+            <p>
+                The <span class="snp-narrative-highlight">Gridul-286 Novosibirsk Node</span> is a sovereign
+                research unit in PROJECT VOID's distributed physical infrastructure network — a DePIN node
+                anchored in Siberia's science-industrial belt, bridging the ENGINE's steganographic core
+                with real-world resonance capture.
+            </p>
+            <p>
+                Operating at <span class="snp-narrative-highlight">286-bit depth</span>, the node participates
+                directly in the Al-Jabr hashing layer. Every payload passing through the Novosibirsk relay
+                is signed with a Fatiha-286 digest — a cryptographic fingerprint that cannot be forged,
+                backdated, or replicated outside the chain.
+            </p>
+            <p>
+                The node holds a <span class="snp-narrative-highlight">Journalist-tier Blueprint Token</span>
+                granting access to the full Adriana SCL lexicon, yield distribution participation, and the
+                right to resell or rent access rights on the secondary market. As a DePIN participant, the
+                node earns VTX for every verified relay event, mesh hop, and steganographic transaction it
+                witnesses and countersigns.
+            </p>
+            <p>
+                This portfolio page is itself a live artefact: the <span class="snp-narrative-highlight">Al-Jabr hash above</span>
+                was generated at render time using the timestamp of this page load, proving the node was
+                active and the ENGINE was running at this exact moment.
+            </p>
+        </div>
+    </section>
+
+    <!-- ── SECTION 3: ECOSYSTEM ARCHITECTURE ── -->
+    <section>
+        <div class="snp-section-head">
+            <span class="snp-section-num">03</span>
+            <span class="snp-section-title">Ecosystem Architecture</span>
+            <span class="snp-section-line"></span>
+        </div>
+        <div class="snp-arch-grid">
+            <div class="snp-arch-card">
+                <div class="snp-arch-icon">&#9670;</div>
+                <div class="snp-arch-name">Brain (Web Engine)</div>
+                <div class="snp-arch-desc">
+                    Flask/PostgreSQL steganography engine. All API endpoints, token logic, wallet management,
+                    and Adriana chronicle live here.
+                </div>
+            </div>
+            <div class="snp-arch-card">
+                <div class="snp-arch-icon">&#9671;</div>
+                <div class="snp-arch-name">Body (Edge Node)</div>
+                <div class="snp-arch-desc">
+                    Downloadable Python daemon. Runs locally or on bare metal. Connects to the Brain over
+                    the encrypted mesh relay. Earns VTX for uptime and relay events.
+                </div>
+            </div>
+            <div class="snp-arch-card">
+                <div class="snp-arch-icon">&#9830;</div>
+                <div class="snp-arch-name">VTX Token Economy</div>
+                <div class="snp-arch-desc">
+                    Native utility token. Minted for data relay, steganographic events, and sensor reports.
+                    Spent on marketplace purchases, blueprint tokens, and rental access.
+                </div>
+            </div>
+            <div class="snp-arch-card">
+                <div class="snp-arch-icon">&#9632;</div>
+                <div class="snp-arch-name">Blueprint Token NFTs</div>
+                <div class="snp-arch-desc">
+                    Three tiers: Common, Rare, Legendary. Unlock story chapters, yield shares, and
+                    commercial licensing via the Adriana SDK. Tradeable on the secondary market.
+                </div>
+            </div>
+            <div class="snp-arch-card">
+                <div class="snp-arch-icon">&#8734;</div>
+                <div class="snp-arch-name">DePIN Mesh</div>
+                <div class="snp-arch-desc">
+                    Physical nodes earn rewards for participating in the relay network. Secondary market
+                    and rental economy allow nodes to monetise their Blueprint Token access rights.
+                </div>
+            </div>
+            <div class="snp-arch-card">
+                <div class="snp-arch-icon">&#9734;</div>
+                <div class="snp-arch-name">Adriana SCL SDK</div>
+                <div class="snp-arch-desc">
+                    Open sovereign computing layer. Glyph lexicon, resonance engine, Al-Jabr hashing,
+                    and the full chronicle API. Importable as a Python package.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION 4: TOKEN ECONOMY ── -->
+    <section>
+        <div class="snp-section-head">
+            <span class="snp-section-num">04</span>
+            <span class="snp-section-title">Blueprint Token Economy</span>
+            <span class="snp-section-line"></span>
+        </div>
+        <table class="snp-token-table">
+            <thead>
+                <tr>
+                    <th>Tier</th>
+                    <th>Chapters</th>
+                    <th>Yield Share</th>
+                    <th>Secondary Market</th>
+                    <th>Rental Access</th>
+                    <th>SDK License</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="snp-token-pill legendary">Legendary</span></td>
+                    <td>9 / 9</td>
+                    <td>Full yield</td>
+                    <td>Yes — 5% royalty</td>
+                    <td>Sovereign-tier</td>
+                    <td>Commercial unrestricted</td>
+                </tr>
+                <tr>
+                    <td><span class="snp-token-pill rare">Rare</span></td>
+                    <td>6 / 9</td>
+                    <td>60% share</td>
+                    <td>Yes — 5% royalty</td>
+                    <td>Journalist-tier</td>
+                    <td>Commercial restricted</td>
+                </tr>
+                <tr>
+                    <td><span class="snp-token-pill common">Common</span></td>
+                    <td>3 / 9</td>
+                    <td>30% share</td>
+                    <td>Yes — 5% royalty</td>
+                    <td>Common-tier</td>
+                    <td>Non-commercial</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- ── SECTION 5: DePIN NODE MAP ── -->
+    <section>
+        <div class="snp-section-head">
+            <span class="snp-section-num">05</span>
+            <span class="snp-section-title">DePIN Node Registry — Active Zones</span>
+            <span class="snp-section-line"></span>
+        </div>
+        <div class="snp-depin-grid">
+            <div class="snp-depin-card">
+                <div class="snp-depin-region">Siberia / Russia</div>
+                <div class="snp-depin-status live">&#9679; LIVE</div>
+                <div class="snp-depin-coords">55.0084° N, 82.9357° E — Novosibirsk</div>
+            </div>
+            <div class="snp-depin-card">
+                <div class="snp-depin-region">Western Europe</div>
+                <div class="snp-depin-status pending">&#9675; PENDING</div>
+                <div class="snp-depin-coords">Relay zone — pre-activation</div>
+            </div>
+            <div class="snp-depin-card">
+                <div class="snp-depin-region">Central Asia</div>
+                <div class="snp-depin-status pending">&#9675; PENDING</div>
+                <div class="snp-depin-coords">Relay zone — pre-activation</div>
+            </div>
+            <div class="snp-depin-card">
+                <div class="snp-depin-region">North America</div>
+                <div class="snp-depin-status reserved">&#9632; RESERVED</div>
+                <div class="snp-depin-coords">Franchise slot available</div>
+            </div>
+            <div class="snp-depin-card">
+                <div class="snp-depin-region">South Asia</div>
+                <div class="snp-depin-status reserved">&#9632; RESERVED</div>
+                <div class="snp-depin-coords">Franchise slot available</div>
+            </div>
+            <div class="snp-depin-card">
+                <div class="snp-depin-region">East Africa</div>
+                <div class="snp-depin-status reserved">&#9632; RESERVED</div>
+                <div class="snp-depin-coords">Franchise slot available</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION 6: ADRIANA SCL SDK ── -->
+    <section>
+        <div class="snp-section-head">
+            <span class="snp-section-num">06</span>
+            <span class="snp-section-title">Adriana SCL — Open SDK</span>
+            <span class="snp-section-line"></span>
+        </div>
+        <div class="snp-sdk-block">
+            <div class="snp-sdk-row">
+                <div class="snp-sdk-col">
+                    <div class="snp-sdk-col-title">Core Modules</div>
+                    <div class="snp-sdk-item">adriana_sdk.lexicon — Glyph definitions &amp; meanings</div>
+                    <div class="snp-sdk-item">adriana_sdk.resonance — Frequency encoding layer</div>
+                    <div class="snp-sdk-item">adriana_sdk.al_jabr — 286-bit hash primitives</div>
+                    <div class="snp-sdk-item">adriana_sdk.poem — GlyphPoem generation engine</div>
+                    <div class="snp-sdk-item">adriana_sdk.chronicle — Story chapter API</div>
+                </div>
+                <div class="snp-sdk-col">
+                    <div class="snp-sdk-col-title">Sovereign Capabilities</div>
+                    <div class="snp-sdk-item">Hash-stamped artefact signing</div>
+                    <div class="snp-sdk-item">Commercial licensing via Blueprint Token</div>
+                    <div class="snp-sdk-item">Offline / air-gapped operation</div>
+                    <div class="snp-sdk-item">ChaCha20-Poly1305 message sealing</div>
+                    <div class="snp-sdk-item">VTX wallet integration</div>
+                </div>
+            </div>
+            <div class="snp-sdk-code">from adriana_sdk import AdrianaResonance, hash_to_sovereign_poem
+
+engine = AdrianaResonance()
+poem = engine.generate_poem("gridul-286|novosibirsk")
+
+print(poem.glyphs)       # ['&#9670;', '&#9671;', '&#9830;']
+print(poem.translation)  # Sovereign verse line</div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ══════════════════════ GRIDUL-286 FOOTER ══════════════════════ -->
+<footer class="snp-footer">
+    <div class="snp-footer-brand">PROJECT VOID — SOVEREIGN NODE NETWORK</div>
+    <div class="snp-footer-node">GRIDUL-286 · NOVOSIBIRSK · DePIN PARTICIPANT</div>
+    {% if poem %}
+    <div class="snp-footer-glyphs">
+        {% for g in poem.glyphs %}{{ g }}{% if not loop.last %} — {% endif %}{% endfor %}
+    </div>
+    {% endif %}
+    <div class="snp-footer-hash">{{ page_hash }}</div>
+    <div class="snp-footer-line">Al-Jabr 286 · Rendered {{ timestamp }} · Fatiha digest above is cryptographic proof of this page render</div>
+</footer>
+
+</body>
+</html>

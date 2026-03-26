@@ -2,12 +2,12 @@ import os
 import re
 import json
 import threading
-import psycopg2
 from flask import Blueprint, request, jsonify, session
 from routes.auth import login_required, _check_rate_limit
 from openai import OpenAI
 from void_engine.al_jabr_286 import fatiha_286_hexdigest
 from void_engine.adriana_scl import AdrianaResonance
+from void_engine.db_pool import get_db
 
 fairy_bp = Blueprint("fairy", __name__)
 
@@ -20,7 +20,7 @@ _fairy_msg_counter = {}
 
 
 def _get_db():
-    return psycopg2.connect(os.environ["DATABASE_URL"])
+    return get_db()
 
 
 def _init_fairy_tables():

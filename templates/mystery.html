@@ -488,6 +488,16 @@
         let collectionData = null;
         let cooldownInterval = null;
 
+        function escapeHtml(s) {
+            if (s == null) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function showToast(msg, type = '') {
             const t = document.getElementById('toast');
             t.textContent = msg;
@@ -555,32 +565,32 @@
                 if (t.status === 'sealed') {
                     content = `
                         <div class="mys-mystery-glyph">?</div>
-                        <span class="mys-token-tier ${tierBadgeClass}">Sealed</span>
-                        <div class="mys-token-edition">${t.edition}</div>
+                        <span class="mys-token-tier ${escapeHtml(tierBadgeClass)}">Sealed</span>
+                        <div class="mys-token-edition">${escapeHtml(t.edition)}</div>
                         <button class="mys-reveal-btn" onclick="revealToken(${t.id})">Reveal</button>
                     `;
                 } else if (t.status === 'revealed') {
                     const poem = t.sovereign_poem;
                     const poemRow = poem ? `
                         <div class="mys-poem-row">
-                            <span>${poem.glyphs[0]}</span>
+                            <span>${escapeHtml(poem.glyphs[0])}</span>
                             <span class="mys-poem-sep">—</span>
-                            <span>${poem.glyphs[1]}</span>
+                            <span>${escapeHtml(poem.glyphs[1])}</span>
                             <span class="mys-poem-sep">—</span>
-                            <span>${poem.glyphs[2]}</span>
+                            <span>${escapeHtml(poem.glyphs[2])}</span>
                         </div>
-                        <div style="font-size:0.65rem;color:#666;">${poem.meanings.join(' · ')}</div>
+                        <div style="font-size:0.65rem;color:#666;">${escapeHtml(poem.meanings.join(' · '))}</div>
                     ` : '';
                     content = `
-                        <span class="mys-token-tier ${tierBadgeClass}">${t.tier.charAt(0).toUpperCase() + t.tier.slice(1)}</span>
-                        <div class="mys-token-edition">${t.edition}</div>
+                        <span class="mys-token-tier ${escapeHtml(tierBadgeClass)}">${escapeHtml(t.tier.charAt(0).toUpperCase() + t.tier.slice(1))}</span>
+                        <div class="mys-token-edition">${escapeHtml(t.edition)}</div>
                         ${poemRow}
                         <button class="mys-story-btn" onclick="fetchMysteryStory(${t.id})">View Story</button>
                     `;
                 } else if (t.status === 'merged') {
                     content = `
                         <span class="mys-token-tier tier-badge-merged">Merged</span>
-                        <div class="mys-token-edition">${t.edition}</div>
+                        <div class="mys-token-edition">${escapeHtml(t.edition)}</div>
                     `;
                 }
                 return `<div class="mys-token-card ${statusClass}">${content}</div>`;
@@ -735,20 +745,20 @@
                 const tierLabel = (story.tier || 'common').charAt(0).toUpperCase() + (story.tier || 'common').slice(1);
                 let html = `
                     <div class="mys-story-header">
-                        <div class="mys-story-tier">${tierLabel} &bull; ${story.chapter_count} Chapters Unlocked</div>
-                        <div class="mys-story-title">Token #${tokenId} — Sovereign Story</div>
+                        <div class="mys-story-tier">${escapeHtml(tierLabel)} &bull; ${escapeHtml(story.chapter_count)} Chapters Unlocked</div>
+                        <div class="mys-story-title">Token #${escapeHtml(tokenId)} — Sovereign Story</div>
                     </div>
                 `;
                 for (const ch of story.chapters) {
                     const g = ch.glyphs || [];
                     html += `
                         <div class="mys-chapter-block">
-                            <div class="mys-chapter-num">Chapter ${ch.chapter}</div>
-                            <div class="mys-chapter-milestone">${ch.milestone || ''}</div>
-                            <div class="mys-chapter-title-txt">${ch.title || ''}</div>
-                            <div class="mys-chapter-poem">${g.join(' — ')}</div>
-                            <div class="mys-chapter-translation">${ch.translation || ''}</div>
-                            <div class="mys-chapter-body-txt">${ch.body || ''}</div>
+                            <div class="mys-chapter-num">Chapter ${escapeHtml(ch.chapter)}</div>
+                            <div class="mys-chapter-milestone">${escapeHtml(ch.milestone)}</div>
+                            <div class="mys-chapter-title-txt">${escapeHtml(ch.title)}</div>
+                            <div class="mys-chapter-poem">${escapeHtml(g.join(' — '))}</div>
+                            <div class="mys-chapter-translation">${escapeHtml(ch.translation)}</div>
+                            <div class="mys-chapter-body-txt">${escapeHtml(ch.body)}</div>
                         </div>
                     `;
                 }

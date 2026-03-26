@@ -19,6 +19,7 @@ if not _secret:
 app.secret_key = _secret
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = True
 
 def _startup_migrations():
     from routes.auth import _ensure_columns

@@ -130,45 +130,53 @@ def harness_update_sensor():
     if not sensor_id or value is None:
         return jsonify({"error": "sensor_id and value required"}), 400
 
-    shared.silk_context.register_sensor(sensor_id, float(value), unit)
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        return jsonify({"error": "value must be a number"}), 400
+
+    shared.silk_context.register_sensor(sensor_id, value, unit)
 
     section = None
     updates = {}
     if "aqua" in sensor_id.lower():
         section = "aquaponics"
         if "ph" in sensor_id.lower():
-            updates["ph"] = float(value)
+            updates["ph"] = value
         elif "temp" in sensor_id.lower():
-            updates["temperature_c"] = float(value)
+            updates["temperature_c"] = value
         elif "oxygen" in sensor_id.lower():
-            updates["dissolved_oxygen_ppm"] = float(value)
+            updates["dissolved_oxygen_ppm"] = value
         elif "ammonia" in sensor_id.lower():
-            updates["ammonia_ppm"] = float(value)
+            updates["ammonia_ppm"] = value
         elif "pump" in sensor_id.lower():
-            updates["pump_cycles_this_hour"] = int(value)
+            try:
+                updates["pump_cycles_this_hour"] = int(value)
+            except (TypeError, ValueError):
+                return jsonify({"error": "value must be an integer for pump sensor"}), 400
         elif "water" in sensor_id.lower():
-            updates["water_level_pct"] = float(value)
+            updates["water_level_pct"] = value
     elif "flywheel" in sensor_id.lower():
         section = "flywheel"
         if "rpm" in sensor_id.lower():
-            updates["rpm"] = float(value)
+            updates["rpm"] = value
         elif "energy" in sensor_id.lower():
-            updates["energy_reserve_wh"] = float(value)
+            updates["energy_reserve_wh"] = value
         elif "temp" in sensor_id.lower():
-            updates["temperature_c"] = float(value)
+            updates["temperature_c"] = value
         elif "vibration" in sensor_id.lower():
-            updates["vibration_g"] = float(value)
+            updates["vibration_g"] = value
     elif "silk" in sensor_id.lower():
         section = "silk_wiring"
         if "total" in sensor_id.lower():
-            updates["total_resistance_ohm"] = float(value)
+            updates["total_resistance_ohm"] = value
         elif "delta" in sensor_id.lower():
-            updates["resistance_delta_ohm"] = float(value)
+            updates["resistance_delta_ohm"] = value
 
     if section and updates:
         shared.harness_sim.set_state(section, updates)
 
-    return jsonify({"success": True, "sensor_id": sensor_id, "value": float(value)})
+    return jsonify({"success": True, "sensor_id": sensor_id, "value": value})
 
 
 @harness_bp.route("/api/harness/context", methods=["POST"])
@@ -211,7 +219,10 @@ def harness_pressure():
 def harness_air_curtain():
     data = request.json or {}
     action = data.get("action", "activate")
-    velocity = float(data.get("velocity_ms", 15.0))
+    try:
+        velocity = float(data.get("velocity_ms", 15.0))
+    except (TypeError, ValueError):
+        return jsonify({"error": "velocity_ms must be a number"}), 400
 
     if action == "activate":
         result = shared.harness_sim.activate_air_curtain(velocity)
@@ -228,7 +239,10 @@ def harness_air_curtain():
 @harness_bp.route("/api/harness/nitrogen-boil", methods=["POST"])
 def harness_nitrogen_boil():
     data = request.json or {}
-    boil_rate = float(data.get("boil_rate", 0.1))
+    try:
+        boil_rate = float(data.get("boil_rate", 0.1))
+    except (TypeError, ValueError):
+        return jsonify({"error": "boil_rate must be a number"}), 400
     result = shared.harness_sim.simulate_nitrogen_boil(boil_rate)
 
     shared.silk_context.register_sensor("pressure_internal", result["internal_pressure_atm"], "atm")
@@ -241,9 +255,12 @@ def harness_nitrogen_boil():
 @harness_bp.route("/api/harness/chaos-test", methods=["POST"])
 def harness_chaos_test():
     data = request.json or {}
-    steps = int(data.get("steps", 10))
-    initial_rate = float(data.get("initial_boil_rate", 0.05))
-    escalation = float(data.get("escalation_factor", 1.5))
+    try:
+        steps = int(data.get("steps", 10))
+        initial_rate = float(data.get("initial_boil_rate", 0.05))
+        escalation = float(data.get("escalation_factor", 1.5))
+    except (TypeError, ValueError):
+        return jsonify({"error": "steps must be an integer; initial_boil_rate and escalation_factor must be numbers"}), 400
     auto_respond = bool(data.get("auto_respond", True))
 
     if shared.chaos_test.is_running():

@@ -4,6 +4,7 @@ import logging
 import functools
 from collections import defaultdict
 from flask import Blueprint, request, jsonify, session, redirect, render_template, url_for
+from psycopg2 import sql as pgsql
 
 from void_engine.messenger_auth import create_user, authenticate_user, _get_db
 
@@ -70,7 +71,13 @@ def _ensure_column(cur, table, column):
         (table, column),
     )
     if not cur.fetchone():
-        cur.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+        cur.execute(
+            pgsql.SQL("ALTER TABLE {} ADD COLUMN {} {}").format(
+                pgsql.Identifier(table),
+                pgsql.Identifier(column),
+                pgsql.SQL(definition),
+            )
+        )
 
 
 def _ensure_columns():
@@ -374,7 +381,12 @@ def _ensure_columns():
                 if tbl:
                     cur.execute("SAVEPOINT chk_drop_savepoint")
                     try:
-                        cur.execute(f"ALTER TABLE {tbl} DROP CONSTRAINT IF EXISTS {chk_name}")
+                        cur.execute(
+                            pgsql.SQL("ALTER TABLE {} DROP CONSTRAINT IF EXISTS {}").format(
+                                pgsql.Identifier(tbl),
+                                pgsql.Identifier(chk_name),
+                            )
+                        )
                         cur.execute(chk_sql)
                         cur.execute("RELEASE SAVEPOINT chk_drop_savepoint")
                     except Exception:

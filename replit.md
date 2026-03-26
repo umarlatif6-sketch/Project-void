@@ -132,6 +132,22 @@ The Vortex Marketplace is a DePIN (Decentralized Physical Infrastructure Network
 
 **Seeding:** `seed_initial_collection()` runs on app startup (via `app.py`) to create the genesis drop of 17 tokens if none exist.
 
+## Security Hardening (Task #7)
+- `SESSION_COOKIE_SECURE = True` added to `app.py`
+- f-string DDL in `routes/auth.py` fixed to use `psycopg2.sql` parameterised queries (`pgsql.SQL().format()`)
+- `_check_rate_limit()` added to all 6 financial marketplace endpoints (buy VTX, buy secondary, book rental, mystery buy, mystery free-mint, mystery merge) — returns 429 on excess
+- `escapeHtml()` helper added to `templates/marketplace.html` and `templates/mystery.html`; all `innerHTML` injection points for user-controlled strings (titles, descriptions, usernames, tiers, chapter data, error messages, fund breakdown keys) now call `escapeHtml()`
+- Connection pool created at `void_engine/db_pool.py`: `ThreadedConnectionPool(minconn=2, maxconn=10)` with `_PooledConn` wrapper so `.close()` returns connections to pool — all 9 `_get_db()` functions across routes and void_engine modules updated to use pool
+- Bare `float()`/`int()` casts in `routes/harness.py` wrapped in `try/except` returning 400 on invalid input
+
+## Sovereign Node Portfolio Page (Task #8)
+- Route: `/sovereign-node` (Blueprint: `sovereign_node_bp` in `routes/sovereign_node.py`)
+- Template: `templates/sovereign_node.html`
+- Six sections: Live Network Metrics (DB queries), Novosibirsk Node Narrative, Ecosystem Architecture, Blueprint Token Economy, DePIN Node Registry, Adriana SCL SDK
+- Live Al-Jabr 286 hash computed at render time from page timestamp — displayed in header bar and Gridul-286 footer
+- Adriana sovereign poem derived from the page hash using `hash_to_sovereign_poem()` — displayed as invocation banner on every page load
+- API endpoint: `/api/sovereign-node/metrics` (JSON, public)
+
 ## External Dependencies
 - **Python:** 3.11
 - **numpy:** Audio sample manipulation and FFT operations.

@@ -1,11 +1,11 @@
 import os
-import psycopg2
 from decimal import Decimal
 from datetime import datetime, timezone
+from void_engine.db_pool import get_db
 
 
 def _get_db():
-    return psycopg2.connect(os.environ["DATABASE_URL"])
+    return get_db()
 
 
 BOUNTY_RATES = {

@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 def _get_db():
-    import psycopg2
-    return psycopg2.connect(os.environ["DATABASE_URL"])
+    from void_engine.db_pool import get_db
+    return get_db()
 
 
 _SEED_ENTRIES = [

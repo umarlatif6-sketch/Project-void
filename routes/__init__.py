@@ -13,6 +13,7 @@ from routes.node import node_bp
 from routes.marketplace import marketplace_bp
 from routes.admin import admin_bp
 from routes.chronicle import chronicle_bp
+from routes.sovereign_node import sovereign_node_bp
 
 
 def register_blueprints(app):
@@ -31,3 +32,4 @@ def register_blueprints(app):
     app.register_blueprint(marketplace_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(chronicle_bp)
+    app.register_blueprint(sovereign_node_bp)

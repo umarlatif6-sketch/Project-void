@@ -62,8 +62,8 @@ INITIAL_DROP = [
 
 
 def _get_db():
-    import psycopg2
-    return psycopg2.connect(os.environ["DATABASE_URL"])
+    from void_engine.db_pool import get_db
+    return get_db()
 
 
 def _generate_token_hash(tier, title, edition, total):
@@ -962,7 +962,6 @@ def seed_initial_collection():
         cur = conn.cursor()
         cur.execute("SELECT COUNT(*) FROM blueprint_tokens")
         if cur.fetchone()[0] > 0:
-            conn.close()
             logger.info("Blueprint tokens already seeded, skipping")
             return
 

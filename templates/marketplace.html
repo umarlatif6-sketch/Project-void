@@ -872,6 +872,16 @@
     <script>
         const isLoggedIn = {{ 'true' if user_id else 'false' }};
 
+        function escapeHtml(s) {
+            if (s == null) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function showToast(msg, type) {
             const t = document.getElementById('mpToast');
             t.textContent = msg;
@@ -888,11 +898,11 @@
                 <div class="mp-sovereign-poem">
                     <span class="mp-poem-label">Poem</span>
                     <div class="mp-poem-glyphs">
-                        <span class="mp-poem-glyph" data-tooltip="${m[0]}">${g[0]}</span>
+                        <span class="mp-poem-glyph" data-tooltip="${escapeHtml(m[0])}">${escapeHtml(g[0])}</span>
                         <span class="mp-poem-sep">—</span>
-                        <span class="mp-poem-glyph" data-tooltip="${m[1]}">${g[1]}</span>
+                        <span class="mp-poem-glyph" data-tooltip="${escapeHtml(m[1])}">${escapeHtml(g[1])}</span>
                         <span class="mp-poem-sep">—</span>
-                        <span class="mp-poem-glyph" data-tooltip="${m[2]}">${g[2]}</span>
+                        <span class="mp-poem-glyph" data-tooltip="${escapeHtml(m[2])}">${escapeHtml(g[2])}</span>
                     </div>
                 </div>
             `;
@@ -900,7 +910,7 @@
 
         function renderCard(token) {
             const sold = token.status !== 'available';
-            const tierClass = 'tier-' + token.tier;
+            const tierClass = 'tier-' + escapeHtml(token.tier);
             let actions = '';
             if (sold) {
                 actions = '<button class="mp-btn mp-btn-sold" disabled>SOLD</button>';
@@ -916,19 +926,19 @@
             return `
                 <div class="mp-card ${tierClass}">
                     <div class="mp-card-header">
-                        <span class="mp-tier-badge ${token.tier}">${token.tier}</span>
-                        <span class="mp-edition">#${token.edition_number} of ${token.total_editions}</span>
+                        <span class="mp-tier-badge ${escapeHtml(token.tier)}">${escapeHtml(token.tier)}</span>
+                        <span class="mp-edition">#${escapeHtml(token.edition_number)} of ${escapeHtml(token.total_editions)}</span>
                     </div>
-                    <div class="mp-card-title">${token.title}</div>
+                    <div class="mp-card-title">${escapeHtml(token.title)}</div>
                     ${renderSovereignPoem(token)}
-                    <div class="mp-card-desc">${token.description || ''}</div>
+                    <div class="mp-card-desc">${escapeHtml(token.description)}</div>
                     <div class="mp-card-price">
-                        <span class="mp-price-fiat">${token.price_display}</span>
-                        <span class="mp-price-vtx">or ${token.price_vtx} VTX</span>
+                        <span class="mp-price-fiat">${escapeHtml(token.price_display)}</span>
+                        <span class="mp-price-vtx">or ${escapeHtml(token.price_vtx)} VTX</span>
                     </div>
                     <div class="mp-card-actions">${actions}</div>
-                    <div class="mp-hash-display">${token.token_hash}</div>
-                    <button class="mp-story-btn" onclick="openStory(${token.id}, '${token.title.replace(/'/g, "\\'")}', '${token.tier}')">
+                    <div class="mp-hash-display">${escapeHtml(token.token_hash)}</div>
+                    <button class="mp-story-btn" onclick="openStory(${token.id}, ${JSON.stringify(token.title)}, ${JSON.stringify(token.tier)})">
                         &#9654; Read Token Story (${chapCount} chapters)
                     </button>
                 </div>
@@ -944,32 +954,32 @@
                 const res = await fetch(`/api/marketplace/token/${tokenId}/story`);
                 const data = await res.json();
                 if (data.error) {
-                    content.innerHTML = `<div class="mp-story-loading" style="color:#ff5252">${data.error}</div>`;
+                    content.innerHTML = `<div class="mp-story-loading" style="color:#ff5252">${escapeHtml(data.error)}</div>`;
                     return;
                 }
                 const story = data.story;
                 let html = `
                     <div class="mp-story-header">
-                        <div class="mp-story-tier">${story.tier} &bull; ${story.chapter_count} Chapters Unlocked</div>
-                        <div class="mp-story-title">${title}</div>
+                        <div class="mp-story-tier">${escapeHtml(story.tier)} &bull; ${escapeHtml(story.chapter_count)} Chapters Unlocked</div>
+                        <div class="mp-story-title">${escapeHtml(title)}</div>
                     </div>
                 `;
                 for (const ch of story.chapters) {
                     const g = ch.glyphs;
                     html += `
                         <div class="mp-chapter">
-                            <div class="mp-chapter-num">Chapter ${ch.chapter}</div>
-                            <div class="mp-chapter-milestone">${ch.milestone}</div>
-                            <div class="mp-chapter-title">${ch.title}</div>
+                            <div class="mp-chapter-num">Chapter ${escapeHtml(ch.chapter)}</div>
+                            <div class="mp-chapter-milestone">${escapeHtml(ch.milestone)}</div>
+                            <div class="mp-chapter-title">${escapeHtml(ch.title)}</div>
                             <div class="mp-chapter-poem">
-                                <span class="mp-chapter-glyph">${g[0]}</span>
+                                <span class="mp-chapter-glyph">${escapeHtml(g[0])}</span>
                                 <span class="mp-chapter-sep">—</span>
-                                <span class="mp-chapter-glyph">${g[1]}</span>
+                                <span class="mp-chapter-glyph">${escapeHtml(g[1])}</span>
                                 <span class="mp-chapter-sep">—</span>
-                                <span class="mp-chapter-glyph">${g[2]}</span>
+                                <span class="mp-chapter-glyph">${escapeHtml(g[2])}</span>
                             </div>
-                            <div class="mp-chapter-body" style="font-style:italic;color:#777;font-size:0.78rem;margin-bottom:8px">${ch.translation}</div>
-                            <div class="mp-chapter-body">${ch.body}</div>
+                            <div class="mp-chapter-body" style="font-style:italic;color:#777;font-size:0.78rem;margin-bottom:8px">${escapeHtml(ch.translation)}</div>
+                            <div class="mp-chapter-body">${escapeHtml(ch.body)}</div>
                         </div>
                     `;
                 }
@@ -1029,7 +1039,7 @@
                 const bd = document.getElementById('fundBreakdown');
                 if (data.breakdown) {
                     bd.innerHTML = Object.entries(data.breakdown).map(([k, v]) =>
-                        `<div class="mp-fund-item">${k}: <span>${v.display}</span></div>`
+                        `<div class="mp-fund-item">${escapeHtml(k)}: <span>${escapeHtml(v.display)}</span></div>`
                     ).join('');
                 }
             } catch (e) {
@@ -1140,13 +1150,13 @@
                 <div class="mp-secondary-card">
                     <div class="mp-secondary-badge">Secondary Sale</div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                        <span class="mp-tier-badge ${listing.tier}">${listing.tier}</span>
-                        <span class="mp-edition">#${listing.edition_number} of ${listing.total_editions}</span>
+                        <span class="mp-tier-badge ${escapeHtml(listing.tier)}">${escapeHtml(listing.tier)}</span>
+                        <span class="mp-edition">#${escapeHtml(listing.edition_number)} of ${escapeHtml(listing.total_editions)}</span>
                     </div>
-                    <div class="mp-card-title">${listing.title}</div>
-                    <div class="mp-card-desc" style="font-size:0.78rem;color:#888;margin:6px 0 10px">${listing.description || ''}</div>
-                    <div style="font-size:0.75rem;color:#666;margin-bottom:4px">Seller: <span style="color:#aaa">${listing.seller_username}</span></div>
-                    <div style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:10px">${listing.price_vtx} VTX</div>
+                    <div class="mp-card-title">${escapeHtml(listing.title)}</div>
+                    <div class="mp-card-desc" style="font-size:0.78rem;color:#888;margin:6px 0 10px">${escapeHtml(listing.description)}</div>
+                    <div style="font-size:0.75rem;color:#666;margin-bottom:4px">Seller: <span style="color:#aaa">${escapeHtml(listing.seller_username)}</span></div>
+                    <div style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:10px">${escapeHtml(listing.price_vtx)} VTX</div>
                     <div class="mp-card-actions">${buyBtn}</div>
                     <div class="mp-hash-display">${listing.token_hash}</div>
                 </div>
@@ -1166,14 +1176,14 @@
                 <div class="mp-rental-card">
                     <div class="mp-rental-badge">Rental Offer</div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                        <span class="mp-tier-badge ${offer.tier}">${offer.tier}</span>
-                        <span class="mp-edition">#${offer.edition_number} of ${offer.total_editions}</span>
+                        <span class="mp-tier-badge ${escapeHtml(offer.tier)}">${escapeHtml(offer.tier)}</span>
+                        <span class="mp-edition">#${escapeHtml(offer.edition_number)} of ${escapeHtml(offer.total_editions)}</span>
                     </div>
-                    <div class="mp-card-title">${offer.title}</div>
-                    <div style="font-size:0.75rem;color:#666;margin:6px 0 4px">Owner: <span style="color:#aaa">${offer.owner_username}</span></div>
-                    <div style="font-size:0.8rem;color:#aaa;margin-bottom:4px">Access: <strong style="color:#fff">${accessLabel}</strong></div>
-                    <div style="font-size:1.1rem;font-weight:700;color:#fff">${offer.vtx_per_day} VTX/day</div>
-                    <div style="font-size:0.75rem;color:#666;margin-bottom:8px">Max: ${offer.max_days} days</div>
+                    <div class="mp-card-title">${escapeHtml(offer.title)}</div>
+                    <div style="font-size:0.75rem;color:#666;margin:6px 0 4px">Owner: <span style="color:#aaa">${escapeHtml(offer.owner_username)}</span></div>
+                    <div style="font-size:0.8rem;color:#aaa;margin-bottom:4px">Access: <strong style="color:#fff">${escapeHtml(accessLabel)}</strong></div>
+                    <div style="font-size:1.1rem;font-weight:700;color:#fff">${escapeHtml(offer.vtx_per_day)} VTX/day</div>
+                    <div style="font-size:0.75rem;color:#666;margin-bottom:8px">Max: ${escapeHtml(offer.max_days)} days</div>
                     ${bookForm}
                     <div class="mp-hash-display">${offer.token_hash}</div>
                 </div>

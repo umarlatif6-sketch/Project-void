@@ -1,8 +1,9 @@
 import os
 import logging
 from flask import Blueprint, request, jsonify, session, redirect, render_template
-from routes.auth import login_required
+from routes.auth import login_required, _check_rate_limit
 from routes.stripe_client import get_stripe_client
+from void_engine.db_pool import get_db
 from void_engine.blueprint_nft import (
     get_marketplace_listings,
     get_user_collection,
@@ -91,6 +92,8 @@ def api_collection():
 @marketplace_bp.route("/api/marketplace/buy/vtx", methods=["POST"])
 @login_required
 def buy_with_vtx():
+    if not _check_rate_limit():
+        return jsonify({"error": "Rate limit exceeded. Please wait before retrying."}), 429
     data = request.get_json(silent=True) or {}
     token_id = data.get("token_id")
     if not token_id:
@@ -334,6 +337,8 @@ def api_mystery_price():
 @marketplace_bp.route("/api/mystery/buy", methods=["POST"])
 @login_required
 def api_mystery_buy():
+    if not _check_rate_limit():
+        return jsonify({"error": "Rate limit exceeded. Please wait before retrying."}), 429
     try:
         result = buy_mystery_token(session["user_id"])
         if "error" in result:
@@ -365,6 +370,8 @@ def api_unlist_token():
 @marketplace_bp.route("/api/marketplace/buy/secondary", methods=["POST"])
 @login_required
 def api_buy_secondary():
+    if not _check_rate_limit():
+        return jsonify({"error": "Rate limit exceeded. Please wait before retrying."}), 429
     data = request.get_json(silent=True) or {}
     token_id = data.get("token_id")
     if not token_id:
@@ -417,6 +424,8 @@ def api_rent_offer():
 @marketplace_bp.route("/api/marketplace/rent/book", methods=["POST"])
 @login_required
 def api_rent_book():
+    if not _check_rate_limit():
+        return jsonify({"error": "Rate limit exceeded. Please wait before retrying."}), 429
     data = request.get_json(silent=True) or {}
     rental_id = data.get("rental_id")
     days = data.get("days")
@@ -437,6 +446,8 @@ def api_rent_book():
 @marketplace_bp.route("/api/mystery/free-mint", methods=["POST"])
 @login_required
 def api_mystery_free_mint():
+    if not _check_rate_limit():
+        return jsonify({"error": "Rate limit exceeded. Please wait before retrying."}), 429
     try:
         result = free_daily_mint(session["user_id"])
         if "error" in result:
@@ -452,6 +463,8 @@ def api_mystery_free_mint():
 @marketplace_bp.route("/api/mystery/merge", methods=["POST"])
 @login_required
 def api_mystery_merge():
+    if not _check_rate_limit():
+        return jsonify({"error": "Rate limit exceeded. Please wait before retrying."}), 429
     try:
         result = merge_tokens(session["user_id"])
         if "error" in result:
@@ -506,8 +519,7 @@ def api_adriana_verify():
     if not token_id:
         return jsonify({"licensed": False, "error": "token_id required"}), 400
     try:
-        import psycopg2
-        conn = psycopg2.connect(os.environ["DATABASE_URL"])
+        conn = get_db()
         try:
             cur = conn.cursor()
             cur.execute(
