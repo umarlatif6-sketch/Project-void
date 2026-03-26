@@ -169,11 +169,12 @@ def sovereign_node_portfolio():
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     date_str = time.strftime("%Y-%m-%d", time.gmtime())
     page_hash = fatiha_286_hexdigest_from_str(timestamp)
-    poem_seed = f"VOID|{date_str}"
+    poem_seed_raw = f"VOID|{date_str}"
+    poem_seed_hash = fatiha_286_hexdigest_from_str(poem_seed_raw)
     metrics = _get_live_metrics()
     poem_data = None
     try:
-        poem_dict = hash_to_sovereign_poem(poem_seed)
+        poem_dict = hash_to_sovereign_poem(poem_seed_hash)
         glyphs = poem_dict["glyphs"]
         meanings = poem_dict["meanings"]
         parts = [m.split("/")[0].strip() for m in meanings]
