@@ -113,6 +113,8 @@ def admin_post_yield():
     from void_engine.blueprint_nft import post_yield_event
     try:
         amount_vtx = float(request.form.get("amount_vtx", 0))
+        if math.isnan(amount_vtx):
+            raise ValueError("NaN not allowed")
         amount_gbp_str = request.form.get("amount_gbp", "0").replace(",", "").replace("£", "").strip()
         try:
             amount_gbp = round(float(amount_gbp_str) * 100)
