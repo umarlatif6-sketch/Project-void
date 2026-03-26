@@ -100,7 +100,6 @@ def encode_flow():
         return
 
     print(f"\n  OUTPUT SAVED: {output_path}")
-    print(f"  HASH KEY (save this): {hash_key}")
     print(f"  Encoding COMPLETE.")
 
 
