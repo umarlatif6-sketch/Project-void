@@ -374,7 +374,6 @@ def main():
 
     if local_verify["verified"]:
         print(f"  [HANDSHAKE] Local verification: PASSED")
-        print(f"              Fatiha angle: {local_verify['fatiha_angle_detected_deg']:.2f}°")
     else:
         print(f"  [HANDSHAKE] Local verification: ANOMALY (diff={local_verify['angle_diff_deg']:.2f}°)")
 
