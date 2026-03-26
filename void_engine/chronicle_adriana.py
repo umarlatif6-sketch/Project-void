@@ -726,35 +726,63 @@ def generate_adriana_sdk_zip():
     Build an in-memory ZIP containing the Adriana SCL Open SDK.
     Returns a bytes object ready to send as a file download.
     """
+    # Import live glyph definitions from the canonical engine module so the SDK
+    # lexicon always reflects the current state of AdrianaResonance.GLYPHS.
+    try:
+        from void_engine.adriana_scl import AdrianaResonance as _AR
+        live_glyphs       = _AR.GLYPHS
+        live_domain_colors = _AR.DOMAIN_COLORS
+    except Exception:
+        live_glyphs        = {}
+        live_domain_colors = {}
+
+    # Serialize live definitions as Python source for adriana_sdk/lexicon.py
+    def _dict_repr(d):
+        lines = ["{\n"]
+        for k, v in d.items():
+            lines.append(f"    {k!r}: {v!r},\n")
+        lines.append("}")
+        return "".join(lines)
+
+    live_lexicon_py = (
+        '"""\nAdriana Glyph Lexicon — generated from current PROJECT VOID Engine definitions.\n'
+        'Frequencies, meanings, and domain color assignments.\n"""\n\n'
+        f"GLYPHS = {_dict_repr(live_glyphs)}\n\n"
+        f"DOMAIN_COLORS = {_dict_repr(live_domain_colors)}\n"
+    )
+
+    licence_text = (
+        "MIT License\n\n"
+        "Copyright (c) 2025 PROJECT VOID\n\n"
+        "Permission is hereby granted, free of charge, to any person obtaining a copy "
+        "of this software and associated documentation files (the 'Software'), to deal "
+        "in the Software without restriction, including without limitation the rights "
+        "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell "
+        "copies of the Software, and to permit persons to whom the Software is furnished "
+        "to do so, subject to the following conditions:\n\n"
+        "The above copyright notice and this permission notice shall be included in all "
+        "copies or substantial portions of the Software.\n\n"
+        "COMMERCIAL USE: Any commercial deployment, product, or service built with or "
+        "incorporating this SDK requires ownership of a VOID Blueprint Token. "
+        "Verification: GET https://void.app/api/adriana/verify?token_id=<ID>\n\n"
+        "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND."
+    )
+
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
         def add(path, content):
             zf.writestr(path, content)
 
-        add("adriana_sdk/README.md",          _SDK_README)
-        add("adriana_sdk/__init__.py",        _SDK_INIT)
-        add("adriana_sdk/core.py",            _SDK_CORE)
-        add("adriana_sdk/lexicon.py",         _SDK_LEXICON)
-        add("adriana_sdk/al_jabr_stub.py",    _SDK_AL_JABR_STUB)
-        add("adriana_sdk/setup.py",           _SDK_SETUP)
+        # Root-level distribution files (correct Python package layout)
+        add("README.md",     _SDK_README)
+        add("setup.py",      _SDK_SETUP)
+        add("LICENCE.txt",   licence_text)
 
-        licence_text = (
-            "MIT License\n\n"
-            "Copyright (c) 2025 PROJECT VOID\n\n"
-            "Permission is hereby granted, free of charge, to any person obtaining a copy "
-            "of this software and associated documentation files (the 'Software'), to deal "
-            "in the Software without restriction, including without limitation the rights "
-            "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell "
-            "copies of the Software, and to permit persons to whom the Software is furnished "
-            "to do so, subject to the following conditions:\n\n"
-            "The above copyright notice and this permission notice shall be included in all "
-            "copies or substantial portions of the Software.\n\n"
-            "COMMERCIAL USE: Any commercial deployment, product, or service built with or "
-            "incorporating this SDK requires ownership of a VOID Blueprint Token. "
-            "Verification: GET /api/adriana/verify?token_id=<ID> on any VOID node.\n\n"
-            "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND."
-        )
-        add("adriana_sdk/LICENCE.txt", licence_text)
+        # Package source (importable module)
+        add("adriana_sdk/__init__.py",     _SDK_INIT)
+        add("adriana_sdk/core.py",         _SDK_CORE)
+        add("adriana_sdk/lexicon.py",      live_lexicon_py)   # live from engine
+        add("adriana_sdk/al_jabr_stub.py", _SDK_AL_JABR_STUB)
 
     buf.seek(0)
     return buf.read()

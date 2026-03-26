@@ -63,13 +63,11 @@ def adriana_verify():
         if not row:
             return jsonify({"licensed": False, "error": "Token not found"})
 
-        # A token is commercially licensed when it has an owner regardless of
-        # mutable status (sold/revealed/sealed/merged are all legitimate states
-        # for owned tokens in the VOID ecosystem).
+        # Public licence check: a token is commercially licensed when it has
+        # an owner, regardless of mutable status (sold/revealed/sealed/merged
+        # are all valid states for owned tokens in the VOID ecosystem).
         has_owner = row[6] is not None
-        # Optionally verify the requester is the actual owner
-        session_uid = session.get("user_id")
-        licensed = has_owner and (session_uid is None or session_uid == row[6])
+        licensed = has_owner
 
         return jsonify({
             "licensed":   licensed,
