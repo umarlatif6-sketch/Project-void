@@ -6,12 +6,21 @@ from routes.stripe_client import get_stripe_client
 from void_engine.blueprint_nft import (
     get_marketplace_listings,
     get_user_collection,
+    get_user_collection_extended,
     get_token_detail,
     get_manufacturing_fund_status,
     purchase_token_vtx,
     purchase_token_fiat,
     get_pending_yield,
     claim_yield,
+    list_token_for_sale,
+    unlist_token,
+    purchase_secondary,
+    offer_token_for_rent,
+    book_rental,
+    end_rental,
+    get_secondary_listings,
+    get_rental_offers,
     TIER_CONFIG,
 )
 from void_engine.adriana_scl import generate_token_story
@@ -28,7 +37,7 @@ def marketplace_page():
     pending_yield = 0.0
     if user_id:
         try:
-            collection = get_user_collection(user_id)
+            collection = get_user_collection_extended(user_id)
         except Exception as e:
             logger.error("Failed to load user collection: %s", e)
         try:
@@ -255,3 +264,139 @@ def api_yield_claim():
     except Exception as e:
         logger.error("Yield claim error: %s", e)
         return jsonify({"error": "Claim failed"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/secondary-listings")
+def api_secondary_listings():
+    try:
+        listings = get_secondary_listings()
+        return jsonify({"listings": listings})
+    except Exception as e:
+        logger.error("Secondary listings error: %s", e)
+        return jsonify({"error": "Failed to load secondary listings"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/rental-offers")
+def api_rental_offers():
+    try:
+        offers = get_rental_offers()
+        return jsonify({"offers": offers})
+    except Exception as e:
+        logger.error("Rental offers error: %s", e)
+        return jsonify({"error": "Failed to load rental offers"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/list", methods=["POST"])
+@login_required
+def api_list_token():
+    data = request.get_json(silent=True) or {}
+    token_id = data.get("token_id")
+    price_vtx = data.get("price_vtx")
+    price_gbp_pence = data.get("price_gbp_pence")
+
+    if not token_id or price_vtx is None:
+        return jsonify({"error": "token_id and price_vtx required"}), 400
+
+    try:
+        result = list_token_for_sale(int(token_id), session["user_id"], price_vtx, price_gbp_pence)
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("List token error: %s", e)
+        return jsonify({"error": "Failed to list token"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/unlist", methods=["POST"])
+@login_required
+def api_unlist_token():
+    data = request.get_json(silent=True) or {}
+    token_id = data.get("token_id")
+    if not token_id:
+        return jsonify({"error": "token_id required"}), 400
+
+    try:
+        result = unlist_token(int(token_id), session["user_id"])
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Unlist token error: %s", e)
+        return jsonify({"error": "Failed to unlist token"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/buy/secondary", methods=["POST"])
+@login_required
+def api_buy_secondary():
+    data = request.get_json(silent=True) or {}
+    token_id = data.get("token_id")
+    if not token_id:
+        return jsonify({"error": "token_id required"}), 400
+
+    try:
+        result = purchase_secondary(int(token_id), session["user_id"])
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Secondary purchase error: %s", e)
+        return jsonify({"error": "Purchase failed"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/rent/offer", methods=["POST"])
+@login_required
+def api_rent_offer():
+    data = request.get_json(silent=True) or {}
+    token_id = data.get("token_id")
+    vtx_per_day = data.get("vtx_per_day")
+    max_days = data.get("max_days", 30)
+
+    if not token_id or vtx_per_day is None:
+        return jsonify({"error": "token_id and vtx_per_day required"}), 400
+
+    try:
+        result = offer_token_for_rent(int(token_id), session["user_id"], vtx_per_day, max_days)
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Rent offer error: %s", e)
+        return jsonify({"error": "Failed to create rental offer"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/rent/book", methods=["POST"])
+@login_required
+def api_rent_book():
+    data = request.get_json(silent=True) or {}
+    rental_id = data.get("rental_id")
+    days = data.get("days")
+
+    if not rental_id or days is None:
+        return jsonify({"error": "rental_id and days required"}), 400
+
+    try:
+        result = book_rental(int(rental_id), session["user_id"], int(days))
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Rent book error: %s", e)
+        return jsonify({"error": "Failed to book rental"}), 500
+
+
+@marketplace_bp.route("/api/marketplace/rent/end", methods=["POST"])
+@login_required
+def api_rent_end():
+    data = request.get_json(silent=True) or {}
+    rental_id = data.get("rental_id")
+    if not rental_id:
+        return jsonify({"error": "rental_id required"}), 400
+
+    try:
+        result = end_rental(int(rental_id), session["user_id"])
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Rent end error: %s", e)
+        return jsonify({"error": "Failed to end rental"}), 500

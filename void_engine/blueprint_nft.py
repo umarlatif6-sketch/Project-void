@@ -2,7 +2,7 @@ import os
 import json
 import logging
 from decimal import Decimal
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str, fatiha_286_truncated
 from void_engine.vortex_wallet import _create_block
 from void_engine.adriana_scl import hash_to_sovereign_poem
@@ -625,5 +625,557 @@ def seed_initial_collection():
     except Exception:
         conn.rollback()
         logger.exception("Failed to seed Blueprint Tokens")
+    finally:
+        conn.close()
+
+
+ROYALTY_RATE = Decimal("0.05")
+
+TIER_TO_ACCESS = {
+    "common": "journalist",
+    "rare": "sovereign",
+    "legendary": "sovereign",
+}
+
+
+def list_token_for_sale(token_id, seller_id, price_vtx, price_gbp_pence=None):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id FROM token_ownership WHERE token_id = %s AND owner_id = %s",
+            (token_id, seller_id),
+        )
+        if not cur.fetchone():
+            return {"error": "You do not own this token"}
+
+        now = datetime.now(timezone.utc)
+        cur.execute(
+            "SELECT id FROM token_rentals WHERE token_id = %s AND status IN ('offered', 'active') AND (ends_at IS NULL OR ends_at > %s)",
+            (token_id, now),
+        )
+        if cur.fetchone():
+            return {"error": "Cannot list a token that has an active or offered rental"}
+
+        cur.execute(
+            "UPDATE token_rentals SET status = 'ended' WHERE token_id = %s AND status = 'active' AND ends_at <= %s",
+            (token_id, now),
+        )
+
+        price_vtx = Decimal(str(price_vtx)).quantize(Decimal("0.0001"))
+        if price_vtx <= 0:
+            return {"error": "Price must be greater than zero"}
+
+        cur.execute(
+            """INSERT INTO token_listings (token_id, seller_id, price_vtx, price_gbp_pence, status)
+               VALUES (%s, %s, %s, %s, 'active')
+               ON CONFLICT (token_id) DO UPDATE
+               SET seller_id = EXCLUDED.seller_id,
+                   price_vtx = EXCLUDED.price_vtx,
+                   price_gbp_pence = EXCLUDED.price_gbp_pence,
+                   listed_at = NOW(),
+                   status = 'active'
+               RETURNING id""",
+            (token_id, seller_id, price_vtx, price_gbp_pence),
+        )
+        listing_id = cur.fetchone()[0]
+        conn.commit()
+        return {"success": True, "listing_id": listing_id, "token_id": token_id, "price_vtx": float(price_vtx)}
+    except Exception as e:
+        conn.rollback()
+        logger.error("list_token_for_sale failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def unlist_token(token_id, seller_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE token_listings SET status = 'cancelled' WHERE token_id = %s AND seller_id = %s AND status = 'active' RETURNING id",
+            (token_id, seller_id),
+        )
+        row = cur.fetchone()
+        if not row:
+            return {"error": "No active listing found for this token"}
+        conn.commit()
+        return {"success": True, "token_id": token_id}
+    except Exception as e:
+        conn.rollback()
+        logger.error("unlist_token failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def purchase_secondary(token_id, buyer_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+
+        cur.execute(
+            """SELECT tl.id, tl.seller_id, tl.price_vtx, bt.tier, bt.title
+               FROM token_listings tl
+               JOIN blueprint_tokens bt ON bt.id = tl.token_id
+               WHERE tl.token_id = %s AND tl.status = 'active'
+               FOR UPDATE""",
+            (token_id,),
+        )
+        listing = cur.fetchone()
+        if not listing:
+            return {"error": "No active listing found for this token"}
+
+        listing_id, seller_id, price_vtx, tier, title = listing
+
+        if seller_id == buyer_id:
+            return {"error": "You cannot buy your own listing"}
+
+        cur.execute(
+            "SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s FOR UPDATE",
+            (buyer_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            return {"error": "Buyer not found"}
+        balance = row[0]
+        if balance < price_vtx:
+            return {"error": f"Insufficient VTX. Need {float(price_vtx)}, have {float(balance)}"}
+
+        cur.execute("SELECT id FROM users WHERE id = %s FOR UPDATE", (seller_id,))
+        if not cur.fetchone():
+            return {"error": "Seller not found"}
+
+        royalty = (price_vtx * ROYALTY_RATE).quantize(Decimal("0.0001"))
+        seller_receives = price_vtx - royalty
+
+        cur.execute(
+            "UPDATE users SET vortex_balance = vortex_balance - %s WHERE id = %s",
+            (price_vtx, buyer_id),
+        )
+        cur.execute(
+            "UPDATE users SET vortex_balance = vortex_balance + %s WHERE id = %s",
+            (seller_receives, seller_id),
+        )
+
+        token_hash = fatiha_286_hexdigest_from_str(f"secondary_sale|{token_id}|{buyer_id}|{seller_id}|{datetime.now(timezone.utc).isoformat()}")
+        block_buyer = _create_block(cur, "secondary_purchase", buyer_id, seller_id, price_vtx, token_hash)
+
+        royalty_hash = fatiha_286_hexdigest_from_str(f"secondary_royalty|{token_id}|{buyer_id}|{royalty}|{datetime.now(timezone.utc).isoformat()}")
+        _create_block(cur, "secondary_royalty", buyer_id, None, royalty, royalty_hash)
+
+        cur.execute(
+            "UPDATE token_ownership SET owner_id = %s, purchased_at = NOW(), purchase_type = 'vtx', transfer_from_id = %s WHERE token_id = %s AND owner_id = %s",
+            (buyer_id, seller_id, token_id, seller_id),
+        )
+
+        cur.execute(
+            "UPDATE token_listings SET status = 'sold' WHERE id = %s",
+            (listing_id,),
+        )
+
+        cur.execute(
+            """INSERT INTO manufacturing_fund (token_id, amount_gbp, purpose, status)
+               VALUES (%s, %s, 'capex', 'pledged')""",
+            (token_id, int(royalty * 100)),
+        )
+
+        conn.commit()
+        return {
+            "success": True,
+            "token_id": token_id,
+            "title": title,
+            "tier": tier,
+            "spent_vtx": float(price_vtx),
+            "seller_received_vtx": float(seller_receives),
+            "royalty_vtx": float(royalty),
+            "block": block_buyer,
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("purchase_secondary failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def offer_token_for_rent(token_id, owner_id, vtx_per_day, max_days=30):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id FROM token_ownership WHERE token_id = %s AND owner_id = %s",
+            (token_id, owner_id),
+        )
+        if not cur.fetchone():
+            return {"error": "You do not own this token"}
+
+        cur.execute(
+            "SELECT id FROM token_listings WHERE token_id = %s AND status = 'active'",
+            (token_id,),
+        )
+        if cur.fetchone():
+            return {"error": "Cannot offer a listed-for-sale token for rent. Remove the listing first."}
+
+        now = datetime.now(timezone.utc)
+        cur.execute(
+            "UPDATE token_rentals SET status = 'ended' WHERE token_id = %s AND status = 'active' AND ends_at <= %s",
+            (token_id, now),
+        )
+
+        cur.execute(
+            "SELECT id FROM token_rentals WHERE token_id = %s AND status IN ('offered', 'active') AND (ends_at IS NULL OR ends_at > %s)",
+            (token_id, now),
+        )
+        if cur.fetchone():
+            return {"error": "This token already has an active or offered rental"}
+
+        vtx_per_day = Decimal(str(vtx_per_day)).quantize(Decimal("0.0001"))
+        if vtx_per_day <= 0:
+            return {"error": "Daily rate must be greater than zero"}
+        max_days = int(max_days)
+        if max_days < 1 or max_days > 365:
+            return {"error": "max_days must be between 1 and 365"}
+
+        cur.execute(
+            "SELECT tier FROM blueprint_tokens WHERE id = %s",
+            (token_id,),
+        )
+        row = cur.fetchone()
+        token_tier = row[0] if row else "common"
+        access_tier = TIER_TO_ACCESS.get(token_tier, "journalist")
+
+        cur.execute(
+            """INSERT INTO token_rentals (token_id, owner_id, vtx_per_day, max_days, status, access_tier)
+               VALUES (%s, %s, %s, %s, 'offered', %s)
+               RETURNING id""",
+            (token_id, owner_id, vtx_per_day, max_days, access_tier),
+        )
+        rental_id = cur.fetchone()[0]
+        conn.commit()
+        return {"success": True, "rental_id": rental_id, "token_id": token_id, "vtx_per_day": float(vtx_per_day), "max_days": max_days, "access_tier": access_tier}
+    except Exception as e:
+        conn.rollback()
+        logger.error("offer_token_for_rent failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def book_rental(rental_id, renter_id, days):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT tr.id, tr.token_id, tr.owner_id, tr.vtx_per_day, tr.max_days, tr.status, bt.tier, tr.access_tier
+               FROM token_rentals tr
+               JOIN blueprint_tokens bt ON bt.id = tr.token_id
+               WHERE tr.id = %s AND tr.status = 'offered'
+               FOR UPDATE""",
+            (rental_id,),
+        )
+        rental = cur.fetchone()
+        if not rental:
+            return {"error": "Rental offer not found or not available"}
+
+        _, token_id, owner_id, vtx_per_day, max_days, _, tier, stored_access_tier = rental
+        access_tier = stored_access_tier if stored_access_tier else TIER_TO_ACCESS.get(tier, "journalist")
+
+        if owner_id == renter_id:
+            return {"error": "You cannot rent your own token"}
+
+        days = int(days)
+        if days < 1 or days > max_days:
+            return {"error": f"Days must be between 1 and {max_days}"}
+
+        total_cost = (vtx_per_day * Decimal(days)).quantize(Decimal("0.0001"))
+
+        cur.execute(
+            "SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s FOR UPDATE",
+            (renter_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            return {"error": "Renter not found"}
+        balance = row[0]
+        if balance < total_cost:
+            return {"error": f"Insufficient VTX. Need {float(total_cost)}, have {float(balance)}"}
+
+        cur.execute(
+            "UPDATE users SET vortex_balance = vortex_balance - %s WHERE id = %s",
+            (total_cost, renter_id),
+        )
+        cur.execute(
+            "UPDATE users SET vortex_balance = vortex_balance + %s WHERE id = %s",
+            (total_cost, owner_id),
+        )
+
+        now = datetime.now(timezone.utc)
+        ends_at = now + timedelta(days=days)
+
+        payload_hash = fatiha_286_hexdigest_from_str(f"rental_book|{rental_id}|{renter_id}|{days}|{now.isoformat()}")
+        _create_block(cur, "rental_payment", renter_id, owner_id, total_cost, payload_hash)
+
+        cur.execute(
+            """UPDATE token_rentals
+               SET renter_id = %s, starts_at = %s, ends_at = %s, status = 'active', total_vtx_paid = %s, access_tier = %s
+               WHERE id = %s""",
+            (renter_id, now, ends_at, total_cost, access_tier, rental_id),
+        )
+
+        conn.commit()
+        return {
+            "success": True,
+            "rental_id": rental_id,
+            "token_id": token_id,
+            "tier": tier,
+            "access_tier": access_tier,
+            "days": days,
+            "total_vtx_paid": float(total_cost),
+            "starts_at": now.isoformat(),
+            "ends_at": ends_at.isoformat(),
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("book_rental failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def end_rental(rental_id, requesting_user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT tr.id, tr.token_id, tr.owner_id, tr.renter_id, tr.vtx_per_day,
+                      tr.starts_at, tr.ends_at, tr.total_vtx_paid, tr.status
+               FROM token_rentals tr
+               WHERE tr.id = %s AND tr.status = 'active'
+               FOR UPDATE""",
+            (rental_id,),
+        )
+        rental = cur.fetchone()
+        if not rental:
+            return {"error": "Active rental not found"}
+
+        _, token_id, owner_id, renter_id, vtx_per_day, starts_at, ends_at, total_vtx_paid, _ = rental
+
+        if requesting_user_id not in (owner_id, renter_id):
+            return {"error": "Only the token owner or renter can end this rental"}
+
+        now = datetime.now(timezone.utc)
+        if starts_at.tzinfo is None:
+            starts_at = starts_at.replace(tzinfo=timezone.utc)
+        if ends_at.tzinfo is None:
+            ends_at = ends_at.replace(tzinfo=timezone.utc)
+
+        if now >= ends_at:
+            cur.execute(
+                "UPDATE token_rentals SET status = 'ended' WHERE id = %s",
+                (rental_id,),
+            )
+            conn.commit()
+            return {"success": True, "rental_id": rental_id, "refund_vtx": 0.0, "message": "Rental period already complete"}
+
+        elapsed_days = (now - starts_at).total_seconds() / 86400
+        days_used = Decimal(str(elapsed_days)).quantize(Decimal("0.0001"))
+        vtx_used = (vtx_per_day * days_used).quantize(Decimal("0.0001"))
+        vtx_refund = (total_vtx_paid - vtx_used).quantize(Decimal("0.0001"))
+        if vtx_refund < 0:
+            vtx_refund = Decimal("0")
+
+        if vtx_refund > 0:
+            cur.execute(
+                "SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s FOR UPDATE",
+                (owner_id,),
+            )
+            owner_balance = cur.fetchone()[0]
+            actual_refund = min(vtx_refund, owner_balance)
+
+            if actual_refund > 0:
+                cur.execute(
+                    "UPDATE users SET vortex_balance = vortex_balance - %s WHERE id = %s",
+                    (actual_refund, owner_id),
+                )
+                cur.execute(
+                    "UPDATE users SET vortex_balance = vortex_balance + %s WHERE id = %s",
+                    (actual_refund, renter_id),
+                )
+                refund_hash = fatiha_286_hexdigest_from_str(f"rental_refund|{rental_id}|{renter_id}|{actual_refund}|{now.isoformat()}")
+                _create_block(cur, "rental_refund", owner_id, renter_id, actual_refund, refund_hash)
+                vtx_refund = actual_refund
+
+        cur.execute(
+            "UPDATE token_rentals SET status = 'ended', ends_at = %s WHERE id = %s",
+            (now, rental_id),
+        )
+        conn.commit()
+        return {
+            "success": True,
+            "rental_id": rental_id,
+            "token_id": token_id,
+            "refund_vtx": float(vtx_refund),
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("end_rental failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def get_secondary_listings():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT tl.id, tl.token_id, tl.seller_id, tl.price_vtx, tl.price_gbp_pence, tl.listed_at,
+                      bt.token_hash, bt.tier, bt.title, bt.description, bt.edition_number, bt.total_editions,
+                      u.username as seller_username
+               FROM token_listings tl
+               JOIN blueprint_tokens bt ON bt.id = tl.token_id
+               JOIN users u ON u.id = tl.seller_id
+               WHERE tl.status = 'active'
+               ORDER BY tl.listed_at DESC""",
+        )
+        rows = cur.fetchall()
+        listings = []
+        for r in rows:
+            listings.append({
+                "listing_id": r[0],
+                "token_id": r[1],
+                "seller_id": r[2],
+                "price_vtx": float(r[3]),
+                "price_gbp_pence": r[4],
+                "listed_at": r[5].isoformat() if r[5] else None,
+                "token_hash": r[6][:16] + "...",
+                "tier": r[7],
+                "title": r[8],
+                "description": r[9],
+                "edition_number": r[10],
+                "total_editions": r[11],
+                "seller_username": r[12],
+                "sovereign_poem": hash_to_sovereign_poem(r[6]),
+            })
+        return listings
+    finally:
+        conn.close()
+
+
+def get_rental_offers():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT tr.id, tr.token_id, tr.owner_id, tr.vtx_per_day, tr.max_days, tr.created_at,
+                      bt.token_hash, bt.tier, bt.title, bt.edition_number, bt.total_editions,
+                      u.username as owner_username, tr.access_tier
+               FROM token_rentals tr
+               JOIN blueprint_tokens bt ON bt.id = tr.token_id
+               JOIN users u ON u.id = tr.owner_id
+               WHERE tr.status = 'offered'
+               ORDER BY tr.created_at DESC""",
+        )
+        rows = cur.fetchall()
+        offers = []
+        for r in rows:
+            stored_access_tier = r[12]
+            access_tier = stored_access_tier if stored_access_tier else TIER_TO_ACCESS.get(r[7], "journalist")
+            offers.append({
+                "rental_id": r[0],
+                "token_id": r[1],
+                "owner_id": r[2],
+                "vtx_per_day": float(r[3]),
+                "max_days": r[4],
+                "created_at": r[5].isoformat() if r[5] else None,
+                "token_hash": r[6][:16] + "...",
+                "tier": r[7],
+                "title": r[8],
+                "edition_number": r[9],
+                "total_editions": r[10],
+                "owner_username": r[11],
+                "access_tier": access_tier,
+            })
+        return offers
+    finally:
+        conn.close()
+
+
+def get_user_collection_extended(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT bt.id, bt.token_hash, bt.tier, bt.title, bt.description,
+                      bt.edition_number, bt.total_editions, bt.price_gbp, bt.price_vtx,
+                      tow.purchased_at, tow.purchase_type,
+                      tl.id as listing_id, tl.price_vtx as listing_price_vtx, tl.status as listing_status,
+                      tr.id as rental_id, tr.vtx_per_day, tr.status as rental_status,
+                      tr.renter_id, tr.ends_at as rental_ends_at
+               FROM token_ownership tow
+               JOIN blueprint_tokens bt ON bt.id = tow.token_id
+               LEFT JOIN token_listings tl ON tl.token_id = bt.id AND tl.status = 'active'
+               LEFT JOIN token_rentals tr ON tr.token_id = bt.id AND tr.status IN ('offered', 'active')
+               WHERE tow.owner_id = %s
+               ORDER BY tow.purchased_at DESC""",
+            (user_id,),
+        )
+        rows = cur.fetchall()
+        collection = []
+        for r in rows:
+            collection.append({
+                "id": r[0],
+                "token_hash": r[1][:16] + "...",
+                "tier": r[2],
+                "title": r[3],
+                "description": r[4],
+                "edition": f"{r[5]}/{r[6]}",
+                "price_display": f"\u00a3{r[7] / 100:,.0f}",
+                "price_vtx": float(r[8]),
+                "purchased_at": r[9].isoformat() if r[9] else None,
+                "purchase_type": r[10],
+                "listing_id": r[11],
+                "listing_price_vtx": float(r[12]) if r[12] is not None else None,
+                "listing_active": r[13] == "active" if r[13] else False,
+                "rental_id": r[14],
+                "rental_vtx_per_day": float(r[15]) if r[15] is not None else None,
+                "rental_status": r[16],
+                "rental_renter_id": r[17],
+                "rental_ends_at": r[18].isoformat() if r[18] else None,
+            })
+        return collection
+
+    finally:
+        conn.close()
+
+
+def get_active_rental_for_user(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        now = datetime.now(timezone.utc)
+        cur.execute(
+            """SELECT tr.id, tr.token_id, bt.tier, tr.ends_at, tr.access_tier
+               FROM token_rentals tr
+               JOIN blueprint_tokens bt ON bt.id = tr.token_id
+               WHERE tr.renter_id = %s AND tr.status = 'active' AND tr.ends_at > %s
+               ORDER BY tr.ends_at DESC
+               LIMIT 1""",
+            (user_id, now),
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        stored_access_tier = row[4]
+        access_tier = stored_access_tier if stored_access_tier else TIER_TO_ACCESS.get(row[2], "journalist")
+        return {
+            "rental_id": row[0],
+            "token_id": row[1],
+            "tier": row[2],
+            "access_tier": access_tier,
+            "ends_at": row[3].isoformat() if row[3] else None,
+        }
     finally:
         conn.close()

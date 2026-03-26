@@ -210,6 +210,48 @@ def _ensure_columns():
         cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_ownership_stripe_session ON token_ownership(stripe_session_id) WHERE stripe_session_id IS NOT NULL")
 
         cur.execute("""
+            CREATE TABLE IF NOT EXISTS token_listings (
+                id SERIAL PRIMARY KEY,
+                token_id INTEGER REFERENCES blueprint_tokens(id) NOT NULL UNIQUE,
+                seller_id INTEGER REFERENCES users(id) NOT NULL,
+                price_vtx DECIMAL(18,4) NOT NULL,
+                price_gbp_pence INTEGER,
+                listed_at TIMESTAMP DEFAULT NOW(),
+                status VARCHAR(20) DEFAULT 'active'
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS token_rentals (
+                id SERIAL PRIMARY KEY,
+                token_id INTEGER REFERENCES blueprint_tokens(id) NOT NULL,
+                owner_id INTEGER REFERENCES users(id) NOT NULL,
+                renter_id INTEGER REFERENCES users(id),
+                vtx_per_day DECIMAL(18,4) NOT NULL,
+                max_days INTEGER NOT NULL DEFAULT 30,
+                starts_at TIMESTAMP,
+                ends_at TIMESTAMP,
+                status VARCHAR(20) DEFAULT 'offered',
+                total_vtx_paid DECIMAL(18,4) DEFAULT 0,
+                access_tier VARCHAR(20),
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """)
+
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_token_listings_seller ON token_listings(seller_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_token_listings_status ON token_listings(status)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_token_rentals_token ON token_rentals(token_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_token_rentals_renter ON token_rentals(renter_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_token_rentals_owner ON token_rentals(owner_id)")
+
+        cur.execute("""
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'token_rentals' AND column_name = 'access_tier'
+        """)
+        if not cur.fetchone():
+            cur.execute("ALTER TABLE token_rentals ADD COLUMN access_tier VARCHAR(20)")
+
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS market_configs (
                 id SERIAL PRIMARY KEY,
                 item_key VARCHAR(50) NOT NULL UNIQUE,
@@ -296,17 +338,6 @@ def _ensure_columns():
                     conn.rollback()
                 except Exception:
                     pass
-
-        cur.execute(
-            "SELECT 1 FROM information_schema.columns WHERE table_name = 'yield_events' AND column_name = 'idempotency_key'"
-        )
-        if not cur.fetchone():
-            cur.execute("SAVEPOINT sp_yield_idem")
-            try:
-                cur.execute("ALTER TABLE yield_events ADD COLUMN idempotency_key VARCHAR(72) UNIQUE")
-                cur.execute("RELEASE SAVEPOINT sp_yield_idem")
-            except Exception:
-                cur.execute("ROLLBACK TO SAVEPOINT sp_yield_idem")
 
         conn.commit()
 
@@ -492,6 +523,23 @@ def _has_vtx_unlock(user_id, feature):
         return False
 
 
+def _get_effective_tier(user_id):
+    """
+    Returns the higher of the user's base ownership tier and any active rental tier.
+    """
+    base_tier = _get_user_tier(user_id)
+    try:
+        from void_engine.blueprint_nft import get_active_rental_for_user
+        active_rental = get_active_rental_for_user(user_id)
+        if active_rental:
+            rental_tier = active_rental.get("access_tier")
+            if rental_tier and TIER_LEVELS.get(rental_tier, 0) > TIER_LEVELS.get(base_tier, 0):
+                return rental_tier
+    except Exception:
+        pass
+    return base_tier
+
+
 def tier_required(min_tier):
     def decorator(f):
         @functools.wraps(f)
@@ -500,9 +548,12 @@ def tier_required(min_tier):
                 if request.is_json or request.path.startswith("/api/"):
                     return jsonify({"error": "Authentication required"}), 401
                 return redirect("/login")
-            user_tier = _get_user_tier(session["user_id"])
-            session["tier"] = user_tier
-            if TIER_LEVELS.get(user_tier, 0) < TIER_LEVELS.get(min_tier, 0):
+
+            # Use effective tier (includes rentals)
+            effective_tier = _get_effective_tier(session["user_id"])
+            session["tier"] = effective_tier
+
+            if TIER_LEVELS.get(effective_tier, 0) < TIER_LEVELS.get(min_tier, 0):
                 unlock_feature = VTX_TIER_UNLOCK_MAP.get(min_tier)
                 if unlock_feature and _has_vtx_unlock(session["user_id"], unlock_feature):
                     return f(*args, **kwargs)
@@ -553,13 +604,18 @@ def _setup_session(user, role=None):
             mint_purchase(user["id"], Decimal("600"), f"family_genesis_{user['id']}")
         except Exception:
             pass
+
+    # Determine effective tier for session (including rentals)
+    effective_tier = _get_effective_tier(user["id"])
+
     session["user_id"] = user["id"]
     session["username"] = user["username"]
     session["display_name"] = user.get("display_name", user["username"])
     session["role"] = role
     session["is_founder"] = is_founder
     session["is_guardian"] = is_guardian
-    session["tier"] = tier
+    session["tier"] = effective_tier
+    session["base_tier"] = tier
     session["messenger_user_id"] = user["id"]
     os.makedirs(f"data/vaults/{user['username']}/input_files", exist_ok=True)
     os.makedirs(f"data/vaults/{user['username']}/output_audio", exist_ok=True)

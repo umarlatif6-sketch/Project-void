@@ -1,0 +1,237 @@
+<<<<<<< HEAD
+        .mp-story-btn {
+            display: block;
+            width: 100%;
+            margin-top: 8px;
+            padding: 7px;
+            background: rgba(45,212,191,0.06);
+            border: 1px solid rgba(45,212,191,0.15);
+            border-radius: 5px;
+            color: #2dd4bf;
+            font-family: inherit;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+        .mp-story-btn:hover { background: rgba(45,212,191,0.12); }
+
+        .mp-story-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .mp-story-modal.open { display: flex; }
+        .mp-story-panel {
+            background: #0f0f18;
+            border: 1px solid #2a2a3a;
+            border-radius: 14px;
+            max-width: 640px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 32px 36px;
+        }
+        .mp-story-close {
+            float: right;
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 1.2rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .mp-story-close:hover { color: #fff; }
+        .mp-story-header { margin-bottom: 24px; }
+        .mp-story-tier {
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #2dd4bf;
+            margin-bottom: 6px;
+        }
+        .mp-story-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .mp-chapter {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #1a1a2a;
+        }
+        .mp-chapter:last-child { border-bottom: none; margin-bottom: 0; }
+        .mp-chapter-num {
+            font-size: 0.6rem;
+            color: #444;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .mp-chapter-milestone {
+            font-size: 0.7rem;
+            color: #2dd4bf;
+            margin-bottom: 6px;
+        }
+        .mp-chapter-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .mp-chapter-poem {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+        .mp-chapter-glyph {
+            font-size: 1.1rem;
+            padding: 3px 7px;
+            border-radius: 4px;
+            background: rgba(45,212,191,0.07);
+            border: 1px solid rgba(45,212,191,0.15);
+        }
+        .mp-chapter-sep { color: #333; }
+        .mp-chapter-body {
+            font-size: 0.82rem;
+            color: #999;
+            line-height: 1.65;
+        }
+        .mp-story-locked {
+            text-align: center;
+            color: #333;
+            padding: 20px;
+            border: 1px dashed #1e1e2e;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-top: 16px;
+        }
+        .mp-story-loading {
+            text-align: center;
+            color: #555;
+            padding: 40px;
+=======
+        .mp-secondary-section {
+            max-width: 1000px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+        .mp-secondary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .mp-secondary-card {
+            background: #12121a;
+            border: 1px solid rgba(0, 191, 165, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .mp-secondary-badge {
+            display: inline-block;
+            background: rgba(0, 191, 165, 0.1);
+            color: #00bfa5;
+            border: 1px solid rgba(0, 191, 165, 0.3);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .mp-rental-section {
+            max-width: 1000px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+        .mp-rental-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .mp-rental-card {
+            background: #12121a;
+            border: 1px solid rgba(124, 92, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .mp-rental-badge {
+            display: inline-block;
+            background: rgba(124, 92, 255, 0.1);
+            color: #7c5cff;
+            border: 1px solid rgba(124, 92, 255, 0.3);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .mp-btn-secondary {
+            background: rgba(0, 191, 165, 0.2);
+            color: #00bfa5;
+            border: 1px solid rgba(0, 191, 165, 0.3);
+        }
+        .mp-btn-secondary:hover:not(:disabled) {
+            background: rgba(0, 191, 165, 0.35);
+        }
+        .mp-btn-rent {
+            background: rgba(124, 92, 255, 0.2);
+            color: #7c5cff;
+            border: 1px solid rgba(124, 92, 255, 0.3);
+        }
+        .mp-btn-rent:hover:not(:disabled) {
+            background: rgba(124, 92, 255, 0.35);
+        }
+        .mp-btn-danger {
+            background: rgba(255, 82, 82, 0.15);
+            color: #ff5252;
+            border: 1px solid rgba(255, 82, 82, 0.3);
+        }
+        .mp-btn-danger:hover:not(:disabled) {
+            background: rgba(255, 82, 82, 0.25);
+        }
+        .mp-inline-form {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .mp-inline-input {
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            color: #e0e0e0;
+            border-radius: 5px;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            font-family: inherit;
+            width: 90px;
+        }
+        .mp-inline-input:focus {
+            outline: none;
+            border-color: #7c5cff;
+        }
+        .mp-owned-controls {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .mp-rental-active-badge {
+            display: inline-block;
+            background: rgba(76, 175, 80, 0.12);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+>>>>>>> 33202b9 (feat: Secondary Market + Token Rental (Task #3))

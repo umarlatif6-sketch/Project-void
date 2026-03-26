@@ -592,6 +592,123 @@
             color: #555;
             padding: 40px;
         }
+        .mp-secondary-section {
+            max-width: 1000px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+        .mp-secondary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .mp-secondary-card {
+            background: #12121a;
+            border: 1px solid rgba(0, 191, 165, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .mp-secondary-badge {
+            display: inline-block;
+            background: rgba(0, 191, 165, 0.1);
+            color: #00bfa5;
+            border: 1px solid rgba(0, 191, 165, 0.3);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .mp-rental-section {
+            max-width: 1000px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+        .mp-rental-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .mp-rental-card {
+            background: #12121a;
+            border: 1px solid rgba(124, 92, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .mp-rental-badge {
+            display: inline-block;
+            background: rgba(124, 92, 255, 0.1);
+            color: #7c5cff;
+            border: 1px solid rgba(124, 92, 255, 0.3);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .mp-btn-secondary {
+            background: rgba(0, 191, 165, 0.2);
+            color: #00bfa5;
+            border: 1px solid rgba(0, 191, 165, 0.3);
+        }
+        .mp-btn-secondary:hover:not(:disabled) {
+            background: rgba(0, 191, 165, 0.35);
+        }
+        .mp-btn-rent {
+            background: rgba(124, 92, 255, 0.2);
+            color: #7c5cff;
+            border: 1px solid rgba(124, 92, 255, 0.3);
+        }
+        .mp-btn-rent:hover:not(:disabled) {
+            background: rgba(124, 92, 255, 0.35);
+        }
+        .mp-btn-danger {
+            background: rgba(255, 82, 82, 0.15);
+            color: #ff5252;
+            border: 1px solid rgba(255, 82, 82, 0.3);
+        }
+        .mp-btn-danger:hover:not(:disabled) {
+            background: rgba(255, 82, 82, 0.25);
+        }
+        .mp-inline-form {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .mp-inline-input {
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            color: #e0e0e0;
+            border-radius: 5px;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            font-family: inherit;
+            width: 90px;
+        }
+        .mp-inline-input:focus {
+            outline: none;
+            border-color: #7c5cff;
+        }
+        .mp-owned-controls {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .mp-rental-active-badge {
+            display: inline-block;
+            background: rgba(76, 175, 80, 0.12);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
 
         @media (max-width: 700px) {
             .mp-hero-title { font-size: 2rem; }
@@ -654,9 +771,25 @@
     <p class="mp-section-sub">Software suite access. Enter the Vibe-Coding environment.</p>
     <div class="mp-tier-grid" id="commonGrid"></div>
 
+    <h2 class="mp-section-title">Secondary Listings</h2>
+    <p class="mp-section-sub">Tokens listed for resale by holders. 5% royalty on every sale funds manufacturing.</p>
+    <div class="mp-secondary-section">
+        <div class="mp-secondary-grid" id="secondaryGrid">
+            <div class="mp-empty">Loading secondary listings...</div>
+        </div>
+    </div>
+
+    <h2 class="mp-section-title">Rental Offers</h2>
+    <p class="mp-section-sub">Rent token access for a daily VTX fee. Get the tier's software benefits without purchasing.</p>
+    <div class="mp-rental-section">
+        <div class="mp-rental-grid" id="rentalGrid">
+            <div class="mp-empty">Loading rental offers...</div>
+        </div>
+    </div>
+
     {% if user_id %}
     <h2 class="mp-section-title">Your Collection</h2>
-    <p class="mp-section-sub">Blueprint Tokens you own</p>
+    <p class="mp-section-sub">Blueprint Tokens you own — list for resale or offer for rent</p>
     <div class="mp-collection">
         {% set has_yield_tokens = collection | selectattr("tier", "in", ["rare", "legendary"]) | list %}
         {% if has_yield_tokens %}
@@ -678,7 +811,7 @@
         {% if collection %}
         <div class="mp-collection-grid">
             {% for token in collection %}
-            <div class="mp-owned-card">
+            <div class="mp-owned-card" id="owned-card-{{ token.id }}">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                     <span class="mp-tier-badge {{ token.tier }}">{{ token.tier }}</span>
                     <span class="mp-edition">{{ token.edition }}</span>
@@ -687,6 +820,36 @@
                 <div class="mp-owned-meta">Purchased: {{ token.purchased_at[:10] if token.purchased_at else 'N/A' }}</div>
                 <div class="mp-owned-meta">Via: {{ token.purchase_type | upper }}</div>
                 <div class="mp-hash-display">{{ token.token_hash }}</div>
+
+                <div class="mp-owned-controls">
+                {% if token.listing_active %}
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span class="mp-secondary-badge">Listed: {{ token.listing_price_vtx }} VTX</span>
+                        <button class="mp-btn mp-btn-danger" style="flex:none;padding:4px 10px;font-size:0.7rem" onclick="unlistToken({{ token.id }})">Remove Listing</button>
+                    </div>
+                {% elif token.rental_status == 'offered' %}
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span class="mp-rental-badge">Rental Offered: {{ token.rental_vtx_per_day }} VTX/day</span>
+                    </div>
+                {% elif token.rental_status == 'active' %}
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span class="mp-rental-active-badge">Rented Out — ends {{ token.rental_ends_at[:10] if token.rental_ends_at else '?' }}</span>
+                        <button class="mp-btn mp-btn-danger" style="flex:none;padding:4px 10px;font-size:0.7rem" onclick="endRental({{ token.rental_id }})">End Early</button>
+                    </div>
+                {% else %}
+                    <div style="display:flex;gap:6px;flex-wrap:wrap">
+                        <div class="mp-inline-form">
+                            <input type="number" class="mp-inline-input" id="list-price-{{ token.id }}" placeholder="VTX price" min="0.0001" step="0.01">
+                            <button class="mp-btn mp-btn-secondary" style="flex:none;padding:6px 12px" onclick="listToken({{ token.id }})">List for Sale</button>
+                        </div>
+                        <div class="mp-inline-form">
+                            <input type="number" class="mp-inline-input" id="rent-rate-{{ token.id }}" placeholder="VTX/day" min="0.0001" step="0.01">
+                            <input type="number" class="mp-inline-input" id="rent-days-{{ token.id }}" placeholder="Max days" min="1" max="365" value="30">
+                            <button class="mp-btn mp-btn-rent" style="flex:none;padding:6px 12px" onclick="offerRent({{ token.id }})">Offer for Rent</button>
+                        </div>
+                    </div>
+                {% endif %}
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -933,6 +1096,220 @@
 
         loadListings();
         loadFundStatus();
+        loadSecondaryListings();
+        loadRentalOffers();
+
+        async function loadSecondaryListings() {
+            try {
+                const res = await fetch('/api/marketplace/secondary-listings');
+                const data = await res.json();
+                const grid = document.getElementById('secondaryGrid');
+                if (!data.listings || data.listings.length === 0) {
+                    grid.innerHTML = '<div class="mp-empty">No secondary listings at this time.</div>';
+                    return;
+                }
+                grid.innerHTML = data.listings.map(renderSecondaryCard).join('');
+            } catch (e) {
+                document.getElementById('secondaryGrid').innerHTML = '<div class="mp-empty">Failed to load secondary listings.</div>';
+            }
+        }
+
+        async function loadRentalOffers() {
+            try {
+                const res = await fetch('/api/marketplace/rental-offers');
+                const data = await res.json();
+                const grid = document.getElementById('rentalGrid');
+                if (!data.offers || data.offers.length === 0) {
+                    grid.innerHTML = '<div class="mp-empty">No rental offers at this time.</div>';
+                    return;
+                }
+                grid.innerHTML = data.offers.map(renderRentalCard).join('');
+            } catch (e) {
+                document.getElementById('rentalGrid').innerHTML = '<div class="mp-empty">Failed to load rental offers.</div>';
+            }
+        }
+
+        function renderSecondaryCard(listing) {
+            const tierColors = { common: '#7c5cff', rare: '#00bfa5', legendary: '#c9a84c' };
+            const color = tierColors[listing.tier] || '#888';
+            const buyBtn = isLoggedIn
+                ? `<button class="mp-btn mp-btn-secondary" onclick="buySecondary(${listing.token_id})">Buy ${listing.price_vtx} VTX</button>`
+                : `<a href="/login" class="mp-btn mp-btn-secondary" style="text-decoration:none">Login to Buy</a>`;
+            return `
+                <div class="mp-secondary-card">
+                    <div class="mp-secondary-badge">Secondary Sale</div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                        <span class="mp-tier-badge ${listing.tier}">${listing.tier}</span>
+                        <span class="mp-edition">#${listing.edition_number} of ${listing.total_editions}</span>
+                    </div>
+                    <div class="mp-card-title">${listing.title}</div>
+                    <div class="mp-card-desc" style="font-size:0.78rem;color:#888;margin:6px 0 10px">${listing.description || ''}</div>
+                    <div style="font-size:0.75rem;color:#666;margin-bottom:4px">Seller: <span style="color:#aaa">${listing.seller_username}</span></div>
+                    <div style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:10px">${listing.price_vtx} VTX</div>
+                    <div class="mp-card-actions">${buyBtn}</div>
+                    <div class="mp-hash-display">${listing.token_hash}</div>
+                </div>
+            `;
+        }
+
+        function renderRentalCard(offer) {
+            const accessLabels = { journalist: 'Journalist-tier Access', sovereign: 'Sovereign-tier Access' };
+            const accessLabel = accessLabels[offer.access_tier] || offer.access_tier;
+            const bookForm = isLoggedIn
+                ? `<div class="mp-inline-form" style="margin-top:8px">
+                       <input type="number" class="mp-inline-input" id="rent-days-offer-${offer.rental_id}" placeholder="Days" min="1" max="${offer.max_days}" value="1">
+                       <button class="mp-btn mp-btn-rent" style="flex:none;padding:6px 12px" onclick="bookRental(${offer.rental_id}, '${offer.rental_id}')">Rent</button>
+                   </div>`
+                : `<a href="/login" class="mp-btn mp-btn-rent" style="text-decoration:none;display:block;text-align:center;margin-top:8px">Login to Rent</a>`;
+            return `
+                <div class="mp-rental-card">
+                    <div class="mp-rental-badge">Rental Offer</div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                        <span class="mp-tier-badge ${offer.tier}">${offer.tier}</span>
+                        <span class="mp-edition">#${offer.edition_number} of ${offer.total_editions}</span>
+                    </div>
+                    <div class="mp-card-title">${offer.title}</div>
+                    <div style="font-size:0.75rem;color:#666;margin:6px 0 4px">Owner: <span style="color:#aaa">${offer.owner_username}</span></div>
+                    <div style="font-size:0.8rem;color:#aaa;margin-bottom:4px">Access: <strong style="color:#fff">${accessLabel}</strong></div>
+                    <div style="font-size:1.1rem;font-weight:700;color:#fff">${offer.vtx_per_day} VTX/day</div>
+                    <div style="font-size:0.75rem;color:#666;margin-bottom:8px">Max: ${offer.max_days} days</div>
+                    ${bookForm}
+                    <div class="mp-hash-display">${offer.token_hash}</div>
+                </div>
+            `;
+        }
+
+        async function buySecondary(tokenId) {
+            if (!isLoggedIn) { window.location.href = '/login'; return; }
+            if (!confirm('Buy this token from the secondary market? 5% royalty goes to the manufacturing fund.')) return;
+            try {
+                const res = await fetch('/api/marketplace/buy/secondary', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token_id: tokenId }),
+                });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    showToast('Token acquired! Welcome to the manufacturing network.', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                }
+            } catch (e) {
+                showToast('Purchase failed. Please try again.', 'error');
+            }
+        }
+
+        async function listToken(tokenId) {
+            const priceInput = document.getElementById('list-price-' + tokenId);
+            const price = parseFloat(priceInput ? priceInput.value : 0);
+            if (!price || price <= 0) { showToast('Please enter a valid VTX price.', 'error'); return; }
+            try {
+                const res = await fetch('/api/marketplace/list', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token_id: tokenId, price_vtx: price }),
+                });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    showToast('Token listed for sale!', 'success');
+                    setTimeout(() => location.reload(), 1200);
+                }
+            } catch (e) {
+                showToast('Failed to list token.', 'error');
+            }
+        }
+
+        async function unlistToken(tokenId) {
+            if (!confirm('Remove this listing?')) return;
+            try {
+                const res = await fetch('/api/marketplace/unlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token_id: tokenId }),
+                });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    showToast('Listing removed.', 'success');
+                    setTimeout(() => location.reload(), 1200);
+                }
+            } catch (e) {
+                showToast('Failed to remove listing.', 'error');
+            }
+        }
+
+        async function offerRent(tokenId) {
+            const rateInput = document.getElementById('rent-rate-' + tokenId);
+            const daysInput = document.getElementById('rent-days-' + tokenId);
+            const rate = parseFloat(rateInput ? rateInput.value : 0);
+            const maxDays = parseInt(daysInput ? daysInput.value : 30);
+            if (!rate || rate <= 0) { showToast('Please enter a valid daily VTX rate.', 'error'); return; }
+            if (!maxDays || maxDays < 1) { showToast('Please enter a valid max duration.', 'error'); return; }
+            try {
+                const res = await fetch('/api/marketplace/rent/offer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token_id: tokenId, vtx_per_day: rate, max_days: maxDays }),
+                });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    showToast('Rental offer created!', 'success');
+                    setTimeout(() => location.reload(), 1200);
+                }
+            } catch (e) {
+                showToast('Failed to create rental offer.', 'error');
+            }
+        }
+
+        async function bookRental(rentalId) {
+            if (!isLoggedIn) { window.location.href = '/login'; return; }
+            const daysInput = document.getElementById('rent-days-offer-' + rentalId);
+            const days = parseInt(daysInput ? daysInput.value : 1);
+            if (!days || days < 1) { showToast('Please enter a valid number of days.', 'error'); return; }
+            try {
+                const res = await fetch('/api/marketplace/rent/book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rental_id: rentalId, days: days }),
+                });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    showToast(`Rental booked! ${data.access_tier} access granted until ${data.ends_at ? data.ends_at.slice(0,10) : ''}`, 'success');
+                    setTimeout(() => location.reload(), 2000);
+                }
+            } catch (e) {
+                showToast('Failed to book rental.', 'error');
+            }
+        }
+
+        async function endRental(rentalId) {
+            if (!confirm('End this rental early? Unused days will be refunded pro-rata.')) return;
+            try {
+                const res = await fetch('/api/marketplace/rent/end', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rental_id: rentalId }),
+                });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    const refund = data.refund_vtx > 0 ? ` Refunded: ${data.refund_vtx.toFixed(4)} VTX.` : '';
+                    showToast('Rental ended.' + refund, 'success');
+                    setTimeout(() => location.reload(), 1500);
+                }
+            } catch (e) {
+                showToast('Failed to end rental.', 'error');
+            }
+        }
     </script>
 </body>
 </html>

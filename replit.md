@@ -86,11 +86,13 @@ The Vortex Marketplace is a DePIN (Decentralized Physical Infrastructure Network
 - `blueprint_tokens` — Token registry with 286-bit hash, tier, pricing, edition info, status
 - `token_ownership` — Ownership records with purchase type (VTX or Stripe) and transfer history
 - `manufacturing_fund` — Trustless escrow tracking CapEx/materials/assembly allocation per token
+- `token_listings` — Secondary market resale listings (token_id, seller_id, price_vtx, price_gbp_pence, listed_at, status)
+- `token_rentals` — Rental records (token_id, owner_id, renter_id, vtx_per_day, max_days, starts_at, ends_at, status, total_vtx_paid)
 
 **Key Files:**
-- `void_engine/blueprint_nft.py` — Core engine: minting, purchases (VTX + fiat), listings, fund tracking, seeding
-- `routes/marketplace.py` — Blueprint with marketplace page, listings/collection/fund-status APIs, Stripe checkout
-- `templates/marketplace.html` — Dark-themed marketplace UI with tier cards, fund tracker, buy buttons
+- `void_engine/blueprint_nft.py` — Core engine: minting, purchases (VTX + fiat), listings, fund tracking, seeding, secondary market, rental engine
+- `routes/marketplace.py` — Blueprint with marketplace page, listings/collection/fund-status APIs, Stripe checkout, secondary market and rental APIs
+- `templates/marketplace.html` — Dark-themed marketplace UI with tier cards, fund tracker, buy buttons, secondary listings, rental offers, collection management controls
 
 **Routes:**
 - `GET /marketplace` — Marketplace page
@@ -101,6 +103,30 @@ The Vortex Marketplace is a DePIN (Decentralized Physical Infrastructure Network
 - `POST /api/marketplace/buy/stripe` — Creates Stripe checkout session
 - `GET /api/marketplace/callback` — Stripe success callback, finalizes ownership
 - `GET /api/marketplace/fund-status` — Manufacturing fund transparency data
+- `GET /api/marketplace/secondary-listings` — Active secondary market listings
+- `GET /api/marketplace/rental-offers` — Active token rental offers
+- `POST /api/marketplace/list` — Holder lists their token for resale (auth required)
+- `POST /api/marketplace/unlist` — Holder removes their listing (auth required)
+- `POST /api/marketplace/buy/secondary` — Buy a listed token; 5% royalty goes to manufacturing fund (auth required)
+- `POST /api/marketplace/rent/offer` — Holder offers token for rent at daily VTX rate (auth required)
+- `POST /api/marketplace/rent/book` — Renter books a rental, debits VTX upfront (auth required)
+- `POST /api/marketplace/rent/end` — End rental early with pro-rata VTX refund (auth required)
+
+**Secondary Market Engine:**
+- `list_token_for_sale()` — Verifies ownership, creates/updates listing; blocks if token has active rental
+- `unlist_token()` — Cancels active listing
+- `purchase_secondary()` — Atomic transfer: deducts buyer VTX, credits seller minus 5% royalty to manufacturing fund, transfers `token_ownership`, marks listing as sold
+- 5% royalty is routed to the manufacturing fund and logged as a `secondary_royalty` ledger block
+
+**Rental Engine:**
+- `offer_token_for_rent()` — Creates rental offer with daily VTX rate and max duration; blocks if token is listed for sale
+- `book_rental()` — Debits full VTX cost upfront from renter to owner; logs `rental_payment` block; sets rental period
+- `end_rental()` — Calculates unused days, refunds pro-rata VTX from owner back to renter; logs `rental_refund` block
+- Renter tier injection: `_setup_session()` checks `get_active_rental_for_user()` and sets `session["tier"]` to the higher of base tier or rented access tier
+
+**Tier Access Mapping:**
+- Common token rental → Journalist-tier access
+- Rare/Legendary token rental → Sovereign-tier access
 
 **Stripe Webhook:** Extended in `routes/payments.py` to handle `type: "nft_purchase"` metadata on checkout completion.
 
