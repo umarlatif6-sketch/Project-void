@@ -18,8 +18,8 @@ def _get_pool():
                 dsn = os.environ.get("DATABASE_URL")
                 if not dsn:
                     raise RuntimeError("DATABASE_URL environment variable is not set")
-                _pool = pg_pool.ThreadedConnectionPool(minconn=2, maxconn=10, dsn=dsn)
-                logger.info("DB connection pool initialised (minconn=2, maxconn=10)")
+                _pool = pg_pool.ThreadedConnectionPool(minconn=1, maxconn=10, dsn=dsn)
+                logger.info("DB connection pool initialised (minconn=1, maxconn=10)")
     return _pool
 
 
@@ -62,8 +62,27 @@ class _PooledConn:
 
 def get_db() -> _PooledConn:
     """
-    Get a connection from the pool, wrapped so that .close() returns it
-    to the pool instead of destroying it.
+    Get a live connection from the pool. If the checked-out connection is
+    stale (e.g. killed by the database server after an idle period in an
+    autoscale environment), discard it and obtain a fresh one.
     """
-    conn = _get_pool().getconn()
-    return _PooledConn(conn)
+    pool = _get_pool()
+    for attempt in range(3):
+        conn = pool.getconn()
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT 1")
+            cur.close()
+            if conn.info.transaction_status != pg_ext.TRANSACTION_STATUS_IDLE:
+                conn.rollback()
+            return _PooledConn(conn)
+        except Exception as e:
+            logger.warning("Stale connection discarded (attempt %d): %s", attempt + 1, e)
+            try:
+                pool.putconn(conn, close=True)
+            except Exception:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+    raise RuntimeError("Could not obtain a live database connection after 3 attempts")
