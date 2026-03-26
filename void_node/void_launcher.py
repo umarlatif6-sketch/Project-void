@@ -375,7 +375,7 @@ def main():
     if local_verify["verified"]:
         print(f"  [HANDSHAKE] Local verification: PASSED")
     else:
-        print(f"  [HANDSHAKE] Local verification: ANOMALY (diff={local_verify['angle_diff_deg']:.2f}°)")
+        print(f"  [HANDSHAKE] Local verification: ANOMALY")
 
     dial_result = {"connected": False}
     if not args.no_connect:
