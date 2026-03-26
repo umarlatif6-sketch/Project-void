@@ -986,7 +986,7 @@
                 if (story.locked_count > 0) {
                     html += `
                         <div class="mp-story-locked">
-                            ${story.locked_count} chapter${story.locked_count > 1 ? 's' : ''} locked &mdash;
+                            ${escapeHtml(story.locked_count)} chapter${story.locked_count > 1 ? 's' : ''} locked &mdash;
                             upgrade to a higher tier token to unlock the full story.
                         </div>
                     `;

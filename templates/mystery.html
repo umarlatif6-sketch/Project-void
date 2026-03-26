@@ -763,7 +763,7 @@
                     `;
                 }
                 if (story.locked_count > 0) {
-                    html += `<div class="mys-story-locked">${story.locked_count} chapter${story.locked_count > 1 ? 's' : ''} locked &mdash; upgrade to a higher tier to unlock.</div>`;
+                    html += `<div class="mys-story-locked">${escapeHtml(story.locked_count)} chapter${story.locked_count > 1 ? 's' : ''} locked &mdash; upgrade to a higher tier to unlock.</div>`;
                 }
                 body.innerHTML = html;
             } catch (e) {

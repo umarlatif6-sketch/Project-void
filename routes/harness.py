@@ -801,10 +801,14 @@ def founder_mark():
 @harness_bp.route("/api/harness/founder/cert", methods=["POST"])
 def founder_generate_cert():
     data = request.get_json(silent=True) or {}
-    customer_id = data.get("customer_id", 1)
+    customer_id_raw = data.get("customer_id", 1)
     machine_hash = data.get("machine_hash", shared.ritual_history.machine_id)
     try:
-        result = create_founder_cert(int(customer_id), machine_hash, shared.OUTPUT_DIR)
+        customer_id = int(customer_id_raw)
+    except (TypeError, ValueError):
+        return jsonify({"error": "customer_id must be an integer"}), 400
+    try:
+        result = create_founder_cert(customer_id, machine_hash, shared.OUTPUT_DIR)
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
