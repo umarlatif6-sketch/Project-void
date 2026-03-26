@@ -145,7 +145,7 @@ def get_chronicle():
             """SELECT id, chapter_number, title, subtitle, glyph_sequence, body_text,
                       posted_at, al_jabr_hash
                FROM chronicle_entries
-               ORDER BY chapter_number DESC, posted_at DESC"""
+               ORDER BY posted_at DESC"""
         )
         rows = cur.fetchall()
         entries = []
@@ -216,12 +216,12 @@ PROJECT VOID | Al-Jabr 286 | Resonance Bridge
 
 - **Personal use**: MIT — free, no restrictions.
 - **Commercial use**: Requires ownership of a VOID Blueprint Token.
-  Verify at: https://<your-void-domain>/api/adriana/verify?token_id=<ID>
+  Verify at: https://void.app/api/adriana/verify?token_id=<ID>
 
 ## Installation
 
 ```bash
-pip install adriana-sdk  # coming soon to PyPI
+pip install adriana-scl  # coming soon to PyPI
 # or drop the adriana_sdk/ folder into your project
 ```
 
@@ -708,7 +708,7 @@ _SDK_SETUP = '''\
 from setuptools import setup, find_packages
 
 setup(
-    name="adriana-sdk",
+    name="adriana-scl",
     version="1.0.0",
     description="Adriana Sovereign Coded Language — Open SDK for PROJECT VOID",
     packages=find_packages(),
@@ -721,9 +721,9 @@ setup(
 '''
 
 
-def build_adriana_sdk_zip():
+def generate_adriana_sdk_zip():
     """
-    Build an in-memory ZIP containing the Adriana Open SDK.
+    Build an in-memory ZIP containing the Adriana SCL Open SDK.
     Returns a bytes object ready to send as a file download.
     """
     buf = io.BytesIO()

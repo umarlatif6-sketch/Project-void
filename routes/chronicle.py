@@ -6,7 +6,7 @@ from void_engine.chronicle_adriana import (
     get_chronicle,
     post_chronicle_entry,
     delete_chronicle_entry,
-    build_adriana_sdk_zip,
+    generate_adriana_sdk_zip,
 )
 
 logger = logging.getLogger(__name__)
@@ -63,16 +63,20 @@ def adriana_verify():
         if not row:
             return jsonify({"licensed": False, "error": "Token not found"})
 
-        is_sold = row[5] == "sold"
+        # A token is commercially licensed when it has an owner regardless of
+        # mutable status (sold/revealed/sealed/merged are all legitimate states
+        # for owned tokens in the VOID ecosystem).
         has_owner = row[6] is not None
-        licensed = is_sold and has_owner
+        # Optionally verify the requester is the actual owner
+        session_uid = session.get("user_id")
+        licensed = has_owner and (session_uid is None or session_uid == row[6])
 
         return jsonify({
-            "licensed":  licensed,
-            "tier":      row[1],
-            "edition":   f"{row[3]}/{row[4]}" if row[3] and row[4] else None,
+            "licensed":   licensed,
+            "tier":       row[1],
+            "edition":    f"{row[3]}/{row[4]}" if row[3] and row[4] else None,
             "token_hash": row[2][:16] + "..." if row[2] else None,
-            "sdk_url":   "/download/adriana-sdk",
+            "sdk_url":    "/download/adriana-sdk",
         })
     except Exception as e:
         logger.error("Adriana verify error: %s", e)
@@ -82,14 +86,14 @@ def adriana_verify():
 @chronicle_bp.route("/download/adriana-sdk")
 def download_adriana_sdk():
     try:
-        zip_bytes = build_adriana_sdk_zip()
+        zip_bytes = generate_adriana_sdk_zip()
         buf = io.BytesIO(zip_bytes)
         buf.seek(0)
         return send_file(
             buf,
             mimetype="application/zip",
             as_attachment=True,
-            download_name="adriana-sdk-v1.0.zip",
+            download_name="adriana-scl-v1.0.zip",
         )
     except Exception as e:
         logger.error("SDK download error: %s", e)

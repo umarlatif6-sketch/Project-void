@@ -100,21 +100,25 @@
 
     <div class="ac-form-box">
         <div class="ac-form-title">Add Chronicle Entry</div>
-        <form method="POST" action="/admin/chronicle">
+        <div style="font-size:0.73rem;color:#555;margin-bottom:16px;">
+            Enter the title and body in plain English — the glyph sequence is auto-generated from your text.
+        </div>
+        <form method="POST" action="/admin/chronicle" id="chronicleForm">
             <input type="hidden" name="action" value="add">
+            <input type="hidden" name="glyph_sequence" id="glyphSequenceInput">
             <div class="ac-form-grid">
                 <div class="ac-form-row">
                     <label class="ac-label">Chapter Number</label>
                     <input class="ac-input" type="number" name="chapter_number" min="0" max="99" value="0" required>
                 </div>
                 <div class="ac-form-row">
-                    <label class="ac-label">Glyph Sequence (e.g. ◆-γ-⚡)</label>
-                    <input class="ac-input" type="text" name="glyph_sequence" placeholder="◆-γ-⚡" required>
+                    <label class="ac-label">Auto-generated Glyph Sequence</label>
+                    <div id="glyphPreview" style="font-size:1.2rem;letter-spacing:4px;padding:10px 14px;background:#0d0d15;border:1px solid #2a2a3a;border-radius:6px;min-height:42px;color:#2dd4bf;">—</div>
                 </div>
             </div>
             <div class="ac-form-row">
                 <label class="ac-label">Title</label>
-                <input class="ac-input" type="text" name="title" placeholder="The Engine Awakens" required>
+                <input class="ac-input" type="text" name="title" id="entryTitle" placeholder="The Engine Awakens" required oninput="regenerateGlyphs()">
             </div>
             <div class="ac-form-row">
                 <label class="ac-label">Subtitle / Milestone (optional)</label>
@@ -122,11 +126,54 @@
             </div>
             <div class="ac-form-row">
                 <label class="ac-label">Body Text</label>
-                <textarea class="ac-textarea" name="body_text" placeholder="Describe this project milestone..." required></textarea>
+                <textarea class="ac-textarea" name="body_text" id="entryBody" placeholder="Describe this project milestone..." required oninput="regenerateGlyphs()"></textarea>
             </div>
             <button type="submit" class="ac-btn">+ Add Entry</button>
         </form>
     </div>
+
+    <script>
+    // 45-glyph lexicon (must match adriana_scl.py ordering)
+    const _AC_GLYPHS = [
+        "α","β","γ","δ","ε","ζ","η","θ","ι","κ","λ","μ","ν","ξ","ο","π","ρ","σ","τ",
+        "υ","φ","χ","ψ","ω","Α","Β","Γ","Δ","Ε","Ζ",
+        "Η","Θ","Ι","Κ","Λ","Μ","Ν","Ξ","Ο","Π","Ρ","Σ","Τ","Υ","Φ"
+    ];
+    const _AC_ENTITIES   = _AC_GLYPHS.slice(0, 19);
+    const _AC_CONDITIONS = _AC_GLYPHS.slice(19, 29);
+    const _AC_ACTIONS    = _AC_GLYPHS.slice(29, 45);
+
+    function _djb2(str) {
+        let h = 5381;
+        for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
+        return Math.abs(h >>> 0);
+    }
+
+    function regenerateGlyphs() {
+        const title = (document.getElementById('entryTitle').value || '').trim();
+        const body  = (document.getElementById('entryBody').value || '').trim();
+        if (!title) { document.getElementById('glyphPreview').textContent = '—'; return; }
+        const combined = title + '\n' + body;
+        const hA = _djb2(combined);
+        const hB = _djb2(combined.split('').reverse().join(''));
+        const hC = _djb2(title + body.slice(0, 20));
+        const e = _AC_ENTITIES[hA % _AC_ENTITIES.length];
+        const c = _AC_CONDITIONS[hB % _AC_CONDITIONS.length];
+        const a = _AC_ACTIONS[hC % _AC_ACTIONS.length];
+        const seq = `${e}-${c}-${a}`;
+        document.getElementById('glyphPreview').textContent = seq;
+        document.getElementById('glyphSequenceInput').value = seq;
+    }
+
+    // Ensure glyph is set before submit
+    document.getElementById('chronicleForm').addEventListener('submit', function(e) {
+        regenerateGlyphs();
+        if (!document.getElementById('glyphSequenceInput').value) {
+            e.preventDefault();
+            alert('Please enter a title to auto-generate the glyph sequence.');
+        }
+    });
+    </script>
 
     <div class="ac-entries">
         {% if entries %}
