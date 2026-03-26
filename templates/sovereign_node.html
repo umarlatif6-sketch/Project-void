@@ -601,6 +601,31 @@
             letter-spacing: 2px;
         }
 
+        /* ── PER-SECTION GRIDUL-286 FOOTER ── */
+        .snp-section-footer {
+            margin-top: 20px;
+            padding: 8px 14px;
+            border-top: 1px solid #181818;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .snp-section-footer-ref {
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            color: #2e2e2e;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .snp-section-footer-hash {
+            font-family: 'Courier New', monospace;
+            font-size: 0.58rem;
+            color: #242424;
+            word-break: break-all;
+            flex: 1;
+        }
+
         @media (max-width: 600px) {
             .snp-hero-title { font-size: 1.8rem; }
             .snp-nav-links { gap: 12px; }
@@ -705,6 +730,11 @@
                 </div>
             </div>
         </div>
+        <div class="snp-section-footer">
+            <span class="snp-section-footer-ref">GRIDUL-286 · S01 · THE GATEWAY</span>
+            <span class="snp-section-footer-hash">{{ page_hash }}</span>
+            <span class="snp-section-footer-ref">{{ timestamp }}</span>
+        </div>
     </section>
 
     <!-- ══ SECTION 02: THE ACTIVATION LAYER ══ -->
@@ -756,6 +786,11 @@
                 subsystems. Mode: PRODUCTION.
             </div>
         </div>
+        <div class="snp-section-footer">
+            <span class="snp-section-footer-ref">GRIDUL-286 · S02 · THE ACTIVATION LAYER</span>
+            <span class="snp-section-footer-hash">{{ page_hash }}</span>
+            <span class="snp-section-footer-ref">{{ timestamp }}</span>
+        </div>
     </section>
 
     <!-- ══ SECTION 03: THE PHYSICAL FRAME ══ -->
@@ -794,6 +829,11 @@
                     <a href="/sovereign" class="snp-download-btn" style="margin-top:16px;">View Full Hardware Spec</a>
                 </div>
             </div>
+        </div>
+        <div class="snp-section-footer">
+            <span class="snp-section-footer-ref">GRIDUL-286 · S03 · THE PHYSICAL FRAME</span>
+            <span class="snp-section-footer-hash">{{ page_hash }}</span>
+            <span class="snp-section-footer-ref">{{ timestamp }}</span>
         </div>
     </section>
 
@@ -881,6 +921,11 @@
                 </div>
             </div>
         </div>
+        <div class="snp-section-footer">
+            <span class="snp-section-footer-ref">GRIDUL-286 · S04 · THE ARCHIVE</span>
+            <span class="snp-section-footer-hash">{{ page_hash }}</span>
+            <span class="snp-section-footer-ref">{{ timestamp }}</span>
+        </div>
     </section>
 
     <!-- ══ SECTION 05: THE ALIGNMENT LAYER ══ -->
@@ -926,11 +971,16 @@ print(poem["meanings"])   # ["Summation/Ledger", ...]
                         <div style="color:#555;font-size:0.8rem;">Poem generation unavailable</div>
                         {% endif %}
                         <div style="font-size:0.62rem;color:#333;margin-top:12px;letter-spacing:1px;">
-                            Seed: Al-Jabr 286 hash of page timestamp
+                            Seed: {{ poem.seed if poem else 'VOID|YYYY-MM-DD' }}
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="snp-section-footer">
+            <span class="snp-section-footer-ref">GRIDUL-286 · S05 · THE ALIGNMENT LAYER</span>
+            <span class="snp-section-footer-hash">{{ page_hash }}</span>
+            <span class="snp-section-footer-ref">{{ timestamp }}</span>
         </div>
     </section>
 
@@ -974,6 +1024,11 @@ print(poem["meanings"])   # ["Summation/Ledger", ...]
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="snp-section-footer">
+            <span class="snp-section-footer-ref">GRIDUL-286 · S06 · THE MISSION</span>
+            <span class="snp-section-footer-hash">{{ page_hash }}</span>
+            <span class="snp-section-footer-ref">{{ timestamp }}</span>
         </div>
     </section>
 

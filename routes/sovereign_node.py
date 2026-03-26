@@ -167,11 +167,13 @@ def _get_live_metrics():
 @sovereign_node_bp.route("/sovereign-node")
 def sovereign_node_portfolio():
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    page_hash = fatiha_286_hexdigest_from_str(f"sovereign-node|{timestamp}")
+    date_str = time.strftime("%Y-%m-%d", time.gmtime())
+    page_hash = fatiha_286_hexdigest_from_str(timestamp)
+    poem_seed = f"VOID|{date_str}"
     metrics = _get_live_metrics()
     poem_data = None
     try:
-        poem_dict = hash_to_sovereign_poem(page_hash)
+        poem_dict = hash_to_sovereign_poem(poem_seed)
         glyphs = poem_dict["glyphs"]
         meanings = poem_dict["meanings"]
         parts = [m.split("/")[0].strip() for m in meanings]
@@ -180,6 +182,7 @@ def sovereign_node_portfolio():
             "meanings": meanings,
             "translation": f"Where {parts[0]} meets {parts[1]}, {parts[2]} emerges.",
             "poem": poem_dict["poem"],
+            "seed": poem_seed,
         }
     except Exception:
         pass
@@ -197,7 +200,7 @@ def sovereign_node_portfolio():
 @sovereign_node_bp.route("/api/sovereign-node/metrics")
 def api_sovereign_node_metrics():
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    page_hash = fatiha_286_hexdigest_from_str(f"sovereign-node|{timestamp}")
+    page_hash = fatiha_286_hexdigest_from_str(timestamp)
     metrics = _get_live_metrics()
     return jsonify({
         "timestamp": timestamp,
