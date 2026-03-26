@@ -559,8 +559,8 @@
                 return;
             }
             grid.innerHTML = tokens.map(t => {
-                const statusClass = t.status === 'revealed' ? `revealed tier-${t.tier}` : t.status;
-                let tierBadgeClass = `tier-badge-${t.tier}`;
+                const statusClass = t.status === 'revealed' ? `revealed tier-${escapeHtml(t.tier)}` : escapeHtml(t.status);
+                let tierBadgeClass = `tier-badge-${escapeHtml(t.tier)}`;
                 let content = '';
                 if (t.status === 'sealed') {
                     content = `

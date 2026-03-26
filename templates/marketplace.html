@@ -1158,7 +1158,7 @@
                     <div style="font-size:0.75rem;color:#666;margin-bottom:4px">Seller: <span style="color:#aaa">${escapeHtml(listing.seller_username)}</span></div>
                     <div style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:10px">${escapeHtml(listing.price_vtx)} VTX</div>
                     <div class="mp-card-actions">${buyBtn}</div>
-                    <div class="mp-hash-display">${listing.token_hash}</div>
+                    <div class="mp-hash-display">${escapeHtml(listing.token_hash)}</div>
                 </div>
             `;
         }
@@ -1185,7 +1185,7 @@
                     <div style="font-size:1.1rem;font-weight:700;color:#fff">${escapeHtml(offer.vtx_per_day)} VTX/day</div>
                     <div style="font-size:0.75rem;color:#666;margin-bottom:8px">Max: ${escapeHtml(offer.max_days)} days</div>
                     ${bookForm}
-                    <div class="mp-hash-display">${offer.token_hash}</div>
+                    <div class="mp-hash-display">${escapeHtml(offer.token_hash)}</div>
                 </div>
             `;
         }

@@ -813,7 +813,10 @@ def founder_generate_cert():
 @harness_bp.route("/api/harness/founder/batch", methods=["POST"])
 def founder_batch_certs():
     data = request.get_json(silent=True) or {}
-    count = min(int(data.get("count", 100)), 100)
+    try:
+        count = min(int(data.get("count", 100)), 100)
+    except (TypeError, ValueError):
+        return jsonify({"error": "count must be an integer"}), 400
     base_hash = data.get("base_hash", shared.ritual_history.machine_id)
     try:
         result = batch_generate_certs(count, base_hash, shared.OUTPUT_DIR)
@@ -844,7 +847,10 @@ def divided_execute():
     data = request.json or {}
     carrier = data.get("carrier")
     payload = data.get("payload")
-    lsb_depth = int(data.get("lsb_depth", 1))
+    try:
+        lsb_depth = int(data.get("lsb_depth", 1))
+    except (TypeError, ValueError):
+        return jsonify({"error": "lsb_depth must be an integer"}), 400
 
     if not carrier or not payload:
         return jsonify({"error": "Carrier and payload files are required"}), 400
