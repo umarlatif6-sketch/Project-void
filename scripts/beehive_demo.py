@@ -251,7 +251,6 @@ def main():
     print()
     print("  PROJECT VOID — Beehive Live Audio Demo")
     print(f"  Audio Backend  : {AUDIO_BACKEND}")
-    print(f"  Passphrase     : {args.passphrase}")
     print(f"  Machine ID     : {args.machine_id}")
 
     if args.listen:
