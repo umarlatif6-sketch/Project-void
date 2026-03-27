@@ -1,3 +1,19 @@
+# ============================================================
+# PROJECT VOID — Proprietary IP (DO NOT COMMIT)
+# ============================================================
+void_engine/al_jabr_286.py
+void_engine/stega.py
+void_node/void_engine/al_jabr_286.py
+void_node/void_engine/stega.py
+
+# Output audio / generated files
+*.wav
+*.mp3
+*.ogg
+*.flac
+output_audio/
+outputs/
+
 __pycache__/
 *.py[cod]
 *$py.class
@@ -71,3 +87,9 @@ dmypy.json
 .pytype/
 cython_debug/
 .pythonlibs/
+
+# Replit internal / attached assets
+.local/
+.replit
+replit.nix
+attached_assets/

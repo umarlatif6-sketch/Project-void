@@ -1,3 +1,19 @@
+# =============================================================================
+# COPYRIGHT NOTICE — PROPRIETARY & CONFIDENTIAL
+# =============================================================================
+# This file is part of PROJECT VOID and contains proprietary algorithms
+# owned by the Project Void author(s). All rights reserved.
+#
+# CONFIDENTIAL: This source code embodies trade secrets and intellectual
+# property central to the Al-Jabr 286 Sovereign Hashing protocol.
+# Unauthorized copying, distribution, modification, or use of this file,
+# in whole or in part, via any medium, is strictly prohibited without
+# prior written consent from the copyright holder.
+#
+# Licensed under the Business Source License 1.1 (see LICENSE in the
+# project root). Commercial use requires a separate licence agreement.
+# =============================================================================
+
 """
 PROJECT VOID — Al-Jabr 286 Protocol
 Sura-Fatiha Sovereign Hashing (286-bit)
