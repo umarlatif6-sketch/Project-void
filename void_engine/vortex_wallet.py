@@ -353,6 +353,61 @@ def mint_purchase(user_id, amount_decimal, session_id):
         conn.close()
 
 
+def mint_qisync(user_id, session_id, metabolism_score, stance, duration_sec):
+    """
+    Grant VOID credits at the end of a QiSync BioStance / Mastication session.
+
+    Thresholds:
+      score >= 0.8  → 5.0 VTX  (excellent)
+      score >= 0.6  → 3.0 VTX  (good)
+      score >= 0.4  → 1.5 VTX  (developing)
+      score >= 0.2  → 0.5 VTX  (beginner)
+      score <  0.2  → 0.1 VTX  (participation)
+    """
+    if metabolism_score >= 0.8:
+        base = Decimal("5.0")
+    elif metabolism_score >= 0.6:
+        base = Decimal("3.0")
+    elif metabolism_score >= 0.4:
+        base = Decimal("1.5")
+    elif metabolism_score >= 0.2:
+        base = Decimal("0.5")
+    else:
+        base = Decimal("0.1")
+
+    duration_bonus = Decimal(str(min(duration_sec, 600))) / Decimal("600") * Decimal("0.5")
+    amount = (base + duration_bonus).quantize(Decimal("0.0001"))
+
+    payload_hash = fatiha_286_hexdigest_from_str(f"qisync_{user_id}_{session_id}")
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'mint_qisync'",
+            (payload_hash,),
+        )
+        if cur.fetchone():
+            conn.close()
+            return {"already_minted": True, "session_id": session_id}
+        block = _create_block(cur, "mint_qisync", None, user_id, amount, payload_hash)
+        cur.execute(
+            "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id = %s",
+            (amount, user_id),
+        )
+        conn.commit()
+        block["vtx_earned"] = float(amount)
+        block["metabolism_score"] = metabolism_score
+        block["stance"] = stance
+        block["duration_sec"] = duration_sec
+        return block
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
 def spend_vtx(user_id, amount_decimal, purpose):
     amount = amount_decimal.quantize(Decimal("0.0001"))
     if amount <= 0:

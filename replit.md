@@ -162,3 +162,16 @@ The Vortex Marketplace is a DePIN (Decentralized Physical Infrastructure Network
 - **requests:** HTTP client (used by local node launcher for dial-home).
 - **Standard Library:** `zlib`, `lzma`, `wave`, `hashlib`.
 - **PostgreSQL:** For Void Messenger, Universal Auth, and VORTEX data storage.
+## QiSync BioStance & Mastication Tracker (Task #17)
+- Route: `/qisync` (Blueprint: `qisync_bp` in `routes/qisync.py`)
+- API endpoint: `/api/qisync/session-end` (POST, authenticated) — submits session results and mints VTX reward
+- API endpoint: `/api/qisync/csi-status` (GET) — returns current CSI hardware status
+- Template: `templates/qisync.html`
+- Three sections: The Science (concept document), VOID Credit Reward Tiers, Live Training Module
+- **CSI Backend** (`void_engine/csi_bio_monitor.py`): Added `StanceDetector` class (rolling-window amplitude variance + phase RMS threshold classifier for the 5 foundation stances: mabu/pubu/xiebu/gongbu/xvbu), `MasticationDetector` class (zero-crossing counter for jaw-motion cycles, targeting 30/bolus), and `STANCE_NAMES` dict
+- **Wallet** (`void_engine/vortex_wallet.py`): Added `mint_qisync()` function — mints VTX to user wallet based on metabolism score thresholds (0.1–5.0 VTX base + up to 0.5 VTX duration bonus), writes to `vortex_ledger` with `tx_type='mint_qisync'`
+- **Metabolism Score**: Composite of stance_score (0.65 weight) and mastication_score (0.35 weight)
+- **Sensor Modes**: Wi-Fi CSI (passive, via StanceDetector), Phone Sensors (DeviceMotionEvent + getUserMedia microphone), or Both
+- **Simulation Mode**: Full JavaScript simulation engine runs when no hardware is present, generating realistic CSI variance trajectories per stance
+- **Phone Sensors**: DeviceMotionEvent API for accelerometer stance stability; MediaDevices.getUserMedia microphone for jaw-motion amplitude spike detection
+- Fits VOID dark/sovereign visual language (dark theme, teal/gold palette, monospace typography)

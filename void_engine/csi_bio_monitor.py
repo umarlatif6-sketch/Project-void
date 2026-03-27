@@ -239,6 +239,174 @@ class CSIBioMonitor:
             self._sock = None
 
 
+# ── QiSync martial stance and mastication detection ───────────────────────────
+
+STANCE_NAMES = {
+    "mabu": "马步 mǎbù (Horse)",
+    "pubu": "仆步 pūbù (Drop)",
+    "xiebu": "歇步 xiēbù (Rest)",
+    "gongbu": "弓步 gōngbù (Bow)",
+    "xvbu": "虚步 xūbù (Empty)",
+    "neutral": "Neutral",
+}
+
+# Approximate CSI variance + phase signature thresholds for each stance.
+# In real deployment the ESP32 would be trained per-environment; here we use
+# signal-variance bands as proxies (as per task spec).
+_STANCE_THRESHOLDS = [
+    # (stance_key, amp_var_min, amp_var_max, phase_rms_min, phase_rms_max)
+    ("mabu",  0.30, 0.55, 0.55, 0.90),   # wide, low — high amp disturbance
+    ("pubu",  0.55, 0.85, 0.80, 1.20),   # full drop — very high variance
+    ("xiebu", 0.20, 0.40, 0.40, 0.70),   # cross-leg rest — moderate
+    ("gongbu", 0.10, 0.28, 0.20, 0.55),  # forward lunge — moderate amp, low phase
+    ("xvbu",  0.05, 0.18, 0.10, 0.38),   # light weight-empty — very low variance
+]
+
+
+class StanceDetector:
+    """
+    Classifies a CSI packet stream into one of the five foundation stances or
+    neutral.  Uses a rolling window of amplitude variance and phase RMS over
+    the last N packets.
+
+    When no real hardware is present the :class:`SimulatedStanceDetector`
+    subclass synthesises realistic variance trajectories.
+    """
+
+    WINDOW = 10
+
+    def __init__(self):
+        self._amp_vars: List[float] = []
+        self._phase_rms: List[float] = []
+        self._current_stance: str = "neutral"
+        self._confidence: float = 0.0
+        self._sample_count: int = 0
+
+    def feed_packet(self, packet: CSIPacket) -> str:
+        """Update with a new CSI packet and return the current detected stance."""
+        amp_var = _amplitude_variance(packet.amplitude)
+        p_rms = _phase_shift_magnitude(packet.phase)
+
+        self._amp_vars.append(amp_var)
+        self._phase_rms.append(p_rms)
+
+        if len(self._amp_vars) > self.WINDOW:
+            self._amp_vars = self._amp_vars[-self.WINDOW:]
+            self._phase_rms = self._phase_rms[-self.WINDOW:]
+
+        self._sample_count += 1
+        self._classify()
+        return self._current_stance
+
+    def _classify(self) -> None:
+        if not self._amp_vars:
+            self._current_stance = "neutral"
+            self._confidence = 0.0
+            return
+
+        avg_amp = sum(self._amp_vars) / len(self._amp_vars)
+        avg_phase = sum(self._phase_rms) / len(self._phase_rms)
+
+        for stance_key, av_min, av_max, pr_min, pr_max in _STANCE_THRESHOLDS:
+            if av_min <= avg_amp < av_max and pr_min <= avg_phase < pr_max:
+                amp_mid = (av_min + av_max) / 2.0
+                phase_mid = (pr_min + pr_max) / 2.0
+                amp_range = (av_max - av_min) / 2.0
+                phase_range = (pr_max - pr_min) / 2.0
+                amp_conf = max(0.0, 1.0 - abs(avg_amp - amp_mid) / amp_range)
+                phase_conf = max(0.0, 1.0 - abs(avg_phase - phase_mid) / phase_range)
+                self._confidence = (amp_conf + phase_conf) / 2.0
+                self._current_stance = stance_key
+                return
+
+        self._current_stance = "neutral"
+        self._confidence = 0.0
+
+    @property
+    def current_stance(self) -> str:
+        return self._current_stance
+
+    @property
+    def confidence(self) -> float:
+        return round(self._confidence, 3)
+
+    def get_status(self) -> dict:
+        return {
+            "stance": self._current_stance,
+            "stance_label": STANCE_NAMES.get(self._current_stance, self._current_stance),
+            "confidence": self.confidence,
+            "sample_count": self._sample_count,
+            "mode": "hardware",
+        }
+
+
+class MasticationDetector:
+    """
+    Counts jaw-motion cycles from CSI micro-variance.
+
+    Mastication produces a repeating low-amplitude modulation in the 0.5–3 Hz
+    range.  We detect it by watching for zero-crossings around the rolling mean
+    of amplitude variance; each crossing pair counts as one chew cycle.
+    The target is 30 chews per food bolus per the metabolic research.
+    """
+
+    WINDOW = 60
+
+    def __init__(self):
+        self._amp_vars: List[float] = []
+        self._chew_count: int = 0
+        self._cycle_score: float = 0.0
+        self._last_sign: Optional[int] = None
+        self._sample_count: int = 0
+        self._crossings: int = 0
+
+    def feed_packet(self, packet: CSIPacket) -> int:
+        """Feed a packet and return the cumulative chew count."""
+        amp_var = _amplitude_variance(packet.amplitude)
+        self._amp_vars.append(amp_var)
+
+        if len(self._amp_vars) > self.WINDOW:
+            self._amp_vars = self._amp_vars[-self.WINDOW:]
+
+        self._sample_count += 1
+
+        if len(self._amp_vars) >= 4:
+            mean = sum(self._amp_vars) / len(self._amp_vars)
+            sign = 1 if amp_var > mean else -1
+            if self._last_sign is not None and sign != self._last_sign:
+                self._crossings += 1
+                if self._crossings % 2 == 0:
+                    self._chew_count += 1
+            self._last_sign = sign
+
+        self._cycle_score = min(1.0, self._chew_count / 30.0)
+        return self._chew_count
+
+    @property
+    def chew_count(self) -> int:
+        return self._chew_count
+
+    @property
+    def cycle_score(self) -> float:
+        """0–1 score: 1.0 = 30 or more quality chew cycles detected."""
+        return round(self._cycle_score, 3)
+
+    def reset(self):
+        self._chew_count = 0
+        self._crossings = 0
+        self._last_sign = None
+        self._cycle_score = 0.0
+        self._amp_vars = []
+
+    def get_status(self) -> dict:
+        return {
+            "chew_count": self._chew_count,
+            "cycle_score": self.cycle_score,
+            "sample_count": self._sample_count,
+            "target_chews": 30,
+        }
+
+
 class SimulatedCSIBioMonitor(CSIBioMonitor):
     """
     Simulation fallback used when no ESP32 hardware is present.

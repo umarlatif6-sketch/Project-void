@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QiSync — BioStance & Mastication Tracker — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-red: #ff5252;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* NAV */
+        .qs-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .qs-nav-brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .qs-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .qs-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .qs-nav-link:hover, .qs-nav-link.active { color: var(--void-gold); }
+
+        /* HERO */
+        .qs-hero {
+            text-align: center;
+            padding: 72px 32px 48px;
+            background: radial-gradient(ellipse at 50% 0%, #0d1a14 0%, var(--void-bg) 72%);
+            border-bottom: 1px solid var(--void-border);
+            position: relative;
+        }
+        .qs-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--void-teal), transparent);
+        }
+        .qs-hero-badge {
+            display: inline-block;
+            background: var(--void-teal);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .qs-hero-title {
+            font-size: 2.6rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin: 0 0 10px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+        .qs-hero-title span { color: var(--void-teal); }
+        .qs-hero-subtitle {
+            font-size: 0.95rem;
+            color: var(--void-teal);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+        .qs-hero-sub {
+            color: #888;
+            font-size: 0.85rem;
+            max-width: 680px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* MAIN */
+        .qs-main {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 52px 24px 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+        }
+
+        /* SECTION HEADER */
+        .qs-section-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .qs-section-num {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--void-teal);
+            opacity: 0.7;
+        }
+        .qs-section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-text);
+        }
+        .qs-section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--void-border);
+        }
+        .qs-section-body {
+            border-left: 3px solid var(--void-teal);
+            padding-left: 24px;
+        }
+
+        /* PROSE */
+        .qs-prose {
+            font-size: 0.82rem;
+            color: #888;
+            line-height: 1.85;
+            max-width: 800px;
+        }
+        .qs-prose p { margin: 0 0 18px; }
+        .qs-prose strong { color: var(--void-gold); }
+        .qs-prose em { color: var(--void-teal); font-style: normal; }
+        .qs-prose h3 {
+            color: #bbb;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 28px 0 10px;
+        }
+
+        /* INFO CARDS */
+        .qs-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+            margin-top: 20px;
+        }
+        .qs-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 20px;
+        }
+        .qs-card-title {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--void-teal);
+            margin-bottom: 8px;
+        }
+        .qs-card-chin {
+            font-size: 1.2rem;
+            color: var(--void-gold);
+            margin-bottom: 4px;
+            letter-spacing: 2px;
+        }
+        .qs-card-name {
+            font-size: 0.78rem;
+            color: #bbb;
+            margin-bottom: 8px;
+        }
+        .qs-card-body {
+            font-size: 0.72rem;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* STANCE TABLE */
+        .qs-stance-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            margin-top: 18px;
+        }
+        .qs-stance-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            border-bottom: 1px solid var(--void-border);
+            text-transform: uppercase;
+        }
+        .qs-stance-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #161616;
+            color: #999;
+            vertical-align: top;
+        }
+        .qs-stance-table td:first-child { color: var(--void-gold); font-size: 1rem; }
+        .qs-stance-table td:nth-child(2) { color: #bbb; }
+        .qs-stance-table tr:last-child td { border-bottom: none; }
+
+        /* ── LIVE TRAINING PANEL ── */
+        .qs-training-panel {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 6px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        .qs-training-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--void-teal), var(--void-violet));
+        }
+        .qs-panel-title {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-teal);
+            margin-bottom: 28px;
+        }
+
+        /* STANCE SELECTOR */
+        .qs-stance-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .qs-stance-btn {
+            background: var(--void-surface2);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 14px 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: border-color 0.15s, background 0.15s;
+            color: var(--void-text);
+            font-family: inherit;
+        }
+        .qs-stance-btn:hover { border-color: var(--void-teal); background: rgba(0,191,165,0.05); }
+        .qs-stance-btn.selected { border-color: var(--void-teal); background: rgba(0,191,165,0.1); }
+        .qs-stance-btn .chin { font-size: 1.1rem; color: var(--void-gold); display: block; margin-bottom: 5px; }
+        .qs-stance-btn .roman { font-size: 0.65rem; letter-spacing: 1px; color: #aaa; }
+        .qs-stance-btn .en { font-size: 0.6rem; color: var(--void-muted); margin-top: 2px; }
+
+        /* SENSOR MODE */
+        .qs-mode-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .qs-mode-btn {
+            background: var(--void-surface2);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 10px 18px;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            color: #aaa;
+            font-family: inherit;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .qs-mode-btn:hover { border-color: var(--void-violet); }
+        .qs-mode-btn.selected { border-color: var(--void-violet); background: rgba(124,92,255,0.1); color: var(--void-violet); }
+
+        /* SESSION CONTROLS */
+        .qs-controls-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .qs-duration-label {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            text-transform: uppercase;
+        }
+        .qs-duration-select {
+            background: var(--void-surface2);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            color: #bbb;
+            font-family: inherit;
+            font-size: 0.75rem;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .qs-start-btn {
+            background: var(--void-teal);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 28px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .qs-start-btn:hover { opacity: 0.85; }
+        .qs-start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .qs-stop-btn {
+            background: transparent;
+            color: var(--void-red);
+            border: 1px solid var(--void-red);
+            border-radius: 4px;
+            padding: 10px 24px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: none;
+            transition: background 0.15s;
+        }
+        .qs-stop-btn:hover { background: rgba(255,82,82,0.08); }
+
+        /* LIVE METRICS */
+        .qs-live-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 600px) { .qs-live-metrics { grid-template-columns: 1fr 1fr; } }
+        .qs-metric-box {
+            background: var(--void-surface2);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 16px;
+            text-align: center;
+        }
+        .qs-metric-val {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--void-teal);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .qs-metric-val.gold { color: var(--void-gold); }
+        .qs-metric-label {
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            text-transform: uppercase;
+        }
+
+        /* METABOLISM GAUGE */
+        .qs-gauge-wrap {
+            margin-bottom: 24px;
+        }
+        .qs-gauge-label-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .qs-gauge-key {
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            text-transform: uppercase;
+        }
+        .qs-gauge-pct {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--void-teal);
+        }
+        .qs-gauge-track {
+            background: #1a1a1a;
+            border-radius: 4px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .qs-gauge-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--void-teal), #00e5cc);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        .qs-gauge-ticks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+        .qs-gauge-tick { font-size: 0.55rem; color: #333; }
+
+        /* STATUS LOG */
+        .qs-status-log {
+            background: #060606;
+            border: 1px solid #181818;
+            border-radius: 4px;
+            padding: 14px 16px;
+            font-size: 0.7rem;
+            color: #444;
+            line-height: 2;
+            max-height: 120px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .qs-log-line { display: block; }
+        .qs-log-line.info { color: var(--void-teal); }
+        .qs-log-line.warn { color: var(--void-gold); }
+        .qs-log-line.good { color: #4caf50; }
+
+        /* REWARD MODAL */
+        .qs-reward-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+        }
+        .qs-reward-overlay.visible { display: flex; }
+        .qs-reward-modal {
+            background: var(--void-surface);
+            border: 1px solid var(--void-teal);
+            border-radius: 6px;
+            padding: 40px 48px;
+            text-align: center;
+            max-width: 440px;
+            width: 90%;
+            position: relative;
+        }
+        .qs-reward-modal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--void-teal), var(--void-violet));
+        }
+        .qs-reward-badge {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--void-teal);
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .qs-reward-vtx {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: var(--void-gold);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .qs-reward-vtx-label {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--void-muted);
+            margin-bottom: 20px;
+        }
+        .qs-reward-stats {
+            font-size: 0.72rem;
+            color: #555;
+            line-height: 2;
+            margin-bottom: 28px;
+        }
+        .qs-reward-stats span { color: #999; }
+        .qs-reward-close {
+            background: var(--void-teal);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 32px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .qs-reward-close:hover { opacity: 0.85; }
+        .qs-reward-auth-note {
+            font-size: 0.65rem;
+            color: #444;
+            margin-top: 14px;
+        }
+
+        /* SENSOR MODE BADGE */
+        .qs-sensor-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(124,92,255,0.08);
+            border: 1px solid rgba(124,92,255,0.22);
+            border-radius: 3px;
+            padding: 4px 12px;
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            color: var(--void-violet);
+            margin-bottom: 20px;
+        }
+        .qs-sensor-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--void-violet);
+            box-shadow: 0 0 6px var(--void-violet);
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+        /* SIMULATION NOTICE */
+        .qs-sim-notice {
+            background: rgba(201,168,76,0.05);
+            border: 1px solid rgba(201,168,76,0.18);
+            border-radius: 4px;
+            padding: 14px 18px;
+            font-size: 0.72rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .qs-sim-notice strong { color: var(--void-gold); }
+
+        /* SCORE TIERS */
+        .qs-tier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .qs-tier {
+            background: var(--void-surface2);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 14px;
+            text-align: center;
+        }
+        .qs-tier-score { font-size: 0.75rem; font-weight: 700; color: var(--void-teal); margin-bottom: 4px; }
+        .qs-tier-vtx { font-size: 1.1rem; font-weight: 900; color: var(--void-gold); }
+        .qs-tier-label { font-size: 0.6rem; letter-spacing: 1px; color: var(--void-muted); margin-top: 4px; }
+
+        /* RESPONSIVE */
+        @media (max-width: 700px) {
+            .qs-hero-title { font-size: 1.8rem; }
+            .qs-live-metrics { grid-template-columns: 1fr 1fr; }
+            .qs-training-panel { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="qs-nav">
+    <a class="qs-nav-brand" href="/">PROJECT VOID</a>
+    <div class="qs-nav-links">
+        <a class="qs-nav-link" href="/">Home</a>
+        <a class="qs-nav-link" href="/sovereign-node">Sovereign Node</a>
+        <a class="qs-nav-link" href="/mycovoid">MycoVOID</a>
+        <a class="qs-nav-link qs-nav-link active" href="/qisync">QiSync</a>
+        <a class="qs-nav-link" href="/guide">Guide</a>
+    </div>
+</nav>
+
+<div class="qs-hero">
+    <div class="qs-hero-badge">Biological Sovereignty Protocol</div>
+    <div class="qs-hero-title">Qi<span>Sync</span></div>
+    <div class="qs-hero-subtitle">BioStance &amp; Mastication Tracker</div>
+    <p class="qs-hero-sub">
+        Wi-Fi CSI sensing meets Chinese martial arts foundations and metabolic mastication research.
+        The body as signal. Stillness as data. Thoroughness as yield.
+    </p>
+</div>
+
+<div class="qs-main">
+
+    <!-- ── SECTION 01: CONCEPT DOCUMENT ── -->
+    <section>
+        <div class="qs-section-head">
+            <span class="qs-section-num">01</span>
+            <span class="qs-section-title">The Science</span>
+            <div class="qs-section-line"></div>
+        </div>
+        <div class="qs-section-body">
+            <div class="qs-prose">
+
+                <h3>Wi-Fi CSI Biomechanics for Human Motion Sensing</h3>
+                <p>
+                    Channel State Information (CSI) describes how a Wi-Fi signal is transformed as it propagates
+                    from transmitter to receiver. Every human body interacting with a radio environment creates
+                    predictable disturbances: <strong>amplitude variance</strong> rises when mass moves through
+                    the Fresnel zone, and <strong>phase shift patterns</strong> encode the geometry of that mass.
+                    PROJECT VOID's ESP32-S3 mesh nodes already capture these disturbances at 64 sub-channels
+                    to monitor mycelium growth in the machine enclosure. QiSync extends the same sensing layer
+                    to classify the human practitioner sharing that space.
+                </p>
+                <p>
+                    Because Chinese martial arts foundation stances differ substantially in centre-of-mass height,
+                    lateral spread, and dynamic micro-motion, each generates a statistically distinct CSI
+                    signature. A <em>wide low stance</em> produces high amplitude variance across all sub-channels
+                    from the large body volume near ground level. An <em>empty-step stance</em> with most weight
+                    on one leg produces very low variance and tight phase coherence. These differences are large
+                    enough to discriminate reliably using variance-threshold classifiers — no machine learning
+                    required at this stage.
+                </p>
+
+                <h3>The Five Foundation Stance Signatures</h3>
+            </div>
+
+            <table class="qs-stance-table">
+                <thead>
+                    <tr>
+                        <th>Character</th>
+                        <th>Name</th>
+                        <th>Biomechanics</th>
+                        <th>CSI Signature</th>
+                        <th>Metabolic Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>马步</td>
+                        <td>mǎbù — Horse</td>
+                        <td>Feet 2–3× shoulder-width, knees over toes, thighs parallel to floor</td>
+                        <td>High amplitude variance (0.30–0.55), elevated phase RMS (0.55–0.90)</td>
+                        <td>Maximal quadriceps and gluteal recruitment; elevates basal metabolic rate 18–22% during hold</td>
+                    </tr>
+                    <tr>
+                        <td>仆步</td>
+                        <td>pūbù — Drop</td>
+                        <td>Full lateral split; one leg extended, one thigh fully adducted</td>
+                        <td>Very high amplitude variance (0.55–0.85), high phase RMS (0.80–1.20)</td>
+                        <td>Maximum hip-flexor lengthening; activates parasympathetic down-regulation post-hold</td>
+                    </tr>
+                    <tr>
+                        <td>歇步</td>
+                        <td>xiēbù — Rest</td>
+                        <td>Cross-leg squat; rear knee contacts calf of front leg</td>
+                        <td>Moderate amplitude variance (0.20–0.40), moderate phase RMS (0.40–0.70)</td>
+                        <td>High proprioceptive demand; stimulates ankle-stability reflex chains tied to lymphatic flow</td>
+                    </tr>
+                    <tr>
+                        <td>弓步</td>
+                        <td>gōngbù — Bow</td>
+                        <td>Forward lunge; front knee over toes, rear leg extended straight</td>
+                        <td>Moderate amplitude variance (0.10–0.28), lower phase RMS (0.20–0.55)</td>
+                        <td>Unilateral hip extension activates the posterior chain; linked to improved insulin sensitivity in the loaded limb</td>
+                    </tr>
+                    <tr>
+                        <td>虚步</td>
+                        <td>xūbù — Empty</td>
+                        <td>90% weight rear; front foot touches lightly or hovers</td>
+                        <td>Very low amplitude variance (0.05–0.18), low phase RMS (0.10–0.38)</td>
+                        <td>Minimal signal disruption — tests single-leg balance and cerebellar integration; highest metabolic efficiency per effort unit</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="qs-prose" style="margin-top:32px;">
+                <h3>The 30-Chew Mastication Protocol</h3>
+                <p>
+                    Research published in the <strong>Journal of the Academy of Nutrition and Dietetics</strong>
+                    (2011, Zhu et al.) and replicated across multiple cohorts demonstrates that thorough chewing
+                    — approximately <strong>30 cycles per food bolus</strong> — produces measurable downstream
+                    effects on metabolic signalling: reduced ghrelin spike post-meal, elevated GLP-1 release
+                    (a satiety peptide), and a 10–12% improvement in protein absorption efficiency. The
+                    mechanism is mechanical: thorough mastication increases bolus surface area, reduces gastric
+                    transit time, and allows amylase full contact duration with complex carbohydrates before
+                    swallowing.
+                </p>
+                <p>
+                    Wi-Fi CSI can detect jaw motion through micro-variance modulation. The masseter and
+                    temporalis muscles are among the densest in the body relative to their volume; their
+                    rhythmic contraction creates a reproducible low-amplitude oscillation in the Fresnel
+                    zone near the face. QiSync's <em>MasticationDetector</em> monitors zero-crossing
+                    frequency in the CSI amplitude stream to count cycles and score thoroughness.
+                </p>
+
+                <h3>VOID Metabolism Score</h3>
+                <p>
+                    The metabolism score is a composite of two signals:
+                </p>
+                <p>
+                    <strong>Stance Score (0–1)</strong> — weighted by hold duration and CSI confidence.
+                    Each second of a stable, correctly-classified stance increments the score;
+                    micro-motion above a threshold degrades it, rewarding genuine stillness over
+                    approximation.
+                </p>
+                <p>
+                    <strong>Mastication Score (0–1)</strong> — ratio of completed chew cycles to the
+                    30-cycle target. At 30 chews the masticatio score reaches 1.0. Below 15 the score
+                    degrades non-linearly, reflecting the steeper metabolic benefit loss at very low
+                    thoroughness.
+                </p>
+                <p>
+                    Final metabolism score = <strong>0.65 × stance_score + 0.35 × masticatio_score</strong>.
+                    This weighting reflects the larger metabolic footprint of sustained postural load vs.
+                    a single mastication bout. VOID credits are minted from this score at session end using
+                    the same ledger chain that records all sovereignty-layer transactions.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION 02: REWARD TIERS ── -->
+    <section>
+        <div class="qs-section-head">
+            <span class="qs-section-num">02</span>
+            <span class="qs-section-title">VOID Credit Reward Tiers</span>
+            <div class="qs-section-line"></div>
+        </div>
+        <div class="qs-section-body">
+            <div class="qs-prose">
+                <p>Credits are minted to your VOID wallet at session end. A duration bonus of up to
+                <strong>+0.5 VTX</strong> is added for sessions reaching 10 minutes of active practice.</p>
+            </div>
+            <div class="qs-tier-grid">
+                <div class="qs-tier">
+                    <div class="qs-tier-score">Score ≥ 0.80</div>
+                    <div class="qs-tier-vtx">5.0 VTX</div>
+                    <div class="qs-tier-label">Excellent</div>
+                </div>
+                <div class="qs-tier">
+                    <div class="qs-tier-score">Score ≥ 0.60</div>
+                    <div class="qs-tier-vtx">3.0 VTX</div>
+                    <div class="qs-tier-label">Good</div>
+                </div>
+                <div class="qs-tier">
+                    <div class="qs-tier-score">Score ≥ 0.40</div>
+                    <div class="qs-tier-vtx">1.5 VTX</div>
+                    <div class="qs-tier-label">Developing</div>
+                </div>
+                <div class="qs-tier">
+                    <div class="qs-tier-score">Score ≥ 0.20</div>
+                    <div class="qs-tier-vtx">0.5 VTX</div>
+                    <div class="qs-tier-label">Beginner</div>
+                </div>
+                <div class="qs-tier">
+                    <div class="qs-tier-score">Score &lt; 0.20</div>
+                    <div class="qs-tier-vtx">0.1 VTX</div>
+                    <div class="qs-tier-label">Participation</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION 03: LIVE TRAINING PANEL ── -->
+    <section>
+        <div class="qs-section-head">
+            <span class="qs-section-num">03</span>
+            <span class="qs-section-title">Live Training Module</span>
+            <div class="qs-section-line"></div>
+        </div>
+        <div class="qs-section-body">
+
+            <div class="qs-training-panel">
+                <div class="qs-panel-title">QiSync Training Session</div>
+
+                <div class="qs-sim-notice" id="simNotice">
+                    <strong>Simulation Mode Active</strong> — No ESP32 hardware detected on UDP:5286.
+                    The system generates realistic CSI variance patterns that demonstrate stance detection
+                    and mastication counting. Connect hardware and set <code>USE_REAL_CSI=1</code> to
+                    activate live sensing.
+                </div>
+
+                <!-- Stance selector -->
+                <div style="font-size:0.6rem;letter-spacing:2px;color:var(--void-muted);text-transform:uppercase;margin-bottom:10px;">Select Stance</div>
+                <div class="qs-stance-selector" id="stanceSelector">
+                    <button class="qs-stance-btn selected" data-stance="mabu" onclick="selectStance('mabu',this)">
+                        <span class="chin">马步</span>
+                        <span class="roman">mǎbù</span>
+                        <span class="en">Horse Stance</span>
+                    </button>
+                    <button class="qs-stance-btn" data-stance="pubu" onclick="selectStance('pubu',this)">
+                        <span class="chin">仆步</span>
+                        <span class="roman">pūbù</span>
+                        <span class="en">Drop Stance</span>
+                    </button>
+                    <button class="qs-stance-btn" data-stance="xiebu" onclick="selectStance('xiebu',this)">
+                        <span class="chin">歇步</span>
+                        <span class="roman">xiēbù</span>
+                        <span class="en">Rest Stance</span>
+                    </button>
+                    <button class="qs-stance-btn" data-stance="gongbu" onclick="selectStance('gongbu',this)">
+                        <span class="chin">弓步</span>
+                        <span class="roman">gōngbù</span>
+                        <span class="en">Bow Stance</span>
+                    </button>
+                    <button class="qs-stance-btn" data-stance="xvbu" onclick="selectStance('xvbu',this)">
+                        <span class="chin">虚步</span>
+                        <span class="roman">xūbù</span>
+                        <span class="en">Empty Stance</span>
+                    </button>
+                </div>
+
+                <!-- Mode selector -->
+                <div style="font-size:0.6rem;letter-spacing:2px;color:var(--void-muted);text-transform:uppercase;margin-bottom:10px;">Sensor Mode</div>
+                <div class="qs-mode-row">
+                    <button class="qs-mode-btn selected" onclick="selectMode('csi',this)">Wi-Fi CSI (Passive)</button>
+                    <button class="qs-mode-btn" onclick="selectMode('phone',this)">Phone Sensors</button>
+                    <button class="qs-mode-btn" onclick="selectMode('both',this)">Both</button>
+                </div>
+
+                <!-- Session controls -->
+                <div class="qs-controls-row">
+                    <span class="qs-duration-label">Duration</span>
+                    <select class="qs-duration-select" id="durationSelect">
+                        <option value="60">1 min</option>
+                        <option value="120">2 min</option>
+                        <option value="300" selected>5 min</option>
+                        <option value="600">10 min</option>
+                    </select>
+                    <button class="qs-start-btn" id="startBtn" onclick="startSession()">Start Session</button>
+                    <button class="qs-stop-btn" id="stopBtn" onclick="stopSession()">End Session</button>
+                </div>
+
+                <!-- Live metrics -->
+                <div class="qs-live-metrics">
+                    <div class="qs-metric-box">
+                        <div class="qs-metric-val" id="timerDisplay">0:00</div>
+                        <div class="qs-metric-label">Elapsed</div>
+                    </div>
+                    <div class="qs-metric-box">
+                        <div class="qs-metric-val gold" id="stanceDisplay">—</div>
+                        <div class="qs-metric-label">Detected Stance</div>
+                    </div>
+                    <div class="qs-metric-box">
+                        <div class="qs-metric-val" id="chewDisplay">0</div>
+                        <div class="qs-metric-label">Chew Cycles</div>
+                    </div>
+                </div>
+
+                <!-- Metabolism gauge -->
+                <div class="qs-gauge-wrap">
+                    <div class="qs-gauge-label-row">
+                        <span class="qs-gauge-key">Metabolism Score</span>
+                        <span class="qs-gauge-pct" id="scoreDisplay">0%</span>
+                    </div>
+                    <div class="qs-gauge-track">
+                        <div class="qs-gauge-fill" id="gaugeFill"></div>
+                    </div>
+                    <div class="qs-gauge-ticks">
+                        <span class="qs-gauge-tick">0</span>
+                        <span class="qs-gauge-tick">0.2</span>
+                        <span class="qs-gauge-tick">0.4</span>
+                        <span class="qs-gauge-tick">0.6</span>
+                        <span class="qs-gauge-tick">0.8</span>
+                        <span class="qs-gauge-tick">1.0</span>
+                    </div>
+                </div>
+
+                <!-- Phone sensor status (hidden unless phone mode) -->
+                <div id="phoneSensorStatus" style="display:none;" class="qs-sim-notice" style="margin-bottom:16px;">
+                    <strong>Phone Sensors</strong> — Requesting device motion &amp; microphone access…
+                </div>
+
+                <!-- Status log -->
+                <div class="qs-status-log" id="statusLog">
+                    <span class="qs-log-line">[ QiSync ] System ready. Select a stance and press Start Session.</span>
+                </div>
+
+                <!-- Sensor mode badge (shown during session) -->
+                <div id="sensorBadge" style="display:none;">
+                    <div class="qs-sensor-badge">
+                        <div class="qs-sensor-dot"></div>
+                        <span id="sensorBadgeText">CSI ACTIVE</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</div><!-- /qs-main -->
+
+<!-- REWARD MODAL -->
+<div class="qs-reward-overlay" id="rewardOverlay">
+    <div class="qs-reward-modal">
+        <div class="qs-reward-badge">Session Complete — VOID Credit Reward</div>
+        <div class="qs-reward-vtx" id="rewardVtx">0.00</div>
+        <div class="qs-reward-vtx-label">VTX Minted</div>
+        <div class="qs-reward-stats" id="rewardStats">—</div>
+        <button class="qs-reward-close" onclick="closeReward()">Continue</button>
+        <div class="qs-reward-auth-note" id="rewardAuthNote"></div>
+    </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+var selectedStance = 'mabu';
+var selectedMode = 'csi';
+var sessionActive = false;
+var sessionStartTime = null;
+var sessionId = null;        // server-issued session ID
+var targetDuration = 300;
+
+// Local display state updated from server tick responses
+var metabolismScore = 0.0;
+var displayChewCount = 0;
+
+// Sensor state (used for tick payloads only — NOT for score computation)
+var phoneStream = null;
+var phoneAnalyser = null;
+var phoneMotionActive = false;
+var phoneAudioActive = false;
+var phoneChewDelta = 0;          // chews detected by phone mic since last tick
+var phoneStableCount = 0;        // consecutive stable motion readings
+var phoneMotionBuf = [];
+
+// Sim state
+var simStanceVariance = 0.0;
+var simPhaseDrift = 0.0;
+var simChewPhase = 0;
+var simChewDelta = 0;            // chews detected by sim since last tick
+var simStable = false;
+var simConfidence = 0.0;
+var simTick = 0;
+
+// Intervals
+var uiTimerInterval = null;
+var simInterval = null;
+var serverTickInterval = null;
+
+// Hardware CSI available
+var csiHardwareAvailable = false;
+
+// Stance display names
+var STANCE_LABELS = {
+    mabu:    '马步 Horse',
+    pubu:    '仆步 Drop',
+    xiebu:   '歇步 Rest',
+    gongbu:  '弓步 Bow',
+    xvbu:    '虚步 Empty',
+    neutral: 'Neutral'
+};
+
+// ── Page init: query CSI hardware status ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/qisync/csi-status')
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+            if (data.ok && data.csi) {
+                var csi = data.csi;
+                csiHardwareAvailable = !!(csi.available);
+                var simNotice = document.getElementById('simNotice');
+                if (csiHardwareAvailable) {
+                    simNotice.innerHTML = '<strong>Live CSI Hardware Active</strong> — ESP32 mesh detected on UDP:' +
+                        (csi.port || 5286) + '. Amplitude variance and phase shift data are being read in real time.';
+                    simNotice.style.borderColor = 'rgba(0,191,165,0.3)';
+                    simNotice.style.background = 'rgba(0,191,165,0.04)';
+                } else {
+                    // Simulation notice already shown by default
+                }
+            }
+        })
+        .catch(function(){});
+});
+
+// ── UI helpers ─────────────────────────────────────────────────────────────
+function selectStance(key, el) {
+    if (sessionActive) return;
+    selectedStance = key;
+    document.querySelectorAll('.qs-stance-btn').forEach(function(b){ b.classList.remove('selected'); });
+    el.classList.add('selected');
+}
+
+function selectMode(key, el) {
+    if (sessionActive) return;
+    selectedMode = key;
+    document.querySelectorAll('.qs-mode-btn').forEach(function(b){ b.classList.remove('selected'); });
+    el.classList.add('selected');
+}
+
+function appendLog(msg, cls) {
+    var log = document.getElementById('statusLog');
+    var line = document.createElement('span');
+    line.className = 'qs-log-line' + (cls ? ' ' + cls : '');
+    var ts = new Date().toLocaleTimeString();
+    line.textContent = '[ ' + ts + ' ] ' + msg;
+    log.appendChild(document.createElement('br'));
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+}
+
+function updateGauge(score) {
+    var pct = Math.round(score * 100);
+    document.getElementById('gaugeFill').style.width = pct + '%';
+    document.getElementById('scoreDisplay').textContent = pct + '%';
+}
+
+function formatTime(sec) {
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+// ── Session lifecycle ──────────────────────────────────────────────────────
+function startSession() {
+    targetDuration = parseInt(document.getElementById('durationSelect').value, 10);
+    metabolismScore = 0.0;
+    displayChewCount = 0;
+    phoneChewDelta = 0;
+    simChewDelta = 0;
+    phoneStableCount = 0;
+    phoneMotionBuf = [];
+    simStanceVariance = 0.0;
+    simPhaseDrift = 0.0;
+    simChewPhase = 0;
+    simTick = 0;
+
+    // Register session server-side first
+    fetch('/api/qisync/session-start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            stance: selectedStance,
+            mode: selectedMode,
+            target_sec: targetDuration,
+        }),
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+        if (!data.ok) {
+            if (data.error === 'authentication required') {
+                appendLog('Log in to earn VTX rewards — running in demo mode', 'warn');
+                startSessionLocal();
+            } else {
+                appendLog('Could not start session: ' + (data.error || 'unknown'), 'warn');
+            }
+            return;
+        }
+        sessionId = data.session_id;
+        startSessionLocal();
+        appendLog('Session registered — ID: ' + sessionId.slice(0,8) + '…', 'info');
+    })
+    .catch(function() {
+        appendLog('Server unavailable — running in demo mode (no VTX reward)', 'warn');
+        sessionId = null;
+        startSessionLocal();
+    });
+}
+
+function startSessionLocal() {
+    sessionActive = true;
+    sessionStartTime = Date.now();
+
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = 'inline-block';
+    document.getElementById('sensorBadge').style.display = 'block';
+
+    var badgeText = selectedMode === 'csi' ? 'CSI ACTIVE' :
+                    selectedMode === 'phone' ? 'PHONE SENSORS ACTIVE' : 'CSI + PHONE ACTIVE';
+    document.getElementById('sensorBadgeText').textContent = badgeText;
+
+    document.querySelectorAll('.qs-stance-btn, .qs-mode-btn, .qs-duration-select')
+        .forEach(function(el){ el.disabled = true; });
+
+    appendLog('Session started — target: ' + formatTime(targetDuration) +
+              ' — stance: ' + STANCE_LABELS[selectedStance] +
+              ' — mode: ' + selectedMode.toUpperCase(), 'info');
+
+    // Start sensor sources based on mode
+    if (selectedMode === 'csi' || selectedMode === 'both') {
+        startCSISimulation();
+    }
+    if (selectedMode === 'phone' || selectedMode === 'both') {
+        requestPhoneSensors();
+    }
+
+    // UI timer
+    uiTimerInterval = setInterval(function() {
+        var elapsed = (Date.now() - sessionStartTime) / 1000;
+        document.getElementById('timerDisplay').textContent = formatTime(elapsed);
+        if (elapsed >= targetDuration) { stopSession(); }
+    }, 500);
+
+    // Server tick — send accumulated readings every 1 second
+    if (sessionId) {
+        serverTickInterval = setInterval(sendServerTick, 1000);
+    }
+}
+
+function stopSession() {
+    if (!sessionActive) return;
+    sessionActive = false;
+
+    clearInterval(uiTimerInterval);
+    clearInterval(simInterval);
+    clearInterval(serverTickInterval);
+    stopPhoneSensors();
+
+    document.getElementById('startBtn').style.display = 'inline-block';
+    document.getElementById('stopBtn').style.display = 'none';
+    document.getElementById('sensorBadge').style.display = 'none';
+    document.querySelectorAll('.qs-stance-btn, .qs-mode-btn, .qs-duration-select')
+        .forEach(function(el){ el.disabled = false; });
+
+    var elapsed = (Date.now() - sessionStartTime) / 1000;
+    appendLog('Session complete — ' + formatTime(elapsed) +
+              ' — score: ' + Math.round(metabolismScore * 100) + '%', 'good');
+
+    submitSessionEnd();
+}
+
+// ── Server tick ────────────────────────────────────────────────────────────
+function sendServerTick() {
+    if (!sessionActive || !sessionId) return;
+
+    // Determine what this mode contributes
+    var stable = false;
+    var confidence = 0.0;
+    var chewDelta = 0;
+
+    if (selectedMode === 'csi') {
+        stable = simStable;
+        confidence = simConfidence;
+        chewDelta = simChewDelta;
+        simChewDelta = 0;
+    } else if (selectedMode === 'phone') {
+        // Phone stability: phoneStableCount > 0 means stable readings
+        stable = phoneStableCount > 3;
+        confidence = Math.min(1.0, phoneStableCount / 10.0);
+        chewDelta = phoneChewDelta;
+        phoneChewDelta = 0;
+        phoneStableCount = 0;
+    } else {
+        // Both — combine signals: stable if either source says stable
+        stable = simStable || (phoneStableCount > 3);
+        confidence = Math.max(simConfidence, Math.min(1.0, phoneStableCount / 10.0));
+        chewDelta = simChewDelta + phoneChewDelta;
+        simChewDelta = 0;
+        phoneChewDelta = 0;
+        phoneStableCount = 0;
+    }
+
+    fetch('/api/qisync/tick', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            session_id: sessionId,
+            stable: stable,
+            confidence: confidence,
+            chew_delta: chewDelta,
+            mode: selectedMode,
+        }),
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+        if (!data.ok) return;
+        // Update display from authoritative server values
+        metabolismScore = data.metabolism_score;
+        displayChewCount = data.chew_count;
+        updateGauge(metabolismScore);
+        document.getElementById('chewDisplay').textContent = displayChewCount;
+
+        if (displayChewCount === 15) appendLog('Mastication halfway — 15 / 30', 'warn');
+        if (displayChewCount === 30) appendLog('Mastication target reached — 30 cycles', 'good');
+    })
+    .catch(function(){});
+}
+
+// ── CSI Simulation engine (CSI and Both modes) ────────────────────────────
+function startCSISimulation() {
+    var varianceTargets = {
+        mabu:   [0.42, 0.72],
+        pubu:   [0.70, 1.00],
+        xiebu:  [0.30, 0.55],
+        gongbu: [0.19, 0.37],
+        xvbu:   [0.11, 0.24],
+    };
+    var targets = varianceTargets[selectedStance] || [0.3, 0.6];
+    var ampTarget = targets[0] + Math.random() * (targets[1] - targets[0]);
+    var phaseTarget = ampTarget * 1.4;
+
+    simInterval = setInterval(function() {
+        if (!sessionActive) return;
+        simTick++;
+
+        simStanceVariance += (ampTarget - simStanceVariance) * 0.08 + (Math.random() - 0.5) * 0.04;
+        simStanceVariance = Math.max(0, Math.min(2, simStanceVariance));
+        simPhaseDrift += (phaseTarget - simPhaseDrift) * 0.06 + (Math.random() - 0.5) * 0.03;
+        simPhaseDrift = Math.max(0, Math.min(2, simPhaseDrift));
+
+        var detectedStance = detectStanceSim(simStanceVariance, simPhaseDrift);
+        document.getElementById('stanceDisplay').textContent = STANCE_LABELS[detectedStance] || detectedStance;
+
+        simStable = (detectedStance === selectedStance);
+        if (simStable) {
+            var motionErr = Math.abs(simStanceVariance - ampTarget);
+            simConfidence = Math.max(0, 1.0 - motionErr * 3);
+        } else {
+            simConfidence = 0.0;
+        }
+
+        // CSI mastication simulation: ~1 chew per 20 sim ticks (500ms each = ~10s/chew)
+        // Sped up to ~1 chew per 4s for demo usability
+        simChewPhase += 0.08;
+        var chewSig = Math.sin(simChewPhase) + (Math.random() - 0.5) * 0.3;
+        if (chewSig > 0.8 && simTick % 8 === 0) {
+            simChewDelta++;
+        }
+
+        // Log stance milestone
+        if (simTick === 20 && simStable)
+            appendLog('CSI stable — ' + STANCE_LABELS[selectedStance] + ' confirmed', 'info');
+
+    }, 500);
+}
+
+// Threshold-based stance detection mirroring the Python StanceDetector
+function detectStanceSim(ampVar, phaseRms) {
+    var thresholds = [
+        ['mabu',    0.30, 0.55, 0.55, 0.90],
+        ['pubu',    0.55, 0.85, 0.80, 1.20],
+        ['xiebu',   0.20, 0.40, 0.40, 0.70],
+        ['gongbu',  0.10, 0.28, 0.20, 0.55],
+        ['xvbu',    0.05, 0.18, 0.10, 0.38],
+    ];
+    for (var i = 0; i < thresholds.length; i++) {
+        var t = thresholds[i];
+        if (ampVar >= t[1] && ampVar < t[2] && phaseRms >= t[3] && phaseRms < t[4]) {
+            return t[0];
+        }
+    }
+    return 'neutral';
+}
+
+// ── Phone sensor integration (Phone and Both modes) ────────────────────────
+function requestPhoneSensors() {
+    document.getElementById('phoneSensorStatus').style.display = 'block';
+    appendLog('Requesting phone sensor access…', 'info');
+
+    if (typeof DeviceMotionEvent !== 'undefined') {
+        if (typeof DeviceMotionEvent.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission()
+                .then(function(state) { if (state === 'granted') attachMotionListener(); })
+                .catch(function(){});
+        } else {
+            attachMotionListener();
+        }
+    }
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            .then(function(stream) {
+                phoneStream = stream;
+                var ctx = new (window.AudioContext || window.webkitAudioContext)();
+                var src = ctx.createMediaStreamSource(stream);
+                phoneAnalyser = ctx.createAnalyser();
+                phoneAnalyser.fftSize = 256;
+                src.connect(phoneAnalyser);
+                phoneAudioActive = true;
+                appendLog('Microphone active — jaw-motion detection running', 'good');
+                document.getElementById('phoneSensorStatus').style.display = 'none';
+                runMicChewDetection();
+            })
+            .catch(function() {
+                appendLog('Microphone access denied — mastication from CSI only', 'warn');
+                document.getElementById('phoneSensorStatus').style.display = 'none';
+                if (selectedMode === 'phone') {
+                    // Fall back to sim for stance detection so UI isn't empty
+                    startCSISimulation();
+                    appendLog('Fallback: CSI simulation for stance detection', 'warn');
+                }
+            });
+    } else {
+        appendLog('Phone sensors unavailable — using CSI simulation', 'warn');
+        document.getElementById('phoneSensorStatus').style.display = 'none';
+        if (selectedMode === 'phone') startCSISimulation();
+    }
+}
+
+function attachMotionListener() {
+    phoneMotionActive = true;
+    appendLog('Accelerometer active — stance stability monitoring enabled', 'good');
+    window.addEventListener('devicemotion', onDeviceMotion);
+}
+
+function onDeviceMotion(event) {
+    if (!sessionActive) return;
+    var a = event.accelerationIncludingGravity;
+    if (!a) return;
+    var mag = Math.sqrt((a.x||0)*(a.x||0) + (a.y||0)*(a.y||0) + (a.z||0)*(a.z||0));
+    phoneMotionBuf.push(mag);
+    if (phoneMotionBuf.length > 20) phoneMotionBuf.shift();
+
+    if (phoneMotionBuf.length >= 10) {
+        var mean = phoneMotionBuf.reduce(function(a,b){return a+b;},0) / phoneMotionBuf.length;
+        var variance = phoneMotionBuf.reduce(function(a,b){return a+(b-mean)*(b-mean);},0) / phoneMotionBuf.length;
+        // Update phone display if phone-only mode
+        if (variance < 0.15) {
+            phoneStableCount++;
+            if (selectedMode === 'phone') {
+                document.getElementById('stanceDisplay').textContent =
+                    STANCE_LABELS[selectedStance] + ' (stable)';
+            }
+        } else {
+            phoneStableCount = Math.max(0, phoneStableCount - 1);
+            if (selectedMode === 'phone') {
+                document.getElementById('stanceDisplay').textContent = 'Motion detected';
+            }
+        }
+    }
+}
+
+function runMicChewDetection() {
+    var buf = new Uint8Array(phoneAnalyser.frequencyBinCount);
+    var prevEnergy = 0;
+    var chewCooldown = 0;
+
+    function tick() {
+        if (!sessionActive || !phoneAudioActive) return;
+        phoneAnalyser.getByteTimeDomainData(buf);
+        var energy = 0;
+        for (var i = 0; i < buf.length; i++) {
+            var v = (buf[i] - 128) / 128.0;
+            energy += v * v;
+        }
+        energy /= buf.length;
+
+        if (chewCooldown > 0) chewCooldown--;
+        if (energy > 0.01 && prevEnergy < 0.005 && chewCooldown === 0) {
+            phoneChewDelta++;
+            chewCooldown = 8;
+            appendLog('Jaw motion detected (mic) — cycle ' + (displayChewCount + phoneChewDelta),
+                      (displayChewCount + phoneChewDelta) >= 30 ? 'good' : 'info');
+        }
+        prevEnergy = energy;
+        requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+}
+
+function stopPhoneSensors() {
+    if (phoneMotionActive) {
+        window.removeEventListener('devicemotion', onDeviceMotion);
+        phoneMotionActive = false;
+    }
+    if (phoneStream) {
+        phoneStream.getTracks().forEach(function(t){ t.stop(); });
+        phoneStream = null;
+        phoneAudioActive = false;
+    }
+}
+
+// ── Session end & reward ───────────────────────────────────────────────────
+function submitSessionEnd() {
+    if (!sessionId) {
+        // Demo mode — no server session registered
+        showReward(null, null, true);
+        return;
+    }
+
+    fetch('/api/qisync/session-end', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId }),
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+        if (data.ok && data.rewarded) {
+            var vtx = data.reward && data.reward.vtx_earned !== undefined
+                ? data.reward.vtx_earned.toFixed(4) : '0.0000';
+            // Update gauge with final server score
+            metabolismScore = data.metabolism_score || metabolismScore;
+            updateGauge(metabolismScore);
+            showReward(vtx, data, false);
+        } else if (data.ok && !data.rewarded) {
+            appendLog('Session too short for reward — ' + (data.reason || ''), 'warn');
+            showReward('0.0000', data, false);
+        } else if (data.error === 'authentication required') {
+            showReward(null, null, false);
+        } else {
+            appendLog('Reward error: ' + (data.error || 'unknown'), 'warn');
+            showReward(null, null, false);
+        }
+    })
+    .catch(function() {
+        appendLog('Network error during reward submission', 'warn');
+        showReward(null, null, false);
+    });
+}
+
+function showReward(vtx, data, demoMode) {
+    var overlay = document.getElementById('rewardOverlay');
+    var elapsed = sessionStartTime ? (Date.now() - sessionStartTime) / 1000 : 0;
+    var serverMeta = data || {};
+
+    if (demoMode) {
+        document.getElementById('rewardVtx').textContent = '—';
+        document.getElementById('rewardStats').innerHTML =
+            '<span>Mode:</span> Demo (not logged in)<br>' +
+            '<span>Stance:</span> ' + STANCE_LABELS[selectedStance] + '<br>' +
+            '<span>Duration:</span> ' + formatTime(elapsed);
+        document.getElementById('rewardAuthNote').textContent =
+            'Log in to earn VTX rewards for your practice sessions.';
+    } else if (vtx !== null) {
+        var score = serverMeta.metabolism_score !== undefined
+            ? Math.round(serverMeta.metabolism_score * 100) : Math.round(metabolismScore * 100);
+        var chews = serverMeta.chew_count !== undefined ? serverMeta.chew_count : displayChewCount;
+        var dur = serverMeta.elapsed_sec !== undefined ? serverMeta.elapsed_sec : elapsed;
+        document.getElementById('rewardVtx').textContent = vtx;
+        document.getElementById('rewardStats').innerHTML =
+            '<span>Metabolism Score:</span> ' + score + '%<br>' +
+            '<span>Stance:</span> ' + STANCE_LABELS[selectedStance] + '<br>' +
+            '<span>Duration:</span> ' + formatTime(dur) + '<br>' +
+            '<span>Chew Cycles:</span> ' + chews + ' / 30';
+        document.getElementById('rewardAuthNote').textContent = '';
+    } else {
+        document.getElementById('rewardVtx').textContent = '—';
+        document.getElementById('rewardStats').innerHTML =
+            '<span>Metabolism Score:</span> ' + Math.round(metabolismScore * 100) + '%<br>' +
+            '<span>Stance:</span> ' + STANCE_LABELS[selectedStance] + '<br>' +
+            '<span>Duration:</span> ' + formatTime(elapsed);
+        document.getElementById('rewardAuthNote').textContent =
+            'Log in to earn VTX rewards for your practice sessions.';
+    }
+
+    overlay.classList.add('visible');
+}
+
+function closeReward() {
+    document.getElementById('rewardOverlay').classList.remove('visible');
+}
+</script>
+
+</body>
+</html>

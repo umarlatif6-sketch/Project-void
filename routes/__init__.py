@@ -17,6 +17,7 @@ from routes.sovereign_node import sovereign_node_bp
 from routes.beehive_demo import beehive_demo_bp
 from routes.apply_interussia import apply_interussia_bp
 from routes.mycovoid import mycovoid_bp
+from routes.qisync import qisync_bp
 
 
 def register_blueprints(app):
@@ -39,3 +40,4 @@ def register_blueprints(app):
     app.register_blueprint(beehive_demo_bp)
     app.register_blueprint(apply_interussia_bp)
     app.register_blueprint(mycovoid_bp)
+    app.register_blueprint(qisync_bp)
