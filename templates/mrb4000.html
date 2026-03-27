@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRB-4000 Blueprint Archive — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-red: #ff5252;
+            --void-green: #4caf50;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+            --myco-spore: #7aff7a;
+            --myco-pulse: #00e5cc;
+            --myco-warn: #ffb347;
+            --myco-idle: #3a3a3a;
+            --mrb-amber: #e8a020;
+            --mrb-dim: #b8862a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        .mv-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .mv-nav-brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .mv-nav-links { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+        .mv-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .mv-nav-link:hover { color: var(--void-gold); }
+        .mv-nav-link.active { color: var(--mrb-amber); }
+
+        /* ── HERO ── */
+        .mrb-hero {
+            text-align: center;
+            padding: 52px 32px 36px;
+            background: radial-gradient(ellipse at 50% 0%, #100900 0%, var(--void-bg) 72%);
+            border-bottom: 1px solid var(--void-border);
+            position: relative;
+        }
+        .mrb-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--mrb-amber), transparent);
+        }
+        .mrb-hero-badge {
+            display: inline-block;
+            background: var(--mrb-amber);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 18px;
+        }
+        .mrb-hero-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #fff;
+            margin: 0 0 10px;
+        }
+        .mrb-hero-title span { color: var(--mrb-amber); }
+        .mrb-hero-sub {
+            color: #666;
+            font-size: 0.78rem;
+            max-width: 640px;
+            margin: 0 auto;
+            line-height: 1.7;
+            letter-spacing: 0.5px;
+        }
+        .mrb-hero-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .mrb-meta-item {
+            font-size: 0.62rem;
+            color: #555;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .mrb-meta-item span { color: #888; }
+
+        /* ── MAIN LAYOUT ── */
+        .mrb-main {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 36px 24px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ── CARDS ── */
+        .mrb-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 24px 28px;
+            position: relative;
+        }
+        .mrb-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(232,160,32,0.3), transparent);
+        }
+        .mrb-card-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--mrb-amber);
+            text-transform: uppercase;
+            margin: 0 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .mrb-card-title .mrb-num {
+            color: #444;
+            font-weight: 400;
+        }
+        .mrb-section-body {
+            font-size: 0.82rem;
+            line-height: 1.85;
+            color: #b0b0b0;
+        }
+        .mrb-section-body p { margin: 0 0 14px; }
+        .mrb-section-body p:last-child { margin-bottom: 0; }
+        .mrb-section-body strong { color: #d0d0d0; font-weight: 600; }
+        .mrb-section-body em { color: #999; font-style: italic; }
+
+        /* ── QUOTE BLOCK ── */
+        .mrb-quote {
+            border-left: 3px solid var(--mrb-amber);
+            padding: 16px 22px;
+            margin: 20px 0;
+            background: rgba(232,160,32,0.04);
+            border-radius: 0 4px 4px 0;
+        }
+        .mrb-quote p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #c0a060;
+            font-style: italic;
+            line-height: 1.8;
+        }
+        .mrb-quote .mrb-quote-label {
+            display: block;
+            font-size: 0.58rem;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-style: normal;
+        }
+
+        /* ── DATA TABLES ── */
+        .mrb-table-wrap {
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+        .mrb-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        .mrb-table th {
+            background: #0d0d0d;
+            color: var(--mrb-amber);
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            padding: 10px 16px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a2a;
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.15s;
+        }
+        .mrb-table th:hover { color: #fff; }
+        .mrb-table th .sort-icon {
+            display: inline-block;
+            margin-left: 5px;
+            opacity: 0.4;
+            font-size: 0.55rem;
+        }
+        .mrb-table th.sort-asc .sort-icon,
+        .mrb-table th.sort-desc .sort-icon { opacity: 1; color: var(--myco-pulse); }
+        .mrb-table td {
+            padding: 9px 16px;
+            color: #a0a0a0;
+            border-bottom: 1px solid #191919;
+            vertical-align: top;
+        }
+        .mrb-table tr:last-child td { border-bottom: none; }
+        .mrb-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .mrb-table td.td-key { color: var(--mrb-dim); font-weight: 600; white-space: nowrap; }
+        .mrb-table td.td-val { color: var(--myco-pulse); font-weight: 700; }
+        .mrb-table td.td-phase { color: var(--myco-spore); font-weight: 600; }
+
+        /* ── PHASE STEPS ── */
+        .mrb-phase-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin: 16px 0;
+        }
+        @media (max-width: 700px) {
+            .mrb-phase-grid { grid-template-columns: 1fr; }
+        }
+        .mrb-phase-card {
+            border: 1px solid #1e1e1e;
+            border-radius: 4px;
+            padding: 16px 18px;
+            background: var(--void-surface2);
+        }
+        .mrb-phase-label {
+            font-size: 0.58rem;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .mrb-phase-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--myco-spore);
+            margin-bottom: 8px;
+        }
+        .mrb-phase-card p {
+            font-size: 0.72rem;
+            color: #888;
+            line-height: 1.7;
+            margin: 0;
+        }
+        .mrb-phase-detail {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #1a1a1a;
+            font-size: 0.68rem;
+            color: var(--myco-pulse);
+        }
+
+        /* ── RESEARCH PILLARS TABS ── */
+        .mrb-tab-bar {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--void-border);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .mrb-tab-btn {
+            background: none;
+            border: none;
+            color: #555;
+            font-family: inherit;
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 10px 18px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+            margin-bottom: -1px;
+        }
+        .mrb-tab-btn:hover { color: #aaa; }
+        .mrb-tab-btn.active {
+            color: var(--mrb-amber);
+            border-bottom-color: var(--mrb-amber);
+        }
+        .mrb-tab-panel { display: none; }
+        .mrb-tab-panel.active { display: block; }
+        .mrb-tab-panel .mrb-pillar-head {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--myco-spore);
+            margin-bottom: 12px;
+        }
+        .mrb-tab-panel p {
+            font-size: 0.8rem;
+            line-height: 1.85;
+            color: #a8a8a8;
+            margin: 0 0 12px;
+        }
+        .mrb-tab-panel ul {
+            padding-left: 18px;
+            margin: 0 0 12px;
+        }
+        .mrb-tab-panel li {
+            font-size: 0.78rem;
+            line-height: 1.8;
+            color: #909090;
+            margin-bottom: 4px;
+        }
+        .mrb-tab-panel .mrb-pillar-tag {
+            display: inline-block;
+            font-size: 0.58rem;
+            color: var(--mrb-dim);
+            background: rgba(232,160,32,0.06);
+            border: 1px solid rgba(232,160,32,0.15);
+            padding: 3px 10px;
+            border-radius: 2px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 2px 3px 2px 0;
+        }
+
+        /* ── SPEC GRID ── */
+        .mrb-spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .mrb-spec-cell {
+            border: 1px solid #1e1e1e;
+            border-radius: 3px;
+            padding: 14px 16px;
+            background: var(--void-surface2);
+        }
+        .mrb-spec-label {
+            font-size: 0.58rem;
+            color: #555;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .mrb-spec-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--mrb-amber);
+            letter-spacing: 1px;
+        }
+        .mrb-spec-unit {
+            font-size: 0.62rem;
+            color: #555;
+            margin-top: 3px;
+        }
+
+        /* ── ALIGNMENT ITEMS ── */
+        .mrb-align-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .mrb-align-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: 12px 14px;
+            border-radius: 3px;
+            border: 1px solid #1a1a1a;
+            background: var(--void-surface2);
+        }
+        .mrb-align-icon {
+            font-size: 1rem;
+            color: var(--mrb-amber);
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+        .mrb-align-name {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #d0d0d0;
+            margin-bottom: 4px;
+        }
+        .mrb-align-desc {
+            font-size: 0.7rem;
+            color: #777;
+            line-height: 1.6;
+        }
+
+        /* ── OBSIDIAN LIST ── */
+        .mrb-obsidian-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 14px 0;
+        }
+        @media (max-width: 600px) {
+            .mrb-obsidian-list { grid-template-columns: 1fr; }
+        }
+        .mrb-obsidian-item {
+            border: 1px solid #1a1a1a;
+            border-radius: 3px;
+            padding: 10px 14px;
+            background: var(--void-surface2);
+            font-size: 0.72rem;
+            color: #888;
+            line-height: 1.6;
+        }
+        .mrb-obsidian-item .obs-label {
+            color: var(--mrb-dim);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+
+        /* ── BREADCRUMB ── */
+        .mrb-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0 0;
+            font-size: 0.62rem;
+            color: #444;
+            letter-spacing: 1px;
+        }
+        .mrb-breadcrumb a { color: #555; text-decoration: none; }
+        .mrb-breadcrumb a:hover { color: var(--mrb-amber); }
+        .mrb-breadcrumb .sep { color: #333; }
+        .mrb-breadcrumb .current { color: var(--mrb-amber); }
+    </style>
+</head>
+<body>
+
+<nav class="mv-nav">
+    <a href="/" class="mv-nav-brand">&#9670; PROJECT VOID</a>
+    <div class="mv-nav-links">
+        <a href="/" class="mv-nav-link">Engine</a>
+        <a href="/sovereign-node" class="mv-nav-link">Sovereign Node</a>
+        <a href="/beehive/demo" class="mv-nav-link">Beehive</a>
+        <a href="/mycovoid" class="mv-nav-link">MycoVOID</a>
+        <a href="/mrb4000" class="mv-nav-link active">MRB-4000</a>
+        <a href="/guide" class="mv-nav-link">Guide</a>
+        {% if username %}
+        <span class="mv-nav-link" style="color:#555">&#9670; {{ username }}</span>
+        <a href="/api/auth/logout" class="mv-nav-link">Logout</a>
+        {% else %}
+        <a href="/login" class="mv-nav-link">Login</a>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="mrb-hero">
+    <div class="mrb-hero-badge">BLUEPRINT ARCHIVE — CLASSIFIED R&amp;D</div>
+    <h1 class="mrb-hero-title">MRB-<span>4000</span></h1>
+    <p class="mrb-hero-sub">
+        Mycelium-Resonance Battery — Technical Specification Archive<br>
+        Eggshell Soft-Phase Fabrication · Adriana Code Firmware · Vibe-Triggered Biomineralization
+    </p>
+    <div class="mrb-hero-meta">
+        <div class="mrb-meta-item"><span>Classification:</span> Internal R&amp;D Blueprint</div>
+        <div class="mrb-meta-item"><span>Version:</span> 4.0-ARCHIVE</div>
+        <div class="mrb-meta-item"><span>Origin:</span> PROJECT VOID Research Division</div>
+        <div class="mrb-meta-item"><span>Date:</span> March 2026</div>
+    </div>
+</div>
+
+<div class="mrb-main">
+
+    <div class="mrb-breadcrumb">
+        <a href="/mycovoid">MycoVOID</a>
+        <span class="sep">›</span>
+        <span class="current">MRB-4000 Blueprint Archive</span>
+    </div>
+
+    <!-- §00 OVERVIEW -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§00</span> MRB-4000 Overview
+        </div>
+        <div class="mrb-section-body">
+            <p>
+                The <strong>MRB-4000 (Mycelium-Resonance Battery)</strong> is a fourth-generation bioelectrochemical energy storage architecture developed within the PROJECT VOID Research Division. It represents the convergence of fungal bioelectricity, resonance-aligned crystalline scaffolding, and precision isotopic materials science into a single fabrication system.
+            </p>
+            <p>
+                Unlike conventional battery chemistry — which relies on static electrode-electrolyte interfaces — the MRB-4000 uses a living mycelial matrix as its primary charge-transfer medium, stabilised through a Soft-Phase vitrification process and tuned to resonant frequency harmonics for optimal ionic throughput. The result is a cell architecture that regenerates its active material, adapts to load conditions, and achieves energy density profiles inaccessible to non-biological systems.
+            </p>
+            <p>
+                Four research pillars underpin the technology: <strong>Neuromorphic Mycelium</strong>, <strong>Radiotrophic Sequestration</strong>, <strong>Isotopic Upcycling</strong>, and <strong>Structural Pyrolysis</strong>. All four converge at the fabrication stage, where the Adriana Code Hexagonal Firmware governs lattice formation and frequency-lock protocols.
+            </p>
+        </div>
+
+        <div class="mrb-quote">
+            <span class="mrb-quote-label">MRB-4000 — Visualization Reference</span>
+            <p>
+                "A cross-section of the MRB-4000 cell: a hexagonal tungsten-mycelium composite matrix viewed under polarised light. The lattice reveals alternating obsidian-black tungsten carbide microstruts and luminescent mycelial conduction channels — pale green to amber — threading between them in fractal dendritic patterns. Resonance activation causes the channels to pulse in synchronised bioluminescent waves. The outer Eggshell casing: semi-translucent calcium carbonate vitrified to optical clarity, faintly iridescent. Scale indicator: 1.5 micron grid. Background: deep void black."
+            </p>
+        </div>
+    </div>
+
+    <!-- §01 EGGSHELL PRINCIPLE -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§01</span> The Eggshell Soft-Phase Principle
+        </div>
+        <div class="mrb-section-body">
+            <p>
+                The <strong>Eggshell Principle</strong> is the structural foundation of MRB-4000 fabrication. It describes the controlled vitrification of the outer cell casing — a calcium carbonate matrix — from a porous, biomineralized "soft phase" into a semi-translucent, mechanically robust enclosure without conventional sintering temperatures.
+            </p>
+            <p>
+                Conventional ceramic enclosures require kiln temperatures of 1,200–1,600°C, which destroys the living mycelial matrix inside. The Eggshell protocol achieves structural consolidation at near-ambient conditions (38–62°C) by exploiting the Vibe-Triggered Biomineralization (VTB) cascade: acoustic resonance fields at 5.85 kHz induce ordered calcium carbonate deposition at the cellular wall interface, mimicking the molecular organisation found in mollusk shell nacre.
+            </p>
+            <p>
+                The resulting Eggshell casing is <strong>semi-translucent</strong>, iridescent under polarised light, and capable of sustaining internal pressures up to 4.2 MPa without delamination. It is permeable to specific ionic species required for mycelial metabolism while remaining impermeable to atmospheric oxygen — a property critical for maintaining the anaerobic internal environment required for optimal charge-transfer performance.
+            </p>
+        </div>
+        <div class="mrb-spec-grid">
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Consolidation Temperature</div>
+                <div class="mrb-spec-value">38–62°C</div>
+                <div class="mrb-spec-unit">Near-ambient range</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Resonance Trigger</div>
+                <div class="mrb-spec-value">5.85 kHz</div>
+                <div class="mrb-spec-unit">VTB induction frequency</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Max Internal Pressure</div>
+                <div class="mrb-spec-value">4.2 MPa</div>
+                <div class="mrb-spec-unit">Without delamination</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Casing Material</div>
+                <div class="mrb-spec-value">CaCO₃</div>
+                <div class="mrb-spec-unit">Biomineralized calcium carbonate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- §02 ADRIANA CODE -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§02</span> Adriana Code — Hexagonal Firmware &amp; Triple-Tongue Frequency Table
+        </div>
+        <div class="mrb-section-body">
+            <p>
+                The <strong>Adriana Code</strong> is the lattice-formation firmware embedded in the MRB-4000 fabrication protocol. It governs the hexagonal crystalline organisation of the tungsten-mycelium composite matrix, synchronising three concurrent frequency domains — the "Triple-Tongue" — to maintain phase coherence between the structural scaffold, the ionic conduction channels, and the external resonance field.
+            </p>
+            <p>
+                The Triple-Tongue designation refers to the three simultaneous frequency registers that must remain in harmonic lock during active cell operation. Deviation beyond ±0.03 Hz in any register triggers a cascade desynchronisation that disrupts lattice coherence and reduces energy retention below the 90% threshold.
+            </p>
+        </div>
+
+        <div class="mrb-table-wrap">
+            <table class="mrb-table" id="adriana-table">
+                <thead>
+                    <tr>
+                        <th data-col="0">Tongue <span class="sort-icon">&#9650;</span></th>
+                        <th data-col="1">Register <span class="sort-icon">&#9650;</span></th>
+                        <th data-col="2">Frequency <span class="sort-icon">&#9650;</span></th>
+                        <th data-col="3">Function <span class="sort-icon">&#9650;</span></th>
+                        <th data-col="4">Tolerance <span class="sort-icon">&#9650;</span></th>
+                        <th data-col="5">Notes <span class="sort-icon">&#9650;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="td-phase">I — Structural</td>
+                        <td class="td-key">Alpha</td>
+                        <td class="td-val">432.00 Hz</td>
+                        <td>Hexagonal lattice alignment / scaffold lock</td>
+                        <td>±0.03 Hz</td>
+                        <td>Village Standard carrier</td>
+                    </tr>
+                    <tr>
+                        <td class="td-phase">I — Structural</td>
+                        <td class="td-key">Alpha-H1</td>
+                        <td class="td-val">864.00 Hz</td>
+                        <td>Secondary strut reinforcement harmonic</td>
+                        <td>±0.06 Hz</td>
+                        <td>First octave overlay</td>
+                    </tr>
+                    <tr>
+                        <td class="td-phase">II — Ionic</td>
+                        <td class="td-key">Beta</td>
+                        <td class="td-val">5,850.00 Hz</td>
+                        <td>Memristor gate threshold / VTB trigger</td>
+                        <td>±1.2 Hz</td>
+                        <td>Critical: defines memristor ceiling</td>
+                    </tr>
+                    <tr>
+                        <td class="td-phase">II — Ionic</td>
+                        <td class="td-key">Beta-Sub</td>
+                        <td class="td-val">2,925.00 Hz</td>
+                        <td>Ionic channel coherence sub-harmonic</td>
+                        <td>±0.6 Hz</td>
+                        <td>Half-Beta lock</td>
+                    </tr>
+                    <tr>
+                        <td class="td-phase">III — External</td>
+                        <td class="td-key">Gamma</td>
+                        <td class="td-val">963.00 Hz</td>
+                        <td>External resonance coupling / mesh sync</td>
+                        <td>±0.15 Hz</td>
+                        <td>Node network handshake frequency</td>
+                    </tr>
+                    <tr>
+                        <td class="td-phase">III — External</td>
+                        <td class="td-key">Gamma-Mod</td>
+                        <td class="td-val">174.00 Hz</td>
+                        <td>Ground coupling / substrate penetration</td>
+                        <td>±0.05 Hz</td>
+                        <td>Low-frequency anchor</td>
+                    </tr>
+                    <tr>
+                        <td class="td-phase">Lock</td>
+                        <td class="td-key">Master LFO</td>
+                        <td class="td-val">0.25–4.00 Hz</td>
+                        <td>Biological entrainment / metabolic sync</td>
+                        <td>±0.01 Hz</td>
+                        <td>Modulation envelope — all tongues</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- §03 VTB PROTOCOL -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§03</span> Vibe-Triggered Biomineralization (VTB) Protocol
+        </div>
+        <div class="mrb-section-body">
+            <p>
+                <strong>Vibe-Triggered Biomineralization (VTB)</strong> is the process by which acoustic resonance fields induce ordered mineral deposition within the MRB-4000 cell matrix. It replaces conventional electrochemical deposition methods, which introduce contaminants incompatible with the living mycelial substrate.
+            </p>
+            <p>
+                VTB proceeds through three sequential phases — <em>Poration</em>, <em>Nucleation</em>, and <em>Vitrification</em> — each governed by distinct frequency parameters and requiring successful completion before the next phase initiates. Phase failure at any stage halts fabrication and requires full matrix reset.
+            </p>
+        </div>
+        <div class="mrb-phase-grid">
+            <div class="mrb-phase-card">
+                <div class="mrb-phase-label">Phase 01</div>
+                <div class="mrb-phase-name">Poration</div>
+                <p>Controlled acoustic cavitation opens transient pores in the mycelial cell wall membrane, creating templated sites for mineral ion uptake. The poration field must be precisely calibrated to avoid permanent membrane rupture.</p>
+                <div class="mrb-phase-detail">
+                    Trigger: 5.85 kHz pulse burst · Duration: 4–8 min · Ion flux: Ca²⁺ / HCO₃⁻
+                </div>
+            </div>
+            <div class="mrb-phase-card">
+                <div class="mrb-phase-label">Phase 02</div>
+                <div class="mrb-phase-name">Nucleation</div>
+                <p>Calcium carbonate crystal seeds form at poration sites, guided by the hexagonal lattice geometry of the Adriana Code Alpha register. Nucleation density determines final casing porosity and optical clarity.</p>
+                <div class="mrb-phase-detail">
+                    Lock: 432 Hz Alpha · Temp: 42°C · Nucleation time: 12–18 min
+                </div>
+            </div>
+            <div class="mrb-phase-card">
+                <div class="mrb-phase-label">Phase 03</div>
+                <div class="mrb-phase-name">Vitrification</div>
+                <p>Crystal growth continues under continuous 5.85 kHz excitation until the casing reaches full consolidation. The transition from soft-phase to vitrified Eggshell is confirmed by a measurable shift in the matrix's acoustic impedance signature.</p>
+                <div class="mrb-phase-detail">
+                    Confirm: impedance shift ≥14% · Final temp: 58–62°C · Duration: 30–45 min
+                </div>
+            </div>
+        </div>
+
+        <div class="mrb-table-wrap">
+            <table class="mrb-table">
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>Frequency</th>
+                        <th>Temperature</th>
+                        <th>Duration</th>
+                        <th>Pass Criterion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="td-phase">Poration</td>
+                        <td class="td-val">5,850 Hz</td>
+                        <td>38–42°C</td>
+                        <td>4–8 min</td>
+                        <td>Ion uptake ≥ threshold — membrane integrity confirmed</td>
+                    </tr>
+                    <tr>
+                        <td class="td-phase">Nucleation</td>
+                        <td class="td-val">432 Hz (Alpha lock)</td>
+                        <td>42°C</td>
+                        <td>12–18 min</td>
+                        <td>Crystal seed density &gt; 2.4 × 10⁸ sites/cm²</td>
+                    </tr>
+                    <tr>
+                        <td class="td-phase">Vitrification</td>
+                        <td class="td-val">5,850 Hz (continuous)</td>
+                        <td>58–62°C</td>
+                        <td>30–45 min</td>
+                        <td>Acoustic impedance shift ≥ 14% — Eggshell confirmed</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- §04 OBSIDIAN SOURCING -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§04</span> Obsidian Sourcing Protocol
+        </div>
+        <div class="mrb-section-body">
+            <p>
+                <strong>Obsidian</strong> — volcanic silicate glass — functions as the inert structural filler phase within the MRB-4000 tungsten-mycelium composite. Its role is to provide thermal buffering, electromagnetic shielding, and mechanical rigidity without interfering with the mycelial conduction channels or the VTB process.
+            </p>
+            <p>
+                Not all obsidian sources are suitable. The Obsidian Sourcing Protocol specifies mineralogical and isotopic requirements that must be met before material is approved for MRB-4000 fabrication. Off-spec material introduces frequency-scattering defects that degrade Adriana Code lock fidelity.
+            </p>
+        </div>
+        <div class="mrb-obsidian-list">
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">SiO₂ Content</span>
+                ≥ 70% by mass — high-silica volcanic glass only. Lower silica introduces crystallite inclusions that scatter the Beta frequency register.
+            </div>
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Fe₂O₃ Limit</span>
+                ≤ 1.8% — excess iron content degrades electromagnetic transparency and introduces parasitic eddy-current losses.
+            </div>
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Isotopic Purity</span>
+                Natural ²⁸Si / ²⁹Si / ³⁰Si ratio required. Isotopically enriched or depleted sources rejected — affects phonon propagation characteristics.
+            </div>
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Approved Source Regions</span>
+                Obsidian Cliff (Yellowstone), Lipari Island (Italy), Obsidian Butte (California), Erevan Basin (Armenia). All subject to lot-level isotopic certificate.
+            </div>
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Particle Size</span>
+                Milled to 0.8–2.2 micron median diameter. Oversized particles create stress concentrations at the tungsten interface; undersized particles suppress acoustic wave propagation within the matrix.
+            </div>
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Moisture Content</span>
+                ≤ 0.05% by mass before incorporation. Residual water disrupts the VTB Poration phase by competing with Ca²⁺ at membrane uptake sites.
+            </div>
+        </div>
+    </div>
+
+    <!-- §05 MATERIAL RATIOS -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§05</span> Material Ratios &amp; Fabrication Parameters
+        </div>
+        <div class="mrb-section-body">
+            <p>
+                The MRB-4000 composite matrix is a precisely defined mixture of tungsten carbide microstruts, living mycelial substrate, obsidian filler, and calcium carbonate precursor. Deviation from the specified ratios by more than ±0.5% in any component degrades either mechanical performance, ionic conductivity, or resonance lock fidelity.
+            </p>
+        </div>
+
+        <div class="mrb-table-wrap">
+            <table class="mrb-table" id="ratios-table">
+                <thead>
+                    <tr>
+                        <th data-col="0">Component <span class="sort-icon">&#9650;</span></th>
+                        <th data-col="1">Ratio <span class="sort-icon">&#9650;</span></th>
+                        <th data-col="2">Spec / Constraint <span class="sort-icon">&#9650;</span></th>
+                        <th data-col="3">Critical Parameter <span class="sort-icon">&#9650;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="td-key">Tungsten Carbide (WC)</td>
+                        <td class="td-val">83%</td>
+                        <td>1.5 micron grain precision — ±0.1 μm tolerance</td>
+                        <td>Structural scaffold integrity</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Mycelial Substrate</td>
+                        <td class="td-val">17%</td>
+                        <td>Living culture — viability ≥ 94% at incorporation</td>
+                        <td>Charge-transfer medium / bioelectricity</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Obsidian Filler</td>
+                        <td>Additive</td>
+                        <td>0.8–2.2 μm particle diameter — see §04</td>
+                        <td>Thermal buffering / EM shielding</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">CaCO₃ Precursor</td>
+                        <td>Additive</td>
+                        <td>Saturated solution — ionic concentration per VTB phase</td>
+                        <td>Eggshell casing formation</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Grain Precision</td>
+                        <td class="td-val">1.5 μm</td>
+                        <td>WC grain diameter — critical for lattice spacing</td>
+                        <td>Adriana Code hexagonal fit</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Memristor Frequency Ceiling</td>
+                        <td class="td-val">5.85 kHz</td>
+                        <td>Maximum operational frequency before ionic gate saturation</td>
+                        <td>VTB Beta register limit</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Energy Retention</td>
+                        <td class="td-val">90%</td>
+                        <td>Minimum retained after 500 charge-discharge cycles</td>
+                        <td>Commercial viability threshold</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mrb-spec-grid" style="margin-top: 18px;">
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">W:Mycelium Ratio</div>
+                <div class="mrb-spec-value">83:17</div>
+                <div class="mrb-spec-unit">% by dry mass</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">WC Grain Size</div>
+                <div class="mrb-spec-value">1.5 μm</div>
+                <div class="mrb-spec-unit">±0.1 μm tolerance</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Memristor Ceiling</div>
+                <div class="mrb-spec-value">5.85 kHz</div>
+                <div class="mrb-spec-unit">Ionic gate max frequency</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Energy Retention</div>
+                <div class="mrb-spec-value">≥ 90%</div>
+                <div class="mrb-spec-unit">Post-500-cycle target</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- §06 RESEARCH PILLARS -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§06</span> Research Pillars
+        </div>
+        <div class="mrb-tab-bar" id="pillars-tabs">
+            <button class="mrb-tab-btn active" data-tab="neuromorphic">Neuromorphic Mycelium</button>
+            <button class="mrb-tab-btn" data-tab="sequestration">Radiotrophic Sequestration</button>
+            <button class="mrb-tab-btn" data-tab="upcycling">Isotopic Upcycling</button>
+            <button class="mrb-tab-btn" data-tab="pyrolysis">Structural Pyrolysis</button>
+        </div>
+
+        <div class="mrb-tab-panel active" id="tab-neuromorphic">
+            <div class="mrb-pillar-head">&#9670; Pillar I — Neuromorphic Mycelium</div>
+            <p>
+                Fungal mycelium exhibits <strong>neuromorphic electrical behaviour</strong> — the capacity to form adaptive, experience-dependent conduction pathways analogous to synaptic plasticity in neural tissue. The MRB-4000 exploits this property to create a battery whose internal resistance topology self-optimises under repeated charge cycles, rather than degrading.
+            </p>
+            <p>
+                Research in this pillar is primarily aligned with the work of <strong>Professor Andrew Adamatzky</strong> (University of the West of England — Unconventional Computing Laboratory), whose published work on fungal electrical signalling and mycelial computational networks provides the empirical foundation for the MRB-4000's adaptive impedance architecture.
+            </p>
+            <ul>
+                <li>Mycelial networks exhibit spike-train electrical signalling at 1–50 Hz intervals — directly compatible with the Adriana Code LFO modulation envelope</li>
+                <li>Repeated stimulation at resonance frequencies induces long-term potentiation of high-conductivity pathway formation</li>
+                <li>Network topology self-repairs following partial disruption — providing fault tolerance without mechanical intervention</li>
+                <li>Target species: <em>Ganoderma sessile</em>, <em>Physarum polycephalum</em>, and <em>Trametes versicolor</em> — selected for spike amplitude and membrane conductance characteristics</li>
+            </ul>
+            <span class="mrb-pillar-tag">Adamatzky Lab</span>
+            <span class="mrb-pillar-tag">UWE Bristol</span>
+            <span class="mrb-pillar-tag">Unconventional Computing</span>
+            <span class="mrb-pillar-tag">Fungal Electrophysiology</span>
+        </div>
+
+        <div class="mrb-tab-panel" id="tab-sequestration">
+            <div class="mrb-pillar-head">&#9670; Pillar II — Radiotrophic Sequestration</div>
+            <p>
+                <strong>Radiotrophic Sequestration</strong> addresses the MRB-4000's secondary function as a radiation-capture device within the MycoVOID atmospheric remediation network. Melanin-rich fungal substrates incorporated into the composite matrix serve as internal radiation sinks, converting incident gamma and X-ray photon energy into electrochemical potential within the cell.
+            </p>
+            <p>
+                This pillar builds on documented observations from Chernobyl Reactor No. 4, where <em>Cladosporium sphaerospermum</em> and <em>Cryptococcus neoformans</em> were observed exhibiting positive radiotropism — growing toward radiation sources and metabolising ionising radiation via melanin-mediated radiosynthesis. The MRB-4000 incorporates this behaviour as a supplemental energy harvesting pathway.
+            </p>
+            <ul>
+                <li>Melanin content target: ≥ 18% by mass of mycelial substrate fraction</li>
+                <li>Radiosynthesis pathway contributes an estimated 3–7% supplemental charge at background radiation levels; up to 22% in elevated-radiation deployment environments</li>
+                <li>Compatible with MycoVOID node deployment — cells co-located with atmospheric remediation nodes benefit from ambient radiation flux</li>
+                <li>Approved species for high-melanin substrate: <em>Cladosporium sphaerospermum</em>, <em>Wangiella dermatitidis</em></li>
+            </ul>
+            <span class="mrb-pillar-tag">Radiosynthesis</span>
+            <span class="mrb-pillar-tag">Melanin Transduction</span>
+            <span class="mrb-pillar-tag">MycoVOID Integration</span>
+            <span class="mrb-pillar-tag">Chernobyl Fungi</span>
+        </div>
+
+        <div class="mrb-tab-panel" id="tab-upcycling">
+            <div class="mrb-pillar-head">&#9670; Pillar III — Isotopic Upcycling</div>
+            <p>
+                <strong>Isotopic Upcycling</strong> is the process of incorporating specific isotopically enriched or naturally sourced mineral phases into the MRB-4000 matrix to modify its electrochemical and acoustic properties beyond what is achievable with standard natural-abundance materials.
+            </p>
+            <p>
+                The primary application in the MRB-4000 context involves isotopically selected tungsten sources — specifically ¹⁸²W-enriched carbide fractions, which exhibit a distinct phonon dispersion profile that aligns more precisely with the Adriana Code Alpha register than natural-abundance tungsten. Secondary applications include ⁴⁴Ca precursor enrichment for the Eggshell CaCO₃ phase, which reduces crystal defect density by approximately 34% relative to natural calcium.
+            </p>
+            <ul>
+                <li>¹⁸²W content target: ≥ 28% (natural abundance: 26.5%) — achievable via electromagnetic separation or source selection from specific geological deposits</li>
+                <li>⁴⁴Ca enrichment reduces Eggshell nucleation activation energy by ~12%, lowering the minimum VTB trigger temperature from 38°C to 31°C</li>
+                <li>Isotopic certification required for all mineral inputs — see Obsidian Sourcing Protocol §04 for silicate isotopic requirements</li>
+                <li>Circular Economy Act 2026 compliance: all isotopically processed materials must enter certified recovery streams at end of cell life</li>
+            </ul>
+            <span class="mrb-pillar-tag">Isotopic Enrichment</span>
+            <span class="mrb-pillar-tag">¹⁸²W Carbide</span>
+            <span class="mrb-pillar-tag">Circular Economy Act 2026</span>
+            <span class="mrb-pillar-tag">Phonon Engineering</span>
+        </div>
+
+        <div class="mrb-tab-panel" id="tab-pyrolysis">
+            <div class="mrb-pillar-head">&#9670; Pillar IV — Structural Pyrolysis</div>
+            <p>
+                <strong>Structural Pyrolysis</strong> governs the controlled thermal decomposition of spent or off-spec mycelial substrate within the MRB-4000 matrix, converting it into a conductive biochar scaffold that retains the three-dimensional topology of the original mycelial network while achieving a 40-fold increase in electrical conductivity.
+            </p>
+            <p>
+                This pillar, aligned with the research direction of <strong>Professor Joseph DeSimone</strong> (Stanford University — 3D printing and advanced materials fabrication), addresses the fabrication challenge of maintaining mycelial network geometry through high-temperature processing steps. DeSimone-inspired continuous liquid interface production (CLIP) adaptation allows selective pyrolysis at the single-filament level, preserving the Adriana Code hexagonal lattice geometry in carbonised form.
+            </p>
+            <ul>
+                <li>Pyrolysis temperature: 650–780°C in inert atmosphere (N₂ / Ar) — above this range, tungsten carbide phase instability occurs</li>
+                <li>Biochar conductivity target: ≥ 85 S/cm (vs. ~2 S/cm for living mycelium) — enables hybrid cell architecture with biochar scaffold as primary conduction backbone</li>
+                <li>Selective pyrolysis preserves conduction channel geometry with ≤ 8% volumetric shrinkage — compatible with 1.5 micron WC grain spacing</li>
+                <li>Pyrolysed MRB-4000 cells enter secondary service as structural electrodes in non-biological electrochemical systems — full circular material lifecycle</li>
+            </ul>
+            <span class="mrb-pillar-tag">DeSimone Lab</span>
+            <span class="mrb-pillar-tag">Biochar Scaffold</span>
+            <span class="mrb-pillar-tag">Selective Pyrolysis</span>
+            <span class="mrb-pillar-tag">CLIP Adaptation</span>
+        </div>
+    </div>
+
+    <!-- §07 STRATEGIC ALIGNMENT -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§07</span> Strategic Alignment
+        </div>
+        <div class="mrb-section-body">
+            <p>
+                The MRB-4000 development programme is positioned at the intersection of three external research and regulatory vectors. Strategic alignment with these actors is required for both technical validation and commercial pathway development.
+            </p>
+        </div>
+        <div class="mrb-align-list">
+            <div class="mrb-align-item">
+                <div class="mrb-align-icon">&#9670;</div>
+                <div>
+                    <div class="mrb-align-name">DeSimone Lab — Stanford University</div>
+                    <div class="mrb-align-desc">
+                        Professor Joseph DeSimone's laboratory specialises in continuous liquid interface production (CLIP) and precision 3D-printed material architectures. Structural Pyrolysis (Pillar IV) directly leverages CLIP-inspired selective thermal processing methodologies. Target engagement: co-development of selective pyrolysis tooling; potential joint publication on biochar scaffold fabrication.
+                    </div>
+                </div>
+            </div>
+            <div class="mrb-align-item">
+                <div class="mrb-align-icon">&#9670;</div>
+                <div>
+                    <div class="mrb-align-name">Adamatzky Lab — University of the West of England</div>
+                    <div class="mrb-align-desc">
+                        Professor Andrew Adamatzky leads the Unconventional Computing Laboratory at UWE Bristol, with published work on fungal electrical spike signalling, mycelial computational networks, and biological memristors. Neuromorphic Mycelium (Pillar I) draws directly from Adamatzky's empirical data on <em>Ganoderma</em> and <em>Physarum</em> electrophysiology. Target engagement: substrate species selection advisory; spike-train frequency characterisation for Adriana Code LFO calibration.
+                    </div>
+                </div>
+            </div>
+            <div class="mrb-align-item">
+                <div class="mrb-align-icon">&#9670;</div>
+                <div>
+                    <div class="mrb-align-name">Circular Economy Act 2026</div>
+                    <div class="mrb-align-desc">
+                        The Circular Economy Act 2026 mandates end-of-life material recovery certification for advanced composite cells containing critical minerals (tungsten, calcium isotopics). Isotopic Upcycling (Pillar III) and Structural Pyrolysis (Pillar IV) are both designed to comply with CirEA 2026 requirements — isotopically processed materials enter certified recovery streams; pyrolysed cells enter secondary electrode service. MRB-4000 is positioned as a reference implementation for CirEA 2026 compliance in bioelectrochemical energy storage.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mrb-quote" style="margin-top: 24px;">
+            <span class="mrb-quote-label">Archive Classification Note</span>
+            <p>
+                This Blueprint Archive documents the MRB-4000 as a structured knowledge base for internal reference and future development. All protocols, specifications, and research pillar alignments reflect the current conceptual and theoretical development state of the project. Fabrication and deployment timelines are subject to research validation at each pillar stage.
+            </p>
+        </div>
+    </div>
+
+    <!-- BACK LINK -->
+    <div style="text-align: center; padding: 8px 0 16px;">
+        <a href="/mycovoid" style="display:inline-flex;align-items:center;gap:8px;font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;padding:10px 24px;border-radius:3px;text-decoration:none;color:#888;border:1px solid #2a2a2a;transition:color 0.15s,border-color 0.15s;" onmouseover="this.style.color='#c9a84c';this.style.borderColor='#c9a84c';" onmouseout="this.style.color='#888';this.style.borderColor='#2a2a2a';">
+            &#9670; Return to MycoVOID
+        </a>
+    </div>
+
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    /* ── TAB SWITCHING ── */
+    const tabBtns = document.querySelectorAll('.mrb-tab-btn');
+    const tabPanels = document.querySelectorAll('.mrb-tab-panel');
+    tabBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            tabBtns.forEach(function(b) { b.classList.remove('active'); });
+            tabPanels.forEach(function(p) { p.classList.remove('active'); });
+            btn.classList.add('active');
+            var panel = document.getElementById('tab-' + btn.getAttribute('data-tab'));
+            if (panel) panel.classList.add('active');
+        });
+    });
+
+    /* ── SORTABLE TABLE ── */
+    function makeSortable(tableId) {
+        var table = document.getElementById(tableId);
+        if (!table) return;
+        var headers = table.querySelectorAll('th[data-col]');
+        var sortState = { col: -1, asc: true };
+
+        headers.forEach(function(th) {
+            th.addEventListener('click', function() {
+                var col = parseInt(th.getAttribute('data-col'));
+                if (sortState.col === col) {
+                    sortState.asc = !sortState.asc;
+                } else {
+                    sortState.col = col;
+                    sortState.asc = true;
+                }
+                headers.forEach(function(h) {
+                    h.classList.remove('sort-asc', 'sort-desc');
+                    var icon = h.querySelector('.sort-icon');
+                    if (icon) icon.innerHTML = '&#9650;';
+                });
+                th.classList.add(sortState.asc ? 'sort-asc' : 'sort-desc');
+                var icon = th.querySelector('.sort-icon');
+                if (icon) icon.innerHTML = sortState.asc ? '&#9650;' : '&#9660;';
+
+                var tbody = table.querySelector('tbody');
+                var rows = Array.from(tbody.querySelectorAll('tr'));
+                rows.sort(function(a, b) {
+                    var aText = (a.cells[col] ? a.cells[col].textContent : '').trim();
+                    var bText = (b.cells[col] ? b.cells[col].textContent : '').trim();
+                    var aNum = parseFloat(aText.replace(/[^0-9.\-]/g, ''));
+                    var bNum = parseFloat(bText.replace(/[^0-9.\-]/g, ''));
+                    var result;
+                    if (!isNaN(aNum) && !isNaN(bNum)) {
+                        result = aNum - bNum;
+                    } else {
+                        result = aText.localeCompare(bText);
+                    }
+                    return sortState.asc ? result : -result;
+                });
+                rows.forEach(function(row) { tbody.appendChild(row); });
+            });
+        });
+    }
+
+    makeSortable('adriana-table');
+    makeSortable('ratios-table');
+
+})();
+</script>
+
+</body>
+</html>

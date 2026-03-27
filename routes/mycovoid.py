@@ -10,3 +10,12 @@ def mycovoid_page():
         username=session.get("username", ""),
         user_tier=session.get("tier", "ghost"),
     )
+
+
+@mycovoid_bp.route("/mrb4000")
+def mrb4000_page():
+    return render_template(
+        "mrb4000.html",
+        username=session.get("username", ""),
+        user_tier=session.get("tier", "ghost"),
+    )
