@@ -6,22 +6,29 @@ PROJECT VOID is a modular steganography engine designed for embedding large data
 ## User Preferences
 No specific user preferences were provided in the original `replit.md` file.
 
-## VOID: Sovereign Realm — 3D Game (Task #18)
-- **Route:** `/game` (login required) — rendered by `routes/game.py` blueprint
-- **Template:** `templates/game.html` — full Three.js 3D game with embedded CSS/JS
-- **Three Game Modes:**
-  - **Exploration:** Fly through procedural icosahedron signal vaults; click to discover (0.5 VTX each)
-  - **Node Builder:** Deploy octahedron sovereign nodes on a 3D hex-grid (2.0 VTX each)
-  - **Adriana Cipher:** Solve glyph-sequence puzzles in floating 3D chamber (1.0 VTX each)
-- **VTX Rewards:** `mint_game_reward()` in `void_engine/vortex_wallet.py`; daily cap 50 VTX/user
-- **Reward tiers:** vault_discovered=0.5, glyph_solved=1.0, node_built=2.0, level_up=5.0
-- **Level-up logic:** Triggered automatically when total actions >= level*3
+## VOID: Sovereign Realm — 3D Game & Economy (Task #18)
+- **Routes:** `/game` (3D game), `/game/shop` (equipment shop) — `routes/game.py` blueprint
+- **Templates:** `templates/game.html`, `templates/game_shop.html`
+- **Three Game Modes (Three.js):**
+  - **Exploration:** Fly through procedural icosahedron signal vaults; click to discover
+  - **Node Builder:** Deploy octahedron sovereign nodes on a 3D hex-grid
+  - **Adriana Cipher:** Solve glyph-sequence puzzles in floating 3D chamber
+- **VTX Rewards:** `mint_game_reward()` in `void_engine/vortex_wallet.py`; 50 VTX/24h cap
+  - Base tiers: vault_discovered=0.5, glyph_solved=1.0, node_built=2.0, level_up=5.0
+  - Equipment multiplier applied server-side via `get_earning_multiplier(user_id)`
+- **Equipment Shop (game_inventory table):** 5 tiers of permanent gear purchased with VTX
+  - Signal Array (15 VTX, 1.25x), Resonance Coil (35 VTX, 1.25x), Adriana Decoder (50 VTX, 1.5x)
+  - Sovereign Rig (150 VTX, 1.75x), Void Core (500 VTX, 2.0x)
+  - `spend_on_equipment()`, `get_inventory()`, `get_earning_multiplier()` in vortex_wallet.py
+- **VTX Burn Mechanism:** All spending (features, equipment, unlocks) uses tx_type='burn'
+  - Deflationary: burned VTX is permanently destroyed, reducing net circulating supply
+  - `get_burn_stats()` function tracks total_burned, burn_events, net_supply, burn_rate
+  - Public API: `GET /api/vortex/burn-stats`, `GET /api/vortex/chain-stats` (routes/financial.py)
+  - Live burn ticker displayed on `/game/shop` page (auto-refreshes every 30s)
 - **Game Stats columns on users table:** game_level, nodes_built, vaults_opened, glyphs_solved, total_game_vtx
-- **API endpoints:** POST /api/game/reward, GET /api/game/stats
-- **Navigation:** "VOID Game" link added to main engine nav (index.html) and landing nav (landing.html)
-- **Landing page teaser:** `landing-game-teaser` section with mode cards added to /launch page
-- **Styles:** Game teaser CSS appended to static/style.css; game page uses self-contained embedded styles
-- **Ledger:** All rewards recorded in vortex_ledger with tx_type='mint_game'
+- **API endpoints:** POST /api/game/reward, POST /api/game/equip, GET /api/game/inventory, GET /api/game/stats
+- **Navigation:** "VOID Game" gold link in engine nav and landing nav; "Shop ◆" button in game topbar
+- **Ledger:** Rewards use tx_type='mint_game'; spends use tx_type='burn'
 
 ## System Architecture
 PROJECT VOID features a Flask-based web UI and a command-line interface, with the `void_engine` as its core. It operates on a Brain (Flask web app) + Body (local Python node) hybrid architecture.

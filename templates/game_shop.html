@@ -543,6 +543,34 @@
 
 <div class="shop-container">
 
+    <!-- BURN TICKER -->
+    <div style="background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.15);border-radius:10px;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:32px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+            <div style="text-align:center;">
+                <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:4px;">Total VTX Burned</div>
+                <div style="font-size:22px;font-weight:700;color:#f87171;" id="burn-total">—</div>
+            </div>
+            <div style="width:1px;height:36px;background:#1a1a30;"></div>
+            <div style="text-align:center;">
+                <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:4px;">Burn Events</div>
+                <div style="font-size:22px;font-weight:700;color:#f87171;" id="burn-events">—</div>
+            </div>
+            <div style="width:1px;height:36px;background:#1a1a30;"></div>
+            <div style="text-align:center;">
+                <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:4px;">Net Supply</div>
+                <div style="font-size:22px;font-weight:700;color:#c9a84c;" id="burn-supply">—</div>
+            </div>
+            <div style="width:1px;height:36px;background:#1a1a30;"></div>
+            <div style="text-align:center;">
+                <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:4px;">Burn Rate</div>
+                <div style="font-size:22px;font-weight:700;color:#f87171;" id="burn-rate">—</div>
+            </div>
+        </div>
+        <div style="font-size:10px;color:#444;letter-spacing:1px;max-width:180px;line-height:1.6;">
+            Every VTX spent here is permanently burned — reducing total supply and increasing scarcity.
+        </div>
+    </div>
+
     <!-- HEADER -->
     <div class="shop-header">
         <div class="shop-header-label">VOID: Sovereign Realm</div>
@@ -752,6 +780,22 @@
     document.getElementById('modal-backdrop').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
     });
+
+    async function loadBurnStats() {
+        try {
+            const resp = await fetch('/api/vortex/burn-stats');
+            const data = await resp.json();
+            if (!data.error) {
+                document.getElementById('burn-total').textContent = parseFloat(data.total_burned || 0).toFixed(2) + ' VTX';
+                document.getElementById('burn-events').textContent = data.burn_events || 0;
+                document.getElementById('burn-supply').textContent = parseFloat(data.net_supply || 0).toFixed(2) + ' VTX';
+                document.getElementById('burn-rate').textContent = parseFloat(data.burn_rate || 0).toFixed(2) + '%';
+            }
+        } catch (e) {}
+    }
+
+    loadBurnStats();
+    setInterval(loadBurnStats, 30000);
 </script>
 </body>
 </html>

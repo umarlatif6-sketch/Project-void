@@ -586,3 +586,23 @@ def wallet_symmetry():
         })
     finally:
         conn.close()
+
+
+@financial_bp.route("/api/vortex/burn-stats")
+def burn_stats_api():
+    from void_engine.vortex_wallet import get_burn_stats
+    try:
+        stats = get_burn_stats()
+        return jsonify(stats)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@financial_bp.route("/api/vortex/chain-stats")
+def chain_stats_api():
+    from void_engine.vortex_wallet import get_chain_stats
+    try:
+        stats = get_chain_stats()
+        return jsonify(stats)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500

@@ -219,6 +219,40 @@ def gift_transfer(from_user_id, to_user_id, amount_float, message_id=None):
         conn.close()
 
 
+def get_burn_stats():
+    """Returns a breakdown of all VTX burned across the platform."""
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT COALESCE(SUM(amount), 0) FROM vortex_ledger WHERE tx_type IN ('burn', 'spend', 'spend_equipment')"
+        )
+        total_burned = float(cur.fetchone()[0])
+        cur.execute(
+            "SELECT COUNT(*) FROM vortex_ledger WHERE tx_type IN ('burn', 'spend', 'spend_equipment')"
+        )
+        burn_events = int(cur.fetchone()[0])
+        cur.execute("SELECT COALESCE(SUM(amount), 0) FROM vortex_ledger WHERE tx_type LIKE 'mint_%'")
+        total_minted = float(cur.fetchone()[0])
+        cur.execute(
+            """SELECT
+                 COALESCE(SUM(CASE WHEN tx_type = 'burn' AND payload_hash LIKE 'equip_%' THEN amount ELSE 0 END), 0),
+                 COALESCE(SUM(CASE WHEN tx_type IN ('burn', 'spend') THEN amount ELSE 0 END), 0)
+               FROM vortex_ledger
+               WHERE tx_type IN ('burn', 'spend', 'spend_equipment')"""
+        )
+        row = cur.fetchone()
+        return {
+            "total_burned": round(total_burned, 4),
+            "burn_events": burn_events,
+            "total_minted": round(total_minted, 4),
+            "net_supply": round(total_minted - total_burned, 4),
+            "burn_rate": round((total_burned / total_minted * 100) if total_minted > 0 else 0, 2),
+        }
+    finally:
+        conn.close()
+
+
 def get_balance(user_id):
     conn = _get_db()
     try:
@@ -278,9 +312,20 @@ def get_chain_stats():
         active_holders = cur.fetchone()[0]
         cur.execute("SELECT COALESCE(SUM(vortex_balance), 0) FROM users")
         circulating = float(cur.fetchone()[0])
+        cur.execute(
+            "SELECT COALESCE(SUM(amount), 0) FROM vortex_ledger WHERE tx_type IN ('burn', 'spend', 'spend_equipment')"
+        )
+        total_burned = float(cur.fetchone()[0])
+        cur.execute(
+            "SELECT COUNT(*) FROM vortex_ledger WHERE tx_type IN ('burn', 'spend', 'spend_equipment')"
+        )
+        burn_events = cur.fetchone()[0]
         return {
             "total_blocks": total_blocks,
             "total_minted": total_minted,
+            "total_burned": total_burned,
+            "burn_events": burn_events,
+            "net_supply": round(total_minted - total_burned, 4),
             "active_holders": active_holders,
             "circulating_supply": circulating,
             "symbol": "VTX",
@@ -425,7 +470,7 @@ def spend_vtx(user_id, amount_decimal, purpose):
             return {"error": f"Insufficient VTX balance. You have {float(balance)} VTX, need {float(amount)}"}
 
         payload_hash = fatiha_286_hexdigest_from_str(f"spend_{purpose}_{user_id}")
-        block = _create_block(cur, "spend", user_id, None, amount, payload_hash)
+        block = _create_block(cur, "burn", user_id, None, amount, payload_hash)
         cur.execute(
             "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) - %s WHERE id = %s",
             (amount, user_id),
@@ -459,7 +504,7 @@ def spend_vtx_with_unlock(user_id, amount_decimal, feature, duration):
             return {"error": f"Insufficient VTX balance. You have {float(balance)} VTX, need {float(amount)}"}
 
         payload_hash = fatiha_286_hexdigest_from_str(f"spend_{feature}_{user_id}")
-        block = _create_block(cur, "spend", user_id, None, amount, payload_hash)
+        block = _create_block(cur, "burn", user_id, None, amount, payload_hash)
         cur.execute(
             "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) - %s WHERE id = %s",
             (amount, user_id),
@@ -632,7 +677,7 @@ def spend_on_equipment(user_id, equipment_slug):
         payload_hash = fatiha_286_hexdigest_from_str(
             f"equip_{equipment_slug}_{user_id}_{datetime.now(timezone.utc).isoformat()}"
         )
-        _create_block(cur, "spend_equipment", user_id, None, price, payload_hash)
+        _create_block(cur, "burn", user_id, None, price, payload_hash)
         cur.execute(
             "UPDATE users SET vortex_balance = vortex_balance - %s WHERE id = %s",
             (price, user_id),
