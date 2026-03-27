@@ -29,14 +29,14 @@ def _detect_backend():
         _sd = sd
         AUDIO_BACKEND = "sounddevice"
         return "sounddevice"
-    except ImportError:
+    except (ImportError, OSError):
         pass
     try:
         import pyaudio
         _pa = pyaudio
         AUDIO_BACKEND = "pyaudio"
         return "pyaudio"
-    except ImportError:
+    except (ImportError, OSError):
         pass
     AUDIO_BACKEND = "simulation"
     return "simulation"

@@ -1,7 +1,13 @@
+import logging
+import os
 import time
 from typing import Dict, List, Optional
 from void_engine.al_jabr_286 import fatiha_286_truncated
 from dataclasses import dataclass, field, asdict
+
+logger = logging.getLogger(__name__)
+
+USE_REAL_CSI = os.environ.get("USE_REAL_CSI", "0").strip() in ("1", "true", "yes")
 
 
 OPTIMAL_RANGES = {
@@ -68,6 +74,24 @@ class GovernanceProposal:
         return asdict(self)
 
 
+def _build_csi_monitor():
+    """Instantiate the appropriate CSI monitor based on the USE_REAL_CSI flag."""
+    from void_engine.csi_bio_monitor import CSIBioMonitor, SimulatedCSIBioMonitor
+    if USE_REAL_CSI:
+        monitor = CSIBioMonitor()
+        if monitor.is_available:
+            logger.info("BiologicalTransceiver: live ESP32 CSI hardware detected — real sensing active")
+        else:
+            logger.warning(
+                "BiologicalTransceiver: USE_REAL_CSI=1 but UDP socket unavailable — falling back to simulation"
+            )
+            monitor = SimulatedCSIBioMonitor()
+    else:
+        logger.info("BiologicalTransceiver: USE_REAL_CSI not set — using SimulatedCSIBioMonitor")
+        monitor = SimulatedCSIBioMonitor()
+    return monitor
+
+
 class BiologicalTransceiver:
     def __init__(self, consensus_engine=None):
         self._sensors = SensorState()
@@ -76,11 +100,32 @@ class BiologicalTransceiver:
         self._governance_proposals: List[GovernanceProposal] = []
         self._max_history = 100
         self._update_count = 0
+        self._csi_monitor = _build_csi_monitor()
+        self._csi_last_state: Optional[Dict] = None
+
+    def _poll_csi(self):
+        """Poll the CSI monitor and merge derived values into SensorState if no manual override is active."""
+        try:
+            csi_state = self._csi_monitor.read_sensor_state()
+            self._csi_last_state = csi_state
+            if csi_state.get("csi_source") in ("hardware", "simulation"):
+                if csi_state.get("water_level") is not None:
+                    self._sensors.water_level = max(0.0, min(1.0, csi_state["water_level"]))
+                if csi_state.get("temperature") is not None:
+                    self._sensors.temperature = csi_state["temperature"]
+                if csi_state.get("ph") is not None:
+                    self._sensors.ph = csi_state["ph"]
+                if csi_state.get("dissolved_oxygen") is not None:
+                    self._sensors.dissolved_oxygen = max(0.0, csi_state["dissolved_oxygen"])
+        except Exception as exc:
+            logger.debug("CSI poll error: %s", exc)
 
     def update_sensors(self, water_level: Optional[float] = None,
                        temperature: Optional[float] = None,
                        ph: Optional[float] = None,
                        dissolved_oxygen: Optional[float] = None) -> Dict:
+        self._poll_csi()
+
         if water_level is not None:
             self._sensors.water_level = max(0.0, min(1.0, water_level))
         if temperature is not None:
@@ -347,6 +392,23 @@ class BiologicalTransceiver:
 
     def get_impedance_history(self, limit: int = 10) -> List[Dict]:
         return [r.to_dict() for r in self._impedance_history[-limit:]]
+
+    def get_csi_status(self) -> Dict:
+        """Return the current CSI monitor status and last biological reading."""
+        status = self._csi_monitor.get_status()
+        status["last_state"] = self._csi_last_state
+        status["use_real_csi"] = USE_REAL_CSI
+        return status
+
+    def get_latest_csi_state(self) -> Optional[Dict]:
+        """
+        Return the most recent CSI-derived sensor state, polling once if none
+        has been recorded yet.  Safe to call from any context without accessing
+        private members.
+        """
+        if self._csi_last_state is None:
+            self._poll_csi()
+        return self._csi_last_state
 
     def trigger_governance_vote(self, intervention_type: str, reason: str = "") -> Dict:
         if not reason:

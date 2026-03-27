@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, jsonify
 from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
 from void_engine.db_pool import get_db
 from void_engine.adriana_scl import AdrianaResonance, hash_to_sovereign_poem
+from hardware.solar_profile import get_solar_mode
 
 logger = logging.getLogger(__name__)
 sovereign_node_bp = Blueprint("sovereign_node", __name__)
@@ -164,6 +165,19 @@ def _get_live_metrics():
     return metrics
 
 
+def _get_solar_data():
+    """Get current solar mode using a representative Novosibirsk ambient temp approximation."""
+    import datetime
+    month = datetime.datetime.utcnow().month
+    avg_temps = {1: -16, 2: -13, 3: -5, 4: 5, 5: 13, 6: 19,
+                 7: 21, 8: 19, 9: 12, 10: 3, 11: -8, 12: -14}
+    ambient = avg_temps.get(month, 10)
+    try:
+        return get_solar_mode(ambient), ambient
+    except Exception:
+        return None, ambient
+
+
 @sovereign_node_bp.route("/sovereign-node")
 def sovereign_node_portfolio():
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
@@ -183,8 +197,16 @@ def sovereign_node_portfolio():
             "meanings": meanings,
             "translation": f"Where {parts[0]} meets {parts[1]}, {parts[2]} emerges.",
             "poem": poem_dict["poem"],
-            "seed": poem_seed,
+            "seed": poem_seed_raw,
         }
+    except Exception:
+        pass
+
+    solar_status, solar_ambient = _get_solar_data()
+    csi_state = None
+    try:
+        import routes.shared as _shared
+        csi_state = _shared.biological.get_latest_csi_state()
     except Exception:
         pass
 
@@ -195,6 +217,9 @@ def sovereign_node_portfolio():
         metrics=metrics,
         poem=poem_data,
         glyph_count=GLYPH_COUNT,
+        solar=solar_status,
+        solar_ambient_temp_c=solar_ambient,
+        csi=csi_state,
     )
 
 
