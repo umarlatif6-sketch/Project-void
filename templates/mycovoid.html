@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MycoVOID Remediation System — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-red: #ff5252;
+            --void-green: #4caf50;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+            --myco-spore: #7aff7a;
+            --myco-pulse: #00e5cc;
+            --myco-warn: #ffb347;
+            --myco-idle: #3a3a3a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        .mv-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .mv-nav-brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .mv-nav-links { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+        .mv-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .mv-nav-link:hover { color: var(--void-gold); }
+        .mv-nav-link.active { color: var(--myco-spore); }
+
+        /* ── HERO ── */
+        .mv-hero {
+            text-align: center;
+            padding: 52px 32px 36px;
+            background: radial-gradient(ellipse at 50% 0%, #061208 0%, var(--void-bg) 72%);
+            border-bottom: 1px solid var(--void-border);
+        }
+        .mv-hero-badge {
+            display: inline-block;
+            background: var(--myco-spore);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 18px;
+        }
+        .mv-hero-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #fff;
+            margin: 0 0 10px;
+        }
+        .mv-hero-title span { color: var(--myco-spore); }
+        .mv-hero-sub {
+            color: #666;
+            font-size: 0.78rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+            letter-spacing: 0.5px;
+        }
+        .mv-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .mv-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 14px;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            border: 1px solid rgba(122,255,122,0.25);
+            background: rgba(122,255,122,0.06);
+            color: var(--myco-spore);
+        }
+        .mv-status-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--myco-spore);
+            box-shadow: 0 0 8px var(--myco-spore);
+            animation: spore-pulse 2s infinite;
+        }
+        @keyframes spore-pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--myco-spore); }
+            50% { opacity: 0.5; box-shadow: 0 0 3px var(--myco-spore); }
+        }
+
+        /* ── MAIN GRID ── */
+        .mv-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .mv-main { grid-template-columns: 1fr; }
+        }
+
+        /* ── CARD ── */
+        .mv-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 20px;
+        }
+        .mv-card-wide { grid-column: 1 / -1; }
+        .mv-card-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--myco-spore);
+            text-transform: uppercase;
+            margin: 0 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .mv-card-title .mv-glyph { color: var(--void-gold); }
+
+        /* ── NODE MAP ── */
+        .mv-node-map-wrap {
+            position: relative;
+            background: #060f07;
+            border: 1px solid #1a2a1a;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        #mv-node-canvas {
+            display: block;
+            width: 100%;
+            height: 420px;
+        }
+        .mv-node-legend {
+            display: flex;
+            gap: 18px;
+            padding: 10px 14px;
+            background: #080f08;
+            border-top: 1px solid #141a14;
+            flex-wrap: wrap;
+        }
+        .mv-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.65rem;
+            color: var(--void-muted);
+            letter-spacing: 0.5px;
+        }
+        .mv-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .mv-dot-active { background: var(--myco-spore); box-shadow: 0 0 5px var(--myco-spore); }
+        .mv-dot-absorbing { background: var(--myco-pulse); box-shadow: 0 0 5px var(--myco-pulse); }
+        .mv-dot-idle { background: var(--myco-idle); }
+        .mv-dot-warn { background: var(--myco-warn); box-shadow: 0 0 5px var(--myco-warn); }
+
+        /* ── VORTEX STATUS ── */
+        .mv-vortex-layer {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .mv-layer-item {
+            padding: 12px 14px;
+            border-radius: 3px;
+            border: 1px solid #1e1e1e;
+            background: var(--void-surface2);
+            transition: border-color 0.5s, background 0.5s;
+        }
+        .mv-layer-item.active {
+            border-color: rgba(122,255,122,0.4);
+            background: rgba(122,255,122,0.04);
+        }
+        .mv-layer-label {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-muted);
+            margin-bottom: 6px;
+        }
+        .mv-layer-item.active .mv-layer-label { color: var(--myco-spore); }
+        .mv-layer-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--void-text);
+            margin-bottom: 4px;
+        }
+        .mv-layer-altitude {
+            font-size: 0.68rem;
+            color: var(--void-muted);
+        }
+        .mv-layer-freq {
+            font-size: 0.72rem;
+            color: var(--myco-pulse);
+            margin-top: 6px;
+        }
+        .mv-layer-bar {
+            margin-top: 8px;
+            height: 4px;
+            background: #1a1a1a;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .mv-layer-bar-fill {
+            height: 100%;
+            background: var(--myco-spore);
+            border-radius: 2px;
+            transition: width 1s ease;
+        }
+
+        /* ── ABSORPTION READOUT ── */
+        .mv-absorption-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .mv-absorption-cell {
+            background: var(--void-surface2);
+            border: 1px solid var(--void-border);
+            border-radius: 3px;
+            padding: 12px 14px;
+            text-align: center;
+        }
+        .mv-absorption-val {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--myco-spore);
+            letter-spacing: 1px;
+            line-height: 1.1;
+        }
+        .mv-absorption-label {
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+        .mv-absorption-unit {
+            font-size: 0.65rem;
+            color: var(--myco-pulse);
+            margin-top: 3px;
+        }
+        .mv-absorption-bar-wrap {
+            margin-top: 16px;
+        }
+        .mv-absorption-bar-label {
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+        .mv-absorption-bar {
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .mv-absorption-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+        .mv-absorption-bar-fill.green { background: var(--myco-spore); }
+        .mv-absorption-bar-fill.teal { background: var(--myco-pulse); }
+        .mv-absorption-bar-fill.gold { background: var(--void-gold); }
+
+        /* ── SYSTEM LOG ── */
+        .mv-log {
+            font-size: 0.68rem;
+            color: var(--void-muted);
+            max-height: 220px;
+            overflow-y: auto;
+            line-height: 1.6;
+            scrollbar-width: thin;
+            scrollbar-color: #2a2a2a transparent;
+        }
+        .mv-log::-webkit-scrollbar { width: 4px; }
+        .mv-log::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+        .mv-log-entry {
+            padding: 3px 0;
+            border-bottom: 1px solid #141414;
+            display: grid;
+            grid-template-columns: 80px 90px 1fr;
+            gap: 8px;
+        }
+        .mv-log-entry:last-child { border-bottom: none; }
+        .mv-log-time { color: #333; }
+        .mv-log-type { }
+        .mv-log-type.sync { color: var(--myco-spore); }
+        .mv-log-type.freq { color: var(--myco-pulse); }
+        .mv-log-type.absorb { color: var(--void-gold); }
+        .mv-log-type.warn { color: var(--myco-warn); }
+        .mv-log-type.init { color: var(--void-violet); }
+        .mv-log-msg { color: #777; }
+
+        /* ── NODE COUNTER ── */
+        .mv-node-stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .mv-node-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.68rem;
+            color: var(--void-muted);
+        }
+        .mv-node-count {
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .mv-node-count.green { color: var(--myco-spore); }
+        .mv-node-count.teal { color: var(--myco-pulse); }
+        .mv-node-count.muted { color: #444; }
+        .mv-node-count.warn { color: var(--myco-warn); }
+
+        /* ── FREQUENCY DISPLAY ── */
+        .mv-freq-display {
+            background: #060f07;
+            border: 1px solid #1a2a1a;
+            border-radius: 3px;
+            padding: 14px 18px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+        .mv-freq-val {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--myco-pulse);
+            letter-spacing: 2px;
+        }
+        .mv-freq-unit {
+            font-size: 0.75rem;
+            color: #444;
+            letter-spacing: 2px;
+        }
+        .mv-freq-label {
+            font-size: 0.6rem;
+            color: var(--void-muted);
+            letter-spacing: 2px;
+            margin-left: auto;
+            text-transform: uppercase;
+        }
+
+        /* Scrollbar for the whole page subtle */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<nav class="mv-nav">
+    <a href="/" class="mv-nav-brand">&#9670; PROJECT VOID</a>
+    <div class="mv-nav-links">
+        <a href="/" class="mv-nav-link">Engine</a>
+        <a href="/sovereign-node" class="mv-nav-link">Sovereign Node</a>
+        <a href="/beehive/demo" class="mv-nav-link">Beehive</a>
+        <a href="/mycovoid" class="mv-nav-link active">MycoVOID</a>
+        <a href="/guide" class="mv-nav-link">Guide</a>
+        {% if username %}
+        <span class="mv-nav-link" style="color:#555">&#9670; {{ username }}</span>
+        <a href="/api/auth/logout" class="mv-nav-link">Logout</a>
+        {% else %}
+        <a href="/login" class="mv-nav-link">Login</a>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="mv-hero">
+    <div class="mv-hero-badge">MYCOVOID v1.0 — LIVE SIMULATION</div>
+    <h1 class="mv-hero-title">Myco<span>VOID</span> Atmospheric Remediation</h1>
+    <p class="mv-hero-sub">
+        Distributed mycelial node network targeting atmospheric radiation via frequency vortex harmonics.<br>
+        Real-time absorption monitoring across tropospheric and stratospheric layers.
+    </p>
+    <div class="mv-status-row">
+        <div class="mv-status-pill">
+            <div class="mv-status-dot"></div>
+            <span id="mv-sys-status">SYSTEM ACTIVE</span>
+        </div>
+        <div class="mv-status-pill" style="border-color:rgba(0,229,204,0.25);background:rgba(0,229,204,0.06);color:var(--myco-pulse);">
+            <div class="mv-status-dot" style="background:var(--myco-pulse);box-shadow:0 0 8px var(--myco-pulse);"></div>
+            <span id="mv-node-online-count">0</span>&nbsp;NODES ONLINE
+        </div>
+        <div class="mv-status-pill" style="border-color:rgba(201,168,76,0.25);background:rgba(201,168,76,0.06);color:var(--void-gold);">
+            <div class="mv-status-dot" style="background:var(--void-gold);box-shadow:0 0 8px var(--void-gold);animation:none;"></div>
+            <span id="mv-uptime">00:00:00</span>&nbsp;UPTIME
+        </div>
+    </div>
+</div>
+
+<div class="mv-main">
+
+    <!-- NODE MAP (left, spans both rows) -->
+    <div class="mv-card" style="grid-row: 1 / 3;">
+        <div class="mv-card-title">
+            <span class="mv-glyph">&#9670;</span> Node Network Map
+        </div>
+        <div class="mv-node-stats">
+            <div class="mv-node-stat">
+                <div class="mv-dot mv-dot-active"></div>
+                <span class="mv-node-count green" id="cnt-active">0</span>
+                <span>Active</span>
+            </div>
+            <div class="mv-node-stat">
+                <div class="mv-dot mv-dot-absorbing"></div>
+                <span class="mv-node-count teal" id="cnt-absorbing">0</span>
+                <span>Absorbing</span>
+            </div>
+            <div class="mv-node-stat">
+                <div class="mv-dot mv-dot-idle"></div>
+                <span class="mv-node-count muted" id="cnt-idle">0</span>
+                <span>Idle</span>
+            </div>
+            <div class="mv-node-stat">
+                <div class="mv-dot mv-dot-warn"></div>
+                <span class="mv-node-count warn" id="cnt-warn">0</span>
+                <span>Alert</span>
+            </div>
+        </div>
+        <div class="mv-node-map-wrap">
+            <canvas id="mv-node-canvas"></canvas>
+        </div>
+        <div class="mv-node-legend">
+            <div class="mv-legend-item"><div class="mv-dot mv-dot-active"></div> Active — Transmitting</div>
+            <div class="mv-legend-item"><div class="mv-dot mv-dot-absorbing"></div> Absorbing — Radiation Capture</div>
+            <div class="mv-legend-item"><div class="mv-dot mv-dot-idle"></div> Idle — Standby</div>
+            <div class="mv-legend-item"><div class="mv-dot mv-dot-warn"></div> Alert — High Load</div>
+        </div>
+    </div>
+
+    <!-- VORTEX STATUS PANEL (right col, row 1) -->
+    <div class="mv-card">
+        <div class="mv-card-title">
+            <span class="mv-glyph">&#9670;</span> Frequency Vortex Status
+        </div>
+        <div class="mv-freq-display">
+            <span class="mv-freq-val" id="mv-current-freq">432.0</span>
+            <span class="mv-freq-unit">Hz</span>
+            <span class="mv-freq-label" id="mv-freq-mode">Harmonic Lock</span>
+        </div>
+        <div class="mv-vortex-layer" id="mv-layer-list">
+            <div class="mv-layer-item" id="mv-layer-tropo">
+                <div class="mv-layer-label">Layer 1</div>
+                <div class="mv-layer-name">Troposphere</div>
+                <div class="mv-layer-altitude">0 – 12 km altitude</div>
+                <div class="mv-layer-freq" id="mv-tropo-freq">&#9670; 432.0 Hz @ 78% penetration</div>
+                <div class="mv-layer-bar"><div class="mv-layer-bar-fill" id="mv-tropo-bar" style="width:78%;"></div></div>
+            </div>
+            <div class="mv-layer-item" id="mv-layer-strato">
+                <div class="mv-layer-label">Layer 2</div>
+                <div class="mv-layer-name">Stratosphere</div>
+                <div class="mv-layer-altitude">12 – 50 km altitude</div>
+                <div class="mv-layer-freq" id="mv-strato-freq">&#9670; 528.0 Hz @ 52% penetration</div>
+                <div class="mv-layer-bar"><div class="mv-layer-bar-fill" id="mv-strato-bar" style="width:52%; background:var(--myco-pulse);"></div></div>
+            </div>
+            <div class="mv-layer-item" id="mv-layer-meso">
+                <div class="mv-layer-label">Layer 3</div>
+                <div class="mv-layer-name">Mesosphere</div>
+                <div class="mv-layer-altitude">50 – 85 km altitude</div>
+                <div class="mv-layer-freq" id="mv-meso-freq">&#9670; 963.0 Hz @ 21% penetration</div>
+                <div class="mv-layer-bar"><div class="mv-layer-bar-fill" id="mv-meso-bar" style="width:21%; background:var(--void-gold);"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABSORPTION READOUT (right col, row 2) -->
+    <div class="mv-card">
+        <div class="mv-card-title">
+            <span class="mv-glyph">&#9670;</span> Mycelium Absorption Readout
+        </div>
+        <div class="mv-absorption-grid">
+            <div class="mv-absorption-cell">
+                <div class="mv-absorption-val" id="mv-total-bq">0.00</div>
+                <div class="mv-absorption-label">Total Absorbed</div>
+                <div class="mv-absorption-unit">Bq / s</div>
+            </div>
+            <div class="mv-absorption-cell">
+                <div class="mv-absorption-val" id="mv-peak-bq" style="color:var(--myco-pulse);">0.00</div>
+                <div class="mv-absorption-label">Peak Node</div>
+                <div class="mv-absorption-unit">Bq / s</div>
+            </div>
+            <div class="mv-absorption-cell">
+                <div class="mv-absorption-val" id="mv-session-bq" style="color:var(--void-gold);">0.00</div>
+                <div class="mv-absorption-label">Session Total</div>
+                <div class="mv-absorption-unit">kBq</div>
+            </div>
+            <div class="mv-absorption-cell">
+                <div class="mv-absorption-val" id="mv-efficiency" style="color:var(--myco-warn);">0.0</div>
+                <div class="mv-absorption-label">Network Efficiency</div>
+                <div class="mv-absorption-unit">%</div>
+            </div>
+        </div>
+        <div class="mv-absorption-bar-wrap">
+            <div class="mv-absorption-bar-label">
+                <span>Troposphere Load</span>
+                <span id="mv-tropo-load-pct">0%</span>
+            </div>
+            <div class="mv-absorption-bar">
+                <div class="mv-absorption-bar-fill green" id="mv-tropo-load-bar" style="width:0%;"></div>
+            </div>
+            <div class="mv-absorption-bar-label">
+                <span>Stratosphere Load</span>
+                <span id="mv-strato-load-pct">0%</span>
+            </div>
+            <div class="mv-absorption-bar">
+                <div class="mv-absorption-bar-fill teal" id="mv-strato-load-bar" style="width:0%;"></div>
+            </div>
+            <div class="mv-absorption-bar-label">
+                <span>Mesosphere Load</span>
+                <span id="mv-meso-load-pct">0%</span>
+            </div>
+            <div class="mv-absorption-bar">
+                <div class="mv-absorption-bar-fill gold" id="mv-meso-load-bar" style="width:0%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SYSTEM LOG (full width) -->
+    <div class="mv-card mv-card-wide">
+        <div class="mv-card-title">
+            <span class="mv-glyph">&#9670;</span> System Log — Frequency Harmonics &amp; Node Sync Events
+        </div>
+        <div class="mv-log" id="mv-system-log">
+            <div class="mv-log-entry" style="color:#333;">
+                <span class="mv-log-time">--:--:--</span>
+                <span class="mv-log-type init">INIT</span>
+                <span class="mv-log-msg">Awaiting MycoVOID node initialization...</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    /* ── SIMULATION CONSTANTS ── */
+    const NODE_COUNT = 65;
+    const LAYERS = ['troposphere', 'stratosphere', 'mesosphere'];
+    const LAYER_FREQS = [432.0, 528.0, 963.0];
+    const LAYER_NAMES = ['Troposphere', 'Stratosphere', 'Mesosphere'];
+    const HARMONIC_MODES = ['Harmonic Lock', 'Vortex Spin', 'Phase Shift', 'Resonance Sweep', 'Null Intercept'];
+
+    /* ── CANVAS SETUP ── */
+    const canvas = document.getElementById('mv-node-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width || 700;
+        canvas.height = 420;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    /* ── NODE STATE ── */
+    const STATES = ['active', 'absorbing', 'idle', 'warn'];
+    const STATE_COLORS = {
+        active: '#7aff7a',
+        absorbing: '#00e5cc',
+        idle: '#3a3a3a',
+        warn: '#ffb347',
+    };
+
+    let nodes = [];
+    let pulses = [];
+    let startTime = Date.now();
+    let sessionBq = 0;
+
+    function initNodes() {
+        nodes = [];
+        const w = canvas.width;
+        const h = canvas.height;
+        for (let i = 0; i < NODE_COUNT; i++) {
+            const margin = 28;
+            nodes.push({
+                id: i,
+                x: margin + Math.random() * (w - margin * 2),
+                y: margin + Math.random() * (h - margin * 2),
+                state: STATES[Math.floor(Math.random() * 3)],
+                stateTimer: Math.random() * 200,
+                stateDuration: 80 + Math.random() * 220,
+                radius: 4 + Math.random() * 3,
+                layer: Math.floor(Math.random() * 3),
+                bq: 0,
+                pulsePhase: Math.random() * Math.PI * 2,
+                glowAlpha: 0,
+            });
+        }
+    }
+    initNodes();
+
+    /* connect nearby nodes */
+    function findEdges(maxDist) {
+        const edges = [];
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const dx = nodes[i].x - nodes[j].x;
+                const dy = nodes[i].y - nodes[j].y;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                if (d < maxDist) {
+                    edges.push({ a: i, b: j, d });
+                }
+            }
+        }
+        return edges;
+    }
+    let edges = findEdges(120);
+
+    /* ── FREQUENCY PULSE PARTICLES ── */
+    function spawnPulse(fromNode, toNode) {
+        pulses.push({
+            from: fromNode,
+            to: toNode,
+            progress: 0,
+            speed: 0.012 + Math.random() * 0.010,
+            color: STATE_COLORS[fromNode.state] || '#7aff7a',
+            alpha: 1,
+        });
+    }
+
+    /* ── DRAWING ── */
+    function drawEdges() {
+        for (const e of edges) {
+            const a = nodes[e.a];
+            const b = nodes[e.b];
+            if (a.state === 'idle' && b.state === 'idle') continue;
+            const alpha = Math.max(0, 0.12 - (e.d / 120) * 0.10);
+            ctx.strokeStyle = `rgba(122,255,122,${alpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+        }
+    }
+
+    function drawNodes(t) {
+        for (const n of nodes) {
+            const pulse = 0.5 + 0.5 * Math.sin(t * 0.002 + n.pulsePhase);
+            const color = STATE_COLORS[n.state];
+
+            if (n.state !== 'idle') {
+                const glow = n.radius * 3 + pulse * 6;
+                const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, glow);
+                grad.addColorStop(0, color + '44');
+                grad.addColorStop(1, color + '00');
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, glow, 0, Math.PI * 2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+            }
+
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+
+            if (n.state !== 'idle') {
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = color + 'aa';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+    }
+
+    function drawPulses() {
+        for (const p of pulses) {
+            const x = p.from.x + (p.to.x - p.from.x) * p.progress;
+            const y = p.from.y + (p.to.y - p.from.y) * p.progress;
+            ctx.beginPath();
+            ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.alpha;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    function drawGrid() {
+        ctx.strokeStyle = 'rgba(122,255,122,0.03)';
+        ctx.lineWidth = 0.5;
+        const step = 40;
+        for (let x = 0; x < canvas.width; x += step) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += step) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
+    }
+
+    /* ── UPDATE ── */
+    let frame = 0;
+    function update(t) {
+        frame++;
+
+        /* transition node states */
+        for (const n of nodes) {
+            n.stateTimer++;
+            if (n.stateTimer > n.stateDuration) {
+                n.stateTimer = 0;
+                n.stateDuration = 80 + Math.random() * 220;
+                /* weighted: active 35%, absorbing 30%, idle 30%, warn 5% */
+                const r = Math.random();
+                if (r < 0.35) n.state = 'active';
+                else if (r < 0.65) n.state = 'absorbing';
+                else if (r < 0.95) n.state = 'idle';
+                else n.state = 'warn';
+            }
+            /* absorption */
+            if (n.state === 'absorbing') {
+                n.bq = 0.5 + Math.random() * 4.5;
+            } else if (n.state === 'active') {
+                n.bq = 0.1 + Math.random() * 0.8;
+            } else {
+                n.bq = 0;
+            }
+        }
+
+        /* spawn pulses between active/absorbing node pairs */
+        if (frame % 6 === 0) {
+            const live = nodes.filter(n => n.state !== 'idle');
+            if (live.length >= 2 && edges.length > 0) {
+                /* pick random edge involving live nodes */
+                for (let attempt = 0; attempt < 5; attempt++) {
+                    const e = edges[Math.floor(Math.random() * edges.length)];
+                    const a = nodes[e.a], b = nodes[e.b];
+                    if (a.state !== 'idle' || b.state !== 'idle') {
+                        spawnPulse(a.state !== 'idle' ? a : b, a.state !== 'idle' ? b : a);
+                        break;
+                    }
+                }
+            }
+        }
+
+        /* advance pulses */
+        for (const p of pulses) {
+            p.progress += p.speed;
+            if (p.progress > 0.8) p.alpha = (1 - p.progress) / 0.2;
+        }
+        while (pulses.length && pulses[0].progress >= 1) pulses.shift();
+        if (pulses.length > 80) pulses.splice(0, pulses.length - 80);
+    }
+
+    /* ── RENDER LOOP ── */
+    function render(t) {
+        update(t);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#060f07';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        drawGrid();
+        drawEdges();
+        drawPulses();
+        drawNodes(t);
+
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+
+    /* ── DASHBOARD COUNTERS ── */
+    function updateCounters() {
+        let active = 0, absorbing = 0, idle = 0, warn = 0;
+        for (const n of nodes) {
+            if (n.state === 'active') active++;
+            else if (n.state === 'absorbing') absorbing++;
+            else if (n.state === 'idle') idle++;
+            else warn++;
+        }
+        document.getElementById('cnt-active').textContent = active;
+        document.getElementById('cnt-absorbing').textContent = absorbing;
+        document.getElementById('cnt-idle').textContent = idle;
+        document.getElementById('cnt-warn').textContent = warn;
+        document.getElementById('mv-node-online-count').textContent = active + absorbing + warn;
+    }
+
+    /* ── SIMULATED DATA ENGINE ── */
+    const HARMONIC_OFFSETS = [0, 12, -8, 20, -15, 5];
+    let harmonicIdx = 0;
+    let currentLayer = 0;
+    let layerTimer = 0;
+    const LAYER_DURATION = 18; /* seconds to dwell per layer */
+
+    function getFreqJitter() {
+        return (Math.random() - 0.5) * 0.4;
+    }
+
+    function updateVortexStatus() {
+        layerTimer++;
+        if (layerTimer > LAYER_DURATION * 10) {
+            layerTimer = 0;
+            currentLayer = (currentLayer + 1) % LAYERS.length;
+        }
+
+        const baseFreq = LAYER_FREQS[currentLayer];
+        const jitter = getFreqJitter();
+        const displayFreq = (baseFreq + jitter).toFixed(1);
+
+        document.getElementById('mv-current-freq').textContent = displayFreq;
+        document.getElementById('mv-freq-mode').textContent = HARMONIC_MODES[harmonicIdx % HARMONIC_MODES.length];
+
+        /* penetration levels */
+        const tropoPen = 65 + Math.random() * 25;
+        const stratoPen = 40 + Math.random() * 30;
+        const mesoPen = 10 + Math.random() * 25;
+
+        document.getElementById('mv-tropo-freq').textContent = `\u25c6 ${LAYER_FREQS[0].toFixed(1)} Hz @ ${tropoPen.toFixed(0)}% penetration`;
+        document.getElementById('mv-strato-freq').textContent = `\u25c6 ${LAYER_FREQS[1].toFixed(1)} Hz @ ${stratoPen.toFixed(0)}% penetration`;
+        document.getElementById('mv-meso-freq').textContent = `\u25c6 ${LAYER_FREQS[2].toFixed(1)} Hz @ ${mesoPen.toFixed(0)}% penetration`;
+
+        document.getElementById('mv-tropo-bar').style.width = tropoPen + '%';
+        document.getElementById('mv-strato-bar').style.width = stratoPen + '%';
+        document.getElementById('mv-meso-bar').style.width = mesoPen + '%';
+
+        /* highlight active layer */
+        ['mv-layer-tropo', 'mv-layer-strato', 'mv-layer-meso'].forEach((id, i) => {
+            document.getElementById(id).classList.toggle('active', i === currentLayer);
+        });
+    }
+
+    function updateAbsorption() {
+        const absorbing = nodes.filter(n => n.state === 'absorbing');
+        const totalBq = absorbing.reduce((s, n) => s + n.bq, 0);
+        const peakBq = absorbing.length ? Math.max(...absorbing.map(n => n.bq)) : 0;
+        sessionBq += totalBq * 0.1 / 1000;
+
+        const efficiency = nodes.length
+            ? ((absorbing.length / nodes.length) * 100).toFixed(1)
+            : '0.0';
+
+        document.getElementById('mv-total-bq').textContent = totalBq.toFixed(2);
+        document.getElementById('mv-peak-bq').textContent = peakBq.toFixed(2);
+        document.getElementById('mv-session-bq').textContent = sessionBq.toFixed(3);
+        document.getElementById('mv-efficiency').textContent = efficiency;
+
+        const tropoLoad = 40 + Math.random() * 45;
+        const stratoLoad = 20 + Math.random() * 40;
+        const mesoLoad = 5 + Math.random() * 25;
+
+        document.getElementById('mv-tropo-load-bar').style.width = tropoLoad + '%';
+        document.getElementById('mv-strato-load-bar').style.width = stratoLoad + '%';
+        document.getElementById('mv-meso-load-bar').style.width = mesoLoad + '%';
+        document.getElementById('mv-tropo-load-pct').textContent = tropoLoad.toFixed(0) + '%';
+        document.getElementById('mv-strato-load-pct').textContent = stratoLoad.toFixed(0) + '%';
+        document.getElementById('mv-meso-load-pct').textContent = mesoLoad.toFixed(0) + '%';
+    }
+
+    /* ── UPTIME CLOCK ── */
+    function updateUptime() {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+        const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+        const s = String(elapsed % 60).padStart(2, '0');
+        document.getElementById('mv-uptime').textContent = `${h}:${m}:${s}`;
+    }
+
+    /* ── SYSTEM LOG ── */
+    const logEl = document.getElementById('mv-system-log');
+
+    const LOG_TYPES = [
+        { type: 'sync', cls: 'sync', msgs: [
+            (n, f) => `Node #${n} sync confirmed — harmonic delta ${(Math.random()*0.8).toFixed(3)} Hz`,
+            (n, f) => `Mesh handshake NODE_${n.toString(16).toUpperCase()} \u2194 NODE_${(n+7).toString(16).toUpperCase()} @ ${f} Hz`,
+            (n, f) => `Phase lock acquired on node cluster ${Math.floor(n/8)} — offset ${(Math.random()*5).toFixed(2)}°`,
+        ]},
+        { type: 'freq', cls: 'freq', msgs: [
+            (n, f) => `Vortex harmonic ${f} Hz — intensity ${(70+Math.random()*28).toFixed(1)}% — layer ${LAYER_NAMES[currentLayer]}`,
+            (n, f) => `Frequency sweep ${f} Hz \u2192 ${(f*1.2).toFixed(1)} Hz — ${(Math.random()*200+50).toFixed(0)} ms transit`,
+            (n, f) => `Standing wave detected @ ${(f*0.5).toFixed(1)} Hz sub-harmonic — node #${n}`,
+        ]},
+        { type: 'absorb', cls: 'absorb', msgs: [
+            (n, f) => `Absorption event node #${n}: ${(1+Math.random()*6).toFixed(2)} Bq/s — ${LAYER_NAMES[currentLayer]}`,
+            (n, f) => `Mycelium spike detected — ${(Math.random()*15+5).toFixed(1)} kBq cumulative capture`,
+            (n, f) => `Radiation intake rate: ${(Math.random()*4+0.5).toFixed(2)} Bq/s — node cluster ${Math.floor(n/8)}`,
+        ]},
+        { type: 'warn', cls: 'warn', msgs: [
+            (n, f) => `High load alert — node #${n} at ${(85+Math.random()*14).toFixed(0)}% capacity`,
+            (n, f) => `Phase drift detected cluster ${Math.floor(n/8)} — recalibrating`,
+        ]},
+        { type: 'init', cls: 'init', msgs: [
+            (n, f) => `Node #${n} online — firmware v${(1+Math.floor(Math.random()*3))}.${Math.floor(Math.random()*9)}.${Math.floor(Math.random()*9)}`,
+        ]},
+    ];
+
+    function now() {
+        const d = new Date();
+        return [d.getHours(), d.getMinutes(), d.getSeconds()].map(v => String(v).padStart(2,'0')).join(':');
+    }
+
+    function addLogEntry() {
+        const cat = LOG_TYPES[Math.floor(Math.random() * LOG_TYPES.length)];
+        const msgFn = cat.msgs[Math.floor(Math.random() * cat.msgs.length)];
+        const nodeId = Math.floor(Math.random() * NODE_COUNT);
+        const freq = (LAYER_FREQS[currentLayer] + getFreqJitter()).toFixed(1);
+        const msg = msgFn(nodeId, freq);
+
+        const entry = document.createElement('div');
+        entry.className = 'mv-log-entry';
+        entry.innerHTML = `
+            <span class="mv-log-time">${now()}</span>
+            <span class="mv-log-type ${cat.cls}">${cat.type.toUpperCase()}</span>
+            <span class="mv-log-msg">${msg}</span>
+        `;
+        logEl.insertBefore(entry, logEl.firstChild);
+        /* keep log trimmed */
+        while (logEl.children.length > 60) {
+            logEl.removeChild(logEl.lastChild);
+        }
+    }
+
+    /* ── BOOTSTRAP LOG ── */
+    function bootstrapLog() {
+        logEl.innerHTML = '';
+        const initMsgs = [
+            { type: 'init', cls: 'init', msg: 'MycoVOID Atmospheric Remediation System — boot sequence complete' },
+            { type: 'init', cls: 'init', msg: `${NODE_COUNT} nodes loaded — mesh topology mapped` },
+            { type: 'freq', cls: 'freq', msg: `Primary vortex locked at ${LAYER_FREQS[0]} Hz — Troposphere target` },
+            { type: 'sync', cls: 'sync', msg: 'Inter-node phase synchronisation — 100% consensus' },
+            { type: 'absorb', cls: 'absorb', msg: 'Baseline radiation intake calibrated — 0.00 Bq/s offset' },
+        ];
+        for (const m of initMsgs) {
+            const entry = document.createElement('div');
+            entry.className = 'mv-log-entry';
+            entry.innerHTML = `
+                <span class="mv-log-time">${now()}</span>
+                <span class="mv-log-type ${m.cls}">${m.type.toUpperCase()}</span>
+                <span class="mv-log-msg">${m.msg}</span>
+            `;
+            logEl.appendChild(entry);
+        }
+    }
+
+    /* ── MAIN TICK ── */
+    let tickCount = 0;
+    function tick() {
+        tickCount++;
+        harmonicIdx++;
+        updateCounters();
+        updateVortexStatus();
+        updateAbsorption();
+        updateUptime();
+
+        /* add log entry every ~2.5 ticks (staggered) */
+        if (tickCount % 3 === 0 || (tickCount % 5 === 0)) {
+            addLogEntry();
+        }
+        /* re-compute edges occasionally when nodes might shift */
+    }
+
+    /* ── INIT ── */
+    bootstrapLog();
+    tick();
+    setInterval(tick, 1000);
+
+})();
+</script>
+
+</body>
+</html>
