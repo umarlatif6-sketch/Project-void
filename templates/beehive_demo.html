@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beehive Live Audio Demo — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-red: #ff5252;
+            --void-green: #4caf50;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .bd-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .bd-nav-brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .bd-nav-links { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+        .bd-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .bd-nav-link:hover { color: var(--void-gold); }
+        .bd-nav-link.active { color: var(--void-teal); }
+
+        .bd-hero {
+            text-align: center;
+            padding: 64px 32px 40px;
+            background: radial-gradient(ellipse at 50% 0%, #0d1a10 0%, var(--void-bg) 72%);
+            border-bottom: 1px solid var(--void-border);
+        }
+        .bd-hero-badge {
+            display: inline-block;
+            background: var(--void-teal);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 20px;
+        }
+        .bd-hero-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 4px;
+            margin: 0 0 12px;
+        }
+        .bd-hero-sub {
+            font-size: 0.8rem;
+            color: var(--void-muted);
+            letter-spacing: 1px;
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .bd-main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 680px) {
+            .bd-main { grid-template-columns: 1fr; }
+        }
+
+        .bd-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 24px;
+        }
+        .bd-card-wide {
+            grid-column: 1 / -1;
+        }
+        .bd-card-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--void-gold);
+            margin: 0 0 20px;
+            text-transform: uppercase;
+        }
+
+        .bd-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 0.78rem;
+        }
+        .bd-row:last-child { border-bottom: none; }
+        .bd-row-label { color: var(--void-muted); letter-spacing: 0.5px; }
+        .bd-row-value { color: var(--void-text); font-weight: 600; }
+        .bd-row-value.green { color: var(--void-green); }
+        .bd-row-value.red { color: var(--void-red); }
+        .bd-row-value.teal { color: var(--void-teal); }
+        .bd-row-value.gold { color: var(--void-gold); }
+        .bd-row-value.muted { color: var(--void-muted); }
+
+        .bd-state-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 2px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .state-dark    { background: #222; color: var(--void-muted); }
+        .state-scanning { background: #1a1a00; color: var(--void-gold); }
+        .state-connected { background: #0a1a0a; color: var(--void-green); }
+        .state-bridging { background: #0a0a1a; color: var(--void-violet); }
+
+        .bd-audio-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 2px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .audio-hw { background: #0a1a0a; color: var(--void-green); }
+        .audio-sim { background: #1a1000; color: #e0a020; }
+
+        .bd-snr-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bd-snr-bar {
+            flex: 1;
+            height: 6px;
+            background: #1e1e1e;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .bd-snr-fill {
+            height: 100%;
+            background: var(--void-teal);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+        .bd-snr-label { font-size: 0.72rem; color: var(--void-muted); min-width: 40px; text-align: right; }
+
+        .bd-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--void-border);
+            border-radius: 3px;
+            background: #111;
+            color: var(--void-text);
+            font-family: inherit;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+        .bd-btn:hover { border-color: var(--void-teal); color: var(--void-teal); }
+        .bd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .bd-btn-primary { background: #0a1f14; border-color: var(--void-teal); color: var(--void-teal); }
+        .bd-btn-primary:hover { background: #0d2a1a; }
+
+        .bd-btn-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .bd-passphrase-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .bd-passphrase-input {
+            flex: 1;
+            background: #0d0d0d;
+            border: 1px solid var(--void-border);
+            border-radius: 3px;
+            color: var(--void-text);
+            font-family: inherit;
+            font-size: 0.78rem;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .bd-passphrase-input:focus { border-color: var(--void-teal); }
+
+        .bd-result-block {
+            margin-top: 20px;
+            background: var(--void-surface2);
+            border: 1px solid var(--void-border);
+            border-radius: 3px;
+            padding: 16px;
+            font-size: 0.75rem;
+            min-height: 80px;
+            line-height: 1.7;
+        }
+        .bd-result-block.hidden { display: none; }
+
+        .bd-pulse-wrap {
+            position: relative;
+            height: 60px;
+            background: #0a0a0a;
+            border: 1px solid var(--void-border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .bd-pulse-canvas { width: 100%; height: 100%; display: block; }
+
+        .bd-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(0,191,165,0.3);
+            border-top-color: var(--void-teal);
+            border-radius: 50%;
+            animation: bd-spin 0.7s linear infinite;
+        }
+        @keyframes bd-spin { to { transform: rotate(360deg); } }
+
+        .bd-log {
+            font-size: 0.68rem;
+            color: var(--void-muted);
+            max-height: 160px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+        .bd-log-entry { padding: 1px 0; border-bottom: 1px solid #141414; }
+        .bd-log-entry:last-child { border-bottom: none; }
+        .bd-log-time { color: #444; margin-right: 8px; }
+        .bd-log-event { color: var(--void-teal); margin-right: 8px; }
+
+        .bd-verify-icon { font-size: 1.1rem; }
+
+        .bd-note {
+            background: #12100a;
+            border: 1px solid #2a200a;
+            border-radius: 3px;
+            padding: 10px 14px;
+            font-size: 0.7rem;
+            color: #a08030;
+            line-height: 1.6;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="bd-nav">
+    <a href="/" class="bd-nav-brand">&#9670; PROJECT VOID</a>
+    <div class="bd-nav-links">
+        <a href="/" class="bd-nav-link">Engine</a>
+        <a href="/sovereign-node" class="bd-nav-link">Sovereign Node</a>
+        <a href="/beehive/demo" class="bd-nav-link active">Beehive Demo</a>
+        <a href="/guide" class="bd-nav-link">Guide</a>
+        {% if username %}
+        <span class="bd-nav-link" style="color:#555">&#9670; {{ username }}</span>
+        <a href="/api/auth/logout" class="bd-nav-link">Logout</a>
+        {% else %}
+        <a href="/login" class="bd-nav-link">Login</a>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="bd-hero">
+    <div class="bd-hero-badge">BEEHIVE PROTOCOL v1.0</div>
+    <h1 class="bd-hero-title">Live Audio Demo</h1>
+    <p class="bd-hero-sub">
+        432 Hz Acoustic Mesh Node — Sura-Fatiha 286-Bit Handshake.<br>
+        Simulate a two-node exchange or trigger a live handshake and read back the Fatiha verification result, SNR, and mesh state in real time.
+    </p>
+</div>
+
+<div class="bd-main">
+
+    <!-- Node Status -->
+    <div class="bd-card">
+        <div class="bd-card-title">&#9670; Node Status</div>
+
+        <div class="bd-row">
+            <span class="bd-row-label">Node ID</span>
+            <span class="bd-row-value teal" id="node-id">{{ node_id[:16] }}...</span>
+        </div>
+        <div class="bd-row">
+            <span class="bd-row-label">Mesh State</span>
+            <span class="bd-row-value" id="mesh-state-wrap">
+                <span id="mesh-state-badge" class="bd-state-badge state-{{ mesh_state.lower() }}">{{ mesh_state }}</span>
+            </span>
+        </div>
+        <div class="bd-row">
+            <span class="bd-row-label">Neighbors</span>
+            <span class="bd-row-value" id="neighbor-count">{{ status.neighbor_count }}</span>
+        </div>
+        <div class="bd-row">
+            <span class="bd-row-label">Handshakes Sent</span>
+            <span class="bd-row-value" id="hs-sent">{{ status.stats.handshakes_sent }}</span>
+        </div>
+        <div class="bd-row">
+            <span class="bd-row-label">Handshakes Received</span>
+            <span class="bd-row-value" id="hs-received">{{ status.stats.handshakes_received }}</span>
+        </div>
+        <div class="bd-row">
+            <span class="bd-row-label">Resonance Freq</span>
+            <span class="bd-row-value gold">{{ resonance_freq }} Hz</span>
+        </div>
+        <div class="bd-row">
+            <span class="bd-row-label">Fatiha Phase</span>
+            <span class="bd-row-value">+{{ fatiha_phase_angle }}°</span>
+        </div>
+        <div class="bd-row">
+            <span class="bd-row-label">SNR Threshold</span>
+            <span class="bd-row-value">{{ snr_threshold }}</span>
+        </div>
+        <div class="bd-row">
+            <span class="bd-row-label">Mode</span>
+            <span class="bd-row-value muted">{{ status.mode }}</span>
+        </div>
+    </div>
+
+    <!-- Audio Backend Status -->
+    <div class="bd-card">
+        <div class="bd-card-title">&#9670; Audio Hardware</div>
+
+        <div class="bd-row">
+            <span class="bd-row-label">Backend</span>
+            <span class="bd-row-value">
+                {% if audio_backend == 'sounddevice' %}
+                <span class="bd-audio-badge audio-hw">sounddevice</span>
+                {% elif audio_backend == 'pyaudio' %}
+                <span class="bd-audio-badge audio-hw">pyaudio</span>
+                {% else %}
+                <span class="bd-audio-badge audio-sim">simulation</span>
+                {% endif %}
+            </span>
+        </div>
+        <div class="bd-row">
+            <span class="bd-row-label">Real Audio I/O</span>
+            <span class="bd-row-value {% if audio_backend != 'simulation' %}green{% else %}red{% endif %}">
+                {% if audio_backend != 'simulation' %}AVAILABLE{% else %}NOT AVAILABLE{% endif %}
+            </span>
+        </div>
+        <div class="bd-row">
+            <span class="bd-row-label">Sample Rate</span>
+            <span class="bd-row-value">{{ sample_rate }} Hz</span>
+        </div>
+
+        {% if audio_backend == 'simulation' %}
+        <div class="bd-note">
+            No audio library detected. Demo runs in simulation mode — protocol logic is fully verified in memory.<br>
+            To enable real audio: <code>pip install sounddevice</code>
+        </div>
+        {% else %}
+        <div class="bd-note" style="border-color:#0a2a0a; background:#050f05; color:#508050;">
+            Hardware audio available. Loopback self-test transmits through speaker and captures via microphone.
+        </div>
+        {% endif %}
+
+        <div class="bd-btn-row">
+            <button class="bd-btn" id="btn-refresh-status">&#8635; Refresh Status</button>
+        </div>
+    </div>
+
+    <!-- Simulate Exchange -->
+    <div class="bd-card bd-card-wide">
+        <div class="bd-card-title">&#9670; Simulate Two-Node Handshake Exchange</div>
+        <p style="font-size:0.75rem; color:var(--void-muted); margin:0 0 16px; line-height:1.6;">
+            Runs a complete Beehive handshake between two virtual nodes in memory. No hardware required.<br>
+            Node A generates the 432 Hz Fatiha pulse &rarr; Node B detects, authenticates, and verifies. Results appear below in real time.
+        </p>
+
+        <div class="bd-passphrase-row">
+            <label style="font-size:0.7rem; color:var(--void-muted); letter-spacing:1px; white-space:nowrap;">PASSPHRASE</label>
+            <input type="text" class="bd-passphrase-input" id="passphrase-input" value="void-432" maxlength="128" autocomplete="off" spellcheck="false">
+            <button class="bd-btn bd-btn-primary" id="btn-simulate">
+                <span id="sim-btn-label">&#9670; Run Exchange</span>
+            </button>
+        </div>
+
+        <div class="bd-result-block hidden" id="sim-result"></div>
+    </div>
+
+    <!-- Live Handshake (Pulse) -->
+    <div class="bd-card bd-card-wide">
+        <div class="bd-card-title">&#9670; Live Handshake Pulse</div>
+        <p style="font-size:0.75rem; color:var(--void-muted); margin:0 0 16px; line-height:1.6;">
+            Generates a real handshake pulse using this node's phase key, then immediately runs detect_neighbor and Fatiha verification on the generated signal. Confirms protocol integrity and shows real SNR and phase angle readouts.
+        </p>
+
+        <div class="bd-pulse-wrap">
+            <canvas class="bd-pulse-canvas" id="pulse-canvas"></canvas>
+        </div>
+
+        <div id="live-result-rows" style="display:none;">
+            <div class="bd-row">
+                <span class="bd-row-label">Signal Detected</span>
+                <span class="bd-row-value" id="live-detected">—</span>
+            </div>
+            <div class="bd-row">
+                <span class="bd-row-label">SNR</span>
+                <span class="bd-row-value">
+                    <div class="bd-snr-bar-wrap">
+                        <div class="bd-snr-bar"><div class="bd-snr-fill" id="live-snr-bar" style="width:0%"></div></div>
+                        <span class="bd-snr-label" id="live-snr-val">—</span>
+                    </div>
+                </span>
+            </div>
+            <div class="bd-row">
+                <span class="bd-row-label">Fatiha Verified</span>
+                <span class="bd-row-value" id="live-fatiha">—</span>
+            </div>
+            <div class="bd-row">
+                <span class="bd-row-label">Angle Detected</span>
+                <span class="bd-row-value" id="live-angle-det">—</span>
+            </div>
+            <div class="bd-row">
+                <span class="bd-row-label">Angle Expected</span>
+                <span class="bd-row-value" id="live-angle-exp">—</span>
+            </div>
+            <div class="bd-row">
+                <span class="bd-row-label">Angle Diff</span>
+                <span class="bd-row-value" id="live-angle-diff">—</span>
+            </div>
+            <div class="bd-row">
+                <span class="bd-row-label">Silt Layer</span>
+                <span class="bd-row-value" id="live-silt">—</span>
+            </div>
+            <div class="bd-row">
+                <span class="bd-row-label">Authentication</span>
+                <span class="bd-row-value" id="live-auth">—</span>
+            </div>
+            <div class="bd-row">
+                <span class="bd-row-label">Harmonics</span>
+                <span class="bd-row-value" id="live-harmonics">—</span>
+            </div>
+        </div>
+
+        <div class="bd-btn-row">
+            <button class="bd-btn bd-btn-primary" id="btn-handshake">
+                <span id="hs-btn-label">&#9670; Trigger Handshake</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="bd-card bd-card-wide">
+        <div class="bd-card-title">&#9670; Activity Log</div>
+        <div class="bd-log" id="activity-log">
+            <div class="bd-log-entry" style="color:#444;">Waiting for activity...</div>
+        </div>
+        <div class="bd-btn-row">
+            <button class="bd-btn" id="btn-refresh-log">&#8635; Refresh Log</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    const $ = id => document.getElementById(id);
+
+    function setLoading(btn, labelEl, loading, defaultLabel) {
+        btn.disabled = loading;
+        labelEl.innerHTML = loading
+            ? '<span class="bd-spinner"></span> Working...'
+            : defaultLabel;
+    }
+
+    function colorBool(val, trueLabel, falseLabel) {
+        if (val) return `<span class="bd-row-value green">&#10003; ${trueLabel}</span>`;
+        return `<span class="bd-row-value red">&#10007; ${falseLabel}</span>`;
+    }
+
+    function stateClass(state) {
+        const map = { DARK: 'state-dark', SCANNING: 'state-scanning', CONNECTED: 'state-connected', BRIDGING: 'state-bridging' };
+        return map[state] || 'state-dark';
+    }
+
+    function updateStatusUI(data) {
+        $('node-id').textContent = data.node_id ? data.node_id.slice(0, 16) + '...' : '—';
+        const badge = $('mesh-state-badge');
+        badge.textContent = data.mesh_state || 'DARK';
+        badge.className = 'bd-state-badge ' + stateClass(data.mesh_state || 'DARK');
+        if (data.stats) {
+            $('hs-sent').textContent = data.stats.handshakes_sent ?? '—';
+            $('hs-received').textContent = data.stats.handshakes_received ?? '—';
+        }
+        $('neighbor-count').textContent = data.neighbor_count ?? '—';
+    }
+
+    function refreshStatus() {
+        fetch('/api/beehive/demo/status')
+            .then(r => r.json())
+            .then(d => { if (d.success) updateStatusUI(d); })
+            .catch(() => {});
+    }
+
+    $('btn-refresh-status').addEventListener('click', refreshStatus);
+
+    $('btn-simulate').addEventListener('click', function () {
+        const btn = this;
+        const lbl = $('sim-btn-label');
+        const resultEl = $('sim-result');
+        const passphrase = $('passphrase-input').value.trim() || 'void-432';
+
+        setLoading(btn, lbl, true, '&#9670; Run Exchange');
+        resultEl.classList.remove('hidden');
+        resultEl.innerHTML = '<span class="bd-spinner"></span> Running two-node exchange...';
+
+        fetch('/api/beehive/demo/simulate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ passphrase }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            setLoading(btn, lbl, false, '&#9670; Run Exchange');
+            if (!data.success) {
+                resultEl.innerHTML = `<span style="color:var(--void-red)">Error: ${data.error}</span>`;
+                return;
+            }
+            const r = data.result;
+            const det = r.detection || {};
+            const auth = r.authentication || {};
+            const fat = r.fatiha_handshake || {};
+            const ok = r.success;
+
+            resultEl.innerHTML = `
+<div style="margin-bottom:10px;font-size:0.8rem;font-weight:700;color:${ok ? 'var(--void-green)' : 'var(--void-red)'}">
+  ${ok ? '&#10003; Exchange Succeeded' : '&#10007; Exchange Failed'}
+</div>
+<div class="bd-row"><span class="bd-row-label">Node A State</span><span class="bd-row-value teal">${r.node_a_state}</span></div>
+<div class="bd-row"><span class="bd-row-label">Node B State</span><span class="bd-row-value teal">${r.node_b_state}</span></div>
+<div class="bd-row"><span class="bd-row-label">Signal Detected</span><span>${colorBool(det.detected, 'YES', 'NO')}</span></div>
+<div class="bd-row"><span class="bd-row-label">SNR</span><span class="bd-row-value">${(det.snr || 0).toFixed(2)}</span></div>
+<div class="bd-row"><span class="bd-row-label">Harmonics</span><span class="bd-row-value">${det.harmonics_detected || 0}/4</span></div>
+<div class="bd-row"><span class="bd-row-label">Phase Auth</span><span>${colorBool(auth.authenticated, 'PASS', 'FAIL')}</span></div>
+<div class="bd-row"><span class="bd-row-label">Phase Diff</span><span class="bd-row-value">${(auth.phase_diff_deg || 0).toFixed(3)}° &nbsp; (tol ±${auth.tolerance_deg || 15}°)</span></div>
+<div class="bd-row"><span class="bd-row-label">Fatiha Verified</span><span>${colorBool(fat.fatiha_verified, 'YES', 'NO')}</span></div>
+<div class="bd-row"><span class="bd-row-label">Silt Layer</span><span>${colorBool(fat.silt_layer_present, 'PRESENT', 'NOT DETECTED')}</span></div>
+<div class="bd-row"><span class="bd-row-label">Whisper Confirm</span><span>${colorBool(fat.whisper_confirmed, 'YES', 'NO')}</span></div>
+<div class="bd-row"><span class="bd-row-label">Data Transmitted</span><span class="bd-row-value">${r.data_transmitted} bytes</span></div>
+<div class="bd-row"><span class="bd-row-label">Bit-Perfect</span><span>${colorBool(r.bit_perfect, 'YES', 'NO')}</span></div>
+<div class="bd-row"><span class="bd-row-label">Packet Delivery</span><span class="bd-row-value teal">${r.packet_delivery}</span></div>
+<div class="bd-row"><span class="bd-row-label">Protocol</span><span class="bd-row-value muted">${fat.protocol || ''}</span></div>
+`;
+            refreshStatus();
+            refreshLog();
+        })
+        .catch(e => {
+            setLoading(btn, lbl, false, '&#9670; Run Exchange');
+            resultEl.innerHTML = `<span style="color:var(--void-red)">Request failed: ${e.message}</span>`;
+        });
+    });
+
+    function drawPulse(canvas, snr) {
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width = canvas.offsetWidth;
+        const H = canvas.height = canvas.offsetHeight;
+        ctx.clearRect(0, 0, W, H);
+        ctx.strokeStyle = '#00bfa5';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        const freq = 432;
+        const sr = 44100;
+        const samples = W;
+        for (let i = 0; i < samples; i++) {
+            const t = i / sr;
+            const y = Math.sin(2 * Math.PI * freq * t) * 0.5;
+            const px = i;
+            const py = H / 2 - y * (H / 2 - 4);
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+    }
+
+    $('btn-handshake').addEventListener('click', function () {
+        const btn = this;
+        const lbl = $('hs-btn-label');
+
+        setLoading(btn, lbl, true, '&#9670; Trigger Handshake');
+
+        fetch('/api/beehive/demo/handshake', { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            setLoading(btn, lbl, false, '&#9670; Trigger Handshake');
+            if (!data.success) {
+                alert('Error: ' + data.error);
+                return;
+            }
+            const det = data.detection || {};
+            const fat = data.fatiha || {};
+            const auth = data.authentication || {};
+            const liveRows = $('live-result-rows');
+            liveRows.style.display = '';
+
+            $('live-detected').innerHTML = det.detected
+                ? '<span class="bd-row-value green">YES &#10003;</span>'
+                : '<span class="bd-row-value red">NO &#10007;</span>';
+
+            const snr = det.snr || 0;
+            $('live-snr-bar').style.width = Math.min(snr / 20.0, 1.0) * 100 + '%';
+            $('live-snr-val').textContent = snr.toFixed(2);
+
+            $('live-fatiha').innerHTML = fat.verified
+                ? '<span class="bd-row-value green">YES &#10003;</span>'
+                : '<span class="bd-row-value red">NO &#10007;</span>';
+
+            $('live-angle-det').textContent = (fat.fatiha_angle_detected_deg || 0).toFixed(3) + '°';
+            $('live-angle-exp').textContent = (fat.fatiha_angle_expected_deg || 0).toFixed(3) + '°';
+            const diff = fat.angle_diff_deg || 0;
+            const tol = fat.tolerance_deg || 0.5;
+            $('live-angle-diff').innerHTML = `${diff.toFixed(4)}° <span class="bd-row-value muted">(tol ±${tol}°)</span>`;
+
+            $('live-silt').innerHTML = fat.silt_layer_present
+                ? '<span class="bd-row-value green">PRESENT &#10003;</span>'
+                : '<span class="bd-row-value red">NOT DETECTED</span>';
+
+            $('live-auth').innerHTML = auth.authenticated
+                ? '<span class="bd-row-value green">AUTHENTICATED &#10003;</span>'
+                : '<span class="bd-row-value red">NOT AUTHENTICATED</span>';
+
+            $('live-harmonics').textContent = (det.harmonics_detected || 0) + ' / 4';
+
+            const canvas = $('pulse-canvas');
+            drawPulse(canvas, snr);
+
+            refreshStatus();
+            refreshLog();
+        })
+        .catch(e => {
+            setLoading(btn, lbl, false, '&#9670; Trigger Handshake');
+            alert('Request failed: ' + e.message);
+        });
+    });
+
+    function refreshLog() {
+        fetch('/api/beehive/demo/activity?limit=20')
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) return;
+            const logEl = $('activity-log');
+            if (!data.activity || data.activity.length === 0) {
+                logEl.innerHTML = '<div class="bd-log-entry" style="color:#444;">No activity yet.</div>';
+                return;
+            }
+            const entries = [...data.activity].reverse();
+            logEl.innerHTML = entries.map(e => {
+                const ts = new Date(e.timestamp * 1000).toTimeString().slice(0, 8);
+                return `<div class="bd-log-entry"><span class="bd-log-time">${ts}</span><span class="bd-log-event">${e.event}</span><span>${e.detail}</span></div>`;
+            }).join('');
+        })
+        .catch(() => {});
+    }
+
+    $('btn-refresh-log').addEventListener('click', refreshLog);
+
+    refreshStatus();
+    refreshLog();
+    setInterval(refreshStatus, 10000);
+    setInterval(refreshLog, 15000);
+})();
+</script>
+</body>
+</html>
