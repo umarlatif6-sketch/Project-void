@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID: Sovereign Realm — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --game-teal: #00e5cc;
+            --game-gold: #c9a84c;
+            --game-purple: #7c5cff;
+            --game-dark: #06060e;
+            --game-surface: #0d0d1a;
+            --game-border: #1a1a30;
+        }
+
+        body.game-body {
+            margin: 0; padding: 0; overflow: hidden;
+            background: var(--game-dark);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        #game-canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .game-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* TOP BAR */
+        .game-topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 52px;
+            background: rgba(6,6,14,0.85);
+            border-bottom: 1px solid var(--game-border);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            pointer-events: all;
+            z-index: 20;
+        }
+
+        .game-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .game-brand {
+            font-size: 13px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--game-teal);
+            font-weight: 700;
+        }
+
+        .game-mode-tabs {
+            display: flex;
+            gap: 6px;
+        }
+
+        .game-mode-tab {
+            padding: 5px 14px;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border: 1px solid var(--game-border);
+            background: rgba(13,13,26,0.8);
+            color: #888;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            pointer-events: all;
+        }
+
+        .game-mode-tab:hover {
+            border-color: var(--game-teal);
+            color: var(--game-teal);
+        }
+
+        .game-mode-tab.active {
+            border-color: var(--game-teal);
+            color: var(--game-teal);
+            background: rgba(0,229,204,0.08);
+            box-shadow: 0 0 12px rgba(0,229,204,0.15);
+        }
+
+        .game-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .game-vtx-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--game-gold);
+            background: rgba(201,168,76,0.1);
+            border: 1px solid rgba(201,168,76,0.3);
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .game-vtx-icon { font-size: 14px; }
+        .game-vtx-amount { font-weight: 700; font-size: 14px; }
+
+        .game-back-link {
+            font-size: 11px;
+            color: #555;
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+
+        .game-back-link:hover { color: var(--game-teal); }
+
+        /* HUD / STATS PANEL */
+        .game-hud {
+            position: fixed;
+            left: 16px;
+            top: 68px;
+            width: 220px;
+            background: rgba(6,6,14,0.82);
+            border: 1px solid var(--game-border);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            padding: 14px;
+            pointer-events: all;
+            z-index: 15;
+        }
+
+        .game-hud-title {
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--game-teal);
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--game-border);
+            padding-bottom: 8px;
+        }
+
+        .game-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .game-stat-label { color: #666; letter-spacing: 1px; }
+        .game-stat-value { color: var(--game-teal); font-weight: 700; }
+        .game-stat-value.gold { color: var(--game-gold); }
+
+        .game-level-bar {
+            margin-top: 10px;
+            background: var(--game-border);
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .game-level-fill {
+            height: 100%;
+            background: var(--game-teal);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 8px rgba(0,229,204,0.5);
+        }
+
+        .game-level-label {
+            font-size: 9px;
+            color: #444;
+            text-align: right;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* MISSION LOG */
+        .game-mission-log {
+            position: fixed;
+            left: 16px;
+            bottom: 16px;
+            width: 280px;
+            background: rgba(6,6,14,0.82);
+            border: 1px solid var(--game-border);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            padding: 12px;
+            max-height: 180px;
+            overflow-y: auto;
+            z-index: 15;
+        }
+
+        .game-log-title {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .game-log-entry {
+            font-size: 10px;
+            color: #888;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(26,26,48,0.5);
+            line-height: 1.4;
+        }
+
+        .game-log-entry.success { color: var(--game-teal); }
+        .game-log-entry.gold { color: var(--game-gold); }
+        .game-log-entry.warn { color: #fbbf24; }
+
+        /* MODE INSTRUCTIONS */
+        .game-mode-hint {
+            position: fixed;
+            right: 16px;
+            top: 68px;
+            width: 200px;
+            background: rgba(6,6,14,0.82);
+            border: 1px solid var(--game-border);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            padding: 12px;
+            z-index: 15;
+        }
+
+        .game-hint-title {
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--game-gold);
+            margin-bottom: 10px;
+        }
+
+        .game-hint-text {
+            font-size: 10px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .game-hint-key {
+            display: inline-block;
+            background: var(--game-border);
+            border: 1px solid #333;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 9px;
+            color: #aaa;
+            margin: 1px 0;
+        }
+
+        /* VTX TOAST */
+        .game-toast-container {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .game-toast {
+            background: rgba(6,6,14,0.95);
+            border: 1px solid var(--game-teal);
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 220px;
+            box-shadow: 0 0 20px rgba(0,229,204,0.2);
+            animation: toastIn 0.3s ease, toastOut 0.5s ease 2.5s forwards;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .game-toast.gold {
+            border-color: var(--game-gold);
+            box-shadow: 0 0 20px rgba(201,168,76,0.3);
+        }
+
+        .game-toast-icon { font-size: 20px; }
+
+        .game-toast-body {}
+        .game-toast-title { font-size: 11px; letter-spacing: 1px; color: var(--game-teal); text-transform: uppercase; }
+        .game-toast.gold .game-toast-title { color: var(--game-gold); }
+        .game-toast-amount { font-size: 18px; font-weight: 700; color: var(--game-gold); }
+        .game-toast-sub { font-size: 9px; color: #555; letter-spacing: 1px; }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; }
+            to { opacity: 0; pointer-events: none; }
+        }
+
+        /* ADRIANA CIPHER OVERLAY */
+        .cipher-panel {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+            pointer-events: all;
+        }
+
+        .cipher-panel.active { display: flex; }
+
+        .cipher-modal {
+            background: rgba(6,6,14,0.98);
+            border: 1px solid var(--game-teal);
+            border-radius: 12px;
+            padding: 32px;
+            width: 500px;
+            max-width: 95vw;
+            box-shadow: 0 0 40px rgba(0,229,204,0.15);
+        }
+
+        .cipher-modal-title {
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--game-teal);
+            margin-bottom: 8px;
+        }
+
+        .cipher-challenge-text {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .cipher-glyphs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .cipher-glyph {
+            width: 56px;
+            height: 56px;
+            border: 1px solid var(--game-border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(13,13,26,0.8);
+            color: var(--game-teal);
+        }
+
+        .cipher-glyph:hover {
+            border-color: var(--game-teal);
+            background: rgba(0,229,204,0.08);
+            transform: scale(1.08);
+            box-shadow: 0 0 12px rgba(0,229,204,0.2);
+        }
+
+        .cipher-glyph.selected {
+            border-color: var(--game-gold);
+            background: rgba(201,168,76,0.1);
+            color: var(--game-gold);
+            box-shadow: 0 0 14px rgba(201,168,76,0.25);
+        }
+
+        .cipher-sequence {
+            display: flex;
+            gap: 8px;
+            min-height: 44px;
+            background: rgba(13,13,26,0.8);
+            border: 1px solid var(--game-border);
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .cipher-seq-glyph {
+            font-size: 20px;
+            padding: 2px 6px;
+            background: rgba(0,229,204,0.1);
+            border-radius: 4px;
+            border: 1px solid rgba(0,229,204,0.2);
+            color: var(--game-teal);
+        }
+
+        .cipher-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .cipher-btn {
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid var(--game-border);
+            background: transparent;
+            color: #888;
+            transition: all 0.2s;
+        }
+
+        .cipher-btn.primary {
+            border-color: var(--game-teal);
+            color: var(--game-teal);
+            background: rgba(0,229,204,0.08);
+        }
+
+        .cipher-btn.primary:hover {
+            background: rgba(0,229,204,0.15);
+            box-shadow: 0 0 12px rgba(0,229,204,0.2);
+        }
+
+        .cipher-btn:hover { border-color: #555; color: #aaa; }
+
+        .cipher-feedback {
+            font-size: 11px;
+            margin-top: 10px;
+            min-height: 18px;
+            letter-spacing: 1px;
+        }
+
+        .cipher-feedback.success { color: var(--game-teal); }
+        .cipher-feedback.error { color: #f87171; }
+
+        /* CAP WARNING */
+        .game-cap-bar {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(251,191,36,0.1);
+            border: 1px solid rgba(251,191,36,0.4);
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-size: 10px;
+            color: #fbbf24;
+            letter-spacing: 1px;
+            display: none;
+            z-index: 30;
+        }
+
+        /* Mobile tweaks */
+        @media (max-width: 600px) {
+            .game-hud { width: 160px; }
+            .game-mode-hint { display: none; }
+            .game-mission-log { width: 200px; }
+            .game-mode-tab { padding: 4px 8px; font-size: 10px; }
+        }
+    </style>
+</head>
+<body class="game-body">
+
+<!-- TOP BAR -->
+<div class="game-topbar">
+    <div class="game-topbar-left">
+        <span class="game-brand">◆ VOID: Sovereign Realm</span>
+        <div class="game-mode-tabs">
+            <button class="game-mode-tab active" data-mode="exploration" onclick="switchMode('exploration')">Exploration</button>
+            <button class="game-mode-tab" data-mode="nodebuilder" onclick="switchMode('nodebuilder')">Node Builder</button>
+            <button class="game-mode-tab" data-mode="adriana" onclick="switchMode('adriana')">Adriana Cipher</button>
+        </div>
+    </div>
+    <div class="game-topbar-right">
+        <div class="game-vtx-badge">
+            <span class="game-vtx-icon">◆</span>
+            <span id="hud-balance" class="game-vtx-amount">{{ '%.2f'|format(stats.vortex_balance or 0) }}</span>
+            <span style="font-size:10px;color:#888;margin-left:2px">VTX</span>
+        </div>
+        <a href="/" class="game-back-link">← Back to Engine</a>
+    </div>
+</div>
+
+<!-- THREE.JS CANVAS -->
+<canvas id="game-canvas"></canvas>
+
+<!-- HUD -->
+<div class="game-hud">
+    <div class="game-hud-title">◆ Sovereign Stats</div>
+    <div class="game-stat-row">
+        <span class="game-stat-label">PLAYER</span>
+        <span class="game-stat-value">{{ username }}</span>
+    </div>
+    <div class="game-stat-row">
+        <span class="game-stat-label">LEVEL</span>
+        <span class="game-stat-value" id="hud-level">{{ stats.level or 1 }}</span>
+    </div>
+    <div class="game-stat-row">
+        <span class="game-stat-label">NODES BUILT</span>
+        <span class="game-stat-value" id="hud-nodes">{{ stats.nodes_built or 0 }}</span>
+    </div>
+    <div class="game-stat-row">
+        <span class="game-stat-label">VAULTS FOUND</span>
+        <span class="game-stat-value" id="hud-vaults">{{ stats.vaults_opened or 0 }}</span>
+    </div>
+    <div class="game-stat-row">
+        <span class="game-stat-label">GLYPHS SOLVED</span>
+        <span class="game-stat-value" id="hud-glyphs">{{ stats.glyphs_solved or 0 }}</span>
+    </div>
+    <div class="game-stat-row">
+        <span class="game-stat-label">GAME VTX</span>
+        <span class="game-stat-value gold" id="hud-game-vtx">{{ '%.1f'|format(stats.total_game_vtx or 0) }}</span>
+    </div>
+    <div class="game-level-bar">
+        <div class="game-level-fill" id="hud-level-fill" style="width: {{ [((stats.nodes_built or 0) + (stats.vaults_opened or 0) + (stats.glyphs_solved or 0)) % ((stats.level or 1) * 3) / ((stats.level or 1) * 3) * 100, 100]|min }}%"></div>
+    </div>
+    <div class="game-level-label">XP to next level</div>
+</div>
+
+<!-- MISSION LOG -->
+<div class="game-mission-log">
+    <div class="game-log-title">Mission Log</div>
+    <div id="mission-log-entries">
+        <div class="game-log-entry">◆ Sovereign Realm initialized</div>
+        <div class="game-log-entry">◆ Welcome, {{ username }}. Enter the VOID.</div>
+    </div>
+</div>
+
+<!-- MODE HINT -->
+<div class="game-mode-hint">
+    <div class="game-hint-title" id="hint-mode-title">Exploration Mode</div>
+    <div class="game-hint-text" id="hint-mode-text">
+        <span class="game-hint-key">WASD</span> or <span class="game-hint-key">Arrow Keys</span> to fly<br>
+        <span class="game-hint-key">Click</span> a signal vault to discover it<br><br>
+        Reward: <strong style="color:#c9a84c">0.5 VTX</strong> per vault
+    </div>
+</div>
+
+<!-- VTX TOAST CONTAINER -->
+<div class="game-toast-container" id="toast-container"></div>
+
+<!-- CAP BAR -->
+<div class="game-cap-bar" id="cap-bar">⚠ Daily VTX cap reached (50 VTX). Come back tomorrow.</div>
+
+<!-- ADRIANA CIPHER PANEL -->
+<div class="cipher-panel" id="cipher-panel">
+    <div class="cipher-modal">
+        <div class="cipher-modal-title">Ψ Adriana Cipher Chamber</div>
+        <div class="cipher-challenge-text" id="cipher-challenge-text">Select the correct glyph sequence to form a valid Adriana resonance expression.</div>
+        <div class="cipher-glyphs" id="cipher-glyphs"></div>
+        <div style="font-size:10px;color:#555;letter-spacing:1px;margin-bottom:6px;">YOUR SEQUENCE:</div>
+        <div class="cipher-sequence" id="cipher-sequence"></div>
+        <div class="cipher-actions">
+            <button class="cipher-btn primary" onclick="submitCipher()">Transmit Sequence</button>
+            <button class="cipher-btn" onclick="clearCipher()">Clear</button>
+            <button class="cipher-btn" onclick="closeCipher()">Exit Chamber</button>
+        </div>
+        <div class="cipher-feedback" id="cipher-feedback"></div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function() {
+    'use strict';
+
+    /* ── GAME STATE ── */
+    const state = {
+        mode: 'exploration',
+        level: {{ stats.level or 1 }},
+        nodesBuilt: {{ stats.nodes_built or 0 }},
+        vaultsOpened: {{ stats.vaults_opened or 0 }},
+        glyphsSolved: {{ stats.glyphs_solved or 0 }},
+        totalGameVtx: {{ stats.total_game_vtx or 0 }},
+        balance: {{ stats.vortex_balance or 0 }},
+        sessionVtx: 0,
+        capReached: false,
+    };
+
+    /* ── THREE.JS SETUP ── */
+    const canvas = document.getElementById('game-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x06060e, 1);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x06060e, 0.018);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
+    camera.position.set(0, 0, 20);
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    /* ── LIGHTS ── */
+    const ambient = new THREE.AmbientLight(0x0a0a1a, 2);
+    scene.add(ambient);
+    const pointLight1 = new THREE.PointLight(0x00e5cc, 3, 80);
+    pointLight1.position.set(0, 10, 0);
+    scene.add(pointLight1);
+    const pointLight2 = new THREE.PointLight(0xc9a84c, 2, 60);
+    pointLight2.position.set(20, -10, -20);
+    scene.add(pointLight2);
+
+    /* ── STAR FIELD ── */
+    const starGeo = new THREE.BufferGeometry();
+    const starCount = 2000;
+    const starPositions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i++) {
+        starPositions[i] = (Math.random() - 0.5) * 400;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const starMat = new THREE.PointsMaterial({ color: 0x334455, size: 0.3, sizeAttenuation: true });
+    scene.add(new THREE.Points(starGeo, starMat));
+
+    /* ── UTILITY ── */
+    function randRange(a, b) { return a + Math.random() * (b - a); }
+    function hexToRgb(h) {
+        return new THREE.Color(h);
+    }
+
+    /* ════════════════════════════════════════
+       EXPLORATION MODE — Signal Vaults
+    ════════════════════════════════════════ */
+    const explorationGroup = new THREE.Group();
+    scene.add(explorationGroup);
+
+    const vaultObjects = [];
+
+    function buildVaults() {
+        for (let i = 0; i < 30; i++) {
+            const geo = new THREE.IcosahedronGeometry(randRange(0.5, 1.2), 0);
+            const mat = new THREE.MeshPhongMaterial({
+                color: new THREE.Color(0x004433),
+                emissive: new THREE.Color(0x00e5cc),
+                emissiveIntensity: 0.25,
+                wireframe: Math.random() > 0.5,
+                transparent: true,
+                opacity: 0.85,
+            });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(
+                randRange(-50, 50),
+                randRange(-20, 20),
+                randRange(-80, 10)
+            );
+            mesh.userData.type = 'vault';
+            mesh.userData.discovered = false;
+            mesh.userData.baseEmissive = 0.25;
+            explorationGroup.add(mesh);
+            vaultObjects.push(mesh);
+        }
+    }
+
+    buildVaults();
+
+    /* ════════════════════════════════════════
+       NODE BUILDER MODE — Hex Grid
+    ════════════════════════════════════════ */
+    const nodeBuilderGroup = new THREE.Group();
+    scene.add(nodeBuilderGroup);
+    nodeBuilderGroup.visible = false;
+
+    const hexCells = [];
+    const HEX_RADIUS = 2.8;
+    const HEX_COLS = 7;
+    const HEX_ROWS = 5;
+
+    function hexPos(col, row) {
+        const x = col * HEX_RADIUS * 1.75 - (HEX_COLS * HEX_RADIUS * 0.875);
+        const z = row * HEX_RADIUS * 1.52 - (HEX_ROWS * HEX_RADIUS * 0.76) + (col % 2 === 0 ? 0 : HEX_RADIUS * 0.76);
+        return { x, z };
+    }
+
+    function buildHexGrid() {
+        for (let c = 0; c < HEX_COLS; c++) {
+            for (let r = 0; r < HEX_ROWS; r++) {
+                const pos = hexPos(c, r);
+                const geo = new THREE.CylinderGeometry(HEX_RADIUS * 0.8, HEX_RADIUS * 0.8, 0.25, 6);
+                const mat = new THREE.MeshPhongMaterial({
+                    color: 0x0a0a1a,
+                    emissive: 0x001118,
+                    emissiveIntensity: 0.5,
+                    wireframe: false,
+                    transparent: true,
+                    opacity: 0.9,
+                });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set(pos.x, -5, pos.z);
+                mesh.rotation.y = Math.PI / 6;
+                mesh.userData.type = 'hexcell';
+                mesh.userData.occupied = false;
+                mesh.userData.col = c;
+                mesh.userData.row = r;
+                nodeBuilderGroup.add(mesh);
+                hexCells.push(mesh);
+
+                const edgeGeo = new THREE.CylinderGeometry(HEX_RADIUS * 0.8 + 0.05, HEX_RADIUS * 0.8 + 0.05, 0.3, 6);
+                const edgeMat = new THREE.MeshBasicMaterial({ color: 0x00e5cc, wireframe: true, transparent: true, opacity: 0.12 });
+                const edge = new THREE.Mesh(edgeGeo, edgeMat);
+                edge.position.copy(mesh.position);
+                edge.rotation.y = Math.PI / 6;
+                nodeBuilderGroup.add(edge);
+            }
+        }
+    }
+
+    buildHexGrid();
+
+    function placeNode(cell) {
+        if (cell.userData.occupied) return;
+        cell.userData.occupied = true;
+        cell.material.emissive = new THREE.Color(0x00e5cc);
+        cell.material.emissiveIntensity = 0.6;
+
+        const nodeGeo = new THREE.OctahedronGeometry(0.9, 0);
+        const nodeMat = new THREE.MeshPhongMaterial({
+            color: 0x00e5cc,
+            emissive: 0x004433,
+            emissiveIntensity: 0.8,
+            transparent: true,
+            opacity: 0.9,
+        });
+        const node = new THREE.Mesh(nodeGeo, nodeMat);
+        node.position.copy(cell.position);
+        node.position.y = -3.8;
+        nodeBuilderGroup.add(node);
+
+        const glowGeo = new THREE.SphereGeometry(1.4, 8, 8);
+        const glowMat = new THREE.MeshBasicMaterial({ color: 0x00e5cc, transparent: true, opacity: 0.07, side: THREE.BackSide });
+        const glow = new THREE.Mesh(glowGeo, glowMat);
+        glow.position.copy(node.position);
+        nodeBuilderGroup.add(glow);
+    }
+
+    /* ════════════════════════════════════════
+       ADRIANA CIPHER MODE — Floating Glyph Panels
+    ════════════════════════════════════════ */
+    const adrianaGroup = new THREE.Group();
+    scene.add(adrianaGroup);
+    adrianaGroup.visible = false;
+
+    const GLYPHS = ['α','β','γ','δ','ε','ζ','η','θ','κ','λ','ν','ξ','σ','τ','φ','ψ','ω','◆','⬡','Ψ','Σ','Φ','∞','⚡'];
+    const CIPHER_SOLUTIONS = [
+        { challenge: 'Complete the resonance: α → ? → σ', answer: ['α','λ','σ'], reward_glyphs: ['α','λ','σ','τ','∞'] },
+        { challenge: 'Form the Sovereign Triad: signal, ledger, harmony', answer: ['γ','σ','φ'], reward_glyphs: ['γ','σ','φ','ψ','Φ'] },
+        { challenge: 'Encode: origin, wave, completeness', answer: ['α','λ','ω'], reward_glyphs: ['α','λ','ω','β','◆'] },
+        { challenge: 'Express: node, mesh, gate', answer: ['ν','⬡','Γ'], reward_glyphs: ['ν','⬡','γ','σ','η'] },
+        { challenge: 'The VOID core: genesis, spiral, eternal', answer: ['◆','φ','∞'], reward_glyphs: ['◆','φ','∞','Ψ','α'] },
+    ];
+
+    let floatingPanels = [];
+
+    function buildAdrianaChamber() {
+        for (let i = 0; i < 8; i++) {
+            const angle = (i / 8) * Math.PI * 2;
+            const r = 12;
+            const geo = new THREE.PlaneGeometry(3, 3.5);
+            const mat = new THREE.MeshPhongMaterial({
+                color: 0x080814,
+                emissive: 0x7c5cff,
+                emissiveIntensity: 0.15,
+                transparent: true,
+                opacity: 0.8,
+                side: THREE.DoubleSide,
+            });
+            const panel = new THREE.Mesh(geo, mat);
+            panel.position.set(Math.cos(angle) * r, randRange(-3, 3), Math.sin(angle) * r - 5);
+            panel.lookAt(0, panel.position.y, -5);
+            panel.userData.phase = Math.random() * Math.PI * 2;
+            adrianaGroup.add(panel);
+            floatingPanels.push(panel);
+
+            const edgeGeo = new THREE.EdgesGeometry(geo);
+            const edgeMat = new THREE.LineBasicMaterial({ color: 0x7c5cff, transparent: true, opacity: 0.4 });
+            const edge = new THREE.LineSegments(edgeGeo, edgeMat);
+            edge.position.copy(panel.position);
+            edge.rotation.copy(panel.rotation);
+            adrianaGroup.add(edge);
+        }
+    }
+
+    buildAdrianaChamber();
+
+    /* ── CAMERA / MOVEMENT ── */
+    const keys = {};
+    document.addEventListener('keydown', e => { keys[e.key] = true; });
+    document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+    let camYaw = 0;
+    let camPitch = 0;
+    let isDragging = false;
+    let lastMouse = { x: 0, y: 0 };
+
+    canvas.addEventListener('mousedown', e => {
+        if (e.button === 2 || e.button === 0) {
+            isDragging = true;
+            lastMouse = { x: e.clientX, y: e.clientY };
+        }
+    });
+
+    document.addEventListener('mouseup', () => { isDragging = false; });
+
+    document.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        const dx = e.clientX - lastMouse.x;
+        const dy = e.clientY - lastMouse.y;
+        camYaw -= dx * 0.003;
+        camPitch -= dy * 0.003;
+        camPitch = Math.max(-1.2, Math.min(1.2, camPitch));
+        lastMouse = { x: e.clientX, y: e.clientY };
+    });
+
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+    function updateCamera(dt) {
+        const speed = 8 * dt;
+        const fwd = new THREE.Vector3(Math.sin(camYaw), 0, -Math.cos(camYaw));
+        const right = new THREE.Vector3(Math.cos(camYaw), 0, Math.sin(camYaw));
+
+        if (keys['w'] || keys['W'] || keys['ArrowUp'])    camera.position.addScaledVector(fwd, speed);
+        if (keys['s'] || keys['S'] || keys['ArrowDown'])  camera.position.addScaledVector(fwd, -speed);
+        if (keys['a'] || keys['A'] || keys['ArrowLeft'])  camera.position.addScaledVector(right, -speed);
+        if (keys['d'] || keys['D'] || keys['ArrowRight']) camera.position.addScaledVector(right, speed);
+        if (keys['q'] || keys['Q'])                        camera.position.y += speed;
+        if (keys['e'] || keys['E'])                        camera.position.y -= speed;
+
+        camera.rotation.order = 'YXZ';
+        camera.rotation.y = camYaw;
+        camera.rotation.x = camPitch;
+    }
+
+    /* ── RAYCASTER / CLICK ── */
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let lastClickTime = 0;
+
+    canvas.addEventListener('click', e => {
+        const now = Date.now();
+        if (now - lastClickTime < 300) return;
+        lastClickTime = now;
+
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        if (state.mode === 'exploration') {
+            const hits = raycaster.intersectObjects(vaultObjects);
+            if (hits.length > 0) {
+                const vault = hits[0].object;
+                if (!vault.userData.discovered) {
+                    vault.userData.discovered = true;
+                    vault.material.emissive = new THREE.Color(0xc9a84c);
+                    vault.material.emissiveIntensity = 1.0;
+                    vault.material.wireframe = false;
+                    triggerReward('vault_discovered');
+                }
+            }
+        }
+
+        if (state.mode === 'nodebuilder') {
+            const hits = raycaster.intersectObjects(hexCells);
+            if (hits.length > 0) {
+                const cell = hits[0].object;
+                if (!cell.userData.occupied) {
+                    placeNode(cell);
+                    triggerReward('node_built');
+                }
+            }
+        }
+    });
+
+    /* ── REWARD API ── */
+    function triggerReward(eventType) {
+        if (state.capReached) {
+            addLog('Daily VTX cap reached (50 VTX/day)', 'warn');
+            document.getElementById('cap-bar').style.display = 'block';
+            return;
+        }
+
+        fetch('/api/game/reward', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event_type: eventType })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.cap_reached) {
+                state.capReached = true;
+                document.getElementById('cap-bar').style.display = 'block';
+                addLog('Daily 50 VTX cap reached — come back tomorrow', 'warn');
+                return;
+            }
+            if (data.error) {
+                addLog('Reward error: ' + data.error, 'warn');
+                return;
+            }
+            if (data.already_minted) return;
+
+            const vtx = data.vtx_earned || 0;
+            state.sessionVtx += vtx;
+            if (data.stats) updateHUD(data.stats);
+
+            const labels = {
+                vault_discovered: '◆ Signal Vault Discovered',
+                node_built: '⬡ Sovereign Node Deployed',
+                glyph_solved: 'Ψ Cipher Solved',
+                level_up: '⚡ LEVEL UP',
+            };
+
+            showToast(labels[eventType] || eventType, vtx, eventType === 'level_up');
+            addLog(labels[eventType] + ' — +' + vtx.toFixed(1) + ' VTX', eventType === 'level_up' ? 'gold' : 'success');
+
+            if (data.level_up && data.level_up.vtx_earned) {
+                showToast('⚡ LEVEL UP', data.level_up.vtx_earned, true);
+                addLog('Level up! +' + data.level_up.vtx_earned.toFixed(1) + ' VTX bonus', 'gold');
+            }
+        })
+        .catch(() => addLog('Network error — reward not recorded', 'warn'));
+    }
+
+    function updateHUD(stats) {
+        if (stats.level !== undefined) {
+            state.level = stats.level;
+            document.getElementById('hud-level').textContent = stats.level;
+        }
+        if (stats.nodes_built !== undefined) {
+            state.nodesBuilt = stats.nodes_built;
+            document.getElementById('hud-nodes').textContent = stats.nodes_built;
+        }
+        if (stats.vaults_opened !== undefined) {
+            state.vaultsOpened = stats.vaults_opened;
+            document.getElementById('hud-vaults').textContent = stats.vaults_opened;
+        }
+        if (stats.glyphs_solved !== undefined) {
+            state.glyphsSolved = stats.glyphs_solved;
+            document.getElementById('hud-glyphs').textContent = stats.glyphs_solved;
+        }
+        if (stats.total_game_vtx !== undefined) {
+            state.totalGameVtx = stats.total_game_vtx;
+            document.getElementById('hud-game-vtx').textContent = stats.total_game_vtx.toFixed(1);
+        }
+        if (stats.vortex_balance !== undefined) {
+            state.balance = stats.vortex_balance;
+            document.getElementById('hud-balance').textContent = stats.vortex_balance.toFixed(2);
+        }
+        const total = (stats.nodes_built || 0) + (stats.vaults_opened || 0) + (stats.glyphs_solved || 0);
+        const lvl = stats.level || 1;
+        const xpPct = Math.min((total % (lvl * 3)) / (lvl * 3) * 100, 100);
+        document.getElementById('hud-level-fill').style.width = xpPct + '%';
+    }
+
+    /* ── TOAST ── */
+    function showToast(title, vtx, isGold) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'game-toast' + (isGold ? ' gold' : '');
+        toast.innerHTML = `
+            <div class="game-toast-icon">${isGold ? '⚡' : '◆'}</div>
+            <div class="game-toast-body">
+                <div class="game-toast-title">${title}</div>
+                <div class="game-toast-amount">+${parseFloat(vtx).toFixed(1)} VTX</div>
+                <div class="game-toast-sub">ADDED TO SOVEREIGN WALLET</div>
+            </div>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3200);
+    }
+
+    /* ── MISSION LOG ── */
+    function addLog(text, cls) {
+        const container = document.getElementById('mission-log-entries');
+        const entry = document.createElement('div');
+        entry.className = 'game-log-entry' + (cls ? ' ' + cls : '');
+        entry.textContent = '◆ ' + text;
+        container.insertBefore(entry, container.firstChild);
+        if (container.children.length > 20) container.removeChild(container.lastChild);
+    }
+
+    /* ── MODE SWITCHER ── */
+    const HINTS = {
+        exploration: {
+            title: 'Exploration Mode',
+            text: '<span class="game-hint-key">WASD</span> or <span class="game-hint-key">Arrows</span> to fly<br><span class="game-hint-key">Drag</span> to look around<br><span class="game-hint-key">Click</span> a vault to discover<br><br>Reward: <strong style="color:#c9a84c">0.5 VTX</strong> per vault'
+        },
+        nodebuilder: {
+            title: 'Node Builder Mode',
+            text: '<span class="game-hint-key">Drag</span> to orbit the grid<br><span class="game-hint-key">Click</span> an empty hex cell to deploy a node<br><br>Reward: <strong style="color:#c9a84c">2.0 VTX</strong> per node'
+        },
+        adriana: {
+            title: 'Adriana Cipher Mode',
+            text: 'Select glyphs in the correct sequence to form a valid Adriana resonance expression.<br><br>Reward: <strong style="color:#c9a84c">1.0 VTX</strong> per solution'
+        },
+    };
+
+    function switchMode(mode) {
+        state.mode = mode;
+
+        document.querySelectorAll('.game-mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+
+        explorationGroup.visible = mode === 'exploration';
+        nodeBuilderGroup.visible = mode === 'nodebuilder';
+        adrianaGroup.visible = mode === 'adriana';
+
+        const hint = HINTS[mode];
+        document.getElementById('hint-mode-title').textContent = hint.title;
+        document.getElementById('hint-mode-text').innerHTML = hint.text;
+
+        if (mode === 'exploration') {
+            camera.position.set(0, 0, 20);
+            camYaw = 0; camPitch = 0;
+        } else if (mode === 'nodebuilder') {
+            camera.position.set(0, 22, 12);
+            camPitch = -0.9; camYaw = 0;
+        } else if (mode === 'adriana') {
+            camera.position.set(0, 0, 5);
+            camYaw = 0; camPitch = 0;
+            openCipher();
+        }
+
+        addLog('Switched to ' + hint.title, '');
+    }
+
+    /* ════════════════════════════════════════
+       ADRIANA CIPHER LOGIC
+    ════════════════════════════════════════ */
+    let currentCipher = null;
+    let cipherSequence = [];
+
+    function openCipher() {
+        const idx = Math.floor(Math.random() * CIPHER_SOLUTIONS.length);
+        currentCipher = CIPHER_SOLUTIONS[idx];
+        cipherSequence = [];
+
+        document.getElementById('cipher-challenge-text').textContent = currentCipher.challenge;
+        document.getElementById('cipher-feedback').textContent = '';
+        document.getElementById('cipher-feedback').className = 'cipher-feedback';
+        renderCipherGlyphs(currentCipher.reward_glyphs);
+        renderCipherSequence();
+        document.getElementById('cipher-panel').classList.add('active');
+    }
+
+    function renderCipherGlyphs(glyphs) {
+        const container = document.getElementById('cipher-glyphs');
+        container.innerHTML = '';
+        glyphs.forEach(g => {
+            const el = document.createElement('div');
+            el.className = 'cipher-glyph';
+            el.textContent = g;
+            el.addEventListener('click', () => {
+                el.classList.toggle('selected');
+                const idx = cipherSequence.indexOf(g);
+                if (idx === -1) cipherSequence.push(g);
+                else cipherSequence.splice(idx, 1);
+                renderCipherSequence();
+            });
+            container.appendChild(el);
+        });
+    }
+
+    function renderCipherSequence() {
+        const seq = document.getElementById('cipher-sequence');
+        seq.innerHTML = cipherSequence.map(g => `<span class="cipher-seq-glyph">${g}</span>`).join('');
+    }
+
+    function submitCipher() {
+        if (!currentCipher) return;
+        const answer = currentCipher.answer;
+        const correct = cipherSequence.length === answer.length && cipherSequence.every((g, i) => g === answer[i]);
+
+        const fb = document.getElementById('cipher-feedback');
+        if (correct) {
+            fb.textContent = '✓ Resonance Locked. Adriana cipher solved!';
+            fb.className = 'cipher-feedback success';
+            setTimeout(() => {
+                closeCipher();
+                triggerReward('glyph_solved');
+            }, 800);
+        } else {
+            fb.textContent = '✗ Incorrect sequence. The resonance rejects this pattern.';
+            fb.className = 'cipher-feedback error';
+            cipherSequence = [];
+            document.querySelectorAll('.cipher-glyph').forEach(el => el.classList.remove('selected'));
+            renderCipherSequence();
+        }
+    }
+
+    function clearCipher() {
+        cipherSequence = [];
+        document.querySelectorAll('.cipher-glyph').forEach(el => el.classList.remove('selected'));
+        renderCipherSequence();
+        document.getElementById('cipher-feedback').textContent = '';
+    }
+
+    function closeCipher() {
+        document.getElementById('cipher-panel').classList.remove('active');
+    }
+
+    window.switchMode = switchMode;
+    window.submitCipher = submitCipher;
+    window.clearCipher = clearCipher;
+    window.closeCipher = closeCipher;
+
+    /* ── ADRIANA CIPHER KEY ── */
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && document.getElementById('cipher-panel').classList.contains('active')) {
+            submitCipher();
+        }
+        if (e.key === 'Escape') {
+            closeCipher();
+        }
+        if (e.key === 'c' || e.key === 'C') {
+            if (state.mode === 'adriana') openCipher();
+        }
+    });
+
+    /* ── ANIMATE ── */
+    let last = performance.now();
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const now = performance.now();
+        const dt = Math.min((now - last) / 1000, 0.1);
+        last = now;
+
+        updateCamera(dt);
+
+        const t = now * 0.001;
+
+        if (state.mode === 'exploration') {
+            vaultObjects.forEach((v, i) => {
+                if (!v.userData.discovered) {
+                    v.rotation.x += 0.004;
+                    v.rotation.y += 0.006;
+                    v.material.emissiveIntensity = 0.2 + 0.15 * Math.sin(t * 1.5 + i);
+                }
+            });
+            pointLight1.position.x = Math.sin(t * 0.4) * 15;
+            pointLight1.position.z = Math.cos(t * 0.4) * 15;
+        }
+
+        if (state.mode === 'nodebuilder') {
+            hexCells.forEach((cell, i) => {
+                if (cell.userData.occupied) {
+                    cell.material.emissiveIntensity = 0.5 + 0.2 * Math.sin(t * 2 + i * 0.8);
+                }
+            });
+        }
+
+        if (state.mode === 'adriana') {
+            floatingPanels.forEach((panel, i) => {
+                panel.position.y += Math.sin(t * 0.8 + panel.userData.phase) * 0.003;
+                panel.rotation.y += 0.001;
+                panel.material.emissiveIntensity = 0.1 + 0.1 * Math.sin(t * 1.2 + i);
+            });
+        }
+
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    /* ── TOUCH SUPPORT ── */
+    let touchStart = null;
+    canvas.addEventListener('touchstart', e => {
+        touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, time: Date.now() };
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', e => {
+        if (!touchStart) return;
+        const dx = e.touches[0].clientX - touchStart.x;
+        const dy = e.touches[0].clientY - touchStart.y;
+        camYaw -= dx * 0.005;
+        camPitch -= dy * 0.005;
+        camPitch = Math.max(-1.2, Math.min(1.2, camPitch));
+        touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, time: touchStart.time };
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', e => {
+        if (!touchStart) return;
+        const elapsed = Date.now() - touchStart.time;
+        if (elapsed < 250) {
+            const touch = e.changedTouches[0];
+            mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            if (state.mode === 'exploration') {
+                const hits = raycaster.intersectObjects(vaultObjects);
+                if (hits.length > 0 && !hits[0].object.userData.discovered) {
+                    hits[0].object.userData.discovered = true;
+                    hits[0].object.material.emissive = new THREE.Color(0xc9a84c);
+                    hits[0].object.material.emissiveIntensity = 1.0;
+                    triggerReward('vault_discovered');
+                }
+            } else if (state.mode === 'nodebuilder') {
+                const hits = raycaster.intersectObjects(hexCells);
+                if (hits.length > 0 && !hits[0].object.userData.occupied) {
+                    placeNode(hits[0].object);
+                    triggerReward('node_built');
+                }
+            } else if (state.mode === 'adriana') {
+                openCipher();
+            }
+        }
+        touchStart = null;
+    }, { passive: true });
+
+})();
+</script>
+</body>
+</html>

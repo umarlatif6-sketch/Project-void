@@ -485,6 +485,121 @@ def spend_vtx_with_unlock(user_id, amount_decimal, feature, duration):
         conn.close()
 
 
+GAME_REWARD_TIERS = {
+    "vault_discovered": Decimal("0.5"),
+    "glyph_solved": Decimal("1.0"),
+    "node_built": Decimal("2.0"),
+    "level_up": Decimal("5.0"),
+}
+
+GAME_DAILY_CAP = Decimal("50.0")
+
+
+def mint_game_reward(user_id, event_type, event_id=None):
+    """
+    Grant VTX for in-game events. Enforces a 50 VTX / 24-hour cap per user.
+    Returns block dict on success or dict with error/cap_reached key.
+    """
+    amount = GAME_REWARD_TIERS.get(event_type)
+    if amount is None:
+        return {"error": f"Unknown game event type: {event_type}"}
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+
+        if event_id:
+            dedup_hash = fatiha_286_hexdigest_from_str(f"game_{event_type}_{user_id}_{event_id}")
+            cur.execute(
+                "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'mint_game'",
+                (dedup_hash,),
+            )
+            if cur.fetchone():
+                conn.close()
+                return {"already_minted": True, "event_id": event_id}
+        else:
+            dedup_hash = fatiha_286_hexdigest_from_str(
+                f"game_{event_type}_{user_id}_{datetime.now(timezone.utc).isoformat()}"
+            )
+
+        cur.execute(
+            """SELECT COALESCE(SUM(amount), 0)
+               FROM vortex_ledger
+               WHERE to_user_id = %s AND tx_type = 'mint_game'
+                 AND timestamp >= NOW() - INTERVAL '24 hours'""",
+            (user_id,),
+        )
+        earned_today = cur.fetchone()[0]
+        if earned_today + amount > GAME_DAILY_CAP:
+            conn.close()
+            return {
+                "cap_reached": True,
+                "earned_today": float(earned_today),
+                "daily_cap": float(GAME_DAILY_CAP),
+                "message": "Daily VTX game cap of 50 VTX reached. Come back tomorrow!",
+            }
+
+        block = _create_block(cur, "mint_game", None, user_id, amount, dedup_hash)
+        cur.execute(
+            "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id = %s",
+            (amount, user_id),
+        )
+
+        stat_col = {
+            "vault_discovered": "vaults_opened",
+            "glyph_solved": "glyphs_solved",
+            "node_built": "nodes_built",
+            "level_up": None,
+        }.get(event_type)
+        if stat_col:
+            cur.execute(
+                f"UPDATE users SET {stat_col} = COALESCE({stat_col}, 0) + 1 WHERE id = %s",
+                (user_id,),
+            )
+
+        cur.execute(
+            "UPDATE users SET total_game_vtx = COALESCE(total_game_vtx, 0) + %s WHERE id = %s",
+            (amount, user_id),
+        )
+
+        conn.commit()
+        block["vtx_earned"] = float(amount)
+        block["event_type"] = event_type
+        block["earned_today"] = float(earned_today + amount)
+        return block
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def get_game_stats(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT COALESCE(game_level, 1), COALESCE(nodes_built, 0),
+                      COALESCE(vaults_opened, 0), COALESCE(glyphs_solved, 0),
+                      COALESCE(total_game_vtx, 0), COALESCE(vortex_balance, 0)
+               FROM users WHERE id = %s""",
+            (user_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            return {}
+        return {
+            "level": int(row[0]),
+            "nodes_built": int(row[1]),
+            "vaults_opened": int(row[2]),
+            "glyphs_solved": int(row[3]),
+            "total_game_vtx": float(row[4]),
+            "vortex_balance": float(row[5]),
+        }
+    finally:
+        conn.close()
+
+
 def validate_chain(limit=100):
     conn = _get_db()
     try:

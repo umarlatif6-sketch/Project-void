@@ -7975,3 +7975,95 @@ body[data-tier="ghost"] .vcb-tier-badge,
         align-items: center;
     }
 }
+
+/* ── VOID GAME TEASER (landing page) ── */
+.landing-game-teaser {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 60px 32px;
+    text-align: center;
+    border-top: 1px solid #1a2a2a;
+}
+
+.landing-game-teaser-badge {
+    display: inline-block;
+    background: rgba(0, 229, 204, 0.08);
+    border: 1px solid rgba(0, 229, 204, 0.25);
+    color: #00e5cc;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+}
+
+.landing-game-teaser-title {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #e0e0e8;
+    margin-bottom: 16px;
+}
+
+.landing-game-teaser-desc {
+    font-size: 14px;
+    color: #888898;
+    line-height: 1.7;
+    max-width: 620px;
+    margin: 0 auto 36px;
+}
+
+.landing-game-teaser-modes {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+}
+
+.landing-game-mode-card {
+    background: rgba(13, 13, 26, 0.8);
+    border: 1px solid #1a2a3a;
+    border-radius: 10px;
+    padding: 24px 20px;
+    width: 180px;
+    transition: all 0.25s;
+}
+
+.landing-game-mode-card:hover {
+    border-color: #00e5cc;
+    box-shadow: 0 0 20px rgba(0, 229, 204, 0.1);
+    transform: translateY(-2px);
+}
+
+.landing-game-mode-icon {
+    font-size: 28px;
+    color: #00e5cc;
+    margin-bottom: 10px;
+}
+
+.landing-game-mode-name {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #e0e0e8;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.landing-game-mode-desc {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .landing-game-teaser-modes {
+        flex-direction: column;
+        align-items: center;
+    }
+    .landing-game-mode-card { width: 90%; }
+    .landing-game-teaser-title { font-size: 22px; }
+}
