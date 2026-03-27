@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MycoVOID — Atmospheric Radiation Remediation System</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .mycovoid-page {
+            background: #0a0a0a;
+            color: #c8c8c8;
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 100vh;
+        }
+
+        .mycovoid-main {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .mycovoid-cover {
+            text-align: center;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            padding: 48px 32px 36px;
+            margin-bottom: 48px;
+            background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
+            position: relative;
+        }
+
+        .mycovoid-cover::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+        }
+
+        .mycovoid-glyph {
+            font-size: 36px;
+            color: #c9a84c;
+            margin-bottom: 16px;
+            letter-spacing: 8px;
+            display: block;
+        }
+
+        .mycovoid-cover h1 {
+            font-size: 28px;
+            color: #c9a84c;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin: 0 0 8px;
+            font-weight: normal;
+        }
+
+        .mycovoid-cover .cover-subtitle {
+            font-size: 14px;
+            color: #888;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .mycovoid-cover .cover-meta {
+            font-size: 12px;
+            color: #555;
+            line-height: 1.8;
+            letter-spacing: 1px;
+        }
+
+        .mycovoid-cover .cover-meta span {
+            color: #888;
+        }
+
+        .mycovoid-section {
+            margin-bottom: 48px;
+        }
+
+        .mycovoid-section h2 {
+            font-size: 13px;
+            color: #c9a84c;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-bottom: 1px solid #1e1e1e;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        .mycovoid-section h2 .section-num {
+            color: #444;
+            margin-right: 12px;
+        }
+
+        .mycovoid-section h3 {
+            font-size: 12px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 24px 0 10px;
+            font-weight: normal;
+        }
+
+        .mycovoid-section p {
+            font-size: 14px;
+            line-height: 1.9;
+            color: #b8b8b8;
+            margin-bottom: 16px;
+        }
+
+        .mycovoid-section ul, .mycovoid-section ol {
+            padding-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        .mycovoid-section li {
+            font-size: 14px;
+            line-height: 1.9;
+            color: #b8b8b8;
+            margin-bottom: 6px;
+        }
+
+        .mycovoid-callout {
+            border-left: 2px solid #c9a84c;
+            padding: 14px 20px;
+            margin: 24px 0;
+            background: #0f0f0f;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .mycovoid-callout p {
+            margin: 0;
+            font-size: 13px;
+            color: #a0a0a0;
+            font-style: italic;
+        }
+
+        .mycovoid-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+
+        .mycovoid-data-table th {
+            background: #111;
+            color: #c9a84c;
+            font-weight: normal;
+            letter-spacing: 1px;
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a2a;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .mycovoid-data-table td {
+            padding: 9px 14px;
+            color: #a0a0a0;
+            border-bottom: 1px solid #191919;
+        }
+
+        .mycovoid-data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .mycovoid-data-table td:first-child {
+            color: #888;
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .spec-card {
+            border: 1px solid #1e1e1e;
+            border-radius: 4px;
+            padding: 16px;
+            background: #0d0d0d;
+        }
+
+        .spec-card .spec-label {
+            font-size: 11px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .spec-card .spec-value {
+            font-size: 14px;
+            color: #c9a84c;
+        }
+
+        .mycovoid-tag {
+            display: inline-block;
+            font-size: 10px;
+            color: #888;
+            background: #111;
+            border: 1px solid #2a2a2a;
+            padding: 3px 8px;
+            border-radius: 2px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 2px 3px 2px 0;
+        }
+
+        .mycovoid-actions {
+            display: flex;
+            gap: 12px;
+            margin: 32px 0 0;
+            padding-top: 32px;
+            border-top: 1px solid #1e1e1e;
+            flex-wrap: wrap;
+        }
+
+        .mycovoid-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border-radius: 3px;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.15s;
+        }
+
+        .mycovoid-btn:hover {
+            opacity: 0.8;
+        }
+
+        .mycovoid-btn-gold {
+            background: #c9a84c;
+            color: #0a0a0a;
+            border: none;
+        }
+
+        .mycovoid-btn-outline {
+            background: transparent;
+            color: #888;
+            border: 1px solid #2a2a2a;
+        }
+
+        .mycovoid-btn-outline:hover {
+            color: #c9a84c;
+            border-color: #c9a84c;
+        }
+
+        .mycovoid-divider {
+            border: none;
+            border-top: 1px solid #1a1a1a;
+            margin: 40px 0;
+        }
+
+        .vision-close {
+            text-align: center;
+            padding: 32px 0 0;
+        }
+
+        .vision-close .vision-glyph {
+            font-size: 18px;
+            color: #444;
+            letter-spacing: 12px;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .vision-close p {
+            font-size: 13px;
+            color: #555;
+            font-style: italic;
+        }
+
+        @media print {
+            .landing-nav, .mycovoid-actions, .landing-footer { display: none !important; }
+            .mycovoid-page { background: #fff !important; color: #000 !important; }
+            .mycovoid-cover { background: #fff !important; border-color: #ccc !important; }
+            .mycovoid-cover h1, .mycovoid-section h2, .spec-card .spec-value { color: #000 !important; }
+            .mycovoid-cover::before { display: none; }
+            .mycovoid-section p, .mycovoid-section li { color: #222 !important; }
+            .mycovoid-data-table th { background: #f0f0f0 !important; color: #000 !important; }
+            .mycovoid-data-table td { color: #333 !important; }
+            .mycovoid-callout { background: #f9f9f9 !important; border-color: #999 !important; }
+            .mycovoid-callout p { color: #444 !important; }
+            .spec-card { background: #f9f9f9 !important; border-color: #ccc !important; }
+            .spec-card .spec-label { color: #666 !important; }
+        }
+
+        @media (max-width: 600px) {
+            .spec-grid { grid-template-columns: 1fr; }
+            .mycovoid-cover h1 { font-size: 20px; }
+        }
+    </style>
+</head>
+<body class="mycovoid-page">
+    <nav class="landing-nav">
+        <div class="landing-nav-brand">
+            <span class="landing-nav-icon">&#9670;</span>
+            <span class="landing-nav-title">PROJECT VOID</span>
+        </div>
+        <div class="landing-nav-links">
+            <a href="/launch" class="landing-nav-link">Home</a>
+            <a href="/" class="landing-nav-link">Engine</a>
+            <a href="/demo" class="landing-nav-link">Demo</a>
+            <a href="/industries" class="landing-nav-link">Industries</a>
+            <a href="/grants" class="landing-nav-link">Grants</a>
+            <a href="/mycovoid-concept" class="landing-nav-link active">MycoVOID</a>
+            <a href="/sovereign" class="landing-nav-link">Hardware</a>
+            <a href="/guide" class="landing-nav-link">Guide</a>
+            <a href="/pricing" class="landing-nav-link">Pricing</a>
+            <a href="/login" class="landing-nav-link" style="color:#c9a84c">Login</a>
+        </div>
+    </nav>
+
+    <main class="mycovoid-main">
+
+        <div class="mycovoid-cover">
+            <span class="mycovoid-glyph">&#9670; &#9670; &#9670;</span>
+            <h1>MycoVOID</h1>
+            <div class="cover-subtitle">Atmospheric Radiation Remediation System</div>
+            <div class="cover-meta">
+                <div><span>Classification:</span> Concept Proposal — Open Inquiry</div>
+                <div><span>Version:</span> 1.0 — March 2026</div>
+                <div><span>Origin:</span> PROJECT VOID Research Division</div>
+                <div><span>Domain:</span> Mycological Bioremediation &amp; Resonance Frequency Engineering</div>
+            </div>
+        </div>
+
+        <section class="mycovoid-section">
+            <h2><span class="section-num">00</span>Executive Summary</h2>
+            <p>
+                MycoVOID is a proposed distributed atmospheric radiation remediation system that fuses two independently documented
+                phenomena into a unified, deployable architecture: the extraordinary radiation-absorbing capacity of melanin-rich
+                fungal organisms and the directional, structuring properties of resonant frequency fields.
+            </p>
+            <p>
+                The system envisions a network of 50 to 80 ground-deployed nodes spaced at 50 to 60 metre intervals across a
+                target zone. Each node emits a precisely tuned frequency vortex — anchored at 432 Hz and modulated through
+                harmonic overtones — that creates a structured atmospheric channel. Within this channel, airborne mycelium spores
+                and established mycelial networks are stimulated and oriented to maximise their natural capacity for
+                radiation absorption and bio-conversion.
+            </p>
+            <p>
+                The theoretical basis draws from peer-reviewed research on melanised fungi at Chernobyl and other
+                radiologically contaminated sites, where organisms such as <em>Cladosporium sphaerospermum</em> and
+                <em>Cryptococcus neoformans</em> were observed not merely surviving but actively growing toward radiation
+                sources — a process now understood to involve melanin's role as a transducer that converts ionising
+                radiation energy into biochemical metabolic energy, analogous to how chlorophyll converts sunlight.
+            </p>
+            <div class="mycovoid-callout">
+                <p>
+                    MycoVOID does not replace existing radiological decontamination methods. It proposes a complementary,
+                    low-infrastructure, ecologically integrated remediation layer that operates continuously, regenerates
+                    autonomously, and costs a fraction of conventional approaches.
+                </p>
+            </div>
+        </section>
+
+        <hr class="mycovoid-divider">
+
+        <section class="mycovoid-section">
+            <h2><span class="section-num">01</span>The Mycelium Foundation</h2>
+
+            <h3>1.1 Radiation-Tolerant Fungi — the Chernobyl Observation</h3>
+            <p>
+                In 1991, five years after the Chernobyl disaster, robotic cameras sent into Reactor No. 4 discovered
+                colonies of black, melanin-rich fungi growing on and around the reactor walls — in one of the most
+                intensely radioactive environments on Earth. Subsequent scientific investigation, most notably studies
+                conducted by Albert Einstein College of Medicine and the Brookhaven National Laboratory, confirmed that
+                these organisms were not simply surviving the radiation: they were exhibiting positive radiotropism,
+                growing <em>toward</em> the radiation source.
+            </p>
+            <p>
+                The species identified included <em>Cladosporium sphaerospermum</em>, <em>Wangiella dermatitidis</em>,
+                and <em>Cryptococcus neoformans</em>. All shared a defining characteristic: high concentrations of
+                eumelanin — a complex aromatic biopolymer also found in human skin, capable of absorbing and
+                redistributing electromagnetic energy across a broad spectrum.
+            </p>
+
+            <h3>1.2 Melanin-Based Radiation Absorption — Cellular Mechanism</h3>
+            <p>
+                Melanin's role in these fungi appears to function as a biological radiation transducer. In conventional
+                organisms, ionising radiation causes cellular damage through the production of free radicals and the
+                disruption of DNA. Melanin appears to intercept this process at the molecular level, absorbing gamma
+                and X-ray photons and converting a portion of that energy into metabolic electron flow — essentially
+                treating high-energy radiation as a secondary nutrient source rather than a damaging force.
+            </p>
+            <p>
+                This process, sometimes termed <strong>radiosynthesis</strong>, remains an active area of scientific
+                inquiry. The key implication for MycoVOID is straightforward: if melanin-rich fungal organisms can absorb,
+                neutralise, and metabolise ionising radiation under natural conditions, a system designed to concentrate,
+                orient, and sustain those organisms within a contaminated atmospheric zone could amplify this effect at a
+                meaningful scale.
+            </p>
+
+            <h3>1.3 Mycelial Network Properties</h3>
+            <p>
+                Beyond individual organism biology, fungal mycelium forms extensive underground and surface-level networks
+                — sometimes spanning hectares — that operate as integrated biological systems. These networks:
+            </p>
+            <ul>
+                <li>Distribute nutrients and chemical signals across large spatial areas with high efficiency</li>
+                <li>Respond collectively to environmental stressors, including radiation, chemical contaminants, and
+                    electromagnetic stimuli</li>
+                <li>Regenerate autonomously following partial disruption, maintaining remediation function continuously</li>
+                <li>Interface with soil, root systems, and atmospheric boundary layers, creating a multi-dimensional
+                    remediation surface</li>
+            </ul>
+            <p>
+                The MycoVOID architecture treats the mycelial network not as a collection of individual organisms but as a
+                single distributed biological processor — one that can be oriented, stimulated, and directed through
+                external frequency fields.
+            </p>
+        </section>
+
+        <hr class="mycovoid-divider">
+
+        <section class="mycovoid-section">
+            <h2><span class="section-num">02</span>The Frequency Vortex Mechanism</h2>
+
+            <h3>2.1 Resonance as an Organisational Field</h3>
+            <p>
+                The frequency vortex mechanism is the central engineering innovation of MycoVOID. Rather than delivering
+                biological agents passively, the system generates a structured resonant field — an acoustic and
+                electromagnetic vortex — that creates preferential conditions for mycelial growth, spore orientation, and
+                melanin activity within a defined atmospheric column.
+            </p>
+            <p>
+                The anchor frequency is 432 Hz. This frequency, known within the PROJECT VOID architecture as the
+                Village Standard, possesses several properties that make it suitable as a biological structuring carrier:
+                it falls within the range of natural biological resonance, it propagates efficiently through both air and
+                soil matrices, and it exhibits coherent harmonic relationships with frequencies associated with cellular
+                membrane oscillation and mycelial network signalling.
+            </p>
+
+            <h3>2.2 Vortex Structure and Atmospheric Channeling</h3>
+            <p>
+                When multiple nodes in the network emit phase-coherent 432 Hz signals at calibrated timing offsets,
+                constructive interference between nodes produces a spiral standing-wave structure — a vortex — rising
+                from ground level into the atmospheric boundary layer. This column has the following properties:
+            </p>
+            <ul>
+                <li><strong>Radial confinement:</strong> Airborne spores and particles within the vortex column
+                    experience centripetal acoustic pressure gradients that resist lateral dispersal, concentrating
+                    biological material within the remediation zone.</li>
+                <li><strong>Vertical channeling:</strong> The vortex creates an ascending pressure differential that
+                    draws contaminated air from near-ground level upward through the biological absorption layer.</li>
+                <li><strong>Cellular stimulation:</strong> The resonant field at 432 Hz and its harmonics stimulates
+                    melanin molecular oscillation, increasing the cross-section for photon absorption and enhancing
+                    metabolic conversion efficiency in melanised fungal cells.</li>
+                <li><strong>Network coherence:</strong> Sustained resonant excitation of mycelial networks within the
+                    vortex zone promotes coordinated chemical signalling, accelerating the network's collective response
+                    to radiation flux.</li>
+            </ul>
+
+            <h3>2.3 Harmonic Modulation Protocol</h3>
+            <p>
+                The base 432 Hz signal is not emitted as a simple tone. Each node applies a modulated harmonic stack
+                derived from the Divided Optimum sequence — a proprietary modulation pattern developed within PROJECT
+                VOID's acoustic engineering framework. This stack includes:
+            </p>
+            <table class="mycovoid-data-table">
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Frequency</th>
+                        <th>Function</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Base Carrier</td><td>432 Hz</td><td>Primary structuring field / biological anchor</td></tr>
+                    <tr><td>First Harmonic</td><td>864 Hz</td><td>Spore boundary layer stimulation</td></tr>
+                    <tr><td>Second Harmonic</td><td>1,296 Hz</td><td>Mycelial network signal propagation</td></tr>
+                    <tr><td>Subharmonic</td><td>216 Hz</td><td>Ground coupling / soil matrix penetration</td></tr>
+                    <tr><td>Modulation Envelope</td><td>0.25–4 Hz (LFO)</td><td>Biological entrainment / metabolic rhythm sync</td></tr>
+                </tbody>
+            </table>
+            <p>
+                This layered emission profile ensures the vortex field interacts with the full operational spectrum of
+                fungal biological processes — from cellular membrane dynamics at the microscopic level to network-wide
+                chemical gradient formation at the macroscopic level.
+            </p>
+        </section>
+
+        <hr class="mycovoid-divider">
+
+        <section class="mycovoid-section">
+            <h2><span class="section-num">03</span>Distributed Node Network Architecture</h2>
+
+            <h3>3.1 Network Design Parameters</h3>
+            <p>
+                A full-scale MycoVOID deployment uses a ground-distributed node array optimised for maximum vortex
+                coherence across the target remediation zone. The design parameters are as follows:
+            </p>
+
+            <div class="spec-grid">
+                <div class="spec-card">
+                    <span class="spec-label">Node Count</span>
+                    <span class="spec-value">50–80 nodes</span>
+                </div>
+                <div class="spec-card">
+                    <span class="spec-label">Node Spacing</span>
+                    <span class="spec-value">50–60 metres</span>
+                </div>
+                <div class="spec-card">
+                    <span class="spec-label">Coverage Area</span>
+                    <span class="spec-value">~15–30 hectares (per array)</span>
+                </div>
+                <div class="spec-card">
+                    <span class="spec-label">Atmospheric Column Height</span>
+                    <span class="spec-value">~200–500 metres</span>
+                </div>
+                <div class="spec-card">
+                    <span class="spec-label">Node Emission Frequency</span>
+                    <span class="spec-value">432 Hz base + harmonic stack</span>
+                </div>
+                <div class="spec-card">
+                    <span class="spec-label">Network Synchronisation</span>
+                    <span class="spec-value">Phase-locked, sub-millisecond precision</span>
+                </div>
+            </div>
+
+            <h3>3.2 Topology and Redundancy</h3>
+            <p>
+                Nodes are arranged in a hexagonal close-packing pattern, which provides optimal spatial coverage with
+                minimal node count and ensures that no sub-region of the array falls outside the coherent vortex
+                influence zone. This geometry also provides inherent redundancy: the failure or removal of any single
+                node degrades coverage by less than 4%, and the network self-rebalances phase timing automatically.
+            </p>
+            <p>
+                Each node operates independently on stored timing parameters, requiring no continuous network
+                connectivity during operation. Synchronisation pulses are transmitted at defined intervals to maintain
+                phase coherence across the array. This architecture ensures resilience against communication
+                disruption in remote or austere environments.
+            </p>
+
+            <h3>3.3 Node Hardware Profile</h3>
+            <p>
+                Each individual node is designed for minimal infrastructure requirements, field deployability, and
+                long operational life without maintenance. The target hardware profile per node includes:
+            </p>
+            <ul>
+                <li>Low-power acoustic transducer array (ground-coupled and aerial) tuned to the MycoVOID harmonic stack</li>
+                <li>Embedded timing and phase control module with sub-millisecond network synchronisation</li>
+                <li>Passive solar or kinetic energy harvesting for autonomous off-grid operation</li>
+                <li>Integrated mycelium substrate chamber for direct inoculation of the surrounding soil layer at deployment</li>
+                <li>Environmental sensor suite: radiation flux, atmospheric humidity, temperature, and mycelial bioelectrical activity indicators</li>
+                <li>Encrypted mesh communication using PROJECT VOID's Beehive Protocol for inter-node telemetry</li>
+            </ul>
+
+            <h3>3.4 Deployment and Inoculation Protocol</h3>
+            <p>
+                Initial deployment involves both physical node installation and mycelium inoculation of the target zone.
+                Radiation-tolerant fungal strains — selected or conditioned for the specific radioisotope profile of the
+                site — are introduced in substrate form at each node location and at intermediate ground points. The
+                resonant field emitted by the activated network then stimulates network formation between inoculation
+                points, encouraging rapid mycelial colonisation of the full remediation zone within the first
+                operational cycle.
+            </p>
+        </section>
+
+        <hr class="mycovoid-divider">
+
+        <section class="mycovoid-section">
+            <h2><span class="section-num">04</span>Atmospheric Radiation Channeling Theory</h2>
+
+            <h3>4.1 The Problem of Airborne Contamination</h3>
+            <p>
+                Conventional radiological remediation addresses surface and subsurface contamination through physical
+                removal, encapsulation, or chemical treatment. Airborne contamination — including resuspended
+                radioisotope particles, radioactive aerosols, and contaminated dust — presents a fundamentally
+                different challenge. These particles are distributed across three-dimensional atmospheric volumes,
+                subject to wind dispersal, precipitation deposition, and re-entrainment cycles that conventional
+                ground-based methods cannot effectively address.
+            </p>
+            <p>
+                MycoVOID's atmospheric channeling mechanism addresses this gap by creating a structured
+                three-dimensional biological filter within the atmospheric boundary layer directly above the
+                contaminated zone.
+            </p>
+
+            <h3>4.2 Boundary Layer Dynamics and Vortex Interaction</h3>
+            <p>
+                The atmospheric boundary layer — typically the lowest 1–2 kilometres of atmosphere — is the primary
+                transport medium for resuspended radiological contamination. Within this layer, particulate transport
+                is governed by turbulent diffusion and mean advection. The MycoVOID vortex column interacts with
+                this layer in two complementary ways:
+            </p>
+            <p>
+                <strong>Passive interception:</strong> As contaminated air masses traverse the vortex column, airborne
+                radioisotope particles experience acoustic radiation pressure from the structured resonant field.
+                Particles within the vortex diameter are subject to acoustic streaming forces that preferentially
+                direct them toward the vortex axis — the region of maximum biological density — increasing contact
+                time with active mycelium and melanin surfaces.
+            </p>
+            <p>
+                <strong>Active channeling:</strong> The ascending convective structure of the vortex creates a
+                low-pressure axial column that draws ambient air from the surrounding boundary layer inward and
+                upward. This effect — analogous to the chimney effect in thermodynamics — creates a continuous
+                throughput of contaminated atmospheric air through the biological absorption matrix.
+            </p>
+
+            <h3>4.3 Absorption, Sequestration, and Bio-conversion Pathway</h3>
+            <p>
+                Once radioisotope particles enter the active biological zone, the following sequential process is
+                theorised to occur:
+            </p>
+            <ol>
+                <li><strong>Surface adsorption:</strong> Melanin-rich mycelial surfaces exhibit strong electrostatic
+                    affinity for heavy metal ions and radioisotope particles, including caesium-137, strontium-90,
+                    and plutonium compounds — key contaminants from nuclear incidents.</li>
+                <li><strong>Cellular uptake:</strong> Adsorbed radioisotopes are taken up through fungal cell walls
+                    via bioaccumulation mechanisms already documented in both field and laboratory studies of
+                    mycoremediation.</li>
+                <li><strong>Energy conversion:</strong> Ionising radiation emitted by incorporated radioisotopes is
+                    intercepted by intracellular melanin and partially converted to metabolic energy through the
+                    radiosynthesis mechanism, sustaining cellular activity in the absence of conventional nutrients.</li>
+                <li><strong>Biomass concentration:</strong> The fungal biomass, now containing sequestered radioisotopes,
+                    accumulates at the network boundary as senescent tissue — allowing periodic harvesting and contained
+                    disposal of a significantly concentrated, stable biological waste form rather than dispersed
+                    environmental contamination.</li>
+            </ol>
+        </section>
+
+        <hr class="mycovoid-divider">
+
+        <section class="mycovoid-section">
+            <h2><span class="section-num">05</span>Ecological Integration and Remediation Applications</h2>
+
+            <h3>5.1 Non-Disruptive Site Integration</h3>
+            <p>
+                One of MycoVOID's most significant practical advantages over conventional remediation approaches is its
+                ecological compatibility. The system introduces no chemical agents, produces no secondary waste streams
+                requiring industrial treatment, and operates without continuous human intervention. The mycelial network,
+                once established, integrates with the existing soil biology of the site — potentially enhancing broader
+                ecological recovery beyond the primary radiation remediation objective.
+            </p>
+            <p>
+                Fungal mycelium is known to form symbiotic relationships with plant root systems, improving soil
+                structure, nutrient cycling, and plant resilience. In post-nuclear landscapes — where soil biology has
+                often been severely disrupted — the establishment of a robust mycelial network may accelerate
+                ecosystem restoration in parallel with radiation remediation.
+            </p>
+
+            <h3>5.2 Target Application Scenarios</h3>
+            <table class="mycovoid-data-table">
+                <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Primary Contaminant</th>
+                        <th>MycoVOID Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Nuclear accident exclusion zones</td>
+                        <td>Cs-137, Sr-90, Pu-239</td>
+                        <td>Long-term atmospheric and surface sequestration; ecosystem priming</td>
+                    </tr>
+                    <tr>
+                        <td>Uranium mining legacy sites</td>
+                        <td>Uranium, Radium, Radon progenitors</td>
+                        <td>Soil and atmospheric boundary layer remediation; resuspension reduction</td>
+                    </tr>
+                    <tr>
+                        <td>Nuclear testing range rehabilitation</td>
+                        <td>Multiple actinides; tritium</td>
+                        <td>Surface decontamination and long-term monitoring network</td>
+                    </tr>
+                    <tr>
+                        <td>Industrial radiological contamination</td>
+                        <td>Mixed isotope profile (site-specific)</td>
+                        <td>Targeted mycoremediation with strain selection per isotope affinity</td>
+                    </tr>
+                    <tr>
+                        <td>Preventive deployment in at-risk zones</td>
+                        <td>Pre-contamination (sentinel role)</td>
+                        <td>Baseline mycelial network establishment prior to potential incident</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>5.3 Monitoring and Adaptive Response</h3>
+            <p>
+                The distributed node network doubles as a continuous environmental monitoring array. Each node's
+                integrated sensor suite provides real-time data on radiation flux, atmospheric conditions, and mycelial
+                bioelectrical activity. This telemetry is aggregated through the encrypted mesh network and presented
+                via a central monitoring interface, enabling:
+            </p>
+            <ul>
+                <li>Dynamic adjustment of vortex field parameters in response to changing radiation levels or
+                    atmospheric conditions</li>
+                <li>Identification of remediation hot-spots requiring targeted intervention or substrate reinforcement</li>
+                <li>Longitudinal measurement of remediation progress and biomass accumulation rates</li>
+                <li>Early warning of network degradation or node failure requiring maintenance</li>
+            </ul>
+
+            <h3>5.4 Strain Selection and Adaptation</h3>
+            <p>
+                The effectiveness of the biological layer is directly dependent on the choice of fungal strains deployed.
+                MycoVOID's design accommodates site-specific strain selection based on the isotope profile, soil
+                chemistry, climate, and pre-existing ecology of the target zone. Candidate strains with documented
+                radiation tolerance or radioisotope bioaccumulation capacity include:
+            </p>
+            <div style="margin: 12px 0;">
+                <span class="mycovoid-tag">Cladosporium sphaerospermum</span>
+                <span class="mycovoid-tag">Cryptococcus neoformans</span>
+                <span class="mycovoid-tag">Wangiella dermatitidis</span>
+                <span class="mycovoid-tag">Pleurotus ostreatus</span>
+                <span class="mycovoid-tag">Ganoderma lucidum</span>
+                <span class="mycovoid-tag">Penicillium chrysogenum</span>
+                <span class="mycovoid-tag">Aspergillus niger</span>
+                <span class="mycovoid-tag">Paxillus involutus</span>
+            </div>
+            <p>
+                Future development includes a directed adaptation programme in which strains are progressively
+                conditioned to higher radiation environments and specific isotope profiles, increasing both tolerance
+                and sequestration efficiency over successive deployment cycles.
+            </p>
+        </section>
+
+        <hr class="mycovoid-divider">
+
+        <section class="mycovoid-section">
+            <h2><span class="section-num">06</span>Closing Vision</h2>
+            <p>
+                The dominant paradigm for radiological remediation — engineered containment, physical excavation, and
+                chemical treatment — is defined by scale, cost, and permanence of intervention. These approaches treat
+                contaminated landscapes as problems to be sealed or removed. MycoVOID proposes a different axiom: that
+                nature has already evolved the tools for this work, and the role of engineering is not to override
+                those tools but to amplify and direct them.
+            </p>
+            <p>
+                Fungi have survived and thrived in the most radiologically extreme environments on Earth. They have done
+                so without human assistance, through biological mechanisms we are only beginning to fully characterise.
+                The frequency vortex infrastructure of MycoVOID exists to extend the operational envelope of these
+                organisms — to take what they do at the edge of survival and create conditions where they can do it
+                at the scale of a landscape.
+            </p>
+            <p>
+                If the radiosynthesis hypothesis holds — and current evidence strongly suggests it does — then
+                melanin-rich fungi are not passive victims of radiation but active biological engines that convert
+                radiological contamination into life. MycoVOID is the infrastructure for that conversion at a
+                civilisational scale.
+            </p>
+            <div class="mycovoid-callout">
+                <p>
+                    We are not building a cleanup technology. We are building a biological system that turns
+                    the wound into the cure — one that regenerates itself, costs almost nothing to sustain, and
+                    leaves the land more alive than it found it.
+                </p>
+            </div>
+
+            <div class="vision-close">
+                <span class="vision-glyph">&#9670; &#9670; &#9670;</span>
+                <p>MycoVOID — PROJECT VOID Research Division — 2026</p>
+            </div>
+        </section>
+
+        <div class="mycovoid-actions">
+            <button class="mycovoid-btn mycovoid-btn-gold" onclick="window.print()">
+                &#9113; Download as PDF
+            </button>
+            <a href="/grants" class="mycovoid-btn mycovoid-btn-outline">Grant Applications</a>
+            <a href="/launch" class="mycovoid-btn mycovoid-btn-outline">&#9670; Project Home</a>
+        </div>
+
+    </main>
+
+    <footer class="landing-footer">
+        <div class="landing-footer-inner">
+            <span class="landing-footer-brand">&#9670; PROJECT VOID</span>
+            <span class="landing-footer-badge">MycoVOID Research Division</span>
+        </div>
+    </footer>
+
+    <link rel="stylesheet" href="/static/void_fairy.css">
+    <script src="/static/void_fairy.js"></script>
+</body>
+</html>

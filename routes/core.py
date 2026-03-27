@@ -117,6 +117,11 @@ def grants_page():
     return render_template("grants.html")
 
 
+@core_bp.route("/mycovoid-concept")
+def mycovoid_concept_page():
+    return render_template("mycovoid_concept.html")
+
+
 @core_bp.route("/sovereign")
 def sovereign_page():
     return render_template("sovereign.html")
