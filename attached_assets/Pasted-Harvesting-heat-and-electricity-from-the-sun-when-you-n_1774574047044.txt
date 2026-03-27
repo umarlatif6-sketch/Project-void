@@ -1,0 +1,39 @@
+Harvesting heat and electricity from the sun, when you need it
+Harvesting heat and electricity from the sun, when you need it
+Raphael Kay (right) and Rafiq Omair with their solar harvester. Credit: Salata Institute
+
+Solar energy is abundant and frustratingly ill-timed. A sunbeam can become either electricity (useful for running modern life) or heat (useful for keeping spaces warm). But conventional solar hardware is single-minded: Photovoltaic panels generate electricity whether it is wanted or not; solar-thermal collectors make heat even on days when buildings are too warm.
+
+Indoors, the priorities flip with the seasons—heat matters most in winter, while electricity matters most in summer for air conditioning.
+
+In a new paper published in the Proceedings of the National Academy of Sciences, a team in the lab of Joanna Aizenberg at Harvard SEAS describes a contrarian fix. Instead of relying on building occupants or control systems to decide what to do with sunlight, they make the hardware automatically switch between outputs. Their approach turns a simple phase change—water condensing and evaporating—into an optical switch.
+
+How the switch works
+Their device is built around a Fresnel lens: a flattened lens with fine ridges that concentrates light without the bulk of a traditional curved lens. Above the lens is a sealed cavity containing a fixed amount of water. Below it sits a small photovoltaic (PV) cell; beneath that, indoor space serves as an alternative sink that absorbs light as heat.
+
+When the water inside the cavity is warm (above the dew point), it stays in vapor form. In that state, there is a strong refractive-index mismatch between the vapor and the lens material, allowing the Fresnel ridges to focus light onto the PV cell, producing electricity. When the cavity cools (below the dew point), the water condenses into a thin layer that reduces that mismatch, blunting the lens's focusing power. More light then bypasses the PV and enters the indoor space, where it is absorbed as heat.
+
+Harvesting heat and electricity from the sun, when you need it
+Self-regulated dual-mode solar energy harvesting concept. Credit: Proceedings of the National Academy of Sciences (2026). DOI: 10.1073/pnas.2534717123
+
+In short, the same hardware routes sunlight to different destinations depending on temperature: electricity when warm; heat when cool.
+
+"The switching capacity is calibrated to seasonal building needs, which are temperature dependent," explains lead author Raphael Kay. "The switch allows for a passive, dual-mode energy harvester," he adds—passive because no pumps, sensors, or electronics are required to switch modes.
+
+In one demonstration, the enclosed air had a dew point close to 15°C (59°F), so condensation—and the mode shift—occurred when the lens dropped below that temperature. Given average seasonal temperatures in Boston, for example, that means electricity production would dominate during the months of May to October, while the device would predominantly produce heat from November to April. Adjusting the enclosed humidity could move that crossover point to better match local needs.
+
+In laboratory tests, the team—including Rafiq Omair—simulated outdoor conditions and observed the expected change in focusing. Above roughly 15°C (59°F), light was concentrated mainly onto the PV cell; below that, much of it bypassed the PV and entered the indoor space. As the outdoor temperature increased from 10°C to 35°C (50°F to 95°F), the measured indoor temperature fell from about 25°C to about 22°C (77°F to 71.6°F), while the relative light intensity on the PV increased by roughly 50%.
+
+In heating mode, the system converts about 90% of incident sunlight into indoor heat. By Kay's back-of-the-envelope estimate, that is roughly five times the solar-heating yield of a photovoltaic panel paired with electrical resistance heating.
+
+A key limit is sun angle. Because the unit is mounted at a fixed tilt and orientation, it concentrates light efficiently only during certain hours and seasons. "The sun's position changes throughout the day and year, but the unit has to be mounted at a fixed tilt," says Kay. When the sun is off-angle and the light does not focus sharply onto the solar cell, the device defaults to solar-thermal operation, routing more light into the indoor space as heat. The team is developing strategies to expand the number of hours both modes are available.
+
+Scalable by design
+The goal is solar hardware that behaves like a responsive part of a building's envelope, not a single-output generator.
+
+The team emphasizes that the components are simple, cheap, and scalable, with potential uses in buildings, greenhouses, and even vehicles. If it scales, it could ease a common trade-off: sacrificing passive heating to get more electricity, or vice versa. That also creates a clear commercial path, says Aizenberg. "A component that can be laminated into skylights or façades and that naturally biases toward electricity during hot spells could be compelling as demand for cooling rises on a hotter planet."
+
+Publication details
+Raphael Kay et al, Self-regulated dual-mode solar energy harvesting, Proceedings of the National Academy of Sciences (2026). DOI: 10.1073/pnas.2534717123
+
+Journal information: Proceedings of the National Academy of Sciences
