@@ -146,7 +146,6 @@ def cmd_loopback(args):
         print()
 
     print(f"  Node ID    : {protocol.node_id}")
-    print(f"  Passphrase : {args.passphrase}")
     print(f"  Backend    : {audio.backend}")
     print()
 
