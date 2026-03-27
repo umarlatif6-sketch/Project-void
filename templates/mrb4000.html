@@ -380,6 +380,48 @@
             color: var(--mrb-amber);
             letter-spacing: 1px;
         }
+        .mrb-lock-panel {
+            border: 1px solid #2a1f00;
+            background: #0e0c00;
+            padding: 32px 28px;
+            text-align: center;
+            margin: 8px 0 4px;
+        }
+        .mrb-lock-icon {
+            font-size: 2rem;
+            color: #4a3800;
+            margin-bottom: 12px;
+        }
+        .mrb-lock-title {
+            font-size: 0.78rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--mrb-amber);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .mrb-lock-body {
+            font-size: 0.75rem;
+            color: #666;
+            max-width: 520px;
+            margin: 0 auto 18px;
+            line-height: 1.6;
+        }
+        .mrb-lock-cta {
+            display: inline-block;
+            border: 1px solid var(--mrb-dim);
+            color: var(--mrb-amber);
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 8px 20px;
+            text-decoration: none;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .mrb-lock-cta:hover {
+            border-color: var(--mrb-amber);
+            color: #fff;
+        }
         .mrb-spec-unit {
             font-size: 0.62rem;
             color: #555;
@@ -588,6 +630,7 @@
             </p>
         </div>
 
+        {% if user_tier == 'sovereign' %}
         <div class="mrb-table-wrap">
             <table class="mrb-table" id="adriana-table">
                 <thead>
@@ -660,6 +703,14 @@
                 </tbody>
             </table>
         </div>
+        {% else %}
+        <div class="mrb-lock-panel">
+            <div class="mrb-lock-icon">&#9651;</div>
+            <div class="mrb-lock-title">Triple-Tongue Frequency Table — Sovereign Access Required</div>
+            <div class="mrb-lock-body">The full 7-register frequency specification, tolerances, and Adriana Code firmware parameters are restricted to Sovereign-tier holders. Acquire a Rare Blueprint Token (£660) or higher to unlock.</div>
+            <a href="/marketplace" class="mrb-lock-cta">View Blueprint Tokens →</a>
+        </div>
+        {% endif %}
     </div>
 
     <!-- §03 VTB PROTOCOL -->
@@ -675,6 +726,7 @@
                 VTB proceeds through three sequential phases — <em>Poration</em>, <em>Nucleation</em>, and <em>Vitrification</em> — each governed by distinct frequency parameters and requiring successful completion before the next phase initiates. Phase failure at any stage halts fabrication and requires full matrix reset.
             </p>
         </div>
+        {% if user_tier == 'sovereign' %}
         <div class="mrb-phase-grid">
             <div class="mrb-phase-card">
                 <div class="mrb-phase-label">Phase 01</div>
@@ -738,6 +790,14 @@
                 </tbody>
             </table>
         </div>
+        {% else %}
+        <div class="mrb-lock-panel">
+            <div class="mrb-lock-icon">&#9651;</div>
+            <div class="mrb-lock-title">VTB Protocol — Sovereign Access Required</div>
+            <div class="mrb-lock-body">Phase parameters, frequency triggers, temperature windows, and pass criteria for the three-phase biomineralisation process are restricted to Sovereign-tier holders. Acquire a Rare Blueprint Token (£660) or higher to unlock.</div>
+            <a href="/marketplace" class="mrb-lock-cta">View Blueprint Tokens →</a>
+        </div>
+        {% endif %}
     </div>
 
     <!-- §04 OBSIDIAN SOURCING -->
@@ -792,6 +852,7 @@
             </p>
         </div>
 
+        {% if user_tier == 'sovereign' %}
         <div class="mrb-table-wrap">
             <table class="mrb-table" id="ratios-table">
                 <thead>
@@ -871,6 +932,14 @@
                 <div class="mrb-spec-unit">Post-500-cycle target</div>
             </div>
         </div>
+        {% else %}
+        <div class="mrb-lock-panel">
+            <div class="mrb-lock-icon">&#9651;</div>
+            <div class="mrb-lock-title">Material Ratios &amp; Fabrication Parameters — Sovereign Access Required</div>
+            <div class="mrb-lock-body">Exact component ratios, grain tolerances, memristor frequency ceiling, and energy retention specifications are restricted to Sovereign-tier holders. Acquire a Rare Blueprint Token (£660) or higher to unlock.</div>
+            <a href="/marketplace" class="mrb-lock-cta">View Blueprint Tokens →</a>
+        </div>
+        {% endif %}
     </div>
 
     <!-- §06 RESEARCH PILLARS -->
