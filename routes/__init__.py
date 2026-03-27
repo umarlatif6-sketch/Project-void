@@ -15,6 +15,7 @@ from routes.admin import admin_bp
 from routes.chronicle import chronicle_bp
 from routes.sovereign_node import sovereign_node_bp
 from routes.beehive_demo import beehive_demo_bp
+from routes.apply_interussia import apply_interussia_bp
 
 
 def register_blueprints(app):
@@ -35,3 +36,4 @@ def register_blueprints(app):
     app.register_blueprint(chronicle_bp)
     app.register_blueprint(sovereign_node_bp)
     app.register_blueprint(beehive_demo_bp)
+    app.register_blueprint(apply_interussia_bp)

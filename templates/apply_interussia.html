@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — InteRussia AI Fellowship Application</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .interussia-page {
+            background: #0a0a0a;
+            color: #c8c8c8;
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 100vh;
+        }
+
+        .ir-main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .ir-header {
+            border: 1px solid #2a2a2a;
+            background: #0f0f0f;
+            padding: 32px 36px 28px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .ir-header-meta {
+            font-size: 11px;
+            color: #5a5a5a;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .ir-header h1 {
+            font-size: 26px;
+            color: #d4aa40;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 0 0 6px;
+        }
+
+        .ir-header-sub {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .ir-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .ir-badge {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #c9a84c;
+            font-size: 11px;
+            letter-spacing: 0.8px;
+            padding: 4px 10px;
+            text-transform: uppercase;
+        }
+
+        .ir-badge.track {
+            border-color: #00c8b4;
+            color: #00c8b4;
+        }
+
+        .ir-badge.deadline {
+            border-color: #c0392b;
+            color: #e74c3c;
+        }
+
+        .ir-print-btn {
+            position: absolute;
+            top: 28px;
+            right: 28px;
+            background: transparent;
+            border: 1px solid #d4aa40;
+            color: #d4aa40;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            letter-spacing: 1px;
+            padding: 8px 18px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .ir-print-btn:hover {
+            background: #d4aa40;
+            color: #0a0a0a;
+        }
+
+        .ir-section {
+            margin-bottom: 48px;
+        }
+
+        .ir-section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #1e1e1e;
+        }
+
+        .ir-section-num {
+            font-size: 11px;
+            color: #d4aa40;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+
+        .ir-section-title {
+            font-size: 18px;
+            color: #d4aa40;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .ir-prose {
+            font-size: 13.5px;
+            line-height: 1.85;
+            color: #b8b8b8;
+            white-space: pre-wrap;
+        }
+
+        .ir-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 700px) {
+            .ir-two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .ir-card {
+            background: #0f0f0f;
+            border: 1px solid #1e1e1e;
+            padding: 24px;
+        }
+
+        .ir-card-title {
+            font-size: 14px;
+            color: #d4aa40;
+            font-weight: bold;
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .ir-card-file {
+            font-size: 11px;
+            color: #5a8a6a;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+        }
+
+        .ir-card-body {
+            font-size: 13px;
+            line-height: 1.7;
+            color: #a8a8a8;
+            margin-bottom: 16px;
+        }
+
+        .ir-spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+        }
+
+        .ir-spec-table tr {
+            border-bottom: 1px solid #161616;
+        }
+
+        .ir-spec-table td {
+            padding: 4px 0;
+            font-size: 11.5px;
+        }
+
+        .ir-spec-table td:first-child {
+            color: #00c8b4;
+            padding-right: 12px;
+            white-space: nowrap;
+            width: 40%;
+        }
+
+        .ir-spec-table td:last-child {
+            color: #c0c0c0;
+        }
+
+        .ir-relevance {
+            font-size: 12px;
+            color: #888;
+            border-left: 2px solid #d4aa40;
+            padding-left: 10px;
+            margin-top: 4px;
+            line-height: 1.6;
+        }
+
+        .ir-timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .ir-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            bottom: 8px;
+            width: 1px;
+            background: #2a2a2a;
+        }
+
+        .ir-timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .ir-timeline-item::before {
+            content: '◆';
+            position: absolute;
+            left: -24px;
+            top: 2px;
+            font-size: 9px;
+            color: #d4aa40;
+        }
+
+        .ir-timeline-period {
+            font-size: 11px;
+            color: #d4aa40;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .ir-timeline-role {
+            font-size: 14px;
+            color: #e0e0e0;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .ir-timeline-desc {
+            font-size: 13px;
+            line-height: 1.7;
+            color: #a0a0a0;
+        }
+
+        .ir-footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #1a1a1a;
+            font-size: 11px;
+            color: #3a3a3a;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        @media print {
+            .interussia-page {
+                background: #fff;
+                color: #111;
+            }
+
+            .landing-nav,
+            .ir-print-btn {
+                display: none !important;
+            }
+
+            .ir-header {
+                border-color: #ccc;
+                background: #fafafa;
+            }
+
+            .ir-header h1,
+            .ir-section-title,
+            .ir-card-title,
+            .ir-section-num,
+            .ir-timeline-period,
+            .ir-badge {
+                color: #000 !important;
+            }
+
+            .ir-prose,
+            .ir-card-body,
+            .ir-timeline-desc,
+            .ir-relevance,
+            .ir-spec-table td {
+                color: #222 !important;
+            }
+
+            .ir-card {
+                border-color: #ccc;
+                background: #f9f9f9;
+            }
+
+            .ir-section-header {
+                border-bottom-color: #ccc;
+            }
+
+            .ir-badge {
+                border-color: #aaa !important;
+            }
+
+            .ir-footer {
+                color: #666;
+                border-top-color: #ccc;
+            }
+
+            .ir-spec-table td:first-child {
+                color: #008060 !important;
+            }
+
+            .ir-relevance {
+                border-left-color: #888 !important;
+                color: #444 !important;
+            }
+
+            .ir-timeline::before {
+                background: #ccc;
+            }
+
+            .ir-card-file {
+                color: #336644 !important;
+            }
+        }
+    </style>
+</head>
+<body class="interussia-page">
+    <nav class="landing-nav">
+        <div class="landing-nav-brand">
+            <span class="landing-nav-icon">&#9670;</span>
+            <span class="landing-nav-title">PROJECT VOID</span>
+        </div>
+        <div class="landing-nav-links">
+            <a href="/launch" class="landing-nav-link">Home</a>
+            <a href="/" class="landing-nav-link">Engine</a>
+            <a href="/industries" class="landing-nav-link">Industries</a>
+            <a href="/grants" class="landing-nav-link">Grants</a>
+            <a href="/apply/interussia" class="landing-nav-link active">InteRussia</a>
+            <a href="/sovereign" class="landing-nav-link">Hardware</a>
+            <a href="/guide" class="landing-nav-link">Guide</a>
+            <a href="/pricing" class="landing-nav-link">Pricing</a>
+            <a href="/login" class="landing-nav-link" style="color:#c9a84c">Login</a>
+        </div>
+    </nav>
+
+    <div class="ir-main">
+        <div class="ir-header">
+            <button class="ir-print-btn" onclick="window.print()">&#9113; Export PDF</button>
+            <div class="ir-header-meta">Fellowship Application — Smart Cities Track</div>
+            <h1>{{ data.program }}</h1>
+            <div class="ir-header-sub">{{ data.location }} &mdash; {{ data.date }}</div>
+            <div class="ir-header-sub">Applicant: {{ data.project }}</div>
+            <div class="ir-badges">
+                <span class="ir-badge track">Track: {{ data.track }}</span>
+                <span class="ir-badge deadline">Deadline: {{ data.deadline }}</span>
+                <span class="ir-badge">Convergence Tests: {{ data.convergence_tests }} / {{ data.convergence_tests }} PASS</span>
+                <span class="ir-badge">Mode: SIMULATION → Hardware-Ready</span>
+            </div>
+        </div>
+
+        <div class="ir-section">
+            <div class="ir-section-header">
+                <span class="ir-section-num">01</span>
+                <span class="ir-section-title">Statement of Intent</span>
+            </div>
+            <div class="ir-prose">{{ data.statement_of_intent }}</div>
+        </div>
+
+        <div class="ir-section">
+            <div class="ir-section-header">
+                <span class="ir-section-num">02</span>
+                <span class="ir-section-title">Research Proposal</span>
+            </div>
+            <div class="ir-prose">{{ data.research_proposal }}</div>
+        </div>
+
+        <div class="ir-section">
+            <div class="ir-section-header">
+                <span class="ir-section-num">03</span>
+                <span class="ir-section-title">Technical Portfolio</span>
+            </div>
+
+            <div class="ir-two-col">
+                {% for case in data.portfolio %}
+                <div class="ir-card">
+                    <div class="ir-card-title">{{ case.name }}</div>
+                    <div class="ir-card-file">{{ case.file }}</div>
+                    <div class="ir-card-body">{{ case.what_it_does }}</div>
+
+                    <table class="ir-spec-table">
+                        {% for key, val in case.specs.items() %}
+                        <tr>
+                            <td>{{ key }}</td>
+                            <td>{{ val }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+
+                    <div class="ir-relevance">
+                        <strong style="color:#d4aa40;">Smart City Relevance:</strong>
+                        {{ case.smart_city_relevance }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="ir-section">
+            <div class="ir-section-header">
+                <span class="ir-section-num">04</span>
+                <span class="ir-section-title">Professional Experience</span>
+            </div>
+
+            <div class="ir-timeline">
+                {% for item in data.experience %}
+                <div class="ir-timeline-item">
+                    <div class="ir-timeline-period">{{ item.period }}</div>
+                    <div class="ir-timeline-role">{{ item.role }}</div>
+                    <div class="ir-timeline-desc">{{ item.description }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="ir-footer">
+            <span>PROJECT VOID &mdash; Frequency-Driven Distributed Infrastructure</span>
+            <span>{{ data.program }} &mdash; {{ data.location }}, {{ data.date }}</span>
+            <span>All technical specifications drawn from production codebase.</span>
+        </div>
+    </div>
+
+</body>
+</html>
