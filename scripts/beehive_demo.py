@@ -116,7 +116,6 @@ def cmd_transmit(args):
         return 1
 
     print(f"  Node ID    : {protocol.node_id}")
-    print(f"  Passphrase : {args.passphrase}")
     print(f"  Duration   : {args.duration}s")
     print(f"  Backend    : {audio.backend}")
     print()
