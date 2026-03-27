@@ -8,3 +8,15 @@ apply_interussia_bp = Blueprint("apply_interussia", __name__)
 def apply_interussia():
     data = get_application_data()
     return render_template("apply_interussia.html", data=data)
+
+
+@apply_interussia_bp.route("/apply/interussia/cover")
+def apply_interussia_cover():
+    data = get_application_data()
+    return render_template("apply_interussia_cover.html", data=data)
+
+
+@apply_interussia_bp.route("/apply/interussia/checklist")
+def apply_interussia_checklist():
+    data = get_application_data()
+    return render_template("apply_interussia_checklist.html", data=data)

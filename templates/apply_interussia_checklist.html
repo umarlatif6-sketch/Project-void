@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Submission Checklist — InteRussia AI Fellowship</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .interussia-page {
+            background: #0a0a0a;
+            color: #c8c8c8;
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 100vh;
+        }
+
+        .ir-main {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .ir-header {
+            border: 1px solid #2a2a2a;
+            background: #0f0f0f;
+            padding: 32px 36px 28px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .ir-header-meta {
+            font-size: 11px;
+            color: #5a5a5a;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .ir-header h1 {
+            font-size: 26px;
+            color: #d4aa40;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 0 0 6px;
+        }
+
+        .ir-header-sub {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .ir-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .ir-badge {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #c9a84c;
+            font-size: 11px;
+            letter-spacing: 0.8px;
+            padding: 4px 10px;
+            text-transform: uppercase;
+        }
+
+        .ir-badge.deadline {
+            border-color: #c0392b;
+            color: #e74c3c;
+        }
+
+        .countdown-block {
+            background: #0f0f0f;
+            border: 1px solid #2a2a2a;
+            padding: 24px 28px;
+            margin-bottom: 36px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .countdown-label {
+            font-size: 11px;
+            color: #5a5a5a;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .countdown-days {
+            font-size: 48px;
+            color: #e74c3c;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .countdown-days.safe {
+            color: #d4aa40;
+        }
+
+        .countdown-days.done {
+            color: #5a5a5a;
+        }
+
+        .countdown-sub {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .progress-block {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .progress-label {
+            font-size: 11px;
+            color: #5a5a5a;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-count {
+            color: #d4aa40;
+        }
+
+        .progress-bar-track {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            height: 8px;
+            width: 100%;
+        }
+
+        .progress-bar-fill {
+            background: #d4aa40;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar-fill.complete {
+            background: #00c8b4;
+        }
+
+        .checklist-section-title {
+            font-size: 14px;
+            color: #d4aa40;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1e1e1e;
+            text-transform: uppercase;
+        }
+
+        .checklist {
+            list-style: none;
+            margin: 0 0 48px;
+            padding: 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid #111;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-item:hover {
+            background: #0d0d0d;
+        }
+
+        .checklist-num {
+            font-size: 11px;
+            color: #3a3a3a;
+            letter-spacing: 1px;
+            min-width: 28px;
+            padding-top: 2px;
+        }
+
+        .checklist-checkbox {
+            width: 18px;
+            height: 18px;
+            min-width: 18px;
+            border: 1px solid #3a3a3a;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
+        }
+
+        .checklist-checkbox.checked {
+            border-color: #00c8b4;
+            background: #00c8b4;
+        }
+
+        .checklist-checkbox.checked::after {
+            content: '✓';
+            font-size: 12px;
+            color: #0a0a0a;
+            font-weight: bold;
+        }
+
+        .checklist-body {
+            flex: 1;
+        }
+
+        .checklist-title {
+            font-size: 14px;
+            color: #d0d0d0;
+            font-weight: bold;
+            margin-bottom: 4px;
+            transition: color 0.2s;
+        }
+
+        .checklist-item.checked .checklist-title {
+            color: #5a5a5a;
+            text-decoration: line-through;
+            text-decoration-color: #3a3a3a;
+        }
+
+        .checklist-desc {
+            font-size: 12px;
+            color: #6a6a6a;
+            line-height: 1.6;
+            transition: color 0.2s;
+        }
+
+        .checklist-item.checked .checklist-desc {
+            color: #3a3a3a;
+        }
+
+        .reset-btn {
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            color: #4a4a4a;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            letter-spacing: 1px;
+            padding: 6px 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: border-color 0.2s, color 0.2s;
+            margin-top: 8px;
+        }
+
+        .reset-btn:hover {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .ir-footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #1a1a1a;
+            font-size: 11px;
+            color: #3a3a3a;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .ir-footer a {
+            color: #5a5a5a;
+            text-decoration: none;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .ir-footer a:hover {
+            color: #d4aa40;
+            border-bottom-color: #d4aa40;
+        }
+
+        @media print {
+            .interussia-page {
+                background: #fff;
+                color: #111;
+            }
+
+            .landing-nav,
+            .reset-btn {
+                display: none !important;
+            }
+
+            .ir-header {
+                border-color: #ccc;
+                background: #fafafa;
+            }
+
+            .ir-header h1,
+            .checklist-section-title,
+            .countdown-label {
+                color: #000 !important;
+            }
+
+            .ir-badge {
+                border-color: #aaa !important;
+                color: #333 !important;
+            }
+
+            .countdown-block {
+                border-color: #ccc;
+                background: #f9f9f9;
+            }
+
+            .countdown-days {
+                color: #c0392b !important;
+            }
+
+            .checklist-checkbox {
+                border-color: #aaa;
+                background: #fff;
+            }
+
+            .checklist-checkbox.checked {
+                background: #00a090;
+                border-color: #00a090;
+            }
+
+            .ir-footer {
+                color: #666;
+                border-top-color: #ccc;
+            }
+        }
+    </style>
+</head>
+<body class="interussia-page">
+    <nav class="landing-nav">
+        <div class="landing-nav-brand">
+            <span class="landing-nav-icon">&#9670;</span>
+            <span class="landing-nav-title">PROJECT VOID</span>
+        </div>
+        <div class="landing-nav-links">
+            <a href="/launch" class="landing-nav-link">Home</a>
+            <a href="/" class="landing-nav-link">Engine</a>
+            <a href="/industries" class="landing-nav-link">Industries</a>
+            <a href="/grants" class="landing-nav-link">Grants</a>
+            <a href="/apply/interussia" class="landing-nav-link active">InteRussia</a>
+            <a href="/sovereign" class="landing-nav-link">Hardware</a>
+            <a href="/guide" class="landing-nav-link">Guide</a>
+            <a href="/pricing" class="landing-nav-link">Pricing</a>
+            <a href="/login" class="landing-nav-link" style="color:#c9a84c">Login</a>
+        </div>
+    </nav>
+
+    <div class="ir-main">
+        <div class="ir-header">
+            <div class="ir-header-meta">Submission Checklist — Smart Cities Track</div>
+            <h1>{{ data.program }}</h1>
+            <div class="ir-header-sub">{{ data.location }} &mdash; {{ data.date }}</div>
+            <div class="ir-header-sub">{{ data.project }}</div>
+            <div class="ir-badges">
+                <span class="ir-badge">Submission Checklist</span>
+                <span class="ir-badge deadline">Deadline: {{ data.deadline }}</span>
+            </div>
+        </div>
+
+        <div class="countdown-block">
+            <div>
+                <div class="countdown-label">Days Until Deadline</div>
+                <div class="countdown-days" id="countdown-days">—</div>
+                <div class="countdown-sub" id="countdown-sub">April 6, 2026</div>
+            </div>
+            <div class="progress-block">
+                <div class="progress-label">
+                    <span>Steps Completed</span>
+                    <span class="progress-count"><span id="done-count">0</span> / 10</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="checklist-section-title">Action Plan — Before April 6, 2026</div>
+
+        <ul class="checklist" id="checklist">
+            <li class="checklist-item" data-step="1">
+                <span class="checklist-num">01</span>
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-body">
+                    <div class="checklist-title">Review the full application at /apply/interussia</div>
+                    <div class="checklist-desc">Read through every section — statement of intent, research proposal, portfolio, and experience. Note anything that needs updating, clarification, or tightening before submission.</div>
+                </div>
+            </li>
+            <li class="checklist-item" data-step="2">
+                <span class="checklist-num">02</span>
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-body">
+                    <div class="checklist-title">Fill in applicant name and contact details</div>
+                    <div class="checklist-desc">The application currently shows "Project Void" as the applicant name. Add your full legal name, email address, and any other personal details required by the fellowship submission form.</div>
+                </div>
+            </li>
+            <li class="checklist-item" data-step="3">
+                <span class="checklist-num">03</span>
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-body">
+                    <div class="checklist-title">Verify all technical specifications and facts</div>
+                    <div class="checklist-desc">Confirm that every frequency, hop count, hash size, and test count cited in the application matches the current production values in the codebase. Run the convergence suite and confirm all tests pass.</div>
+                </div>
+            </li>
+            <li class="checklist-item" data-step="4">
+                <span class="checklist-num">04</span>
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-body">
+                    <div class="checklist-title">Write the personal cover letter at /apply/interussia/cover</div>
+                    <div class="checklist-desc">Complete all three sections: your personal background, why this project matters to you, and why Novosibirsk specifically. Aim for 150–250 words per section. Export as PDF when finished.</div>
+                </div>
+            </li>
+            <li class="checklist-item" data-step="5">
+                <span class="checklist-num">05</span>
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-body">
+                    <div class="checklist-title">Prepare GitHub repository for review</div>
+                    <div class="checklist-desc">Ensure the Project Void GitHub repository is public (or accessible to reviewers), has a clear README explaining the three subsystems, and that all referenced source files (beehive.py, al_jabr_286.py, stega.py) are present and readable.</div>
+                </div>
+            </li>
+            <li class="checklist-item" data-step="6">
+                <span class="checklist-num">06</span>
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-body">
+                    <div class="checklist-title">Check InteRussia submission format requirements</div>
+                    <div class="checklist-desc">Review the official InteRussia AI Fellowship submission guidelines. Confirm the required file format (PDF, Word, web form), maximum page count, required sections, and any language requirements. Adjust the application materials accordingly.</div>
+                </div>
+            </li>
+            <li class="checklist-item" data-step="7">
+                <span class="checklist-num">07</span>
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-body">
+                    <div class="checklist-title">Export application pages to PDF</div>
+                    <div class="checklist-desc">Use the "Export PDF" button on the main application page and the cover letter page. Review each PDF for formatting, page breaks, and readability. Ensure all text is present and no sections are cut off.</div>
+                </div>
+            </li>
+            <li class="checklist-item" data-step="8">
+                <span class="checklist-num">08</span>
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-body">
+                    <div class="checklist-title">Submit application at least 48 hours before the deadline</div>
+                    <div class="checklist-desc">Target submission by April 4, 2026 at the latest. Submit through the official InteRussia portal. Keep a screenshot or confirmation number of the successful submission.</div>
+                </div>
+            </li>
+            <li class="checklist-item" data-step="9">
+                <span class="checklist-num">09</span>
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-body">
+                    <div class="checklist-title">Send confirmation email to the fellowship contact</div>
+                    <div class="checklist-desc">After submitting, send a brief confirmation email to the InteRussia fellowship contact confirming your application was submitted, including your name, project name, and submission reference number if available.</div>
+                </div>
+            </li>
+            <li class="checklist-item" data-step="10">
+                <span class="checklist-num">10</span>
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-body">
+                    <div class="checklist-title">Record submission and set follow-up reminder</div>
+                    <div class="checklist-desc">Log the submission date, confirmation details, and any reference numbers. Set a calendar reminder for 2–3 weeks after the deadline to follow up with the fellowship committee if no acknowledgement has been received.</div>
+                </div>
+            </li>
+        </ul>
+
+        <button class="reset-btn" id="reset-btn">Reset All Steps</button>
+
+        <div class="ir-footer">
+            <span>PROJECT VOID &mdash; Frequency-Driven Distributed Infrastructure</span>
+            <span>
+                <a href="/apply/interussia">&#8592; Main Application</a>
+                &nbsp;&nbsp;
+                <a href="/apply/interussia/cover">Cover Letter &#8594;</a>
+            </span>
+            <span>{{ data.program }} &mdash; {{ data.deadline }}</span>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var DEADLINE = new Date('2026-04-06T23:59:59');
+            var STORAGE_KEY = 'ir_checklist_steps';
+            var TOTAL = 10;
+
+            function getChecked() {
+                try {
+                    var raw = localStorage.getItem(STORAGE_KEY);
+                    return raw ? JSON.parse(raw) : {};
+                } catch (e) {
+                    return {};
+                }
+            }
+
+            function saveChecked(checked) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(checked));
+            }
+
+            function updateProgress(checked) {
+                var done = Object.keys(checked).filter(function (k) { return checked[k]; }).length;
+                document.getElementById('done-count').textContent = done;
+                var pct = Math.round((done / TOTAL) * 100);
+                var bar = document.getElementById('progress-bar');
+                bar.style.width = pct + '%';
+                if (done === TOTAL) {
+                    bar.classList.add('complete');
+                } else {
+                    bar.classList.remove('complete');
+                }
+            }
+
+            function updateCountdown() {
+                var now = new Date();
+                var diff = DEADLINE - now;
+                var daysEl = document.getElementById('countdown-days');
+                var subEl = document.getElementById('countdown-sub');
+                if (diff <= 0) {
+                    daysEl.textContent = '0';
+                    daysEl.className = 'countdown-days done';
+                    subEl.textContent = 'Deadline has passed';
+                } else {
+                    var days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                    daysEl.textContent = days;
+                    if (days <= 5) {
+                        daysEl.className = 'countdown-days';
+                    } else {
+                        daysEl.className = 'countdown-days safe';
+                    }
+                    subEl.textContent = days === 1 ? '1 day remaining' : days + ' days remaining';
+                }
+            }
+
+            function applyState(item, isChecked) {
+                var box = item.querySelector('.checklist-checkbox');
+                if (isChecked) {
+                    item.classList.add('checked');
+                    box.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                    box.classList.remove('checked');
+                }
+            }
+
+            var checked = getChecked();
+            var items = document.querySelectorAll('.checklist-item');
+            items.forEach(function (item) {
+                var step = item.getAttribute('data-step');
+                applyState(item, !!checked[step]);
+                item.addEventListener('click', function () {
+                    checked[step] = !checked[step];
+                    applyState(item, checked[step]);
+                    saveChecked(checked);
+                    updateProgress(checked);
+                });
+            });
+
+            document.getElementById('reset-btn').addEventListener('click', function () {
+                if (!confirm('Reset all checklist steps?')) return;
+                checked = {};
+                items.forEach(function (item) { applyState(item, false); });
+                saveChecked(checked);
+                updateProgress(checked);
+            });
+
+            updateProgress(checked);
+            updateCountdown();
+            setInterval(updateCountdown, 60000);
+        })();
+    </script>
+</body>
+</html>
