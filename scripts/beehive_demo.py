@@ -219,7 +219,7 @@ def cmd_simulate(args):
     else:
         print(f"  RESULT: Exchange FAILED at stage: {result.get('stage', 'unknown')}")
         if result.get("error"):
-            print(f"  Error  : {result['error']}")
+            pass
     print()
     return 0 if success else 1
 
