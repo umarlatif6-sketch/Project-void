@@ -486,12 +486,18 @@
         </div>
     </div>
     <div class="game-topbar-right">
+        {% if multiplier > 1.0 %}
+        <div style="font-size:10px;color:#c9a84c;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);padding:4px 10px;border-radius:4px;letter-spacing:1px;">
+            {{ '%.2f'|format(multiplier) }}x BOOST
+        </div>
+        {% endif %}
         <div class="game-vtx-badge">
             <span class="game-vtx-icon">◆</span>
             <span id="hud-balance" class="game-vtx-amount">{{ '%.2f'|format(stats.vortex_balance or 0) }}</span>
             <span style="font-size:10px;color:#888;margin-left:2px">VTX</span>
         </div>
-        <a href="/" class="game-back-link">← Back to Engine</a>
+        <a href="/game/shop" style="padding:5px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;border:1px solid #c9a84c;color:#c9a84c;border-radius:4px;text-decoration:none;background:rgba(201,168,76,0.08);transition:all 0.2s;" onmouseover="this.style.background='rgba(201,168,76,0.15)'" onmouseout="this.style.background='rgba(201,168,76,0.08)'">Shop ◆</a>
+        <a href="/" class="game-back-link">← Engine</a>
     </div>
 </div>
 

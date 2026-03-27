@@ -34,6 +34,11 @@ def _startup_migrations():
         seed_chronicle()
     except Exception as e:
         logger.error("Chronicle seeding failed: %s", e)
+    try:
+        from void_engine.vortex_wallet import ensure_game_inventory_table
+        ensure_game_inventory_table()
+    except Exception as e:
+        logger.error("Game inventory table setup failed: %s", e)
 
 try:
     from routes import register_blueprints

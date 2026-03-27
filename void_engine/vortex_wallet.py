@@ -494,15 +494,183 @@ GAME_REWARD_TIERS = {
 
 GAME_DAILY_CAP = Decimal("50.0")
 
+EQUIPMENT_CATALOG = {
+    "signal_array": {
+        "name": "Signal Array",
+        "vtx_price": Decimal("15"),
+        "multiplier": Decimal("1.25"),
+        "description": "Enhanced resonance scanner. Boosts vault discovery rewards by 25%.",
+        "icon": "📡",
+        "tier": 1,
+        "unlocks": "Deeper signal vaults with 25% higher VTX yield",
+    },
+    "resonance_coil": {
+        "name": "Resonance Coil",
+        "vtx_price": Decimal("35"),
+        "multiplier": Decimal("1.25"),
+        "description": "Amplifies node construction efficiency. +25% node building rewards.",
+        "icon": "🔁",
+        "tier": 2,
+        "unlocks": "Bonus sovereign node slots, 25% node reward boost",
+    },
+    "adriana_decoder": {
+        "name": "Adriana Decoder",
+        "vtx_price": Decimal("50"),
+        "multiplier": Decimal("1.5"),
+        "description": "Unlocks advanced Adriana glyph chambers. +50% cipher rewards.",
+        "icon": "Ψ",
+        "tier": 3,
+        "unlocks": "Hard-tier Adriana puzzles with 50% higher VTX yield",
+    },
+    "sovereign_rig": {
+        "name": "Sovereign Rig",
+        "vtx_price": Decimal("150"),
+        "multiplier": Decimal("1.75"),
+        "description": "Full sovereign loadout. All-mode +75% earn boost. Exclusive sovereign vaults.",
+        "icon": "◆",
+        "tier": 4,
+        "unlocks": "All-mode 75% reward boost + exclusive Sovereign Vault zones",
+    },
+    "void_core": {
+        "name": "Void Core",
+        "vtx_price": Decimal("500"),
+        "multiplier": Decimal("2.0"),
+        "description": "Elite Al-Jabr 286 core. Doubles all in-game VTX earnings permanently.",
+        "icon": "⬡",
+        "tier": 5,
+        "unlocks": "2x all rewards + Al-Jabr 286 exclusive cipher challenges",
+    },
+}
+
+
+def ensure_game_inventory_table():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS game_inventory (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                equipment_slug VARCHAR(50) NOT NULL,
+                purchased_at TIMESTAMP DEFAULT NOW(),
+                UNIQUE(user_id, equipment_slug)
+            )
+        """)
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_inventory(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT equipment_slug, purchased_at FROM game_inventory WHERE user_id = %s ORDER BY purchased_at ASC",
+            (user_id,),
+        )
+        rows = cur.fetchall()
+        owned = {}
+        for slug, purchased_at in rows:
+            item = EQUIPMENT_CATALOG.get(slug, {})
+            owned[slug] = {
+                "slug": slug,
+                "name": item.get("name", slug),
+                "icon": item.get("icon", "?"),
+                "tier": item.get("tier", 0),
+                "purchased_at": purchased_at.isoformat() if purchased_at else None,
+            }
+        return owned
+    finally:
+        conn.close()
+
+
+def get_earning_multiplier(user_id):
+    owned = get_inventory(user_id)
+    best = Decimal("1.0")
+    for slug in owned:
+        m = EQUIPMENT_CATALOG.get(slug, {}).get("multiplier", Decimal("1.0"))
+        if m > best:
+            best = m
+    return best
+
+
+def spend_on_equipment(user_id, equipment_slug):
+    item = EQUIPMENT_CATALOG.get(equipment_slug)
+    if not item:
+        return {"error": f"Unknown equipment: {equipment_slug}"}
+
+    price = item["vtx_price"]
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT 1 FROM game_inventory WHERE user_id = %s AND equipment_slug = %s",
+            (user_id, equipment_slug),
+        )
+        if cur.fetchone():
+            return {"error": "already_owned", "message": "You already own this equipment."}
+
+        cur.execute(
+            "SELECT vortex_balance FROM users WHERE id = %s FOR UPDATE",
+            (user_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            return {"error": "User not found"}
+        balance = Decimal(str(row[0] or 0))
+
+        if balance < price:
+            return {
+                "error": "insufficient_vtx",
+                "message": f"Need {price} VTX. You have {float(balance):.2f} VTX.",
+                "balance": float(balance),
+                "price": float(price),
+            }
+
+        payload_hash = fatiha_286_hexdigest_from_str(
+            f"equip_{equipment_slug}_{user_id}_{datetime.now(timezone.utc).isoformat()}"
+        )
+        _create_block(cur, "spend_equipment", user_id, None, price, payload_hash)
+        cur.execute(
+            "UPDATE users SET vortex_balance = vortex_balance - %s WHERE id = %s",
+            (price, user_id),
+        )
+        cur.execute(
+            "INSERT INTO game_inventory (user_id, equipment_slug) VALUES (%s, %s)",
+            (user_id, equipment_slug),
+        )
+        conn.commit()
+
+        cur.execute("SELECT vortex_balance FROM users WHERE id = %s", (user_id,))
+        new_balance = float(cur.fetchone()[0] or 0)
+        return {
+            "success": True,
+            "equipment_slug": equipment_slug,
+            "equipment_name": item["name"],
+            "vtx_spent": float(price),
+            "new_balance": new_balance,
+            "multiplier": float(item["multiplier"]),
+        }
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
 
 def mint_game_reward(user_id, event_type, event_id=None):
     """
     Grant VTX for in-game events. Enforces a 50 VTX / 24-hour cap per user.
+    Applies equipment earning multiplier (best item in inventory wins).
     Returns block dict on success or dict with error/cap_reached key.
     """
-    amount = GAME_REWARD_TIERS.get(event_type)
-    if amount is None:
+    base_amount = GAME_REWARD_TIERS.get(event_type)
+    if base_amount is None:
         return {"error": f"Unknown game event type: {event_type}"}
+    multiplier = get_earning_multiplier(user_id)
+    amount = (base_amount * multiplier).quantize(Decimal("0.0001"))
 
     conn = _get_db()
     try:
@@ -564,6 +732,8 @@ def mint_game_reward(user_id, event_type, event_id=None):
 
         conn.commit()
         block["vtx_earned"] = float(amount)
+        block["base_amount"] = float(base_amount)
+        block["multiplier"] = float(multiplier)
         block["event_type"] = event_type
         block["earned_today"] = float(earned_today + amount)
         return block

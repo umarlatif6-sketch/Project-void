@@ -1,7 +1,14 @@
 import logging
 from flask import Blueprint, render_template, request, jsonify, session
 from routes.auth import login_required
-from void_engine.vortex_wallet import mint_game_reward, get_game_stats
+from void_engine.vortex_wallet import (
+    mint_game_reward,
+    get_game_stats,
+    spend_on_equipment,
+    get_inventory,
+    get_earning_multiplier,
+    EQUIPMENT_CATALOG,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -17,11 +24,47 @@ def game_page():
     username = session.get("username", "")
     user_tier = session.get("tier", "ghost")
     stats = get_game_stats(user_id)
+    inventory = get_inventory(user_id)
+    multiplier = float(get_earning_multiplier(user_id))
     return render_template(
         "game.html",
         username=username,
         user_tier=user_tier,
         stats=stats,
+        inventory=inventory,
+        multiplier=multiplier,
+    )
+
+
+@game_bp.route("/game/shop")
+@login_required
+def game_shop():
+    user_id = session.get("user_id")
+    username = session.get("username", "")
+    stats = get_game_stats(user_id)
+    inventory = get_inventory(user_id)
+    catalog = []
+    for slug, item in EQUIPMENT_CATALOG.items():
+        catalog.append({
+            "slug": slug,
+            "name": item["name"],
+            "vtx_price": float(item["vtx_price"]),
+            "multiplier": float(item["multiplier"]),
+            "description": item["description"],
+            "icon": item["icon"],
+            "tier": item["tier"],
+            "unlocks": item["unlocks"],
+            "owned": slug in inventory,
+        })
+    catalog.sort(key=lambda x: x["tier"])
+    multiplier = float(get_earning_multiplier(user_id))
+    return render_template(
+        "game_shop.html",
+        username=username,
+        stats=stats,
+        catalog=catalog,
+        inventory=inventory,
+        multiplier=multiplier,
     )
 
 
@@ -81,6 +124,50 @@ def game_reward():
 
     result["stats"] = stats
     return jsonify(result), 200
+
+
+@game_bp.route("/api/game/equip", methods=["POST"])
+@login_required
+def game_equip():
+    user_id = session.get("user_id")
+    if not request.is_json:
+        return jsonify({"error": "JSON required"}), 400
+
+    data = request.get_json(silent=True) or {}
+    slug = data.get("equipment_slug", "").strip()
+
+    if not slug:
+        return jsonify({"error": "equipment_slug required"}), 400
+
+    try:
+        result = spend_on_equipment(user_id, slug)
+    except Exception as exc:
+        logger.exception("Equipment purchase failed for user %s slug %s: %s", user_id, slug, exc)
+        return jsonify({"error": "Internal error processing purchase"}), 500
+
+    if "error" in result:
+        status = 400
+        if result["error"] == "insufficient_vtx":
+            status = 402
+        return jsonify(result), status
+
+    stats = get_game_stats(user_id)
+    result["stats"] = stats
+    return jsonify(result), 200
+
+
+@game_bp.route("/api/game/inventory")
+@login_required
+def game_inventory_api():
+    user_id = session.get("user_id")
+    try:
+        inventory = get_inventory(user_id)
+        multiplier = float(get_earning_multiplier(user_id))
+        stats = get_game_stats(user_id)
+        return jsonify({"inventory": inventory, "multiplier": multiplier, "stats": stats}), 200
+    except Exception as exc:
+        logger.exception("Inventory fetch failed: %s", exc)
+        return jsonify({"error": "Could not fetch inventory"}), 500
 
 
 @game_bp.route("/api/game/stats")

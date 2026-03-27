@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Shop — VOID: Sovereign Realm</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --game-teal: #00e5cc;
+            --game-gold: #c9a84c;
+            --game-purple: #7c5cff;
+            --game-dark: #06060e;
+            --game-surface: #0d0d1a;
+            --game-border: #1a1a30;
+        }
+
+        body {
+            background: var(--game-dark);
+            color: #ccc;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .shop-topbar {
+            position: sticky;
+            top: 0;
+            background: rgba(6,6,14,0.95);
+            border-bottom: 1px solid var(--game-border);
+            backdrop-filter: blur(12px);
+            padding: 0 32px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .shop-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .shop-brand {
+            font-size: 13px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--game-teal);
+            font-weight: 700;
+        }
+
+        .shop-breadcrumb {
+            font-size: 11px;
+            color: #444;
+            letter-spacing: 1px;
+        }
+
+        .shop-breadcrumb a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .shop-breadcrumb a:hover { color: var(--game-teal); }
+
+        .shop-balance-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--game-gold);
+            background: rgba(201,168,76,0.1);
+            border: 1px solid rgba(201,168,76,0.3);
+            padding: 6px 14px;
+            border-radius: 6px;
+        }
+
+        .shop-balance-amount {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .shop-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 32px;
+        }
+
+        .shop-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .shop-header-label {
+            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--game-teal);
+            margin-bottom: 12px;
+        }
+
+        .shop-header-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #eee;
+            letter-spacing: 2px;
+            margin-bottom: 14px;
+        }
+
+        .shop-header-sub {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.8;
+            max-width: 560px;
+            margin: 0 auto 24px;
+        }
+
+        .shop-economy-loop {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .loop-step {
+            background: rgba(13,13,26,0.8);
+            border: 1px solid var(--game-border);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 11px;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        .loop-arrow {
+            color: var(--game-teal);
+            font-size: 14px;
+        }
+
+        .loop-step.highlight {
+            border-color: var(--game-teal);
+            color: var(--game-teal);
+            background: rgba(0,229,204,0.06);
+        }
+
+        .topup-banner {
+            background: rgba(201,168,76,0.06);
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 10px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 48px;
+            flex-wrap: wrap;
+        }
+
+        .topup-text {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .topup-text strong {
+            color: var(--game-gold);
+        }
+
+        .topup-btn {
+            background: linear-gradient(135deg, #c9a84c, #e8c96a);
+            color: #06060e;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .topup-btn:hover { opacity: 0.9; }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 56px;
+        }
+
+        .equipment-card {
+            background: rgba(13,13,26,0.8);
+            border: 1px solid var(--game-border);
+            border-radius: 12px;
+            padding: 28px;
+            position: relative;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .equipment-card:hover {
+            border-color: rgba(0,229,204,0.3);
+            box-shadow: 0 0 24px rgba(0,229,204,0.07);
+        }
+
+        .equipment-card.owned {
+            border-color: rgba(0,229,204,0.4);
+            background: rgba(0,229,204,0.04);
+        }
+
+        .equipment-card.tier-5 {
+            border-color: rgba(124,92,255,0.3);
+        }
+
+        .equipment-card.tier-5:hover {
+            border-color: rgba(124,92,255,0.6);
+            box-shadow: 0 0 32px rgba(124,92,255,0.1);
+        }
+
+        .equipment-card.tier-5.owned {
+            border-color: rgba(124,92,255,0.5);
+            background: rgba(124,92,255,0.04);
+        }
+
+        .owned-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0,229,204,0.15);
+            border: 1px solid rgba(0,229,204,0.4);
+            color: var(--game-teal);
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .tier-5 .owned-badge {
+            background: rgba(124,92,255,0.15);
+            border-color: rgba(124,92,255,0.4);
+            color: #a78bff;
+        }
+
+        .equipment-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .equipment-tier-label {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #444;
+            margin-bottom: 6px;
+        }
+
+        .equipment-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #eee;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .equipment-description {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        .equipment-unlocks {
+            font-size: 10px;
+            color: var(--game-teal);
+            background: rgba(0,229,204,0.06);
+            border: 1px solid rgba(0,229,204,0.15);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .tier-5 .equipment-unlocks {
+            color: #a78bff;
+            background: rgba(124,92,255,0.06);
+            border-color: rgba(124,92,255,0.15);
+        }
+
+        .equipment-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .equipment-price {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .price-icon { font-size: 14px; color: var(--game-gold); }
+
+        .price-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--game-gold);
+        }
+
+        .price-label {
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 1px;
+        }
+
+        .multiplier-pill {
+            font-size: 10px;
+            background: rgba(201,168,76,0.1);
+            border: 1px solid rgba(201,168,76,0.25);
+            color: var(--game-gold);
+            padding: 3px 8px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        .buy-btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid var(--game-teal);
+            color: var(--game-teal);
+            background: rgba(0,229,204,0.08);
+            transition: all 0.2s;
+            min-width: 100px;
+        }
+
+        .buy-btn:hover:not(:disabled) {
+            background: rgba(0,229,204,0.15);
+            box-shadow: 0 0 16px rgba(0,229,204,0.2);
+        }
+
+        .buy-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .buy-btn.owned-state {
+            border-color: rgba(0,229,204,0.3);
+            color: rgba(0,229,204,0.5);
+            background: transparent;
+            cursor: default;
+        }
+
+        .tier-5 .buy-btn {
+            border-color: #7c5cff;
+            color: #a78bff;
+            background: rgba(124,92,255,0.08);
+        }
+
+        .tier-5 .buy-btn:hover:not(:disabled) {
+            background: rgba(124,92,255,0.15);
+            box-shadow: 0 0 16px rgba(124,92,255,0.2);
+        }
+
+        /* FEEDBACK MODAL */
+        .shop-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shop-modal-backdrop.active { display: flex; }
+
+        .shop-modal {
+            background: rgba(6,6,14,0.98);
+            border: 1px solid var(--game-teal);
+            border-radius: 12px;
+            padding: 36px;
+            width: 420px;
+            max-width: 95vw;
+            box-shadow: 0 0 40px rgba(0,229,204,0.15);
+            text-align: center;
+        }
+
+        .shop-modal.error {
+            border-color: #f87171;
+            box-shadow: 0 0 40px rgba(248,113,113,0.1);
+        }
+
+        .shop-modal-icon { font-size: 40px; margin-bottom: 16px; }
+
+        .shop-modal-title {
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--game-teal);
+            margin-bottom: 10px;
+        }
+
+        .shop-modal.error .shop-modal-title { color: #f87171; }
+
+        .shop-modal-body {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .shop-modal-body strong { color: var(--game-gold); }
+
+        .shop-modal-close {
+            padding: 10px 28px;
+            border-radius: 6px;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid var(--game-teal);
+            color: var(--game-teal);
+            background: rgba(0,229,204,0.08);
+            transition: all 0.2s;
+        }
+
+        .shop-modal-close:hover {
+            background: rgba(0,229,204,0.15);
+        }
+
+        .shop-modal.error .shop-modal-close {
+            border-color: #f87171;
+            color: #f87171;
+            background: rgba(248,113,113,0.06);
+        }
+
+        .inventory-section {
+            background: rgba(13,13,26,0.6);
+            border: 1px solid var(--game-border);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 40px;
+        }
+
+        .inventory-title {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--game-teal);
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--game-border);
+            padding-bottom: 12px;
+        }
+
+        .inventory-empty {
+            font-size: 11px;
+            color: #444;
+            text-align: center;
+            padding: 12px;
+        }
+
+        .inventory-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .inventory-chip {
+            background: rgba(0,229,204,0.08);
+            border: 1px solid rgba(0,229,204,0.25);
+            border-radius: 8px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--game-teal);
+        }
+
+        .multiplier-display {
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.25);
+            border-radius: 8px;
+            padding: 12px 20px;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .multiplier-display-label {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .multiplier-display-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--game-gold);
+        }
+
+        .multiplier-display-sub {
+            font-size: 10px;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .shop-container { padding: 24px 16px; }
+            .shop-header-title { font-size: 22px; }
+            .topup-banner { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="shop-topbar">
+    <div class="shop-topbar-left">
+        <span class="shop-brand">◆ Equipment Shop</span>
+        <span class="shop-breadcrumb">
+            <a href="/game">← Back to Game</a>
+            &nbsp;/&nbsp; Sovereign Realm
+        </span>
+    </div>
+    <div class="shop-balance-badge">
+        ◆ <span class="shop-balance-amount" id="live-balance">{{ '%.2f'|format(stats.vortex_balance or 0) }}</span> VTX
+    </div>
+</div>
+
+<div class="shop-container">
+
+    <!-- HEADER -->
+    <div class="shop-header">
+        <div class="shop-header-label">VOID: Sovereign Realm</div>
+        <div class="shop-header-title">SOVEREIGN EQUIPMENT</div>
+        <div class="shop-header-sub">
+            Invest VTX in sovereign gear to amplify your in-game earnings.
+            Better equipment means higher yields on every vault, node, and cipher you complete.
+        </div>
+        <div class="shop-economy-loop">
+            <div class="loop-step">Buy VTX with real money</div>
+            <span class="loop-arrow">→</span>
+            <div class="loop-step highlight">Purchase Equipment</div>
+            <span class="loop-arrow">→</span>
+            <div class="loop-step">Play &amp; Earn More VTX</div>
+            <span class="loop-arrow">→</span>
+            <div class="loop-step">Reinvest or Hold</div>
+        </div>
+    </div>
+
+    <!-- CURRENT INVENTORY -->
+    <div class="inventory-section">
+        <div class="inventory-title">◆ Your Loadout</div>
+        {% if inventory %}
+        <div class="inventory-items" id="inventory-chips">
+            {% for slug, item in inventory.items() %}
+            <div class="inventory-chip">
+                <span>{{ item.icon }}</span>
+                <span>{{ item.name }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="multiplier-display">
+            <div class="multiplier-display-label">Active Earning Multiplier</div>
+            <div class="multiplier-display-value" id="live-multiplier">{{ '%.2f'|format(multiplier) }}x</div>
+            <div class="multiplier-display-sub">Applied to all VTX rewards in-game</div>
+        </div>
+        {% else %}
+        <div class="inventory-empty" id="inventory-chips">No equipment owned yet. Purchase below to boost your earnings.</div>
+        {% endif %}
+    </div>
+
+    <!-- TOP UP BANNER -->
+    <div class="topup-banner">
+        <div class="topup-text">
+            Need more VTX? Convert real money to VTX instantly.<br>
+            <strong>Starter: 50 VTX (£5)</strong> &nbsp;·&nbsp;
+            <strong>Builder: 250 VTX (£20)</strong> &nbsp;·&nbsp;
+            <strong>Sovereign Stack: 1,000 VTX (£65)</strong>
+        </div>
+        <a href="/pricing" class="topup-btn">Top Up VTX →</a>
+    </div>
+
+    <!-- EQUIPMENT GRID -->
+    <div class="equipment-grid">
+        {% for item in catalog %}
+        <div class="equipment-card tier-{{ item.tier }} {% if item.owned %}owned{% endif %}" id="card-{{ item.slug }}">
+            {% if item.owned %}
+            <div class="owned-badge">✓ Owned</div>
+            {% endif %}
+            <div class="equipment-icon">{{ item.icon }}</div>
+            <div class="equipment-tier-label">Tier {{ item.tier }} Equipment</div>
+            <div class="equipment-name">{{ item.name }}</div>
+            <div class="equipment-description">{{ item.description }}</div>
+            <div class="equipment-unlocks">◆ {{ item.unlocks }}</div>
+            <div class="equipment-footer">
+                <div>
+                    <div class="equipment-price">
+                        <span class="price-icon">◆</span>
+                        <span class="price-amount">{{ item.vtx_price|int }}</span>
+                        <span class="price-label">VTX</span>
+                    </div>
+                    <div style="margin-top:6px">
+                        <span class="multiplier-pill">{{ '%.2f'|format(item.multiplier) }}x earnings</span>
+                    </div>
+                </div>
+                {% if item.owned %}
+                <button class="buy-btn owned-state" disabled>Equipped</button>
+                {% else %}
+                <button
+                    class="buy-btn"
+                    onclick="purchaseEquipment('{{ item.slug }}', '{{ item.name }}', {{ item.vtx_price }}, {{ item.multiplier }})"
+                >
+                    Buy
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="shop-modal-backdrop" id="modal-backdrop">
+    <div class="shop-modal" id="shop-modal">
+        <div class="shop-modal-icon" id="modal-icon">◆</div>
+        <div class="shop-modal-title" id="modal-title">Purchasing...</div>
+        <div class="shop-modal-body" id="modal-body"></div>
+        <button class="shop-modal-close" onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<script>
+    function openModal(icon, title, body, isError) {
+        const backdrop = document.getElementById('modal-backdrop');
+        const modal = document.getElementById('shop-modal');
+        document.getElementById('modal-icon').textContent = icon;
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-body').innerHTML = body;
+        modal.classList.toggle('error', isError);
+        backdrop.classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-backdrop').classList.remove('active');
+    }
+
+    async function purchaseEquipment(slug, name, price, multiplier) {
+        const btn = document.querySelector(`#card-${slug} .buy-btn`);
+        if (btn) { btn.disabled = true; btn.textContent = 'Buying...'; }
+
+        try {
+            const resp = await fetch('/api/game/equip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ equipment_slug: slug }),
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                document.getElementById('live-balance').textContent = data.new_balance.toFixed(2);
+
+                const card = document.getElementById(`card-${slug}`);
+                card.classList.add('owned');
+                card.querySelector('.equipment-footer').innerHTML = `
+                    <div>
+                        <div class="equipment-price">
+                            <span class="price-icon">◆</span>
+                            <span class="price-amount">${price}</span>
+                            <span class="price-label">VTX</span>
+                        </div>
+                        <div style="margin-top:6px">
+                            <span class="multiplier-pill">${multiplier.toFixed(2)}x earnings</span>
+                        </div>
+                    </div>
+                    <button class="buy-btn owned-state" disabled>Equipped</button>
+                `;
+
+                const ownedBadge = document.createElement('div');
+                ownedBadge.className = 'owned-badge';
+                ownedBadge.textContent = '✓ Owned';
+                card.insertBefore(ownedBadge, card.firstChild);
+
+                const chips = document.getElementById('inventory-chips');
+                if (chips.classList.contains('inventory-empty') || chips.tagName === 'DIV') {
+                    chips.outerHTML = `<div class="inventory-items" id="inventory-chips">
+                        <div class="inventory-chip"><span>${getIcon(slug)}</span><span>${name}</span></div>
+                    </div>`;
+                } else {
+                    const chip = document.createElement('div');
+                    chip.className = 'inventory-chip';
+                    chip.innerHTML = `<span>${getIcon(slug)}</span><span>${name}</span>`;
+                    chips.appendChild(chip);
+                }
+
+                const multDisplay = document.getElementById('live-multiplier');
+                if (multDisplay) {
+                    multDisplay.textContent = `${data.multiplier.toFixed(2)}x`;
+                }
+
+                openModal('◆', 'Equipment Purchased!',
+                    `<strong>${name}</strong> has been added to your loadout.<br><br>
+                     Your earning multiplier is now <strong>${data.multiplier.toFixed(2)}x</strong>.<br>
+                     New balance: <strong>${data.new_balance.toFixed(2)} VTX</strong>`,
+                    false);
+            } else if (data.error === 'insufficient_vtx') {
+                if (btn) { btn.disabled = false; btn.textContent = 'Buy'; }
+                openModal('⚠', 'Insufficient VTX',
+                    `You need <strong>${price} VTX</strong> to purchase ${name}.<br>
+                     Your balance: <strong>${data.balance.toFixed(2)} VTX</strong><br><br>
+                     <a href="/pricing" style="color: #c9a84c;">Top Up VTX →</a>`,
+                    true);
+            } else {
+                if (btn) { btn.disabled = false; btn.textContent = 'Buy'; }
+                openModal('✕', 'Purchase Failed',
+                    data.message || data.error || 'An error occurred. Please try again.',
+                    true);
+            }
+        } catch (err) {
+            if (btn) { btn.disabled = false; btn.textContent = 'Buy'; }
+            openModal('✕', 'Network Error', 'Could not reach the server. Please try again.', true);
+        }
+    }
+
+    function getIcon(slug) {
+        const icons = {
+            signal_array: '📡',
+            resonance_coil: '🔁',
+            adriana_decoder: 'Ψ',
+            sovereign_rig: '◆',
+            void_core: '⬡',
+        };
+        return icons[slug] || '?';
+    }
+
+    document.getElementById('modal-backdrop').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+</body>
+</html>
