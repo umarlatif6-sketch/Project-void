@@ -70,7 +70,8 @@ def admin_market_get():
 def admin_market_post():
     item_key = (request.form.get("item_key") or "").strip()
     try:
-        gbp_pence = round(float(request.form.get("gbp_pounds", 0)) * 100)
+        gbp_pounds = float(request.form.get("gbp_pounds", 0))
+        gbp_pence = None if math.isnan(gbp_pounds) else round(gbp_pounds * 100)
     except (ValueError, TypeError):
         gbp_pence = None
 
