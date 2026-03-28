@@ -758,17 +758,13 @@ def mint_game_reward(user_id, event_type, event_id=None):
             (amount, user_id),
         )
 
-        stat_col = {
-            "vault_discovered": "vaults_opened",
-            "glyph_solved": "glyphs_solved",
-            "node_built": "nodes_built",
-            "level_up": None,
+        stat_sql = {
+            "vault_discovered": "UPDATE users SET vaults_opened = COALESCE(vaults_opened, 0) + 1 WHERE id = %s",
+            "glyph_solved": "UPDATE users SET glyphs_solved = COALESCE(glyphs_solved, 0) + 1 WHERE id = %s",
+            "node_built": "UPDATE users SET nodes_built = COALESCE(nodes_built, 0) + 1 WHERE id = %s",
         }.get(event_type)
-        if stat_col:
-            cur.execute(
-                f"UPDATE users SET {stat_col} = COALESCE({stat_col}, 0) + 1 WHERE id = %s",
-                (user_id,),
-            )
+        if stat_sql:
+            cur.execute(stat_sql, (user_id,))
 
         cur.execute(
             "UPDATE users SET total_game_vtx = COALESCE(total_game_vtx, 0) + %s WHERE id = %s",
