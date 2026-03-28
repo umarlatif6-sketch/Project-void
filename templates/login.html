@@ -211,9 +211,24 @@
             .login-card { padding: 28px 20px 24px; }
             .login-logo h1 { font-size: 16px; letter-spacing: 4px; }
         }
+        #blueprint-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .login-card {
+            z-index: 3;
+        }
+        .login-links {
+            position: relative;
+            z-index: 3;
+        }
     </style>
 </head>
 <body>
+    <canvas id="blueprint-bg"></canvas>
     <div class="login-card" id="login-card">
         <div class="login-border-glow"></div>
         <div class="login-logo">
@@ -390,6 +405,274 @@
             });
             return false;
         };
+    })();
+    </script>
+    <script>
+    (function() {
+        var canvas = document.getElementById('blueprint-bg');
+        var ctx = canvas.getContext('2d');
+
+        var TEAL = '45,212,191';
+        var GOLD = '201,168,76';
+
+        var GLYPHS = [
+            'σ','φ','ψ','Ω','λ','α','δ','θ','∞','∴','⊕','⊗','∇','∂','≡','⊥',
+            '◆','⬡','△','⟨','⟩','∫','ε','ζ','μ','π','⚡','⌬','⌖','⊹','✦'
+        ];
+        var ANNOTS = [
+            '432 Hz','Al-Jabr 286','LSB:2','VTX','VOID','NODE:7',
+            'MESH:OK','σ·λ·∞','0xA3F9','0xC9A8','ADRIANA','SOVEREIGN',
+            'DEPTH:2','HASH:OK','◆ 286','CARRIER','STEALTH'
+        ];
+
+        var W, H, t = 0, scanY = 0;
+        var nodes = [], traces = [], glyphs = [], annots = [], hexes = [];
+
+        function rand(min, max) { return min + Math.random() * (max - min); }
+        function randInt(min, max) { return Math.floor(rand(min, max)); }
+        function pickColor() { return Math.random() < 0.65 ? TEAL : GOLD; }
+
+        function generate() {
+            nodes = []; traces = []; glyphs = []; annots = []; hexes = [];
+
+            /* ── sparse circuit nodes ── */
+            var step = 160;
+            for (var gx = step; gx < W; gx += step) {
+                for (var gy = step; gy < H; gy += step) {
+                    if (Math.random() < 0.28) {
+                        nodes.push({
+                            x: gx + rand(-55, 55),
+                            y: gy + rand(-55, 55),
+                            r: rand(2.5, 5.5),
+                            c: pickColor(),
+                            ph: rand(0, Math.PI * 2)
+                        });
+                    }
+                }
+            }
+
+            /* ── manhattan circuit traces between nearby nodes ── */
+            for (var i = 0; i < nodes.length; i++) {
+                for (var j = i + 1; j < nodes.length; j++) {
+                    var dx = nodes[j].x - nodes[i].x;
+                    var dy = nodes[j].y - nodes[i].y;
+                    if (Math.sqrt(dx*dx + dy*dy) < 210 && Math.random() < 0.38) {
+                        traces.push({ a: i, b: j, c: pickColor() });
+                    }
+                }
+            }
+
+            /* ── Adriana glyphs scattered across viewport ── */
+            for (var g = 0; g < 35; g++) {
+                glyphs.push({
+                    x: rand(20, W - 20),
+                    y: rand(20, H - 20),
+                    ch: GLYPHS[randInt(0, GLYPHS.length)],
+                    sz: rand(9, 20),
+                    c: pickColor(),
+                    op: rand(0.04, 0.13)
+                });
+            }
+
+            /* ── technical annotations ── */
+            for (var a = 0; a < 18; a++) {
+                annots.push({
+                    x: rand(10, W - 80),
+                    y: rand(10, H - 10),
+                    text: ANNOTS[randInt(0, ANNOTS.length)],
+                    c: pickColor()
+                });
+            }
+
+            /* ── hexagonal structures, biased toward corners & edges ── */
+            var corners = [
+                [rand(50,180),  rand(50,180)],
+                [rand(W-180,W-50), rand(50,180)],
+                [rand(50,180),  rand(H-180,H-50)],
+                [rand(W-180,W-50), rand(H-180,H-50)],
+                [rand(W*0.12,W*0.22), H*0.5 + rand(-60,60)],
+                [rand(W*0.78,W*0.88), H*0.5 + rand(-60,60)],
+                [W*0.5 + rand(-60,60), rand(H*0.06,H*0.14)],
+                [W*0.5 + rand(-60,60), rand(H*0.86,H*0.94)],
+                [rand(W*0.25,W*0.38), rand(H*0.12,H*0.25)],
+                [rand(W*0.62,W*0.75), rand(H*0.12,H*0.25)],
+                [rand(W*0.25,W*0.38), rand(H*0.75,H*0.88)],
+                [rand(W*0.62,W*0.75), rand(H*0.75,H*0.88)]
+            ];
+            corners.forEach(function(pos) {
+                hexes.push({
+                    x: pos[0], y: pos[1],
+                    r: rand(18, 42),
+                    c: pickColor(),
+                    ph: rand(0, Math.PI * 2),
+                    rings: randInt(1, 3)
+                });
+            });
+        }
+
+        function drawHex(cx, cy, r, color, op) {
+            ctx.beginPath();
+            for (var i = 0; i < 6; i++) {
+                var angle = Math.PI / 3 * i - Math.PI / 6;
+                var px = cx + r * Math.cos(angle);
+                var py = cy + r * Math.sin(angle);
+                i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = 'rgba(' + color + ',' + op + ')';
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
+        }
+
+        function drawCornerBracket(x, y, sz, corner) {
+            var s = sz / 2;
+            ctx.strokeStyle = 'rgba(' + GOLD + ',0.28)';
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            if (corner === 0) { ctx.moveTo(x+s,y); ctx.lineTo(x,y); ctx.lineTo(x,y+s); }
+            if (corner === 1) { ctx.moveTo(x-s,y); ctx.lineTo(x,y); ctx.lineTo(x,y+s); }
+            if (corner === 2) { ctx.moveTo(x+s,y); ctx.lineTo(x,y); ctx.lineTo(x,y-s); }
+            if (corner === 3) { ctx.moveTo(x-s,y); ctx.lineTo(x,y); ctx.lineTo(x,y-s); }
+            ctx.stroke();
+            /* small dot at corner tip */
+            ctx.beginPath();
+            ctx.arc(x, y, 2.5, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(' + GOLD + ',0.35)';
+            ctx.fill();
+        }
+
+        function frame() {
+            ctx.clearRect(0, 0, W, H);
+            t += 0.007;
+            scanY = (scanY + 0.45) % H;
+
+            /* ── fine grid ── */
+            ctx.strokeStyle = 'rgba(' + TEAL + ',0.04)';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            for (var gx = 0; gx < W; gx += 50) { ctx.moveTo(gx,0); ctx.lineTo(gx,H); }
+            for (var gy = 0; gy < H; gy += 50) { ctx.moveTo(0,gy); ctx.lineTo(W,gy); }
+            ctx.stroke();
+
+            /* ── major grid ── */
+            ctx.strokeStyle = 'rgba(' + TEAL + ',0.085)';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            for (var mx = 0; mx < W; mx += 250) { ctx.moveTo(mx,0); ctx.lineTo(mx,H); }
+            for (var my = 0; my < H; my += 250) { ctx.moveTo(0,my); ctx.lineTo(W,my); }
+            ctx.stroke();
+
+            /* ── corner brackets ── */
+            var bp = 28, bs = 56;
+            drawCornerBracket(bp, bp, bs, 0);
+            drawCornerBracket(W-bp, bp, bs, 1);
+            drawCornerBracket(bp, H-bp, bs, 2);
+            drawCornerBracket(W-bp, H-bp, bs, 3);
+
+            /* ── circuit traces (manhattan routing) ── */
+            traces.forEach(function(tr) {
+                var a = nodes[tr.a], b = nodes[tr.b];
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y);
+                ctx.lineTo(a.x, b.y);
+                ctx.lineTo(b.x, b.y);
+                ctx.strokeStyle = 'rgba(' + tr.c + ',0.085)';
+                ctx.lineWidth = 0.7;
+                ctx.stroke();
+            });
+
+            /* ── nodes with pulsing crosshairs ── */
+            nodes.forEach(function(n) {
+                var pulse = 0.5 + 0.5 * Math.sin(t * 1.6 + n.ph);
+                var op = 0.09 + pulse * 0.16;
+                ctx.strokeStyle = 'rgba(' + n.c + ',' + op + ')';
+                ctx.fillStyle   = 'rgba(' + n.c + ',' + (op * 0.25) + ')';
+                ctx.lineWidth = 0.8;
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+                ctx.fill(); ctx.stroke();
+                /* crosshair */
+                ctx.beginPath();
+                ctx.moveTo(n.x - n.r*2.2, n.y); ctx.lineTo(n.x + n.r*2.2, n.y);
+                ctx.moveTo(n.x, n.y - n.r*2.2); ctx.lineTo(n.x, n.y + n.r*2.2);
+                ctx.stroke();
+            });
+
+            /* ── hexagonal structures ── */
+            hexes.forEach(function(h) {
+                var pulse = 0.5 + 0.5 * Math.sin(t * 0.9 + h.ph);
+                for (var ring = 0; ring < h.rings; ring++) {
+                    drawHex(h.x, h.y, h.r * (1 + ring * 0.65), h.c, (0.05 + pulse * 0.07) / (ring + 1));
+                }
+                /* centre dot */
+                ctx.beginPath();
+                ctx.arc(h.x, h.y, 2, 0, Math.PI*2);
+                ctx.fillStyle = 'rgba(' + h.c + ',' + (0.08 + pulse * 0.1) + ')';
+                ctx.fill();
+            });
+
+            /* ── diamond shapes at mid-edge intersections ── */
+            var diamonds = [
+                {x: W*0.5, y: 40}, {x: W*0.5, y: H-40},
+                {x: 40, y: H*0.5}, {x: W-40, y: H*0.5}
+            ];
+            diamonds.forEach(function(d) {
+                var sz = 10;
+                ctx.beginPath();
+                ctx.moveTo(d.x, d.y - sz);
+                ctx.lineTo(d.x + sz, d.y);
+                ctx.lineTo(d.x, d.y + sz);
+                ctx.lineTo(d.x - sz, d.y);
+                ctx.closePath();
+                ctx.strokeStyle = 'rgba(' + GOLD + ',0.22)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+
+            /* ── Adriana glyphs ── */
+            glyphs.forEach(function(g) {
+                ctx.font = g.sz + "px 'SF Mono','Fira Code',monospace";
+                ctx.fillStyle = 'rgba(' + g.c + ',' + g.op + ')';
+                ctx.fillText(g.ch, g.x, g.y);
+            });
+
+            /* ── technical annotations ── */
+            annots.forEach(function(a) {
+                ctx.font = "8px 'SF Mono','Fira Code',monospace";
+                ctx.fillStyle = 'rgba(' + a.c + ',0.11)';
+                ctx.fillText(a.text, a.x, a.y);
+            });
+
+            /* ── scan line ── */
+            var scanGrad = ctx.createLinearGradient(0, scanY - 50, 0, scanY + 50);
+            scanGrad.addColorStop(0,   'rgba(' + TEAL + ',0)');
+            scanGrad.addColorStop(0.5, 'rgba(' + TEAL + ',0.045)');
+            scanGrad.addColorStop(1,   'rgba(' + TEAL + ',0)');
+            ctx.fillStyle = scanGrad;
+            ctx.fillRect(0, scanY - 50, W, 100);
+
+            requestAnimationFrame(frame);
+        }
+
+        function resize() {
+            W = canvas.width  = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+
+        function init() {
+            resize();
+            generate();
+            requestAnimationFrame(frame);
+        }
+
+        /* regenerate layout on resize (throttled) */
+        var resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() { resize(); generate(); }, 300);
+        });
+
+        init();
     })();
     </script>
     <script src="/static/resonance_visualizer.js"></script>
