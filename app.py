@@ -64,6 +64,11 @@ def _startup_migrations():
         get_model_router()
     except Exception as e:
         logger.error("ModelRouter init failed: %s", e)
+    try:
+        from void_engine.mesa_engine import _init_mesa_tables
+        _init_mesa_tables()
+    except Exception as e:
+        logger.error("Mesa tables init failed: %s", e)
 
 try:
     from routes import register_blueprints

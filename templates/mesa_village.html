@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesa Village — Swarm Intelligence Engine</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --void-bg: #05060a;
+            --void-gold: #c9a84c;
+            --void-teal: #2dd4bf;
+            --void-blue: #60a5fa;
+            --void-violet: #a78bfa;
+            --void-text: #d0d8e8;
+            --void-muted: #4a5060;
+            --void-border: #1a1e2a;
+            --void-card: #0a0c14;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+        a { color: var(--void-gold); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .mv-topbar {
+            position: sticky;
+            top: 0; z-index: 100;
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 14px 28px;
+            background: rgba(5,6,10,0.95);
+            border-bottom: 1px solid var(--void-border);
+        }
+        .mv-logo { display: flex; align-items: center; gap: 10px; color: var(--void-gold); font-size: 14px; font-weight: bold; letter-spacing: 0.08em; }
+        .mv-diamond { font-size: 20px; }
+        .mv-nav { display: flex; gap: 18px; font-size: 12px; }
+        .mv-nav a { color: var(--void-muted); letter-spacing: 0.05em; }
+        .mv-nav a:hover { color: var(--void-gold); }
+
+        .mv-hero {
+            text-align: center;
+            padding: 60px 24px 36px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 60%);
+        }
+        .mv-hero h1 { font-size: 28px; color: var(--void-gold); letter-spacing: 0.12em; margin-bottom: 10px; }
+        .mv-hero p { color: var(--void-muted); font-size: 13px; max-width: 640px; margin: 0 auto; line-height: 1.6; }
+
+        .mv-status-strip {
+            display: flex; gap: 16px; flex-wrap: wrap;
+            justify-content: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--void-border);
+        }
+        .mv-stat {
+            display: flex; flex-direction: column; align-items: center;
+            background: var(--void-card);
+            border: 1px solid var(--void-border);
+            border-radius: 6px;
+            padding: 12px 20px;
+            min-width: 130px;
+        }
+        .mv-stat-label { font-size: 10px; color: var(--void-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+        .mv-stat-value { font-size: 22px; color: var(--void-gold); font-weight: bold; }
+        .mv-stat-sub { font-size: 10px; color: var(--void-muted); margin-top: 3px; }
+
+        .mv-main { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+
+        .mv-section-title {
+            font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--void-muted); margin-bottom: 16px;
+            border-left: 2px solid var(--void-gold); padding-left: 10px;
+        }
+
+        .mv-report {
+            background: var(--void-card);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        .mv-report-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .mv-report-id { font-size: 11px; color: var(--void-muted); }
+        .mv-report-badge {
+            background: rgba(45,212,191,0.12); border: 1px solid rgba(45,212,191,0.3);
+            color: var(--void-teal); font-size: 11px; padding: 3px 10px; border-radius: 12px;
+        }
+        .mv-report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .mv-report-block {
+            background: rgba(26,30,42,0.6); border: 1px solid var(--void-border);
+            border-radius: 6px; padding: 14px;
+        }
+        .mv-report-block-title { font-size: 10px; color: var(--void-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+        .mv-kv { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+        .mv-kv-key { color: var(--void-muted); }
+        .mv-kv-val { color: var(--void-text); }
+
+        .mv-predictions { margin-top: 16px; }
+        .mv-pred {
+            background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.2);
+            border-radius: 5px; padding: 10px 14px; margin-bottom: 8px;
+            display: flex; align-items: flex-start; gap: 12px;
+        }
+        .mv-pred-type { font-size: 10px; color: var(--void-violet); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; min-width: 100px; }
+        .mv-pred-desc { font-size: 12px; color: var(--void-text); line-height: 1.5; }
+        .mv-pred-conf { font-size: 10px; color: var(--void-muted); margin-left: auto; white-space: nowrap; }
+
+        .mv-anomalies { margin-top: 16px; }
+        .mv-anomaly {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25);
+            border-radius: 4px; padding: 5px 10px; margin: 4px; font-size: 11px; color: #f87171;
+        }
+
+        .mv-network {
+            background: var(--void-card);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        .mv-network-canvas { width: 100%; height: 340px; position: relative; overflow: hidden; }
+        .mv-node {
+            position: absolute; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; cursor: default;
+            transition: transform 0.2s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .mv-node:hover { transform: scale(1.3); z-index: 10; }
+        .mv-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .mv-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--void-muted); }
+        .mv-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        .mv-glyph-dist {
+            background: var(--void-card); border: 1px solid var(--void-border);
+            border-radius: 8px; padding: 24px; margin-bottom: 28px;
+        }
+        .mv-glyph-bars { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .mv-glyph-bar-item { display: flex; flex-direction: column; gap: 4px; }
+        .mv-glyph-bar-label { font-size: 12px; color: var(--void-text); display: flex; justify-content: space-between; }
+        .mv-glyph-bar-track { height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+        .mv-glyph-bar-fill { height: 100%; background: var(--void-gold); border-radius: 3px; transition: width 0.6s; }
+
+        .mv-history { background: var(--void-card); border: 1px solid var(--void-border); border-radius: 8px; padding: 24px; }
+        .mv-history-row {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+            padding: 10px 0; border-bottom: 1px solid rgba(26,30,42,0.8);
+            font-size: 12px;
+        }
+        .mv-history-row:last-child { border-bottom: none; }
+        .mv-run-id { font-family: monospace; color: var(--void-gold); font-size: 11px; min-width: 120px; }
+        .mv-badge-complete { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.25); padding: 2px 8px; border-radius: 10px; font-size: 10px; }
+        .mv-badge-running  { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); padding: 2px 8px; border-radius: 10px; font-size: 10px; }
+        .mv-muted { color: var(--void-muted); }
+
+        .mv-empty {
+            text-align: center; padding: 60px 24px; color: var(--void-muted);
+        }
+        .mv-empty-icon { font-size: 40px; margin-bottom: 14px; }
+        .mv-empty p { font-size: 13px; line-height: 1.6; max-width: 400px; margin: 0 auto; }
+
+        .mv-refresh-btn {
+            display: inline-block;
+            background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3);
+            color: var(--void-gold); font-size: 12px; padding: 7px 18px;
+            border-radius: 4px; cursor: pointer; letter-spacing: 0.06em;
+            text-decoration: none; transition: background 0.2s;
+        }
+        .mv-refresh-btn:hover { background: rgba(201,168,76,0.2); text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .mv-topbar { flex-direction: column; gap: 10px; }
+            .mv-hero h1 { font-size: 20px; }
+            .mv-status-strip { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="mv-topbar">
+    <div class="mv-logo">
+        <span class="mv-diamond">◆</span>
+        <span>MESA VILLAGE</span>
+    </div>
+    <nav class="mv-nav">
+        <a href="/">Engine</a>
+        <a href="/gridul">GriDul</a>
+        <a href="/genesis">Genesis</a>
+        <a href="/crystallization">Constellation</a>
+        <a href="/chronicle">Chronicle</a>
+    </nav>
+</div>
+
+<div class="mv-hero">
+    <h1>⬡ MESA VILLAGE</h1>
+    <p>Swarm Intelligence Engine — 1,000 sovereign agents with independent personalities, long-term memory, and social logic. Seeded from VOID data. Predicts PEACE token flow and emergent community behaviour.</p>
+</div>
+
+{% if latest %}
+{% set report = latest.report %}
+
+<div class="mv-status-strip">
+    <div class="mv-stat">
+        <span class="mv-stat-label">Agents</span>
+        <span class="mv-stat-value">{{ latest.agent_count }}</span>
+        <span class="mv-stat-sub">active this run</span>
+    </div>
+    <div class="mv-stat">
+        <span class="mv-stat-label">Rounds</span>
+        <span class="mv-stat-value">{{ latest.rounds }}</span>
+        <span class="mv-stat-sub">simulation steps</span>
+    </div>
+    <div class="mv-stat">
+        <span class="mv-stat-label">Avg Activity</span>
+        <span class="mv-stat-value">{{ "%.0f"|format((report.behaviour.avg_activity or 0) * 100) }}%</span>
+        <span class="mv-stat-sub">agent engagement</span>
+    </div>
+    <div class="mv-stat">
+        <span class="mv-stat-label">PEACE Flow</span>
+        <span class="mv-stat-value">{{ "%.1f"|format(report.economy.total_peace_flow or 0) }}</span>
+        <span class="mv-stat-sub">total this run</span>
+    </div>
+    <div class="mv-stat">
+        <span class="mv-stat-label">Dominant</span>
+        <span class="mv-stat-value" style="font-size:28px;">{{ report.behaviour.dominant_glyph }}</span>
+        <span class="mv-stat-sub">{{ report.behaviour.dominant_role }}</span>
+    </div>
+    <div class="mv-stat">
+        <span class="mv-stat-label">Anomalies</span>
+        <span class="mv-stat-value" style="color:{% if report.anomalies|length > 0 %}#f87171{% else %}#34d399{% endif %};">{{ report.anomalies|length }}</span>
+        <span class="mv-stat-sub">flagged agents</span>
+    </div>
+</div>
+
+<div class="mv-main">
+
+    <!-- Report Agent Output -->
+    <div class="mv-section-title">ReportAgent — Simulation Summary</div>
+    <div class="mv-report">
+        <div class="mv-report-header">
+            <div>
+                <div style="font-size:13px; color:var(--void-gold); margin-bottom:4px;">Run {{ latest.run_id }}</div>
+                <div class="mv-report-id">
+                    {% if latest.completed_at %}Completed {{ latest.completed_at[:19].replace("T"," ") }} UTC{% endif %}
+                    {% if latest.seed_event %} · Seed: <em style="color:var(--void-text);">{{ latest.seed_event[:50] }}</em>{% endif %}
+                </div>
+            </div>
+            <span class="mv-report-badge">✓ COMPLETE</span>
+        </div>
+
+        <div class="mv-report-grid">
+            <div class="mv-report-block">
+                <div class="mv-report-block-title">Economy</div>
+                <div class="mv-kv"><span class="mv-kv-key">Total PEACE</span><span class="mv-kv-val">{{ "%.2f"|format(report.economy.total_peace or 0) }}</span></div>
+                <div class="mv-kv"><span class="mv-kv-key">Avg per Agent</span><span class="mv-kv-val">{{ "%.4f"|format(report.economy.avg_peace_per_agent or 0) }}</span></div>
+                <div class="mv-kv"><span class="mv-kv-key">Total Flow</span><span class="mv-kv-val">{{ "%.4f"|format(report.economy.total_peace_flow or 0) }}</span></div>
+                <div class="mv-kv"><span class="mv-kv-key">Avg Flow/Agent</span><span class="mv-kv-val">{{ "%.4f"|format(report.economy.avg_peace_flow_per_agent or 0) }}</span></div>
+            </div>
+            <div class="mv-report-block">
+                <div class="mv-report-block-title">Behaviour</div>
+                <div class="mv-kv"><span class="mv-kv-key">Avg Activity</span><span class="mv-kv-val">{{ "%.4f"|format(report.behaviour.avg_activity or 0) }}</span></div>
+                <div class="mv-kv"><span class="mv-kv-key">Dominant Glyph</span><span class="mv-kv-val">{{ report.behaviour.dominant_glyph }} {{ report.behaviour.dominant_role }}</span></div>
+                <div class="mv-kv"><span class="mv-kv-key">GriDul Agents</span><span class="mv-kv-val">{{ report.behaviour.gridul_agent_count }}</span></div>
+                <div class="mv-kv"><span class="mv-kv-key">GriDul Activity</span><span class="mv-kv-val">{{ "%.4f"|format(report.behaviour.gridul_avg_activity or 0) }}</span></div>
+            </div>
+            <div class="mv-report-block">
+                <div class="mv-report-block-title">Top Archetypes</div>
+                {% for glyph in (report.behaviour.top_agent_glyphs or []) %}
+                <div style="display:inline-block; font-size:20px; margin:2px 4px;" title="Top PEACE holder">{{ glyph }}</div>
+                {% endfor %}
+                {% if not report.behaviour.top_agent_glyphs %}
+                <div style="color:var(--void-muted); font-size:12px;">No data</div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if report.predictions %}
+        <div class="mv-section-title" style="margin-top:10px;">Emergent Predictions</div>
+        <div class="mv-predictions">
+            {% for pred in report.predictions %}
+            <div class="mv-pred">
+                <span class="mv-pred-type">{{ pred.type.replace("_"," ") }}</span>
+                <span class="mv-pred-desc">{{ pred.description }}</span>
+                <span class="mv-pred-conf">conf: {{ "%.0f"|format((pred.confidence or 0) * 100) }}%</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if report.anomalies %}
+        <div class="mv-section-title" style="margin-top:16px;">Anomaly Flags</div>
+        <div class="mv-anomalies">
+            {% for anom in report.anomalies %}
+            <span class="mv-anomaly">
+                {{ anom.glyph }} #{{ anom.agent_id }} — {{ anom.type.replace("_"," ") }}
+                {% if anom.activity is defined %} (act: {{ "%.3f"|format(anom.activity) }}){% endif %}
+                {% if anom.peace is defined %} (PEACE: {{ "%.1f"|format(anom.peace) }}){% endif %}
+            </span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Agent Network Visualisation -->
+    <div class="mv-section-title">Agent Network — Archetype Distribution</div>
+    <div class="mv-network">
+        <div class="mv-network-canvas" id="agentCanvas">
+            <!-- Rendered by JS below -->
+        </div>
+        <div class="mv-legend" id="glyphLegend"></div>
+    </div>
+
+    <!-- Glyph Distribution -->
+    {% if report.behaviour.glyph_distribution %}
+    <div class="mv-section-title">Glyph Distribution</div>
+    <div class="mv-glyph-dist">
+        <div class="mv-glyph-bars">
+            {% set max_count = report.behaviour.glyph_distribution.values()|max %}
+            {% for glyph, count in report.behaviour.glyph_distribution.items() %}
+            <div class="mv-glyph-bar-item">
+                <div class="mv-glyph-bar-label">
+                    <span>{{ glyph }}</span>
+                    <span style="color:var(--void-muted);">{{ count }}</span>
+                </div>
+                <div class="mv-glyph-bar-track">
+                    <div class="mv-glyph-bar-fill" style="width: {{ (count / max_count * 100)|round }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+{% else %}
+<div class="mv-main">
+    <div class="mv-empty">
+        <div class="mv-empty-icon">⬡</div>
+        <p>No simulation has been run yet. An admin can trigger the first Mesa Village simulation from the admin panel.</p>
+        <br>
+        <a href="/mesa-village" class="mv-refresh-btn" id="refreshBtn">↻ Check Again</a>
+    </div>
+{% endif %}
+
+    <!-- Run History -->
+    <div class="mv-section-title" style="margin-top: 28px;">Simulation History</div>
+    <div class="mv-history">
+        {% if history %}
+        {% for run in history %}
+        <div class="mv-history-row">
+            <span class="mv-run-id">{{ run.run_id }}</span>
+            <span class="{% if run.status == 'complete' %}mv-badge-complete{% else %}mv-badge-running{% endif %}">{{ run.status }}</span>
+            <span class="mv-muted">{{ run.agent_count }} agents · {{ run.rounds }} rounds</span>
+            {% if run.seed_event %}<span style="color:var(--void-text); font-size:11px;">{{ run.seed_event[:40] }}</span>{% endif %}
+            <span class="mv-muted" style="margin-left:auto;">{{ (run.started_at or "")[:16].replace("T"," ") }}</span>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="color:var(--void-muted); font-size:12px; text-align:center; padding:20px;">No simulation history yet.</div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+(function() {
+    {% if latest and latest.report %}
+    const glyphDist = {{ (latest.report.behaviour.glyph_distribution or {})|tojson }};
+    const agentCount = {{ latest.agent_count }};
+    const canvas = document.getElementById('agentCanvas');
+    const legend = document.getElementById('glyphLegend');
+
+    const GLYPH_COLORS = {
+        'σ': '#c9a84c', '◆': '#432dff', 'α': '#34d399', 'Ψ': '#a78bfa',
+        'φ': '#818cf8', 'ν': '#22d3ee', 'τ': '#6366f1', 'ξ': '#f87171',
+        'Φ': '#e879f9', '🔮': '#2dd4bf', '⚡': '#fbbf24', 'ψ': '#60a5fa',
+        'δ': '#fb923c', 'ω': '#ef4444', 'η': '#a3e635',
+    };
+
+    const glyphs = Object.keys(glyphDist);
+    const total = Object.values(glyphDist).reduce((a,b)=>a+b,0);
+    const W = canvas.offsetWidth || 700;
+    const H = 340;
+
+    let placed = 0;
+    glyphs.forEach(g => {
+        const count = glyphDist[g];
+        const fraction = count / Math.max(total, 1);
+        const nodesToDraw = Math.max(1, Math.round(fraction * Math.min(agentCount, 120)));
+        const color = GLYPH_COLORS[g] || '#c9a84c';
+        const size = Math.max(22, 16 + fraction * 30);
+
+        for (let i = 0; i < nodesToDraw; i++) {
+            const el = document.createElement('div');
+            el.className = 'mv-node';
+            el.textContent = g;
+            const x = 10 + Math.random() * (W - 40);
+            const y = 10 + Math.random() * (H - 40);
+            el.style.cssText = `left:${x}px; top:${y}px; width:${size}px; height:${size}px; background:${color}22; border-color:${color}44; font-size:${Math.max(10, size*0.55)}px;`;
+            el.title = g + ' (' + count + ' agents)';
+            canvas.appendChild(el);
+            placed++;
+        }
+    });
+
+    glyphs.forEach(g => {
+        const color = GLYPH_COLORS[g] || '#c9a84c';
+        const item = document.createElement('div');
+        item.className = 'mv-legend-item';
+        item.innerHTML = `<div class="mv-legend-dot" style="background:${color}"></div><span>${g} (${glyphDist[g]})</span>`;
+        legend.appendChild(item);
+    });
+    {% endif %}
+
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            location.reload();
+        });
+    }
+
+    setTimeout(function() {
+        fetch('/api/mesa/latest').then(r=>r.json()).then(data=>{
+            if (data.run && data.run.status === 'complete') {
+                const current = {{ (latest.run_id if latest else '')|tojson }};
+                if (data.run.run_id !== current) location.reload();
+            }
+        }).catch(()=>{});
+    }, 15000);
+})();
+</script>
+</body>
+</html>

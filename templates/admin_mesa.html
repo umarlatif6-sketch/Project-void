@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Mesa Village</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --void-bg: #05060a;
+            --void-gold: #c9a84c;
+            --void-teal: #2dd4bf;
+            --void-text: #d0d8e8;
+            --void-muted: #4a5060;
+            --void-border: #1a1e2a;
+            --void-card: #0a0c14;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            min-height: 100vh;
+        }
+        a { color: var(--void-gold); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .adm-header {
+            padding: 16px 28px;
+            background: rgba(5,6,10,0.95);
+            border-bottom: 1px solid var(--void-border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .adm-logo { color: var(--void-gold); font-size: 14px; font-weight: bold; letter-spacing: 0.08em; }
+        .adm-nav { display: flex; gap: 18px; font-size: 12px; }
+        .adm-nav a { color: var(--void-muted); }
+        .adm-nav a:hover { color: var(--void-gold); }
+
+        .adm-main { max-width: 900px; margin: 0 auto; padding: 36px 20px; }
+
+        h1 { font-size: 22px; color: var(--void-gold); letter-spacing: 0.1em; margin-bottom: 6px; }
+        .adm-sub { color: var(--void-muted); font-size: 12px; margin-bottom: 32px; }
+
+        .adm-banner {
+            border-radius: 5px; padding: 10px 16px;
+            font-size: 12px; margin-bottom: 20px;
+        }
+        .adm-banner.success { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); color: #34d399; }
+        .adm-banner.error   { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: #f87171; }
+
+        .adm-section-title {
+            font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--void-muted); margin-bottom: 16px;
+            border-left: 2px solid var(--void-gold); padding-left: 10px;
+        }
+
+        .adm-card {
+            background: var(--void-card);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .adm-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .adm-field { display: flex; flex-direction: column; gap: 6px; }
+        .adm-field label { font-size: 11px; color: var(--void-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+        .adm-field input, .adm-field textarea {
+            background: rgba(26,30,42,0.8); border: 1px solid var(--void-border);
+            color: var(--void-text); font-family: inherit; font-size: 13px;
+            padding: 8px 12px; border-radius: 4px; outline: none;
+            transition: border-color 0.2s;
+        }
+        .adm-field input:focus, .adm-field textarea:focus { border-color: rgba(201,168,76,0.4); }
+        .adm-field textarea { resize: vertical; min-height: 64px; }
+        .adm-field-full { grid-column: 1 / -1; }
+
+        .adm-btn {
+            background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.35);
+            color: var(--void-gold); font-family: inherit; font-size: 12px; font-weight: bold;
+            padding: 10px 24px; border-radius: 4px; cursor: pointer;
+            letter-spacing: 0.08em; text-transform: uppercase; transition: background 0.2s;
+        }
+        .adm-btn:hover { background: rgba(201,168,76,0.22); }
+        .adm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .adm-hint { font-size: 11px; color: var(--void-muted); margin-top: 4px; }
+
+        .adm-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .adm-table th { text-align: left; font-size: 10px; color: var(--void-muted); letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid var(--void-border); }
+        .adm-table td { padding: 9px 10px; border-bottom: 1px solid rgba(26,30,42,0.6); }
+        .adm-table tr:last-child td { border-bottom: none; }
+        .adm-table tr:hover td { background: rgba(201,168,76,0.04); }
+
+        .badge-complete { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.25); padding: 2px 7px; border-radius: 9px; font-size: 10px; }
+        .badge-running  { background: rgba(251,191,36,0.1);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); padding: 2px 7px; border-radius: 9px; font-size: 10px; }
+
+        .mv-link { color: var(--void-gold); font-size: 12px; }
+
+        .adm-report-preview {
+            background: rgba(26,30,42,0.6); border: 1px solid var(--void-border);
+            border-radius: 5px; padding: 14px; margin-top: 16px; font-size: 11px;
+        }
+        .adm-kv { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .adm-kv-key { color: var(--void-muted); }
+        .adm-kv-val { color: var(--void-text); }
+    </style>
+</head>
+<body>
+<div class="adm-header">
+    <div class="adm-logo">◆ ADMIN — MESA VILLAGE</div>
+    <nav class="adm-nav">
+        <a href="/admin/market">Market Admin</a>
+        <a href="/mesa-village">Mesa Village UI</a>
+        <a href="/">Engine</a>
+    </nav>
+</div>
+
+<div class="adm-main">
+    <h1>Mesa Village — Simulation Control</h1>
+    <p class="adm-sub">Trigger simulation rounds, adjust agent count, inject custom seed events, and review run history.</p>
+
+    {% if triggered %}
+    <div class="adm-banner success">✓ Simulation triggered with {{ triggered }} agents. It is running in the background. Refresh to see results.</div>
+    {% endif %}
+    {% if error == 'invalid_input' %}
+    <div class="adm-banner error">✗ Invalid input. Please check your values and try again.</div>
+    {% elif error == 'run_failed' %}
+    <div class="adm-banner error">✗ Simulation failed to start. Check server logs.</div>
+    {% endif %}
+
+    <div class="adm-section-title">Trigger New Simulation Round</div>
+    <div class="adm-card">
+        <form method="POST" action="/admin/mesa/run" id="runForm">
+            <div class="adm-form-grid">
+                <div class="adm-field">
+                    <label>Agent Count</label>
+                    <input type="number" name="agent_count" value="100" min="10" max="1000" required>
+                    <span class="adm-hint">10–1,000 agents (default: 100)</span>
+                </div>
+                <div class="adm-field">
+                    <label>Simulation Rounds</label>
+                    <input type="number" name="rounds" value="5" min="1" max="20" required>
+                    <span class="adm-hint">1–20 rounds per run</span>
+                </div>
+                <div class="adm-field adm-field-full">
+                    <label>Seed Event (optional)</label>
+                    <textarea name="seed_event" placeholder="e.g. PEACE token airdrop announced, GriDul community meetup scheduled…"></textarea>
+                    <span class="adm-hint">Custom event injected into all agents at round 1. Leave blank for standard seeding.</span>
+                </div>
+            </div>
+            <button type="submit" class="adm-btn" id="runBtn">⬡ Run Simulation</button>
+        </form>
+    </div>
+
+    {% if latest %}
+    {% set report = latest.report %}
+    <div class="adm-section-title">Latest Run Summary</div>
+    <div class="adm-card">
+        <div class="adm-kv"><span class="adm-kv-key">Run ID</span><span class="adm-kv-val" style="color:var(--void-gold);">{{ latest.run_id }}</span></div>
+        <div class="adm-kv"><span class="adm-kv-key">Status</span><span class="adm-kv-val"><span class="badge-complete">{{ latest.status }}</span></span></div>
+        <div class="adm-kv"><span class="adm-kv-key">Agents</span><span class="adm-kv-val">{{ latest.agent_count }}</span></div>
+        <div class="adm-kv"><span class="adm-kv-key">Rounds</span><span class="adm-kv-val">{{ latest.rounds }}</span></div>
+        <div class="adm-kv"><span class="adm-kv-key">Seed Event</span><span class="adm-kv-val">{{ latest.seed_event or "—" }}</span></div>
+        <div class="adm-kv"><span class="adm-kv-key">Completed</span><span class="adm-kv-val">{{ (latest.completed_at or "")[:19].replace("T"," ") }} UTC</span></div>
+        {% if report %}
+        <div class="adm-report-preview">
+            <div class="adm-kv"><span class="adm-kv-key">Total PEACE</span><span class="adm-kv-val">{{ "%.2f"|format(report.economy.total_peace or 0) }}</span></div>
+            <div class="adm-kv"><span class="adm-kv-key">Total PEACE Flow</span><span class="adm-kv-val">{{ "%.4f"|format(report.economy.total_peace_flow or 0) }}</span></div>
+            <div class="adm-kv"><span class="adm-kv-key">Avg Activity</span><span class="adm-kv-val">{{ "%.4f"|format(report.behaviour.avg_activity or 0) }}</span></div>
+            <div class="adm-kv"><span class="adm-kv-key">Dominant Role</span><span class="adm-kv-val">{{ report.behaviour.dominant_glyph }} {{ report.behaviour.dominant_role }}</span></div>
+            <div class="adm-kv"><span class="adm-kv-key">Anomalies</span><span class="adm-kv-val" style="color:{% if report.anomalies|length > 0 %}#f87171{% else %}#34d399{% endif %};">{{ report.anomalies|length }}</span></div>
+            <div class="adm-kv"><span class="adm-kv-key">Predictions</span><span class="adm-kv-val">{{ report.predictions|length }}</span></div>
+        </div>
+        {% endif %}
+        <div style="margin-top:14px;">
+            <a href="/mesa-village" class="mv-link">→ View Full Mesa Village UI</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="adm-section-title">Run History</div>
+    <div class="adm-card">
+        {% if history %}
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th>Run ID</th>
+                    <th>Status</th>
+                    <th>Agents</th>
+                    <th>Rounds</th>
+                    <th>Seed Event</th>
+                    <th>Started</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for run in history %}
+                <tr>
+                    <td style="color:var(--void-gold); font-size:11px;">{{ run.run_id }}</td>
+                    <td><span class="{% if run.status == 'complete' %}badge-complete{% else %}badge-running{% endif %}">{{ run.status }}</span></td>
+                    <td>{{ run.agent_count }}</td>
+                    <td>{{ run.rounds }}</td>
+                    <td style="color:var(--void-muted);">{{ (run.seed_event or "—")[:35] }}</td>
+                    <td style="color:var(--void-muted);">{{ (run.started_at or "")[:16].replace("T"," ") }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="color:var(--void-muted); font-size:12px; text-align:center; padding:20px;">No simulation runs yet.</div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.getElementById('runForm').addEventListener('submit', function() {
+    const btn = document.getElementById('runBtn');
+    btn.disabled = true;
+    btn.textContent = '⬡ Launching…';
+});
+</script>
+</body>
+</html>

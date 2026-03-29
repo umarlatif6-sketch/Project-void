@@ -30,6 +30,7 @@ from routes.plane import plane_bp
 from routes.void_master_document import void_master_document_bp
 from routes.inner_voice import inner_voice_bp
 from routes.agent_vision import agent_vision_bp
+from routes.mesa import mesa_bp
 
 
 def register_blueprints(app):
@@ -65,3 +66,4 @@ def register_blueprints(app):
     app.register_blueprint(void_master_document_bp)
     app.register_blueprint(inner_voice_bp)
     app.register_blueprint(agent_vision_bp)
+    app.register_blueprint(mesa_bp)
