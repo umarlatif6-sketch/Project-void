@@ -16,3 +16,4 @@ binaural>=0.1.2
 WaveWhisper>=1.0.2
 huggingface-hub
 llama-cpp-python
+google-generativeai

@@ -149,8 +149,28 @@
             <div class="admin-section-title">AI Model Router — Tier Configuration</div>
             <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 16px;">
                 Route each task type to the most cost-effective model. Use <code style="color:var(--accent)">openrouter.ai/api/v1</code> as the base URL for OpenRouter models.
-                Leave base URL blank to use the default endpoint.
+                Leave base URL blank to use the default endpoint (OpenAI or Gemini — auto-detected by model name prefix).
+                Gemini models start with <code style="color:var(--accent)">gemini-</code> (e.g. <code style="color:var(--accent)">gemini-1.5-pro</code>, <code style="color:var(--accent)">gemini-1.5-flash</code>).
+                Set the <strong>GEMINI_API_KEY</strong> secret to enable Gemini.
             </p>
+            <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <div style="font-size: 13px; color: var(--text-dim);">Gemini connection:</div>
+                {% if gemini_key_configured %}
+                <span class="active-badge active-yes" title="GEMINI_API_KEY is set">KEY SET</span>
+                {% else %}
+                <span class="active-badge active-no" title="GEMINI_API_KEY is not configured">NO KEY</span>
+                {% endif %}
+                <button id="geminiTestBtn" onclick="testGemini()" class="save-btn" style="background: #4285f4;">Test Gemini API</button>
+                <span id="geminiTestResult" style="font-size: 13px;"></span>
+            </div>
+            <div style="margin-bottom: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px;">
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 8px;">Gemini quick-select (STANDARD &amp; BULK tiers)</div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="save-btn" style="background: #2a2a3a; font-size: 11px;" onclick="applyGeminiPreset('gemini-1.5-pro', '0.00125')">gemini-1.5-pro ($0.00125/1K)</button>
+                    <button class="save-btn" style="background: #2a2a3a; font-size: 11px;" onclick="applyGeminiPreset('gemini-1.5-flash', '0.000075')">gemini-1.5-flash ($0.000075/1K)</button>
+                    <button class="save-btn" style="background: #2a2a3a; font-size: 11px;" onclick="applyGeminiPreset('gemini-2.0-flash', '0.0001')">gemini-2.0-flash ($0.0001/1K)</button>
+                </div>
+            </div>
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -172,11 +192,11 @@
                         </td>
                         <td style="color: var(--text-dim); font-size: 12px;">{{ tc.description }}</td>
                         <td colspan="4">
-                            <form method="POST" action="/admin/model-router" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <form method="POST" action="/admin/model-router" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;" data-tier="{{ tc.tier }}">
                                 <input type="hidden" name="tier" value="{{ tc.tier }}">
-                                <input type="text" name="model" class="edit-input" value="{{ tc.model }}" placeholder="e.g. gpt-5-mini" required style="width: 180px;">
-                                <input type="text" name="base_url" class="edit-input" value="{{ tc.base_url }}" placeholder="https://openrouter.ai/api/v1" style="width: 220px;">
-                                <input type="number" name="cost_per_1k_tokens" class="edit-input" step="0.000001" min="0" value="{{ tc.cost_per_1k_tokens }}" placeholder="0.0003" style="width: 100px;">
+                                <input type="text" name="model" class="edit-input model-input" value="{{ tc.model }}" placeholder="e.g. gpt-5-mini or gemini-1.5-pro" required style="width: 210px;">
+                                <input type="text" name="base_url" class="edit-input base-url-input" value="{{ tc.base_url }}" placeholder="leave blank for OpenAI or Gemini" style="width: 220px;">
+                                <input type="number" name="cost_per_1k_tokens" class="edit-input cost-input" step="0.000001" min="0" value="{{ tc.cost_per_1k_tokens }}" placeholder="0.0003" style="width: 100px;">
                                 <button type="submit" class="save-btn">Save</button>
                             </form>
                         </td>
@@ -186,6 +206,47 @@
             </table>
         </div>
         {% endif %}
+
+        <script>
+        function testGemini() {
+            var btn = document.getElementById('geminiTestBtn');
+            var result = document.getElementById('geminiTestResult');
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            result.textContent = '';
+            result.style.color = 'var(--text-dim)';
+            fetch('/admin/test-gemini', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    btn.disabled = false;
+                    btn.textContent = 'Test Gemini API';
+                    if (data.success) {
+                        result.style.color = 'var(--success, #4ade80)';
+                        result.textContent = '\u2713 ' + data.message;
+                    } else {
+                        result.style.color = 'var(--error, #ef4444)';
+                        result.textContent = '\u2717 ' + data.message;
+                    }
+                })
+                .catch(function(err) {
+                    btn.disabled = false;
+                    btn.textContent = 'Test Gemini API';
+                    result.style.color = 'var(--error, #ef4444)';
+                    result.textContent = '\u2717 Request failed: ' + err;
+                });
+        }
+
+        function applyGeminiPreset(model, cost) {
+            document.querySelectorAll('form[data-tier]').forEach(function(form) {
+                var tier = form.getAttribute('data-tier');
+                if (tier === 'STANDARD' || tier === 'BULK') {
+                    form.querySelector('.model-input').value = model;
+                    form.querySelector('.base-url-input').value = '';
+                    form.querySelector('.cost-input').value = cost;
+                }
+            });
+        }
+        </script>
 
         <div class="admin-section">
             <div class="admin-section-title">AI Credit Cost Tracker</div>

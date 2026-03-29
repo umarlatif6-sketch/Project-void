@@ -64,10 +64,12 @@ def admin_market_get():
         router = get_model_router()
         model_tier_configs = router.get_config_display()
         cost_summary = router.get_cost_summary()
+        gemini_key_configured = router.gemini_api_key_status()
     except Exception as e:
         logger.error("Failed to load model router config: %s", e)
         model_tier_configs = []
         cost_summary = {"by_tier": [], "grand_total_usd": 0.0, "grand_total_calls": 0, "recent_calls": []}
+        gemini_key_configured = False
 
     return render_template(
         "admin_market.html",
@@ -81,6 +83,7 @@ def admin_market_get():
         cost_summary=cost_summary,
         model_updated=model_updated,
         model_error=model_error,
+        gemini_key_configured=gemini_key_configured,
     )
 
 
@@ -152,6 +155,15 @@ def admin_model_router_post():
 
     logger.info("Admin updated model router tier=%s model=%s base_url=%s", tier, model, base_url)
     return redirect(f"/admin/market?model_updated={tier}")
+
+
+@admin_bp.route("/admin/test-gemini", methods=["POST"])
+@admin_required
+def admin_test_gemini():
+    from void_engine.aljabr_transpiler import get_model_router
+    router = get_model_router()
+    success, message = router.test_gemini_connection()
+    return jsonify({"success": success, "message": message})
 
 
 @admin_bp.route("/admin/yield", methods=["POST"])

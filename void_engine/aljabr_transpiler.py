@@ -635,6 +635,11 @@ class ModelRouter:
         self._session_calls = 0
         self._primary_api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
         self._primary_base_url = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+        self._gemini_api_key = os.environ.get("GEMINI_API_KEY")
+
+    @staticmethod
+    def _is_gemini_model(model: str) -> bool:
+        return model.lower().startswith("gemini")
 
     def _get_db(self):
         from void_engine.db_pool import get_db
@@ -731,9 +736,11 @@ class ModelRouter:
             return False
 
     def get_client_for_tier(self, tier: str):
-        from openai import OpenAI
         cfg = self._config.get(tier, self._config[TASK_PRECISION])
         model = cfg["model"]
+        if self._is_gemini_model(model):
+            return None, model
+        from openai import OpenAI
         base_url = cfg.get("base_url") or self._primary_base_url
         client = OpenAI(api_key=self._primary_api_key, base_url=base_url)
         return client, model
@@ -746,6 +753,75 @@ class ModelRouter:
         fallback_client = OpenAI(api_key=self._primary_api_key, base_url=fallback_base_url)
         return fallback_client, fallback_model
 
+    def _call_gemini(self, model: str, messages: list, max_completion_tokens: int = 1024) -> object:
+        """
+        Call the Gemini API and return a response object that mimics the OpenAI response
+        structure so existing callers do not need changes.
+        """
+        import google.generativeai as genai
+
+        api_key = self._gemini_api_key
+        if not api_key:
+            raise RuntimeError("GEMINI_API_KEY environment variable is not set")
+
+        system_instructions = [m["content"] for m in messages if m.get("role") == "system"]
+        system_instruction = "\n\n".join(system_instructions) if system_instructions else None
+
+        genai.configure(api_key=api_key)
+        gemini_model = genai.GenerativeModel(
+            model,
+            system_instruction=system_instruction,
+        )
+
+        history = []
+        non_system = [m for m in messages if m.get("role") != "system"]
+        for msg in non_system[:-1]:
+            role = "model" if msg.get("role") == "assistant" else "user"
+            history.append({"role": role, "parts": [msg["content"]]})
+
+        last_msg = non_system[-1]["content"] if non_system else ""
+
+        chat = gemini_model.start_chat(history=history)
+        result = chat.send_message(
+            last_msg,
+            generation_config={"max_output_tokens": max_completion_tokens},
+        )
+
+        class _GeminiUsage:
+            def __init__(self, meta):
+                self.prompt_tokens = getattr(meta, "prompt_token_count", 0) or 0
+                self.completion_tokens = getattr(meta, "candidates_token_count", 0) or 0
+                self.total_tokens = self.prompt_tokens + self.completion_tokens
+
+        class _GeminiChoice:
+            def __init__(self, text):
+                class _Msg:
+                    content = text
+                self.message = _Msg()
+
+        class _GeminiResponse:
+            def __init__(self, r):
+                self.choices = [_GeminiChoice(r.text)]
+                self.usage = _GeminiUsage(r.usage_metadata)
+
+        return _GeminiResponse(result)
+
+    def gemini_api_key_status(self) -> bool:
+        """Return True if the GEMINI_API_KEY environment variable is set."""
+        return bool(self._gemini_api_key)
+
+    def test_gemini_connection(self) -> Tuple[bool, str]:
+        """
+        Send a minimal test prompt to the Gemini API.
+        Returns (success, message).
+        """
+        try:
+            resp = self._call_gemini("gemini-1.5-flash", [{"role": "user", "content": "Reply with the word READY only."}], max_completion_tokens=16)
+            text = resp.choices[0].message.content.strip() if resp.choices else ""
+            return True, f"Gemini responded: {text[:80]}"
+        except Exception as e:
+            return False, str(e)[:200]
+
     def call_with_fallback(self, tier: str, messages: list, max_completion_tokens: int = 1024, task_label: str = "") -> Tuple[object, str, bool]:
         """
         Make a chat completion call for the given tier, falling back to the precision
@@ -757,11 +833,14 @@ class ModelRouter:
         used_fallback = False
 
         try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=messages,
-                max_completion_tokens=max_completion_tokens,
-            )
+            if self._is_gemini_model(model):
+                response = self._call_gemini(model, messages, max_completion_tokens)
+            else:
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    max_completion_tokens=max_completion_tokens,
+                )
             return response, model, used_fallback
         except Exception as primary_err:
             err_str = str(primary_err)
@@ -769,6 +848,7 @@ class ModelRouter:
                 "Connection", "connection", "timeout", "Timeout",
                 "503", "502", "504", "unavailable", "refused",
                 "404", "model_not_found", "invalid_api_key",
+                "GEMINI_API_KEY", "API_KEY",
             ))
             if is_provider_error or tier != TASK_PRECISION:
                 logger.warning(
