@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Founder's Clarity Room — The Shore</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold: #c9a84c;
+            --bg: #070709;
+            --bg2: #0d0d10;
+            --border: #1e1e28;
+            --text: #c8c8d8;
+            --text-dim: #888898;
+            --text-bright: #e8e8f0;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 100vh;
+            font-size: 14px;
+            line-height: 1.75;
+        }
+
+        .anchor-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(7,7,9,0.92);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 40px;
+        }
+
+        .anchor-label {
+            font-size: 9px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .crystallization-sentence {
+            font-size: 12px;
+            color: var(--gold);
+            letter-spacing: 0.4px;
+            line-height: 1.55;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 56px 32px 120px;
+        }
+
+        .print-btn-wrap {
+            text-align: right;
+            margin-bottom: 40px;
+        }
+
+        .print-btn {
+            background: transparent;
+            border: 1px solid #2a2a3a;
+            color: var(--text-dim);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .print-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+        .room { margin-bottom: 80px; }
+
+        .room-header {
+            display: flex;
+            align-items: baseline;
+            gap: 18px;
+            margin-bottom: 36px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .room-num {
+            font-size: 10px;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        .room-title {
+            font-size: 22px;
+            color: var(--gold);
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .room-subtitle {
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: -28px;
+            margin-bottom: 30px;
+        }
+
+        /* Diagram */
+        .diagram-wrap {
+            width: 100%;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        #pattern-svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .diagram-tooltip {
+            position: fixed;
+            background: #08080f;
+            border: 1px solid var(--gold);
+            color: var(--text-bright);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            padding: 10px 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.12s;
+            max-width: 320px;
+            line-height: 1.55;
+            z-index: 500;
+            white-space: pre-line;
+        }
+
+        .diagram-tooltip.visible { opacity: 1; }
+
+        .diagram-legend {
+            margin-top: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Waves */
+        .wave-section { margin-bottom: 48px; }
+
+        .wave-label {
+            font-size: 10px;
+            color: var(--gold);
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .wave-title {
+            font-size: 16px;
+            color: var(--text-bright);
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        .wave-content {
+            font-size: 14px;
+            line-height: 1.85;
+            color: var(--text);
+            white-space: pre-wrap;
+        }
+
+        .wave-content.one-sentence {
+            font-size: 16px;
+            color: var(--text-bright);
+            font-style: italic;
+            border-left: 3px solid var(--gold);
+            padding-left: 20px;
+            white-space: normal;
+        }
+
+        /* Q&A */
+        .qa-item {
+            margin-bottom: 40px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #141420;
+        }
+
+        .qa-item:last-child { border-bottom: none; }
+
+        .qa-question {
+            font-size: 15px;
+            color: var(--gold);
+            font-weight: bold;
+            margin-bottom: 14px;
+        }
+
+        .qa-answer {
+            font-size: 13.5px;
+            line-height: 1.85;
+            color: var(--text);
+        }
+
+        /* Shore */
+        .shore-section {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 60px;
+            border-top: 1px solid var(--border);
+        }
+
+        .shore-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+        }
+
+        .ready-btn {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 20px 60px;
+            cursor: pointer;
+            transition: background 0.25s, color 0.25s, letter-spacing 0.25s;
+        }
+
+        .ready-btn:hover { background: var(--gold); color: var(--bg); letter-spacing: 5px; }
+        .ready-btn:active { transform: scale(0.98); }
+
+        .shore-echo {
+            margin-top: 28px;
+            font-size: 13px;
+            color: var(--text-dim);
+            letter-spacing: 0.5px;
+            opacity: 0;
+            transition: opacity 0.6s;
+            min-height: 22px;
+        }
+
+        .shore-echo.visible { opacity: 1; }
+
+        /* Print */
+        @media print {
+            .anchor-bar { position: relative; background: #fff; border-bottom: 2px solid #333; }
+            .crystallization-sentence, .anchor-label { color: #000 !important; }
+            body { background: #fff; color: #111; font-size: 12px; }
+            .room-title, .room-num, .wave-label, .qa-question { color: #000 !important; }
+            .wave-content, .qa-answer { color: #222 !important; }
+            .wave-content.one-sentence { border-left-color: #888 !important; color: #111 !important; }
+            .diagram-wrap { background: #f8f8f8; border-color: #ccc; }
+            .shore-section, .ready-btn, .shore-echo, .print-btn-wrap { display: none !important; }
+            .qa-item { border-bottom-color: #ddd; }
+            .room-header { border-bottom-color: #ccc; }
+            .room-subtitle { color: #555 !important; }
+        }
+
+        @media (max-width: 700px) {
+            .anchor-bar { padding: 12px 16px; }
+            .main { padding: 40px 16px 80px; }
+            .room-title { font-size: 18px; }
+            .ready-btn { padding: 16px 36px; font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="anchor-bar">
+        <div class="anchor-label">Crystallization</div>
+        <div class="crystallization-sentence">{{ crystallization_sentence }}</div>
+    </div>
+
+    <div class="main">
+
+        <div class="print-btn-wrap">
+            <button class="print-btn" onclick="window.print()">&#9113; Print / Export PDF</button>
+        </div>
+
+        <!-- ROOM 1 -->
+        <section class="room" id="room-1">
+            <div class="room-header">
+                <span class="room-num">Room I</span>
+                <span class="room-title">The Full Pattern</span>
+            </div>
+            <p class="room-subtitle">The interference map — all seven layers, seen at once</p>
+
+            <div class="diagram-wrap">
+                <svg id="pattern-svg" viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+
+            <div id="diagram-tooltip" class="diagram-tooltip"></div>
+
+            <div class="diagram-legend">
+                {% for layer in layers %}
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:{{ layer.color }};"></div>
+                    <span>{{ layer.label }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+
+        <!-- ROOM 2 -->
+        <section class="room" id="room-2">
+            <div class="room-header">
+                <span class="room-num">Room II</span>
+                <span class="room-title">The Three Waves</span>
+            </div>
+            <p class="room-subtitle">Three levels of explanation — in the founder's voice</p>
+
+            <div class="wave-section">
+                <div class="wave-label">The One Sentence</div>
+                <div class="wave-title">What PROJECT VOID is in one breath</div>
+                <div class="wave-content one-sentence">{{ one_sentence }}</div>
+            </div>
+
+            <div class="wave-section">
+                <div class="wave-label">The Three Minutes</div>
+                <div class="wave-title">The version that works in a first meeting</div>
+                <div class="wave-content">{{ three_minutes }}</div>
+            </div>
+
+            <div class="wave-section">
+                <div class="wave-label">The InteRussia Angle</div>
+                <div class="wave-title">Why Novosibirsk, why Smart Cities, why now</div>
+                <div class="wave-content">{{ interussia_angle }}</div>
+            </div>
+        </section>
+
+
+        <!-- ROOM 3 -->
+        <section class="room" id="room-3">
+            <div class="room-header">
+                <span class="room-num">Room III</span>
+                <span class="room-title">The Questions</span>
+            </div>
+            <p class="room-subtitle">What the panel will ask — answered honestly</p>
+
+            {% for qa in qa_pairs %}
+            <div class="qa-item">
+                <div class="qa-question">{{ qa.question }}</div>
+                <div class="qa-answer">{{ qa.answer }}</div>
+            </div>
+            {% endfor %}
+        </section>
+
+
+        <!-- THE SHORE -->
+        <div class="shore-section">
+            <div class="shore-label">The Shore</div>
+            <button class="ready-btn" id="ready-btn" onclick="onReady()">I am ready.</button>
+            <div class="shore-echo" id="shore-echo"></div>
+        </div>
+
+    </div>
+
+    <script>
+    // ── Diagram data from server ──────────────────────────────────────────────
+
+    const LAYERS = {{ layers | tojson }};
+    const CONNECTIONS = {{ connections | tojson }};
+
+    // ── Build SVG diagram ────────────────────────────────────────────────────
+
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const svg = document.getElementById('pattern-svg');
+
+    function svgEl(tag, attrs) {
+        const el = document.createElementNS(SVG_NS, tag);
+        for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+        return el;
+    }
+
+    // Defs: glow filter
+    const defs = svgEl('defs', {});
+    const filter = svgEl('filter', { id: 'glow' });
+    const blur = svgEl('feGaussianBlur', { stdDeviation: '4', result: 'coloredBlur' });
+    const merge = svgEl('feMerge', {});
+    const m1 = svgEl('feMergeNode', { in: 'coloredBlur' });
+    const m2 = svgEl('feMergeNode', { in: 'SourceGraphic' });
+    merge.appendChild(m1);
+    merge.appendChild(m2);
+    filter.appendChild(blur);
+    filter.appendChild(merge);
+    defs.appendChild(filter);
+    svg.appendChild(defs);
+
+    // Build layer index for fast lookup
+    const layerMap = {};
+    LAYERS.forEach(l => { layerMap[l.id] = l; });
+
+    // Draw connection lines first (underneath nodes)
+    const connGroup = svgEl('g', { id: 'connections' });
+    CONNECTIONS.forEach(([fromId, toId, label]) => {
+        const a = layerMap[fromId];
+        const b = layerMap[toId];
+        if (!a || !b) return;
+
+        // Midpoint offset for slight curve (quadratic bezier)
+        const mx = (a.cx + b.cx) / 2 + (Math.random() - 0.5) * 40;
+        const my = (a.cy + b.cy) / 2 + (Math.random() - 0.5) * 40;
+
+        const path = svgEl('path', {
+            d: `M${a.cx},${a.cy} Q${mx},${my} ${b.cx},${b.cy}`,
+            stroke: '#2a2a3a',
+            'stroke-width': '1.5',
+            'stroke-dasharray': '5 5',
+            fill: 'none',
+            'stroke-linecap': 'round',
+            opacity: '0.8',
+            'data-from': fromId,
+            'data-to': toId,
+            'data-label': label,
+        });
+        connGroup.appendChild(path);
+
+        // Hover events on path
+        path.style.cursor = 'pointer';
+        path.addEventListener('mouseenter', e => {
+            highlightConn(path, fromId, toId, label, e);
+        });
+        path.addEventListener('mousemove', moveTooltip);
+        path.addEventListener('mouseleave', () => {
+            resetConn(path);
+            hideTooltip();
+        });
+    });
+    svg.appendChild(connGroup);
+
+    // ── Global click-pin state ────────────────────────────────────────────────
+
+    let pinnedNodeId = null;
+    const nodeHighlighters = {}; // id → { applyHighlight, clearHighlight }
+
+    function clearHighlightById(id) {
+        if (nodeHighlighters[id]) nodeHighlighters[id].clear();
+    }
+
+    // Click on SVG background to unpin
+    svg.addEventListener('click', () => {
+        if (pinnedNodeId) {
+            clearHighlightById(pinnedNodeId);
+            pinnedNodeId = null;
+            resetAllConns();
+            hidePanel();
+        }
+    });
+
+    // ── Node info panel (click reveal) ───────────────────────────────────────
+
+    const panel = (() => {
+        const el = document.createElement('div');
+        el.id = 'node-panel';
+        el.style.cssText = [
+            'display:none',
+            'background:#0a0a12',
+            'border:1px solid #c9a84c',
+            'padding:16px 20px',
+            'margin-top:14px',
+            'font-family:"Courier New",monospace',
+            'font-size:13px',
+            'color:#c8c8d8',
+            'line-height:1.65',
+        ].join(';');
+        document.querySelector('.diagram-wrap').insertAdjacentElement('afterend', el);
+        return el;
+    })();
+
+    function showPanel(layer) {
+        const relConns = CONNECTIONS.filter(([f, t]) => f === layer.id || t === layer.id);
+        let html = `<span style="color:${layer.color};font-weight:bold;letter-spacing:1px;">`
+            + layer.label.toUpperCase() + '</span><br>'
+            + `<span style="color:#888898;font-size:11px;">${layer.description}</span>`;
+
+        if (relConns.length) {
+            html += '<br><br><span style="font-size:10px;letter-spacing:2px;color:#555588;text-transform:uppercase;">Feeds into</span><br>';
+            relConns.forEach(([f, t, lbl]) => {
+                const other = f === layer.id ? t : f;
+                const otherLayer = layerMap[other];
+                const arrow = f === layer.id ? '→' : '←';
+                html += `<span style="color:${otherLayer ? otherLayer.color : '#888'}">${arrow} ${other.toUpperCase()}</span> `
+                    + `<span style="color:#888898;font-size:12px;">${lbl}</span><br>`;
+            });
+        }
+        html += '<br><span style="font-size:10px;color:#444;letter-spacing:1px;">Click node again or background to dismiss</span>';
+        panel.innerHTML = html;
+        panel.style.display = 'block';
+    }
+
+    function hidePanel() {
+        panel.style.display = 'none';
+        panel.innerHTML = '';
+    }
+
+    // Draw nodes
+    const nodeGroup = svgEl('g', { id: 'nodes' });
+    LAYERS.forEach(layer => {
+        const g = svgEl('g', { 'data-id': layer.id });
+
+        // Outer pulse ring
+        const ring = svgEl('circle', {
+            cx: layer.cx, cy: layer.cy, r: 40,
+            fill: 'none',
+            stroke: layer.color,
+            'stroke-width': '1',
+            'stroke-dasharray': '4 6',
+            opacity: '0.3',
+        });
+
+        // Core node
+        const core = svgEl('circle', {
+            cx: layer.cx, cy: layer.cy, r: 26,
+            fill: '#0c0c14',
+            stroke: layer.color,
+            'stroke-width': '2',
+            filter: 'url(#glow)',
+        });
+
+        // Label
+        const label = svgEl('text', {
+            x: layer.cx, y: layer.cy + 5,
+            'text-anchor': 'middle',
+            'font-family': "'Courier New', monospace",
+            'font-size': '10',
+            'font-weight': 'bold',
+            fill: layer.color,
+            'pointer-events': 'none',
+        });
+        label.textContent = layer.label;
+
+        g.appendChild(ring);
+        g.appendChild(core);
+        g.appendChild(label);
+
+        // Subsystem satellite dots
+        const subs = layer.subsystems || [];
+        subs.forEach((sub, i) => {
+            const angle = (i / subs.length) * Math.PI * 2 - Math.PI / 2;
+            const r = 58;
+            const sx = Math.round(layer.cx + r * Math.cos(angle));
+            const sy = Math.round(layer.cy + r * Math.sin(angle));
+
+            // Connector line from core to satellite
+            const spoke = svgEl('line', {
+                x1: layer.cx, y1: layer.cy,
+                x2: sx, y2: sy,
+                stroke: layer.color,
+                'stroke-width': '0.5',
+                opacity: '0.2',
+                'pointer-events': 'none',
+            });
+            g.appendChild(spoke);
+
+            // Satellite dot
+            const dot = svgEl('circle', {
+                cx: sx, cy: sy, r: '3.5',
+                fill: layer.color,
+                opacity: '0.55',
+                'pointer-events': 'none',
+            });
+
+            // Satellite label (positioned away from centre)
+            const lx = Math.round(layer.cx + (r + 14) * Math.cos(angle));
+            const ly = Math.round(layer.cy + (r + 14) * Math.sin(angle));
+            const sublabel = svgEl('text', {
+                x: lx, y: ly + 3,
+                'text-anchor': 'middle',
+                'font-family': "'Courier New', monospace",
+                'font-size': '7.5',
+                fill: layer.color,
+                opacity: '0.5',
+                'pointer-events': 'none',
+            });
+            sublabel.textContent = sub;
+
+            g.appendChild(dot);
+            g.appendChild(sublabel);
+        });
+
+        // Node interaction — hover + click (toggle persistent highlight)
+        let pinned = false;
+        const nodeId = layer.id;
+
+        function applyHighlight() {
+            document.querySelectorAll('#connections path').forEach(p => {
+                const from = p.getAttribute('data-from');
+                const to = p.getAttribute('data-to');
+                if (from === nodeId || to === nodeId) {
+                    p.setAttribute('stroke', layer.color);
+                    p.setAttribute('stroke-width', '2.5');
+                    p.setAttribute('opacity', '1');
+                    p.setAttribute('stroke-dasharray', 'none');
+                } else {
+                    p.setAttribute('opacity', '0.1');
+                }
+            });
+            ring.setAttribute('opacity', '0.85');
+            ring.setAttribute('stroke-dasharray', '2 3');
+            ring.setAttribute('r', '44');
+            core.setAttribute('stroke-width', '3');
+        }
+
+        function clearHighlight() {
+            resetAllConns();
+            ring.setAttribute('opacity', '0.3');
+            ring.setAttribute('stroke-dasharray', '4 6');
+            ring.setAttribute('r', '40');
+            core.setAttribute('stroke-width', '2');
+        }
+
+        // Click to pin / unpin
+        g.style.cursor = 'pointer';
+        g.addEventListener('click', e => {
+            e.stopPropagation();
+            const wasMe = pinnedNodeId === nodeId;
+            // Clear any previously pinned node
+            if (pinnedNodeId && pinnedNodeId !== nodeId) {
+                clearHighlightById(pinnedNodeId);
+            }
+            if (wasMe) {
+                // Unpin
+                pinnedNodeId = null;
+                clearHighlight();
+                hidePanel();
+            } else {
+                // Pin this node
+                pinnedNodeId = nodeId;
+                applyHighlight();
+                showPanel(layer);
+            }
+        });
+
+        // Hover (only when nothing is pinned, or hovering another node)
+        g.addEventListener('mouseenter', e => {
+            showTooltip(e, layer.label.toUpperCase() + '\n' + layer.description);
+            if (pinnedNodeId !== nodeId) applyHighlight();
+        });
+        g.addEventListener('mousemove', moveTooltip);
+        g.addEventListener('mouseleave', () => {
+            hideTooltip();
+            if (pinnedNodeId !== nodeId) clearHighlight();
+        });
+
+        // Register highlighters for clearHighlightById
+        nodeHighlighters[nodeId] = { apply: applyHighlight, clear: clearHighlight };
+
+        nodeGroup.appendChild(g);
+    });
+    svg.appendChild(nodeGroup);
+
+    // ── Tooltip helpers ───────────────────────────────────────────────────────
+
+    const tooltip = document.getElementById('diagram-tooltip');
+
+    function showTooltip(e, text) {
+        tooltip.textContent = text;
+        tooltip.classList.add('visible');
+        moveTooltip(e);
+    }
+
+    function moveTooltip(e) {
+        const pad = 14;
+        let x = e.clientX + pad;
+        let y = e.clientY + pad;
+        if (x + 340 > window.innerWidth) x = e.clientX - 340 - pad;
+        if (y + 90 > window.innerHeight) y = e.clientY - 80;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+    }
+
+    function hideTooltip() { tooltip.classList.remove('visible'); }
+
+    function highlightConn(path, fromId, toId, label, e) {
+        const a = layerMap[fromId];
+        const b = layerMap[toId];
+        path.setAttribute('stroke', '#c9a84c');
+        path.setAttribute('stroke-width', '2.5');
+        path.setAttribute('stroke-dasharray', 'none');
+        path.setAttribute('opacity', '1');
+        showTooltip(e, fromId.toUpperCase() + ' → ' + toId.toUpperCase() + '\n' + label);
+    }
+
+    function resetConn(path) {
+        path.setAttribute('stroke', '#2a2a3a');
+        path.setAttribute('stroke-width', '1.5');
+        path.setAttribute('stroke-dasharray', '5 5');
+        path.setAttribute('opacity', '0.8');
+    }
+
+    function resetAllConns() {
+        document.querySelectorAll('#connections path').forEach(resetConn);
+    }
+
+    // ── Shore button ──────────────────────────────────────────────────────────
+
+    const echoes = [
+        "You have seen the whole pattern.",
+        "The shape is one thing expressed in seven ways.",
+        "Carry it lightly. Speak it clearly.",
+        "The shore is not a destination. It is a state.",
+        "Go.",
+    ];
+    let echoIndex = 0;
+
+    function onReady() {
+        const echo = document.getElementById('shore-echo');
+        const btn = document.getElementById('ready-btn');
+        echo.textContent = echoes[echoIndex % echoes.length];
+        echo.classList.add('visible');
+        echoIndex++;
+        if (echoIndex >= echoes.length) {
+            btn.disabled = true;
+            btn.style.opacity = '0.35';
+            btn.style.cursor = 'default';
+            btn.style.letterSpacing = '3px';
+        }
+    }
+    </script>
+
+</body>
+</html>
