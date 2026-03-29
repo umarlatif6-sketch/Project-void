@@ -1166,3 +1166,58 @@ def log_qisync_tone(user_id: int, session_id: str, tone_hz: float = 432.0,
         raise
     finally:
         conn.close()
+
+
+PEACE_HEX_FLOWER_COST = Decimal("5")
+
+
+def burn_peace_for_hex_flower(user_id, hex_hash):
+    """
+    Burn 5 PEACE tokens from a user's balance to generate a Hex Flower.
+    The tokens are permanently removed from supply (burned, not transferred).
+
+    Returns:
+        {"ok": True, "burned": 5.0, "new_balance": float}
+        or raises ValueError if balance is insufficient.
+    """
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT COALESCE(peace_balance, 0) FROM users WHERE id = %s FOR UPDATE",
+            (user_id,),
+        )
+        row = cur.fetchone()
+        balance = Decimal(str(row[0])) if row else Decimal("0")
+
+        if balance < PEACE_HEX_FLOWER_COST:
+            conn.close()
+            raise ValueError(f"Insufficient PEACE balance: {float(balance):.4f} < 5")
+
+        payload_hash = fatiha_286_hexdigest_from_str(
+            f"hex_flower_burn_{user_id}_{hex_hash[:64]}"
+        )
+
+        block = _create_block(
+            cur, "burn_peace_hex_flower", user_id, None,
+            PEACE_HEX_FLOWER_COST, payload_hash
+        )
+
+        new_balance = balance - PEACE_HEX_FLOWER_COST
+        cur.execute(
+            "UPDATE users SET peace_balance = %s WHERE id = %s",
+            (new_balance, user_id),
+        )
+        conn.commit()
+
+        block["burned"] = float(PEACE_HEX_FLOWER_COST)
+        block["new_balance"] = float(new_balance)
+        block["hex_hash_prefix"] = hex_hash[:16]
+        return block
+    except ValueError:
+        raise
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()

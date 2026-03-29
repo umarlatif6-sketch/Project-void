@@ -34,6 +34,7 @@ PROJECT VOID is a full-stack sovereign platform built around audio LSB steganogr
 | `/qisync`, `/qisync/memory` | qisync | Biostance tracker + Memory Studio |
 | `/mycovoid` | mycovoid | Mycelium remediation network |
 | `/peace/flywheel` | peace | PEACE coin flywheel blueprint |
+| `/hex-flower` | hex_flower | Hex Flower — Living Transaction Visualiser (5 PEACE burn per generation) |
 | `/genesis`, `/genesis/oracle` | genesis | Genesis 10 Blueprint NFTs + oracle |
 | `/plane` | plane | VOID Plane star map + territory claim |
 | `/crystallization` | crystallization | Seven-layer constellation map |
@@ -90,6 +91,16 @@ PROJECT VOID is a full-stack sovereign platform built around audio LSB steganogr
   - Entropy classifier: social/sensory/abstract/resonance domains
   - Sovereign Poem: 3-glyph chain (Entity → Condition → Action)
   - Share link via `?q=` URL param
+
+### Hex Flower — Living Transaction Visualiser (Task #44)
+- `void_engine/hex_flower.py`: `parse_hex()` — petal count (1–12 from 12 validation signals), colour palette (byte distribution + resonance state), curvature (Shannon entropy), bloom intensity, plain-English translation
+- `routes/hex_flower.py`: `/hex-flower` (page), `/api/hex-flower/generate` (token burn + spec), `/api/hex-flower/preview` (no-cost inline)
+- `templates/hex_flower.html`: standalone page with live SVG renderer, petal dot indicators, shareable link generation, shared-view mode (no token cost)
+- `void_engine/vortex_wallet.py`: `burn_peace_for_hex_flower()` — burns 5 PEACE from supply, audited in `hex_flower_log` table
+- Adriana inline detection: hex regex in `fairy_ask` → flower spec appended to API response as `hex_flowers[]` → `renderInlineHexFlower()` in `void_fairy.js`
+- Shared flower links: `/hex-flower?h=<hex>&u=<sig>` render free, bypass token burn
+- 3 new local intents in `adriana_local.py`: hex_flower_what, hex_flower_cost, hex_flower_share
+- Platform map and system prompt updated with Hex Flower knowledge
 
 ### PEACE Ripple Modules (Task #22)
 - **Fertilizer Formula Lab** (`/gridul/fertilizer`): C:N ratio scoring, batch CRUD, marketplace, leaderboard

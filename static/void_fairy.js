@@ -436,6 +436,11 @@
                 var reply = data.reply || 'The Void is silent.';
                 typewriterMessage(reply, function() {
                     history.push({ role: 'assistant', content: reply });
+                    if (data.hex_flowers && data.hex_flowers.length > 0) {
+                        data.hex_flowers.forEach(function(hf) {
+                            renderInlineHexFlower(hf.hex, hf.spec);
+                        });
+                    }
                 });
             }
         })
@@ -446,6 +451,98 @@
             document.getElementById('fairy-send').disabled = false;
             addError('The frequency fades. The Fairy will return.');
         });
+    }
+
+    function renderInlineHexFlower(hexStr, spec) {
+        var container = document.getElementById('fairy-messages');
+        if (!container) return;
+
+        var card = document.createElement('div');
+        card.className = 'fairy-msg fairy-msg-fairy';
+        card.style.cssText = 'margin-top: 8px;';
+
+        var palette = spec.palette || ['#c9a84c'];
+        var petals = spec.petal_count || 1;
+        var bloom = spec.bloom || 0.5;
+        var health = spec.health || 'dormant';
+        var curvature = spec.curvature || 0.5;
+
+        var healthColors = {
+            blooming: '#2dd4bf', healthy: '#a3e635',
+            drifting: '#fbbf24', wilting: '#f97316', dormant: '#6b7280'
+        };
+        var hColor = healthColors[health] || '#888';
+
+        var r = 42 + bloom * 22;
+        var rInner = 10;
+        var angleStep = (2 * Math.PI) / Math.max(petals, 1);
+        var cx1F = 0.4 + curvature * 0.4;
+        var cx2F = 0.6 + curvature * 0.2;
+        var opacity = health === 'dormant' ? 0.4 : health === 'wilting' ? 0.65 : 0.9;
+
+        var svgUid = 'hf' + Math.random().toString(36).slice(2, 8);
+        var svgParts = ['<svg width="90" height="90" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">'];
+        svgParts.push('<defs>');
+        for (var g = 0; g < petals; g++) {
+            var gid = svgUid + '-' + g;
+            svgParts.push('<linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">');
+            svgParts.push('<stop offset="0%" stop-color="' + palette[g % palette.length] + '" stop-opacity="' + opacity + '"/>');
+            svgParts.push('<stop offset="100%" stop-color="' + palette[(g+1) % palette.length] + '" stop-opacity="' + (opacity * 0.3) + '"/>');
+            svgParts.push('</linearGradient>');
+        }
+        svgParts.push('</defs>');
+
+        for (var p = 0; p < petals; p++) {
+            var ang = p * angleStep - Math.PI / 2;
+            var tipX = Math.cos(ang) * r;
+            var tipY = Math.sin(ang) * r;
+            var lAng = ang - angleStep * 0.45;
+            var rAng = ang + angleStep * 0.45;
+            var lx = Math.cos(lAng) * rInner, ly = Math.sin(lAng) * rInner;
+            var rx2 = Math.cos(rAng) * rInner, ry2 = Math.sin(rAng) * rInner;
+            var c1x = Math.cos(lAng) * r * cx1F, c1y = Math.sin(lAng) * r * cx1F;
+            var c2x = Math.cos(rAng) * r * cx2F, c2y = Math.sin(rAng) * r * cx2F;
+            var wilt = (health === 'wilting' && p % 3 === 0) ? -4 : (health === 'dormant' && p % 2 === 0) ? -6 : 0;
+            var pGid = svgUid + '-' + p;
+            var d = 'M' + lx.toFixed(1) + ' ' + ly.toFixed(1) +
+                    ' C' + c1x.toFixed(1) + ' ' + (c1y + wilt).toFixed(1) + ' ' +
+                    c2x.toFixed(1) + ' ' + (c2y + wilt).toFixed(1) + ' ' +
+                    tipX.toFixed(1) + ' ' + (tipY + wilt).toFixed(1) +
+                    ' C' + c2x.toFixed(1) + ' ' + (c2y + wilt).toFixed(1) + ' ' +
+                    c1x.toFixed(1) + ' ' + (c1y + wilt).toFixed(1) + ' ' +
+                    rx2.toFixed(1) + ' ' + ry2.toFixed(1) + ' Z';
+            svgParts.push('<path d="' + d + '" fill="url(#' + pGid + ')" stroke="' + palette[p % palette.length] + '" stroke-width="0.3" stroke-opacity="0.3"/>');
+        }
+        svgParts.push('<circle cx="0" cy="0" r="' + (rInner - 1) + '" fill="' + palette[0] + '" opacity="' + (opacity * 0.9) + '"/>');
+        svgParts.push('</svg>');
+
+        var petalDots = '';
+        for (var d2 = 0; d2 < 12; d2++) {
+            var dotColor = d2 < petals ? palette[d2 % palette.length] : '#1c1c1c';
+            petalDots += '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:' + dotColor + ';margin:0 2px;"></span>';
+        }
+
+        var truncHex = hexStr.length > 24 ? hexStr.slice(0, 12) + '...' + hexStr.slice(-8) : hexStr;
+
+        card.innerHTML = '<div class="fairy-msg-bubble" style="padding:12px 14px;background:#0d0d0d;border:1px solid #1c1c1c;border-radius:6px;">' +
+            '<div style="font-size:0.58rem;letter-spacing:2px;color:#555;text-transform:uppercase;margin-bottom:8px;">⬡ Hex Flower — ' + truncHex + '</div>' +
+            '<div style="display:flex;align-items:center;gap:12px;">' +
+                svgParts.join('') +
+                '<div>' +
+                    '<div style="font-size:0.62rem;color:' + hColor + ';letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">⬡ ' + health + '</div>' +
+                    '<div style="margin-bottom:6px;">' + petalDots + '</div>' +
+                    '<div style="font-size:0.62rem;color:#666;line-height:1.6;">' + (spec.translation || '').slice(0, 120) + '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #1c1c1c;">' +
+                '<a href="/hex-flower" ' +
+                   'style="font-size:0.62rem;color:#c9a84c;text-decoration:none;letter-spacing:1px;">' +
+                   '→ Open full Hex Flower</a>' +
+            '</div>' +
+        '</div>';
+
+        container.appendChild(card);
+        container.scrollTop = container.scrollHeight;
     }
 
     function init() {

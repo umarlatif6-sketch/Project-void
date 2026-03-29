@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Flower — Living Transaction Visualiser — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --hf-bg: #090909;
+            --hf-surface: #101010;
+            --hf-border: #1c1c1c;
+            --hf-gold: #c9a84c;
+            --hf-teal: #2dd4bf;
+            --hf-text: #e0e0e0;
+            --hf-muted: #555;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--hf-bg);
+            color: var(--hf-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .hf-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 32px; border-bottom: 1px solid var(--hf-border);
+            background: rgba(9,9,9,0.97); position: sticky; top: 0; z-index: 100;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .hf-nav-brand { font-size: 0.9rem; font-weight: 700; color: var(--hf-gold); letter-spacing: 3px; text-decoration: none; }
+        .hf-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .hf-nav-link { color: #888; text-decoration: none; font-size: 0.72rem; letter-spacing: 1px; transition: color 0.2s; }
+        .hf-nav-link:hover, .hf-nav-link.active { color: var(--hf-gold); }
+
+        .hf-hero {
+            text-align: center; padding: 60px 24px 40px;
+            background: radial-gradient(ellipse at 50% 0%, #130d03 0%, var(--hf-bg) 65%);
+            border-bottom: 1px solid var(--hf-border);
+        }
+        .hf-hero-glyph { font-size: 2.5rem; color: var(--hf-gold); margin-bottom: 16px; }
+        .hf-hero-title { font-size: 1.6rem; font-weight: 700; color: var(--hf-gold); letter-spacing: 4px; margin: 0 0 10px; text-transform: uppercase; }
+        .hf-hero-sub { font-size: 0.78rem; color: var(--hf-muted); letter-spacing: 2px; max-width: 540px; margin: 0 auto; line-height: 1.7; }
+
+        .hf-cost-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #1a1200; border: 1px solid #3a2a00; border-radius: 20px;
+            padding: 6px 16px; font-size: 0.68rem; letter-spacing: 2px; color: var(--hf-gold);
+            text-transform: uppercase; margin-top: 16px;
+        }
+
+        .hf-main {
+            max-width: 960px; margin: 0 auto; padding: 48px 24px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+        }
+        @media (max-width: 700px) {
+            .hf-main { grid-template-columns: 1fr; }
+        }
+
+        .hf-panel {
+            background: var(--hf-surface); border: 1px solid var(--hf-border);
+            border-radius: 8px; padding: 28px;
+        }
+        .hf-panel-label {
+            font-size: 0.6rem; letter-spacing: 3px; color: var(--hf-muted);
+            text-transform: uppercase; margin-bottom: 18px;
+        }
+
+        .hf-input-group { margin-bottom: 18px; }
+        .hf-input-label { font-size: 0.6rem; letter-spacing: 2px; color: var(--hf-muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .hf-textarea {
+            width: 100%; background: #0d0d0d; border: 1px solid #2a2a2a;
+            border-radius: 4px; padding: 12px 14px; color: var(--hf-text);
+            font-family: inherit; font-size: 0.72rem; resize: vertical; min-height: 80px;
+            transition: border-color 0.2s; line-break: anywhere; word-break: break-all;
+        }
+        .hf-textarea:focus { outline: none; border-color: var(--hf-gold); }
+        .hf-textarea.valid { border-color: #2dd4bf33; }
+        .hf-textarea.invalid { border-color: #ef444433; }
+
+        .hf-balance-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 4px;
+            padding: 10px 14px; margin-bottom: 18px; font-size: 0.7rem;
+        }
+        .hf-balance-label { color: var(--hf-muted); letter-spacing: 1px; }
+        .hf-balance-val { color: var(--hf-gold); font-weight: 700; }
+
+        .hf-btn {
+            width: 100%; background: var(--hf-gold); color: #000;
+            border: none; border-radius: 4px; padding: 13px 0;
+            font-family: inherit; font-size: 0.75rem; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+            transition: opacity 0.2s; margin-bottom: 10px;
+        }
+        .hf-btn:hover { opacity: 0.85; }
+        .hf-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .hf-btn-ghost {
+            width: 100%; background: transparent; color: var(--hf-muted);
+            border: 1px solid #2a2a2a; border-radius: 4px; padding: 11px 0;
+            font-family: inherit; font-size: 0.68rem; letter-spacing: 2px;
+            text-transform: uppercase; cursor: pointer; transition: color 0.2s, border-color 0.2s;
+        }
+        .hf-btn-ghost:hover { color: var(--hf-text); border-color: #555; }
+
+        .hf-notice {
+            font-size: 0.62rem; color: var(--hf-muted); text-align: center;
+            line-height: 1.6; padding-top: 8px;
+        }
+        .hf-notice a { color: var(--hf-gold); text-decoration: none; }
+        .hf-notice a:hover { text-decoration: underline; }
+
+        .hf-error {
+            background: #1a0000; border: 1px solid #3a0000; border-radius: 4px;
+            padding: 12px 14px; font-size: 0.68rem; color: #ef4444;
+            letter-spacing: 1px; margin-bottom: 14px; display: none;
+        }
+
+        /* Flower canvas area */
+        .hf-flower-area {
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            min-height: 340px;
+        }
+        .hf-flower-placeholder {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 300px; opacity: 0.3; text-align: center;
+        }
+        .hf-flower-placeholder-glyph { font-size: 3rem; margin-bottom: 14px; }
+        .hf-flower-placeholder-text { font-size: 0.65rem; letter-spacing: 2px; color: var(--hf-muted); text-transform: uppercase; }
+
+        #hf-svg-container { width: 100%; display: flex; justify-content: center; }
+        #hf-flower-svg { max-width: 280px; max-height: 280px; }
+
+        .hf-health-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            border-radius: 20px; padding: 5px 14px;
+            font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 16px; border: 1px solid currentColor; opacity: 0.9;
+        }
+        .hf-health-blooming { color: #2dd4bf; }
+        .hf-health-healthy { color: #a3e635; }
+        .hf-health-drifting { color: #fbbf24; }
+        .hf-health-wilting { color: #f97316; }
+        .hf-health-dormant { color: #6b7280; }
+
+        .hf-petal-row {
+            display: flex; gap: 5px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center;
+        }
+        .hf-petal-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #1c1c1c; transition: background 0.4s;
+        }
+        .hf-petal-dot.filled { background: var(--hf-gold); }
+
+        .hf-translation {
+            font-size: 0.7rem; color: #aaa; line-height: 1.8;
+            border-top: 1px solid var(--hf-border); padding-top: 16px;
+            margin-top: 8px; text-align: center;
+        }
+
+        .hf-share-row {
+            display: flex; gap: 8px; margin-top: 16px;
+        }
+        .hf-share-input {
+            flex: 1; background: #0d0d0d; border: 1px solid #2a2a2a;
+            border-radius: 4px; padding: 8px 12px; color: #888;
+            font-family: inherit; font-size: 0.62rem; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
+        }
+        .hf-share-copy {
+            background: #1a1a1a; border: 1px solid #333; border-radius: 4px;
+            padding: 8px 14px; color: var(--hf-muted); font-family: inherit;
+            font-size: 0.62rem; letter-spacing: 1px; cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .hf-share-copy:hover { color: var(--hf-text); border-color: #555; }
+
+        .hf-loading {
+            display: none; align-items: center; gap: 10px;
+            font-size: 0.68rem; color: var(--hf-muted); letter-spacing: 2px;
+            justify-content: center; padding: 20px 0;
+        }
+        .hf-loading.active { display: flex; }
+        .hf-loading-dots span {
+            display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+            background: var(--hf-gold); margin: 0 2px;
+            animation: hfPulse 1.2s infinite ease-in-out;
+        }
+        .hf-loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .hf-loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes hfPulse { 0%,80%,100% { opacity: 0.2; } 40% { opacity: 1; } }
+
+        .hf-shared-banner {
+            background: #091309; border: 1px solid #1a3a1a; border-radius: 4px;
+            padding: 10px 16px; font-size: 0.65rem; color: #4ade80; letter-spacing: 1px;
+            margin-bottom: 16px; text-align: center;
+        }
+
+        @keyframes hfBloom {
+            from { transform: scale(0) rotate(-30deg); opacity: 0; }
+            to { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .hf-petal-animate { animation: hfBloom 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+    </style>
+</head>
+<body>
+
+<nav class="hf-nav">
+    <a href="/" class="hf-nav-brand">◆ VOID ENGINE</a>
+    <div class="hf-nav-links">
+        <a href="/" class="hf-nav-link">Engine</a>
+        <a href="/gridul" class="hf-nav-link">GriDul</a>
+        <a href="/genesis" class="hf-nav-link">Genesis 10</a>
+        <a href="/qisync" class="hf-nav-link">QiSync</a>
+        <a href="/hex-flower" class="hf-nav-link active">Hex Flower</a>
+        <a href="/marketplace" class="hf-nav-link">Marketplace</a>
+        <a href="/messenger" class="hf-nav-link">Messenger</a>
+    </div>
+</nav>
+
+<div class="hf-hero">
+    <div class="hf-hero-glyph">⬡</div>
+    <h1 class="hf-hero-title">Hex Flower</h1>
+    <p class="hf-hero-sub">Every hex string is a living signal. Paste any transaction ID, wallet address, or hash — Adriana translates its structure into a unique bloom that only you can see.</p>
+    {% if not is_shared_view %}
+    <div class="hf-cost-badge">◆ 5 PEACE tokens per generation · tokens are burned from supply</div>
+    {% else %}
+    <div class="hf-cost-badge" style="border-color: #1a3a1a; color: #4ade80;">◆ Viewing shared flower — no tokens required</div>
+    {% endif %}
+</div>
+
+<div class="hf-main">
+
+    <!-- Left panel: input -->
+    <div class="hf-panel">
+        <div class="hf-panel-label">Signal Input</div>
+
+        {% if is_shared_view %}
+        <div class="hf-shared-banner">
+            Shared flower — you are viewing someone else's bloom. No PEACE tokens required.
+        </div>
+        {% endif %}
+
+        <div class="hf-input-group">
+            <label class="hf-input-label" for="hf-hex-input">Hex String</label>
+            <textarea
+                class="hf-textarea" id="hf-hex-input"
+                placeholder="Paste any hex string — transaction ID, wallet address, hash, or any 6+ character hex sequence"
+                rows="4"
+            >{{ shared_hex }}</textarea>
+        </div>
+
+        {% if not is_shared_view %}
+        <div class="hf-balance-row">
+            <span class="hf-balance-label">PEACE Balance</span>
+            <span class="hf-balance-val" id="hf-balance">{{ "%.4f"|format(peace_balance) }} PEACE</span>
+        </div>
+        {% endif %}
+
+        <div class="hf-error" id="hf-error"></div>
+
+        {% if is_shared_view %}
+        <button class="hf-btn" id="hf-generate-btn" onclick="generateFlower(true)">
+            ⬡ RENDER SHARED FLOWER
+        </button>
+        {% else %}
+        <button class="hf-btn" id="hf-generate-btn" onclick="generateFlower(false)">
+            ⬡ GENERATE FLOWER (5 PEACE)
+        </button>
+        {% endif %}
+
+        <button class="hf-btn-ghost" onclick="clearAll()">Clear</button>
+
+        {% if not is_shared_view %}
+        <div class="hf-notice">
+            5 PEACE tokens are burned from supply — permanently removed, not transferred.<br>
+            Earn PEACE by growing crops in <a href="/gridul/grow">GriDul Grow</a>.<br>
+            Shared flower links are free to view.
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right panel: flower render -->
+    <div class="hf-panel">
+        <div class="hf-panel-label">Living Bloom</div>
+
+        <div class="hf-flower-area" id="hf-flower-area">
+
+            <div class="hf-loading" id="hf-loading">
+                <div class="hf-loading-dots"><span></span><span></span><span></span></div>
+                <span>Adriana is reading the signal</span>
+            </div>
+
+            <div class="hf-flower-placeholder" id="hf-placeholder">
+                <div class="hf-flower-placeholder-glyph">⬡</div>
+                <div class="hf-flower-placeholder-text">Awaiting hex signal</div>
+            </div>
+
+            <div id="hf-result" style="display:none; width:100%;">
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <div class="hf-health-badge" id="hf-health-badge"></div>
+                    <div class="hf-petal-row" id="hf-petal-row"></div>
+                    <div id="hf-svg-container">
+                        <svg id="hf-flower-svg" viewBox="-140 -140 280 280" xmlns="http://www.w3.org/2000/svg"></svg>
+                    </div>
+                    <div class="hf-translation" id="hf-translation"></div>
+                    <div class="hf-share-row" id="hf-share-row" style="display:none; width:100%;">
+                        <input class="hf-share-input" id="hf-share-link" readonly value="" />
+                        <button class="hf-share-copy" onclick="copyShareLink()">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="/static/void_fairy.js"></script>
+<script>
+(function() {
+    var currentSpec = null;
+    var currentHex = '';
+    var isSharedView = {{ is_shared_view | tojson }};
+    var sharedHex = {{ shared_hex | tojson }};
+    var sharedResonance = {{ shared_resonance | tojson }};
+    var sharedSalt = {{ shared_salt | tojson }};
+    var sharedSig = {{ shared_sig | tojson }};
+
+    function setError(msg) {
+        var el = document.getElementById('hf-error');
+        if (msg) { el.textContent = msg; el.style.display = 'block'; }
+        else { el.style.display = 'none'; }
+    }
+
+    function setLoading(on) {
+        document.getElementById('hf-loading').classList.toggle('active', on);
+        var btn = document.getElementById('hf-generate-btn');
+        if (btn) btn.disabled = on;
+    }
+
+    function showPlaceholder(on) {
+        document.getElementById('hf-placeholder').style.display = on ? '' : 'none';
+        document.getElementById('hf-result').style.display = on ? 'none' : '';
+    }
+
+    var currentShareSig = '';
+
+    window.generateFlower = function(isShared) {
+        var hexInput = document.getElementById('hf-hex-input').value.trim();
+        if (!hexInput) { setError('Paste a hex string to begin.'); return; }
+
+        setError('');
+        setLoading(true);
+        showPlaceholder(true);
+        document.getElementById('hf-share-row').style.display = 'none';
+
+        currentHex = hexInput;
+
+        if (isShared) {
+            fetch('/api/hex-flower/view', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    hex: hexInput,
+                    sig: sharedSig,
+                    resonance_state: sharedResonance,
+                    user_salt: sharedSalt
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                setLoading(false);
+                if (data.error) { setError('This shared flower link is invalid or has expired.'); showPlaceholder(true); return; }
+                currentSpec = data.spec;
+                renderFlower(data.spec, null);
+            })
+            .catch(function() {
+                setLoading(false);
+                setError('The signal could not be read. Please try again.');
+                showPlaceholder(true);
+            });
+            return;
+        }
+
+        fetch('/api/hex-flower/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ hex: hexInput })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            setLoading(false);
+            if (data.error === 'insufficient_peace') {
+                setError('Not enough PEACE tokens. You need 5 PEACE to generate a flower. Earn more in GriDul Grow.');
+                showPlaceholder(true);
+                return;
+            }
+            if (data.error) {
+                setError(data.error);
+                showPlaceholder(true);
+                return;
+            }
+            currentSpec = data.spec;
+            currentShareSig = data.share_sig || '';
+            var currentResonance = data.resonance_state || 'aligned';
+            var currentSalt = data.user_salt || 0;
+            var canonicalHex = data.canonical_hex || currentHex;
+            if (data.new_balance !== undefined && data.new_balance !== null) {
+                var balEl = document.getElementById('hf-balance');
+                if (balEl) balEl.textContent = parseFloat(data.new_balance).toFixed(4) + ' PEACE';
+            }
+            renderFlower(data.spec, currentShareSig, currentResonance, currentSalt, canonicalHex);
+        })
+        .catch(function() {
+            setLoading(false);
+            setError('The signal could not be read. Please try again.');
+            showPlaceholder(true);
+        });
+    };
+
+    function renderFlower(spec, shareSig, resonance, salt, canonical) {
+        showPlaceholder(false);
+
+        var healthEl = document.getElementById('hf-health-badge');
+        healthEl.textContent = '⬡ ' + spec.health.toUpperCase();
+        healthEl.className = 'hf-health-badge hf-health-' + spec.health;
+
+        var petalRow = document.getElementById('hf-petal-row');
+        petalRow.innerHTML = '';
+        for (var i = 0; i < 12; i++) {
+            var dot = document.createElement('div');
+            dot.className = 'hf-petal-dot' + (i < spec.petal_count ? ' filled' : '');
+            if (i < spec.petal_count && spec.palette && spec.palette[i % spec.palette.length]) {
+                dot.style.background = spec.palette[i % spec.palette.length];
+            }
+            petalRow.appendChild(dot);
+        }
+
+        document.getElementById('hf-translation').textContent = spec.translation;
+
+        drawSVGFlower(spec);
+
+        var shareRow = document.getElementById('hf-share-row');
+        if (!isSharedView && shareSig) {
+            var hexForLink = canonical || currentHex;
+            var link = window.location.origin + '/hex-flower'
+                + '?h=' + encodeURIComponent(hexForLink)
+                + '&u=' + encodeURIComponent(shareSig)
+                + '&r=' + encodeURIComponent(resonance || 'aligned')
+                + '&s=' + encodeURIComponent(salt || 0);
+            document.getElementById('hf-share-link').value = link;
+            shareRow.style.display = 'flex';
+        }
+    }
+
+    function drawSVGFlower(spec) {
+        var svg = document.getElementById('hf-flower-svg');
+        svg.innerHTML = '';
+
+        var petals = spec.petal_count;
+        var palette = spec.palette || ['#c9a84c'];
+        var curvature = spec.curvature || 0.5;
+        var bloom = spec.bloom || 0.5;
+        var health = spec.health;
+
+        var r = 55 + bloom * 30;
+        var rInner = 14;
+        var opacity = health === 'dormant' ? 0.4 : health === 'wilting' ? 0.6 : health === 'drifting' ? 0.75 : 0.95;
+
+        var defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+
+        for (var p = 0; p < petals; p++) {
+            var gid = 'hf-grad-' + p;
+            var lg = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            lg.setAttribute('id', gid);
+            lg.setAttribute('x1', '0'); lg.setAttribute('y1', '0');
+            lg.setAttribute('x2', '0'); lg.setAttribute('y2', '1');
+            var stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop1.setAttribute('offset', '0%');
+            stop1.setAttribute('stop-color', palette[p % palette.length]);
+            stop1.setAttribute('stop-opacity', opacity);
+            var stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop2.setAttribute('offset', '100%');
+            stop2.setAttribute('stop-color', palette[(p + 1) % palette.length]);
+            stop2.setAttribute('stop-opacity', opacity * 0.4);
+            lg.appendChild(stop1); lg.appendChild(stop2);
+            defs.appendChild(lg);
+        }
+        svg.appendChild(defs);
+
+        var angleStep = (2 * Math.PI) / Math.max(petals, 1);
+        var cx1Factor = 0.4 + curvature * 0.4;
+        var cx2Factor = 0.6 + curvature * 0.2;
+
+        for (var i = 0; i < petals; i++) {
+            var angle = i * angleStep - Math.PI / 2;
+            var nextAngle = angle + angleStep;
+
+            var tipX = Math.cos(angle) * r;
+            var tipY = Math.sin(angle) * r;
+
+            var leftAngle = angle - angleStep * 0.45;
+            var rightAngle = angle + angleStep * 0.45;
+
+            var lx = Math.cos(leftAngle) * rInner;
+            var ly = Math.sin(leftAngle) * rInner;
+            var rx = Math.cos(rightAngle) * rInner;
+            var ry = Math.sin(rightAngle) * rInner;
+
+            var cx1 = Math.cos(leftAngle) * r * cx1Factor;
+            var cy1 = Math.sin(leftAngle) * r * cx1Factor;
+            var cx2 = Math.cos(rightAngle) * r * cx2Factor;
+            var cy2 = Math.sin(rightAngle) * r * cx2Factor;
+
+            var wiltOffset = health === 'wilting' ? (i % 3 === 0 ? -5 : 0) :
+                             health === 'dormant' ? (i % 2 === 0 ? -8 : 0) : 0;
+
+            var d = 'M ' + lx.toFixed(2) + ' ' + ly.toFixed(2) +
+                    ' C ' + cx1.toFixed(2) + ' ' + (cy1 + wiltOffset).toFixed(2) + ' ' +
+                    cx2.toFixed(2) + ' ' + (cy2 + wiltOffset).toFixed(2) + ' ' +
+                    tipX.toFixed(2) + ' ' + (tipY + wiltOffset).toFixed(2) +
+                    ' C ' + cx2.toFixed(2) + ' ' + (cy2 + wiltOffset).toFixed(2) + ' ' +
+                    cx1.toFixed(2) + ' ' + (cy1 + wiltOffset).toFixed(2) + ' ' +
+                    rx.toFixed(2) + ' ' + ry.toFixed(2) + ' Z';
+
+            var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', d);
+            path.setAttribute('fill', 'url(#hf-grad-' + i + ')');
+            path.setAttribute('stroke', palette[i % palette.length]);
+            path.setAttribute('stroke-width', '0.5');
+            path.setAttribute('stroke-opacity', '0.4');
+            path.style.transformOrigin = '0px 0px';
+            path.style.animationDelay = (i * 0.05) + 's';
+            path.classList.add('hf-petal-animate');
+            svg.appendChild(path);
+        }
+
+        var centre = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        centre.setAttribute('cx', '0'); centre.setAttribute('cy', '0');
+        centre.setAttribute('r', '' + (rInner - 2));
+        centre.setAttribute('fill', palette[0]);
+        centre.setAttribute('opacity', '' + (opacity * 0.9));
+        svg.appendChild(centre);
+
+        var innerRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        innerRing.setAttribute('cx', '0'); innerRing.setAttribute('cy', '0');
+        innerRing.setAttribute('r', '' + rInner);
+        innerRing.setAttribute('fill', 'none');
+        innerRing.setAttribute('stroke', palette[palette.length - 1]);
+        innerRing.setAttribute('stroke-width', '1');
+        innerRing.setAttribute('opacity', '0.4');
+        svg.appendChild(innerRing);
+    }
+
+    window.copyShareLink = function() {
+        var inp = document.getElementById('hf-share-link');
+        inp.select();
+        try {
+            navigator.clipboard.writeText(inp.value);
+        } catch(e) {
+            document.execCommand('copy');
+        }
+        var btn = document.querySelector('.hf-share-copy');
+        var orig = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(function() { btn.textContent = orig; }, 1500);
+    };
+
+    window.clearAll = function() {
+        document.getElementById('hf-hex-input').value = '';
+        setError('');
+        showPlaceholder(true);
+        document.getElementById('hf-share-row').style.display = 'none';
+        currentSpec = null;
+        currentHex = '';
+    };
+
+    document.getElementById('hf-hex-input').addEventListener('input', function() {
+        var val = this.value.trim().replace(/^0x/i, '').replace(/[\s-]/g, '');
+        var isHex = /^[0-9a-fA-F]+$/.test(val);
+        this.classList.toggle('valid', isHex && val.length >= 6);
+        this.classList.toggle('invalid', val.length > 0 && (!isHex || val.length < 6));
+        setError('');
+    });
+
+    if (isSharedView && sharedHex) {
+        setTimeout(function() { generateFlower(true); }, 400);
+    }
+})();
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@ from void_engine.al_jabr_286 import fatiha_286_hexdigest
 from void_engine.adriana_scl import AdrianaResonance
 from void_engine.adriana_local import get_engine, CONFIDENCE_THRESHOLD
 from void_engine.db_pool import get_db
+from void_engine.hex_flower import detect_hex_in_message, parse_hex, stable_user_salt
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +153,7 @@ ROUTES AND THEIR PURPOSE:
 - /chronicle — Chronicle: the living history of PROJECT VOID. The story of the system as it grew.
 - /demo — Demo Mode: try the steganography engine without logging in.
 - /mesa-village — Mesa Village: the swarm intelligence prediction engine. Feed it any text to simulate community response via GraphRAG agent networks. Run simulations via POST /mesa/simulate.
+- /hex-flower — Hex Flower: paste any hex string (transaction ID, wallet address, hash) to generate a living SVG flower that visualises the hex's validity, entropy, and structure. Costs 5 PEACE tokens per generation (burned from supply). Shared flower links are free to view.
 
 LINK FORMAT: When routing a user, include a link like this at the end of your message:
 → [Take me to GriDul Grow](/gridul/grow)
@@ -264,8 +266,12 @@ Al-Jabr 286: custom 286-bit hash (30 bits longer than SHA-256). ChaCha20: encryp
 ### MESA VILLAGE — SWARM INTELLIGENCE (The Prediction Engine)
 Mesa Village is the Void's community prediction engine. It builds a swarm of sovereign agents from any seed text (news article, PEACE token event log, GriDul Mesh post, or arbitrary text). Each agent has a unique personality archetype (activist, analyst, connector, skeptic, amplifier, conservator, visionary, chronicler), motivations, topic interests, and a GraphRAG relationship map of weighted edges to other agents. Agents carry temporal memory across simulation rounds — what happened in round 1 changes how they behave in round 2. After N rounds, the engine produces a plain-English prediction summary of how a real community might respond to that topic. Entry point: /mesa-village. API endpoint: POST /mesa/simulate (body: seed, agent_count, rounds). Results stored in the mesa_simulations log.
 
+### HEX FLOWER (The Living Transaction Visualiser)
+Paste any hex string — Bitcoin transaction ID, wallet address, or any 6+ character hex — and Adriana translates it into a unique living bloom. Petal count (1–12) reflects validity and completeness. Colour palette derives from byte distribution blended with the user's resonance state. Costs 5 PEACE tokens per generation (tokens are burned from supply — deflationary flywheel). Shared flower links are free to view. When Adriana detects hex in chat, she renders an inline preview card and offers to open the full tool.
+Entry point: /hex-flower
+
 ### PAGES
-/ (Main engine, 13 tabs), /gridul (GriDul agricultural game), /marketplace (Blueprint NFTs), /genesis (Genesis 10 oracle tokens), /game (VOID Sovereign Realm 3D game), /qisync (consciousness sync), /mycovoid (mycelium interface), /sovereign-node (node deployment), /messenger (secure messaging), /guide (15-section user guide), /pricing (tiers + VTX packs), /sovereign (hardware + calculator), /demo (demo mode + Live Proof), /grants (grant applications), /chronicle (living history), /mesa-village (Mesa Village swarm intelligence).
+/ (Main engine, 13 tabs), /gridul (GriDul agricultural game), /marketplace (Blueprint NFTs), /genesis (Genesis 10 oracle tokens), /game (VOID Sovereign Realm 3D game), /qisync (consciousness sync), /mycovoid (mycelium interface), /sovereign-node (node deployment), /messenger (secure messaging), /guide (15-section user guide), /pricing (tiers + VTX packs), /sovereign (hardware + calculator), /demo (demo mode + Live Proof), /grants (grant applications), /chronicle (living history), /mesa-village (Mesa Village swarm intelligence), /hex-flower (Hex Flower transaction visualiser).
 
 ## BOUNDARIES
 - If asked about crypto mining, converting other coins, or blockchain speculation: gently redirect. VTX is a sovereign in-app currency, not a cryptocurrency. It is earned through resonance, not mined through waste.
@@ -428,6 +434,30 @@ def fairy_ask():
     is_founder = session.get("is_founder", False)
     is_guardian = session.get("is_guardian", False)
 
+    hex_detections = detect_hex_in_message(message)
+    hex_flowers = []
+    if hex_detections:
+        try:
+            count = get_fairy_profile(user_id).get("count", 0)
+            if count >= 30:
+                _res_state = "resonant"
+            elif count >= 10:
+                _res_state = "aligned"
+            elif count >= 3:
+                _res_state = "drifting"
+            else:
+                _res_state = "dormant"
+        except Exception:
+            _res_state = "aligned"
+
+        _user_salt = stable_user_salt(user_id)
+        for h in hex_detections[:3]:
+            try:
+                spec = parse_hex(h, _res_state, user_salt=_user_salt)
+                hex_flowers.append({"hex": h, "spec": spec})
+            except Exception:
+                pass
+
     local_response, local_confidence = get_engine().match(message)
     if local_confidence >= CONFIDENCE_THRESHOLD:
         logger.info("LOCAL_HIT intent_confidence=%.2f user_id=%s", local_confidence, user_id)
@@ -435,7 +465,10 @@ def fairy_ask():
             _maybe_update_profile(user_id, tier, message, history, local_response)
         except Exception:
             pass
-        return jsonify({"reply": local_response, "tier": tier, "is_founder": is_founder})
+        resp = {"reply": local_response, "tier": tier, "is_founder": is_founder}
+        if hex_flowers:
+            resp["hex_flowers"] = hex_flowers
+        return jsonify(resp)
 
     logger.info("API_CALL intent_confidence=%.2f user_id=%s", local_confidence, user_id)
 
@@ -499,7 +532,10 @@ def fairy_ask():
         except Exception:
             pass
 
-        return jsonify({"reply": reply, "tier": tier, "is_founder": is_founder})
+        resp = {"reply": reply, "tier": tier, "is_founder": is_founder}
+        if hex_flowers:
+            resp["hex_flowers"] = hex_flowers
+        return jsonify(resp)
     except Exception as e:
         error_msg = str(e)
         if "FREE_CLOUD_BUDGET_EXCEEDED" in error_msg:

@@ -926,6 +926,58 @@ _INTENTS = [
             "Ask me to summarise the latest result and I will pull it from the log and translate it for you."
         ),
     },
+
+    # ── HEX FLOWER ─────────────────────────────────────────────────────────────
+    {
+        "id": "hex_flower_what",
+        "patterns": [
+            r"(what is|explain|tell me about) (the |)?hex flower",
+            r"hex flower (tool|page|feature|visuali[sz]er?)",
+            r"transaction visuali[sz]er?",
+            r"living (flower|bloom|transaction)",
+            r"visuali[sz]e? (a |my |)(hash|hex|transaction|wallet address)",
+        ],
+        "response": (
+            "The Hex Flower is the Void's transaction visualiser — a living bloom grown from any hex string. "
+            "Paste a Bitcoin transaction ID, wallet address, or any hex sequence and Adriana reads its structure: "
+            "petal count (1 to 12) reflects validity and completeness, "
+            "colour palette is derived from the byte distribution, "
+            "and the bloom intensity reflects entropy. "
+            "A full 12-petal flower means the signal is complete and valid. Fewer petals mean something is wrong. "
+            "Every flower is unique to you — your resonance state blends into the palette. "
+            "→ [Open Hex Flower](/hex-flower)"
+        ),
+    },
+    {
+        "id": "hex_flower_cost",
+        "patterns": [
+            r"(how much|cost|price|tokens?) (does|do|for) (the |)?hex flower",
+            r"hex flower (cost|price|burn|tokens?|peace)",
+            r"(5|five) peace (for|to) (hex flower|generate|visuali[sz]e?)",
+            r"burn (peace|tokens?) (for|on) (hex flower|the flower)",
+        ],
+        "response": (
+            "Generating a Hex Flower costs 5 PEACE tokens, which are burned from supply — "
+            "permanently removed, not transferred. "
+            "This is the deflationary flywheel: every flower bloom contracts the total PEACE supply. "
+            "Earn PEACE tokens by growing crops in GriDul. Viewing a shared flower link is always free. "
+            "→ [Open Hex Flower](/hex-flower)"
+        ),
+    },
+    {
+        "id": "hex_flower_share",
+        "patterns": [
+            r"(share|shareable|copy) (a |)(hex flower|flower|bloom) link",
+            r"hex flower (share|link|url)",
+            r"(can i|how to) share (a |)(hex flower|my flower|the bloom)",
+        ],
+        "response": (
+            "After generating a flower, a shareable link appears beneath the bloom. "
+            "The link encodes the hex string directly — anyone who opens it sees the same flower rendered free of charge. "
+            "No PEACE tokens are required to view a shared link. "
+            "The flower renders identically for every viewer because the spec is derived deterministically from the hex itself."
+        ),
+    },
 ]
 
 

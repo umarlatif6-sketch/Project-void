@@ -32,6 +32,7 @@ from routes.inner_voice import inner_voice_bp
 from routes.agent_vision import agent_vision_bp
 from routes.mesa import mesa_bp
 from routes.founders_room import founders_room_bp
+from routes.hex_flower import hex_flower_bp
 
 
 def register_blueprints(app):
@@ -69,3 +70,4 @@ def register_blueprints(app):
     app.register_blueprint(agent_vision_bp)
     app.register_blueprint(mesa_bp)
     app.register_blueprint(founders_room_bp)
+    app.register_blueprint(hex_flower_bp)
