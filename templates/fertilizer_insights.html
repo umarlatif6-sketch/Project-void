@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fertilizer Global Insights — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root { --gi-bg:#090909;--gi-surface:#101010;--gi-surface2:#0d0d0d;--gi-border:#1c1c1c;--gi-green:#4caf50;--gi-gold:#c9a84c;--gi-teal:#00bfa5;--gi-text:#e0e0e0;--gi-muted:#555; }
+        *{box-sizing:border-box;}
+        body{background:var(--gi-bg);color:var(--gi-text);font-family:'SF Mono','Fira Code','Consolas',monospace;margin:0;min-height:100vh;}
+        .gi-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--gi-border);background:rgba(9,9,9,0.97);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px;}
+        .gi-nav-brand{font-size:0.9rem;font-weight:700;color:var(--gi-gold);letter-spacing:3px;text-decoration:none;}
+        .gi-nav-links{display:flex;gap:20px;flex-wrap:wrap;}
+        .gi-nav-link{color:#888;text-decoration:none;font-size:0.72rem;letter-spacing:1px;transition:color 0.2s;}
+        .gi-nav-link:hover{color:var(--gi-green);}
+        .gi-hero{text-align:center;padding:60px 24px 44px;background:radial-gradient(ellipse at 50% 0%,#0a1a0a 0%,var(--gi-bg) 70%);border-bottom:1px solid var(--gi-border);position:relative;}
+        .gi-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gi-green),var(--gi-gold),transparent);}
+        .gi-badge{display:inline-block;background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.28);color:var(--gi-green);font-size:0.58rem;font-weight:700;letter-spacing:4px;padding:5px 16px;border-radius:2px;margin-bottom:16px;text-transform:uppercase;}
+        .gi-title{font-size:2rem;font-weight:900;letter-spacing:4px;color:#fff;margin-bottom:8px;}
+        .gi-title span{color:var(--gi-green);}
+        .gi-sub{font-size:0.72rem;color:#555;letter-spacing:2px;}
+        .gi-main{max-width:1000px;margin:0 auto;padding:48px 24px 80px;}
+        .gi-stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:48px;}
+        .gi-stat{background:var(--gi-surface);border:1px solid var(--gi-border);border-radius:6px;padding:20px;text-align:center;}
+        .gi-stat-val{font-size:1.8rem;font-weight:900;color:var(--gi-teal);line-height:1;margin-bottom:6px;}
+        .gi-stat-label{font-size:0.58rem;letter-spacing:2px;color:var(--gi-muted);text-transform:uppercase;}
+        .gi-section{margin-bottom:48px;}
+        .gi-section-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+        .gi-section-title{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gi-text);}
+        .gi-section-line{flex:1;height:1px;background:var(--gi-border);}
+        .gi-table{width:100%;border-collapse:collapse;font-size:0.72rem;}
+        .gi-table th{text-align:left;padding:8px 12px;font-size:0.55rem;letter-spacing:2px;color:var(--gi-muted);border-bottom:1px solid var(--gi-border);text-transform:uppercase;}
+        .gi-table td{padding:10px 12px;border-bottom:1px solid #161616;color:#999;vertical-align:top;}
+        .gi-table td:first-child{color:#fff;}
+        .gi-table tr:last-child td{border-bottom:none;}
+        .gi-score{color:var(--gi-teal);font-weight:700;}
+        .gi-stars{color:var(--gi-gold);}
+        .gi-user{color:var(--gi-muted);font-size:0.62rem;}
+        .gi-ing-list{display:flex;flex-wrap:wrap;gap:4px;}
+        .gi-ing-tag{font-size:0.55rem;padding:2px 7px;background:rgba(76,175,80,0.06);border:1px solid rgba(76,175,80,0.15);color:#4caf50;border-radius:2px;}
+        .gi-empty{color:var(--gi-muted);font-size:0.72rem;text-align:center;padding:32px;}
+        .gi-back{display:inline-block;margin-top:0;font-size:0.65rem;letter-spacing:2px;color:var(--gi-green);text-decoration:none;border:1px solid rgba(76,175,80,0.25);padding:6px 16px;border-radius:2px;}
+    </style>
+</head>
+<body>
+    <nav class="gi-nav">
+        <a href="/" class="gi-nav-brand">◆ VOID ENGINE</a>
+        <div class="gi-nav-links">
+            <a href="/gridul" class="gi-nav-link">GriDul</a>
+            <a href="/gridul/fertilizer" class="gi-nav-link">Fertilizer Lab</a>
+            <a href="/gridul/water" class="gi-nav-link">Water</a>
+            <a href="/qisync/memory" class="gi-nav-link">Memory</a>
+        </div>
+    </nav>
+
+    <div class="gi-hero">
+        <div class="gi-badge">GLOBAL INSIGHT — READ ONLY</div>
+        <h1 class="gi-title">Fertilizer <span>Community Data</span></h1>
+        <p class="gi-sub">Aggregated formula intelligence from all node runners</p>
+    </div>
+
+    <div class="gi-main">
+        <div class="gi-stats-row">
+            <div class="gi-stat">
+                <div class="gi-stat-val">{{ stats.get('total_batches', 0) }}</div>
+                <div class="gi-stat-label">Total Batches</div>
+            </div>
+            <div class="gi-stat">
+                <div class="gi-stat-val">{{ "%.1f"|format(stats.get('avg_score', 0) * 100) }}%</div>
+                <div class="gi-stat-label">Avg Formula Score</div>
+            </div>
+            <div class="gi-stat">
+                <div class="gi-stat-val">{{ "%.1f"|format(stats.get('avg_quality', 0)) }}★</div>
+                <div class="gi-stat-label">Avg Quality Rating</div>
+            </div>
+        </div>
+
+        <div class="gi-section">
+            <div class="gi-section-head">
+                <span class="gi-section-title">Top Formulas</span>
+                <div class="gi-section-line"></div>
+                <a href="/gridul/fertilizer" class="gi-back">+ Log Batch</a>
+            </div>
+            {% if top_formulas %}
+            <table class="gi-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Batch Name</th>
+                        <th>Score</th>
+                        <th>Rating</th>
+                        <th>Ingredients</th>
+                        <th>User</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in top_formulas %}
+                    <tr>
+                        <td style="color:var(--gi-gold);">{{ loop.index }}</td>
+                        <td>{{ f.name }}</td>
+                        <td class="gi-score">{{ "%.1f"|format(f.score * 100) }}%</td>
+                        <td class="gi-stars">{{ '★' * (f.quality_rating or 0) }}{{ '☆' * (5 - (f.quality_rating or 0)) }}</td>
+                        <td>
+                            <div class="gi-ing-list">
+                                {% for ing in (f.ingredients or [])[:6] %}
+                                <span class="gi-ing-tag">{{ ing.ingredient }}</span>
+                                {% endfor %}
+                                {% if (f.ingredients or [])|length > 6 %}
+                                <span class="gi-ing-tag">+{{ (f.ingredients|length) - 6 }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="gi-user">@{{ f.username }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="gi-empty">No completed batches yet. Be the first to contribute.</div>
+            {% endif %}
+        </div>
+
+        <div class="gi-section">
+            <div class="gi-section-head">
+                <span class="gi-section-title">Top Performing Ingredients</span>
+                <div class="gi-section-line"></div>
+            </div>
+            {% if top_ingredients %}
+            <table class="gi-table">
+                <thead>
+                    <tr>
+                        <th>Ingredient</th>
+                        <th>Used in</th>
+                        <th>Avg Formula Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ing in top_ingredients %}
+                    <tr>
+                        <td>{{ ing.ingredient }}</td>
+                        <td>{{ ing.usage_count }} batches</td>
+                        <td class="gi-score">{{ "%.1f"|format(ing.avg_score * 100) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="gi-empty">No ingredient data available yet.</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

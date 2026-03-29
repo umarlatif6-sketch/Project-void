@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Training Global Insights — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root{--mi-bg:#0a0a0a;--mi-surface:#111;--mi-surface2:#0d0d0d;--mi-border:#1e1e1e;--mi-violet:#7c5cff;--mi-teal:#00bfa5;--mi-gold:#c9a84c;--mi-text:#e0e0e0;--mi-muted:#666;--mi-green:#4caf50;}
+        *{box-sizing:border-box;}
+        body{background:var(--mi-bg);color:var(--mi-text);font-family:'SF Mono','Fira Code','Consolas',monospace;margin:0;min-height:100vh;}
+        .mi-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--mi-border);background:rgba(10,10,10,0.97);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px;}
+        .mi-nav-brand{font-size:0.9rem;font-weight:700;color:var(--mi-gold);letter-spacing:3px;text-decoration:none;}
+        .mi-nav-links{display:flex;gap:20px;flex-wrap:wrap;}
+        .mi-nav-link{color:#888;text-decoration:none;font-size:0.72rem;letter-spacing:1px;}
+        .mi-nav-link:hover{color:var(--mi-violet);}
+        .mi-hero{text-align:center;padding:60px 24px 44px;background:radial-gradient(ellipse at 50% 0%,#110d1a 0%,var(--mi-bg) 70%);border-bottom:1px solid var(--mi-border);position:relative;}
+        .mi-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--mi-violet),var(--mi-teal),transparent);}
+        .mi-badge{display:inline-block;background:rgba(124,92,255,0.1);border:1px solid rgba(124,92,255,0.25);color:var(--mi-violet);font-size:0.58rem;font-weight:700;letter-spacing:4px;padding:5px 16px;border-radius:2px;margin-bottom:16px;text-transform:uppercase;}
+        .mi-title{font-size:2rem;font-weight:900;letter-spacing:4px;color:#fff;margin-bottom:8px;}
+        .mi-title span{color:var(--mi-violet);}
+        .mi-sub{font-size:0.72rem;color:#555;letter-spacing:2px;}
+        .mi-main{max-width:1000px;margin:0 auto;padding:48px 24px 80px;}
+        .mi-stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:48px;}
+        .mi-stat{background:var(--mi-surface);border:1px solid var(--mi-border);border-radius:6px;padding:20px;text-align:center;}
+        .mi-stat-val{font-size:1.8rem;font-weight:900;color:var(--mi-teal);line-height:1;margin-bottom:6px;}
+        .mi-stat-label{font-size:0.58rem;letter-spacing:2px;color:var(--mi-muted);text-transform:uppercase;}
+        .mi-section{margin-bottom:48px;}
+        .mi-section-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+        .mi-section-title{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--mi-text);}
+        .mi-section-line{flex:1;height:1px;background:var(--mi-border);}
+        .mi-table{width:100%;border-collapse:collapse;font-size:0.72rem;}
+        .mi-table th{text-align:left;padding:8px 12px;font-size:0.55rem;letter-spacing:2px;color:var(--mi-muted);border-bottom:1px solid var(--mi-border);text-transform:uppercase;}
+        .mi-table td{padding:10px 12px;border-bottom:1px solid #161616;color:#999;}
+        .mi-table tr:last-child td{border-bottom:none;}
+        .mi-table td:first-child{color:#fff;}
+        .mi-level{color:var(--mi-violet);font-weight:700;}
+        .mi-score{color:var(--mi-teal);}
+        .mi-rank{color:var(--mi-gold);font-weight:900;}
+        .mi-empty{color:var(--mi-muted);font-size:0.72rem;text-align:center;padding:32px;}
+        .mi-back{display:inline-block;font-size:0.65rem;letter-spacing:2px;color:var(--mi-violet);text-decoration:none;border:1px solid rgba(124,92,255,0.25);padding:6px 16px;border-radius:2px;}
+        .mi-level-bar-wrap{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+        .mi-level-label{font-size:0.65rem;color:var(--mi-muted);min-width:50px;}
+        .mi-level-track{flex:1;background:#1a1a1a;border-radius:3px;height:10px;overflow:hidden;}
+        .mi-level-fill{height:100%;background:linear-gradient(90deg,var(--mi-violet),var(--mi-teal));border-radius:3px;}
+        .mi-level-count{font-size:0.65rem;color:#444;min-width:30px;text-align:right;}
+    </style>
+</head>
+<body>
+    <nav class="mi-nav">
+        <a href="/" class="mi-nav-brand">◆ VOID ENGINE</a>
+        <div class="mi-nav-links">
+            <a href="/qisync" class="mi-nav-link">QiSync</a>
+            <a href="/qisync/memory" class="mi-nav-link">Memory Studio</a>
+            <a href="/gridul/fertilizer" class="mi-nav-link">Fertilizer</a>
+            <a href="/gridul/water" class="mi-nav-link">Water</a>
+        </div>
+    </nav>
+
+    <div class="mi-hero">
+        <div class="mi-badge">GLOBAL INSIGHT — READ ONLY</div>
+        <h1 class="mi-title">Memory <span>Training</span> Community Data</h1>
+        <p class="mi-sub">Aggregated recall intelligence from all node runners</p>
+    </div>
+
+    <div class="mi-main">
+        <div class="mi-stats-row">
+            <div class="mi-stat">
+                <div class="mi-stat-val">{{ stats.get('total_sessions', 0) }}</div>
+                <div class="mi-stat-label">Sessions Completed</div>
+            </div>
+            <div class="mi-stat">
+                <div class="mi-stat-val">{{ "%.0f"|format(stats.get('avg_recall', 0) * 100) }}%</div>
+                <div class="mi-stat-label">Avg Recall Score</div>
+            </div>
+            <div class="mi-stat">
+                <div class="mi-stat-val">{{ "%.1f"|format(stats.get('avg_level', 0)) }}</div>
+                <div class="mi-stat-label">Avg Memory Level</div>
+            </div>
+        </div>
+
+        {% if level_distribution %}
+        <div class="mi-section">
+            <div class="mi-section-head">
+                <span class="mi-section-title">Memory Level Distribution</span>
+                <div class="mi-section-line"></div>
+            </div>
+            {% set max_count = level_distribution | map(attribute='count') | max %}
+            {% for d in level_distribution %}
+            <div class="mi-level-bar-wrap">
+                <span class="mi-level-label">Lv {{ d.level }}</span>
+                <div class="mi-level-track">
+                    <div class="mi-level-fill" style="width: {{ (d.count / max_count * 100)|round }}%"></div>
+                </div>
+                <span class="mi-level-count">{{ d.count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="mi-section">
+            <div class="mi-section-head">
+                <span class="mi-section-title">Memory Leaderboard</span>
+                <div class="mi-section-line"></div>
+                <a href="/qisync/memory" class="mi-back">+ Train</a>
+            </div>
+            {% if leaderboard %}
+            <table class="mi-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Top Level</th>
+                        <th>Sessions</th>
+                        <th>Avg Recall</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in leaderboard %}
+                    <tr>
+                        <td class="mi-rank">#{{ loop.index }}</td>
+                        <td>@{{ row.username }}</td>
+                        <td class="mi-level">Lv {{ row.top_level }}</td>
+                        <td>{{ row.sessions }}</td>
+                        <td class="mi-score">{{ "%.0f"|format(row.avg_score * 100) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="mi-empty">No sessions yet. Be the first to complete a memory training session.</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

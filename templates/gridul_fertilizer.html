@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fertilizer Formula Lab — GriDul — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --ff-bg: #090909;
+            --ff-surface: #101010;
+            --ff-surface2: #0d0d0d;
+            --ff-border: #1c1c1c;
+            --ff-green: #4caf50;
+            --ff-gold: #c9a84c;
+            --ff-teal: #00bfa5;
+            --ff-text: #e0e0e0;
+            --ff-muted: #555;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--ff-bg);
+            color: var(--ff-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .ff-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--ff-border);
+            background: rgba(9,9,9,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .ff-nav-brand { font-size: 0.9rem; font-weight: 700; color: var(--ff-gold); letter-spacing: 3px; text-decoration: none; }
+        .ff-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .ff-nav-link { color: #888; text-decoration: none; font-size: 0.72rem; letter-spacing: 1px; transition: color 0.2s; }
+        .ff-nav-link:hover { color: var(--ff-green); }
+
+        .ff-hero {
+            text-align: center;
+            padding: 72px 24px 56px;
+            background: radial-gradient(ellipse at 50% 0%, #0a1a0a 0%, var(--ff-bg) 70%);
+            border-bottom: 1px solid var(--ff-border);
+            position: relative;
+        }
+        .ff-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--ff-green), var(--ff-gold), transparent);
+        }
+        .ff-badge {
+            display: inline-block;
+            background: rgba(76,175,80,0.12);
+            border: 1px solid rgba(76,175,80,0.3);
+            color: var(--ff-green);
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            padding: 5px 16px;
+            border-radius: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .ff-title { font-size: 2.4rem; font-weight: 900; letter-spacing: 4px; color: #fff; margin-bottom: 10px; }
+        .ff-title span { color: var(--ff-green); }
+        .ff-subtitle { font-size: 0.78rem; color: var(--ff-teal); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px; }
+        .ff-tagline { font-size: 0.8rem; color: #666; max-width: 600px; margin: 0 auto; line-height: 1.9; }
+        .ff-nav-links-hero { display: flex; gap: 20px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        .ff-hero-link {
+            font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ff-gold); text-decoration: none; border: 1px solid rgba(201,168,76,0.3);
+            padding: 6px 16px; border-radius: 2px; transition: background 0.2s;
+        }
+        .ff-hero-link:hover { background: rgba(201,168,76,0.08); }
+
+        .ff-main { max-width: 1100px; margin: 0 auto; padding: 52px 24px 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        @media (max-width: 860px) { .ff-main { grid-template-columns: 1fr; } }
+
+        .ff-panel {
+            background: var(--ff-surface);
+            border: 1px solid var(--ff-border);
+            border-radius: 6px;
+            padding: 28px;
+            position: relative;
+        }
+        .ff-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--ff-green), transparent);
+        }
+        .ff-panel.gold::before { background: linear-gradient(90deg, var(--ff-gold), transparent); }
+        .ff-panel-title {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--ff-green);
+            margin-bottom: 22px;
+        }
+        .ff-panel.gold .ff-panel-title { color: var(--ff-gold); }
+
+        .ff-field { margin-bottom: 16px; }
+        .ff-field label {
+            display: block;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: var(--ff-muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .ff-input, .ff-textarea, .ff-select {
+            width: 100%;
+            background: var(--ff-surface2);
+            border: 1px solid var(--ff-border);
+            border-radius: 4px;
+            color: var(--ff-text);
+            font-family: inherit;
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .ff-input:focus, .ff-textarea:focus, .ff-select:focus { border-color: var(--ff-green); }
+        .ff-textarea { resize: vertical; min-height: 70px; }
+
+        .ff-ingredient-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 32px;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .ff-btn-icon {
+            background: none;
+            border: 1px solid var(--ff-border);
+            color: var(--ff-muted);
+            border-radius: 4px;
+            width: 32px; height: 32px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: border-color 0.15s, color 0.15s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ff-btn-icon:hover { border-color: #f87171; color: #f87171; }
+        .ff-btn-add {
+            background: none;
+            border: 1px dashed var(--ff-border);
+            color: var(--ff-green);
+            border-radius: 4px;
+            padding: 6px 14px;
+            font-family: inherit;
+            font-size: 0.68rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: border-color 0.15s;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        .ff-btn-add:hover { border-color: var(--ff-green); }
+        .ff-btn-submit {
+            background: var(--ff-green);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 11px 24px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.15s;
+        }
+        .ff-btn-submit:hover { opacity: 0.85; }
+        .ff-btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .ff-msg { font-size: 0.72rem; padding: 8px 12px; border-radius: 4px; margin-top: 12px; display: none; }
+        .ff-msg.ok { background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.25); color: var(--ff-green); }
+        .ff-msg.err { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: #f87171; }
+
+        .ff-full-width { grid-column: 1 / -1; }
+
+        .ff-batch-list { display: flex; flex-direction: column; gap: 12px; }
+        .ff-batch-card {
+            background: var(--ff-surface2);
+            border: 1px solid var(--ff-border);
+            border-radius: 4px;
+            padding: 16px 20px;
+        }
+        .ff-batch-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .ff-batch-name { font-size: 0.85rem; font-weight: 700; color: #fff; }
+        .ff-batch-status {
+            font-size: 0.55rem; letter-spacing: 2px; text-transform: uppercase;
+            padding: 3px 10px; border-radius: 2px;
+        }
+        .ff-status-curing { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); color: var(--ff-gold); }
+        .ff-status-completed { background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.25); color: var(--ff-green); }
+        .ff-batch-meta { font-size: 0.65rem; color: var(--ff-muted); margin-bottom: 10px; }
+        .ff-batch-ingredients { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .ff-ing-tag {
+            font-size: 0.58rem; letter-spacing: 1px; padding: 2px 8px;
+            background: rgba(76,175,80,0.06); border: 1px solid rgba(76,175,80,0.15);
+            color: #4caf50; border-radius: 2px;
+        }
+        .ff-batch-score { font-size: 0.7rem; color: var(--ff-teal); margin-bottom: 10px; }
+        .ff-complete-form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .ff-star-label { font-size: 0.62rem; color: var(--ff-muted); letter-spacing: 1px; }
+        .ff-star-input {
+            background: var(--ff-surface);
+            border: 1px solid var(--ff-border);
+            color: var(--ff-text);
+            font-family: inherit;
+            font-size: 0.75rem;
+            padding: 5px 8px;
+            border-radius: 3px;
+            width: 60px;
+        }
+        .ff-complete-btn {
+            background: none;
+            border: 1px solid var(--ff-green);
+            color: var(--ff-green);
+            font-family: inherit;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            padding: 6px 14px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .ff-complete-btn:hover { background: rgba(76,175,80,0.08); }
+
+        .ff-reward-banner {
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-size: 0.7rem;
+            color: var(--ff-gold);
+            margin-top: 10px;
+            display: none;
+        }
+
+        .ff-leaderboard { display: flex; flex-direction: column; gap: 8px; }
+        .ff-lb-row {
+            display: grid;
+            grid-template-columns: 28px 1fr 60px 60px;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 14px;
+            background: var(--ff-surface2);
+            border: 1px solid var(--ff-border);
+            border-radius: 4px;
+            font-size: 0.72rem;
+        }
+        .ff-lb-rank { color: var(--ff-gold); font-weight: 900; }
+        .ff-lb-name { color: #bbb; }
+        .ff-lb-score { color: var(--ff-teal); text-align: right; }
+        .ff-lb-stars { color: var(--ff-gold); text-align: right; }
+
+        .ff-marketplace-list { display: flex; flex-direction: column; gap: 10px; }
+        .ff-mp-card {
+            background: var(--ff-surface2);
+            border: 1px solid var(--ff-border);
+            border-radius: 4px;
+            padding: 14px 18px;
+        }
+        .ff-mp-title { font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .ff-mp-meta { font-size: 0.62rem; color: var(--ff-muted); margin-bottom: 6px; }
+        .ff-mp-desc { font-size: 0.72rem; color: #666; line-height: 1.7; }
+        .ff-mp-contact { font-size: 0.65rem; color: var(--ff-teal); margin-top: 6px; }
+        .ff-delete-btn {
+            float: right;
+            background: none;
+            border: 1px solid rgba(248,113,113,0.3);
+            color: #f87171;
+            font-family: inherit;
+            font-size: 0.58rem;
+            letter-spacing: 1px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .ff-search-row { display: flex; gap: 8px; margin-bottom: 16px; }
+        .ff-search-input {
+            flex: 1;
+            background: var(--ff-surface2);
+            border: 1px solid var(--ff-border);
+            color: var(--ff-text);
+            font-family: inherit;
+            font-size: 0.75rem;
+            padding: 7px 12px;
+            border-radius: 4px;
+            outline: none;
+        }
+        .ff-search-btn {
+            background: var(--ff-surface2);
+            border: 1px solid var(--ff-border);
+            color: var(--ff-teal);
+            font-family: inherit;
+            font-size: 0.7rem;
+            padding: 7px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        .ff-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid var(--ff-border); }
+        .ff-tab {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #555;
+            font-family: inherit;
+            font-size: 0.68rem;
+            letter-spacing: 2px;
+            padding: 10px 18px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .ff-tab:hover { color: var(--ff-green); }
+        .ff-tab.active { color: var(--ff-green); border-bottom-color: var(--ff-green); }
+        .ff-tab-panel { display: none; }
+        .ff-tab-panel.active { display: block; }
+        .ff-empty { color: var(--ff-muted); font-size: 0.72rem; text-align: center; padding: 24px; }
+    </style>
+</head>
+<body>
+    <nav class="ff-nav">
+        <a href="/" class="ff-nav-brand">◆ VOID ENGINE</a>
+        <div class="ff-nav-links">
+            <a href="/gridul" class="ff-nav-link">GriDul</a>
+            <a href="/gridul/fertilizer" class="ff-nav-link" style="color: var(--ff-green);">Fertilizer</a>
+            <a href="/gridul/water" class="ff-nav-link">Water</a>
+            <a href="/qisync/memory" class="ff-nav-link">Memory</a>
+            <a href="/gridul/fertilizer/insights" class="ff-nav-link">Insights</a>
+        </div>
+    </nav>
+
+    <div class="ff-hero">
+        <div class="ff-badge">RIPPLE 1 — PEACE TOKEN ECONOMY</div>
+        <h1 class="ff-title">Fertilizer <span>Formula Lab</span></h1>
+        <p class="ff-subtitle">Compost Intelligence · Global Formula Leaderboard · Farmer Marketplace</p>
+        <p class="ff-tagline">
+            Log your compost batches, rate the output quality, and contribute to the
+            Global Formula Leaderboard. Earn PEACE tokens for every completed batch.
+        </p>
+        <div class="ff-nav-links-hero">
+            <a href="/gridul/fertilizer/insights" class="ff-hero-link">Global Insights</a>
+            <a href="/gridul/water" class="ff-hero-link">Water Vitality</a>
+            <a href="/qisync/memory" class="ff-hero-link">Memory Studio</a>
+        </div>
+    </div>
+
+    <div class="ff-main">
+        <!-- LEFT: New Batch Form -->
+        <div class="ff-panel">
+            <div class="ff-panel-title">◆ Log a New Compost Batch</div>
+            <div class="ff-field">
+                <label>Batch Name</label>
+                <input class="ff-input" type="text" id="batch-name" placeholder="e.g. Spring Mix #1" maxlength="100">
+            </div>
+            <div class="ff-field">
+                <label>Notes</label>
+                <textarea class="ff-textarea" id="batch-notes" placeholder="Optional notes about this batch..."></textarea>
+            </div>
+            <div class="ff-field">
+                <label>Ingredients</label>
+                <div id="ingredients-container"></div>
+                <button class="ff-btn-add" id="add-ingredient-btn">+ Add Ingredient</button>
+            </div>
+            <button class="ff-btn-submit" id="create-batch-btn">Start Batch</button>
+            <div class="ff-msg" id="batch-msg"></div>
+        </div>
+
+        <!-- RIGHT: My Batches + Leaderboard + Marketplace -->
+        <div class="ff-panel gold">
+            <div class="ff-tabs">
+                <button class="ff-tab active" data-tab="my-batches">My Batches</button>
+                <button class="ff-tab" data-tab="leaderboard">Leaderboard</button>
+                <button class="ff-tab" data-tab="marketplace">Marketplace</button>
+            </div>
+
+            <!-- MY BATCHES -->
+            <div class="ff-tab-panel active" id="tab-my-batches">
+                <div class="ff-batch-list" id="my-batches-list">
+                    {% if batches %}
+                        {% for b in batches %}
+                        <div class="ff-batch-card" id="batch-card-{{ b.batch_id }}">
+                            <div class="ff-batch-top">
+                                <span class="ff-batch-name">{{ b.name }}</span>
+                                <span class="ff-batch-status ff-status-{{ b.status }}">{{ b.status }}</span>
+                            </div>
+                            <div class="ff-batch-meta">
+                                Started {{ b.created_at[:10] if b.created_at else '—' }}
+                                {% if b.score %}· Score: {{ "%.3f"|format(b.score) }}{% endif %}
+                            </div>
+                            <div class="ff-batch-ingredients">
+                                {% for ing in b.ingredients %}
+                                <span class="ff-ing-tag">{{ ing.ingredient }} {{ ing.quantity_grams|int }}g</span>
+                                {% endfor %}
+                            </div>
+                            {% if b.status == 'curing' %}
+                            <div class="ff-complete-form">
+                                <span class="ff-star-label">Quality (1-5):</span>
+                                <input class="ff-star-input" type="number" min="1" max="5" value="3" id="rating-{{ b.batch_id }}">
+                                <button class="ff-complete-btn" onclick="completeBatch('{{ b.batch_id }}')">Complete Batch</button>
+                            </div>
+                            {% else %}
+                            <div class="ff-batch-score">
+                                ★{{ b.quality_rating }}/5 · Score: {{ "%.3f"|format(b.score) }}
+                                {% if b.vtx_earned %} · +{{ "%.4f"|format(b.vtx_earned) }} VTX{% endif %}
+                            </div>
+                            {% endif %}
+                            <div class="ff-reward-banner" id="reward-{{ b.batch_id }}"></div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="ff-empty">No batches yet. Start your first compost batch.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- LEADERBOARD -->
+            <div class="ff-tab-panel" id="tab-leaderboard">
+                <div class="ff-leaderboard" id="leaderboard-list">
+                    <div class="ff-empty">Loading leaderboard...</div>
+                </div>
+            </div>
+
+            <!-- MARKETPLACE -->
+            <div class="ff-tab-panel" id="tab-marketplace">
+                <div class="ff-search-row">
+                    <input class="ff-search-input" type="text" id="mp-search" placeholder="Search by location...">
+                    <button class="ff-search-btn" id="mp-search-btn">Search</button>
+                </div>
+                <div class="ff-marketplace-list" id="marketplace-list">
+                    <div class="ff-empty">Loading marketplace...</div>
+                </div>
+                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--ff-border);">
+                    <div class="ff-panel-title">Post a Listing</div>
+                    <div class="ff-field">
+                        <label>Title</label>
+                        <input class="ff-input" type="text" id="mp-title" placeholder="e.g. Organic compost — 5kg" maxlength="120">
+                    </div>
+                    <div class="ff-field">
+                        <label>Location</label>
+                        <input class="ff-input" type="text" id="mp-location" placeholder="e.g. Manchester, UK" maxlength="100">
+                    </div>
+                    <div class="ff-field">
+                        <label>Quantity (kg)</label>
+                        <input class="ff-input" type="number" id="mp-qty" min="0" step="0.1" placeholder="e.g. 5">
+                    </div>
+                    <div class="ff-field">
+                        <label>Contact Info</label>
+                        <input class="ff-input" type="text" id="mp-contact" placeholder="How to reach you" maxlength="200">
+                    </div>
+                    <div class="ff-field">
+                        <label>Description</label>
+                        <textarea class="ff-textarea" id="mp-desc" placeholder="Optional details..."></textarea>
+                    </div>
+                    <button class="ff-btn-submit" style="background: var(--ff-gold); margin-top: 8px;" id="mp-post-btn">Post Listing</button>
+                    <div class="ff-msg" id="mp-msg"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const INGREDIENTS = {{ ingredients_list | tojson }};
+
+    function buildIngredientRow(index) {
+        const row = document.createElement('div');
+        row.className = 'ff-ingredient-row';
+        row.dataset.index = index;
+
+        const sel = document.createElement('select');
+        sel.className = 'ff-select';
+        sel.name = 'ingredient';
+        INGREDIENTS.forEach(ing => {
+            const opt = document.createElement('option');
+            opt.value = ing;
+            opt.textContent = ing;
+            sel.appendChild(opt);
+        });
+
+        const qty = document.createElement('input');
+        qty.className = 'ff-input';
+        qty.type = 'number';
+        qty.name = 'quantity';
+        qty.placeholder = 'grams';
+        qty.min = '0';
+        qty.max = '100000';
+        qty.step = '1';
+        qty.value = '500';
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'ff-btn-icon';
+        removeBtn.type = 'button';
+        removeBtn.textContent = '×';
+        removeBtn.onclick = () => row.remove();
+
+        row.appendChild(sel);
+        row.appendChild(qty);
+        row.appendChild(removeBtn);
+        return row;
+    }
+
+    let rowIndex = 0;
+    document.getElementById('add-ingredient-btn').addEventListener('click', () => {
+        document.getElementById('ingredients-container').appendChild(buildIngredientRow(rowIndex++));
+    });
+
+    document.getElementById('add-ingredient-btn').click();
+
+    document.getElementById('create-batch-btn').addEventListener('click', async () => {
+        const name = document.getElementById('batch-name').value.trim();
+        const notes = document.getElementById('batch-notes').value.trim();
+        const rows = document.querySelectorAll('#ingredients-container .ff-ingredient-row');
+        const ingredients = [];
+        rows.forEach(row => {
+            const ing = row.querySelector('select').value;
+            const qty = parseFloat(row.querySelector('input').value) || 0;
+            if (ing) ingredients.push({ ingredient: ing, quantity_grams: qty });
+        });
+        const msg = document.getElementById('batch-msg');
+
+        if (!name) { showMsg(msg, 'Batch name is required.', 'err'); return; }
+        if (ingredients.length === 0) { showMsg(msg, 'Add at least one ingredient.', 'err'); return; }
+
+        document.getElementById('create-batch-btn').disabled = true;
+        try {
+            const res = await fetch('/api/gridul/fertilizer/batches', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, notes, ingredients }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                showMsg(msg, 'Batch created! Start the curing cycle.', 'ok');
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                showMsg(msg, data.error || 'Failed to create batch.', 'err');
+            }
+        } catch(e) {
+            showMsg(msg, 'Network error.', 'err');
+        } finally {
+            document.getElementById('create-batch-btn').disabled = false;
+        }
+    });
+
+    async function completeBatch(batchId) {
+        const ratingInput = document.getElementById('rating-' + batchId);
+        const rating = parseInt(ratingInput.value) || 3;
+        const btn = event.target;
+        btn.disabled = true;
+        try {
+            const res = await fetch('/api/gridul/fertilizer/batches/' + batchId + '/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quality_rating: rating }),
+            });
+            const data = await res.json();
+            const reward = document.getElementById('reward-' + batchId);
+            if (data.ok) {
+                reward.style.display = 'block';
+                reward.textContent = '✓ Completed! Score: ' + (data.final_score * 100).toFixed(1) + '% · Earned ' + (data.vtx_earned || 0).toFixed(4) + ' VTX';
+                setTimeout(() => location.reload(), 1800);
+            } else {
+                reward.style.display = 'block';
+                reward.style.color = '#f87171';
+                reward.textContent = data.error || 'Failed to complete.';
+            }
+        } catch(e) {
+            btn.disabled = false;
+        }
+    }
+
+    function showMsg(el, text, type) {
+        el.textContent = text;
+        el.className = 'ff-msg ' + type;
+        el.style.display = 'block';
+    }
+
+    document.querySelectorAll('.ff-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.ff-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.ff-tab-panel').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            const panel = document.getElementById('tab-' + tab.dataset.tab);
+            if (panel) panel.classList.add('active');
+            if (tab.dataset.tab === 'leaderboard') loadLeaderboard();
+            if (tab.dataset.tab === 'marketplace') loadMarketplace('');
+        });
+    });
+
+    async function loadLeaderboard() {
+        const el = document.getElementById('leaderboard-list');
+        try {
+            const res = await fetch('/api/gridul/fertilizer/leaderboard');
+            const data = await res.json();
+            if (!data.leaderboard || data.leaderboard.length === 0) {
+                el.innerHTML = '<div class="ff-empty">No completed batches yet. Be the first!</div>';
+                return;
+            }
+            let html = '';
+            data.leaderboard.forEach((row, i) => {
+                const stars = '★'.repeat(row.quality_rating || 0) + '☆'.repeat(5 - (row.quality_rating || 0));
+                html += `<div class="ff-lb-row">
+                    <span class="ff-lb-rank">#${i+1}</span>
+                    <span class="ff-lb-name">${escHtml(row.name)} <span style="color:#444;font-size:0.6rem">@${escHtml(row.username)}</span></span>
+                    <span class="ff-lb-score">${(row.score * 100).toFixed(1)}%</span>
+                    <span class="ff-lb-stars">${stars}</span>
+                </div>`;
+            });
+            el.innerHTML = html;
+        } catch(e) {
+            el.innerHTML = '<div class="ff-empty" style="color:#f87171">Failed to load leaderboard.</div>';
+        }
+    }
+
+    async function loadMarketplace(location) {
+        const el = document.getElementById('marketplace-list');
+        try {
+            const url = '/api/gridul/fertilizer/marketplace' + (location ? '?location=' + encodeURIComponent(location) : '');
+            const res = await fetch(url);
+            const data = await res.json();
+            if (!data.listings || data.listings.length === 0) {
+                el.innerHTML = '<div class="ff-empty">No listings found.</div>';
+                return;
+            }
+            let html = '';
+            data.listings.forEach(m => {
+                html += `<div class="ff-mp-card">
+                    <div class="ff-mp-title">${escHtml(m.title)}</div>
+                    <div class="ff-mp-meta">📍 ${escHtml(m.location)} · @${escHtml(m.username)}${m.quantity_kg ? ' · ' + m.quantity_kg + ' kg' : ''}</div>
+                    ${m.description ? `<div class="ff-mp-desc">${escHtml(m.description)}</div>` : ''}
+                    ${m.contact_info ? `<div class="ff-mp-contact">Contact: ${escHtml(m.contact_info)}</div>` : ''}
+                </div>`;
+            });
+            el.innerHTML = html;
+        } catch(e) {
+            el.innerHTML = '<div class="ff-empty" style="color:#f87171">Failed to load marketplace.</div>';
+        }
+    }
+
+    document.getElementById('mp-search-btn').addEventListener('click', () => {
+        loadMarketplace(document.getElementById('mp-search').value.trim());
+    });
+
+    document.getElementById('mp-post-btn').addEventListener('click', async () => {
+        const title = document.getElementById('mp-title').value.trim();
+        const location = document.getElementById('mp-location').value.trim();
+        const qty = parseFloat(document.getElementById('mp-qty').value) || null;
+        const contact = document.getElementById('mp-contact').value.trim();
+        const desc = document.getElementById('mp-desc').value.trim();
+        const msg = document.getElementById('mp-msg');
+
+        if (!title || !location) { showMsg(msg, 'Title and location are required.', 'err'); return; }
+
+        document.getElementById('mp-post-btn').disabled = true;
+        try {
+            const res = await fetch('/api/gridul/fertilizer/marketplace', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, location, quantity_kg: qty, contact_info: contact, description: desc }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                showMsg(msg, 'Listing posted!', 'ok');
+                loadMarketplace('');
+                document.getElementById('mp-title').value = '';
+                document.getElementById('mp-location').value = '';
+                document.getElementById('mp-qty').value = '';
+                document.getElementById('mp-contact').value = '';
+                document.getElementById('mp-desc').value = '';
+            } else {
+                showMsg(msg, data.error || 'Failed to post.', 'err');
+            }
+        } catch(e) {
+            showMsg(msg, 'Network error.', 'err');
+        } finally {
+            document.getElementById('mp-post-btn').disabled = false;
+        }
+    });
+
+    function escHtml(str) {
+        return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    </script>
+</body>
+</html>

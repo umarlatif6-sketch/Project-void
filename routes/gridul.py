@@ -139,6 +139,82 @@ def init_gridul_tables():
                 created_at TIMESTAMPTZ DEFAULT NOW()
             )
         """)
+        # ── Fertilizer Formula Lab ─────────────────────────────────────────────
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS fertilizer_batches (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                batch_id TEXT NOT NULL UNIQUE,
+                name TEXT NOT NULL,
+                notes TEXT,
+                status TEXT DEFAULT 'curing',
+                quality_rating INTEGER,
+                score NUMERIC(5,4) DEFAULT 0,
+                vtx_earned NUMERIC(10,4) DEFAULT 0,
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                completed_at TIMESTAMPTZ
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS fertilizer_ingredients (
+                id SERIAL PRIMARY KEY,
+                batch_id INTEGER NOT NULL REFERENCES fertilizer_batches(id) ON DELETE CASCADE,
+                user_id INTEGER NOT NULL,
+                ingredient TEXT NOT NULL,
+                quantity_grams NUMERIC(10,2) DEFAULT 0,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS fertilizer_marketplace (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                batch_id INTEGER REFERENCES fertilizer_batches(id) ON DELETE SET NULL,
+                title TEXT NOT NULL,
+                description TEXT,
+                quantity_kg NUMERIC(8,2),
+                location TEXT NOT NULL,
+                contact_info TEXT,
+                status TEXT DEFAULT 'active',
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            )
+        """)
+
+        # ── Water Vitality Log ────────────────────────────────────────────────
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS water_vitality_logs (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                ph NUMERIC(5,2),
+                ec NUMERIC(8,3),
+                temperature NUMERIC(6,2),
+                minerals JSONB DEFAULT '{}',
+                vitality_score NUMERIC(5,4) DEFAULT 0,
+                is_drinkable BOOLEAN DEFAULT FALSE,
+                notes TEXT,
+                vtx_earned NUMERIC(10,4) DEFAULT 0,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            )
+        """)
+
+        # ── Memory Training Studio ────────────────────────────────────────────
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS memory_sessions (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                session_id TEXT NOT NULL UNIQUE,
+                scene_text TEXT NOT NULL,
+                scene_duration_sec INTEGER DEFAULT 300,
+                recall_answers JSONB DEFAULT '{}',
+                recall_score NUMERIC(5,4) DEFAULT 0,
+                memory_level INTEGER DEFAULT 1,
+                vtx_earned NUMERIC(10,4) DEFAULT 0,
+                completed BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                completed_at TIMESTAMPTZ
+            )
+        """)
+
         conn.commit()
         logger.info("GriDul tables initialised")
     except Exception as e:
@@ -1212,3 +1288,738 @@ def gridul_peace_balance():
     except Exception as exc:
         logger.error("peace balance error: %s", exc)
         return jsonify({"ok": False, "peace_balance": 0.0})
+
+
+# =============================================================================
+# RIPPLE 1 — FERTILIZER FORMULA LAB
+# =============================================================================
+
+FERTILIZER_INGREDIENTS_LIST = [
+    "Eggshells", "Banana Peels", "Coffee Grounds", "Cardboard",
+    "Grass Clippings", "Leaves", "Food Scraps", "Wood Ash",
+    "Straw", "Sawdust", "Manure", "Seaweed", "Newspaper",
+    "Vegetable Peels", "Fruit Waste", "Tea Leaves", "Garden Waste",
+    "Bone Meal", "Blood Meal", "Fish Meal",
+]
+
+
+def _compute_formula_score(ingredients):
+    """
+    Score a compost formula. Returns 0.0–1.0 based on:
+    - Ingredient diversity (up to 0.4)
+    - C:N ratio balance (Carbon-rich vs nitrogen-rich) (up to 0.4)
+    - Total biomass (up to 0.2)
+    """
+    if not ingredients:
+        return 0.0
+
+    nitrogen_rich = {
+        "Coffee Grounds", "Grass Clippings", "Food Scraps", "Manure",
+        "Vegetable Peels", "Fruit Waste", "Tea Leaves", "Blood Meal", "Fish Meal", "Seaweed",
+    }
+    carbon_rich = {
+        "Cardboard", "Leaves", "Straw", "Sawdust", "Newspaper", "Wood Ash",
+        "Garden Waste", "Bone Meal", "Eggshells", "Banana Peels",
+    }
+
+    names = {i["ingredient"] for i in ingredients}
+    diversity = min(1.0, len(names) / 6.0) * 0.4
+
+    n_count = sum(1 for i in ingredients if i["ingredient"] in nitrogen_rich)
+    c_count = sum(1 for i in ingredients if i["ingredient"] in carbon_rich)
+    total = n_count + c_count
+    if total == 0:
+        cn_score = 0.0
+    else:
+        ideal_ratio = 0.25
+        actual_ratio = n_count / total
+        cn_score = max(0.0, 1.0 - abs(actual_ratio - ideal_ratio) / ideal_ratio) * 0.4
+
+    total_grams = sum(float(i.get("quantity_grams", 0) or 0) for i in ingredients)
+    biomass_score = min(1.0, total_grams / 5000.0) * 0.2
+
+    return round(min(1.0, diversity + cn_score + biomass_score), 4)
+
+
+@gridul_bp.route("/gridul/fertilizer")
+def gridul_fertilizer():
+    user_id = session.get("user_id")
+    batches = []
+    if user_id:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT b.id, b.batch_id, b.name, b.notes, b.status, b.quality_rating,
+                       b.score, b.vtx_earned, b.created_at, b.completed_at
+                FROM fertilizer_batches b
+                WHERE b.user_id = %s
+                ORDER BY b.created_at DESC LIMIT 20
+            """, (user_id,))
+            for row in cur.fetchall():
+                batch = {
+                    "id": row[0], "batch_id": row[1], "name": row[2],
+                    "notes": row[3], "status": row[4], "quality_rating": row[5],
+                    "score": float(row[6]) if row[6] else 0.0,
+                    "vtx_earned": float(row[7]) if row[7] else 0.0,
+                    "created_at": row[8].isoformat() if row[8] else None,
+                    "completed_at": row[9].isoformat() if row[9] else None,
+                    "ingredients": [],
+                }
+                cur.execute("""
+                    SELECT ingredient, quantity_grams
+                    FROM fertilizer_ingredients WHERE batch_id = %s
+                    ORDER BY id ASC
+                """, (row[0],))
+                for ir in cur.fetchall():
+                    batch["ingredients"].append({
+                        "ingredient": ir[0],
+                        "quantity_grams": float(ir[1]) if ir[1] else 0.0,
+                    })
+                batches.append(batch)
+        except Exception as e:
+            logger.error("Fertilizer load error: %s", e)
+        finally:
+            conn.close()
+    return render_template("gridul_fertilizer.html",
+                           batches=batches,
+                           ingredients_list=FERTILIZER_INGREDIENTS_LIST)
+
+
+@gridul_bp.route("/api/gridul/fertilizer/batches", methods=["POST"])
+def fertilizer_create_batch():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    notes = (data.get("notes") or "").strip()
+    ingredients_raw = data.get("ingredients") or []
+
+    if not name:
+        return jsonify({"error": "Batch name required"}), 400
+
+    if not isinstance(ingredients_raw, list) or len(ingredients_raw) == 0:
+        return jsonify({"error": "At least one ingredient required"}), 400
+
+    VALID_INGREDIENTS = set(FERTILIZER_INGREDIENTS_LIST)
+    cleaned = []
+    for item in ingredients_raw:
+        if not isinstance(item, dict):
+            continue
+        ing = (item.get("ingredient") or "").strip()
+        if ing not in VALID_INGREDIENTS:
+            continue
+        try:
+            qty = max(0.0, min(100000.0, float(item.get("quantity_grams") or 0)))
+        except (ValueError, TypeError):
+            qty = 0.0
+        cleaned.append({"ingredient": ing, "quantity_grams": qty})
+
+    if not cleaned:
+        return jsonify({"error": "No valid ingredients provided"}), 400
+
+    batch_id = str(uuid.uuid4())
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO fertilizer_batches (user_id, batch_id, name, notes)
+            VALUES (%s, %s, %s, %s) RETURNING id
+        """, (user_id, batch_id, name, notes or None))
+        db_id = cur.fetchone()[0]
+
+        for item in cleaned:
+            cur.execute("""
+                INSERT INTO fertilizer_ingredients (batch_id, user_id, ingredient, quantity_grams)
+                VALUES (%s, %s, %s, %s)
+            """, (db_id, user_id, item["ingredient"], item["quantity_grams"]))
+
+        conn.commit()
+        logger.info("Fertilizer batch created: user=%s batch=%s", user_id, batch_id)
+        return jsonify({"ok": True, "batch_id": batch_id, "id": db_id})
+    except Exception as e:
+        conn.rollback()
+        logger.error("Fertilizer create batch error: %s", e)
+        return jsonify({"error": "failed to create batch"}), 500
+    finally:
+        conn.close()
+
+
+@gridul_bp.route("/api/gridul/fertilizer/batches/<batch_id>/complete", methods=["POST"])
+def fertilizer_complete_batch(batch_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    try:
+        quality_rating = max(1, min(5, int(data.get("quality_rating") or 3)))
+    except (ValueError, TypeError):
+        quality_rating = 3
+
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, status FROM fertilizer_batches
+            WHERE batch_id = %s AND user_id = %s
+        """, (batch_id, user_id))
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "batch not found"}), 404
+        db_id = row[0]
+        if row[1] == "completed":
+            return jsonify({"error": "batch already completed"}), 409
+
+        cur.execute("""
+            SELECT ingredient, quantity_grams FROM fertilizer_ingredients
+            WHERE batch_id = %s
+        """, (db_id,))
+        ingredients = [{"ingredient": r[0], "quantity_grams": float(r[1] or 0)}
+                       for r in cur.fetchall()]
+
+        formula_score = _compute_formula_score(ingredients)
+        quality_score = quality_rating / 5.0
+        final_score = round((formula_score * 0.5) + (quality_score * 0.5), 4)
+
+        cur.execute("""
+            UPDATE fertilizer_batches
+            SET status = 'completed', quality_rating = %s, score = %s,
+                completed_at = NOW()
+            WHERE id = %s
+        """, (quality_rating, final_score, db_id))
+        conn.commit()
+
+        vtx_earned = 0.0
+        reward = None
+        try:
+            from void_engine.vortex_wallet import mint_fertilizer_batch
+            reward = mint_fertilizer_batch(user_id, batch_id, final_score)
+            vtx_earned = reward.get("vtx_earned", 0)
+            cur.execute(
+                "UPDATE fertilizer_batches SET vtx_earned = %s WHERE id = %s",
+                (vtx_earned, db_id)
+            )
+            conn.commit()
+        except Exception as e:
+            logger.error("mint_fertilizer_batch failed: %s", e)
+
+        logger.info("Fertilizer batch completed: user=%s batch=%s score=%.4f vtx=%.4f",
+                    user_id, batch_id, final_score, vtx_earned)
+        return jsonify({
+            "ok": True,
+            "batch_id": batch_id,
+            "quality_rating": quality_rating,
+            "formula_score": formula_score,
+            "final_score": final_score,
+            "vtx_earned": vtx_earned,
+            "reward": reward,
+        })
+    except Exception as e:
+        conn.rollback()
+        logger.error("Fertilizer complete batch error: %s", e)
+        return jsonify({"error": "failed to complete batch"}), 500
+    finally:
+        conn.close()
+
+
+@gridul_bp.route("/api/gridul/fertilizer/leaderboard")
+def fertilizer_leaderboard():
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT b.id, b.name, b.score, b.quality_rating, b.completed_at,
+                   u.username,
+                   json_agg(json_build_object('ingredient', fi.ingredient,
+                                              'quantity_grams', fi.quantity_grams)
+                            ORDER BY fi.id) as ingredients
+            FROM fertilizer_batches b
+            JOIN users u ON u.id = b.user_id
+            LEFT JOIN fertilizer_ingredients fi ON fi.batch_id = b.id
+            WHERE b.status = 'completed'
+            GROUP BY b.id, b.name, b.score, b.quality_rating, b.completed_at, u.username
+            ORDER BY b.score DESC LIMIT 20
+        """)
+        entries = []
+        for row in cur.fetchall():
+            entries.append({
+                "id": row[0], "name": row[1],
+                "score": float(row[2]) if row[2] else 0.0,
+                "quality_rating": row[3],
+                "completed_at": row[4].isoformat() if row[4] else None,
+                "username": row[5],
+                "ingredients": row[6] or [],
+            })
+        return jsonify({"leaderboard": entries})
+    except Exception as e:
+        logger.error("Fertilizer leaderboard error: %s", e)
+        return jsonify({"error": "failed to load leaderboard"}), 500
+    finally:
+        conn.close()
+
+
+@gridul_bp.route("/api/gridul/fertilizer/marketplace")
+def fertilizer_marketplace_browse():
+    location = (request.args.get("location") or "").strip().lower()
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        if location:
+            cur.execute("""
+                SELECT m.id, m.title, m.description, m.quantity_kg, m.location,
+                       m.contact_info, m.created_at, u.username
+                FROM fertilizer_marketplace m
+                JOIN users u ON u.id = m.user_id
+                WHERE m.status = 'active' AND LOWER(m.location) LIKE %s
+                ORDER BY m.created_at DESC LIMIT 50
+            """, ("%" + location + "%",))
+        else:
+            cur.execute("""
+                SELECT m.id, m.title, m.description, m.quantity_kg, m.location,
+                       m.contact_info, m.created_at, u.username
+                FROM fertilizer_marketplace m
+                JOIN users u ON u.id = m.user_id
+                WHERE m.status = 'active'
+                ORDER BY m.created_at DESC LIMIT 50
+            """)
+        listings = []
+        for row in cur.fetchall():
+            listings.append({
+                "id": row[0], "title": row[1], "description": row[2],
+                "quantity_kg": float(row[3]) if row[3] else None,
+                "location": row[4], "contact_info": row[5],
+                "created_at": row[6].isoformat() if row[6] else None,
+                "username": row[7],
+            })
+        return jsonify({"listings": listings})
+    except Exception as e:
+        logger.error("Fertilizer marketplace browse error: %s", e)
+        return jsonify({"error": "failed to load marketplace"}), 500
+    finally:
+        conn.close()
+
+
+@gridul_bp.route("/api/gridul/fertilizer/marketplace", methods=["POST"])
+def fertilizer_marketplace_post():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    title = (data.get("title") or "").strip()
+    description = (data.get("description") or "").strip()
+    location = (data.get("location") or "").strip()
+    contact_info = (data.get("contact_info") or "").strip()
+    batch_id_raw = data.get("batch_id")
+    try:
+        quantity_kg = float(data.get("quantity_kg") or 0) or None
+    except (ValueError, TypeError):
+        quantity_kg = None
+
+    if not title or not location:
+        return jsonify({"error": "title and location required"}), 400
+
+    db_batch_id = None
+    if batch_id_raw:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM fertilizer_batches WHERE id = %s AND user_id = %s",
+                        (batch_id_raw, user_id))
+            row = cur.fetchone()
+            if row:
+                db_batch_id = row[0]
+        finally:
+            conn.close()
+
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO fertilizer_marketplace
+                (user_id, batch_id, title, description, quantity_kg, location, contact_info)
+            VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id
+        """, (user_id, db_batch_id, title, description or None,
+              quantity_kg, location, contact_info or None))
+        listing_id = cur.fetchone()[0]
+        conn.commit()
+        return jsonify({"ok": True, "listing_id": listing_id})
+    except Exception as e:
+        conn.rollback()
+        logger.error("Fertilizer marketplace post error: %s", e)
+        return jsonify({"error": "failed to post listing"}), 500
+    finally:
+        conn.close()
+
+
+@gridul_bp.route("/api/gridul/fertilizer/marketplace/<int:listing_id>", methods=["DELETE"])
+def fertilizer_marketplace_delete(listing_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE fertilizer_marketplace SET status = 'removed'
+            WHERE id = %s AND user_id = %s
+        """, (listing_id, user_id))
+        conn.commit()
+        return jsonify({"ok": True})
+    except Exception as e:
+        conn.rollback()
+        logger.error("Fertilizer marketplace delete error: %s", e)
+        return jsonify({"error": "failed to remove listing"}), 500
+    finally:
+        conn.close()
+
+
+@gridul_bp.route("/gridul/fertilizer/insights")
+def fertilizer_insights():
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT COUNT(*), AVG(score), AVG(quality_rating)
+            FROM fertilizer_batches WHERE status = 'completed'
+        """)
+        row = cur.fetchone()
+        stats = {
+            "total_batches": int(row[0]) if row[0] else 0,
+            "avg_score": round(float(row[1]), 4) if row[1] else 0.0,
+            "avg_quality": round(float(row[2]), 2) if row[2] else 0.0,
+        }
+        cur.execute("""
+            SELECT b.name, b.score, b.quality_rating, b.completed_at, u.username,
+                   json_agg(json_build_object('ingredient', fi.ingredient,
+                                              'quantity_grams', fi.quantity_grams)
+                            ORDER BY fi.id) as ingredients
+            FROM fertilizer_batches b
+            JOIN users u ON u.id = b.user_id
+            LEFT JOIN fertilizer_ingredients fi ON fi.batch_id = b.id
+            WHERE b.status = 'completed'
+            GROUP BY b.name, b.score, b.quality_rating, b.completed_at, u.username
+            ORDER BY b.score DESC LIMIT 10
+        """)
+        top_formulas = []
+        for r in cur.fetchall():
+            top_formulas.append({
+                "name": r[0], "score": float(r[1]) if r[1] else 0.0,
+                "quality_rating": r[2], "completed_at": r[3].isoformat() if r[3] else None,
+                "username": r[4], "ingredients": r[5] or [],
+            })
+        cur.execute("""
+            SELECT fi.ingredient, COUNT(*) as usage_count, AVG(b.score) as avg_score
+            FROM fertilizer_ingredients fi
+            JOIN fertilizer_batches b ON b.id = fi.batch_id
+            WHERE b.status = 'completed'
+            GROUP BY fi.ingredient
+            ORDER BY avg_score DESC LIMIT 10
+        """)
+        top_ingredients = []
+        for r in cur.fetchall():
+            top_ingredients.append({
+                "ingredient": r[0], "usage_count": int(r[1]),
+                "avg_score": round(float(r[2]), 4) if r[2] else 0.0,
+            })
+        return render_template("fertilizer_insights.html",
+                               stats=stats,
+                               top_formulas=top_formulas,
+                               top_ingredients=top_ingredients)
+    except Exception as e:
+        logger.error("Fertilizer insights error: %s", e)
+        return render_template("fertilizer_insights.html",
+                               stats={}, top_formulas=[], top_ingredients=[])
+    finally:
+        conn.close()
+
+
+# =============================================================================
+# RIPPLE 2 — WATER VITALITY LOG
+# =============================================================================
+
+DRINKABILITY_THRESHOLDS = {
+    "ph_min": 6.5,
+    "ph_max": 8.5,
+    "ec_max": 2.0,
+    "temp_max": 35.0,
+}
+
+MINERAL_OPTIONS = [
+    "Copper (trace)", "Silver (trace)", "Gold (trace)", "Calcium Carbonate",
+    "Magnesium Sulfate", "Potassium Chloride", "Sodium Chloride",
+    "Iron Sulfate", "Zinc Sulfate", "Himalayan Salt", "Sea Salt",
+]
+
+
+def _compute_vitality_score(ph, ec, temperature, minerals):
+    """
+    Score water vitality 0.0-1.0.
+    pH optimal: 6.5-8.5  → up to 0.35
+    EC optimal: 0.5-1.5   → up to 0.30
+    Temperature optimal: 15-25C → up to 0.20
+    Minerals added → up to 0.15
+    """
+    score = 0.0
+    if ph is not None:
+        ph = float(ph)
+        if 7.0 <= ph <= 7.8:
+            score += 0.35
+        elif 6.5 <= ph <= 8.5:
+            score += 0.20
+        elif 6.0 <= ph <= 9.0:
+            score += 0.10
+
+    if ec is not None:
+        ec = float(ec)
+        if 0.5 <= ec <= 1.5:
+            score += 0.30
+        elif 0.2 <= ec <= 2.0:
+            score += 0.15
+        elif ec <= 3.0:
+            score += 0.05
+
+    if temperature is not None:
+        temp = float(temperature)
+        if 15.0 <= temp <= 25.0:
+            score += 0.20
+        elif 10.0 <= temp <= 30.0:
+            score += 0.10
+        elif temp <= 35.0:
+            score += 0.05
+
+    if minerals:
+        mineral_count = len([v for v in minerals.values() if v and float(v) > 0]) if isinstance(minerals, dict) else len(minerals)
+        score += min(0.15, mineral_count * 0.03)
+
+    return round(min(1.0, score), 4)
+
+
+def _check_drinkability(ph, ec, temperature):
+    if ph is None or ec is None or temperature is None:
+        return False
+    return (
+        DRINKABILITY_THRESHOLDS["ph_min"] <= float(ph) <= DRINKABILITY_THRESHOLDS["ph_max"] and
+        float(ec) <= DRINKABILITY_THRESHOLDS["ec_max"] and
+        float(temperature) <= DRINKABILITY_THRESHOLDS["temp_max"]
+    )
+
+
+@gridul_bp.route("/gridul/water")
+def gridul_water():
+    user_id = session.get("user_id")
+    logs = []
+    if user_id:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT id, ph, ec, temperature, minerals, vitality_score,
+                       is_drinkable, notes, vtx_earned, created_at
+                FROM water_vitality_logs
+                WHERE user_id = %s
+                ORDER BY created_at DESC LIMIT 50
+            """, (user_id,))
+            for row in cur.fetchall():
+                logs.append({
+                    "id": row[0],
+                    "ph": float(row[1]) if row[1] is not None else None,
+                    "ec": float(row[2]) if row[2] is not None else None,
+                    "temperature": float(row[3]) if row[3] is not None else None,
+                    "minerals": row[4] or {},
+                    "vitality_score": float(row[5]) if row[5] else 0.0,
+                    "is_drinkable": row[6],
+                    "notes": row[7],
+                    "vtx_earned": float(row[8]) if row[8] else 0.0,
+                    "created_at": row[9].isoformat() if row[9] else None,
+                })
+        except Exception as e:
+            logger.error("Water vitality load error: %s", e)
+        finally:
+            conn.close()
+    return render_template("gridul_water.html",
+                           logs=logs,
+                           mineral_options=MINERAL_OPTIONS,
+                           thresholds=DRINKABILITY_THRESHOLDS)
+
+
+@gridul_bp.route("/api/gridul/water/log", methods=["POST"])
+def water_log_entry():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+
+    try:
+        ph = float(data["ph"]) if data.get("ph") not in (None, "") else None
+        if ph is not None:
+            ph = max(0.0, min(14.0, ph))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid pH value"}), 400
+
+    try:
+        ec = float(data["ec"]) if data.get("ec") not in (None, "") else None
+        if ec is not None:
+            ec = max(0.0, min(50.0, ec))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid EC value"}), 400
+
+    try:
+        temperature = float(data["temperature"]) if data.get("temperature") not in (None, "") else None
+        if temperature is not None:
+            temperature = max(-10.0, min(100.0, temperature))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid temperature value"}), 400
+
+    minerals_raw = data.get("minerals") or {}
+    if not isinstance(minerals_raw, dict):
+        minerals_raw = {}
+    VALID_MINERALS = set(MINERAL_OPTIONS)
+    minerals = {}
+    for k, v in minerals_raw.items():
+        if k in VALID_MINERALS:
+            try:
+                amt = max(0.0, min(1000.0, float(v)))
+                if amt > 0:
+                    minerals[k] = amt
+            except (ValueError, TypeError):
+                pass
+
+    notes = (data.get("notes") or "").strip()[:500]
+
+    vitality_score = _compute_vitality_score(ph, ec, temperature, minerals)
+    is_drinkable = _check_drinkability(ph, ec, temperature)
+
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO water_vitality_logs
+                (user_id, ph, ec, temperature, minerals, vitality_score, is_drinkable, notes)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+        """, (user_id, ph, ec, temperature,
+              json.dumps(minerals), vitality_score, is_drinkable, notes or None))
+        log_id = cur.fetchone()[0]
+        conn.commit()
+
+        vtx_earned = 0.0
+        reward = None
+        try:
+            from void_engine.vortex_wallet import mint_water_vitality_log
+            reward = mint_water_vitality_log(user_id, log_id, vitality_score)
+            vtx_earned = reward.get("vtx_earned", 0)
+            cur.execute(
+                "UPDATE water_vitality_logs SET vtx_earned = %s WHERE id = %s",
+                (vtx_earned, log_id)
+            )
+            conn.commit()
+        except Exception as e:
+            logger.error("mint_water_vitality_log failed: %s", e)
+
+        logger.info("Water log created: user=%s id=%s vitality=%.4f drinkable=%s",
+                    user_id, log_id, vitality_score, is_drinkable)
+        return jsonify({
+            "ok": True,
+            "log_id": log_id,
+            "vitality_score": vitality_score,
+            "is_drinkable": is_drinkable,
+            "vtx_earned": vtx_earned,
+            "reward": reward,
+        })
+    except Exception as e:
+        conn.rollback()
+        logger.error("Water log create error: %s", e)
+        return jsonify({"error": "failed to save log"}), 500
+    finally:
+        conn.close()
+
+
+@gridul_bp.route("/api/gridul/water/logs")
+def water_logs_list():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, ph, ec, temperature, minerals, vitality_score,
+                   is_drinkable, notes, vtx_earned, created_at
+            FROM water_vitality_logs
+            WHERE user_id = %s
+            ORDER BY created_at DESC LIMIT 100
+        """, (user_id,))
+        logs = []
+        for row in cur.fetchall():
+            logs.append({
+                "id": row[0],
+                "ph": float(row[1]) if row[1] is not None else None,
+                "ec": float(row[2]) if row[2] is not None else None,
+                "temperature": float(row[3]) if row[3] is not None else None,
+                "minerals": row[4] or {},
+                "vitality_score": float(row[5]) if row[5] else 0.0,
+                "is_drinkable": row[6],
+                "notes": row[7],
+                "vtx_earned": float(row[8]) if row[8] else 0.0,
+                "created_at": row[9].isoformat() if row[9] else None,
+            })
+        return jsonify({"logs": logs})
+    except Exception as e:
+        logger.error("Water logs list error: %s", e)
+        return jsonify({"error": "failed to load logs"}), 500
+    finally:
+        conn.close()
+
+
+@gridul_bp.route("/gridul/water/insights")
+def water_insights():
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT COUNT(*), AVG(vitality_score),
+                   SUM(CASE WHEN is_drinkable THEN 1 ELSE 0 END),
+                   AVG(ph), AVG(ec), AVG(temperature)
+            FROM water_vitality_logs
+        """)
+        row = cur.fetchone()
+        stats = {
+            "total_logs": int(row[0]) if row[0] else 0,
+            "avg_vitality": round(float(row[1]), 4) if row[1] else 0.0,
+            "drinkable_count": int(row[2]) if row[2] else 0,
+            "avg_ph": round(float(row[3]), 2) if row[3] else 0.0,
+            "avg_ec": round(float(row[4]), 3) if row[4] else 0.0,
+            "avg_temp": round(float(row[5]), 1) if row[5] else 0.0,
+        }
+        cur.execute("""
+            SELECT DATE_TRUNC('day', created_at) as day,
+                   AVG(vitality_score), AVG(ph), AVG(ec), AVG(temperature),
+                   COUNT(*) as log_count
+            FROM water_vitality_logs
+            GROUP BY day
+            ORDER BY day DESC LIMIT 30
+        """)
+        daily_averages = []
+        for r in cur.fetchall():
+            daily_averages.append({
+                "day": r[0].isoformat() if r[0] else None,
+                "avg_vitality": round(float(r[1]), 4) if r[1] else 0.0,
+                "avg_ph": round(float(r[2]), 2) if r[2] else 0.0,
+                "avg_ec": round(float(r[3]), 3) if r[3] else 0.0,
+                "avg_temp": round(float(r[4]), 1) if r[4] else 0.0,
+                "log_count": int(r[5]),
+            })
+        return render_template("water_insights.html",
+                               stats=stats,
+                               daily_averages=daily_averages)
+    except Exception as e:
+        logger.error("Water insights error: %s", e)
+        return render_template("water_insights.html",
+                               stats={}, daily_averages=[])
+    finally:
+        conn.close()

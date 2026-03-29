@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Vitality Global Insights — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root{--wi-bg:#090909;--wi-surface:#101010;--wi-surface2:#0d0d0d;--wi-border:#1c1c1c;--wi-blue:#29b6f6;--wi-teal:#00bfa5;--wi-gold:#c9a84c;--wi-green:#4caf50;--wi-text:#e0e0e0;--wi-muted:#555;}
+        *{box-sizing:border-box;}
+        body{background:var(--wi-bg);color:var(--wi-text);font-family:'SF Mono','Fira Code','Consolas',monospace;margin:0;min-height:100vh;}
+        .wi-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--wi-border);background:rgba(9,9,9,0.97);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px;}
+        .wi-nav-brand{font-size:0.9rem;font-weight:700;color:var(--wi-gold);letter-spacing:3px;text-decoration:none;}
+        .wi-nav-links{display:flex;gap:20px;flex-wrap:wrap;}
+        .wi-nav-link{color:#888;text-decoration:none;font-size:0.72rem;letter-spacing:1px;}
+        .wi-nav-link:hover{color:var(--wi-blue);}
+        .wi-hero{text-align:center;padding:60px 24px 44px;background:radial-gradient(ellipse at 50% 0%,#0a1218 0%,var(--wi-bg) 70%);border-bottom:1px solid var(--wi-border);position:relative;}
+        .wi-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--wi-blue),var(--wi-teal),transparent);}
+        .wi-badge{display:inline-block;background:rgba(41,182,246,0.1);border:1px solid rgba(41,182,246,0.25);color:var(--wi-blue);font-size:0.58rem;font-weight:700;letter-spacing:4px;padding:5px 16px;border-radius:2px;margin-bottom:16px;text-transform:uppercase;}
+        .wi-title{font-size:2rem;font-weight:900;letter-spacing:4px;color:#fff;margin-bottom:8px;}
+        .wi-title span{color:var(--wi-blue);}
+        .wi-sub{font-size:0.72rem;color:#555;letter-spacing:2px;}
+        .wi-main{max-width:1000px;margin:0 auto;padding:48px 24px 80px;}
+        .wi-stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:48px;}
+        .wi-stat{background:var(--wi-surface);border:1px solid var(--wi-border);border-radius:6px;padding:20px;text-align:center;}
+        .wi-stat-val{font-size:1.8rem;font-weight:900;color:var(--wi-teal);line-height:1;margin-bottom:6px;}
+        .wi-stat-label{font-size:0.58rem;letter-spacing:2px;color:var(--wi-muted);text-transform:uppercase;}
+        .wi-section{margin-bottom:48px;}
+        .wi-section-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+        .wi-section-title{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--wi-text);}
+        .wi-section-line{flex:1;height:1px;background:var(--wi-border);}
+        .wi-table{width:100%;border-collapse:collapse;font-size:0.72rem;}
+        .wi-table th{text-align:left;padding:8px 12px;font-size:0.55rem;letter-spacing:2px;color:var(--wi-muted);border-bottom:1px solid var(--wi-border);text-transform:uppercase;}
+        .wi-table td{padding:10px 12px;border-bottom:1px solid #161616;color:#999;}
+        .wi-table tr:last-child td{border-bottom:none;}
+        .wi-ph{color:var(--wi-teal);}
+        .wi-ec{color:var(--wi-blue);}
+        .wi-score{color:var(--wi-gold);font-weight:700;}
+        .wi-empty{color:var(--wi-muted);font-size:0.72rem;text-align:center;padding:32px;}
+        .wi-back{display:inline-block;font-size:0.65rem;letter-spacing:2px;color:var(--wi-blue);text-decoration:none;border:1px solid rgba(41,182,246,0.25);padding:6px 16px;border-radius:2px;}
+        .wi-drink-row{display:flex;align-items:center;gap:10px;font-size:0.7rem;}
+        .wi-drink-pct{font-size:1.4rem;font-weight:900;color:var(--wi-green);}
+    </style>
+</head>
+<body>
+    <nav class="wi-nav">
+        <a href="/" class="wi-nav-brand">◆ VOID ENGINE</a>
+        <div class="wi-nav-links">
+            <a href="/gridul" class="wi-nav-link">GriDul</a>
+            <a href="/gridul/fertilizer" class="wi-nav-link">Fertilizer</a>
+            <a href="/gridul/water" class="wi-nav-link">Water Log</a>
+            <a href="/qisync/memory" class="wi-nav-link">Memory</a>
+        </div>
+    </nav>
+
+    <div class="wi-hero">
+        <div class="wi-badge">GLOBAL INSIGHT — READ ONLY</div>
+        <h1 class="wi-title">Water <span>Vitality</span> Community Data</h1>
+        <p class="wi-sub">Aggregated aquaponics water quality intelligence from all node runners</p>
+    </div>
+
+    <div class="wi-main">
+        <div class="wi-stats-row">
+            <div class="wi-stat">
+                <div class="wi-stat-val">{{ stats.get('total_logs', 0) }}</div>
+                <div class="wi-stat-label">Total Logs</div>
+            </div>
+            <div class="wi-stat">
+                <div class="wi-stat-val">{{ "%.1f"|format(stats.get('avg_vitality', 0) * 100) }}%</div>
+                <div class="wi-stat-label">Avg Vitality</div>
+            </div>
+            <div class="wi-stat">
+                <div class="wi-stat-val">{{ stats.get('drinkable_count', 0) }}</div>
+                <div class="wi-stat-label">Drinkable Logs</div>
+            </div>
+            <div class="wi-stat">
+                <div class="wi-stat-val">{{ stats.get('avg_ph', 0) }}</div>
+                <div class="wi-stat-label">Avg pH</div>
+            </div>
+            <div class="wi-stat">
+                <div class="wi-stat-val">{{ stats.get('avg_ec', 0) }}</div>
+                <div class="wi-stat-label">Avg EC (mS/cm)</div>
+            </div>
+            <div class="wi-stat">
+                <div class="wi-stat-val">{{ stats.get('avg_temp', 0) }}°C</div>
+                <div class="wi-stat-label">Avg Temp</div>
+            </div>
+        </div>
+
+        <div class="wi-section">
+            <div class="wi-section-head">
+                <span class="wi-section-title">Daily Averages (Last 30 Days)</span>
+                <div class="wi-section-line"></div>
+                <a href="/gridul/water" class="wi-back">+ Log Reading</a>
+            </div>
+            {% if daily_averages %}
+            <table class="wi-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Logs</th>
+                        <th>Avg Vitality</th>
+                        <th>Avg pH</th>
+                        <th>Avg EC</th>
+                        <th>Avg Temp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in daily_averages %}
+                    <tr>
+                        <td>{{ day.day[:10] if day.day else '—' }}</td>
+                        <td>{{ day.log_count }}</td>
+                        <td class="wi-score">{{ "%.1f"|format(day.avg_vitality * 100) }}%</td>
+                        <td class="wi-ph">{{ day.avg_ph }}</td>
+                        <td class="wi-ec">{{ day.avg_ec }}</td>
+                        <td>{{ day.avg_temp }}°C</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="wi-empty">No water logs in the system yet. Start logging to contribute.</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

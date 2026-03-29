@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Vitality Log — GriDul — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --wv-bg: #090909;
+            --wv-surface: #101010;
+            --wv-surface2: #0d0d0d;
+            --wv-border: #1c1c1c;
+            --wv-blue: #29b6f6;
+            --wv-teal: #00bfa5;
+            --wv-gold: #c9a84c;
+            --wv-green: #4caf50;
+            --wv-red: #f87171;
+            --wv-text: #e0e0e0;
+            --wv-muted: #555;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--wv-bg);
+            color: var(--wv-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .wv-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--wv-border);
+            background: rgba(9,9,9,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .wv-nav-brand { font-size: 0.9rem; font-weight: 700; color: var(--wv-gold); letter-spacing: 3px; text-decoration: none; }
+        .wv-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .wv-nav-link { color: #888; text-decoration: none; font-size: 0.72rem; letter-spacing: 1px; transition: color 0.2s; }
+        .wv-nav-link:hover { color: var(--wv-blue); }
+
+        .wv-hero {
+            text-align: center;
+            padding: 72px 24px 56px;
+            background: radial-gradient(ellipse at 50% 0%, #0a1218 0%, var(--wv-bg) 70%);
+            border-bottom: 1px solid var(--wv-border);
+            position: relative;
+        }
+        .wv-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--wv-blue), var(--wv-teal), transparent);
+        }
+        .wv-badge {
+            display: inline-block;
+            background: rgba(41,182,246,0.1);
+            border: 1px solid rgba(41,182,246,0.28);
+            color: var(--wv-blue);
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            padding: 5px 16px;
+            border-radius: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .wv-title { font-size: 2.4rem; font-weight: 900; letter-spacing: 4px; color: #fff; margin-bottom: 10px; }
+        .wv-title span { color: var(--wv-blue); }
+        .wv-subtitle { font-size: 0.78rem; color: var(--wv-teal); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px; }
+        .wv-tagline { font-size: 0.8rem; color: #666; max-width: 600px; margin: 0 auto; line-height: 1.9; }
+        .wv-hero-links { display: flex; gap: 20px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        .wv-hero-link {
+            font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--wv-gold); text-decoration: none; border: 1px solid rgba(201,168,76,0.3);
+            padding: 6px 16px; border-radius: 2px; transition: background 0.2s;
+        }
+        .wv-hero-link:hover { background: rgba(201,168,76,0.08); }
+
+        .wv-main { max-width: 1100px; margin: 0 auto; padding: 52px 24px 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        @media (max-width: 860px) { .wv-main { grid-template-columns: 1fr; } }
+
+        .wv-panel {
+            background: var(--wv-surface);
+            border: 1px solid var(--wv-border);
+            border-radius: 6px;
+            padding: 28px;
+            position: relative;
+        }
+        .wv-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--wv-blue), transparent);
+        }
+        .wv-panel-title {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--wv-blue);
+            margin-bottom: 22px;
+        }
+
+        .wv-field { margin-bottom: 16px; }
+        .wv-field label {
+            display: block;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: var(--wv-muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .wv-input, .wv-textarea {
+            width: 100%;
+            background: var(--wv-surface2);
+            border: 1px solid var(--wv-border);
+            border-radius: 4px;
+            color: var(--wv-text);
+            font-family: inherit;
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .wv-input:focus, .wv-textarea:focus { border-color: var(--wv-blue); }
+        .wv-textarea { resize: vertical; min-height: 60px; }
+
+        .wv-reading-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        @media (max-width: 600px) { .wv-reading-grid { grid-template-columns: 1fr 1fr; } }
+
+        .wv-minerals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+        .wv-mineral-row { display: flex; align-items: center; gap: 8px; }
+        .wv-mineral-check { accent-color: var(--wv-teal); cursor: pointer; }
+        .wv-mineral-label { font-size: 0.68rem; color: #aaa; flex: 1; cursor: pointer; }
+        .wv-mineral-amt {
+            width: 64px;
+            background: var(--wv-surface2);
+            border: 1px solid var(--wv-border);
+            border-radius: 3px;
+            color: var(--wv-text);
+            font-family: inherit;
+            font-size: 0.68rem;
+            padding: 4px 6px;
+            outline: none;
+        }
+
+        .wv-btn-submit {
+            background: var(--wv-blue);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 11px 24px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.15s;
+        }
+        .wv-btn-submit:hover { opacity: 0.85; }
+        .wv-btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .wv-msg { font-size: 0.72rem; padding: 8px 12px; border-radius: 4px; margin-top: 12px; display: none; }
+        .wv-msg.ok { background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.25); color: var(--wv-green); }
+        .wv-msg.err { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: var(--wv-red); }
+
+        .wv-result-box {
+            background: rgba(41,182,246,0.04);
+            border: 1px solid rgba(41,182,246,0.18);
+            border-radius: 4px;
+            padding: 16px;
+            margin-top: 14px;
+            display: none;
+        }
+        .wv-result-score { font-size: 2rem; font-weight: 900; color: var(--wv-teal); margin-bottom: 4px; }
+        .wv-result-drinkable { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .wv-drinkable-yes { color: var(--wv-green); }
+        .wv-drinkable-no { color: var(--wv-muted); }
+        .wv-result-vtx { font-size: 0.7rem; color: var(--wv-gold); margin-top: 6px; }
+
+        .wv-timeline { display: flex; flex-direction: column; gap: 0; }
+        .wv-timeline-entry {
+            display: grid;
+            grid-template-columns: 100px 60px 60px 60px 80px 36px;
+            gap: 4px;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--wv-border);
+            font-size: 0.68rem;
+        }
+        .wv-timeline-header {
+            display: grid;
+            grid-template-columns: 100px 60px 60px 60px 80px 36px;
+            gap: 4px;
+            padding: 0 0 8px;
+            border-bottom: 1px solid #222;
+        }
+        .wv-tl-head {
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            color: var(--wv-muted);
+            text-transform: uppercase;
+        }
+        .wv-tl-date { color: #555; }
+        .wv-tl-ph { color: var(--wv-teal); }
+        .wv-tl-ec { color: var(--wv-blue); }
+        .wv-tl-temp { color: #aaa; }
+        .wv-tl-score { color: var(--wv-gold); font-weight: 700; }
+        .wv-tl-drink { text-align: center; }
+        .wv-drink-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+        }
+        .wv-drink-dot.yes { background: var(--wv-green); box-shadow: 0 0 6px var(--wv-green); }
+        .wv-drink-dot.no { background: #333; }
+
+        .wv-chart-wrap { margin-bottom: 24px; }
+        .wv-chart-title { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--wv-muted); margin-bottom: 8px; }
+        canvas#vitality-chart { width: 100% !important; max-height: 160px; }
+
+        .wv-threshold-info {
+            background: rgba(41,182,246,0.04);
+            border: 1px solid rgba(41,182,246,0.15);
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-size: 0.68rem;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .wv-threshold-info strong { color: var(--wv-blue); }
+        .wv-empty { color: var(--wv-muted); font-size: 0.72rem; text-align: center; padding: 24px; }
+    </style>
+</head>
+<body>
+    <nav class="wv-nav">
+        <a href="/" class="wv-nav-brand">◆ VOID ENGINE</a>
+        <div class="wv-nav-links">
+            <a href="/gridul" class="wv-nav-link">GriDul</a>
+            <a href="/gridul/fertilizer" class="wv-nav-link">Fertilizer</a>
+            <a href="/gridul/water" class="wv-nav-link" style="color: var(--wv-blue);">Water</a>
+            <a href="/qisync/memory" class="wv-nav-link">Memory</a>
+            <a href="/gridul/water/insights" class="wv-nav-link">Insights</a>
+        </div>
+    </nav>
+
+    <div class="wv-hero">
+        <div class="wv-badge">RIPPLE 2 — PEACE TOKEN ECONOMY</div>
+        <h1 class="wv-title">Water <span>Vitality</span> Log</h1>
+        <p class="wv-subtitle">Aquaponics Intelligence · pH · EC · Temperature · Mineral Tracking</p>
+        <p class="wv-tagline">
+            Record your aquaponics water readings, log mineral additions, and receive
+            a Vitality Score per entry. Earn PEACE tokens for every verified log.
+        </p>
+        <div class="wv-hero-links">
+            <a href="/gridul/water/insights" class="wv-hero-link">Global Insights</a>
+            <a href="/gridul/fertilizer" class="wv-hero-link">Fertilizer Lab</a>
+            <a href="/qisync/memory" class="wv-hero-link">Memory Studio</a>
+        </div>
+    </div>
+
+    <div class="wv-main">
+        <!-- LEFT: Log Entry Form -->
+        <div class="wv-panel">
+            <div class="wv-panel-title">◆ Log Water Reading</div>
+
+            <div class="wv-threshold-info">
+                <strong>Drinkability thresholds:</strong> pH {{ thresholds.ph_min }}–{{ thresholds.ph_max }} · EC ≤ {{ thresholds.ec_max }} mS/cm · Temp ≤ {{ thresholds.temp_max }}°C
+            </div>
+
+            <div class="wv-reading-grid">
+                <div class="wv-field">
+                    <label>pH (0–14)</label>
+                    <input class="wv-input" type="number" id="log-ph" min="0" max="14" step="0.01" placeholder="7.2">
+                </div>
+                <div class="wv-field">
+                    <label>EC (mS/cm)</label>
+                    <input class="wv-input" type="number" id="log-ec" min="0" max="50" step="0.01" placeholder="1.2">
+                </div>
+                <div class="wv-field">
+                    <label>Temp (°C)</label>
+                    <input class="wv-input" type="number" id="log-temp" min="-10" max="100" step="0.1" placeholder="22.0">
+                </div>
+            </div>
+
+            <div class="wv-field">
+                <label>Mineral Additions (mg/L)</label>
+                <div class="wv-minerals-grid" id="minerals-grid">
+                    {% for mineral in mineral_options %}
+                    <div class="wv-mineral-row">
+                        <input type="checkbox" class="wv-mineral-check" id="min-{{ loop.index }}" data-mineral="{{ mineral }}">
+                        <label class="wv-mineral-label" for="min-{{ loop.index }}">{{ mineral }}</label>
+                        <input type="number" class="wv-mineral-amt" id="amt-{{ loop.index }}" min="0" max="1000" step="0.1" value="0" disabled>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="wv-field">
+                <label>Notes</label>
+                <textarea class="wv-textarea" id="log-notes" placeholder="Optional notes..."></textarea>
+            </div>
+
+            <button class="wv-btn-submit" id="log-btn">Log Reading</button>
+            <div class="wv-msg" id="log-msg"></div>
+
+            <div class="wv-result-box" id="result-box">
+                <div class="wv-result-score" id="result-score">--</div>
+                <div class="wv-result-drinkable" id="result-drinkable"></div>
+                <div class="wv-result-vtx" id="result-vtx"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Timeline -->
+        <div class="wv-panel">
+            <div class="wv-panel-title">◆ Vitality Timeline</div>
+
+            {% if logs %}
+            <div class="wv-chart-wrap">
+                <div class="wv-chart-title">Vitality Score Over Time</div>
+                <canvas id="vitality-chart"></canvas>
+            </div>
+
+            <div class="wv-timeline-header">
+                <span class="wv-tl-head">Date</span>
+                <span class="wv-tl-head">pH</span>
+                <span class="wv-tl-head">EC</span>
+                <span class="wv-tl-head">°C</span>
+                <span class="wv-tl-head">Vitality</span>
+                <span class="wv-tl-head">Drink</span>
+            </div>
+            <div class="wv-timeline">
+                {% for log in logs %}
+                <div class="wv-timeline-entry">
+                    <span class="wv-tl-date">{{ log.created_at[:10] if log.created_at else '—' }}</span>
+                    <span class="wv-tl-ph">{{ "%.1f"|format(log.ph) if log.ph is not none else '—' }}</span>
+                    <span class="wv-tl-ec">{{ "%.2f"|format(log.ec) if log.ec is not none else '—' }}</span>
+                    <span class="wv-tl-temp">{{ "%.1f"|format(log.temperature) if log.temperature is not none else '—' }}</span>
+                    <span class="wv-tl-score">{{ "%.1f"|format(log.vitality_score * 100) }}%</span>
+                    <span class="wv-tl-drink"><span class="wv-drink-dot {{ 'yes' if log.is_drinkable else 'no' }}"></span></span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="wv-empty">No logs yet. Start recording your water readings to build a timeline.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+    document.querySelectorAll('.wv-mineral-check').forEach(chk => {
+        chk.addEventListener('change', () => {
+            const index = chk.id.replace('min-', '');
+            const amt = document.getElementById('amt-' + index);
+            if (chk.checked) {
+                amt.disabled = false;
+                if (!amt.value || amt.value === '0') amt.value = '1';
+            } else {
+                amt.disabled = true;
+            }
+        });
+    });
+
+    document.getElementById('log-btn').addEventListener('click', async () => {
+        const ph = document.getElementById('log-ph').value;
+        const ec = document.getElementById('log-ec').value;
+        const temp = document.getElementById('log-temp').value;
+        const notes = document.getElementById('log-notes').value.trim();
+        const msg = document.getElementById('log-msg');
+
+        const minerals = {};
+        document.querySelectorAll('.wv-mineral-check:checked').forEach(chk => {
+            const mineral = chk.dataset.mineral;
+            const index = chk.id.replace('min-', '');
+            const amt = parseFloat(document.getElementById('amt-' + index).value) || 0;
+            if (amt > 0) minerals[mineral] = amt;
+        });
+
+        document.getElementById('log-btn').disabled = true;
+        try {
+            const body = { notes, minerals };
+            if (ph !== '') body.ph = parseFloat(ph);
+            if (ec !== '') body.ec = parseFloat(ec);
+            if (temp !== '') body.temperature = parseFloat(temp);
+
+            const res = await fetch('/api/gridul/water/log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                const rb = document.getElementById('result-box');
+                document.getElementById('result-score').textContent = (data.vitality_score * 100).toFixed(1) + '% Vitality';
+                const drinkEl = document.getElementById('result-drinkable');
+                if (data.is_drinkable) {
+                    drinkEl.textContent = '✓ Meets drinkability threshold';
+                    drinkEl.className = 'wv-result-drinkable wv-drinkable-yes';
+                } else {
+                    drinkEl.textContent = '○ Below drinkability threshold';
+                    drinkEl.className = 'wv-result-drinkable wv-drinkable-no';
+                }
+                document.getElementById('result-vtx').textContent = '+' + (data.vtx_earned || 0).toFixed(4) + ' VTX earned';
+                rb.style.display = 'block';
+                showMsg(msg, 'Reading logged successfully.', 'ok');
+                setTimeout(() => location.reload(), 1800);
+            } else {
+                showMsg(msg, data.error || 'Failed to log.', 'err');
+            }
+        } catch(e) {
+            showMsg(msg, 'Network error.', 'err');
+        } finally {
+            document.getElementById('log-btn').disabled = false;
+        }
+    });
+
+    function showMsg(el, text, type) {
+        el.textContent = text;
+        el.className = 'wv-msg ' + type;
+        el.style.display = 'block';
+    }
+
+    {% if logs %}
+    (function() {
+        const logs = {{ logs | tojson }};
+        const canvas = document.getElementById('vitality-chart');
+        if (!canvas || logs.length < 2) return;
+        const ctx = canvas.getContext('2d');
+        const W = canvas.offsetWidth || 400;
+        const H = 160;
+        canvas.width = W;
+        canvas.height = H;
+
+        const scores = logs.map(l => l.vitality_score).reverse();
+        const dates = logs.map(l => (l.created_at || '').slice(5, 10)).reverse();
+
+        const pad = { top: 16, right: 16, bottom: 28, left: 40 };
+        const gW = W - pad.left - pad.right;
+        const gH = H - pad.top - pad.bottom;
+
+        ctx.clearRect(0, 0, W, H);
+
+        ctx.strokeStyle = '#1c1c1c';
+        ctx.lineWidth = 1;
+        [0, 0.25, 0.5, 0.75, 1.0].forEach(v => {
+            const y = pad.top + gH * (1 - v);
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y);
+            ctx.lineTo(pad.left + gW, y);
+            ctx.stroke();
+            ctx.fillStyle = '#444';
+            ctx.font = '9px monospace';
+            ctx.fillText((v * 100).toFixed(0) + '%', 0, y + 3);
+        });
+
+        const xStep = gW / Math.max(scores.length - 1, 1);
+        const pts = scores.map((s, i) => ({ x: pad.left + i * xStep, y: pad.top + gH * (1 - s) }));
+
+        ctx.strokeStyle = '#00bfa5';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        pts.forEach((pt, i) => i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y));
+        ctx.stroke();
+
+        const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + gH);
+        grad.addColorStop(0, 'rgba(0,191,165,0.2)');
+        grad.addColorStop(1, 'rgba(0,191,165,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        pts.forEach((pt, i) => i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y));
+        ctx.lineTo(pts[pts.length-1].x, pad.top + gH);
+        ctx.lineTo(pts[0].x, pad.top + gH);
+        ctx.closePath();
+        ctx.fill();
+
+        pts.forEach((pt, i) => {
+            ctx.fillStyle = '#00bfa5';
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        if (scores.length <= 10) {
+            ctx.fillStyle = '#333';
+            ctx.font = '9px monospace';
+            pts.forEach((pt, i) => {
+                ctx.fillText(dates[i] || '', pt.x - 10, H - 4);
+            });
+        }
+    })();
+    {% endif %}
+    </script>
+</body>
+</html>

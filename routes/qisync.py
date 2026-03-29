@@ -514,3 +514,342 @@ def qisync_session_end():
         "stance": rec["stance"],
         "reward": reward,
     })
+
+
+# =============================================================================
+# RIPPLE 3 — MEMORY TRAINING STUDIO
+# =============================================================================
+
+import json as _json
+from void_engine.db_pool import get_db as _get_db_memory
+
+MEMORY_SCENES = [
+    {
+        "id": "scene_market",
+        "title": "The Outdoor Market",
+        "text": (
+            "You enter a busy outdoor market on a warm Tuesday morning. "
+            "To your left, a tall woman in a blue-and-white striped apron "
+            "is arranging oranges into a pyramid. She is humming a slow tune. "
+            "Beside her stands a young boy, perhaps eight, wearing red trainers, "
+            "eating a green apple and watching pigeons. Directly ahead, a wooden "
+            "sign reads 'Fresh Herbs — £1.50/bunch'. Three bundles of rosemary "
+            "and two of thyme are lined up. An older man in a brown jacket sits "
+            "on a folding stool reading a newspaper, his black dog leashed to the "
+            "table leg. A conversation nearby: 'Did you see the match?' 'Terrible "
+            "first half.' The smell of roasted almonds drifts from the right."
+        ),
+        "questions": [
+            {"id": "q1", "text": "What colour was the woman's apron?", "answer": "blue-and-white striped"},
+            {"id": "q2", "text": "What day of the week was it?", "answer": "tuesday"},
+            {"id": "q3", "text": "What was the boy eating?", "answer": "green apple"},
+            {"id": "q4", "text": "What colour were the boy's trainers?", "answer": "red"},
+            {"id": "q5", "text": "What was the price of herbs?", "answer": "1.50"},
+            {"id": "q6", "text": "How many bundles of thyme were there?", "answer": "two"},
+            {"id": "q7", "text": "What was the dog leashed to?", "answer": "table leg"},
+            {"id": "q8", "text": "What smell drifted from the right?", "answer": "roasted almonds"},
+        ],
+    },
+    {
+        "id": "scene_library",
+        "title": "The Reading Room",
+        "text": (
+            "You walk into a quiet reading room at 3:00 PM. Four long tables "
+            "run parallel to the windows. At the first table, a woman with "
+            "short silver hair is annotating a red book with a pencil. An empty "
+            "coffee cup sits to her right. At the second table, two teenagers "
+            "whisper over a map spread between them; one has headphones around "
+            "her neck. The third table is empty except for a forgotten yellow "
+            "umbrella. At the fourth table near the back, a man in a green "
+            "cardigan works at a laptop, a stack of five books beside him. "
+            "A clock on the north wall shows 3:07. The librarian behind the "
+            "desk has a name badge reading 'Fatima'. She stamps a book."
+        ),
+        "questions": [
+            {"id": "q1", "text": "What time does the clock on the wall show?", "answer": "3:07"},
+            {"id": "q2", "text": "What colour is the woman's hair?", "answer": "silver"},
+            {"id": "q3", "text": "What colour was the book she was annotating?", "answer": "red"},
+            {"id": "q4", "text": "What was left on the third table?", "answer": "yellow umbrella"},
+            {"id": "q5", "text": "How many books were stacked beside the man?", "answer": "five"},
+            {"id": "q6", "text": "What colour cardigan was the man wearing?", "answer": "green"},
+            {"id": "q7", "text": "What is the librarian's name?", "answer": "fatima"},
+            {"id": "q8", "text": "Where was the empty coffee cup?", "answer": "right"},
+        ],
+    },
+    {
+        "id": "scene_kitchen",
+        "title": "The Morning Kitchen",
+        "text": (
+            "It is 7:22 AM in a small kitchen. A kettle on the right-hand "
+            "burner begins to whistle. On the counter to the left, three "
+            "eggs rest in a white bowl beside a bunch of fresh spinach. "
+            "A calendar on the wall shows April; the 14th is circled in red. "
+            "On the table: a blue mug half-full of tea, a folded newspaper "
+            "showing a headline about local elections, and a phone face-down. "
+            "A cat — grey, with white paws — sits on the windowsill looking "
+            "outside. Someone is humming. A child's drawing is held to the "
+            "fridge by a yellow magnet shaped like a sun."
+        ),
+        "questions": [
+            {"id": "q1", "text": "What time is it?", "answer": "7:22"},
+            {"id": "q2", "text": "What is on the right-hand burner?", "answer": "kettle"},
+            {"id": "q3", "text": "What month is shown on the calendar?", "answer": "april"},
+            {"id": "q4", "text": "Which date is circled?", "answer": "14th"},
+            {"id": "q5", "text": "What colour is the mug?", "answer": "blue"},
+            {"id": "q6", "text": "How many eggs are in the bowl?", "answer": "three"},
+            {"id": "q7", "text": "What colour are the cat's paws?", "answer": "white"},
+            {"id": "q8", "text": "What shape is the fridge magnet?", "answer": "sun"},
+        ],
+    },
+]
+
+
+def _score_recall(questions, answers):
+    """
+    Score recall answers. Returns 0.0-1.0.
+    Simple fuzzy match: answer must contain the key term (case-insensitive).
+    """
+    if not questions or not answers:
+        return 0.0
+    correct = 0
+    for q in questions:
+        user_ans = str(answers.get(q["id"], "")).strip().lower()
+        expected = q["answer"].lower()
+        if expected in user_ans or user_ans in expected:
+            correct += 1
+    return round(correct / len(questions), 4)
+
+
+def _compute_memory_level(user_id):
+    """Compute cumulative memory level from completed sessions."""
+    conn = _get_db_memory()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT COUNT(*), AVG(recall_score)
+            FROM memory_sessions
+            WHERE user_id = %s AND completed = TRUE
+        """, (user_id,))
+        row = cur.fetchone()
+        if not row or not row[0]:
+            return 1
+        total = int(row[0])
+        avg_score = float(row[1]) if row[1] else 0.0
+        level = max(1, int(total * avg_score * 2))
+        return min(level, 100)
+    finally:
+        conn.close()
+
+
+@qisync_bp.route("/qisync/memory")
+def memory_studio():
+    user_id = session.get("user_id")
+    history = []
+    memory_level = 1
+    if user_id:
+        memory_level = _compute_memory_level(user_id)
+        conn = _get_db_memory()
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT session_id, scene_duration_sec, recall_score,
+                       memory_level, vtx_earned, completed_at
+                FROM memory_sessions
+                WHERE user_id = %s AND completed = TRUE
+                ORDER BY completed_at DESC LIMIT 10
+            """, (user_id,))
+            for row in cur.fetchall():
+                history.append({
+                    "session_id": row[0],
+                    "scene_duration_sec": row[1],
+                    "recall_score": float(row[2]) if row[2] else 0.0,
+                    "memory_level": row[3],
+                    "vtx_earned": float(row[4]) if row[4] else 0.0,
+                    "completed_at": row[5].isoformat() if row[5] else None,
+                })
+        except Exception as exc:
+            logger.error("Memory history load error: %s", exc)
+        finally:
+            conn.close()
+    return render_template("qisync_memory.html",
+                           scenes=MEMORY_SCENES,
+                           history=history,
+                           memory_level=memory_level)
+
+
+@qisync_bp.route("/api/qisync/memory/session-start", methods=["POST"])
+def memory_session_start():
+    import uuid as _uuid
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    scene_id = data.get("scene_id")
+    try:
+        duration_sec = max(60, min(1800, int(data.get("duration_sec") or 300)))
+    except (ValueError, TypeError):
+        duration_sec = 300
+
+    scene = next((s for s in MEMORY_SCENES if s["id"] == scene_id), MEMORY_SCENES[0])
+    sid = str(_uuid.uuid4())
+
+    conn = _get_db_memory()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO memory_sessions (user_id, session_id, scene_text, scene_duration_sec)
+            VALUES (%s, %s, %s, %s)
+        """, (user_id, sid, scene["text"], duration_sec))
+        conn.commit()
+        return jsonify({
+            "ok": True,
+            "session_id": sid,
+            "scene": {
+                "id": scene["id"],
+                "title": scene["title"],
+                "text": scene["text"],
+            },
+            "duration_sec": duration_sec,
+        })
+    except Exception as exc:
+        conn.rollback()
+        logger.error("Memory session start error: %s", exc)
+        return jsonify({"error": "failed to start session"}), 500
+    finally:
+        conn.close()
+
+
+@qisync_bp.route("/api/qisync/memory/session-end", methods=["POST"])
+def memory_session_end():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    sid = data.get("session_id")
+    answers = data.get("answers") or {}
+    scene_id = data.get("scene_id")
+
+    if not sid:
+        return jsonify({"error": "session_id required"}), 400
+
+    scene = next((s for s in MEMORY_SCENES if s["id"] == scene_id), None)
+    if not scene:
+        return jsonify({"error": "invalid scene_id"}), 400
+
+    conn = _get_db_memory()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, completed FROM memory_sessions
+            WHERE session_id = %s AND user_id = %s
+        """, (sid, user_id))
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "session not found"}), 404
+        if row[1]:
+            return jsonify({"error": "session already completed"}), 409
+
+        db_id = row[0]
+        recall_score = _score_recall(scene["questions"], answers)
+        memory_level = _compute_memory_level(user_id)
+
+        cur.execute("""
+            UPDATE memory_sessions
+            SET completed = TRUE, recall_answers = %s,
+                recall_score = %s, memory_level = %s, completed_at = NOW()
+            WHERE id = %s
+        """, (_json.dumps(answers), recall_score, memory_level, db_id))
+        conn.commit()
+
+        vtx_earned = 0.0
+        reward = None
+        try:
+            from void_engine.vortex_wallet import mint_memory_session
+            reward = mint_memory_session(user_id, sid, recall_score, memory_level)
+            vtx_earned = reward.get("vtx_earned", 0)
+            cur.execute(
+                "UPDATE memory_sessions SET vtx_earned = %s WHERE id = %s",
+                (vtx_earned, db_id)
+            )
+            conn.commit()
+        except Exception as exc:
+            logger.error("mint_memory_session failed: %s", exc)
+
+        logger.info("Memory session ended: user=%s sid=%s score=%.4f vtx=%.4f",
+                    user_id, sid, recall_score, vtx_earned)
+
+        correct_answers = {q["id"]: q["answer"] for q in scene["questions"]}
+        return jsonify({
+            "ok": True,
+            "session_id": sid,
+            "recall_score": recall_score,
+            "memory_level": memory_level,
+            "vtx_earned": vtx_earned,
+            "reward": reward,
+            "correct_answers": correct_answers,
+            "total_questions": len(scene["questions"]),
+        })
+    except Exception as exc:
+        conn.rollback()
+        logger.error("Memory session end error: %s", exc)
+        return jsonify({"error": "failed to complete session"}), 500
+    finally:
+        conn.close()
+
+
+@qisync_bp.route("/qisync/memory/insights")
+def memory_insights():
+    conn = _get_db_memory()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT COUNT(*), AVG(recall_score), AVG(memory_level)
+            FROM memory_sessions WHERE completed = TRUE
+        """)
+        row = cur.fetchone()
+        stats = {
+            "total_sessions": int(row[0]) if row[0] else 0,
+            "avg_recall": round(float(row[1]), 4) if row[1] else 0.0,
+            "avg_level": round(float(row[2]), 1) if row[2] else 0.0,
+        }
+        cur.execute("""
+            SELECT memory_level, COUNT(*) as user_count
+            FROM (
+                SELECT user_id, MAX(memory_level) as memory_level
+                FROM memory_sessions WHERE completed = TRUE
+                GROUP BY user_id
+            ) sub
+            GROUP BY memory_level ORDER BY memory_level ASC
+        """)
+        level_distribution = []
+        for r in cur.fetchall():
+            level_distribution.append({"level": r[0], "count": int(r[1])})
+        cur.execute("""
+            SELECT u.username, MAX(ms.memory_level) as top_level,
+                   COUNT(ms.id) as sessions, AVG(ms.recall_score) as avg_score
+            FROM memory_sessions ms
+            JOIN users u ON u.id = ms.user_id
+            WHERE ms.completed = TRUE
+            GROUP BY u.username
+            ORDER BY top_level DESC, avg_score DESC
+            LIMIT 10
+        """)
+        leaderboard = []
+        for r in cur.fetchall():
+            leaderboard.append({
+                "username": r[0], "top_level": int(r[1]),
+                "sessions": int(r[2]),
+                "avg_score": round(float(r[3]), 4) if r[3] else 0.0,
+            })
+        return render_template("memory_insights.html",
+                               stats=stats,
+                               level_distribution=level_distribution,
+                               leaderboard=leaderboard)
+    except Exception as exc:
+        logger.error("Memory insights error: %s", exc)
+        return render_template("memory_insights.html",
+                               stats={}, level_distribution=[], leaderboard=[])
+    finally:
+        conn.close()

@@ -1008,3 +1008,129 @@ def get_peace_balance(user_id):
         return float(row[0]) if row else 0.0
     finally:
         conn.close()
+
+
+def mint_fertilizer_batch(user_id, batch_id, quality_score):
+    """
+    Grant PEACE tokens when a fertilizer batch is completed and rated.
+    quality_score: 0.0-1.0 (mapped from 1-5 star rating / 5)
+    """
+    if quality_score >= 0.8:
+        base = Decimal("3.0")
+    elif quality_score >= 0.6:
+        base = Decimal("2.0")
+    elif quality_score >= 0.4:
+        base = Decimal("1.0")
+    else:
+        base = Decimal("0.5")
+
+    amount = base.quantize(Decimal("0.0001"))
+    payload_hash = fatiha_286_hexdigest_from_str(f"fertilizer_batch_{user_id}_{batch_id}")
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'mint_fertilizer'",
+            (payload_hash,),
+        )
+        if cur.fetchone():
+            conn.close()
+            return {"already_minted": True, "batch_id": batch_id}
+        block = _create_block(cur, "mint_fertilizer", None, user_id, amount, payload_hash)
+        cur.execute(
+            """UPDATE users SET peace_balance = COALESCE(peace_balance, 0) + %s
+               WHERE id = %s""",
+            (amount, user_id),
+        )
+        conn.commit()
+        block["peace_earned"] = float(amount)
+        block["quality_score"] = quality_score
+        return block
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def mint_water_vitality_log(user_id, log_id, vitality_score):
+    """
+    Grant PEACE tokens for logging a water vitality reading.
+    vitality_score: 0.0-1.0
+    """
+    amount = Decimal("0.5").quantize(Decimal("0.0001"))
+    payload_hash = fatiha_286_hexdigest_from_str(f"water_log_{user_id}_{log_id}")
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'mint_water_log'",
+            (payload_hash,),
+        )
+        if cur.fetchone():
+            conn.close()
+            return {"already_minted": True, "log_id": log_id}
+        block = _create_block(cur, "mint_water_log", None, user_id, amount, payload_hash)
+        cur.execute(
+            """UPDATE users SET peace_balance = COALESCE(peace_balance, 0) + %s
+               WHERE id = %s""",
+            (amount, user_id),
+        )
+        conn.commit()
+        block["peace_earned"] = float(amount)
+        block["vitality_score"] = vitality_score
+        return block
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def mint_memory_session(user_id, session_id, recall_score, memory_level):
+    """
+    Grant PEACE tokens for completing a memory training session.
+    recall_score: 0.0-1.0
+    """
+    if recall_score >= 0.8:
+        base = Decimal("4.0")
+    elif recall_score >= 0.6:
+        base = Decimal("2.5")
+    elif recall_score >= 0.4:
+        base = Decimal("1.5")
+    elif recall_score >= 0.2:
+        base = Decimal("0.5")
+    else:
+        base = Decimal("0.2")
+
+    amount = base.quantize(Decimal("0.0001"))
+    payload_hash = fatiha_286_hexdigest_from_str(f"memory_session_{user_id}_{session_id}")
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'mint_memory'",
+            (payload_hash,),
+        )
+        if cur.fetchone():
+            conn.close()
+            return {"already_minted": True, "session_id": session_id}
+        block = _create_block(cur, "mint_memory", None, user_id, amount, payload_hash)
+        cur.execute(
+            """UPDATE users SET peace_balance = COALESCE(peace_balance, 0) + %s
+               WHERE id = %s""",
+            (amount, user_id),
+        )
+        conn.commit()
+        block["peace_earned"] = float(amount)
+        block["recall_score"] = recall_score
+        block["memory_level"] = memory_level
+        return block
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()

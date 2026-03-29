@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Training Studio — QiSync — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --ms-bg: #0a0a0a;
+            --ms-surface: #111;
+            --ms-surface2: #0d0d0d;
+            --ms-border: #1e1e1e;
+            --ms-violet: #7c5cff;
+            --ms-teal: #00bfa5;
+            --ms-gold: #c9a84c;
+            --ms-text: #e0e0e0;
+            --ms-muted: #666;
+            --ms-green: #4caf50;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--ms-bg);
+            color: var(--ms-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .ms-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--ms-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .ms-nav-brand { font-size: 0.9rem; font-weight: 700; color: var(--ms-gold); letter-spacing: 3px; text-decoration: none; }
+        .ms-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .ms-nav-link { color: #888; text-decoration: none; font-size: 0.72rem; letter-spacing: 1px; transition: color 0.2s; }
+        .ms-nav-link:hover { color: var(--ms-violet); }
+
+        .ms-hero {
+            text-align: center;
+            padding: 72px 24px 56px;
+            background: radial-gradient(ellipse at 50% 0%, #110d1a 0%, var(--ms-bg) 70%);
+            border-bottom: 1px solid var(--ms-border);
+            position: relative;
+        }
+        .ms-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--ms-violet), var(--ms-teal), transparent);
+        }
+        .ms-badge {
+            display: inline-block;
+            background: rgba(124,92,255,0.1);
+            border: 1px solid rgba(124,92,255,0.28);
+            color: var(--ms-violet);
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            padding: 5px 16px;
+            border-radius: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .ms-title { font-size: 2.4rem; font-weight: 900; letter-spacing: 4px; color: #fff; margin-bottom: 10px; }
+        .ms-title span { color: var(--ms-violet); }
+        .ms-subtitle { font-size: 0.78rem; color: var(--ms-teal); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px; }
+        .ms-tagline { font-size: 0.8rem; color: #666; max-width: 600px; margin: 0 auto; line-height: 1.9; }
+
+        .ms-level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.25);
+            border-radius: 4px;
+            padding: 8px 20px;
+            margin-top: 20px;
+            font-size: 0.68rem;
+            color: var(--ms-gold);
+            letter-spacing: 2px;
+        }
+        .ms-level-num { font-size: 1.4rem; font-weight: 900; color: var(--ms-gold); }
+
+        .ms-hero-links { display: flex; gap: 20px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+        .ms-hero-link {
+            font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ms-muted); text-decoration: none; border: 1px solid rgba(255,255,255,0.1);
+            padding: 6px 16px; border-radius: 2px; transition: background 0.2s, color 0.2s;
+        }
+        .ms-hero-link:hover { background: rgba(255,255,255,0.04); color: #aaa; }
+
+        .ms-main { max-width: 900px; margin: 0 auto; padding: 52px 24px 100px; }
+
+        .ms-panel {
+            background: var(--ms-surface);
+            border: 1px solid var(--ms-border);
+            border-radius: 6px;
+            padding: 32px;
+            position: relative;
+            margin-bottom: 40px;
+        }
+        .ms-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--ms-violet), var(--ms-teal));
+        }
+        .ms-panel-title {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--ms-violet);
+            margin-bottom: 22px;
+        }
+
+        .ms-scene-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 24px; }
+        .ms-scene-btn {
+            background: var(--ms-surface2);
+            border: 1px solid var(--ms-border);
+            border-radius: 4px;
+            padding: 14px;
+            cursor: pointer;
+            text-align: left;
+            color: var(--ms-text);
+            font-family: inherit;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .ms-scene-btn:hover { border-color: var(--ms-violet); background: rgba(124,92,255,0.05); }
+        .ms-scene-btn.selected { border-color: var(--ms-violet); background: rgba(124,92,255,0.1); }
+        .ms-scene-title { font-size: 0.78rem; font-weight: 700; color: #bbb; margin-bottom: 4px; }
+        .ms-scene-sub { font-size: 0.6rem; color: var(--ms-muted); }
+
+        .ms-controls-row { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+        .ms-duration-label { font-size: 0.62rem; letter-spacing: 2px; color: var(--ms-muted); text-transform: uppercase; }
+        .ms-duration-select {
+            background: var(--ms-surface2);
+            border: 1px solid var(--ms-border);
+            border-radius: 4px;
+            color: #bbb;
+            font-family: inherit;
+            font-size: 0.75rem;
+            padding: 8px 12px;
+        }
+        .ms-start-btn {
+            background: var(--ms-violet);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 28px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .ms-start-btn:hover { opacity: 0.85; }
+        .ms-start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ABSORPTION PHASE */
+        .ms-absorption-phase { display: none; }
+        .ms-timer-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .ms-timer {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--ms-teal);
+            letter-spacing: 4px;
+        }
+        .ms-timer.ending { color: var(--ms-gold); }
+        .ms-scene-display {
+            background: var(--ms-surface2);
+            border: 1px solid rgba(124,92,255,0.2);
+            border-radius: 4px;
+            padding: 24px;
+            font-size: 0.82rem;
+            color: #bbb;
+            line-height: 2;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+        .ms-gauge-wrap { margin-bottom: 20px; }
+        .ms-gauge-track { background: #1a1a1a; border-radius: 4px; height: 6px; overflow: hidden; }
+        .ms-gauge-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--ms-violet), var(--ms-teal));
+            width: 100%;
+            transition: width 1s linear;
+        }
+        .ms-abort-btn {
+            background: transparent;
+            color: #f87171;
+            border: 1px solid #f87171;
+            border-radius: 4px;
+            padding: 8px 20px;
+            font-family: inherit;
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        /* RECALL PHASE */
+        .ms-recall-phase { display: none; }
+        .ms-recall-title { font-size: 0.9rem; font-weight: 700; color: var(--ms-violet); margin-bottom: 20px; letter-spacing: 2px; }
+        .ms-question-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+        .ms-question {
+            background: var(--ms-surface2);
+            border: 1px solid var(--ms-border);
+            border-radius: 4px;
+            padding: 14px 18px;
+        }
+        .ms-q-text { font-size: 0.75rem; color: #ccc; margin-bottom: 8px; }
+        .ms-q-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--ms-border);
+            color: var(--ms-text);
+            font-family: inherit;
+            font-size: 0.78rem;
+            padding: 4px 0;
+            outline: none;
+        }
+        .ms-q-input:focus { border-bottom-color: var(--ms-violet); }
+        .ms-q-correct { font-size: 0.62rem; color: var(--ms-green); margin-top: 4px; display: none; }
+        .ms-q-wrong { font-size: 0.62rem; color: #f87171; margin-top: 4px; display: none; }
+
+        .ms-submit-btn {
+            background: var(--ms-teal);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 11px 28px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .ms-submit-btn:hover { opacity: 0.85; }
+        .ms-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* RESULT PHASE */
+        .ms-result-phase { display: none; text-align: center; padding: 20px 0; }
+        .ms-result-score-wrap { margin-bottom: 20px; }
+        .ms-result-score { font-size: 3.5rem; font-weight: 900; color: var(--ms-gold); line-height: 1; }
+        .ms-result-label { font-size: 0.65rem; letter-spacing: 3px; color: var(--ms-muted); text-transform: uppercase; margin-top: 6px; }
+        .ms-result-level { font-size: 0.8rem; color: var(--ms-violet); margin-top: 12px; }
+        .ms-result-vtx { font-size: 0.75rem; color: var(--ms-gold); margin-top: 6px; }
+        .ms-result-again {
+            display: inline-block;
+            margin-top: 20px;
+            background: var(--ms-violet);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 28px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+
+        /* HISTORY + LEADERBOARD */
+        .ms-section-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .ms-section-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--ms-text); }
+        .ms-section-line { flex: 1; height: 1px; background: var(--ms-border); }
+
+        .ms-history-list { display: flex; flex-direction: column; gap: 8px; }
+        .ms-hist-row {
+            display: grid;
+            grid-template-columns: 1fr 80px 60px 80px;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 14px;
+            background: var(--ms-surface2);
+            border: 1px solid var(--ms-border);
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+        .ms-hist-date { color: #555; }
+        .ms-hist-score { color: var(--ms-teal); text-align: center; }
+        .ms-hist-level { color: var(--ms-violet); text-align: center; }
+        .ms-hist-vtx { color: var(--ms-gold); text-align: right; }
+        .ms-empty { color: var(--ms-muted); font-size: 0.72rem; text-align: center; padding: 24px; }
+
+        .ms-leaderboard-link {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: var(--ms-violet);
+            text-decoration: none;
+            border: 1px solid rgba(124,92,255,0.3);
+            padding: 6px 16px;
+            border-radius: 2px;
+            transition: background 0.15s;
+        }
+        .ms-leaderboard-link:hover { background: rgba(124,92,255,0.08); }
+    </style>
+</head>
+<body>
+    <nav class="ms-nav">
+        <a href="/" class="ms-nav-brand">◆ VOID ENGINE</a>
+        <div class="ms-nav-links">
+            <a href="/qisync" class="ms-nav-link">QiSync</a>
+            <a href="/qisync/memory" class="ms-nav-link" style="color: var(--ms-violet);">Memory</a>
+            <a href="/gridul/fertilizer" class="ms-nav-link">Fertilizer</a>
+            <a href="/gridul/water" class="ms-nav-link">Water</a>
+            <a href="/qisync/memory/insights" class="ms-nav-link">Insights</a>
+        </div>
+    </nav>
+
+    <div class="ms-hero">
+        <div class="ms-badge">RIPPLE 3 — PEACE TOKEN ECONOMY</div>
+        <h1 class="ms-title">Memory <span>Training</span> Studio</h1>
+        <p class="ms-subtitle">Scene Absorption · Timed Recall · Memory Level Ranking</p>
+        <p class="ms-tagline">
+            Study a detailed scene for a timed window, then recall specific details
+            from memory. Score your recall accuracy and build your Memory Level.
+            Earn PEACE tokens for every completed session.
+        </p>
+        <div class="ms-level-badge">
+            Memory Level <span class="ms-level-num">{{ memory_level }}</span>
+        </div>
+        <div class="ms-hero-links">
+            <a href="/qisync/memory/insights" class="ms-hero-link">Global Insights</a>
+            <a href="/gridul/fertilizer" class="ms-hero-link">Fertilizer Lab</a>
+            <a href="/gridul/water" class="ms-hero-link">Water Log</a>
+        </div>
+    </div>
+
+    <div class="ms-main">
+        <!-- SESSION PANEL -->
+        <div class="ms-panel" id="session-panel">
+            <div class="ms-panel-title">◆ New Memory Session</div>
+
+            <!-- Setup -->
+            <div id="setup-phase">
+                <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--ms-muted); text-transform: uppercase; margin-bottom: 12px;">Select Scene</div>
+                <div class="ms-scene-selector">
+                    {% for scene in scenes %}
+                    <button class="ms-scene-btn {% if loop.first %}selected{% endif %}"
+                            data-scene-id="{{ scene.id }}"
+                            onclick="selectScene('{{ scene.id }}', this)">
+                        <div class="ms-scene-title">{{ scene.title }}</div>
+                        <div class="ms-scene-sub">{{ scene.questions | length }} recall questions</div>
+                    </button>
+                    {% endfor %}
+                </div>
+                <div class="ms-controls-row">
+                    <span class="ms-duration-label">Study Window</span>
+                    <select class="ms-duration-select" id="duration-select">
+                        <option value="60">1 minute</option>
+                        <option value="120">2 minutes</option>
+                        <option value="180">3 minutes</option>
+                        <option value="300" selected>5 minutes</option>
+                        <option value="600">10 minutes</option>
+                    </select>
+                    <button class="ms-start-btn" id="start-btn">Begin Session</button>
+                </div>
+            </div>
+
+            <!-- Absorption Phase -->
+            <div class="ms-absorption-phase" id="absorption-phase">
+                <div class="ms-timer-row">
+                    <span style="font-size:0.62rem; letter-spacing:2px; color:var(--ms-muted); text-transform:uppercase;">Study the scene carefully</span>
+                    <span class="ms-timer" id="absorption-timer">05:00</span>
+                </div>
+                <div class="ms-gauge-wrap">
+                    <div class="ms-gauge-track">
+                        <div class="ms-gauge-fill" id="absorption-gauge"></div>
+                    </div>
+                </div>
+                <div class="ms-scene-display" id="scene-display"></div>
+                <button class="ms-abort-btn" id="abort-btn">End Study Early</button>
+            </div>
+
+            <!-- Recall Phase -->
+            <div class="ms-recall-phase" id="recall-phase">
+                <div class="ms-recall-title">Recall the Scene</div>
+                <div class="ms-question-list" id="question-list"></div>
+                <button class="ms-submit-btn" id="submit-btn">Submit Recall</button>
+            </div>
+
+            <!-- Result Phase -->
+            <div class="ms-result-phase" id="result-phase">
+                <div class="ms-result-score-wrap">
+                    <div class="ms-result-score" id="result-score">--</div>
+                    <div class="ms-result-label">Recall Accuracy</div>
+                </div>
+                <div class="ms-result-level" id="result-level"></div>
+                <div class="ms-result-vtx" id="result-vtx"></div>
+                <div id="result-answers" style="margin-top:20px; text-align:left;"></div>
+                <button class="ms-result-again" onclick="resetSession()">New Session</button>
+            </div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="ms-panel">
+            <div class="ms-section-head">
+                <span class="ms-section-title">Session History</span>
+                <div class="ms-section-line"></div>
+            </div>
+            {% if history %}
+            <div class="ms-history-list">
+                <div class="ms-hist-row" style="font-size:0.55rem; color:var(--ms-muted); text-transform:uppercase; letter-spacing:1px;">
+                    <span>Date</span>
+                    <span style="text-align:center;">Recall</span>
+                    <span style="text-align:center;">Level</span>
+                    <span style="text-align:right;">VTX</span>
+                </div>
+                {% for h in history %}
+                <div class="ms-hist-row">
+                    <span class="ms-hist-date">{{ h.completed_at[:10] if h.completed_at else '—' }}</span>
+                    <span class="ms-hist-score">{{ "%.0f"|format(h.recall_score * 100) }}%</span>
+                    <span class="ms-hist-level">Lv {{ h.memory_level }}</span>
+                    <span class="ms-hist-vtx">+{{ "%.4f"|format(h.vtx_earned) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="ms-empty">No sessions yet. Complete your first memory session.</div>
+            {% endif %}
+            <a href="/qisync/memory/insights" class="ms-leaderboard-link">View Global Memory Leaderboard →</a>
+        </div>
+    </div>
+
+    <script>
+    const SCENES = {{ scenes | tojson }};
+
+    let selectedSceneId = '{{ scenes[0].id if scenes else "" }}';
+    let currentSessionId = null;
+    let currentScene = null;
+    let absorptionTimer = null;
+    let absorptionDuration = 300;
+    let absorptionElapsed = 0;
+
+    function selectScene(id, btn) {
+        selectedSceneId = id;
+        document.querySelectorAll('.ms-scene-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+    }
+
+    document.getElementById('start-btn').addEventListener('click', async () => {
+        const duration = parseInt(document.getElementById('duration-select').value) || 300;
+        const btn = document.getElementById('start-btn');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/qisync/memory/session-start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ scene_id: selectedSceneId, duration_sec: duration }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                currentSessionId = data.session_id;
+                currentScene = data.scene;
+                absorptionDuration = data.duration_sec;
+                absorptionElapsed = 0;
+                startAbsorptionPhase(currentScene, absorptionDuration);
+            } else {
+                alert(data.error || 'Failed to start session. Are you logged in?');
+                btn.disabled = false;
+            }
+        } catch(e) {
+            alert('Network error. Please try again.');
+            btn.disabled = false;
+        }
+    });
+
+    function startAbsorptionPhase(scene, duration) {
+        document.getElementById('setup-phase').style.display = 'none';
+        document.getElementById('absorption-phase').style.display = 'block';
+        document.getElementById('scene-display').textContent = scene.text;
+
+        absorptionTimer = setInterval(() => {
+            absorptionElapsed++;
+            const remaining = duration - absorptionElapsed;
+            const timerEl = document.getElementById('absorption-timer');
+            const pct = Math.max(0, (remaining / duration) * 100);
+            document.getElementById('absorption-gauge').style.width = pct + '%';
+
+            const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+            const s = (remaining % 60).toString().padStart(2, '0');
+            timerEl.textContent = m + ':' + s;
+
+            if (remaining <= 30) timerEl.classList.add('ending');
+            if (remaining <= 0) endAbsorption();
+        }, 1000);
+    }
+
+    document.getElementById('abort-btn').addEventListener('click', () => {
+        clearInterval(absorptionTimer);
+        endAbsorption();
+    });
+
+    function endAbsorption() {
+        clearInterval(absorptionTimer);
+        absorptionTimer = null;
+        document.getElementById('absorption-phase').style.display = 'none';
+        showRecallPhase();
+    }
+
+    function showRecallPhase() {
+        const scene = SCENES.find(s => s.id === selectedSceneId) || SCENES[0];
+        const questionList = document.getElementById('question-list');
+        questionList.innerHTML = '';
+        scene.questions.forEach(q => {
+            const div = document.createElement('div');
+            div.className = 'ms-question';
+            div.dataset.qid = q.id;
+            div.innerHTML = `
+                <div class="ms-q-text">${escHtml(q.text)}</div>
+                <input class="ms-q-input" type="text" placeholder="Your answer..." autocomplete="off" spellcheck="false">
+                <div class="ms-q-correct" id="correct-${q.id}"></div>
+                <div class="ms-q-wrong" id="wrong-${q.id}"></div>
+            `;
+            questionList.appendChild(div);
+        });
+        document.getElementById('recall-phase').style.display = 'block';
+    }
+
+    document.getElementById('submit-btn').addEventListener('click', async () => {
+        const scene = SCENES.find(s => s.id === selectedSceneId) || SCENES[0];
+        const answers = {};
+        document.querySelectorAll('.ms-question').forEach(div => {
+            const qid = div.dataset.qid;
+            const val = div.querySelector('.ms-q-input').value.trim();
+            answers[qid] = val;
+        });
+
+        document.getElementById('submit-btn').disabled = true;
+        try {
+            const res = await fetch('/api/qisync/memory/session-end', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: currentSessionId,
+                    scene_id: selectedSceneId,
+                    answers,
+                }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                showResult(data, scene, answers);
+            } else {
+                alert(data.error || 'Failed to submit recall.');
+                document.getElementById('submit-btn').disabled = false;
+            }
+        } catch(e) {
+            alert('Network error.');
+            document.getElementById('submit-btn').disabled = false;
+        }
+    });
+
+    function showResult(data, scene, answers) {
+        document.getElementById('recall-phase').style.display = 'none';
+        const rp = document.getElementById('result-phase');
+        rp.style.display = 'block';
+
+        document.getElementById('result-score').textContent = (data.recall_score * 100).toFixed(0) + '%';
+        document.getElementById('result-level').textContent = 'Memory Level: ' + data.memory_level;
+        document.getElementById('result-vtx').textContent = '+' + (data.vtx_earned || 0).toFixed(4) + ' VTX earned';
+
+        if (data.correct_answers) {
+            const ra = document.getElementById('result-answers');
+            let html = `<div style="font-size:0.6rem;letter-spacing:2px;color:var(--ms-muted);text-transform:uppercase;margin-bottom:12px;">Answer Review</div>`;
+            scene.questions.forEach(q => {
+                const userAns = answers[q.id] || '(no answer)';
+                const correctAns = data.correct_answers[q.id] || '';
+                const isCorrect = correctAns.toLowerCase().includes(userAns.toLowerCase()) || userAns.toLowerCase().includes(correctAns.toLowerCase());
+                html += `<div style="padding:8px 0;border-bottom:1px solid var(--ms-border);font-size:0.7rem;">
+                    <span style="color:#888;">${escHtml(q.text)}</span><br>
+                    <span style="color:${isCorrect ? 'var(--ms-green)' : '#f87171'}">Your: ${escHtml(userAns)}</span>
+                    ${!isCorrect ? `<span style="color:#555"> · Correct: ${escHtml(correctAns)}</span>` : ''}
+                </div>`;
+            });
+            ra.innerHTML = html;
+        }
+    }
+
+    function resetSession() {
+        currentSessionId = null;
+        document.getElementById('result-phase').style.display = 'none';
+        document.getElementById('setup-phase').style.display = 'block';
+        document.getElementById('start-btn').disabled = false;
+        document.getElementById('submit-btn').disabled = false;
+        absorptionElapsed = 0;
+        document.getElementById('absorption-timer').textContent = '05:00';
+        document.getElementById('absorption-timer').classList.remove('ending');
+        document.getElementById('absorption-gauge').style.width = '100%';
+        document.getElementById('result-answers').innerHTML = '';
+    }
+
+    function escHtml(str) {
+        return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    </script>
+</body>
+</html>
