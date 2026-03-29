@@ -93,3 +93,7 @@ cython_debug/
 .replit
 replit.nix
 attached_assets/
+
+# Adriana LM — local model weights (too large for git)
+models/*.gguf
+models/*.bin

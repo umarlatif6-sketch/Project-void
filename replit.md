@@ -197,6 +197,18 @@ PROJECT VOID is a full-stack sovereign platform built around audio LSB steganogr
 
 ---
 
+## Agent Vision Layer (Task #37)
+- **Module:** `void_engine/agent_vision.py` — unified `search(query, mode)` interface across four APIs
+- **Modes:**
+  - `firecrawl` — scrapes URLs to clean Markdown for VOID Plane constellation nodes
+  - `tavily` — multi-step research for PEACE Token credibility verification
+  - `exa` — semantic (neural) search for Sovereign Realm acoustic steganography research
+  - `brave` — independent news feed for Mesa Village agents
+- **Routes:** `routes/agent_vision.py` — `GET /admin/agent-vision`, `POST /api/agent-vision/search`, `GET /api/agent-vision/status`
+- **Admin UI:** `/admin/agent-vision` — live API status cards, request counts, test query interface
+- **Keys:** `FIRECRAWL_API_KEY`, `TAVILY_API_KEY`, `EXA_API_KEY`, `BRAVE_SEARCH_API_KEY` (Replit Secrets)
+
+
 ## External Dependencies
 - **Python 3.11**
 - **flask** — web framework
