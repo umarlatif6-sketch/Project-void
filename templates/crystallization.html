@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID Constellation — Seven-Star Layer Map</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --void-bg: #05060a;
+            --void-gold: #c9a84c;
+            --void-text: #d0d8e8;
+            --void-muted: #4a5060;
+            --void-border: #1a1e2a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            overflow-x: hidden;
+        }
+
+        /* ── Minimal top bar ── */
+        .cx-topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: linear-gradient(to bottom, rgba(5,6,10,0.96) 0%, transparent 100%);
+        }
+
+        .cx-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--void-gold);
+            font-size: 13px;
+            letter-spacing: 0.1em;
+        }
+
+        .cx-logo-diamond {
+            font-size: 18px;
+        }
+
+        .cx-nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .cx-nav-links a {
+            color: var(--void-muted);
+            text-decoration: none;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            transition: color 0.2s;
+        }
+
+        .cx-nav-links a:hover,
+        .cx-nav-links a.active {
+            color: var(--void-gold);
+        }
+
+        .cx-share-btn {
+            background: transparent;
+            border: 1px solid rgba(201,168,76,0.35);
+            color: var(--void-gold);
+            font-family: inherit;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            padding: 6px 16px;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .cx-share-btn:hover {
+            background: rgba(201,168,76,0.1);
+            border-color: var(--void-gold);
+        }
+
+        .cx-share-btn.copied {
+            color: #7aff7a;
+            border-color: rgba(122,255,122,0.5);
+        }
+
+        /* ── Star field background ── */
+        .cx-canvas-wrap {
+            position: relative;
+            width: 100%;
+            padding-top: 56px;
+        }
+
+        #constellation-svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        /* ── Tooltip ── */
+        .cx-tooltip {
+            position: fixed;
+            z-index: 500;
+            background: rgba(10, 12, 20, 0.97);
+            border: 1px solid rgba(201,168,76,0.25);
+            border-radius: 4px;
+            padding: 12px 16px;
+            max-width: 260px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.15s, transform 0.15s;
+        }
+
+        .cx-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .cx-tt-layer {
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.08em;
+            margin-bottom: 4px;
+        }
+
+        .cx-tt-desc {
+            font-size: 11px;
+            color: #8090b0;
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+
+        .cx-tt-stat {
+            font-size: 11px;
+            color: #a0c0d0;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            padding-top: 6px;
+        }
+
+        /* ── Bottom section: sentence + poem ── */
+        .cx-bottom {
+            width: 100%;
+            padding: 40px 24px 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .cx-bottom.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .cx-sentence {
+            max-width: 720px;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--void-text);
+            letter-spacing: 0.03em;
+        }
+
+        .cx-sentence-label {
+            font-size: 10px;
+            color: var(--void-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .cx-divider {
+            width: 60px;
+            height: 1px;
+            background: rgba(201,168,76,0.25);
+        }
+
+        .cx-poem-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cx-poem-label {
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            color: var(--void-muted);
+            text-transform: uppercase;
+        }
+
+        .cx-poem-glyphs {
+            font-size: 32px;
+            letter-spacing: 0.2em;
+            color: var(--void-gold);
+        }
+
+        .cx-poem-meanings {
+            font-size: 11px;
+            color: #6070a0;
+            letter-spacing: 0.1em;
+            text-align: center;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 700px) {
+            .cx-topbar { padding: 10px 14px; }
+            .cx-nav-links { display: none; }
+            .cx-sentence { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="cx-topbar">
+        <a href="/launch" class="cx-logo">
+            <span class="cx-logo-diamond">&#9670;</span>
+            <span>PROJECT VOID</span>
+        </a>
+        <ul class="cx-nav-links">
+            <li><a href="/launch">Home</a></li>
+            <li><a href="/chronicle">Chronicle</a></li>
+            <li><a href="/genesis">Genesis</a></li>
+            <li><a href="/gridul">GriDul</a></li>
+            <li><a href="/mycovoid">MycoVOID</a></li>
+            <li><a href="/prior-art">Prior Art</a></li>
+            <li><a href="/crystallization" class="active">Constellation</a></li>
+        </ul>
+        <button class="cx-share-btn" id="share-btn" onclick="shareConstellation()">Share constellation</button>
+    </nav>
+
+    <div class="cx-canvas-wrap">
+        {# ── Inline SVG star map ── #}
+        {#
+           viewBox: 1200 × 800
+           Star positions are percentages: cx_px = cx * 12, cy_px = cy * 8
+           (so 0-100% maps to 0-1200 and 0-800 respectively)
+        #}
+        <svg id="constellation-svg"
+             viewBox="0 0 1200 800"
+             xmlns="http://www.w3.org/2000/svg"
+             role="img"
+             aria-label="VOID Constellation — Seven-Star Layer Map">
+
+            <defs>
+                {% for node in nodes %}
+                {# Glow filter per layer color #}
+                <filter id="glow-{{ node.id }}" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="8" result="blur"/>
+                    <feMerge>
+                        <feMergeNode in="blur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+                <filter id="glow-sat-{{ node.id }}" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="4" result="blur"/>
+                    <feMerge>
+                        <feMergeNode in="blur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+                {% endfor %}
+
+                {# Global dim star glow #}
+                <filter id="glow-dim" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2" result="blur"/>
+                    <feMerge>
+                        <feMergeNode in="blur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+
+            {# ── Background field stars (decorative) ── #}
+            {% set bg_stars = [
+                (50,40),(120,80),(200,30),(300,100),(400,60),(500,40),(600,70),(700,30),(800,90),(900,50),(1000,40),(1100,80),(1150,120),
+                (80,200),(160,150),(240,180),(350,140),(450,200),(550,160),(650,130),(750,200),(850,170),(950,140),(1050,190),
+                (30,300),(130,280),(220,320),(320,270),(420,310),(520,280),(620,320),(720,290),(820,330),(920,300),(1020,280),(1120,310),
+                (60,400),(160,390),(260,420),(360,380),(460,410),(560,390),(660,430),(760,400),(860,420),(960,390),(1060,420),(1160,400),
+                (40,500),(140,520),(240,490),(340,510),(440,530),(540,500),(640,520),(740,490),(840,510),(940,530),(1040,510),(1140,520),
+                (70,600),(170,620),(270,590),(370,610),(470,630),(570,600),(670,620),(770,590),(870,610),(970,630),(1070,610),(1170,600),
+                (90,700),(190,720),(290,690),(390,710),(490,730),(590,700),(690,720),(790,690),(890,710),(990,730),(1090,710),(1180,740),
+                (45,750),(150,760),(250,740),(350,780),(450,760),(550,750),(650,780),(750,760),(850,740),(950,770),(1050,760),(1150,750)
+            ] %}
+            {% for sx, sy in bg_stars %}
+            <circle cx="{{ sx }}" cy="{{ sy }}" r="0.8" fill="#3a4060" opacity="0.5" filter="url(#glow-dim)"/>
+            {% endfor %}
+
+            {# ── Connecting lines between primary stars (dot-to-dot) ── #}
+            {# Draw in order 1→2→3→4→5→6→7→1 (closing the shape) #}
+            {% for i in range(nodes|length) %}
+            {% set a = nodes[i] %}
+            {% set b = nodes[(i + 1) % nodes|length] %}
+            <line
+                x1="{{ (a.cx * 12)|int }}" y1="{{ (a.cy * 8)|int }}"
+                x2="{{ (b.cx * 12)|int }}" y2="{{ (b.cy * 8)|int }}"
+                stroke="{{ a.color }}"
+                stroke-width="1"
+                stroke-opacity="0.25"
+                stroke-dasharray="4 6"/>
+            {% endfor %}
+
+            {# ── Satellite nodes ── #}
+            {% for node in nodes %}
+            {% set px = (node.cx * 12)|int %}
+            {% set py = (node.cy * 8)|int %}
+            {% for sat in node.satellites %}
+            {% set sx = px + (sat.dx * 12 / 10)|int %}
+            {% set sy = py + (sat.dy * 8 / 10)|int %}
+            <line x1="{{ px }}" y1="{{ py }}" x2="{{ sx }}" y2="{{ sy }}"
+                  stroke="{{ node.color }}" stroke-opacity="0.15" stroke-width="0.5"/>
+            <circle cx="{{ sx }}" cy="{{ sy }}" r="3"
+                    fill="{{ node.color }}" fill-opacity="0.3"
+                    filter="url(#glow-sat-{{ node.id }})"/>
+            <text x="{{ sx }}" y="{{ sy - 6 }}"
+                  text-anchor="middle"
+                  font-family="'SF Mono','Consolas',monospace"
+                  font-size="7"
+                  fill="{{ node.color }}"
+                  fill-opacity="0.55">{{ sat.label }}</text>
+            {% endfor %}
+            {% endfor %}
+
+            {# ── Primary star nodes ── #}
+            {% for node in nodes %}
+            {% set px = (node.cx * 12)|int %}
+            {% set py = (node.cy * 8)|int %}
+
+            {# Outer halo ring #}
+            <circle cx="{{ px }}" cy="{{ py }}" r="22"
+                    fill="none"
+                    stroke="{{ node.color }}"
+                    stroke-opacity="0.12"
+                    stroke-width="1"/>
+
+            {# Primary glow circle #}
+            <circle cx="{{ px }}" cy="{{ py }}" r="16"
+                    fill="{{ node.color }}"
+                    fill-opacity="0.12"
+                    filter="url(#glow-{{ node.id }})"/>
+
+            {# Primary star body (clickable) #}
+            <circle cx="{{ px }}" cy="{{ py }}" r="11"
+                    fill="{{ node.color }}"
+                    fill-opacity="0.85"
+                    filter="url(#glow-{{ node.id }})"
+                    class="cx-star-node"
+                    data-id="{{ node.id }}"
+                    data-layer="{{ node.layer }}"
+                    data-desc="{{ node.description }}"
+                    data-stat="{{ node.stat }}"
+                    data-route="{{ node.route }}"
+                    data-color="{{ node.color }}"
+                    style="cursor: pointer;"
+                    role="link"
+                    tabindex="0"
+                    aria-label="Layer {{ node.id }}: {{ node.layer }}"/>
+
+            {# Layer number badge #}
+            <text x="{{ px }}" y="{{ py + 4 }}"
+                  text-anchor="middle"
+                  font-family="'SF Mono','Consolas',monospace"
+                  font-size="9"
+                  font-weight="bold"
+                  fill="#05060a"
+                  style="pointer-events:none; user-select:none;">{{ node.id }}</text>
+
+            {# Layer name label below #}
+            <text x="{{ px }}" y="{{ py + 30 }}"
+                  text-anchor="middle"
+                  font-family="'SF Mono','Consolas',monospace"
+                  font-size="9"
+                  fill="{{ node.color }}"
+                  fill-opacity="0.8"
+                  style="pointer-events:none; user-select:none; letter-spacing:0.08em;">{{ node.layer }}</text>
+            {% endfor %}
+
+        </svg>
+    </div>
+
+    {# ── Crystallization sentence + Adriana Poem ── #}
+    <div class="cx-bottom" id="cx-bottom">
+        <p class="cx-sentence-label">Crystallization Sentence</p>
+        <p class="cx-sentence">{{ crystallization_sentence }}</p>
+        <div class="cx-divider"></div>
+        <div class="cx-poem-wrap">
+            <p class="cx-poem-label">Adriana Sovereign Poem</p>
+            <div class="cx-poem-glyphs">{{ poem.poem }}</div>
+            <div class="cx-poem-meanings">
+                {% for m in poem.meanings %}{{ m }}{% if not loop.last %} &nbsp;·&nbsp; {% endif %}{% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# ── Tooltip element ── #}
+    <div class="cx-tooltip" id="cx-tooltip" role="tooltip" aria-hidden="true">
+        <div class="cx-tt-layer" id="tt-layer"></div>
+        <div class="cx-tt-desc" id="tt-desc"></div>
+        <div class="cx-tt-stat" id="tt-stat"></div>
+    </div>
+
+    <script>
+    (function () {
+        "use strict";
+
+        const tooltip = document.getElementById("cx-tooltip");
+        const ttLayer = document.getElementById("tt-layer");
+        const ttDesc  = document.getElementById("tt-desc");
+        const ttStat  = document.getElementById("tt-stat");
+
+        let hideTimer = null;
+
+        function showTooltip(node, x, y) {
+            clearTimeout(hideTimer);
+            ttLayer.textContent = "Layer " + node.dataset.id + " — " + node.dataset.layer;
+            ttLayer.style.color = node.dataset.color;
+            ttDesc.textContent  = node.dataset.desc;
+            ttStat.textContent  = node.dataset.stat;
+
+            tooltip.style.left = (x + 16) + "px";
+            tooltip.style.top  = (y - 10) + "px";
+            tooltip.setAttribute("aria-hidden", "false");
+            tooltip.classList.add("visible");
+
+            // Flip left if near right edge
+            const rect = tooltip.getBoundingClientRect();
+            if (rect.right > window.innerWidth - 10) {
+                tooltip.style.left = (x - rect.width - 16) + "px";
+            }
+        }
+
+        function hideTooltip() {
+            hideTimer = setTimeout(function() {
+                tooltip.classList.remove("visible");
+                tooltip.setAttribute("aria-hidden", "true");
+            }, 120);
+        }
+
+        document.querySelectorAll(".cx-star-node").forEach(function(node) {
+            node.addEventListener("mouseenter", function(e) {
+                showTooltip(node, e.clientX, e.clientY);
+            });
+            node.addEventListener("mousemove", function(e) {
+                tooltip.style.left = (e.clientX + 16) + "px";
+                tooltip.style.top  = (e.clientY - 10) + "px";
+            });
+            node.addEventListener("mouseleave", hideTooltip);
+
+            node.addEventListener("click", function() {
+                var route = node.dataset.route;
+                if (route) window.location.href = route;
+            });
+
+            node.addEventListener("keydown", function(e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    var route = node.dataset.route;
+                    if (route) window.location.href = route;
+                }
+            });
+
+            node.addEventListener("focus", function(e) {
+                var rect = node.getBoundingClientRect();
+                showTooltip(node, rect.right, rect.top + rect.height / 2);
+            });
+            node.addEventListener("blur", hideTooltip);
+        });
+
+        // Fade in bottom section after stars are rendered
+        var bottom = document.getElementById("cx-bottom");
+        setTimeout(function() {
+            bottom.classList.add("revealed");
+        }, 600);
+
+        // Pulse animation on primary stars
+        var stars = document.querySelectorAll(".cx-star-node");
+        stars.forEach(function(star, idx) {
+            star.style.animation = "pulse " + (2.5 + idx * 0.3) + "s ease-in-out infinite";
+        });
+    })();
+
+    function shareConstellation() {
+        var btn = document.getElementById("share-btn");
+        var url = window.location.href;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function() {
+                btn.textContent = "Copied!";
+                btn.classList.add("copied");
+                setTimeout(function() {
+                    btn.textContent = "Share constellation";
+                    btn.classList.remove("copied");
+                }, 2000);
+            }).catch(function() {
+                fallbackCopy(url, btn);
+            });
+        } else {
+            fallbackCopy(url, btn);
+        }
+    }
+
+    function fallbackCopy(url, btn) {
+        var ta = document.createElement("textarea");
+        ta.value = url;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+            document.execCommand("copy");
+            btn.textContent = "Copied!";
+            btn.classList.add("copied");
+            setTimeout(function() {
+                btn.textContent = "Share constellation";
+                btn.classList.remove("copied");
+            }, 2000);
+        } catch(e) {}
+        document.body.removeChild(ta);
+    }
+    </script>
+
+    <style>
+    @keyframes pulse {
+        0%, 100% { opacity: 0.85; }
+        50% { opacity: 1; }
+    }
+    </style>
+
+</body>
+</html>
