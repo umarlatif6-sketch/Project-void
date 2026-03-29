@@ -25,6 +25,8 @@ def admin_market_get():
     error = request.args.get("error")
     yield_error = request.args.get("yield_error")
     yield_posted = request.args.get("yield_posted")
+    model_updated = request.args.get("model_updated")
+    model_error = request.args.get("model_error")
     try:
         cur = conn.cursor()
         cur.execute(
@@ -57,6 +59,16 @@ def admin_market_get():
         logger.error("Failed to load yield_events: %s", e)
         yield_events = []
 
+    from void_engine.aljabr_transpiler import get_model_router
+    try:
+        router = get_model_router()
+        model_tier_configs = router.get_config_display()
+        cost_summary = router.get_cost_summary()
+    except Exception as e:
+        logger.error("Failed to load model router config: %s", e)
+        model_tier_configs = []
+        cost_summary = {"by_tier": [], "grand_total_usd": 0.0, "grand_total_calls": 0, "recent_calls": []}
+
     return render_template(
         "admin_market.html",
         configs=configs,
@@ -65,6 +77,10 @@ def admin_market_get():
         yield_error=yield_error,
         yield_posted=yield_posted,
         yield_events=yield_events,
+        model_tier_configs=model_tier_configs,
+        cost_summary=cost_summary,
+        model_updated=model_updated,
+        model_error=model_error,
     )
 
 
@@ -109,6 +125,33 @@ def admin_market_post():
         conn.close()
 
     return redirect(f"/admin/market?updated={item_key}")
+
+
+@admin_bp.route("/admin/model-router", methods=["POST"])
+@admin_required
+def admin_model_router_post():
+    from void_engine.aljabr_transpiler import get_model_router, TASK_PRECISION, TASK_STANDARD, TASK_BULK
+    tier = (request.form.get("tier") or "").strip().upper()
+    model = (request.form.get("model") or "").strip()
+    base_url = (request.form.get("base_url") or "").strip() or None
+
+    try:
+        cost_per_1k = float(request.form.get("cost_per_1k_tokens", 0.0003))
+        if math.isnan(cost_per_1k) or cost_per_1k < 0:
+            cost_per_1k = 0.0003
+    except (ValueError, TypeError):
+        cost_per_1k = 0.0003
+
+    if tier not in (TASK_PRECISION, TASK_STANDARD, TASK_BULK) or not model:
+        return redirect("/admin/market?model_error=invalid_input")
+
+    router = get_model_router()
+    ok = router.save_tier_config(tier, model, base_url, cost_per_1k)
+    if not ok:
+        return redirect("/admin/market?model_error=save_failed")
+
+    logger.info("Admin updated model router tier=%s model=%s base_url=%s", tier, model, base_url)
+    return redirect(f"/admin/market?model_updated={tier}")
 
 
 @admin_bp.route("/admin/yield", methods=["POST"])

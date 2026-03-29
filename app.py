@@ -59,6 +59,11 @@ def _startup_migrations():
         seed_genesis_10()
     except Exception as e:
         logger.error("Genesis 10 token seeding failed: %s", e)
+    try:
+        from void_engine.aljabr_transpiler import get_model_router
+        get_model_router()
+    except Exception as e:
+        logger.error("ModelRouter init failed: %s", e)
 
 try:
     from routes import register_blueprints

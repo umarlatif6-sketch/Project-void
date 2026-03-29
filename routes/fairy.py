@@ -5,7 +5,6 @@ import logging
 import threading
 from flask import Blueprint, request, jsonify, session
 from routes.auth import login_required, _check_rate_limit
-from openai import OpenAI
 from void_engine.al_jabr_286 import fatiha_286_hexdigest
 from void_engine.adriana_scl import AdrianaResonance
 from void_engine.adriana_local import get_engine, CONFIDENCE_THRESHOLD
@@ -14,9 +13,6 @@ from void_engine.db_pool import get_db
 logger = logging.getLogger(__name__)
 
 fairy_bp = Blueprint("fairy", __name__)
-
-AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
-AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
 
 FOUNDER_USERNAME = os.environ.get("FOUNDER_USERNAME", "adriana")
 
@@ -330,14 +326,10 @@ def _run_profile_analysis(user_id, profile, new_count, conversation_sample):
         sanitized_sample = _sanitize_for_llm(conversation_sample)
         sanitized_style = _sanitize_for_llm(profile['style'] or 'None yet')
         sanitized_topics = _sanitize_for_llm(profile['topics'] or 'None yet')
-        client = OpenAI(
-            api_key=AI_INTEGRATIONS_OPENAI_API_KEY,
-            base_url=AI_INTEGRATIONS_OPENAI_BASE_URL
-        )
-        analysis = client.chat.completions.create(
-            model="gpt-5-mini",
-            messages=[
-                {"role": "system", "content": """You are a communication analyst. Analyze the user's messages and produce a brief profile. Output JSON with exactly three keys:
+        from void_engine.aljabr_transpiler import get_model_router, TASK_BULK
+        router = get_model_router()
+        profile_messages = [
+            {"role": "system", "content": """You are a communication analyst. Analyze the user's messages and produce a brief profile. Output JSON with exactly three keys:
 - "style": a 1-2 sentence description of how this person communicates — their tone, vocabulary level, preferred metaphors, technical depth, formality
 - "topics": comma-separated list of their main interests based on what they ask about
 - "depth_level": an integer 1, 2, or 3 indicating this user's complexity preference:
@@ -345,11 +337,23 @@ def _run_profile_analysis(user_id, profile, new_count, conversation_sample):
   2 = Curious (ready for the economy layer — VTX, marketplace, Blueprint NFTs, moderate technical depth)
   3 = Deep/Architect (wants full technical depth — Adriana SCL, Beehive Protocol, sovereign node architecture, genesis oracle)
   Use 0 if there are not enough messages yet to determine. Be concise."""},
-                {"role": "user", "content": f"Previous profile style: {sanitized_style}\nPrevious topics: {sanitized_topics}\nPrevious depth_level: {profile.get('depth_level', 0)}\n\nRecent messages from this user:\n{sanitized_sample}"}
-            ],
-            max_completion_tokens=256
+            {"role": "user", "content": f"Previous profile style: {sanitized_style}\nPrevious topics: {sanitized_topics}\nPrevious depth_level: {profile.get('depth_level', 0)}\n\nRecent messages from this user:\n{sanitized_sample}"}
+        ]
+        analysis, model, used_fallback = router.call_with_fallback(
+            TASK_BULK, profile_messages, max_completion_tokens=256, task_label="profile_analysis"
         )
+        if used_fallback:
+            from void_engine.aljabr_transpiler import TASK_PRECISION
+            log_tier = TASK_PRECISION
+        else:
+            log_tier = TASK_BULK
         result_text = analysis.choices[0].message.content or ""
+        try:
+            usage = analysis.usage
+            if usage:
+                router.log_cost(log_tier, model, usage.prompt_tokens, usage.completion_tokens, "profile_analysis")
+        except Exception:
+            pass
         start = result_text.find("{")
         end = result_text.rfind("}") + 1
         if start >= 0 and end > start:
@@ -450,18 +454,19 @@ def fairy_ask():
     messages.append({"role": "user", "content": _sanitize_for_llm(message)})
 
     try:
-        client = OpenAI(
-            api_key=AI_INTEGRATIONS_OPENAI_API_KEY,
-            base_url=AI_INTEGRATIONS_OPENAI_BASE_URL
-        )
-        # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
-        # do not change this unless explicitly requested by the user
-        response = client.chat.completions.create(
-            model="gpt-5-mini",
-            messages=messages,
-            max_completion_tokens=1024
+        from void_engine.aljabr_transpiler import get_model_router, TASK_PRECISION
+        router = get_model_router()
+        response, model_used, used_fallback = router.call_with_fallback(
+            TASK_PRECISION, messages, max_completion_tokens=1024, task_label="adriana_chat"
         )
         reply = response.choices[0].message.content or ""
+
+        try:
+            usage = response.usage
+            if usage:
+                router.log_cost(TASK_PRECISION, model_used, usage.prompt_tokens, usage.completion_tokens, "adriana_chat")
+        except Exception:
+            pass
 
         try:
             _maybe_update_profile(user_id, tier, message, history, reply)

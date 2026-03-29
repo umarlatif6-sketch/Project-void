@@ -133,6 +133,133 @@
         </div>
         {% endif %}
 
+        {% if model_updated %}
+        <div style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); border-radius: 6px; padding: 10px 16px; color: var(--success, #4ade80); margin-bottom: 16px; font-size: 13px;">
+            Model router updated for tier <strong>{{ model_updated }}</strong>.
+        </div>
+        {% endif %}
+        {% if model_error %}
+        <div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 10px 16px; color: var(--error, #ef4444); margin-bottom: 16px; font-size: 13px;">
+            {% if model_error == 'invalid_input' %}Invalid input — check tier and model name.{% elif model_error == 'save_failed' %}Save failed — check logs.{% else %}Model router error.{% endif %}
+        </div>
+        {% endif %}
+
+        {% if model_tier_configs %}
+        <div class="admin-section">
+            <div class="admin-section-title">AI Model Router — Tier Configuration</div>
+            <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 16px;">
+                Route each task type to the most cost-effective model. Use <code style="color:var(--accent)">openrouter.ai/api/v1</code> as the base URL for OpenRouter models.
+                Leave base URL blank to use the default endpoint.
+            </p>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Purpose</th>
+                        <th>Model</th>
+                        <th>Base URL (optional)</th>
+                        <th>Cost / 1K tokens ($)</th>
+                        <th>Save</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tc in model_tier_configs %}
+                    <tr>
+                        <td>
+                            <span class="active-badge {% if tc.tier == 'PRECISION' %}active-yes{% elif tc.tier == 'STANDARD' %}{% else %}active-no{% endif %}" style="{% if tc.tier == 'STANDARD' %}background: rgba(201,168,76,0.15); color: #c9a84c;{% endif %}">
+                                {{ tc.tier }}
+                            </span>
+                        </td>
+                        <td style="color: var(--text-dim); font-size: 12px;">{{ tc.description }}</td>
+                        <td colspan="4">
+                            <form method="POST" action="/admin/model-router" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <input type="hidden" name="tier" value="{{ tc.tier }}">
+                                <input type="text" name="model" class="edit-input" value="{{ tc.model }}" placeholder="e.g. gpt-5-mini" required style="width: 180px;">
+                                <input type="text" name="base_url" class="edit-input" value="{{ tc.base_url }}" placeholder="https://openrouter.ai/api/v1" style="width: 220px;">
+                                <input type="number" name="cost_per_1k_tokens" class="edit-input" step="0.000001" min="0" value="{{ tc.cost_per_1k_tokens }}" placeholder="0.0003" style="width: 100px;">
+                                <button type="submit" class="save-btn">Save</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <div class="admin-section">
+            <div class="admin-section-title">AI Credit Cost Tracker</div>
+            {% if cost_summary and cost_summary.grand_total_calls > 0 %}
+            <div style="display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap;">
+                <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 20px; min-width: 160px;">
+                    <div style="color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Total Calls</div>
+                    <div style="font-size: 22px; font-weight: 700; color: var(--text);">{{ cost_summary.grand_total_calls }}</div>
+                </div>
+                <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 20px; min-width: 160px;">
+                    <div style="color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Cumulative Cost</div>
+                    <div style="font-size: 22px; font-weight: 700; color: var(--accent);">${{ "%.6f"|format(cost_summary.grand_total_usd) }}</div>
+                </div>
+            </div>
+            {% if cost_summary.by_tier %}
+            <table class="admin-table" style="margin-bottom: 20px;">
+                <thead>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Model</th>
+                        <th>Calls</th>
+                        <th>Prompt Tokens</th>
+                        <th>Completion Tokens</th>
+                        <th>Estimated Cost ($)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in cost_summary.by_tier %}
+                    <tr>
+                        <td><span class="key-code">{{ b.tier }}</span></td>
+                        <td style="color: var(--text-dim); font-size: 12px;">{{ b.model }}</td>
+                        <td>{{ b.calls }}</td>
+                        <td>{{ b.total_prompt_tokens }}</td>
+                        <td>{{ b.total_completion_tokens }}</td>
+                        <td style="color: var(--accent);">${{ "%.6f"|format(b.total_cost_usd) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            {% if cost_summary.recent_calls %}
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 8px;">Recent Calls (last 20)</div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Model</th>
+                        <th>Task</th>
+                        <th>Prompt</th>
+                        <th>Completion</th>
+                        <th>Cost ($)</th>
+                        <th>At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rc in cost_summary.recent_calls %}
+                    <tr>
+                        <td><span class="key-code">{{ rc.tier }}</span></td>
+                        <td style="font-size: 12px; color: var(--text-dim);">{{ rc.model }}</td>
+                        <td style="font-size: 12px; color: var(--text-dim);">{{ rc.task_label or '—' }}</td>
+                        <td>{{ rc.prompt_tokens }}</td>
+                        <td>{{ rc.completion_tokens }}</td>
+                        <td style="color: var(--accent);">${{ "%.6f"|format(rc.cost_usd) }}</td>
+                        <td class="updated-dim">{{ rc.logged_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            {% else %}
+            <p style="color: var(--text-dim); font-size: 13px;">No AI calls logged yet. Cost tracking begins on the next routed request.</p>
+            {% endif %}
+        </div>
+
         <div class="admin-section">
             <div class="admin-section-title">Configurable Price Items</div>
             {% if configs %}

@@ -20,8 +20,44 @@ Patterns:
 
 import os
 import time
-from typing import Dict, List, Optional
+import json
+import logging
+from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
+
+logger = logging.getLogger(__name__)
+
+
+TASK_PRECISION = "PRECISION"
+TASK_STANDARD = "STANDARD"
+TASK_BULK = "BULK"
+
+_DEFAULT_MODEL_CONFIG = {
+    TASK_PRECISION: {
+        "model": "gpt-5-mini",
+        "base_url": None,
+        "label": "Precision",
+        "description": "Logic checks, safety audits, Adriana dialect generation",
+        "cost_per_1k_tokens": 0.0003,
+    },
+    TASK_STANDARD: {
+        "model": "gpt-5-mini",
+        "base_url": None,
+        "label": "Standard",
+        "description": "General reasoning, research, profile analysis",
+        "cost_per_1k_tokens": 0.0003,
+    },
+    TASK_BULK: {
+        "model": "gpt-5-mini",
+        "base_url": None,
+        "label": "Bulk",
+        "description": "Agent simulation, gibberish decoding, batch analysis",
+        "cost_per_1k_tokens": 0.0003,
+    },
+}
+
+_DB_CONFIG_TABLE = "ai_model_router_config"
+_DB_COST_TABLE = "ai_model_cost_log"
 
 
 PATTERNS = {
@@ -580,3 +616,298 @@ class AlJabrTranspiler:
     @property
     def patterns(self) -> Dict:
         return dict(PATTERNS)
+
+
+class ModelRouter:
+    """
+    Routes AI calls to the most cost-effective model based on task type.
+
+    Three tiers:
+      PRECISION — logic checks, safety audits, Adriana dialect generation → premium model
+      STANDARD  — general reasoning, research → mid-tier model
+      BULK      — agent simulation, gibberish decoding, batch analysis → cheapest available
+    """
+
+    def __init__(self):
+        self._config: Dict[str, Dict] = {k: dict(v) for k, v in _DEFAULT_MODEL_CONFIG.items()}
+        self._loaded_from_db = False
+        self._session_cost_usd = 0.0
+        self._session_calls = 0
+        self._primary_api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
+        self._primary_base_url = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+
+    def _get_db(self):
+        from void_engine.db_pool import get_db
+        return get_db()
+
+    def ensure_tables(self):
+        try:
+            conn = self._get_db()
+            cur = conn.cursor()
+            cur.execute(f"""
+                CREATE TABLE IF NOT EXISTS {_DB_CONFIG_TABLE} (
+                    tier VARCHAR(20) PRIMARY KEY,
+                    model VARCHAR(120) NOT NULL,
+                    base_url TEXT,
+                    label VARCHAR(80),
+                    description TEXT,
+                    cost_per_1k_tokens FLOAT DEFAULT 0.0003,
+                    updated_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
+            cur.execute(f"""
+                CREATE TABLE IF NOT EXISTS {_DB_COST_TABLE} (
+                    id SERIAL PRIMARY KEY,
+                    tier VARCHAR(20) NOT NULL,
+                    model VARCHAR(120),
+                    prompt_tokens INTEGER DEFAULT 0,
+                    completion_tokens INTEGER DEFAULT 0,
+                    estimated_cost_usd FLOAT DEFAULT 0.0,
+                    task_label TEXT,
+                    logged_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
+            conn.commit()
+            cur.close()
+            conn.close()
+        except Exception as e:
+            logger.warning("ModelRouter: failed to ensure tables: %s", e)
+
+    def load_config_from_db(self):
+        try:
+            conn = self._get_db()
+            cur = conn.cursor()
+            cur.execute(
+                f"SELECT tier, model, base_url, label, description, cost_per_1k_tokens FROM {_DB_CONFIG_TABLE}"
+            )
+            rows = cur.fetchall()
+            cur.close()
+            conn.close()
+            if rows:
+                for row in rows:
+                    tier, model, base_url, label, description, cost_per_1k = row
+                    if tier in self._config:
+                        self._config[tier]["model"] = model
+                        self._config[tier]["base_url"] = base_url
+                        self._config[tier]["label"] = label or self._config[tier]["label"]
+                        self._config[tier]["description"] = description or self._config[tier]["description"]
+                        self._config[tier]["cost_per_1k_tokens"] = cost_per_1k or 0.0003
+                self._loaded_from_db = True
+        except Exception as e:
+            logger.warning("ModelRouter: could not load config from DB (using defaults): %s", e)
+
+    def save_tier_config(self, tier: str, model: str, base_url: Optional[str], cost_per_1k_tokens: float) -> bool:
+        if tier not in self._config:
+            return False
+        try:
+            conn = self._get_db()
+            cur = conn.cursor()
+            cur.execute(f"""
+                INSERT INTO {_DB_CONFIG_TABLE} (tier, model, base_url, label, description, cost_per_1k_tokens, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, NOW())
+                ON CONFLICT (tier) DO UPDATE SET
+                    model = EXCLUDED.model,
+                    base_url = EXCLUDED.base_url,
+                    cost_per_1k_tokens = EXCLUDED.cost_per_1k_tokens,
+                    updated_at = NOW()
+            """, (
+                tier,
+                model,
+                base_url or None,
+                self._config[tier]["label"],
+                self._config[tier]["description"],
+                cost_per_1k_tokens,
+            ))
+            conn.commit()
+            cur.close()
+            conn.close()
+            self._config[tier]["model"] = model
+            self._config[tier]["base_url"] = base_url or None
+            self._config[tier]["cost_per_1k_tokens"] = cost_per_1k_tokens
+            logger.info("ModelRouter: saved tier %s config — model=%s", tier, model)
+            return True
+        except Exception as e:
+            logger.error("ModelRouter: failed to save tier config: %s", e)
+            return False
+
+    def get_client_for_tier(self, tier: str):
+        from openai import OpenAI
+        cfg = self._config.get(tier, self._config[TASK_PRECISION])
+        model = cfg["model"]
+        base_url = cfg.get("base_url") or self._primary_base_url
+        client = OpenAI(api_key=self._primary_api_key, base_url=base_url)
+        return client, model
+
+    def _get_fallback_client(self):
+        from openai import OpenAI
+        precision_cfg = self._config.get(TASK_PRECISION, _DEFAULT_MODEL_CONFIG[TASK_PRECISION])
+        fallback_model = precision_cfg["model"]
+        fallback_base_url = precision_cfg.get("base_url") or self._primary_base_url
+        fallback_client = OpenAI(api_key=self._primary_api_key, base_url=fallback_base_url)
+        return fallback_client, fallback_model
+
+    def call_with_fallback(self, tier: str, messages: list, max_completion_tokens: int = 1024, task_label: str = "") -> Tuple[object, str, bool]:
+        """
+        Make a chat completion call for the given tier, falling back to the precision
+        model if the tier-specific endpoint is unavailable or returns an error.
+
+        Returns: (response, model_used, used_fallback)
+        """
+        client, model = self.get_client_for_tier(tier)
+        used_fallback = False
+
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_completion_tokens=max_completion_tokens,
+            )
+            return response, model, used_fallback
+        except Exception as primary_err:
+            err_str = str(primary_err)
+            is_provider_error = any(x in err_str for x in (
+                "Connection", "connection", "timeout", "Timeout",
+                "503", "502", "504", "unavailable", "refused",
+                "404", "model_not_found", "invalid_api_key",
+            ))
+            if is_provider_error or tier != TASK_PRECISION:
+                logger.warning(
+                    "ModelRouter: tier=%s model=%s failed (%s), falling back to precision model",
+                    tier, model, err_str[:120]
+                )
+                try:
+                    fallback_client, fallback_model = self._get_fallback_client()
+                    response = fallback_client.chat.completions.create(
+                        model=fallback_model,
+                        messages=messages,
+                        max_completion_tokens=max_completion_tokens,
+                    )
+                    used_fallback = True
+                    logger.info("ModelRouter: fallback succeeded — model=%s task=%s", fallback_model, task_label)
+                    return response, fallback_model, used_fallback
+                except Exception as fallback_err:
+                    logger.error(
+                        "ModelRouter: fallback also failed — tier=%s fallback_err=%s",
+                        tier, str(fallback_err)[:120]
+                    )
+                    raise fallback_err
+            raise primary_err
+
+    def log_cost(self, tier: str, model: str, prompt_tokens: int, completion_tokens: int, task_label: str = ""):
+        cfg = self._config.get(tier, self._config[TASK_PRECISION])
+        cost_per_1k = cfg.get("cost_per_1k_tokens", 0.0003)
+        total_tokens = prompt_tokens + completion_tokens
+        estimated_cost = (total_tokens / 1000.0) * cost_per_1k
+
+        self._session_cost_usd += estimated_cost
+        self._session_calls += 1
+
+        try:
+            conn = self._get_db()
+            cur = conn.cursor()
+            cur.execute(f"""
+                INSERT INTO {_DB_COST_TABLE} (tier, model, prompt_tokens, completion_tokens, estimated_cost_usd, task_label, logged_at)
+                VALUES (%s, %s, %s, %s, %s, %s, NOW())
+            """, (tier, model, prompt_tokens, completion_tokens, estimated_cost, task_label))
+            conn.commit()
+            cur.close()
+            conn.close()
+        except Exception as e:
+            logger.warning("ModelRouter: failed to log cost: %s", e)
+
+        logger.info(
+            "ModelRouter cost: tier=%s model=%s tokens=%d estimated=$%.6f cumulative=$%.4f",
+            tier, model, total_tokens, estimated_cost, self._session_cost_usd
+        )
+        return estimated_cost
+
+    def get_cost_summary(self) -> Dict:
+        try:
+            conn = self._get_db()
+            cur = conn.cursor()
+            cur.execute(f"""
+                SELECT tier, model,
+                       COUNT(*) AS calls,
+                       SUM(prompt_tokens) AS total_prompt,
+                       SUM(completion_tokens) AS total_completion,
+                       SUM(estimated_cost_usd) AS total_cost
+                FROM {_DB_COST_TABLE}
+                GROUP BY tier, model
+                ORDER BY tier
+            """)
+            rows = cur.fetchall()
+            cur.execute(f"SELECT SUM(estimated_cost_usd), COUNT(*) FROM {_DB_COST_TABLE}")
+            totals = cur.fetchone()
+            cur.execute(f"""
+                SELECT tier, model, prompt_tokens, completion_tokens, estimated_cost_usd, task_label, logged_at
+                FROM {_DB_COST_TABLE}
+                ORDER BY logged_at DESC
+                LIMIT 20
+            """)
+            recent = cur.fetchall()
+            cur.close()
+            conn.close()
+            return {
+                "by_tier": [
+                    {
+                        "tier": r[0],
+                        "model": r[1],
+                        "calls": r[2],
+                        "total_prompt_tokens": r[3],
+                        "total_completion_tokens": r[4],
+                        "total_cost_usd": round(float(r[5] or 0), 6),
+                    }
+                    for r in rows
+                ],
+                "grand_total_usd": round(float(totals[0] or 0), 6) if totals else 0.0,
+                "grand_total_calls": int(totals[1] or 0) if totals else 0,
+                "recent_calls": [
+                    {
+                        "tier": r[0],
+                        "model": r[1],
+                        "prompt_tokens": r[2],
+                        "completion_tokens": r[3],
+                        "cost_usd": round(float(r[4] or 0), 6),
+                        "task_label": r[5] or "",
+                        "logged_at": r[6].strftime("%Y-%m-%d %H:%M:%S") if r[6] else "",
+                    }
+                    for r in recent
+                ],
+            }
+        except Exception as e:
+            logger.warning("ModelRouter: failed to get cost summary: %s", e)
+            return {"by_tier": [], "grand_total_usd": 0.0, "grand_total_calls": 0, "recent_calls": []}
+
+    def get_config_display(self) -> List[Dict]:
+        result = []
+        for tier in (TASK_PRECISION, TASK_STANDARD, TASK_BULK):
+            cfg = self._config[tier]
+            result.append({
+                "tier": tier,
+                "label": cfg["label"],
+                "description": cfg["description"],
+                "model": cfg["model"],
+                "base_url": cfg.get("base_url") or "",
+                "cost_per_1k_tokens": cfg.get("cost_per_1k_tokens", 0.0003),
+            })
+        return result
+
+    @property
+    def session_cost_usd(self) -> float:
+        return self._session_cost_usd
+
+    @property
+    def session_calls(self) -> int:
+        return self._session_calls
+
+
+_model_router: Optional[ModelRouter] = None
+
+
+def get_model_router() -> ModelRouter:
+    global _model_router
+    if _model_router is None:
+        _model_router = ModelRouter()
+        _model_router.ensure_tables()
+        _model_router.load_config_from_db()
+    return _model_router
