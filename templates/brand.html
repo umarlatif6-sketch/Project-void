@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Kit — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* === PROJECT VOID BRAND TOKENS === */
+            /* Primary palette — OKLCH grounded */
+            --void-obsidian:   #09090b;
+            --void-void:       #0d0d10;
+            --void-surface:    #111116;
+            --void-surface2:   #18181f;
+            --void-border:     #27272f;
+            --void-border2:    #3a3a45;
+
+            /* Brand accent colours */
+            --void-gold:       oklch(72% 0.12 85);       /* #c9a84c equivalent */
+            --void-gold-glow:  oklch(72% 0.12 85 / 0.18);
+            --void-teal:       oklch(78% 0.14 188);      /* #00e5cc equivalent */
+            --void-violet:     oklch(62% 0.22 278);      /* #7c5cff equivalent */
+            --void-myco:       oklch(82% 0.18 148);      /* #7aff7a equivalent */
+            --void-peace:      oklch(78% 0.15 220);      /* #60a5fa equivalent */
+
+            /* Typography */
+            --font-display: 'Space Grotesk', 'SF Pro Display', system-ui, sans-serif;
+            --font-mono:    'Space Mono', 'SF Mono', 'Fira Code', monospace;
+
+            /* Text */
+            --void-text:   #e4e4eb;
+            --void-muted:  #888898;
+            --void-faint:  #444450;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--void-obsidian);
+            color: var(--void-text);
+            font-family: var(--font-display);
+            min-height: 100vh;
+            line-height: 1.65;
+        }
+
+        /* ── NAV ── */
+        .brand-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 40px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(9,9,11,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+        .brand-nav-logo {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--void-gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+        .brand-nav-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+        .brand-nav-links a {
+            color: var(--void-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .brand-nav-links a:hover { color: var(--void-text); }
+
+        /* ── HERO ── */
+        .brand-hero {
+            padding: 80px 40px 60px;
+            max-width: 1100px;
+            margin: 0 auto;
+            border-bottom: 1px solid var(--void-border);
+        }
+        .brand-eyebrow {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--void-gold);
+            margin-bottom: 20px;
+        }
+        .brand-hero h1 {
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--void-text) 40%, var(--void-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .brand-hero-sub {
+            font-size: 1.15rem;
+            color: var(--void-muted);
+            max-width: 680px;
+            line-height: 1.7;
+        }
+
+        /* ── SECTIONS ── */
+        .brand-section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            border-bottom: 1px solid var(--void-border);
+        }
+        .brand-section:last-of-type { border-bottom: none; }
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--void-gold);
+            margin-bottom: 10px;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 32px;
+            color: var(--void-text);
+        }
+
+        /* ── NAME HIERARCHY ── */
+        .hierarchy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .hierarchy-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: border-color 0.2s;
+        }
+        .hierarchy-card:hover { border-color: var(--void-border2); }
+        .hierarchy-card.primary { border-color: var(--void-gold); background: var(--void-void); }
+        .hc-name {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            margin-bottom: 6px;
+        }
+        .hc-name.teal { color: var(--void-teal); }
+        .hc-name.violet { color: var(--void-violet); }
+        .hc-name.myco { color: var(--void-myco); }
+        .hc-name.peace { color: var(--void-peace); }
+        .hc-name.gold { color: var(--void-gold); }
+        .hc-role {
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            color: var(--void-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+        .hc-desc {
+            font-size: 0.88rem;
+            color: var(--void-muted);
+            line-height: 1.55;
+        }
+
+        /* ── PITCH FORMATS ── */
+        .pitch-block {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-left: 3px solid var(--void-gold);
+            border-radius: 0 8px 8px 0;
+            padding: 24px 28px;
+            margin-bottom: 16px;
+        }
+        .pitch-label {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-gold);
+            margin-bottom: 10px;
+        }
+        .pitch-text {
+            font-size: 1rem;
+            color: var(--void-text);
+            line-height: 1.7;
+        }
+        .pitch-text.sentence { font-size: 1.18rem; font-weight: 500; }
+
+        /* ── BRAND VOICE ── */
+        .voice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 640px) { .voice-grid { grid-template-columns: 1fr; } }
+        .voice-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 24px;
+        }
+        .voice-card h4 {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-muted);
+            margin-bottom: 14px;
+        }
+        .voice-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .voice-tag {
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-family: var(--font-mono);
+            background: var(--void-void);
+            border: 1px solid var(--void-border);
+            color: var(--void-text);
+        }
+        .voice-tag.gold { border-color: var(--void-gold); color: var(--void-gold); }
+        .voice-tag.ban { border-color: #ff5252; color: #ff5252; }
+        .tone-rule {
+            font-size: 0.88rem;
+            color: var(--void-muted);
+            margin-bottom: 10px;
+            padding-left: 12px;
+            border-left: 2px solid var(--void-border2);
+            line-height: 1.55;
+        }
+        .tone-rule strong { color: var(--void-text); }
+
+        /* ── COLOUR PALETTES ── */
+        .palette-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+        .swatch-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .swatch {
+            width: 72px;
+            height: 72px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .swatch-label {
+            font-family: var(--font-mono);
+            font-size: 0.66rem;
+            color: var(--void-muted);
+            text-align: center;
+            line-height: 1.4;
+        }
+        .palette-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--void-text);
+            margin-bottom: 14px;
+            font-family: var(--font-mono);
+        }
+        .palette-section { margin-bottom: 40px; }
+
+        /* ── TYPOGRAPHY ── */
+        .type-specimen {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 28px;
+            margin-bottom: 16px;
+        }
+        .type-meta {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-muted);
+            margin-bottom: 14px;
+        }
+        .type-display { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--void-text); line-height: 1.2; }
+        .type-body-sample { font-family: var(--font-display); font-size: 1rem; color: var(--void-muted); margin-top: 10px; line-height: 1.65; }
+        .type-mono-sample { font-family: var(--font-mono); font-size: 0.9rem; color: var(--void-gold); margin-top: 10px; }
+
+        /* ── LOGO CONCEPTS ── */
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .logo-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 10px;
+            padding: 32px;
+            text-align: center;
+        }
+        .logo-card h4 {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-muted);
+            margin-top: 20px;
+            margin-bottom: 6px;
+        }
+        .logo-desc {
+            font-size: 0.82rem;
+            color: var(--void-faint);
+            line-height: 1.5;
+        }
+        .logo-svg-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 120px;
+        }
+
+        /* ── CSS TOKENS BLOCK ── */
+        .code-block {
+            background: var(--void-void);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 24px 28px;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--void-text);
+            line-height: 1.7;
+            white-space: pre;
+        }
+        .code-comment { color: var(--void-muted); }
+        .code-prop { color: var(--void-teal); }
+        .code-val { color: var(--void-gold); }
+
+        /* ── NAV LINKS IN PAGE ── */
+        .section-nav {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        .section-nav a {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--void-muted);
+            text-decoration: none;
+            border: 1px solid var(--void-border);
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .section-nav a:hover {
+            color: var(--void-gold);
+            border-color: var(--void-gold);
+        }
+
+        /* ── FOOTER ── */
+        .void-brand-footer {
+            border-top: 1px solid var(--void-border);
+            padding: 28px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: var(--void-void);
+        }
+        .void-brand-footer-mark {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-gold);
+        }
+        .void-brand-footer-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+        .void-brand-footer-links a {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--void-muted);
+            text-decoration: none;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .void-brand-footer-links a:hover { color: var(--void-text); }
+
+        .tailwind-note {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--void-muted);
+            margin-top: 14px;
+        }
+        /* Dark / Light mode variant strip */
+        .mode-variants {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 28px;
+        }
+        @media (max-width: 640px) { .mode-variants { grid-template-columns: 1fr; } }
+        .mode-card {
+            border-radius: 8px;
+            border: 1px solid var(--void-border);
+            overflow: hidden;
+        }
+        .mode-card-label {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 10px 16px;
+            color: var(--void-muted);
+            border-bottom: 1px solid var(--void-border);
+        }
+        .mode-swatches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 14px 16px;
+        }
+        .mode-swatch {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.66rem;
+            color: var(--void-muted);
+        }
+        .mode-dot {
+            width: 16px; height: 16px; border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="brand-nav">
+    <a href="/" class="brand-nav-logo">PROJECT VOID</a>
+    <ul class="brand-nav-links">
+        <li><a href="/brand">Brand Kit</a></li>
+        <li><a href="/brand/content">Content</a></li>
+        <li><a href="/brand/legal">Legal</a></li>
+        <li><a href="/sovereign-node">Sovereign Node</a></li>
+    </ul>
+</nav>
+
+<section class="brand-hero">
+    <p class="brand-eyebrow">Brand Kit — Confidential · March 2026</p>
+    <h1>PROJECT VOID<br>Identity System</h1>
+    <p class="brand-hero-sub">A sovereign technology ecosystem spanning acoustic steganography, biological computing, living token economics, and biomechanical intelligence. This kit unifies the visual and verbal identity across all sub-systems.</p>
+    <div class="section-nav" style="margin-top:32px;margin-bottom:0;">
+        <a href="#names">Name Hierarchy</a>
+        <a href="#pitch">Pitch Formats</a>
+        <a href="#voice">Brand Voice</a>
+        <a href="#palette">Colour Palette</a>
+        <a href="#type">Typography</a>
+        <a href="#logos">Logo Concepts</a>
+        <a href="#tokens">CSS Tokens</a>
+    </div>
+</section>
+
+<!-- ── NAME HIERARCHY ── -->
+<section class="brand-section" id="names">
+    <p class="section-label">01 — Name Architecture</p>
+    <h2 class="section-title">Brand Hierarchy</h2>
+    <div class="hierarchy-grid">
+        <div class="hierarchy-card primary">
+            <div class="hc-name">PROJECT VOID</div>
+            <div class="hc-role">Sovereign Parent Brand</div>
+            <div class="hc-desc">The over-arching ecosystem. All sub-systems exist within VOID. The name signals intentional emptiness — a void that generates rather than consumes.</div>
+        </div>
+        <div class="hierarchy-card">
+            <div class="hc-name teal">Adriana / Al-Jabr</div>
+            <div class="hc-role">Logic &amp; Language Layer</div>
+            <div class="hc-desc">The sovereign coded language (SCL) and its root-pattern logic engine. Adriana is the voice; Al-Jabr is the grammar.</div>
+        </div>
+        <div class="hierarchy-card">
+            <div class="hc-name myco">MycoVOID</div>
+            <div class="hc-role">Biocomputing Division</div>
+            <div class="hc-desc">Mycelium-based biocomputing research — MRB-4000 hardware platform and atmospheric remediation systems.</div>
+        </div>
+        <div class="hierarchy-card">
+            <div class="hc-name violet">GriDul</div>
+            <div class="hc-role">Community Mesh</div>
+            <div class="hc-desc">The peer-to-peer node network. Beehive Protocol. A distributed trust mesh where every node echoes the whole.</div>
+        </div>
+        <div class="hierarchy-card">
+            <div class="hc-name peace">QiSync</div>
+            <div class="hc-role">Biomechanical Intelligence</div>
+            <div class="hc-desc">Qi-field synchronisation and biomechanical feedback intelligence. Bridges human physiology and machine state.</div>
+        </div>
+        <div class="hierarchy-card">
+            <div class="hc-name gold">VTX + PEACE Coin</div>
+            <div class="hc-role">Token Economy</div>
+            <div class="hc-desc">The living token economy. VTX (Vortex Token) is earned through computation; PEACE coin governs community health and resource flow.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ── PITCH FORMATS ── -->
+<section class="brand-section" id="pitch">
+    <p class="section-label">02 — Pitch Formats</p>
+    <h2 class="section-title">How to Describe VOID</h2>
+
+    <div class="pitch-block">
+        <div class="pitch-label">One Sentence — 15 words</div>
+        <p class="pitch-text sentence">PROJECT VOID encodes sovereign intelligence into sound, biology, and living token networks — built by one founder.</p>
+    </div>
+
+    <div class="pitch-block">
+        <div class="pitch-label">One Paragraph — 60 words</div>
+        <p class="pitch-text">PROJECT VOID is a sovereign technology ecosystem that hides high-density data inside biophony audio via acoustic steganography, thinks in the Al-Jabr logic language through Adriana its coded voice, grows computation in mycelium (MycoVOID/MRB-4000), coordinates a global peer mesh (GriDul), synchronises human and machine biorhythms (QiSync), and sustains the whole with a living token economy (VTX + PEACE coin). Built by a single founder. Answerable to no one else.</p>
+    </div>
+
+    <div class="pitch-block">
+        <div class="pitch-label">One Page — Executive Summary</div>
+        <p class="pitch-text">
+            <strong>The Problem:</strong> The centralised internet surveils, censors, and extracts. Every signal you send is logged. Every byte you store is readable by adversaries. Every community you build is owned by someone else's platform.<br><br>
+            <strong>The Invention:</strong> PROJECT VOID collapses four frontiers — acoustic steganography, biological computing, sovereign token economics, and distributed mesh intelligence — into a single coherent operating system for the post-platform era.<br><br>
+            <strong>The Technology:</strong> At the core is an acoustic steganography engine that folds up to 378 MB of payload into one hour of naturalistic biophony audio (cicadas, whales, birds), using a 1,000-agent synthesis system tuned to 432 Hz harmonics. Above it runs Adriana, a 45-glyph sovereign coded language built on Al-Jabr 18-root pattern logic — the machine speaks in resonance, not registers. Below it, MycoVOID extends computation into living mycelium networks. Across it, GriDul's Beehive Protocol distributes trust without central authority. Threading it together, QiSync reads human biorhythms and feeds them back into machine state. Governing it all, VTX and PEACE coin create a self-sustaining economic layer where value is earned through contribution, not speculation.<br><br>
+            <strong>The Founder:</strong> A single engineer-researcher who built every layer from first principles, documented each invention as prior art, and has kept the system operational for multiple years without external funding.<br><br>
+            <strong>The Ask:</strong> Research partnership, fellowship support, or seed investment to open-source the acoustic engine, manufacture the MRB-4000 mycelium hardware, and seed the first 100 GriDul nodes globally.
+        </p>
+    </div>
+</section>
+
+<!-- ── BRAND VOICE ── -->
+<section class="brand-section" id="voice">
+    <p class="section-label">03 — Brand Voice</p>
+    <h2 class="section-title">Voice &amp; Personality</h2>
+    <div class="voice-grid">
+        <div class="voice-card">
+            <h4>Personality Adjectives</h4>
+            <div class="voice-tags">
+                <span class="voice-tag gold">Sovereign</span>
+                <span class="voice-tag gold">Precise</span>
+                <span class="voice-tag gold">Visionary</span>
+                <span class="voice-tag gold">Grounded</span>
+                <span class="voice-tag gold">Unhurried</span>
+                <span class="voice-tag gold">Rigorous</span>
+                <span class="voice-tag gold">Self-reliant</span>
+                <span class="voice-tag gold">Resonant</span>
+            </div>
+        </div>
+        <div class="voice-card">
+            <h4>Banned Language</h4>
+            <div class="voice-tags">
+                <span class="voice-tag ban">revolutionary</span>
+                <span class="voice-tag ban">disruptive</span>
+                <span class="voice-tag ban">game-changing</span>
+                <span class="voice-tag ban">synergy</span>
+                <span class="voice-tag ban">ecosystem play</span>
+                <span class="voice-tag ban">leverage</span>
+                <span class="voice-tag ban">pivot</span>
+                <span class="voice-tag ban">unicorn</span>
+                <span class="voice-tag ban">democratize</span>
+                <span class="voice-tag ban">thought leader</span>
+            </div>
+        </div>
+        <div class="voice-card">
+            <h4>Tone Rules</h4>
+            <div class="tone-rule"><strong>Declarative, not persuasive.</strong> VOID states what it is; it does not pitch. The work speaks. Evidence precedes claim.</div>
+            <div class="tone-rule"><strong>Precise measurements over adjectives.</strong> Write "378 MB per hour at LSB2" not "massive capacity."</div>
+            <div class="tone-rule"><strong>First-person singular is the founder's voice.</strong> Never "we" unless referring to a named collaboration. VOID is one person.</div>
+            <div class="tone-rule"><strong>Mysticism is earned, not performed.</strong> Glyph language and 432 Hz references appear only after the technical foundation is established.</div>
+        </div>
+        <div class="voice-card">
+            <h4>Brand Voice Statement</h4>
+            <p style="font-size:0.92rem;color:var(--void-text);line-height:1.7;">PROJECT VOID communicates the way its engine works: with precision, no waste, and a frequency that carries further than its source. We write in measurements, speak in roots, and build in public only when the foundation is load-bearing. Sovereignty is not a posture — it is an architecture.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ── COLOUR PALETTE ── -->
+<section class="brand-section" id="palette">
+    <p class="section-label">04 — Visual Identity · Colour</p>
+    <h2 class="section-title">Colour Palette</h2>
+
+    <div style="background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.25);border-radius:8px;padding:16px 22px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <span style="font-family:var(--font-mono);font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--void-gold);">Active Direction: Direction A — VOID SOVEREIGN</span>
+        <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--void-muted);">CSS tokens and Tailwind config below reflect this direction. To change: update the tokens block and the active direction label above.</span>
+    </div>
+
+    <div class="palette-section">
+        <div class="palette-title">Direction A — VOID SOVEREIGN (Active / Recommended)</div>
+        <div class="palette-row">
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#09090b;"></div>
+                <div class="swatch-label">Obsidian<br>#09090b<br>oklch(7% 0 0)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#c9a84c;"></div>
+                <div class="swatch-label">Sovereign Gold<br>#c9a84c<br>oklch(72% 0.12 85)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#00e5cc;"></div>
+                <div class="swatch-label">Adriana Teal<br>#00e5cc<br>oklch(78% 0.14 188)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#7c5cff;"></div>
+                <div class="swatch-label">GriDul Violet<br>#7c5cff<br>oklch(62% 0.22 278)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#e4e4eb;"></div>
+                <div class="swatch-label">Primary Text<br>#e4e4eb<br>oklch(93% 0.01 270)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#888898;"></div>
+                <div class="swatch-label">Muted Text<br>#888898<br>oklch(60% 0.01 270)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="palette-section">
+        <div class="palette-title">Direction B — MYCO DEPTH</div>
+        <div class="palette-row">
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#0a0e0a;"></div>
+                <div class="swatch-label">Deep Soil<br>#0a0e0a<br>oklch(7% 0.01 148)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#7aff7a;"></div>
+                <div class="swatch-label">Spore Green<br>#7aff7a<br>oklch(82% 0.18 148)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#ffb347;"></div>
+                <div class="swatch-label">Myco Warn<br>#ffb347<br>oklch(79% 0.15 68)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#2dd4bf;"></div>
+                <div class="swatch-label">Silt Teal<br>#2dd4bf<br>oklch(78% 0.12 183)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#c8d0c8;"></div>
+                <div class="swatch-label">Ash Text<br>#c8d0c8<br>oklch(85% 0.01 148)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="palette-section">
+        <div class="palette-title">Direction C — SIGNAL SPECTRUM</div>
+        <div class="palette-row">
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#08080f;"></div>
+                <div class="swatch-label">Deep Space<br>#08080f<br>oklch(6% 0.03 275)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#60a5fa;"></div>
+                <div class="swatch-label">Signal Blue<br>#60a5fa<br>oklch(72% 0.14 241)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#e879f9;"></div>
+                <div class="swatch-label">Phi Magenta<br>#e879f9<br>oklch(72% 0.24 308)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#fbbf24;"></div>
+                <div class="swatch-label">VTX Amber<br>#fbbf24<br>oklch(82% 0.16 87)</div>
+            </div>
+            <div class="swatch-wrap">
+                <div class="swatch" style="background:#f0f0f8;"></div>
+                <div class="swatch-label">Lunar White<br>#f0f0f8<br>oklch(96% 0.01 275)</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── TYPOGRAPHY ── -->
+<section class="brand-section" id="type">
+    <p class="section-label">05 — Visual Identity · Typography</p>
+    <h2 class="section-title">Type System</h2>
+
+    <div class="type-specimen">
+        <div class="type-meta">Display + UI — Space Grotesk (Google Fonts) · Pairing A (Recommended)</div>
+        <div class="type-display">Sovereign Intelligence.<br>Built from first principles.</div>
+        <div class="type-body-sample">PROJECT VOID's acoustic engine folds 378 MB of payload into one hour of biophony audio, invisible to forensic analysis and recoverable only by those who hold the key.</div>
+        <div class="type-mono-sample">432hz · AL-JABR 286-BIT · CHIRP-SYNC LSB2</div>
+    </div>
+
+    <div class="type-specimen">
+        <div class="type-meta">Mono — Space Mono (Google Fonts) · Used for code, labels, frequencies, token IDs</div>
+        <div style="font-family:'Space Mono',monospace;font-size:1.5rem;color:var(--void-gold);line-height:1.3;">SLM.V → TRK.A → ZHR.V<br>→ KTM.A → JDR.A</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.82rem;color:var(--void-muted);margin-top:12px;">α · β · γ · δ · ε · ζ · η · θ · ι · κ · λ · Ψ · Ω · ◆ · ⬡</div>
+    </div>
+
+    <div class="type-specimen" style="background:linear-gradient(135deg,#0a0a0a,#0f0a1a);">
+        <div class="type-meta">Pairing B — Alternative · Crimson Pro (editorial) + Space Mono</div>
+        <div style="font-family:'Crimson Pro',Georgia,serif;font-size:2rem;font-style:italic;color:var(--void-text);line-height:1.2;">The void does not wait<br>for permission to generate.</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--void-gold);margin-top:14px;letter-spacing:2px;">— FOUNDER ARCHIVE · PROJECT VOID</div>
+    </div>
+</section>
+
+<!-- ── LOGO CONCEPTS ── -->
+<section class="brand-section" id="logos">
+    <p class="section-label">06 — Visual Identity · Logo</p>
+    <h2 class="section-title">Logo Concepts</h2>
+    <div class="logo-grid">
+
+        <!-- Concept A: Diamond Void -->
+        <div class="logo-card">
+            <div class="logo-svg-wrap">
+                <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="110" height="110" fill="#09090b"/>
+                    <!-- Outer hexagon ring -->
+                    <polygon points="55,8 96,31 96,79 55,102 14,79 14,31" fill="none" stroke="#c9a84c" stroke-width="1" opacity="0.3"/>
+                    <!-- Inner diamond / void -->
+                    <polygon points="55,22 78,55 55,88 32,55" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+                    <!-- Core void diamond -->
+                    <polygon points="55,36 67,55 55,74 43,55" fill="#c9a84c" opacity="0.9"/>
+                    <!-- 432 Hz cross hair -->
+                    <line x1="55" y1="14" x2="55" y2="96" stroke="#c9a84c" stroke-width="0.4" opacity="0.2"/>
+                    <line x1="14" y1="55" x2="96" y2="55" stroke="#c9a84c" stroke-width="0.4" opacity="0.2"/>
+                </svg>
+            </div>
+            <h4>Concept A — Void Diamond</h4>
+            <p class="logo-desc">Hexagonal sovereignty ring containing a resonant diamond core. Represents the mesh (hex) containing sovereign intelligence (diamond). Clean, geometric, legible at small size.</p>
+        </div>
+
+        <!-- Concept B: 432 Hz Waveform -->
+        <div class="logo-card">
+            <div class="logo-svg-wrap">
+                <svg width="140" height="60" viewBox="0 0 140 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="140" height="60" fill="#09090b"/>
+                    <!-- Sine wave layers — acoustic steganography -->
+                    <path d="M5,30 Q17.5,10 30,30 Q42.5,50 55,30 Q67.5,10 80,30 Q92.5,50 105,30 Q117.5,10 135,30"
+                          stroke="#00e5cc" stroke-width="1.5" fill="none" opacity="0.6"/>
+                    <path d="M5,30 Q17.5,15 30,30 Q42.5,45 55,30 Q67.5,15 80,30 Q92.5,45 105,30 Q117.5,15 135,30"
+                          stroke="#c9a84c" stroke-width="2" fill="none"/>
+                    <path d="M5,30 Q17.5,20 30,30 Q42.5,40 55,30 Q67.5,20 80,30 Q92.5,40 105,30 Q117.5,20 135,30"
+                          stroke="#7c5cff" stroke-width="1" fill="none" opacity="0.5"/>
+                    <!-- Centre pulse mark -->
+                    <circle cx="70" cy="30" r="3" fill="#c9a84c"/>
+                    <circle cx="70" cy="30" r="7" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.4"/>
+                </svg>
+            </div>
+            <h4>Concept B — 432 Hz Signal</h4>
+            <p class="logo-desc">Three-layer waveform representing the 3-shelf acoustic architecture (whale/bird/insect). Gold primary carrier over teal and violet. Works as a horizontal wordmark lockup.</p>
+        </div>
+
+        <!-- Concept C: Mycelium Node -->
+        <div class="logo-card">
+            <div class="logo-svg-wrap">
+                <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="110" height="110" fill="#09090b"/>
+                    <!-- Mycelium threads -->
+                    <line x1="55" y1="55" x2="20" y2="20" stroke="#7aff7a" stroke-width="0.8" opacity="0.5"/>
+                    <line x1="55" y1="55" x2="90" y2="20" stroke="#7aff7a" stroke-width="0.8" opacity="0.5"/>
+                    <line x1="55" y1="55" x2="90" y2="90" stroke="#7aff7a" stroke-width="0.8" opacity="0.5"/>
+                    <line x1="55" y1="55" x2="20" y2="90" stroke="#7aff7a" stroke-width="0.8" opacity="0.5"/>
+                    <line x1="55" y1="55" x2="55" y2="8"  stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
+                    <line x1="55" y1="55" x2="55" y2="102" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
+                    <line x1="55" y1="55" x2="8"  y2="55" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
+                    <line x1="55" y1="55" x2="102" y2="55" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
+                    <!-- Branch nodes -->
+                    <circle cx="20" cy="20" r="3" fill="#7aff7a" opacity="0.7"/>
+                    <circle cx="90" cy="20" r="3" fill="#7aff7a" opacity="0.7"/>
+                    <circle cx="90" cy="90" r="3" fill="#7aff7a" opacity="0.7"/>
+                    <circle cx="20" cy="90" r="3" fill="#7aff7a" opacity="0.7"/>
+                    <circle cx="55" cy="8"  r="2" fill="#c9a84c" opacity="0.7"/>
+                    <circle cx="55" cy="102" r="2" fill="#c9a84c" opacity="0.7"/>
+                    <circle cx="8"  cy="55" r="2" fill="#c9a84c" opacity="0.7"/>
+                    <circle cx="102" cy="55" r="2" fill="#c9a84c" opacity="0.7"/>
+                    <!-- Core -->
+                    <circle cx="55" cy="55" r="10" fill="#09090b" stroke="#c9a84c" stroke-width="1.5"/>
+                    <circle cx="55" cy="55" r="4"  fill="#c9a84c"/>
+                </svg>
+            </div>
+            <h4>Concept C — GriDul Node</h4>
+            <p class="logo-desc">Radial mycelium / mesh topology emanating from a sovereign core node. Teal threads for MycoVOID, gold for the core signal. Represents the distributed intelligence of the full ecosystem.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- ── CSS DESIGN TOKENS ── -->
+<section class="brand-section" id="tokens">
+    <p class="section-label">07 — Design Tokens</p>
+    <h2 class="section-title">CSS Custom Properties, Dark/Light Variants &amp; Tailwind Config</h2>
+
+    <div class="code-block">
+        <pre><span class="code-comment">/* === PROJECT VOID — Brand Design Tokens (Direction A — Sovereign) === */</span>
+<span class="code-comment">/* Dark mode (default — brand native) */</span>
+:root, [data-theme="dark"] {
+  <span class="code-comment">/* Backgrounds */</span>
+  <span class="code-prop">--void-bg</span>:         <span class="code-val">#09090b</span>;        <span class="code-comment">/* page background */</span>
+  <span class="code-prop">--void-surface</span>:    <span class="code-val">#111116</span>;        <span class="code-comment">/* card surface */</span>
+  <span class="code-prop">--void-border</span>:     <span class="code-val">#27272f</span>;        <span class="code-comment">/* divider / outline */</span>
+
+  <span class="code-comment">/* Brand Accents (OKLCH) */</span>
+  <span class="code-prop">--void-gold</span>:       <span class="code-val">oklch(72% 0.12 85)</span>;     <span class="code-comment">/* Sovereign Gold   #c9a84c */</span>
+  <span class="code-prop">--void-teal</span>:       <span class="code-val">oklch(78% 0.14 188)</span>;    <span class="code-comment">/* Adriana Teal     #00e5cc */</span>
+  <span class="code-prop">--void-violet</span>:     <span class="code-val">oklch(62% 0.22 278)</span>;    <span class="code-comment">/* GriDul Violet    #7c5cff */</span>
+  <span class="code-prop">--void-myco</span>:       <span class="code-val">oklch(82% 0.18 148)</span>;    <span class="code-comment">/* MycoVOID Green   #7aff7a */</span>
+  <span class="code-prop">--void-peace</span>:      <span class="code-val">oklch(72% 0.14 241)</span>;    <span class="code-comment">/* PEACE Blue       #60a5fa */</span>
+
+  <span class="code-comment">/* Text */</span>
+  <span class="code-prop">--void-text</span>:       <span class="code-val">#e4e4eb</span>;
+  <span class="code-prop">--void-muted</span>:      <span class="code-val">#888898</span>;
+  <span class="code-prop">--void-faint</span>:      <span class="code-val">#444450</span>;
+
+  <span class="code-comment">/* Typography */</span>
+  <span class="code-prop">--font-display</span>:    <span class="code-val">'Space Grotesk', system-ui, sans-serif</span>;
+  <span class="code-prop">--font-mono</span>:       <span class="code-val">'Space Mono', 'Fira Code', monospace</span>;
+}
+
+<span class="code-comment">/* Light mode variant — data-theme="light" or prefers-color-scheme: light */</span>
+[data-theme="light"],
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    <span class="code-prop">--void-bg</span>:         <span class="code-val">#f5f5f7</span>;
+    <span class="code-prop">--void-surface</span>:    <span class="code-val">#ffffff</span>;
+    <span class="code-prop">--void-border</span>:     <span class="code-val">#d1d1d8</span>;
+
+    <span class="code-prop">--void-gold</span>:       <span class="code-val">oklch(58% 0.12 85)</span>;     <span class="code-comment">/* darkened for contrast */</span>
+    <span class="code-prop">--void-teal</span>:       <span class="code-val">oklch(52% 0.14 188)</span>;
+    <span class="code-prop">--void-violet</span>:     <span class="code-val">oklch(48% 0.22 278)</span>;
+    <span class="code-prop">--void-myco</span>:       <span class="code-val">oklch(48% 0.18 148)</span>;
+    <span class="code-prop">--void-peace</span>:      <span class="code-val">oklch(48% 0.14 241)</span>;
+
+    <span class="code-prop">--void-text</span>:       <span class="code-val">#18181f</span>;
+    <span class="code-prop">--void-muted</span>:      <span class="code-val">#555565</span>;
+    <span class="code-prop">--void-faint</span>:      <span class="code-val">#aaaabc</span>;
+  }
+}</pre>
+    </div>
+
+    <!-- Dark/Light mode visual strip -->
+    <div class="mode-variants">
+        <div class="mode-card">
+            <div class="mode-card-label">Dark Mode (Brand Native)</div>
+            <div class="mode-swatches">
+                <div class="mode-swatch"><div class="mode-dot" style="background:#09090b;"></div>bg</div>
+                <div class="mode-swatch"><div class="mode-dot" style="background:#111116;"></div>surface</div>
+                <div class="mode-swatch"><div class="mode-dot" style="background:#c9a84c;"></div>gold</div>
+                <div class="mode-swatch"><div class="mode-dot" style="background:#00e5cc;"></div>teal</div>
+                <div class="mode-swatch"><div class="mode-dot" style="background:#7c5cff;"></div>violet</div>
+                <div class="mode-swatch"><div class="mode-dot" style="background:#e4e4eb;"></div>text</div>
+            </div>
+        </div>
+        <div class="mode-card" style="background:#f5f5f7;">
+            <div class="mode-card-label" style="color:#555565;border-color:#d1d1d8;background:#ffffff;">Light Mode Variant</div>
+            <div class="mode-swatches" style="background:#f5f5f7;">
+                <div class="mode-swatch" style="color:#555565;"><div class="mode-dot" style="background:#f5f5f7;border:1px solid #d1d1d8;"></div>bg</div>
+                <div class="mode-swatch" style="color:#555565;"><div class="mode-dot" style="background:#ffffff;border:1px solid #d1d1d8;"></div>surface</div>
+                <div class="mode-swatch" style="color:#555565;"><div class="mode-dot" style="background:#92751d;"></div>gold</div>
+                <div class="mode-swatch" style="color:#555565;"><div class="mode-dot" style="background:#007a6e;"></div>teal</div>
+                <div class="mode-swatch" style="color:#555565;"><div class="mode-dot" style="background:#4a30cc;"></div>violet</div>
+                <div class="mode-swatch" style="color:#555565;"><div class="mode-dot" style="background:#18181f;"></div>text</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tailwind Config -->
+    <h3 style="font-size:1rem;font-weight:600;color:var(--void-text);margin:32px 0 16px;">Tailwind v3 Config Block</h3>
+    <div class="code-block">
+        <pre><span class="code-comment">// tailwind.config.js — PROJECT VOID Brand Tokens (Direction A — Sovereign)</span>
+<span class="code-comment">// Paste into module.exports → theme.extend</span>
+
+module.exports = {
+  darkMode: <span class="code-val">'class'</span>,          <span class="code-comment">// use data-theme="dark" class strategy</span>
+  theme: {
+    extend: {
+      colors: {
+        void: {
+          bg:       <span class="code-val">'#09090b'</span>,
+          surface:  <span class="code-val">'#111116'</span>,
+          surface2: <span class="code-val">'#18181f'</span>,
+          border:   <span class="code-val">'#27272f'</span>,
+          gold:     <span class="code-val">'#c9a84c'</span>,      <span class="code-comment">// oklch(72% 0.12 85)</span>
+          teal:     <span class="code-val">'#00e5cc'</span>,      <span class="code-comment">// oklch(78% 0.14 188)</span>
+          violet:   <span class="code-val">'#7c5cff'</span>,      <span class="code-comment">// oklch(62% 0.22 278)</span>
+          myco:     <span class="code-val">'#7aff7a'</span>,      <span class="code-comment">// oklch(82% 0.18 148)</span>
+          peace:    <span class="code-val">'#60a5fa'</span>,      <span class="code-comment">// oklch(72% 0.14 241)</span>
+          text:     <span class="code-val">'#e4e4eb'</span>,
+          muted:    <span class="code-val">'#888898'</span>,
+          faint:    <span class="code-val">'#444450'</span>,
+        },
+      },
+      fontFamily: {
+        display: [<span class="code-val">'Space Grotesk'</span>, <span class="code-val">'system-ui'</span>, <span class="code-val">'sans-serif'</span>],
+        mono:    [<span class="code-val">'Space Mono'</span>, <span class="code-val">'Fira Code'</span>, <span class="code-val">'monospace'</span>],
+      },
+    },
+  },
+}
+
+<span class="code-comment">/* Usage examples:
+   bg-void-bg        text-void-gold      border-void-border
+   font-display      font-mono
+   dark:bg-void-bg   dark:text-void-text                    */</span></pre>
+    </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="void-brand-footer">
+    <span class="void-brand-footer-mark">◆ By PROJECT VOID</span>
+    <ul class="void-brand-footer-links">
+        <li><a href="/brand/content">Content Playbook</a></li>
+        <li><a href="/brand/legal">Legal Kit</a></li>
+        <li><a href="/sovereign-node">Sovereign Node</a></li>
+        <li><a href="/mycovoid">MycoVOID</a></li>
+    </ul>
+</footer>
+
+</body>
+</html>

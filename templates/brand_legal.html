@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Starter Kit — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --void-obsidian:   #09090b;
+            --void-void:       #0d0d10;
+            --void-surface:    #111116;
+            --void-surface2:   #18181f;
+            --void-border:     #27272f;
+            --void-border2:    #3a3a45;
+            --void-gold:       #c9a84c;
+            --void-teal:       #00e5cc;
+            --void-violet:     #7c5cff;
+            --void-text:       #e4e4eb;
+            --void-muted:      #888898;
+            --void-faint:      #444450;
+            --font-display:   'Space Grotesk', system-ui, sans-serif;
+            --font-mono:      'Space Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--void-obsidian);
+            color: var(--void-text);
+            font-family: var(--font-display);
+            min-height: 100vh;
+            line-height: 1.65;
+        }
+
+        .brand-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 40px; border-bottom: 1px solid var(--void-border);
+            background: rgba(9,9,11,0.97); position: sticky; top: 0; z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+        .brand-nav-logo {
+            font-family: var(--font-mono); font-weight: 700; font-size: 0.9rem;
+            color: var(--void-gold); letter-spacing: 3px; text-decoration: none;
+            text-transform: uppercase;
+        }
+        .brand-nav-links { display: flex; gap: 28px; list-style: none; }
+        .brand-nav-links a {
+            color: var(--void-muted); text-decoration: none; font-size: 0.8rem;
+            font-family: var(--font-mono); letter-spacing: 1px; text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .brand-nav-links a:hover { color: var(--void-text); }
+
+        .hero {
+            padding: 70px 40px 50px; max-width: 1100px; margin: 0 auto;
+            border-bottom: 1px solid var(--void-border);
+        }
+        .eyebrow {
+            font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--void-gold); margin-bottom: 18px;
+        }
+        .hero h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; margin-bottom: 18px; }
+        .hero-sub { font-size: 1rem; color: var(--void-muted); max-width: 620px; }
+
+        .legal-wrap { max-width: 1100px; margin: 0 auto; padding: 50px 40px 80px; }
+
+        /* DISCLAIMER */
+        .disclaimer {
+            background: rgba(255,82,82,0.07);
+            border: 1px solid rgba(255,82,82,0.25);
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin-bottom: 40px;
+        }
+        .disclaimer p {
+            font-size: 0.82rem; color: #ff8a8a; line-height: 1.6;
+            font-family: var(--font-mono);
+        }
+
+        /* DOC CARD */
+        .doc-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 10px;
+            margin-bottom: 36px;
+            overflow: hidden;
+        }
+        .doc-header {
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px;
+            padding: 22px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: var(--void-void);
+        }
+        .doc-type-badge {
+            font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 2px;
+            text-transform: uppercase; padding: 4px 10px; border-radius: 4px;
+            border: 1px solid var(--void-gold); color: var(--void-gold);
+        }
+        .doc-title { font-size: 1.1rem; font-weight: 600; color: var(--void-text); }
+        .doc-meta-row {
+            display: flex; gap: 16px; flex-wrap: wrap;
+            font-family: var(--font-mono); font-size: 0.72rem; color: var(--void-muted);
+        }
+
+        /* SUMMARY BOX */
+        .doc-summary {
+            background: rgba(201,168,76,0.06);
+            border-bottom: 1px solid var(--void-border);
+            padding: 20px 32px;
+        }
+        .summary-label {
+            font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--void-gold); margin-bottom: 10px;
+        }
+        .summary-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        @media (max-width: 640px) { .summary-grid { grid-template-columns: 1fr; } }
+        .summary-item {
+            font-size: 0.85rem; color: var(--void-muted); line-height: 1.55;
+            padding-left: 12px; border-left: 2px solid var(--void-border2);
+        }
+        .summary-item strong { color: var(--void-text); display: block; margin-bottom: 2px; }
+
+        /* DOC TEXT */
+        .doc-text { padding: 28px 32px; }
+        .doc-text h3 {
+            font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--void-teal); margin-bottom: 14px;
+            margin-top: 24px;
+        }
+        .doc-text h3:first-child { margin-top: 0; }
+        .doc-text p {
+            font-size: 0.9rem; color: var(--void-text); line-height: 1.75; margin-bottom: 12px;
+        }
+        .doc-text .placeholder {
+            background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 3px; padding: 1px 6px;
+            font-family: var(--font-mono); font-size: 0.82rem; color: var(--void-gold);
+        }
+        .doc-text .clause {
+            background: var(--void-void);
+            border: 1px solid var(--void-border);
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+        }
+        .clause-num {
+            font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--void-muted); margin-bottom: 6px;
+        }
+        .clause-text { font-size: 0.88rem; color: var(--void-text); line-height: 1.7; }
+
+        /* DOWNLOAD BUTTONS */
+        .doc-actions {
+            display: flex; gap: 12px; flex-wrap: wrap;
+            padding: 20px 32px;
+            border-top: 1px solid var(--void-border);
+            background: var(--void-void);
+        }
+        .doc-btn {
+            font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1.5px;
+            text-transform: uppercase; padding: 10px 20px; border-radius: 4px;
+            border: 1px solid var(--void-border2); color: var(--void-muted);
+            background: transparent; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 8px;
+            transition: all 0.2s; text-decoration: none;
+        }
+        .doc-btn:hover { border-color: var(--void-gold); color: var(--void-gold); }
+        .doc-btn.primary { border-color: var(--void-gold); color: var(--void-gold); }
+        .copy-notice {
+            font-family: var(--font-mono); font-size: 0.72rem; color: var(--void-muted);
+            display: flex; align-items: center; gap: 8px; margin-left: auto;
+        }
+
+        /* FOOTER */
+        .void-brand-footer {
+            border-top: 1px solid var(--void-border); padding: 28px 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px; background: var(--void-void);
+        }
+        .void-brand-footer-mark {
+            font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--void-gold);
+        }
+        .void-brand-footer-links { display: flex; gap: 20px; list-style: none; }
+        .void-brand-footer-links a {
+            font-family: var(--font-mono); font-size: 0.72rem; color: var(--void-muted);
+            text-decoration: none; letter-spacing: 1px; text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .void-brand-footer-links a:hover { color: var(--void-text); }
+    </style>
+</head>
+<body>
+
+<nav class="brand-nav">
+    <a href="/" class="brand-nav-logo">PROJECT VOID</a>
+    <ul class="brand-nav-links">
+        <li><a href="/brand">Brand Kit</a></li>
+        <li><a href="/brand/content">Content</a></li>
+        <li><a href="/brand/legal">Legal</a></li>
+        <li><a href="/sovereign-node">Sovereign Node</a></li>
+    </ul>
+</nav>
+
+<div class="hero">
+    <p class="eyebrow">Legal Starter Kit — Pre-filled for PROJECT VOID</p>
+    <h1>Legal Documents</h1>
+    <p class="hero-sub">A Mutual NDA and a Research Collaboration Agreement, pre-filled for PROJECT VOID. Copy the text, complete the bracketed fields, and have both parties sign. Plain-English summaries included.</p>
+</div>
+
+<div class="legal-wrap">
+
+    <div class="disclaimer">
+        <p>⚠ These templates are provided as a starting point. The NDA structure follows Common Paper's Mutual NDA (v1.0, commonpaper.com/forms/mutual-nda) and the Research Collaboration Agreement follows conventions from Bonterms Research Collaboration (bonterms.com), adapted for PROJECT VOID's IP context. They are not legal advice. For high-stakes partnerships or institutional agreements, have a qualified attorney review before signing.</p>
+    </div>
+
+    <!-- DOCUMENT 1: MUTUAL NDA -->
+    <div class="doc-card" id="nda">
+        <div class="doc-header">
+            <div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+                    <span class="doc-type-badge">Document 01</span>
+                </div>
+                <div class="doc-title">Mutual Non-Disclosure Agreement</div>
+            </div>
+            <div class="doc-meta-row">
+                <span>Jurisdiction: [Your State/Country]</span>
+                <span>Term: 2 years</span>
+                <span>Bilateral / Mutual</span>
+            </div>
+        </div>
+
+        <div class="doc-summary">
+            <div class="summary-label">Plain-English Summary</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <strong>What it does</strong>
+                    Both parties agree to keep each other's confidential information secret. Neither side can share, publish, or use the other's information without permission.
+                </div>
+                <div class="summary-item">
+                    <strong>Who signs it</strong>
+                    PROJECT VOID (the founder) and any researcher, institution, or collaborator before sharing unpublished research, source code, technical designs, or business plans.
+                </div>
+                <div class="summary-item">
+                    <strong>Duration</strong>
+                    The NDA is active while you're working together and for 2 years after it ends. Confidential information shared during that period stays protected.
+                </div>
+                <div class="summary-item">
+                    <strong>What it doesn't cover</strong>
+                    Information that's already public, that the other party already knew independently, or that they received legally from a third party.
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-text">
+            <h3>Mutual Non-Disclosure Agreement</h3>
+            <p>This Mutual Non-Disclosure Agreement (<strong>"Agreement"</strong>) is entered into as of <span class="placeholder">[DATE]</span> by and between:</p>
+            <p><strong>Party A:</strong> PROJECT VOID, operated by <span class="placeholder">[FOUNDER FULL LEGAL NAME]</span>, located at <span class="placeholder">[ADDRESS OR JURISDICTION]</span> (<strong>"VOID"</strong>);</p>
+            <p><strong>Party B:</strong> <span class="placeholder">[COUNTERPARTY FULL LEGAL NAME OR ENTITY NAME]</span>, located at <span class="placeholder">[COUNTERPARTY ADDRESS]</span> (<strong>"Counterparty"</strong>).</p>
+            <p>VOID and Counterparty are each a <strong>"Party"</strong> and together the <strong>"Parties."</strong></p>
+
+            <h3>1. Purpose</h3>
+            <div class="clause">
+                <div class="clause-num">§ 1.1</div>
+                <div class="clause-text">The Parties intend to explore a potential research collaboration, technical partnership, or investment relationship relating to PROJECT VOID's technology ecosystem, including but not limited to: acoustic steganography, Al-Jabr logic language, Adriana SCL, MycoVOID biocomputing, GriDul mesh protocol, QiSync biomechanical intelligence, and associated token economy (VTX / PEACE coin) (collectively, the <strong>"Purpose"</strong>).</div>
+            </div>
+
+            <h3>2. Confidential Information</h3>
+            <div class="clause">
+                <div class="clause-num">§ 2.1 — Definition</div>
+                <div class="clause-text"><strong>"Confidential Information"</strong> means any non-public information disclosed by one Party (<strong>"Disclosing Party"</strong>) to the other (<strong>"Receiving Party"</strong>) in connection with the Purpose, whether disclosed orally, in writing, electronically, or by any other means, and whether or not marked "confidential." This includes, without limitation: source code, technical designs, research findings, prior art filings, prototype specifications, token economic models, node architecture, and business plans.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 2.2 — Exclusions</div>
+                <div class="clause-text">Confidential Information does not include information that: (a) is or becomes publicly available through no breach of this Agreement; (b) was already known to the Receiving Party prior to disclosure, as evidenced by written records; (c) is independently developed by the Receiving Party without use of Confidential Information; or (d) is rightfully received from a third party without restriction.</div>
+            </div>
+
+            <h3>3. Obligations</h3>
+            <div class="clause">
+                <div class="clause-num">§ 3.1</div>
+                <div class="clause-text">Each Receiving Party shall: (a) hold all Confidential Information in strict confidence; (b) not disclose Confidential Information to any third party without prior written consent of the Disclosing Party; (c) use Confidential Information solely for the Purpose; (d) limit access to Confidential Information to those of its representatives who have a need to know and are bound by confidentiality obligations no less restrictive than those in this Agreement.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 3.2 — Required Disclosure</div>
+                <div class="clause-text">If required by law or court order to disclose Confidential Information, the Receiving Party shall provide prompt prior written notice to the Disclosing Party (where legally permissible) and cooperate with the Disclosing Party's efforts to seek a protective order.</div>
+            </div>
+
+            <h3>4. Intellectual Property</h3>
+            <div class="clause">
+                <div class="clause-num">§ 4.1</div>
+                <div class="clause-text">Nothing in this Agreement grants either Party any right, title, or interest in the other Party's Confidential Information or intellectual property. All prior art filings, inventions, and proprietary systems disclosed by VOID remain the exclusive property of VOID.</div>
+            </div>
+
+            <h3>5. Term and Termination</h3>
+            <div class="clause">
+                <div class="clause-num">§ 5.1</div>
+                <div class="clause-text">This Agreement commences on the date first written above and continues until either Party terminates it with 30 days' written notice. Confidentiality obligations survive termination and continue for a period of <strong>two (2) years</strong> from the date of termination.</div>
+            </div>
+
+            <h3>6. Governing Law &amp; Dispute Resolution</h3>
+            <div class="clause">
+                <div class="clause-num">§ 6.1</div>
+                <div class="clause-text">This Agreement shall be governed by the laws of <span class="placeholder">[STATE / COUNTRY]</span>. Any dispute arising from this Agreement shall first be addressed through good-faith negotiation. If unresolved within 30 days, the Parties agree to binding arbitration in <span class="placeholder">[CITY, STATE / COUNTRY]</span> under the rules of <span class="placeholder">[ARBITRATION BODY, e.g., AAA / JAMS / ICC]</span>.</div>
+            </div>
+
+            <h3>7. General</h3>
+            <div class="clause">
+                <div class="clause-num">§ 7.1 — Entire Agreement</div>
+                <div class="clause-text">This Agreement constitutes the entire agreement between the Parties with respect to its subject matter and supersedes all prior discussions and understandings.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 7.2 — Amendment</div>
+                <div class="clause-text">No amendment to this Agreement shall be valid unless made in writing and signed by both Parties.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 7.3 — Severability</div>
+                <div class="clause-text">If any provision is found unenforceable, the remaining provisions remain in full force.</div>
+            </div>
+
+            <h3>Signatures</h3>
+            <p>By signing below, each Party agrees to be bound by the terms of this Agreement.</p>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:20px;">
+                <div style="background:var(--void-void);border:1px solid var(--void-border);border-radius:6px;padding:20px;">
+                    <div style="font-family:var(--font-mono);font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--void-muted);margin-bottom:14px;">Party A — PROJECT VOID</div>
+                    <p style="font-size:0.85rem;color:var(--void-muted);margin-bottom:8px;">Signature: ___________________________</p>
+                    <p style="font-size:0.85rem;color:var(--void-muted);margin-bottom:8px;">Name: <span class="placeholder">[FOUNDER FULL NAME]</span></p>
+                    <p style="font-size:0.85rem;color:var(--void-muted);">Date: ___________________________</p>
+                </div>
+                <div style="background:var(--void-void);border:1px solid var(--void-border);border-radius:6px;padding:20px;">
+                    <div style="font-family:var(--font-mono);font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--void-muted);margin-bottom:14px;">Party B — Counterparty</div>
+                    <p style="font-size:0.85rem;color:var(--void-muted);margin-bottom:8px;">Signature: ___________________________</p>
+                    <p style="font-size:0.85rem;color:var(--void-muted);margin-bottom:8px;">Name: <span class="placeholder">[COUNTERPARTY NAME]</span></p>
+                    <p style="font-size:0.85rem;color:var(--void-muted);">Date: ___________________________</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-actions">
+            <a href="/brand/legal/download/nda/pdf" class="doc-btn primary">Download PDF</a>
+            <a href="/brand/legal/download/nda/docx" class="doc-btn">Download DOCX</a>
+            <button class="doc-btn" onclick="copyCardText(this)">Copy Full Text</button>
+            <span class="copy-notice">Complete bracketed fields before signing</span>
+        </div>
+    </div>
+
+    <!-- DOCUMENT 2: RESEARCH COLLABORATION AGREEMENT -->
+    <div class="doc-card" id="rca">
+        <div class="doc-header">
+            <div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+                    <span class="doc-type-badge">Document 02</span>
+                </div>
+                <div class="doc-title">Research Collaboration Agreement</div>
+            </div>
+            <div class="doc-meta-row">
+                <span>Jurisdiction: [Your State/Country]</span>
+                <span>Joint Research / IP Sharing</span>
+                <span>MycoVOID · GriDul · QiSync</span>
+            </div>
+        </div>
+
+        <div class="doc-summary">
+            <div class="summary-label">Plain-English Summary</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <strong>What it does</strong>
+                    Defines the terms for joint research work between PROJECT VOID and a partner institution or researcher. Covers who owns what IP, how results can be published, and how the collaboration can end.
+                </div>
+                <div class="summary-item">
+                    <strong>Who signs it</strong>
+                    PROJECT VOID and any university, research lab, institution, or independent researcher doing joint work on MycoVOID, GriDul, or QiSync technology.
+                </div>
+                <div class="summary-item">
+                    <strong>IP ownership</strong>
+                    Each party keeps what they brought in. New IP created jointly is co-owned, with both parties having the right to use it. Neither can commercialise joint IP without written consent.
+                </div>
+                <div class="summary-item">
+                    <strong>Publication rights</strong>
+                    Either party can publish research results after a 60-day review period, giving the other party time to identify and protect any patentable discoveries before publication.
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-text">
+            <h3>Research Collaboration Agreement</h3>
+            <p>This Research Collaboration Agreement (<strong>"Agreement"</strong>) is entered into as of <span class="placeholder">[DATE]</span> by and between:</p>
+            <p><strong>VOID:</strong> PROJECT VOID, operated by <span class="placeholder">[FOUNDER FULL LEGAL NAME]</span>, located at <span class="placeholder">[ADDRESS]</span>;</p>
+            <p><strong>Collaborator:</strong> <span class="placeholder">[INSTITUTION OR RESEARCHER NAME]</span>, located at <span class="placeholder">[ADDRESS]</span>.</p>
+
+            <h3>1. Research Scope</h3>
+            <div class="clause">
+                <div class="clause-num">§ 1.1 — Project</div>
+                <div class="clause-text">The Parties agree to collaborate on the following research project: <span class="placeholder">[PROJECT TITLE — e.g., "Mycelium Network Signal Propagation in MRB-4000 Architecture" or "GriDul Mesh Consensus Performance Under Adversarial Conditions" or "QiSync Biorhythm-Machine State Synchronisation Protocols"]</span> (the <strong>"Project"</strong>).</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 1.2 — Objectives</div>
+                <div class="clause-text">The Parties will work together to achieve the following objectives: <span class="placeholder">[LIST 2–4 SPECIFIC RESEARCH OBJECTIVES]</span>.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 1.3 — Duration</div>
+                <div class="clause-text">The Project shall commence on <span class="placeholder">[START DATE]</span> and conclude on <span class="placeholder">[END DATE]</span>, unless extended by mutual written agreement.</div>
+            </div>
+
+            <h3>2. Responsibilities</h3>
+            <div class="clause">
+                <div class="clause-num">§ 2.1 — VOID Responsibilities</div>
+                <div class="clause-text">VOID shall: (a) provide access to the relevant technical systems and documentation as specified in Schedule A; (b) contribute <span class="placeholder">[X hours/week or specific deliverables]</span> of engineering time; (c) designate <span class="placeholder">[FOUNDER NAME]</span> as the primary point of contact.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 2.2 — Collaborator Responsibilities</div>
+                <div class="clause-text">Collaborator shall: (a) provide <span class="placeholder">[SPECIFIC CONTRIBUTION — e.g., laboratory facilities, domain expertise, computing resources]</span>; (b) designate <span class="placeholder">[COLLABORATOR CONTACT NAME]</span> as the primary point of contact.</div>
+            </div>
+
+            <h3>3. Intellectual Property</h3>
+            <div class="clause">
+                <div class="clause-num">§ 3.1 — Background IP</div>
+                <div class="clause-text"><strong>"Background IP"</strong> means intellectual property developed independently by a Party prior to or outside this Agreement. Each Party retains exclusive ownership of its Background IP. Background IP of VOID includes all prior art filings, existing technical architecture, the Al-Jabr/Adriana language system, the acoustic steganography engine, and all related inventions documented prior to the commencement date of this Agreement.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 3.2 — Foreground IP</div>
+                <div class="clause-text"><strong>"Foreground IP"</strong> means intellectual property created jointly by both Parties in the course of the Project. Foreground IP shall be co-owned equally by both Parties. Each Party may use Foreground IP for non-commercial research purposes without the other's consent. Commercial use of Foreground IP requires prior written agreement on terms, including revenue sharing.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 3.3 — Solo Inventions</div>
+                <div class="clause-text">Intellectual property created solely by one Party in the course of the Project, without material contribution from the other, shall be owned by the creating Party. The creating Party shall notify the other Party within 30 days of identifying a solo invention.</div>
+            </div>
+
+            <h3>4. Publication &amp; Confidentiality</h3>
+            <div class="clause">
+                <div class="clause-num">§ 4.1 — Publication Review</div>
+                <div class="clause-text">Either Party wishing to publish results arising from the Project shall provide the other Party with a draft manuscript at least 60 days before submission. The reviewing Party may request a delay of up to 90 additional days solely for the purpose of filing patent applications on identified patentable inventions.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 4.2 — Attribution</div>
+                <div class="clause-text">All publications arising from the Project shall appropriately credit both Parties. VOID's contributions shall be credited as "PROJECT VOID" with authorship attributed to <span class="placeholder">[FOUNDER NAME]</span>.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 4.3 — Confidentiality</div>
+                <div class="clause-text">The Parties' confidentiality obligations are governed by a separate Mutual NDA (Document 01) or, if no separate NDA exists, by the confidentiality provisions set out in Schedule B to this Agreement.</div>
+            </div>
+
+            <h3>5. Resources &amp; Funding</h3>
+            <div class="clause">
+                <div class="clause-num">§ 5.1</div>
+                <div class="clause-text">Each Party shall bear its own costs unless otherwise specified in Schedule C. Any shared costs shall be allocated as follows: <span class="placeholder">[DESCRIBE COST SHARING — e.g., 50/50, or each party funds their own lab costs]</span>. No party is obligated to fund the other's operations.</div>
+            </div>
+
+            <h3>6. Term, Termination &amp; Consequences</h3>
+            <div class="clause">
+                <div class="clause-num">§ 6.1 — Term</div>
+                <div class="clause-text">This Agreement commences on the date first written above and continues for the duration of the Project unless terminated earlier.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 6.2 — Termination for Convenience</div>
+                <div class="clause-text">Either Party may terminate this Agreement with 30 days' written notice. Upon termination, each Party retains rights to Background IP. Ownership of Foreground IP created before termination is unaffected.</div>
+            </div>
+            <div class="clause">
+                <div class="clause-num">§ 6.3 — Termination for Cause</div>
+                <div class="clause-text">Either Party may terminate immediately upon written notice if the other Party materially breaches this Agreement and fails to cure such breach within 15 days of written notice.</div>
+            </div>
+
+            <h3>7. Representations &amp; Warranties</h3>
+            <div class="clause">
+                <div class="clause-num">§ 7.1</div>
+                <div class="clause-text">Each Party represents that: (a) it has the authority to enter into this Agreement; (b) entering into this Agreement does not violate any other agreement to which it is a party; (c) it will conduct all research activities in compliance with applicable laws and ethical standards.</div>
+            </div>
+
+            <h3>8. Governing Law &amp; Dispute Resolution</h3>
+            <div class="clause">
+                <div class="clause-num">§ 8.1</div>
+                <div class="clause-text">This Agreement shall be governed by the laws of <span class="placeholder">[STATE / COUNTRY]</span>. Disputes shall be resolved first by good-faith negotiation, then by binding arbitration in <span class="placeholder">[CITY, STATE / COUNTRY]</span> under the rules of <span class="placeholder">[ARBITRATION BODY]</span>.</div>
+            </div>
+
+            <h3>9. Schedules</h3>
+            <p><strong>Schedule A — Technical Access:</strong> <span class="placeholder">[List specific systems, codebases, or documentation provided by VOID]</span></p>
+            <p><strong>Schedule B — Confidentiality Terms (if no separate NDA):</strong> <span class="placeholder">[Attach or incorporate NDA terms]</span></p>
+            <p><strong>Schedule C — Cost Allocation:</strong> <span class="placeholder">[Itemise shared costs and responsibilities]</span></p>
+
+            <h3>Signatures</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:20px;">
+                <div style="background:var(--void-void);border:1px solid var(--void-border);border-radius:6px;padding:20px;">
+                    <div style="font-family:var(--font-mono);font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--void-muted);margin-bottom:14px;">PROJECT VOID</div>
+                    <p style="font-size:0.85rem;color:var(--void-muted);margin-bottom:8px;">Signature: ___________________________</p>
+                    <p style="font-size:0.85rem;color:var(--void-muted);margin-bottom:8px;">Name: <span class="placeholder">[FOUNDER FULL NAME]</span></p>
+                    <p style="font-size:0.85rem;color:var(--void-muted);">Date: ___________________________</p>
+                </div>
+                <div style="background:var(--void-void);border:1px solid var(--void-border);border-radius:6px;padding:20px;">
+                    <div style="font-family:var(--font-mono);font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--void-muted);margin-bottom:14px;">Collaborator</div>
+                    <p style="font-size:0.85rem;color:var(--void-muted);margin-bottom:8px;">Signature: ___________________________</p>
+                    <p style="font-size:0.85rem;color:var(--void-muted);margin-bottom:8px;">Name &amp; Title: <span class="placeholder">[NAME, TITLE]</span></p>
+                    <p style="font-size:0.85rem;color:var(--void-muted);">Date: ___________________________</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-actions">
+            <a href="/brand/legal/download/rca/pdf" class="doc-btn primary">Download PDF</a>
+            <a href="/brand/legal/download/rca/docx" class="doc-btn">Download DOCX</a>
+            <button class="doc-btn" onclick="copyCardText(this)">Copy Full Text</button>
+            <span class="copy-notice">Complete all bracketed fields before signing</span>
+        </div>
+    </div>
+
+</div>
+
+<footer class="void-brand-footer">
+    <span class="void-brand-footer-mark">◆ By PROJECT VOID</span>
+    <ul class="void-brand-footer-links">
+        <li><a href="/brand">Brand Kit</a></li>
+        <li><a href="/brand/content">Content Playbook</a></li>
+        <li><a href="/sovereign-node">Sovereign Node</a></li>
+    </ul>
+</footer>
+
+<script>
+function copyCardText(btn) {
+    const card = btn.closest('.doc-card');
+    const docText = card ? card.querySelector('.doc-text') : null;
+    const text = docText ? docText.innerText : '';
+    navigator.clipboard.writeText(text).then(function() {
+        var orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = orig; }, 2000);
+    }).catch(function() {
+        btn.textContent = 'Error';
+        setTimeout(function() { btn.textContent = 'Copy Full Text'; }, 2000);
+    });
+}
+</script>
+
+</body>
+</html>

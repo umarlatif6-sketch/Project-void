@@ -5,7 +5,7 @@ integrations = ["stripe:1.0.0", "python_openai_ai_integrations:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["cargo", "libiconv", "libxcrypt", "openssl", "pkg-config", "rustc", "xsimd"]
+packages = ["cargo", "libiconv", "libxcrypt", "openssl", "pkg-config", "portaudio", "rustc", "xsimd"]
 
 [workflows]
 runButton = "Project"

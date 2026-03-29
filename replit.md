@@ -6,6 +6,16 @@ PROJECT VOID is a modular steganography engine designed for embedding large data
 ## User Preferences
 No specific user preferences were provided in the original `replit.md` file.
 
+## PROJECT VOID — Brand Launchpad (Task #31)
+- **Routes:** `/brand`, `/brand/content`, `/brand/legal` — `routes/brand.py` blueprint
+- **Templates:** `templates/brand.html`, `templates/brand_content.html`, `templates/brand_legal.html`
+- **Brand Kit (`/brand`):** Name hierarchy (VOID → Adriana/Al-Jabr, MycoVOID, GriDul, QiSync, VTX+PEACE), one-sentence/paragraph/page pitch formats, brand voice (8 adjectives, 4 tone rules, 10 banned words), 3 OKLCH colour palettes, typography specimens (Space Grotesk + Space Mono), 3 SVG logo concepts, CSS design tokens block
+- **Content Playbook (`/brand/content`):** 7 platform-ready post templates — LinkedIn launch, X/Twitter 7-tweet thread, newsletter cold-list intro, acoustic steganography explainer, PEACE coin mechanics explainer, founder sovereignty narrative, community collaborator callout. Each shows hook pattern + char count + platform badge.
+- **Legal Starter Kit (`/brand/legal`):** Mutual NDA (pre-filled for PROJECT VOID, 2-year bilateral, common law template) and Research Collaboration Agreement (IP ownership, Background/Foreground IP, publication review, 60-day patent window). Both have plain-English summaries and copy-to-clipboard + print-to-PDF actions.
+- **Brand Unification Pass:** "◆ By PROJECT VOID" footer added to `/sovereign-node`, `/mycovoid`, `/mycovoid-concept`, `/apply/interussia`, and `/founder-archive` (archive.html) pages — links back to `/brand` and `/brand/legal`.
+- **Typography:** Google Fonts Space Grotesk (display) + Space Mono (mono) loaded on all brand pages.
+- **Design language:** OKLCH-grounded palette, Sovereign Gold (`oklch(72% 0.12 85)`), Adriana Teal, GriDul Violet, MycoVOID Green.
+
 ## VOID: Sovereign Realm — 3D Game & Economy (Task #18)
 - **Routes:** `/game` (3D game), `/game/shop` (equipment shop) — `routes/game.py` blueprint
 - **Templates:** `templates/game.html`, `templates/game_shop.html`

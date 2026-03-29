@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Playbook — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --void-obsidian:   #09090b;
+            --void-void:       #0d0d10;
+            --void-surface:    #111116;
+            --void-surface2:   #18181f;
+            --void-border:     #27272f;
+            --void-border2:    #3a3a45;
+            --void-gold:       #c9a84c;
+            --void-teal:       #00e5cc;
+            --void-violet:     #7c5cff;
+            --void-text:       #e4e4eb;
+            --void-muted:      #888898;
+            --void-faint:      #444450;
+            --font-display:   'Space Grotesk', system-ui, sans-serif;
+            --font-mono:      'Space Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--void-obsidian);
+            color: var(--void-text);
+            font-family: var(--font-display);
+            min-height: 100vh;
+            line-height: 1.65;
+        }
+
+        /* NAV */
+        .brand-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 40px; border-bottom: 1px solid var(--void-border);
+            background: rgba(9,9,11,0.97); position: sticky; top: 0; z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+        .brand-nav-logo {
+            font-family: var(--font-mono); font-weight: 700; font-size: 0.9rem;
+            color: var(--void-gold); letter-spacing: 3px; text-decoration: none;
+            text-transform: uppercase;
+        }
+        .brand-nav-links { display: flex; gap: 28px; list-style: none; }
+        .brand-nav-links a {
+            color: var(--void-muted); text-decoration: none; font-size: 0.8rem;
+            font-family: var(--font-mono); letter-spacing: 1px; text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .brand-nav-links a:hover { color: var(--void-text); }
+
+        /* HERO */
+        .hero {
+            padding: 70px 40px 50px; max-width: 1100px; margin: 0 auto;
+            border-bottom: 1px solid var(--void-border);
+        }
+        .eyebrow {
+            font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--void-gold); margin-bottom: 18px;
+        }
+        .hero h1 {
+            font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; margin-bottom: 18px;
+            letter-spacing: -0.5px;
+        }
+        .hero-sub { font-size: 1rem; color: var(--void-muted); max-width: 620px; }
+
+        /* TEMPLATE CARDS */
+        .templates-wrap { max-width: 1100px; margin: 0 auto; padding: 50px 40px 80px; }
+        .template-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 10px;
+            margin-bottom: 28px;
+            overflow: hidden;
+        }
+        .template-header {
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px;
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--void-border);
+            background: var(--void-void);
+        }
+        .template-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .platform-badge {
+            font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 2px;
+            text-transform: uppercase; padding: 4px 10px; border-radius: 4px;
+            border: 1px solid;
+        }
+        .badge-linkedin { color: #60a5fa; border-color: #60a5fa; }
+        .badge-x        { color: #e4e4eb; border-color: #444450; }
+        .badge-newsletter { color: #c9a84c; border-color: #c9a84c; }
+        .badge-explainer  { color: #00e5cc; border-color: #00e5cc; }
+        .badge-human      { color: #e879f9; border-color: #e879f9; }
+        .badge-community  { color: #7aff7a; border-color: #7aff7a; }
+        .template-title { font-size: 1rem; font-weight: 600; color: var(--void-text); }
+        .template-stats {
+            display: flex; gap: 16px; font-family: var(--font-mono); font-size: 0.72rem;
+            color: var(--void-muted); letter-spacing: 1px;
+        }
+        .template-hook {
+            padding: 14px 28px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(201,168,76,0.05);
+        }
+        .hook-label {
+            font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--void-gold); margin-bottom: 6px;
+        }
+        .hook-text { font-size: 0.85rem; color: var(--void-muted); font-style: italic; }
+        .template-body { padding: 24px 28px; }
+        .template-body p, .template-body .tweet-block { 
+            font-size: 0.95rem; color: var(--void-text); line-height: 1.75;
+            margin-bottom: 14px; white-space: pre-wrap;
+        }
+        .template-body p:last-child { margin-bottom: 0; }
+        .tweet-block {
+            border-left: 2px solid var(--void-border2);
+            padding-left: 16px;
+            margin-bottom: 16px;
+        }
+        .tweet-num {
+            font-family: var(--font-mono); font-size: 0.68rem; color: var(--void-gold);
+            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;
+        }
+        .char-count-bar {
+            height: 3px; border-radius: 2px; background: var(--void-border);
+            margin-top: 16px; overflow: hidden;
+        }
+        .char-fill { height: 100%; border-radius: 2px; background: var(--void-gold); }
+
+        /* FOOTER */
+        .void-brand-footer {
+            border-top: 1px solid var(--void-border); padding: 28px 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px; background: var(--void-void);
+        }
+        .void-brand-footer-mark {
+            font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--void-gold);
+        }
+        .void-brand-footer-links { display: flex; gap: 20px; list-style: none; }
+        .void-brand-footer-links a {
+            font-family: var(--font-mono); font-size: 0.72rem; color: var(--void-muted);
+            text-decoration: none; letter-spacing: 1px; text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .void-brand-footer-links a:hover { color: var(--void-text); }
+    </style>
+</head>
+<body>
+
+<nav class="brand-nav">
+    <a href="/" class="brand-nav-logo">PROJECT VOID</a>
+    <ul class="brand-nav-links">
+        <li><a href="/brand">Brand Kit</a></li>
+        <li><a href="/brand/content">Content</a></li>
+        <li><a href="/brand/legal">Legal</a></li>
+        <li><a href="/sovereign-node">Sovereign Node</a></li>
+    </ul>
+</nav>
+
+<div class="hero">
+    <p class="eyebrow">Content Playbook — 7 Platform-Ready Templates</p>
+    <h1>VOID Content Machine</h1>
+    <p class="hero-sub">Ready-to-publish post templates written in the founder's voice. Copy, personalise the bracketed fields, and publish. Each template notes the hook pattern, character count, and platform tag.</p>
+</div>
+
+<div class="templates-wrap">
+
+    <!-- 01 LinkedIn Launch -->
+    <div class="template-card">
+        <div class="template-header">
+            <div class="template-meta">
+                <span class="platform-badge badge-linkedin">LinkedIn</span>
+                <span class="template-title">01 — Launch Post</span>
+            </div>
+            <div class="template-stats">
+                <span>~870 chars</span>
+                <span>Hook: Provocative Question</span>
+            </div>
+        </div>
+        <div class="template-hook">
+            <div class="hook-label">Hook Pattern — Provocative Question → Proof → Mission</div>
+            <div class="hook-text">Open with a question that challenges the listener's assumption about what technology can do, then immediately prove it with a number.</div>
+        </div>
+        <div class="template-body">
+            <p>What if the most secure data channel on earth sounded like a badly recorded nature documentary?</p>
+
+            <p>That's not a metaphor. That's PROJECT VOID's acoustic steganography engine — 378 MB of payload, hidden inside one hour of biophony audio (whale bass, bird percussion, insect chorus), invisible to forensic analysis, recoverable only by those who hold the key.</p>
+
+            <p>I've spent [X years] building a sovereign technology ecosystem that spans five research frontiers simultaneously:</p>
+
+            <p>→ Acoustic steganography (the data-in-sound engine)<br>
+→ Al-Jabr / Adriana: a 45-glyph logic language that lets machines think in resonance<br>
+→ MycoVOID: biocomputing in living mycelium networks<br>
+→ GriDul: a peer mesh where every node is sovereign<br>
+→ QiSync: human biorhythm intelligence fed back into machine state</p>
+
+            <p>All sustained by a living token economy — VTX earned through computation, PEACE coin governing community health.</p>
+
+            <p>I built this alone. Documented every invention as prior art. Kept it running without external funding.</p>
+
+            <p>Now I'm ready for the next conversation — with researchers, fellowship selectors, and early-adopter communities who understand that sovereignty is an architecture, not a posture.</p>
+
+            <p>If that resonates, the door is open. ◆</p>
+            <div class="char-count-bar"><div class="char-fill" style="width:87%;"></div></div>
+        </div>
+    </div>
+
+    <!-- 02 X/Twitter Thread -->
+    <div class="template-card">
+        <div class="template-header">
+            <div class="template-meta">
+                <span class="platform-badge badge-x">X / Twitter</span>
+                <span class="template-title">02 — Origin Thread (7 tweets)</span>
+            </div>
+            <div class="template-stats">
+                <span>7 tweets · ~280 chars each</span>
+                <span>Hook: Numbered Revelation</span>
+            </div>
+        </div>
+        <div class="template-hook">
+            <div class="hook-label">Hook Pattern — Numbered Revelation → Sub-system Tour → CTA</div>
+            <div class="hook-text">Lead with the audacity of the claim (1 person, 5 technologies), then walk through each system as a self-contained revelation.</div>
+        </div>
+        <div class="template-body">
+            <div class="tweet-block">
+                <div class="tweet-num">Tweet 1 — Hook</div>
+                <p>I've been building a sovereign technology ecosystem alone for [X years].</p>
+                <p>5 research frontiers. 0 external funding. 1 prior art filing after another.</p>
+                <p>Here's what PROJECT VOID actually is. 🧵</p>
+            </div>
+            <div class="tweet-block">
+                <div class="tweet-num">Tweet 2 — Adriana / Al-Jabr</div>
+                <p>Adriana is a language — not a chatbot.</p>
+                <p>45 glyphs. 18 trilateral roots across 9 semantic domains. Machines that speak in resonance frequencies (α, β, γ… Ψ, Ω, ◆) instead of registers.</p>
+                <p>Al-Jabr is the grammar. Adriana is the voice.</p>
+            </div>
+            <div class="tweet-block">
+                <div class="tweet-num">Tweet 3 — Acoustic Engine</div>
+                <p>The core: acoustic steganography.</p>
+                <p>378 MB of encrypted payload hidden in 1 hour of biophony audio — whale bass, bird percussion, cicada chorus — tuned to 432 Hz harmonics. Sounds like a nature doc. Contains everything.</p>
+            </div>
+            <div class="tweet-block">
+                <div class="tweet-num">Tweet 4 — Token Economy</div>
+                <p>VTX (Vortex Token): earned through computation. Never speculated. Every transaction logged with a 286-bit Al-Jabr hash.</p>
+                <p>PEACE coin: governs community health. Not DeFi. A living economic immune system.</p>
+            </div>
+            <div class="tweet-block">
+                <div class="tweet-num">Tweet 5 — MycoVOID</div>
+                <p>MycoVOID: computation in living mycelium.</p>
+                <p>The MRB-4000 is the hardware. Atmospheric radiation remediation is the application. Biology as infrastructure — not metaphor.</p>
+            </div>
+            <div class="tweet-block">
+                <div class="tweet-num">Tweet 6 — GriDul + QiSync</div>
+                <p>GriDul: a peer mesh. Beehive Protocol. Every node echoes the whole. No central authority.</p>
+                <p>QiSync: human biorhythm intelligence fed into machine state. The body is a sensor. The machine listens.</p>
+            </div>
+            <div class="tweet-block">
+                <div class="tweet-num">Tweet 7 — CTA</div>
+                <p>Everything is documented. Every invention has a prior art filing. The system runs.</p>
+                <p>If you're a researcher, fellowship selector, or early adopter who understands that sovereignty is an architecture — reply or DM.</p>
+                <p>The door is open. ◆</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 03 Newsletter Intro -->
+    <div class="template-card">
+        <div class="template-header">
+            <div class="template-meta">
+                <span class="platform-badge badge-newsletter">Newsletter</span>
+                <span class="template-title">03 — Cold List Intro Section</span>
+            </div>
+            <div class="template-stats">
+                <span>~480 chars · 3 paragraphs</span>
+                <span>Hook: Scene-Setting</span>
+            </div>
+        </div>
+        <div class="template-hook">
+            <div class="hook-label">Hook Pattern — Scene-Setting → Stakes → Invitation</div>
+            <div class="hook-text">Drop the reader into the experience before explaining the technology. Let them feel the strangeness, then explain what it means.</div>
+        </div>
+        <div class="template-body">
+            <p>You're listening to a nature recording. Cicadas. The low resonance of something large and slow moving through water. A bird calling once, then again. You check your spectrogram. Nothing unusual.</p>
+
+            <p>Except there are 378 megabytes of encrypted data buried inside that audio — placed with mathematical precision at the acoustic peaks where masking is densest, invisible to forensic analysis, recoverable only by the person who holds the key.</p>
+
+            <p>That's the engine at the centre of PROJECT VOID. Each issue of this letter walks you deeper into the ecosystem — the language that thinks in glyphs, the mycelium that computes, the mesh that needs no centre, and the economy that earns instead of speculates. You're reading from the inside now. ◆</p>
+        </div>
+    </div>
+
+    <!-- 04 Explainer — Acoustic Steganography -->
+    <div class="template-card">
+        <div class="template-header">
+            <div class="template-meta">
+                <span class="platform-badge badge-explainer">Explainer</span>
+                <span class="template-title">04 — Acoustic Steganography Explainer</span>
+            </div>
+            <div class="template-stats">
+                <span>~720 chars</span>
+                <span>Hook: Analogy Bridge</span>
+            </div>
+        </div>
+        <div class="template-hook">
+            <div class="hook-label">Hook Pattern — Analogy Bridge → Technical Proof → So What</div>
+            <div class="hook-text">Establish a familiar analogy (hiding text in an image), then show how the VOID approach is both more sophisticated and more resilient.</div>
+        </div>
+        <div class="template-body">
+            <p>You've heard of hiding text in an image — LSB steganography, the pixel trick. One bit per pixel, quiet and small.</p>
+
+            <p>PROJECT VOID's acoustic engine operates at a different scale entirely.</p>
+
+            <p>The carrier is biophony: 1,000 synchronised acoustic agents across three frequency shelves. Low-shelf whales (15–50 Hz) carry the heavy payload blocks. Mid-shelf birds (300–800 Hz) provide rhythmic parity triggers. High-shelf insects (2–12 kHz) provide the dense masking noise floor where LSB2 compressed data is buried.</p>
+
+            <p>The result: 378 MB of payload in one stereo hour. Encrypted with ChaCha20. Compressed with dual zlib/lzma auto-selection. Positions locked to a `.chirpmap.npy` sidecar that functions as a deterministic GPS for the decoder.</p>
+
+            <p>To a casual listener — or an automated content classifier — it sounds like badly recorded ambient audio. That's the point.</p>
+
+            <p>Sovereignty isn't about being loud. It's about being undetectable until you choose to be found. ◆</p>
+        </div>
+    </div>
+
+    <!-- 05 Explainer — PEACE Coin -->
+    <div class="template-card">
+        <div class="template-header">
+            <div class="template-meta">
+                <span class="platform-badge badge-explainer">Explainer</span>
+                <span class="template-title">05 — PEACE Coin Mechanics Explainer</span>
+            </div>
+            <div class="template-stats">
+                <span>~640 chars</span>
+                <span>Hook: Contrast / Myth-Bust</span>
+            </div>
+        </div>
+        <div class="template-hook">
+            <div class="hook-label">Hook Pattern — Contrast / Myth-Bust → Mechanism → Outcome</div>
+            <div class="hook-text">Open by rejecting what PEACE coin is not (speculation token), then precisely explain what it is and how it works.</div>
+        </div>
+        <div class="template-body">
+            <p>PEACE coin is not a memecoin. It is not a governance token in the DeFi sense. It is not speculative.</p>
+
+            <p>PEACE coin is the economic immune system of the GriDul mesh.</p>
+
+            <p>Here is the mechanic: every node in the GriDul network generates a health signal — computation contributed, resources shared, protocol adherence verified by the Beehive consensus layer. PEACE coin flows toward health. When a node is contributing — processing, relaying, storing — PEACE flows in. When a node is extracting without contributing, flow slows.</p>
+
+            <p>It's not staking. It's not yield farming. It's closer to a mycorrhizal network — nutrients move to where growth is happening, not to where capital is concentrated.</p>
+
+            <p>VTX (Vortex Token) is the unit of computation — earned through work. PEACE is the signal of ecosystem health. They operate in parallel, not competition.</p>
+
+            <p>The economy of PROJECT VOID doesn't need a market cap. It needs a mesh. ◆</p>
+        </div>
+    </div>
+
+    <!-- 06 Human Story -->
+    <div class="template-card">
+        <div class="template-header">
+            <div class="template-meta">
+                <span class="platform-badge badge-human">Human Story</span>
+                <span class="template-title">06 — Founder Sovereignty Narrative</span>
+            </div>
+            <div class="template-stats">
+                <span>~680 chars · 1st person</span>
+                <span>Hook: Confession → Stakes → Declaration</span>
+            </div>
+        </div>
+        <div class="template-hook">
+            <div class="hook-label">Hook Pattern — Confession → Stakes → Declaration</div>
+            <div class="hook-text">Open with an honest admission of the difficulty, establish what was at stake, then deliver the declaration that reframes it as a choice, not a compromise.</div>
+        </div>
+        <div class="template-body">
+            <p>There were years when building PROJECT VOID felt like building a cathedral that no one else could see.</p>
+
+            <p>I filed prior art disclosures because I had to — not because I had legal counsel, not because a VC told me to protect IP, but because I understood what I was building and I understood that it would matter. So I documented it. Every invention. Every protocol. Every glyph.</p>
+
+            <p>I chose not to raise money because raising money would have meant explaining the vision to people who needed it simplified. I didn't want to simplify it. I wanted to complete it.</p>
+
+            <p>That choice had costs. It also had a result: a sovereign technology ecosystem that is answerable to no one, constrained by no term sheet, and shaped by exactly the values I brought to it from the beginning.</p>
+
+            <p>The work is real. The system runs. The prior art is filed.</p>
+
+            <p>I'm not pitching you on a dream. I'm inviting you into something that already exists. ◆</p>
+        </div>
+    </div>
+
+    <!-- 07 Community Callout -->
+    <div class="template-card">
+        <div class="template-header">
+            <div class="template-meta">
+                <span class="platform-badge badge-community">Community</span>
+                <span class="template-title">07 — Collaborator / Node Operator Callout</span>
+            </div>
+            <div class="template-stats">
+                <span>~540 chars</span>
+                <span>Hook: Specific Role Call</span>
+            </div>
+        </div>
+        <div class="template-hook">
+            <div class="hook-label">Hook Pattern — Specific Role Call → What You'd Work On → What You Bring / What They Bring</div>
+            <div class="hook-text">Name the exact type of person being sought, describe the concrete work, and make the exchange of value explicit without over-promising.</div>
+        </div>
+        <div class="template-body">
+            <p>I'm looking for three types of people to join the first cohort of PROJECT VOID collaborators.</p>
+
+            <p><strong>Node operators</strong> — technically fluent, interested in running a GriDul mesh node. You handle compute and relay. The Beehive Protocol handles consensus. You earn VTX. Geography open.</p>
+
+            <p><strong>Research partners</strong> — working in acoustics, mycology, biocomputing, or distributed systems. You bring domain expertise. I bring a working implementation, documented prior art, and a system architecture that is ready for peer review.</p>
+
+            <p><strong>Institutional contacts</strong> — fellowship administrators, grant officers, or research lab coordinators who can identify the right academic home for one or more VOID sub-systems. I'm not pitching; I'm asking if the fit exists.</p>
+
+            <p>What I won't do: simplify the technology to make it easier to say yes. What I will do: answer every serious question in full.</p>
+
+            <p>If you're the right fit, you already know it. Reply here or use the contact on the site. ◆</p>
+        </div>
+    </div>
+
+</div>
+
+<footer class="void-brand-footer">
+    <span class="void-brand-footer-mark">◆ By PROJECT VOID</span>
+    <ul class="void-brand-footer-links">
+        <li><a href="/brand">Brand Kit</a></li>
+        <li><a href="/brand/legal">Legal Kit</a></li>
+        <li><a href="/sovereign-node">Sovereign Node</a></li>
+    </ul>
+</footer>
+
+</body>
+</html>
