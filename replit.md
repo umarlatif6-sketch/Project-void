@@ -47,6 +47,7 @@ PROJECT VOID is a full-stack sovereign platform built around audio LSB steganogr
 | `/inner-voice` | inner_voice | Silent Speech Module spec page |
 | `/void-master-document` | void_master_document | Master Reference Document |
 | `/sovereign-node` | sovereign_node | MRB-4000 hardware sovereign node |
+| `/origin-map` | origin_map | Origin Map — startup landscape scatter + radar + VOID position |
 
 ---
 

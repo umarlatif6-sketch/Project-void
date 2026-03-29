@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Origin Map — Startup Landscape & VOID Position — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --om-bg: #050505;
+            --om-surface: #0c0c0c;
+            --om-border: #1a1a1a;
+            --om-gold: #c9a84c;
+            --om-gold-dim: #7a5f22;
+            --om-teal: #2dd4bf;
+            --om-text: #e0e0e0;
+            --om-muted: #555;
+            --om-white: #f5f5f5;
+
+            --sector-ai: #818cf8;
+            --sector-blockchain: #34d399;
+            --sector-biotech: #f472b6;
+            --sector-hardware: #fb923c;
+            --sector-gaming: #a78bfa;
+            --sector-community: #60a5fa;
+            --sector-multi: #fbbf24;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--om-bg);
+            color: var(--om-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+
+        /* ── Navigation ── */
+        .om-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 32px; border-bottom: 1px solid var(--om-border);
+            background: rgba(5,5,5,0.97); position: sticky; top: 0; z-index: 100;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .om-nav-brand {
+            font-size: 0.9rem; font-weight: 700; color: var(--om-gold);
+            letter-spacing: 3px; text-decoration: none;
+        }
+        .om-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .om-nav-link {
+            color: #666; text-decoration: none; font-size: 0.72rem;
+            letter-spacing: 1px; transition: color 0.2s;
+        }
+        .om-nav-link:hover, .om-nav-link.active { color: var(--om-gold); }
+
+        /* ── Hero ── */
+        .om-hero {
+            text-align: center; padding: 70px 24px 48px;
+            background: radial-gradient(ellipse at 50% 0%, #120e02 0%, var(--om-bg) 65%);
+            border-bottom: 1px solid var(--om-border);
+        }
+        .om-hero-glyph { font-size: 2.6rem; color: var(--om-gold); margin-bottom: 18px; }
+        .om-hero-title {
+            font-size: 1.7rem; font-weight: 700; color: var(--om-gold);
+            letter-spacing: 5px; margin: 0 0 12px; text-transform: uppercase;
+        }
+        .om-hero-sub {
+            font-size: 0.78rem; color: var(--om-muted); letter-spacing: 1.5px;
+            max-width: 600px; margin: 0 auto; line-height: 1.8;
+        }
+        .om-hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #130d00; border: 1px solid #3a2800; border-radius: 20px;
+            padding: 6px 18px; font-size: 0.66rem; letter-spacing: 2px;
+            color: var(--om-gold); text-transform: uppercase; margin-top: 20px;
+        }
+
+        /* ── Page layout ── */
+        .om-page { max-width: 1200px; margin: 0 auto; padding: 48px 24px 80px; }
+
+        .om-section-label {
+            font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase;
+            color: var(--om-muted); margin-bottom: 16px; padding-bottom: 8px;
+            border-bottom: 1px solid var(--om-border);
+        }
+
+        .om-section { margin-bottom: 72px; }
+
+        /* ── Scatter chart ── */
+        .om-scatter-wrap {
+            background: var(--om-surface); border: 1px solid var(--om-border);
+            border-radius: 12px; padding: 28px 24px; position: relative;
+        }
+        .om-chart-title {
+            font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase;
+            color: var(--om-gold); margin-bottom: 4px;
+        }
+        .om-chart-sub {
+            font-size: 0.62rem; color: var(--om-muted); letter-spacing: 1px;
+            margin-bottom: 24px;
+        }
+        .om-scatter-canvas-wrap {
+            position: relative; height: 480px;
+        }
+
+        /* ── Sector legend ── */
+        .om-legend {
+            display: flex; flex-wrap: wrap; gap: 12px 24px;
+            margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--om-border);
+        }
+        .om-legend-item {
+            display: flex; align-items: center; gap: 7px;
+            font-size: 0.62rem; letter-spacing: 1px; color: #888;
+        }
+        .om-legend-dot {
+            width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+        }
+
+        /* ── Tooltip ── */
+        #om-tooltip {
+            position: fixed; display: none; z-index: 200;
+            background: #111; border: 1px solid var(--om-border);
+            border-radius: 8px; padding: 12px 16px; max-width: 260px;
+            pointer-events: none; box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+        }
+        .om-tt-name { font-size: 0.82rem; font-weight: 700; color: var(--om-gold); margin-bottom: 4px; }
+        .om-tt-year { font-size: 0.62rem; color: var(--om-muted); letter-spacing: 1px; margin-bottom: 6px; }
+        .om-tt-sector { font-size: 0.62rem; letter-spacing: 1px; margin-bottom: 6px; }
+        .om-tt-desc { font-size: 0.65rem; color: #aaa; line-height: 1.6; }
+        .om-tt-scores { font-size: 0.62rem; color: #666; margin-top: 6px; letter-spacing: 0.5px; }
+
+        /* ── Radar + neighbors grid ── */
+        .om-two-col {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+        }
+        @media (max-width: 800px) {
+            .om-two-col { grid-template-columns: 1fr; }
+        }
+
+        .om-panel {
+            background: var(--om-surface); border: 1px solid var(--om-border);
+            border-radius: 12px; padding: 28px 24px;
+        }
+        .om-panel-title {
+            font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase;
+            color: var(--om-gold); margin-bottom: 4px;
+        }
+        .om-panel-sub {
+            font-size: 0.62rem; color: var(--om-muted); letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .om-radar-canvas-wrap { position: relative; height: 340px; }
+
+        /* ── Nearest Neighbors ── */
+        .om-neighbor {
+            border: 1px solid var(--om-border); border-radius: 8px;
+            padding: 14px 16px; margin-bottom: 12px; background: #0a0a0a;
+        }
+        .om-neighbor:last-child { margin-bottom: 0; }
+        .om-neighbor-name {
+            font-size: 0.78rem; font-weight: 700; color: var(--om-teal);
+            margin-bottom: 4px;
+        }
+        .om-neighbor-axis {
+            font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--om-gold-dim); margin-bottom: 6px;
+        }
+        .om-neighbor-note { font-size: 0.65rem; color: #888; line-height: 1.6; }
+
+        /* ── Open Territory ── */
+        .om-territory-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+        }
+        @media (max-width: 680px) {
+            .om-territory-grid { grid-template-columns: 1fr; }
+        }
+
+        .om-territory-card {
+            background: #060903; border: 1px solid #1f2a0d;
+            border-radius: 10px; padding: 22px 20px;
+        }
+        .om-territory-title {
+            font-size: 0.72rem; font-weight: 700; color: #a3e635;
+            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;
+        }
+        .om-territory-body { font-size: 0.68rem; color: #7a8a6a; line-height: 1.8; }
+
+        /* ── VOID callout ── */
+        .om-void-callout {
+            background: linear-gradient(135deg, #12100200 0%, #1a1400 100%);
+            border: 1px solid #3a2800; border-left: 3px solid var(--om-gold);
+            border-radius: 8px; padding: 18px 20px; margin-bottom: 28px;
+            font-size: 0.68rem; color: #bba060; line-height: 1.8;
+        }
+        .om-void-callout strong { color: var(--om-gold); }
+    </style>
+</head>
+<body>
+
+<div id="om-tooltip">
+    <div class="om-tt-name" id="om-tt-name"></div>
+    <div class="om-tt-year" id="om-tt-year"></div>
+    <div class="om-tt-sector" id="om-tt-sector"></div>
+    <div class="om-tt-desc" id="om-tt-desc"></div>
+    <div class="om-tt-scores" id="om-tt-scores"></div>
+</div>
+
+<nav class="om-nav">
+    <a href="/" class="om-nav-brand">◆ VOID ENGINE</a>
+    <div class="om-nav-links">
+        <a href="/" class="om-nav-link">Engine</a>
+        <a href="/gridul" class="om-nav-link">GriDul</a>
+        <a href="/genesis" class="om-nav-link">Genesis 10</a>
+        <a href="/qisync" class="om-nav-link">QiSync</a>
+        <a href="/hex-flower" class="om-nav-link">Hex Flower</a>
+        <a href="/marketplace" class="om-nav-link">Marketplace</a>
+        <a href="/origin-map" class="om-nav-link active">Origin Map</a>
+    </div>
+</nav>
+
+<div class="om-hero">
+    <div class="om-hero-glyph">◈</div>
+    <h1 class="om-hero-title">Origin Map</h1>
+    <p class="om-hero-sub">The global startup landscape from 2002–2026, anchored on the 2012 VOID origin. Plotted by year and Sovereignty + Cross-Domain Breadth. VOID occupies the unmapped upper-right corner — a position no single company has reached.</p>
+    <div class="om-hero-badge">◆ 40 landmark startups · 2002–2026 · VOID position marked</div>
+</div>
+
+<div class="om-page">
+
+    <!-- ── Scatter Plot ── -->
+    <div class="om-section">
+        <div class="om-section-label">Global Startup Landscape — Sovereignty × Domain Breadth</div>
+
+        <div class="om-void-callout">
+            <strong>Reading the map:</strong> X-axis = founding year (SpaceX 2002 → VOID 2012 → present). Y-axis = composite Sovereignty + Cross-Domain Breadth score (1–20). Companies that built only in one domain cluster at the bottom. Those that attempt to own a protocol layer rise higher. <strong>PROJECT VOID</strong> (founded 2012) sits at the apex — the only company holding all domains simultaneously in a single sovereign stack.
+        </div>
+
+        <div class="om-scatter-wrap">
+            <div class="om-chart-title">Startup Landscape — Year vs Sovereignty + Breadth</div>
+            <div class="om-chart-sub">Hover any dot for details · VOID shown in gold · Size indicates relative impact</div>
+            <div class="om-scatter-canvas-wrap">
+                <canvas id="om-scatter"></canvas>
+            </div>
+
+            <div class="om-legend">
+                <div class="om-legend-item">
+                    <div class="om-legend-dot" style="background:var(--sector-ai)"></div>
+                    <span>AI / ML</span>
+                </div>
+                <div class="om-legend-item">
+                    <div class="om-legend-dot" style="background:var(--sector-blockchain)"></div>
+                    <span>Blockchain</span>
+                </div>
+                <div class="om-legend-item">
+                    <div class="om-legend-dot" style="background:var(--sector-biotech)"></div>
+                    <span>BioTech</span>
+                </div>
+                <div class="om-legend-item">
+                    <div class="om-legend-dot" style="background:var(--sector-hardware)"></div>
+                    <span>Hardware</span>
+                </div>
+                <div class="om-legend-item">
+                    <div class="om-legend-dot" style="background:var(--sector-gaming)"></div>
+                    <span>Gaming</span>
+                </div>
+                <div class="om-legend-item">
+                    <div class="om-legend-dot" style="background:var(--sector-community)"></div>
+                    <span>Community / SaaS</span>
+                </div>
+                <div class="om-legend-item">
+                    <div class="om-legend-dot" style="background:var(--sector-multi)"></div>
+                    <span>Multi-Domain</span>
+                </div>
+                <div class="om-legend-item">
+                    <div class="om-legend-dot" style="background:var(--om-gold); border: 2px solid #fff4;"></div>
+                    <span>PROJECT VOID</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Radar + Neighbors ── -->
+    <div class="om-section">
+        <div class="om-section-label">Six-Dimension Comparison — VOID vs Nearest Neighbors</div>
+
+        <div class="om-two-col">
+
+            <!-- Radar chart -->
+            <div class="om-panel">
+                <div class="om-panel-title">Dimension Radar</div>
+                <div class="om-panel-sub">VOID (gold) vs Ethereum · Hugging Face · Ginkgo Bioworks</div>
+                <div class="om-radar-canvas-wrap">
+                    <canvas id="om-radar"></canvas>
+                </div>
+            </div>
+
+            <!-- Nearest neighbors -->
+            <div class="om-panel">
+                <div class="om-panel-title">Nearest Neighbors</div>
+                <div class="om-panel-sub">No single company matches VOID — these five together approximate one axis each</div>
+
+                {% for n in nearest_neighbors %}
+                <div class="om-neighbor">
+                    <div class="om-neighbor-name">{{ n.name }}</div>
+                    <div class="om-neighbor-axis">Covers: {{ n.axis }}</div>
+                    <div class="om-neighbor-note">{{ n.note }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── Open Territory ── -->
+    <div class="om-section">
+        <div class="om-section-label">Open Territory — What VOID Occupies That No Company Does</div>
+
+        <div class="om-void-callout">
+            The competitive map has no entry for a platform that is simultaneously <strong>sovereign AI + acoustic steganography + biological mesh + cryptographic economy + 3D game world</strong>. Each of these alone is a company. VOID is all of them, bound by a single token layer and a founding philosophy that precedes most of the companies below.
+        </div>
+
+        <div class="om-territory-grid">
+            {% for t in open_territory %}
+            <div class="om-territory-card">
+                <div class="om-territory-title">{{ t.title }}</div>
+                <div class="om-territory-body">{{ t.body }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<script src="/static/void_fairy.js"></script>
+<script>
+(function () {
+    var startups = {{ startups_json | safe }};
+    var radar = {{ radar_json | safe }};
+
+    var sectorColors = {
+        'AI':          'rgba(129,140,248,0.85)',
+        'Blockchain':  'rgba(52,211,153,0.85)',
+        'BioTech':     'rgba(244,114,182,0.85)',
+        'Hardware':    'rgba(251,146,60,0.85)',
+        'Gaming':      'rgba(167,139,250,0.85)',
+        'Community':   'rgba(96,165,250,0.85)',
+        'Multi-Domain':'rgba(251,191,36,0.85)',
+    };
+
+    /* ── Scatter chart ── */
+    var scatterData = startups.map(function (s) {
+        var isVoid = !!s.is_void;
+        var composite = s.sovereignty + s.domain_breadth;
+        return {
+            x: s.year,
+            y: composite,
+            label: s.name,
+            sector: s.sector,
+            year: s.year,
+            description: s.description,
+            sovereignty: s.sovereignty,
+            domain_breadth: s.domain_breadth,
+            isVoid: isVoid,
+            pointRadius: isVoid ? 14 : 8,
+            pointBorderWidth: isVoid ? 3 : 1,
+        };
+    });
+
+    var sectorGroups = {};
+    scatterData.forEach(function (pt) {
+        var key = pt.isVoid ? '__VOID__' : pt.sector;
+        if (!sectorGroups[key]) sectorGroups[key] = [];
+        sectorGroups[key].push(pt);
+    });
+
+    var scatterDatasets = Object.keys(sectorGroups).map(function (sector) {
+        var pts = sectorGroups[sector];
+        var isVoid = sector === '__VOID__';
+        var color = isVoid ? 'rgba(201,168,76,1)' : (sectorColors[sector] || 'rgba(200,200,200,0.7)');
+        return {
+            label: isVoid ? 'PROJECT VOID' : sector,
+            data: pts.map(function (p) { return { x: p.x, y: p.y, meta: p }; }),
+            backgroundColor: isVoid ? 'rgba(201,168,76,0.95)' : color,
+            borderColor: isVoid ? 'rgba(255,255,255,0.9)' : color.replace('0.85', '1'),
+            pointRadius: pts.map(function (p) { return p.pointRadius; }),
+            pointBorderWidth: pts.map(function (p) { return p.pointBorderWidth; }),
+            pointHoverRadius: pts.map(function (p) { return p.pointRadius + 4; }),
+        };
+    });
+
+    var tooltip = document.getElementById('om-tooltip');
+
+    var scatterCtx = document.getElementById('om-scatter').getContext('2d');
+    var scatterChart = new Chart(scatterCtx, {
+        type: 'scatter',
+        data: { datasets: scatterDatasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 600 },
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false },
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    min: 2001,
+                    max: 2027,
+                    title: {
+                        display: true,
+                        text: 'Founding Year',
+                        color: '#555',
+                        font: { size: 11, family: 'SF Mono, Fira Code, monospace' },
+                    },
+                    ticks: { color: '#555', stepSize: 2 },
+                    grid: { color: 'rgba(255,255,255,0.04)' },
+                },
+                y: {
+                    min: 0,
+                    max: 22,
+                    title: {
+                        display: true,
+                        text: 'Sovereignty + Domain Breadth (composite, max 20)',
+                        color: '#555',
+                        font: { size: 11, family: 'SF Mono, Fira Code, monospace' },
+                    },
+                    ticks: { color: '#555', stepSize: 2 },
+                    grid: { color: 'rgba(255,255,255,0.04)' },
+                },
+            },
+            onHover: function (event, elements) {
+                if (elements.length === 0) {
+                    tooltip.style.display = 'none';
+                    return;
+                }
+                var el = elements[0];
+                var ds = scatterChart.data.datasets[el.datasetIndex];
+                var pt = ds.data[el.index];
+                var meta = pt.meta;
+
+                document.getElementById('om-tt-name').textContent = meta.label;
+                document.getElementById('om-tt-year').textContent = 'Founded ' + meta.year;
+                var secEl = document.getElementById('om-tt-sector');
+                secEl.textContent = meta.sector;
+                secEl.style.color = sectorColors[meta.sector] || '#aaa';
+                document.getElementById('om-tt-desc').textContent = meta.description;
+                document.getElementById('om-tt-scores').textContent =
+                    'Sovereignty: ' + meta.sovereignty + '/10  ·  Domain Breadth: ' + meta.domain_breadth + '/10';
+
+                tooltip.style.display = 'block';
+                var x = event.native.clientX + 18;
+                var y = event.native.clientY - 20;
+                if (x + 270 > window.innerWidth) x = event.native.clientX - 278;
+                tooltip.style.left = x + 'px';
+                tooltip.style.top = y + 'px';
+            },
+        },
+    });
+
+    document.addEventListener('mousemove', function (e) {
+        if (tooltip.style.display === 'block') {
+            var x = e.clientX + 18;
+            var y = e.clientY - 20;
+            if (x + 270 > window.innerWidth) x = e.clientX - 278;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+        }
+    });
+
+    /* ── Radar chart ── */
+    var radarCtx = document.getElementById('om-radar').getContext('2d');
+    new Chart(radarCtx, {
+        type: 'radar',
+        data: {
+            labels: radar.labels,
+            datasets: [
+                {
+                    label: 'PROJECT VOID',
+                    data: radar.void,
+                    backgroundColor: 'rgba(201,168,76,0.18)',
+                    borderColor: 'rgba(201,168,76,0.9)',
+                    pointBackgroundColor: 'rgba(201,168,76,1)',
+                    pointBorderColor: '#fff',
+                    pointRadius: 4,
+                    borderWidth: 2,
+                },
+                {
+                    label: 'Ethereum',
+                    data: radar.ethereum,
+                    backgroundColor: 'rgba(52,211,153,0.08)',
+                    borderColor: 'rgba(52,211,153,0.6)',
+                    pointBackgroundColor: 'rgba(52,211,153,0.8)',
+                    pointRadius: 3,
+                    borderWidth: 1.5,
+                },
+                {
+                    label: 'Hugging Face',
+                    data: radar.hugging_face,
+                    backgroundColor: 'rgba(129,140,248,0.08)',
+                    borderColor: 'rgba(129,140,248,0.6)',
+                    pointBackgroundColor: 'rgba(129,140,248,0.8)',
+                    pointRadius: 3,
+                    borderWidth: 1.5,
+                },
+                {
+                    label: 'Ginkgo Bioworks',
+                    data: radar.ginkgo,
+                    backgroundColor: 'rgba(244,114,182,0.08)',
+                    borderColor: 'rgba(244,114,182,0.6)',
+                    pointBackgroundColor: 'rgba(244,114,182,0.8)',
+                    pointRadius: 3,
+                    borderWidth: 1.5,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 800 },
+            scales: {
+                r: {
+                    min: 0,
+                    max: 10,
+                    ticks: {
+                        stepSize: 2,
+                        color: '#444',
+                        backdropColor: 'transparent',
+                        font: { size: 10 },
+                    },
+                    grid: { color: 'rgba(255,255,255,0.06)' },
+                    angleLines: { color: 'rgba(255,255,255,0.06)' },
+                    pointLabels: {
+                        color: '#777',
+                        font: { size: 10, family: 'SF Mono, Fira Code, monospace' },
+                    },
+                },
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#666',
+                        font: { size: 10, family: 'SF Mono, Fira Code, monospace' },
+                        boxWidth: 10,
+                        padding: 14,
+                    },
+                },
+                tooltip: {
+                    backgroundColor: '#111',
+                    borderColor: '#1a1a1a',
+                    borderWidth: 1,
+                    titleColor: '#c9a84c',
+                    bodyColor: '#888',
+                },
+            },
+        },
+    });
+})();
+</script>
+</body>
+</html>
