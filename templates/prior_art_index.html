@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prior Art Defensive Publications — PROJECT VOID</title>
+    <meta name="description" content="Public defensive publications establishing prior art for PROJECT VOID inventions. Free to index, copy and redistribute.">
+    <meta name="robots" content="index, follow">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .pa-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .pa-nav-brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .pa-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .pa-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .pa-nav-link:hover, .pa-nav-link.active { color: var(--void-gold); }
+
+        .pa-hero {
+            text-align: center;
+            padding: 60px 32px 40px;
+            background: radial-gradient(ellipse at 50% 0%, #0d0d1a 0%, var(--void-bg) 72%);
+            border-bottom: 1px solid var(--void-border);
+            position: relative;
+        }
+        .pa-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--void-violet), transparent);
+        }
+        .pa-hero-badge {
+            display: inline-block;
+            background: var(--void-violet);
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 18px;
+        }
+        .pa-hero-title {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin: 0 0 12px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+        .pa-hero-sub {
+            color: #888;
+            font-size: 0.82rem;
+            max-width: 620px;
+            margin: 0 auto 24px;
+            line-height: 1.75;
+        }
+        .pa-legal-note {
+            display: inline-block;
+            background: rgba(124,92,255,0.08);
+            border: 1px solid rgba(124,92,255,0.25);
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 0.72rem;
+            color: #888;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .pa-main {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        .pa-section-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .pa-section-num {
+            font-size: 0.58rem;
+            letter-spacing: 3px;
+            color: var(--void-violet);
+            opacity: 0.8;
+        }
+        .pa-section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-text);
+        }
+        .pa-section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--void-border);
+        }
+
+        .pa-disclosure-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-bottom: 48px;
+        }
+        .pa-disclosure-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 28px 32px;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+        .pa-disclosure-card:hover {
+            border-color: rgba(124,92,255,0.4);
+        }
+        .pa-disclosure-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0; width: 3px;
+            background: var(--void-violet);
+            border-radius: 4px 0 0 4px;
+        }
+        .pa-card-ref {
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            color: var(--void-violet);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .pa-card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #fff;
+            margin: 0 0 8px;
+            text-transform: uppercase;
+        }
+        .pa-card-subtitle {
+            font-size: 0.78rem;
+            color: #888;
+            font-style: italic;
+            margin-bottom: 14px;
+        }
+        .pa-card-summary {
+            font-size: 0.8rem;
+            color: #aaa;
+            line-height: 1.75;
+            margin-bottom: 18px;
+        }
+        .pa-card-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .pa-card-meta-item {
+            font-size: 0.65rem;
+            color: var(--void-muted);
+            letter-spacing: 1px;
+        }
+        .pa-card-meta-item strong { color: #999; }
+        .pa-card-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .pa-btn-primary {
+            display: inline-block;
+            padding: 9px 20px;
+            background: rgba(124,92,255,0.12);
+            border: 1px solid rgba(124,92,255,0.4);
+            border-radius: 4px;
+            color: var(--void-violet);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+        .pa-btn-primary:hover { background: rgba(124,92,255,0.22); }
+        .pa-btn-ghost {
+            display: inline-block;
+            padding: 9px 20px;
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            color: #666;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .pa-btn-ghost:hover { border-color: #555; color: #aaa; }
+
+        .pa-what-box {
+            background: var(--void-surface2);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 24px 28px;
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.8;
+        }
+        .pa-what-box h3 {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-gold);
+            margin: 0 0 14px;
+        }
+        .pa-what-box p { margin: 0 0 12px; }
+        .pa-what-box p:last-child { margin-bottom: 0; }
+        .pa-what-box strong { color: #bbb; }
+
+        .pa-footer {
+            border-top: 1px solid var(--void-border);
+            padding: 28px 32px;
+            text-align: center;
+        }
+        .pa-footer-brand {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: var(--void-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .pa-footer-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .pa-footer-link {
+            color: #555;
+            font-size: 0.7rem;
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .pa-footer-link:hover { color: var(--void-gold); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<nav class="pa-nav">
+    <a href="/" class="pa-nav-brand">&#9670; PROJECT VOID</a>
+    <div class="pa-nav-links">
+        <a href="/" class="pa-nav-link">Engine</a>
+        <a href="/sovereign-node" class="pa-nav-link">Sovereign Node</a>
+        <a href="/mrb4000" class="pa-nav-link">MRB-4000</a>
+        <a href="/mycovoid" class="pa-nav-link">MycoVOID</a>
+        <a href="/prior-art" class="pa-nav-link active">Prior Art</a>
+    </div>
+</nav>
+
+<div class="pa-hero">
+    <div class="pa-hero-badge">Defensive Publications — Open IP Record</div>
+    <h1 class="pa-hero-title">Prior Art Archive</h1>
+    <p class="pa-hero-sub">
+        These technical disclosures are published openly to establish prior art for PROJECT VOID inventions.
+        Publication prevents any third party from obtaining a patent on the disclosed methods.
+        All documents are public, indexed, and timestamped.
+    </p>
+    <div class="pa-legal-note">
+        These are <strong>Defensive Publications</strong>, not patent applications. By publishing full technical details,
+        the inventor dedicates this knowledge to the public domain while blocking future monopolisation of these specific methods.
+    </div>
+</div>
+
+<main class="pa-main">
+
+    <div class="pa-section-head">
+        <span class="pa-section-num">01 —</span>
+        <span class="pa-section-title">Disclosures</span>
+        <span class="pa-section-line"></span>
+    </div>
+
+    <div class="pa-disclosure-grid">
+
+        <!-- VTB -->
+        <div class="pa-disclosure-card">
+            <div class="pa-card-ref">VTB-PAD-001 · Defensive Publication</div>
+            <h2 class="pa-card-title">Vibe-Triggered Biomineralization (VTB)</h2>
+            <p class="pa-card-subtitle">Acoustic resonance control of mineral deposition in living mycelium</p>
+            <p class="pa-card-summary">
+                Method of using specific acoustic resonance frequencies (primary embodiment: 5.85 kHz) to spatially direct and accelerate calcium carbonate biomineralization within living mycelial networks. The VTB protocol enables near-ambient-temperature fabrication of structured bio-ceramic composites — including the MRB-4000 Eggshell casing — without destroying the living biological matrix.
+            </p>
+            <div class="pa-card-meta">
+                <div class="pa-card-meta-item"><strong>Published:</strong> {{ publication_date }}</div>
+                <div class="pa-card-meta-item"><strong>Inventor:</strong> {{ inventor }}</div>
+                <div class="pa-card-meta-item"><strong>Ref:</strong> VTB-PAD-001</div>
+                <div class="pa-card-meta-item"><strong>Field:</strong> Biomineralization · Acoustics · Mycelium</div>
+            </div>
+            <div class="pa-card-actions">
+                <a href="/prior-art/vtb" class="pa-btn-primary">Read Full Disclosure</a>
+                <a href="/prior-art/vtb" onclick="window.open(this.href); return false;" class="pa-btn-ghost">Download PDF</a>
+            </div>
+        </div>
+
+        <!-- 432 Hz Vortex -->
+        <div class="pa-disclosure-card">
+            <div class="pa-card-ref">432V-PAD-001 · Defensive Publication</div>
+            <h2 class="pa-card-title">432 Hz Vortex Encoding</h2>
+            <p class="pa-card-subtitle">Biological frequency shelf steganography with spiral phase-shift modulation</p>
+            <p class="pa-card-summary">
+                Method of using biological acoustic frequency shelves (whale/bird/insect biological resonance bands) as steganographic carriers, combined with spiral phase-shift modulation (Vortex modulation) centred on the 432 Hz reference frequency. Enables covert data transmission embedded within naturally occurring biological soundscapes, with integration into the Adriana language layer for cryptographic key derivation.
+            </p>
+            <div class="pa-card-meta">
+                <div class="pa-card-meta-item"><strong>Published:</strong> {{ publication_date }}</div>
+                <div class="pa-card-meta-item"><strong>Inventor:</strong> {{ inventor }}</div>
+                <div class="pa-card-meta-item"><strong>Ref:</strong> 432V-PAD-001</div>
+                <div class="pa-card-meta-item"><strong>Field:</strong> Steganography · Acoustics · Cryptography</div>
+            </div>
+            <div class="pa-card-actions">
+                <a href="/prior-art/432-vortex" class="pa-btn-primary">Read Full Disclosure</a>
+                <a href="/prior-art/432-vortex" onclick="window.open(this.href); return false;" class="pa-btn-ghost">Download PDF</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="pa-section-head">
+        <span class="pa-section-num">02 —</span>
+        <span class="pa-section-title">What is a Defensive Publication?</span>
+        <span class="pa-section-line"></span>
+    </div>
+
+    <div class="pa-what-box">
+        <h3>Intellectual Property Context</h3>
+        <p>
+            A <strong>Defensive Publication</strong> is a document that discloses an invention in enough technical detail to constitute "prior art" under patent law. Once published, this prior art prevents any person or company — including the inventor — from later patenting the same method or device.
+        </p>
+        <p>
+            By publishing these disclosures here and submitting them to the Internet Archive (Wayback Machine), PROJECT VOID is ensuring that the VTB protocol and 432 Hz Vortex Encoding methods remain permanently in the public domain. Any patent examiner reviewing a future application covering these specific methods will find this disclosure and must reject the application.
+        </p>
+        <p>
+            <strong>These pages are fully public</strong>, require no login, and are indexed by search engines and archival services. The disclosed methods are freely available for research, education, and non-commercial use. Commercial licensing enquiries should be directed to the inventor.
+        </p>
+    </div>
+
+</main>
+
+<footer class="pa-footer">
+    <div class="pa-footer-brand">PROJECT VOID — Prior Art Archive · Published {{ publication_date }}</div>
+    <div class="pa-footer-links">
+        <a href="/" class="pa-footer-link">Home</a>
+        <a href="/sovereign-node" class="pa-footer-link">Sovereign Node</a>
+        <a href="/mrb4000" class="pa-footer-link">MRB-4000</a>
+        <a href="/mycovoid" class="pa-footer-link">MycoVOID</a>
+        <a href="/prior-art/vtb" class="pa-footer-link">VTB Disclosure</a>
+        <a href="/prior-art/432-vortex" class="pa-footer-link">432 Hz Vortex Disclosure</a>
+    </div>
+</footer>
+
+</body>
+</html>

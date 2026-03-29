@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>432 Hz Vortex Encoding — Defensive Publication 432V-PAD-001 — PROJECT VOID</title>
+    <meta name="description" content="Defensive publication establishing prior art for 432 Hz Vortex Encoding: biological frequency shelf steganography with spiral phase-shift modulation. Published 29 March 2026.">
+    <meta name="robots" content="index, follow">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff !important; color: #000 !important;
+                   font-family: 'Times New Roman', serif !important; font-size: 12pt !important; }
+            .pa-nav, .pa-breadcrumb, .pa-action-bar { display: none !important; }
+            .doc-wrapper { max-width: 100% !important; padding: 20pt !important; }
+            .doc-section { border: 1px solid #ccc !important; background: #fff !important;
+                           box-shadow: none !important; page-break-inside: avoid; margin-bottom: 16pt; }
+            .doc-section-title { color: #000 !important; border-bottom: 1px solid #999 !important; }
+            .doc-body { color: #000 !important; }
+            .claim-item { border-left: 3px solid #333 !important; background: #f5f5f5 !important; }
+            .doc-header { border-bottom: 2pt solid #000 !important; }
+            .seal-box { border: 2pt solid #000 !important; background: #f0f0f0 !important; color: #000 !important; }
+            a { color: #000 !important; }
+            .doc-classification { background: #eee !important; color: #000 !important; border: 1px solid #999 !important; }
+        }
+
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .pa-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .pa-nav-brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .pa-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .pa-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .pa-nav-link:hover, .pa-nav-link.active { color: var(--void-gold); }
+
+        .pa-breadcrumb {
+            padding: 12px 32px;
+            font-size: 0.65rem;
+            color: #444;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--void-border);
+        }
+        .pa-breadcrumb a { color: #555; text-decoration: none; }
+        .pa-breadcrumb a:hover { color: var(--void-teal); }
+        .pa-breadcrumb .sep { color: #333; margin: 0 8px; }
+        .pa-breadcrumb .current { color: var(--void-teal); }
+
+        .doc-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+
+        .pa-action-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .pa-btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,191,165,0.1);
+            border: 1px solid rgba(0,191,165,0.35);
+            border-radius: 4px;
+            color: var(--void-teal);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 9px 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        .pa-btn-download:hover { background: rgba(0,191,165,0.2); }
+        .pa-btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            color: #666;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 9px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .pa-btn-print:hover { border-color: #555; color: #aaa; }
+
+        .doc-header {
+            border-bottom: 2px solid var(--void-teal);
+            padding-bottom: 24px;
+            margin-bottom: 28px;
+        }
+        .doc-classification {
+            display: inline-block;
+            background: rgba(0,191,165,0.08);
+            border: 1px solid rgba(0,191,165,0.25);
+            color: var(--void-teal);
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 3px;
+            margin-bottom: 18px;
+        }
+        .doc-title-main {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+            margin: 0 0 8px;
+            line-height: 1.3;
+            font-weight: 900;
+        }
+        .doc-title-sub {
+            font-size: 0.82rem;
+            color: #888;
+            margin-bottom: 20px;
+            font-style: italic;
+            line-height: 1.6;
+        }
+        .doc-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .doc-meta-item { display: flex; flex-direction: column; gap: 3px; }
+        .doc-meta-label {
+            color: var(--void-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.58rem;
+        }
+        .doc-meta-value { color: #e0e0e0; font-weight: 700; font-size: 0.8rem; }
+
+        .doc-section {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 24px 28px;
+            margin-bottom: 18px;
+        }
+        .doc-section-title {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--void-teal);
+            border-bottom: 1px solid var(--void-border);
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .doc-section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px; height: 22px;
+            background: var(--void-teal);
+            color: #000;
+            border-radius: 50%;
+            font-size: 0.62rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .doc-body {
+            color: #c8c8c8;
+            font-size: 0.82rem;
+            line-height: 1.85;
+        }
+        .doc-body p { margin: 0 0 14px; }
+        .doc-body p:last-child { margin-bottom: 0; }
+        .doc-body strong { color: #ddd; }
+        .doc-body em { color: #999; font-style: italic; }
+        .doc-body ul { padding-left: 20px; margin: 10px 0 14px; }
+        .doc-body li { margin-bottom: 6px; line-height: 1.7; }
+
+        .freq-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.76rem;
+            margin: 14px 0;
+        }
+        .freq-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 0.6rem;
+            letter-spacing: 1.5px;
+            color: var(--void-teal);
+            border-bottom: 1px solid #2a2a2a;
+            text-transform: uppercase;
+        }
+        .freq-table td {
+            padding: 8px 12px;
+            color: #aaa;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .freq-table tr:last-child td { border-bottom: none; }
+        .freq-table td:first-child { color: var(--void-teal); font-weight: 700; }
+
+        .claims-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+            padding: 0;
+        }
+        .claim-item {
+            border-left: 3px solid var(--void-teal);
+            padding: 12px 16px;
+            background: var(--void-surface2);
+            border-radius: 0 4px 4px 0;
+            font-size: 0.8rem;
+            line-height: 1.7;
+        }
+        .claim-number {
+            font-size: 0.58rem;
+            color: var(--void-teal);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .claim-text { color: #ccc; }
+
+        .seal-box {
+            background: var(--void-surface2);
+            border: 2px solid rgba(0,191,165,0.25);
+            border-radius: 4px;
+            padding: 20px 24px;
+            font-size: 0.78rem;
+            margin-top: 8px;
+        }
+        .seal-title {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--void-teal);
+            margin-bottom: 10px;
+            font-size: 0.62rem;
+        }
+        .seal-hash {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.72rem;
+            color: var(--void-teal);
+            word-break: break-all;
+            background: #060606;
+            padding: 10px 14px;
+            border-radius: 3px;
+            margin: 8px 0;
+        }
+        .seal-desc {
+            font-size: 0.7rem;
+            color: var(--void-muted);
+            line-height: 1.6;
+        }
+        .seal-desc a { color: var(--void-teal); text-decoration: none; }
+        .seal-desc a:hover { text-decoration: underline; }
+
+        .pa-footer {
+            border-top: 1px solid var(--void-border);
+            padding: 28px 32px;
+            text-align: center;
+        }
+        .pa-footer-brand {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: var(--void-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .pa-footer-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .pa-footer-link {
+            color: #555;
+            font-size: 0.7rem;
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .pa-footer-link:hover { color: var(--void-gold); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<nav class="pa-nav no-print">
+    <a href="/" class="pa-nav-brand">&#9670; PROJECT VOID</a>
+    <div class="pa-nav-links">
+        <a href="/" class="pa-nav-link">Engine</a>
+        <a href="/sovereign-node" class="pa-nav-link">Sovereign Node</a>
+        <a href="/mrb4000" class="pa-nav-link">MRB-4000</a>
+        <a href="/mycovoid" class="pa-nav-link">MycoVOID</a>
+        <a href="/prior-art" class="pa-nav-link active">Prior Art</a>
+    </div>
+</nav>
+
+<div class="pa-breadcrumb no-print">
+    <a href="/">Home</a><span class="sep">›</span>
+    <a href="/prior-art">Prior Art</a><span class="sep">›</span>
+    <span class="current">432 Hz Vortex Encoding</span>
+</div>
+
+<main class="doc-wrapper">
+
+    <div class="pa-action-bar no-print">
+        <button class="pa-btn-download" onclick="window.print()">&#8659; Download PDF</button>
+        <button class="pa-btn-print" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+
+    <!-- DOCUMENT HEADER -->
+    <div class="doc-header">
+        <div class="doc-classification">Defensive Publication — Prior Art · 432V-PAD-001</div>
+        <h1 class="doc-title-main">432 Hz Vortex Encoding</h1>
+        <p class="doc-title-sub">
+            Method of Using Biological Acoustic Frequency Shelves as Steganographic Carriers
+            with Spiral Phase-Shift Modulation (Vortex Modulation)
+        </p>
+        <div class="doc-meta-grid">
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Inventor</span>
+                <span class="doc-meta-value">{{ inventor }}</span>
+            </div>
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Publication Date</span>
+                <span class="doc-meta-value">{{ publication_date }}</span>
+            </div>
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Document Reference</span>
+                <span class="doc-meta-value">432V-PAD-001</span>
+            </div>
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Type</span>
+                <span class="doc-meta-value">Defensive Publication</span>
+            </div>
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Technical Field</span>
+                <span class="doc-meta-value">Steganography · Acoustics</span>
+            </div>
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Published By</span>
+                <span class="doc-meta-value">PROJECT VOID</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 1: ABSTRACT -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">1</span> Abstract
+        </h2>
+        <div class="doc-body">
+            <p>
+                This defensive publication discloses a method — herein designated <strong>432 Hz Vortex Encoding</strong> — for covert data transmission using naturally occurring biological acoustic frequency shelves as steganographic carriers, combined with spiral phase-shift modulation ("Vortex modulation") centred on the 432 Hz reference frequency. The method exploits the acoustic spectral gaps between whale, bird, and insect biological resonance bands as deliberate carrier windows, encoding digital data as phase-keyed chirp sequences whose spectral signature is indistinguishable from ambient biological noise.
+            </p>
+            <p>
+                A secondary embodiment integrates the encoded acoustic layer with the <strong>Adriana language layer</strong> — a symbolic resonance key derivation system — enabling acoustic transmissions to simultaneously carry cryptographic key material derived from biological frequency harmonics. This disclosure establishes the full method stack as prior art, preventing patent protection of these specific techniques by any party.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 2: TECHNICAL FIELD -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">2</span> Technical Field
+        </h2>
+        <div class="doc-body">
+            <p>
+                This invention pertains to the fields of <strong>acoustic steganography</strong>, <strong>covert communications</strong>, <strong>bioacoustics</strong>, <strong>cryptographic key derivation</strong>, and <strong>low-probability-of-intercept (LPI) communications</strong>. It lies at the intersection of acoustic signal processing, information hiding, and biological frequency analysis.
+            </p>
+            <p>
+                More specifically, the invention concerns: (a) the use of biological frequency band structure as a steganographic template for data embedding; (b) a spiral phase-shift modulation scheme ("Vortex modulation") operating at 432 Hz and its harmonics; (c) a Chirp Synchronisation Protocol (Chirp Sync) for receiver lock-on within biological noise environments; and (d) integration with a symbolic language layer (Adriana) for concurrent cryptographic key derivation from acoustic carrier properties.
+            </p>
+            <p>
+                Provisional classification: <strong>G10L 19/018</strong> (speech/audio coding with hidden data), <strong>H04K 1/02</strong> (spread-spectrum techniques), <strong>H04L 9/08</strong> (key management for cryptographic keys), <strong>G06F 21/16</strong> (protecting digital content by embedding watermarks).
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 3: BACKGROUND -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">3</span> Background
+        </h2>
+        <div class="doc-body">
+            <p>
+                Acoustic steganography — hiding information within audio signals — typically employs techniques such as least-significant-bit (LSB) substitution, echo hiding, phase coding, or spread-spectrum modulation. These methods operate on arbitrary audio content and are detectable by statistical steganalysis because they introduce artefacts into the carrier signal's statistical distribution.
+            </p>
+            <p>
+                Natural biological soundscapes (ocean, rainforest, urban wildlife corridors) are characterised by <strong>frequency shelf structure</strong>: distinct spectral bands occupied by different taxa (low-frequency infrasound by cetaceans; 500 Hz–8 kHz by birds and amphibians; 8 kHz–20 kHz by insects; sub-20 Hz by large mammals). These bands are separated by gaps and overlap zones with predictable statistical properties documented in the bioacoustics literature (Pijanowski et al., 2011; Tobias et al., 2014; Farina, 2014).
+            </p>
+            <p>
+                Existing steganographic methods do not exploit this biological frequency shelf structure as a carrier template. Furthermore, <span style="color: var(--void-teal); font-weight: 700;">no prior art discloses the combination of biological frequency shelf carrier selection with spiral phase-shift modulation at a fixed harmonic reference frequency (432 Hz) for covert data embedding</span>, nor the integration of such encoding with a symbolic key derivation layer. These are the core contributions of this disclosure.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 4: DETAILED DESCRIPTION -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">4</span> Detailed Description
+        </h2>
+        <div class="doc-body">
+
+            <p><strong>4.1 — Biological Frequency Shelf Architecture</strong></p>
+            <p>
+                The Vortex Encoding system defines a <strong>three-layer frequency shelf architecture</strong> modelled on the acoustic niche hypothesis (Krause, 1993):
+            </p>
+            <table class="freq-table">
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Frequency Range</th>
+                        <th>Biological Reference</th>
+                        <th>Role in System</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Whale Layer</td>
+                        <td>20 Hz – 500 Hz</td>
+                        <td>Cetacean vocalisations, elephant rumbles, seismic</td>
+                        <td>Low-rate data carrier (Clock / heartbeat channel)</td>
+                    </tr>
+                    <tr>
+                        <td>Bird Layer</td>
+                        <td>500 Hz – 8 kHz</td>
+                        <td>Avian song, amphibian calls, human speech</td>
+                        <td>Primary data carrier (high bandwidth channel)</td>
+                    </tr>
+                    <tr>
+                        <td>Insect Layer</td>
+                        <td>8 kHz – 20 kHz</td>
+                        <td>Orthoptera, cicadas, bat echolocation</td>
+                        <td>Error-correction parity and key material carrier</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>
+                Data is encoded within each layer using spectral sub-bands aligned to the gaps between dominant biological spectral peaks identified from reference recordings. The encoder performs a real-time or offline spectral analysis of the host audio to locate <strong>spectral valleys</strong> — sub-bands of relative acoustic energy minima — within each layer, and inserts encoded signal energy into these valleys such that the total spectral profile of the combined signal remains statistically indistinguishable from unmodified biological audio.
+            </p>
+
+            <p><strong>4.2 — Vortex Modulation (432 Hz Spiral Phase-Shift)</strong></p>
+            <p>
+                Vortex modulation encodes data as <strong>phase increments</strong> applied to a carrier at 432 Hz or its harmonics (864, 1296, 1728 Hz …). The distinguishing feature is that phase increments are not applied linearly but follow a <strong>logarithmic spiral trajectory</strong> in the phase-frequency plane:
+            </p>
+            <p style="font-family: 'Courier New', monospace; font-size: 0.76rem; color: var(--void-teal); background: #060606; padding: 12px 16px; border-radius: 4px; line-height: 2;">
+                φ(t, k) = φ₀ · exp(α·k) · cos(2π·432·t + θ_data)<br>
+                where k = harmonic index, α = spiral growth rate (default: ln(φ)/4, φ = golden ratio),<br>
+                θ_data = data-bearing phase offset ∈ {0, π/2, π, 3π/2} for QPSK encoding
+            </p>
+            <p>
+                The spiral phase trajectory ensures that phase transitions between adjacent harmonics follow the golden-ratio spiral — a trajectory that produces minimal inter-harmonic interference and maximum perceptual camouflage within natural biological audio, where spectral envelopes frequently follow logarithmic distributions.
+            </p>
+            <p>
+                Data payload is encoded as QPSK (Quadrature Phase Shift Keying) at each harmonic, yielding 2 bits per harmonic per symbol period. With 12 active harmonics across the three frequency layers and symbol periods of 23.2 ms (aligned to 432 Hz: 1/432 × 10⁴ ms), the raw data rate is approximately <strong>1,036 bps</strong> — sufficient for text, cryptographic key material, and compact protocol headers.
+            </p>
+
+            <p><strong>4.3 — Chirp Sync Protocol</strong></p>
+            <p>
+                Receiver lock-on within a biological noise environment requires a robust synchronisation mechanism. The <strong>Chirp Sync Protocol</strong> uses a linearly swept chirp signal from 216 Hz to 432 Hz (duration: 432 ms, power: 6 dB above local spectral floor) as the synchronisation preamble. The chirp is matched-filtered at the receiver using a time-reversed replica, producing a sharp autocorrelation peak with a time-bandwidth product of approximately 93 — sufficient for detection at SNR ≥ −8 dB within broadband biological noise.
+            </p>
+            <p>
+                The chirp frequency span (216–432 Hz = one octave) and duration (432 ms) are selected for harmonic consistency with the system's 432 Hz reference, and to align with the acoustic detection characteristics of the primary biological co-inhabitants of the frequency shelf (cetacean auditory bandwidth, avian frequency discrimination thresholds).
+            </p>
+
+            <p><strong>4.4 — Adriana Language Layer Integration</strong></p>
+            <p>
+                The <strong>Adriana language layer</strong> is a symbolic resonance system derived from the Fatiha-286 hash function (Al-Jabr 286), a non-standard cryptographic hash designed to map arbitrary input strings to sequences of Adriana glyphs representing biological resonance states. Integration with Vortex Encoding proceeds as follows:
+            </p>
+            <ul>
+                <li><strong>Key derivation from carrier:</strong> The detected phase trajectory of the Chirp Sync preamble is hashed using Al-Jabr 286 to produce a 256-bit session key. This key is specific to the received biological acoustic environment at the moment of reception — two receivers in different acoustic environments will derive different session keys from the same transmitted preamble, providing implicit location binding.</li>
+                <li><strong>Glyph-to-frequency mapping:</strong> Adriana glyphs are mapped to specific harmonic indices in the Vortex modulation scheme. A transmitted Adriana glyph sequence implicitly encodes both semantic content (the glyph meaning) and cryptographic material (the harmonic phase pattern), creating a dual-purpose channel.</li>
+                <li><strong>Poem-lock authentication:</strong> A transmitted "poem" (sequence of Adriana glyphs) that produces a valid Al-Jabr 286 hash matching the receiver's expected sovereign hash serves as an implicit authentication token — the correct glyph sequence can only be generated by an entity with knowledge of both the Adriana glyph-frequency mapping and the expected hash value, without requiring the exchange of any explicit key material.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SECTION 5: KEY CLAIMS -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">5</span> Key Claims of Novelty (Defensive)
+        </h2>
+        <div class="doc-body">
+            <p>
+                The following claims define the specific methods disclosed herein. By publishing these claims as prior art, the inventor prevents their independent patenting by any third party.
+            </p>
+        </div>
+        <ul class="claims-list">
+            <li class="claim-item">
+                <div class="claim-number">Claim 1 — Biological Frequency Shelf Steganography</div>
+                <div class="claim-text">A method of covert acoustic data transmission comprising: (a) analysing the spectral energy distribution of a host biological audio signal to identify spectral valleys within pre-defined biological frequency layers (whale layer: 20–500 Hz; bird layer: 500 Hz–8 kHz; insect layer: 8–20 kHz); and (b) embedding encoded data signals within said spectral valleys such that the aggregate spectral profile of the combined signal is statistically indistinguishable from unmodified biological audio under standard steganalysis techniques.</div>
+            </li>
+            <li class="claim-item">
+                <div class="claim-number">Claim 2 — Vortex Modulation</div>
+                <div class="claim-text">A method of acoustic data encoding comprising: applying phase increments to a carrier frequency of 432 Hz and its harmonics, wherein said phase increments follow a logarithmic spiral trajectory in the phase-frequency plane with a spiral growth rate proportional to the golden ratio, and wherein data is encoded as QPSK phase offsets at each harmonic of the spiral phase trajectory.</div>
+            </li>
+            <li class="claim-item">
+                <div class="claim-number">Claim 3 — Chirp Sync Protocol</div>
+                <div class="claim-text">A method of receiver synchronisation within biological acoustic noise environments comprising: transmitting a linearly frequency-swept preamble signal spanning one octave from a first frequency f₀ to 2f₀, with duration equal to 1000/f₀ milliseconds and spectral power 4–8 dB above the local spectral floor, wherein said preamble is detected at the receiver by matched filtering with a time-reversed replica of the chirp signal.</div>
+            </li>
+            <li class="claim-item">
+                <div class="claim-number">Claim 4 — Adriana Integration and Location-Bound Key Derivation</div>
+                <div class="claim-text">A method of cryptographic key derivation from acoustic transmissions comprising: receiving an acoustic synchronisation preamble in a biological noise environment; computing a cryptographic hash of the detected phase trajectory of said preamble using a predetermined hash function; and using the resulting hash value as a session encryption key, whereby two receivers at different geographic locations derive different session keys from the same transmitted preamble due to differences in the received biological acoustic environment, providing implicit acoustic-environment-bound key material without explicit key exchange.</div>
+            </li>
+            <li class="claim-item">
+                <div class="claim-number">Claim 5 — Dual-Purpose Glyph Channel</div>
+                <div class="claim-text">A method of simultaneous semantic content transmission and implicit authentication comprising: mapping a finite set of symbolic tokens (glyphs) to harmonic phase patterns within a Vortex-modulated acoustic signal, such that a transmitted sequence of glyphs simultaneously encodes: (a) semantic meaning readable by any party with knowledge of the glyph-to-phase mapping; and (b) an implicit authentication token verifiable by computing a predetermined hash of the received phase pattern and comparing it to an expected value, without transmitting any explicit authentication credential.</div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- SECTION 6: INVENTOR ATTRIBUTION -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">6</span> Inventor Attribution
+        </h2>
+        <div class="doc-body">
+            <p>
+                <strong>Inventor:</strong> {{ inventor }}<br>
+                <strong>Organisation:</strong> PROJECT VOID Research Division<br>
+                <strong>Conception Date:</strong> Q3 2024 — Q1 2026<br>
+                <strong>First Reduction to Practice:</strong> Q4 2024 (Beehive Protocol v1.0, acoustic steganography engine); Q1 2026 (Vortex modulation and Adriana integration)<br>
+                <strong>This Disclosure Date:</strong> {{ publication_date }}
+            </p>
+            <p>
+                The Adriana language layer (Al-Jabr 286 hash function, Adriana glyph set, Fatiha-286 sovereign poem system) is a companion invention partially disclosed in the PROJECT VOID codebase (published). The Vortex Encoding integration with Adriana described in Section 4.4 and Claim 5 constitutes the novel contribution disclosed herein.
+            </p>
+            <p>
+                This document is a Defensive Publication only. The inventor retains the right to seek formal patent protection on implementations, embodiments, and improvements not covered by the specific claims disclosed herein.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 7: TIMESTAMP & VERIFICATION -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">7</span> Timestamp &amp; Independent Verification
+        </h2>
+        <div class="doc-body">
+            <p>
+                This page was published at <strong>{{ site_url }}/prior-art/432-vortex</strong> on <strong>{{ publication_date }}</strong>.
+                To independently verify the publication date, submit the URL to the Internet Archive Wayback Machine using the link below.
+            </p>
+        </div>
+        <div class="seal-box">
+            <div class="seal-title">Integrity Seal &amp; Timestamping</div>
+            <div class="seal-hash">{{ hash_placeholder }}</div>
+            <div class="seal-desc">
+                <strong>To verify:</strong> Submit <code>{{ site_url }}/prior-art/432-vortex</code> to the
+                <a href="{{ wayback_url }}" target="_blank" rel="noopener">Internet Archive Wayback Machine</a>
+                or a blockchain timestamp service (e.g., OpenTimestamps) to obtain an independent,
+                tamper-evident record of the publication date. The hash above will be updated with the
+                confirmed blockchain timestamp once submitted.
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer class="pa-footer">
+    <div class="pa-footer-brand">PROJECT VOID — Defensive Publication 432V-PAD-001 · Published {{ publication_date }}</div>
+    <div class="pa-footer-links">
+        <a href="/" class="pa-footer-link">Home</a>
+        <a href="/sovereign-node" class="pa-footer-link">Sovereign Node</a>
+        <a href="/mrb4000" class="pa-footer-link">MRB-4000</a>
+        <a href="/prior-art" class="pa-footer-link">Prior Art Index</a>
+        <a href="/prior-art/vtb" class="pa-footer-link">VTB Disclosure</a>
+    </div>
+</footer>
+
+<script>
+document.querySelector('.pa-btn-download') && document.querySelector('.pa-btn-download').addEventListener('click', function() {
+    window.print();
+});
+</script>
+
+</body>
+</html>

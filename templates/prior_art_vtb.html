@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTB Protocol — Defensive Publication VTB-PAD-001 — PROJECT VOID</title>
+    <meta name="description" content="Defensive publication establishing prior art for Vibe-Triggered Biomineralization (VTB): acoustic resonance control of mineral deposition in living mycelium. Published 29 March 2026.">
+    <meta name="robots" content="index, follow">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff !important; color: #000 !important;
+                   font-family: 'Times New Roman', serif !important; font-size: 12pt !important; }
+            .pa-nav, .pa-breadcrumb, .pa-action-bar { display: none !important; }
+            .doc-wrapper { max-width: 100% !important; padding: 20pt !important; }
+            .doc-section { border: 1px solid #ccc !important; background: #fff !important;
+                           box-shadow: none !important; page-break-inside: avoid; margin-bottom: 16pt; }
+            .doc-section-title { color: #000 !important; border-bottom: 1px solid #999 !important; }
+            .doc-body { color: #000 !important; }
+            .claim-item { border-left: 3px solid #333 !important; background: #f5f5f5 !important; }
+            .doc-header { border-bottom: 2pt solid #000 !important; }
+            .seal-box { border: 2pt solid #000 !important; background: #f0f0f0 !important; color: #000 !important; }
+            a { color: #000 !important; }
+            .doc-classification { background: #eee !important; color: #000 !important; border: 1px solid #999 !important; }
+        }
+
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .pa-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .pa-nav-brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .pa-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .pa-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .pa-nav-link:hover, .pa-nav-link.active { color: var(--void-gold); }
+
+        .pa-breadcrumb {
+            padding: 12px 32px;
+            font-size: 0.65rem;
+            color: #444;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--void-border);
+        }
+        .pa-breadcrumb a { color: #555; text-decoration: none; }
+        .pa-breadcrumb a:hover { color: var(--void-violet); }
+        .pa-breadcrumb .sep { color: #333; margin: 0 8px; }
+        .pa-breadcrumb .current { color: var(--void-violet); }
+
+        .doc-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+
+        .pa-action-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .pa-btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(124,92,255,0.12);
+            border: 1px solid rgba(124,92,255,0.4);
+            border-radius: 4px;
+            color: var(--void-violet);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 9px 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        .pa-btn-download:hover { background: rgba(124,92,255,0.22); }
+        .pa-btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            color: #666;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 9px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .pa-btn-print:hover { border-color: #555; color: #aaa; }
+
+        .doc-header {
+            border-bottom: 2px solid var(--void-violet);
+            padding-bottom: 24px;
+            margin-bottom: 28px;
+        }
+        .doc-classification {
+            display: inline-block;
+            background: rgba(124,92,255,0.12);
+            border: 1px solid rgba(124,92,255,0.3);
+            color: var(--void-violet);
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 3px;
+            margin-bottom: 18px;
+        }
+        .doc-title-main {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+            margin: 0 0 8px;
+            line-height: 1.3;
+            font-weight: 900;
+        }
+        .doc-title-sub {
+            font-size: 0.82rem;
+            color: #888;
+            margin-bottom: 20px;
+            font-style: italic;
+            line-height: 1.6;
+        }
+        .doc-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .doc-meta-item { display: flex; flex-direction: column; gap: 3px; }
+        .doc-meta-label {
+            color: var(--void-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.58rem;
+        }
+        .doc-meta-value { color: #e0e0e0; font-weight: 700; font-size: 0.8rem; }
+
+        .doc-section {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 24px 28px;
+            margin-bottom: 18px;
+        }
+        .doc-section-title {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--void-violet);
+            border-bottom: 1px solid var(--void-border);
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .doc-section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px; height: 22px;
+            background: var(--void-violet);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 0.62rem;
+            flex-shrink: 0;
+        }
+        .doc-body {
+            color: #c8c8c8;
+            font-size: 0.82rem;
+            line-height: 1.85;
+        }
+        .doc-body p { margin: 0 0 14px; }
+        .doc-body p:last-child { margin-bottom: 0; }
+        .doc-body strong { color: #ddd; }
+        .doc-body em { color: #999; font-style: italic; }
+        .doc-body ul { padding-left: 20px; margin: 10px 0 14px; }
+        .doc-body li { margin-bottom: 6px; line-height: 1.7; }
+
+        .claims-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+            padding: 0;
+        }
+        .claim-item {
+            border-left: 3px solid var(--void-violet);
+            padding: 12px 16px;
+            background: var(--void-surface2);
+            border-radius: 0 4px 4px 0;
+            font-size: 0.8rem;
+            line-height: 1.7;
+        }
+        .claim-number {
+            font-size: 0.58rem;
+            color: var(--void-violet);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .claim-text { color: #ccc; }
+
+        .seal-box {
+            background: var(--void-surface2);
+            border: 2px solid rgba(124,92,255,0.3);
+            border-radius: 4px;
+            padding: 20px 24px;
+            font-size: 0.78rem;
+            margin-top: 8px;
+        }
+        .seal-title {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--void-violet);
+            margin-bottom: 10px;
+            font-size: 0.62rem;
+        }
+        .seal-hash {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.72rem;
+            color: var(--void-teal);
+            word-break: break-all;
+            background: #060606;
+            padding: 10px 14px;
+            border-radius: 3px;
+            margin: 8px 0;
+        }
+        .seal-desc {
+            font-size: 0.7rem;
+            color: var(--void-muted);
+            line-height: 1.6;
+        }
+        .seal-desc a { color: var(--void-violet); text-decoration: none; }
+        .seal-desc a:hover { text-decoration: underline; }
+
+        .pa-footer {
+            border-top: 1px solid var(--void-border);
+            padding: 28px 32px;
+            text-align: center;
+        }
+        .pa-footer-brand {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: var(--void-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .pa-footer-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .pa-footer-link {
+            color: #555;
+            font-size: 0.7rem;
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .pa-footer-link:hover { color: var(--void-gold); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<nav class="pa-nav no-print">
+    <a href="/" class="pa-nav-brand">&#9670; PROJECT VOID</a>
+    <div class="pa-nav-links">
+        <a href="/" class="pa-nav-link">Engine</a>
+        <a href="/sovereign-node" class="pa-nav-link">Sovereign Node</a>
+        <a href="/mrb4000" class="pa-nav-link">MRB-4000</a>
+        <a href="/mycovoid" class="pa-nav-link">MycoVOID</a>
+        <a href="/prior-art" class="pa-nav-link active">Prior Art</a>
+    </div>
+</nav>
+
+<div class="pa-breadcrumb no-print">
+    <a href="/">Home</a><span class="sep">›</span>
+    <a href="/prior-art">Prior Art</a><span class="sep">›</span>
+    <span class="current">VTB Protocol</span>
+</div>
+
+<main class="doc-wrapper">
+
+    <div class="pa-action-bar no-print">
+        <button class="pa-btn-download" onclick="window.print()">&#8659; Download PDF</button>
+        <button class="pa-btn-print" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+
+    <!-- DOCUMENT HEADER -->
+    <div class="doc-header">
+        <div class="doc-classification">Defensive Publication — Prior Art · VTB-PAD-001</div>
+        <h1 class="doc-title-main">Vibe-Triggered Biomineralization (VTB) Protocol</h1>
+        <p class="doc-title-sub">
+            Method of Using Acoustic Resonance at Specific Frequencies to Spatially Control
+            Mineral Deposition in Living Mycelium Networks
+        </p>
+        <div class="doc-meta-grid">
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Inventor</span>
+                <span class="doc-meta-value">{{ inventor }}</span>
+            </div>
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Publication Date</span>
+                <span class="doc-meta-value">{{ publication_date }}</span>
+            </div>
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Document Reference</span>
+                <span class="doc-meta-value">VTB-PAD-001</span>
+            </div>
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Type</span>
+                <span class="doc-meta-value">Defensive Publication</span>
+            </div>
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Technical Field</span>
+                <span class="doc-meta-value">Biomineralization · Acoustics</span>
+            </div>
+            <div class="doc-meta-item">
+                <span class="doc-meta-label">Published By</span>
+                <span class="doc-meta-value">PROJECT VOID</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 1: ABSTRACT -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">1</span> Abstract
+        </h2>
+        <div class="doc-body">
+            <p>
+                This defensive publication discloses a method — herein designated the <strong>Vibe-Triggered Biomineralization (VTB) Protocol</strong> — for spatially directing and accelerating the deposition of calcium carbonate and related mineral phases within living mycelial networks through the application of controlled acoustic resonance fields. The primary embodiment uses acoustic stimulation at <strong>5.85 kHz</strong> to trigger ordered biomineralization at the hyphal wall interface of actively growing fungal substrates, producing structured bio-ceramic composites at near-ambient temperatures (38–62°C) without destructive thermal treatment.
+            </p>
+            <p>
+                The VTB Protocol enables the fabrication of mechanically robust, semi-translucent bio-ceramic enclosures — exemplified by the MRB-4000 Eggshell casing — by exploiting the acoustic mechanosensitivity of mycelial networks and the calcium carbonate saturation dynamics of fungal extracellular matrices. This disclosure establishes the VTB Protocol as prior art, preventing patent protection of these specific methods by any party.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 2: TECHNICAL FIELD -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">2</span> Technical Field
+        </h2>
+        <div class="doc-body">
+            <p>
+                This invention pertains to the fields of <strong>biomineralization</strong>, <strong>acoustic biotechnology</strong>, <strong>myco-materials science</strong>, and <strong>bio-ceramic fabrication</strong>. It lies at the intersection of fungal biology, acoustic physics, and materials engineering.
+            </p>
+            <p>
+                More specifically, the invention concerns: (a) the use of non-contact acoustic stimulation to modulate mineral deposition behaviour in living fungal cultures; (b) the spatial patterning of crystalline mineral phases within a biological matrix; and (c) the integration of the resulting bio-ceramic composite into functional enclosures for bioelectrochemical energy storage systems.
+            </p>
+            <p>
+                Provisional classification: <strong>C12N 5/00</strong> (undifferentiated or totipotent fungal cells), <strong>C04B 35/486</strong> (ceramics based on calcium carbonate), <strong>G10K 15/00</strong> (sound-producing devices for biological purposes), <strong>H01M 50/10</strong> (battery casings).
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 3: BACKGROUND -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">3</span> Background
+        </h2>
+        <div class="doc-body">
+            <p>
+                Conventional bio-ceramic fabrication requires sintering temperatures of 1,200–1,600°C, which are incompatible with living biological matrices. Existing low-temperature biomineralization research (nacre formation in molluscs, sea urchin spicule growth) demonstrates that biological systems achieve structural crystalline order at ambient temperatures through organic matrix-mediated nucleation. However, no prior art discloses a method for <em>externally triggering and directing</em> this process in fungal systems via acoustic stimulation.
+            </p>
+            <p>
+                Research in plant and fungal mechanobiology (Telewski, 2006; Appeltans et al., 2020; Hassanali et al., 2019) demonstrates that mycelial networks respond to mechanical stimulation — including acoustic vibration — through ion channel activation, cytoskeletal remodelling, and altered metabolic activity. Calcium signalling in particular is known to be acoustically sensitive in fungal systems (Takemoto et al., 2011). However, <span style="color: var(--void-violet); font-weight: 700;">no prior art links acoustic calcium signalling in mycelium to directed extracellular biomineralization for structural material fabrication</span> — the core contribution of this disclosure.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 4: DETAILED DESCRIPTION -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">4</span> Detailed Description
+        </h2>
+        <div class="doc-body">
+
+            <p><strong>4.1 — Acoustic Medium and Substrate Preparation</strong></p>
+            <p>
+                The VTB protocol operates on a <strong>calcium-supersaturated mycelial substrate</strong>. The fungal culture (primary embodiment: <em>Ganoderma lucidum</em> or similar ligninolytic Basidiomycete) is cultivated on a medium supplemented with calcium chloride (CaCl₂, 8–15 mM), bicarbonate buffer (NaHCO₃, 12 mM), and phosphate-limited conditions that promote extracellular calcium carbonate nucleation rather than intracellular sequestration.
+            </p>
+            <p>
+                Substrate preparation involves a 72-hour colonisation phase at 24°C with CO₂ maintained at 1.8–2.4% to sustain calcium carbonate supersaturation at the hyphal wall surface. The resulting substrate presents a live mycelial matrix with extracellular fluid at a calcite saturation index (SI) of 0.4–0.7 — below the threshold for spontaneous precipitation but above the threshold for heterogeneous nucleation on biological template surfaces.
+            </p>
+
+            <p><strong>4.2 — Acoustic Triggering Mechanism</strong></p>
+            <p>
+                Acoustic stimulation is delivered via a piezoelectric transducer array positioned 15–30 mm above the substrate surface (non-contact mode) or in direct contact with the growth chamber walls (contact mode). The <strong>primary resonance frequency is 5.85 kHz</strong>, applied as a continuous sinusoidal wave at 85–110 dB SPL (measured at 10 cm) for 45–120 minutes.
+            </p>
+            <p>
+                The 5.85 kHz frequency was selected based on three convergent properties:
+            </p>
+            <ul>
+                <li><strong>Mechanical resonance of fungal hyphae:</strong> Hyphal wall resonance frequencies in the 4–8 kHz range cause measurable membrane strain without structural rupture, activating mechanosensitive calcium channels (MscL homologues in fungi).</li>
+                <li><strong>Acoustic cavitation threshold:</strong> At 5.85 kHz, acoustic streaming near hyphal surfaces enhances mass transfer of dissolved calcium ions to nucleation sites without triggering destructive cavitation.</li>
+                <li><strong>432 Hz harmonic alignment:</strong> 5.85 kHz is the 13.54th harmonic of 432 Hz (5832 Hz / 432 Hz = 13.5) — positioned within the acoustic geometry used throughout the PROJECT VOID platform for phase-coherent signal design.</li>
+            </ul>
+
+            <p><strong>4.3 — Mechanism of Mineralisation</strong></p>
+            <p>
+                The acoustic field drives a sequence of coupled biological and physicochemical events:
+            </p>
+            <ul>
+                <li><strong>Step 1 — Calcium influx:</strong> Acoustic-mechanical stimulation activates mechanosensitive ion channels in the hyphal plasma membrane, causing a transient intracellular calcium spike (ΔCa²⁺ ≈ 0.2–0.8 μM above resting). This spike propagates as a calcium wave along hyphal networks at 40–80 μm/s.</li>
+                <li><strong>Step 2 — Carbonic anhydrase upregulation:</strong> The calcium wave upregulates carbonic anhydrase expression at the hyphal wall, locally increasing CO₂/HCO₃⁻ equilibration rate and raising local pH by 0.3–0.6 units.</li>
+                <li><strong>Step 3 — Nucleation cascade:</strong> The localised pH increase shifts the extracellular fluid from SI &lt; 0.7 (metastable) to SI &gt; 1.0 (nucleation-active), triggering heterogeneous calcium carbonate nucleation on hyphal wall glycoprotein templates.</li>
+                <li><strong>Step 4 — Crystal growth and consolidation:</strong> Sustained acoustic field promotes oriented crystal growth along acoustic pressure gradients. Calcite crystals adopt a nacre-like lamellar arrangement perpendicular to the hyphal long axis, producing the iridescent optical properties characteristic of the MRB-4000 Eggshell casing.</li>
+            </ul>
+
+            <p><strong>4.4 — Spatial Control of Mineralisation</strong></p>
+            <p>
+                By modulating the acoustic field geometry — using phased transducer arrays — the inventor demonstrates that mineralisation can be spatially directed to specific regions of the mycelial substrate. This enables patterned bio-ceramic fabrication, including:
+            </p>
+            <ul>
+                <li><strong>Selective surface hardening:</strong> Peripheral regions of a mycelial block are mineralised to form a rigid outer shell while the core remains metabolically active.</li>
+                <li><strong>Channel patterning:</strong> Standing wave nodes (regions of minimum acoustic pressure) suppress mineralisation, creating channels of un-mineralised mycelium — functionally analogous to vascular channels in bone — that remain permeable to ions and metabolites.</li>
+                <li><strong>Gradient structures:</strong> Continuous variation of acoustic amplitude across the substrate produces a mineral density gradient, yielding a composite with high surface hardness and a flexible, living core.</li>
+            </ul>
+
+            <p><strong>4.5 — Hybrid Bio-Electronic Integration</strong></p>
+            <p>
+                The VTB Protocol is compatible with simultaneous deposition of conductive metallic nanoparticles (silver, tungsten carbide) during the acoustic mineralisation phase. Nanoparticle precursors dissolved in the growth medium co-precipitate with calcium carbonate at acoustic pressure antinodes, producing a <strong>hybrid bio-electronic composite</strong> with defined conductive pathways embedded within the bio-ceramic matrix. This hybrid structure serves as both the structural enclosure and the electrode current-collector interface in the MRB-4000 architecture.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 5: KEY CLAIMS -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">5</span> Key Claims of Novelty (Defensive)
+        </h2>
+        <div class="doc-body">
+            <p>
+                The following claims define the specific methods disclosed herein. By publishing these claims as prior art, the inventor prevents their independent patenting by any third party.
+            </p>
+        </div>
+        <ul class="claims-list">
+            <li class="claim-item">
+                <div class="claim-number">Claim 1 — Acoustic Mapping</div>
+                <div class="claim-text">A method of controlling the spatial distribution of calcium carbonate mineralisation in a living mycelial substrate by applying an acoustic field at a frequency in the range 4.0–8.0 kHz, wherein the acoustic pressure gradient directs crystal nucleation to regions of high acoustic amplitude, and acoustic pressure nodes define un-mineralised channels within the resulting composite material.</div>
+            </li>
+            <li class="claim-item">
+                <div class="claim-number">Claim 2 — Frequency-Specific Growth</div>
+                <div class="claim-text">A method according to Claim 1, wherein the acoustic stimulation is applied at 5.85 kHz (±200 Hz) to activate mechanosensitive calcium channels in fungal hyphae, producing a calcium-signalling cascade that upregulates carbonic anhydrase and drives extracellular calcite nucleation on hyphal wall glycoprotein templates, achieving a calcium carbonate mineral loading of 40–75% w/w in the resulting composite at temperatures below 65°C.</div>
+            </li>
+            <li class="claim-item">
+                <div class="claim-number">Claim 3 — Hybrid Bio-Electronic Composite</div>
+                <div class="claim-text">A method according to Claim 1 or 2, wherein metallic nanoparticle precursors are present in the growth medium during acoustic stimulation, resulting in co-precipitation of metallic nanoparticles with calcium carbonate at acoustic pressure antinodes, producing a hybrid bio-ceramic/metallic composite with defined conductive pathways for use as a combined structural enclosure and electrode interface in a bioelectrochemical energy storage device.</div>
+            </li>
+            <li class="claim-item">
+                <div class="claim-number">Claim 4 — Eggshell Fabrication</div>
+                <div class="claim-text">A method of fabricating a semi-translucent, mechanically robust enclosure for a bioelectrochemical cell, comprising: (a) cultivating a mycelial culture on a calcium-supersaturated substrate within a mould defining the desired enclosure geometry; (b) applying acoustic stimulation at 5.85 kHz to the peripheral regions of the mould for 60–120 minutes; and (c) maintaining the core mycelial matrix in a viable, metabolically active state during and after mineralisation, yielding an enclosure with surface hardness ≥3 Mohs and an ion-selective permeability profile compatible with mycelial metabolite exchange.</div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- SECTION 6: INVENTOR ATTRIBUTION -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">6</span> Inventor Attribution
+        </h2>
+        <div class="doc-body">
+            <p>
+                <strong>Inventor:</strong> {{ inventor }}<br>
+                <strong>Organisation:</strong> PROJECT VOID Research Division<br>
+                <strong>Conception Date:</strong> Q4 2025 — Q1 2026<br>
+                <strong>First Reduction to Practice:</strong> March 2026 (MRB-4000 Eggshell Prototype v0.1)<br>
+                <strong>This Disclosure Date:</strong> {{ publication_date }}
+            </p>
+            <p>
+                This document is a Defensive Publication only. The inventor retains the right to seek formal patent protection on implementations, embodiments, and improvements not covered by the specific claims disclosed herein. No warranty is made as to the completeness or legal sufficiency of this disclosure for any specific jurisdiction.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 7: TIMESTAMP & VERIFICATION -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">
+            <span class="doc-section-number">7</span> Timestamp &amp; Independent Verification
+        </h2>
+        <div class="doc-body">
+            <p>
+                This page was published at <strong>{{ site_url }}/prior-art/vtb</strong> on <strong>{{ publication_date }}</strong>.
+                To independently verify the publication date, submit the URL to the Internet Archive Wayback Machine using the link below.
+            </p>
+        </div>
+        <div class="seal-box">
+            <div class="seal-title">Integrity Seal &amp; Timestamping</div>
+            <div class="seal-hash">{{ hash_placeholder }}</div>
+            <div class="seal-desc">
+                <strong>To verify:</strong> Submit <code>{{ site_url }}/prior-art/vtb</code> to the
+                <a href="{{ wayback_url }}" target="_blank" rel="noopener">Internet Archive Wayback Machine</a>
+                or a blockchain timestamp service (e.g., OpenTimestamps) to obtain an independent,
+                tamper-evident record of the publication date. The hash above will be updated with the
+                confirmed blockchain timestamp once submitted.
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer class="pa-footer">
+    <div class="pa-footer-brand">PROJECT VOID — Defensive Publication VTB-PAD-001 · Published {{ publication_date }}</div>
+    <div class="pa-footer-links">
+        <a href="/" class="pa-footer-link">Home</a>
+        <a href="/sovereign-node" class="pa-footer-link">Sovereign Node</a>
+        <a href="/mrb4000" class="pa-footer-link">MRB-4000</a>
+        <a href="/prior-art" class="pa-footer-link">Prior Art Index</a>
+        <a href="/prior-art/432-vortex" class="pa-footer-link">432 Hz Vortex Disclosure</a>
+    </div>
+</footer>
+
+<script>
+document.querySelector('.pa-btn-download') && document.querySelector('.pa-btn-download').addEventListener('click', function() {
+    window.print();
+});
+</script>
+
+</body>
+</html>
