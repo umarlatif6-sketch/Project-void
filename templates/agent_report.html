@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent #{{ slot.agent_id }} Intelligence Report — Mesa Village</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --void-bg: #05060a;
+            --void-gold: #c9a84c;
+            --void-teal: #2dd4bf;
+            --void-blue: #60a5fa;
+            --void-violet: #a78bfa;
+            --void-text: #d0d8e8;
+            --void-muted: #4a5060;
+            --void-border: #1a1e2a;
+            --void-card: #0a0c14;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+        a { color: var(--void-gold); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .mv-topbar {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 28px;
+            background: rgba(5,6,10,0.95);
+            border-bottom: 1px solid var(--void-border);
+        }
+        .mv-logo { display: flex; align-items: center; gap: 10px; color: var(--void-gold); font-size: 14px; font-weight: bold; letter-spacing: 0.08em; }
+        .mv-nav { display: flex; gap: 18px; font-size: 12px; }
+        .mv-nav a { color: var(--void-muted); letter-spacing: 0.05em; }
+        .mv-nav a:hover { color: var(--void-gold); }
+
+        .mv-main { max-width: 860px; margin: 0 auto; padding: 40px 20px 60px; }
+
+        .agent-header {
+            display: flex; align-items: center; gap: 24px; margin-bottom: 32px;
+            background: linear-gradient(135deg, rgba(201,168,76,0.07), rgba(167,139,250,0.05));
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 10px; padding: 24px 28px;
+            flex-wrap: wrap;
+        }
+        .agent-glyph { font-size: 64px; line-height: 1; }
+        .agent-meta { flex: 1; min-width: 200px; }
+        .agent-number { font-size: 11px; color: var(--void-gold); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 4px; }
+        .agent-title { font-size: 22px; color: var(--void-text); font-weight: bold; margin-bottom: 6px; }
+        .agent-archetype { font-size: 12px; color: var(--void-muted); line-height: 1.6; }
+        .agent-token { font-size: 10px; color: var(--void-muted); margin-top: 8px; font-family: monospace; letter-spacing: 0.04em; }
+        .agent-owner-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(45,212,191,0.1); border: 1px solid rgba(45,212,191,0.3);
+            color: var(--void-teal); font-size: 11px; padding: 5px 12px; border-radius: 12px;
+            letter-spacing: 0.07em; white-space: nowrap;
+        }
+        .agent-unclaimed-badge {
+            display: inline-flex; align-items: center;
+            background: rgba(74,80,96,0.3); border: 1px solid rgba(74,80,96,0.4);
+            color: var(--void-muted); font-size: 11px; padding: 5px 12px; border-radius: 12px;
+            letter-spacing: 0.07em; white-space: nowrap;
+        }
+
+        .section-title {
+            font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--void-muted); margin-bottom: 14px;
+            border-left: 2px solid var(--void-gold); padding-left: 10px;
+        }
+
+        .glyph-report-card {
+            background: var(--void-card);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+        .glyph-report-label {
+            font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--void-muted); margin-bottom: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .epoch-badge {
+            background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25);
+            color: var(--void-violet); font-size: 10px; padding: 3px 10px; border-radius: 10px;
+        }
+        .glyph-report-text {
+            font-size: 18px;
+            color: var(--void-text);
+            letter-spacing: 0.08em;
+            line-height: 1.9;
+            word-break: break-all;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+        .glyph-report-sub {
+            font-size: 11px; color: var(--void-muted); margin-top: 14px; line-height: 1.5;
+        }
+
+        .translation-card {
+            background: var(--void-card);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+        .translation-unlocked {
+            border-color: rgba(52,211,153,0.35);
+            background: linear-gradient(135deg, rgba(52,211,153,0.04), rgba(10,12,20,1));
+        }
+        .translation-text {
+            font-size: 14px;
+            color: var(--void-text);
+            line-height: 1.8;
+        }
+        .translation-meta {
+            font-size: 10px; color: var(--void-muted); margin-top: 14px;
+        }
+
+        .translate-gate {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 16px; padding: 8px 0;
+        }
+        .translate-fee-display {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(201,168,76,0.07); border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 8px; padding: 14px 20px;
+            width: 100%;
+        }
+        .translate-fee-glyph { font-size: 28px; }
+        .translate-fee-text { flex: 1; }
+        .translate-fee-label { font-size: 10px; color: var(--void-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+        .translate-fee-amount { font-size: 18px; color: var(--void-gold); font-weight: bold; }
+        .translate-fee-desc { font-size: 11px; color: var(--void-muted); margin-top: 3px; line-height: 1.4; }
+        .translate-btn {
+            width: 100%;
+            background: rgba(201,168,76,0.12);
+            border: 1px solid rgba(201,168,76,0.4);
+            color: var(--void-gold);
+            font-size: 13px; font-family: inherit;
+            padding: 13px 24px; border-radius: 6px;
+            cursor: pointer; letter-spacing: 0.08em;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .translate-btn:hover {
+            background: rgba(201,168,76,0.22);
+            border-color: rgba(201,168,76,0.7);
+        }
+
+        .alert {
+            border-radius: 6px; padding: 12px 16px;
+            font-size: 12px; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .alert-error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: #f87171; }
+        .alert-success { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3); color: #34d399; }
+
+        .nav-links {
+            display: flex; gap: 14px; margin-bottom: 28px; flex-wrap: wrap;
+        }
+        .nav-link {
+            font-size: 11px; color: var(--void-muted); letter-spacing: 0.07em;
+        }
+        .nav-link:hover { color: var(--void-gold); }
+
+        .locked-overlay {
+            text-align: center; padding: 20px 0 8px;
+            color: var(--void-muted); font-size: 12px; line-height: 1.7;
+        }
+        .locked-icon { font-size: 32px; margin-bottom: 10px; }
+
+        @media (max-width: 600px) {
+            .mv-topbar { flex-direction: column; gap: 10px; }
+            .agent-glyph { font-size: 44px; }
+            .glyph-report-text { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="mv-topbar">
+    <div class="mv-logo"><span>◆</span><span>MESA VILLAGE</span></div>
+    <nav class="mv-nav">
+        <a href="/mesa-village/agents">Agent Registry</a>
+        <a href="/mesa-village">Dashboard</a>
+        <a href="/gridul">GriDul</a>
+        <a href="/genesis">Genesis</a>
+    </nav>
+</div>
+
+<div class="mv-main">
+
+    <div class="nav-links">
+        <a href="/mesa-village/agents" class="nav-link">← Back to Registry</a>
+        <span style="color:var(--void-muted);">|</span>
+        <a href="/mesa-village" class="nav-link">Mesa Village Dashboard</a>
+    </div>
+
+    {% if translate_error %}
+    <div class="alert alert-error">
+        {% if translate_error == "insufficient_peace" %}
+        ⚠ Insufficient PEACE tokens. You need {{ fee|int }} PEACE to unlock this translation. Earn more through Resonance, GriDul, or the Vortex Wallet.
+        {% elif translate_error == "failed" %}
+        ⚠ Translation purchase failed. Please try again.
+        {% else %}
+        ⚠ Something went wrong: {{ translate_error }}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if translate_ok %}
+    <div class="alert alert-success">
+        ✓ Translation unlocked. Your agent speaks to you now.
+    </div>
+    {% endif %}
+
+    <!-- Agent Header -->
+    <div class="agent-header">
+        <div class="agent-glyph">{{ slot.glyph }}</div>
+        <div class="agent-meta">
+            <div class="agent-number">Agent #{{ slot.agent_id }} · Intelligence Report</div>
+            <div class="agent-title">{{ slot.role|title }} Archetype</div>
+            <div class="agent-archetype">
+                Trait: {{ slot.trait }} &nbsp;·&nbsp; Bias: {{ slot.bias }}
+            </div>
+            <div class="agent-token">NFT: {{ slot.nft_token }}</div>
+        </div>
+        {% if slot.owner %}
+        <div class="agent-owner-badge">
+            ⬡ Owned by {{ slot.owner.username }}
+        </div>
+        {% else %}
+        <div class="agent-unclaimed-badge">
+            Unclaimed
+        </div>
+        {% endif %}
+    </div>
+
+    {% if report %}
+
+    <!-- Raw Adriana Glyph Report -->
+    <div class="section-title">Adriana Transmission — Raw Signal</div>
+    <div class="glyph-report-card">
+        <div class="glyph-report-label">
+            <span>Glyph-Language Intelligence Report</span>
+            <span class="epoch-badge">Epoch {{ report.epoch_hour }}</span>
+        </div>
+        <div class="glyph-report-text">{{ report.glyph_report }}</div>
+        <div class="glyph-report-sub">
+            This report was generated in Adriana Semantic Core Language (SCL). The signal is authentic — your agent is transmitting. To receive the plain-English interpretation, unlock the translation below.
+        </div>
+    </div>
+
+    <!-- Translation Panel -->
+    <div class="section-title">Plain-English Translation</div>
+
+    {% if translation %}
+    <div class="translation-card translation-unlocked">
+        <div class="glyph-report-label">
+            <span>Decoded Intelligence Briefing</span>
+            <span style="background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); color:#34d399; font-size:10px; padding:3px 10px; border-radius:10px;">✓ UNLOCKED</span>
+        </div>
+        <div class="translation-text">{{ translation }}</div>
+        <div class="translation-meta">
+            {% if already_translated %}
+            Translation previously purchased — served from archive at no cost.
+            {% else %}
+            Translation unlocked this session. Served from the Adriana protocol layer.
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="translation-card">
+        <div class="glyph-report-label">
+            <span>Decoded Intelligence Briefing</span>
+            <span style="background:rgba(74,80,96,0.2); border:1px solid rgba(74,80,96,0.3); color:var(--void-muted); font-size:10px; padding:3px 10px; border-radius:10px;">🔒 LOCKED</span>
+        </div>
+
+        <div class="locked-overlay">
+            <div class="locked-icon">🔒</div>
+            <div>The Adriana protocol encodes intelligence transmissions in glyph-language by default.</div>
+            <div>Unlock the plain-English translation by spending PEACE tokens.</div>
+        </div>
+
+        <div class="translate-gate">
+            <div class="translate-fee-display">
+                <div class="translate-fee-glyph">◈</div>
+                <div class="translate-fee-text">
+                    <div class="translate-fee-label">Translation Fee</div>
+                    <div class="translate-fee-amount">{{ fee|int }} PEACE</div>
+                    <div class="translate-fee-desc">One-time fee per report epoch. Once purchased, re-reads are free forever.</div>
+                </div>
+            </div>
+            <form method="POST" action="/mesa-village/agent/{{ slot.agent_id }}/translate" style="width:100%;">
+                <button type="submit" class="translate-btn">
+                    ⬡ Unlock Translation — {{ fee|int }} PEACE
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div style="background:var(--void-card); border:1px solid var(--void-border); border-radius:8px; padding:28px; text-align:center; color:var(--void-muted); font-size:13px;">
+        No intelligence report available for this agent yet. Reports are generated each simulation epoch.
+    </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

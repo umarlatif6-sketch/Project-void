@@ -165,6 +165,67 @@ def admin_mesa_revoke():
         return redirect(f"/admin/mesa?mint_error=revoke_failed")
 
 
+@mesa_bp.route("/mesa-village/agent/<int:agent_id>/report")
+@login_required
+def agent_report(agent_id: int):
+    from void_engine.mesa_engine import (
+        get_agent_slot, get_or_generate_agent_report,
+        get_user_translation, TRANSLATION_FEE_PEACE,
+    )
+    slot = get_agent_slot(agent_id)
+    if slot is None:
+        return redirect("/mesa-village/agents")
+
+    report = get_or_generate_agent_report(agent_id)
+    user_id = session.get("user_id")
+    translation = None
+    already_translated = False
+
+    if report and user_id:
+        cached = get_user_translation(agent_id, user_id, report["report_id"])
+        if cached:
+            translation = cached
+            already_translated = True
+
+    translate_error = request.args.get("translate_error")
+    translate_ok = request.args.get("translate_ok")
+
+    return render_template(
+        "agent_report.html",
+        slot=slot,
+        report=report,
+        translation=translation,
+        already_translated=already_translated,
+        fee=float(TRANSLATION_FEE_PEACE),
+        translate_error=translate_error,
+        translate_ok=translate_ok,
+    )
+
+
+@mesa_bp.route("/mesa-village/agent/<int:agent_id>/translate", methods=["POST"])
+@login_required
+def agent_translate(agent_id: int):
+    from void_engine.mesa_engine import (
+        get_or_generate_agent_report, purchase_translation,
+    )
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(f"/mesa-village/agent/{agent_id}/report?translate_error=not_logged_in")
+
+    report = get_or_generate_agent_report(agent_id)
+    if not report:
+        return redirect(f"/mesa-village/agent/{agent_id}/report?translate_error=no_report")
+
+    result = purchase_translation(agent_id, user_id, report["report_id"], report["role"])
+    if result["ok"]:
+        return redirect(f"/mesa-village/agent/{agent_id}/report?translate_ok=1")
+    else:
+        error = result.get("error", "failed")
+        if "Insufficient" in error:
+            return redirect(f"/mesa-village/agent/{agent_id}/report?translate_error=insufficient_peace")
+        return redirect(f"/mesa-village/agent/{agent_id}/report?translate_error=failed")
+
+
 @mesa_bp.route("/mesa/simulate", methods=["POST"])
 @login_required
 def mesa_simulate():

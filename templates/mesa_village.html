@@ -209,7 +209,10 @@
             <div style="font-size:15px; color:var(--void-text); font-weight:bold;">Agent #{{ my_agent.agent_id }} — {{ my_agent.role }}</div>
             <div style="font-size:11px; color:var(--void-muted);">{{ my_agent.trait }} · {{ my_agent.bias }}</div>
         </div>
-        <a href="/mesa-village/agents" style="background:rgba(201,168,76,0.12); border:1px solid rgba(201,168,76,0.35); color:var(--void-gold); font-size:11px; padding:6px 14px; border-radius:12px; letter-spacing:0.08em; text-transform:uppercase; text-decoration:none; white-space:nowrap;">⬡ NFT Holder → View Registry</a>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a href="/mesa-village/agent/{{ my_agent.agent_id }}/report" style="background:rgba(201,168,76,0.18); border:1px solid rgba(201,168,76,0.5); color:var(--void-gold); font-size:11px; padding:6px 14px; border-radius:12px; letter-spacing:0.08em; text-transform:uppercase; text-decoration:none; white-space:nowrap;">⬡ View Intel Report</a>
+            <a href="/mesa-village/agents" style="background:rgba(201,168,76,0.06); border:1px solid rgba(201,168,76,0.25); color:var(--void-gold); font-size:11px; padding:6px 14px; border-radius:12px; letter-spacing:0.08em; text-transform:uppercase; text-decoration:none; white-space:nowrap;">Registry</a>
+        </div>
     </div>
 </div>
 {% endif %}

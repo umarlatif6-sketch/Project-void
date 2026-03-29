@@ -41,9 +41,11 @@ def create_user(username, display_name, password):
             "display_name": row[2],
             "created_at": row[3].isoformat(),
         }
-    except psycopg2.errors.UniqueViolation:
+    except Exception as e:
         conn.rollback()
-        return None
+        if "unique" in str(e).lower() or "duplicate" in str(e).lower():
+            return None
+        raise
     finally:
         conn.close()
 

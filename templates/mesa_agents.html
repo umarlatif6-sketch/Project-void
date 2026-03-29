@@ -215,7 +215,7 @@
             <div class="mv-my-role">{{ my_agent.role }} · {{ my_agent.trait }} · {{ my_agent.bias }}</div>
             <div class="mv-my-token">NFT: {{ my_agent.nft_token }}</div>
         </div>
-        <div class="mv-my-badge">⬡ NFT Holder</div>
+        <a href="/mesa-village/agent/{{ my_agent.agent_id }}/report" class="mv-my-badge" style="text-decoration:none;">⬡ View Intel Report</a>
     </div>
     {% else %}
     <div class="mv-no-agent">
@@ -237,8 +237,10 @@
     <div class="mv-grid">
         {% for slot in data.slots %}
         {% set is_mine = my_agent and my_agent.agent_id == slot.agent_id %}
-        <div class="mv-slot {% if is_mine %}mine{% elif slot.claimed %}claimed{% endif %}"
-             title="Agent #{{ slot.agent_id }} — {{ slot.glyph }} {{ slot.role }} ({{ slot.trait }}){% if slot.owner %} · Owned by {{ slot.owner.username }}{% endif %}">
+        <a href="/mesa-village/agent/{{ slot.agent_id }}/report"
+           class="mv-slot {% if is_mine %}mine{% elif slot.claimed %}claimed{% endif %}"
+           style="text-decoration:none; display:block;"
+           title="Agent #{{ slot.agent_id }} — {{ slot.glyph }} {{ slot.role }} ({{ slot.trait }}){% if slot.owner %} · Owned by {{ slot.owner.username }}{% endif %} · Click for intelligence report">
             {% if is_mine %}<div class="mv-slot-mine-label">YOURS</div>{% endif %}
             <div class="mv-slot-dot {% if slot.claimed %}claimed{% else %}unclaimed{% endif %}"></div>
             <div class="mv-slot-glyph">{{ slot.glyph }}</div>
@@ -247,7 +249,7 @@
             {% if slot.owner %}
             <div class="mv-slot-owner">{{ slot.owner.username }}</div>
             {% endif %}
-        </div>
+        </a>
         {% endfor %}
     </div>
 
