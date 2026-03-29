@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 def run():
     dsn = os.environ.get("DATABASE_URL")
     if not dsn:
-        logger.error("DATABASE_URL is not set — cannot run migrations")
-        sys.exit(1)
+        logger.warning("DATABASE_URL is not set — skipping migrations (no database available at build time)")
+        return
 
     conn = psycopg2.connect(dsn)
     try:
