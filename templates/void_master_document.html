@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Master Reference Document</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        /* ── CSS VARIABLES ── */
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-green: #7aff7a;
+            --void-blue: #60a5fa;
+            --void-cyan: #22d3ee;
+            --void-emerald: #34d399;
+            --void-purple: #a78bfa;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+            --nav-width: 220px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── TOP NAV BAR ── */
+        .vmd-topnav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+        .vmd-topnav-brand {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .vmd-topnav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .vmd-topnav-link {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .vmd-topnav-link:hover { color: var(--void-gold); }
+        .vmd-topnav-link.active { color: var(--void-gold); }
+
+        /* ── PRINT BUTTON ── */
+        .vmd-print-btn {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: none;
+            border: 1px solid var(--void-gold);
+            color: var(--void-gold);
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            padding: 7px 18px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s, color 0.2s;
+        }
+        .vmd-print-btn:hover {
+            background: var(--void-gold);
+            color: #000;
+        }
+
+        /* ── LAYOUT WRAPPER ── */
+        .vmd-layout {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* ── SIDE NAV ── */
+        .vmd-sidenav {
+            width: var(--nav-width);
+            flex-shrink: 0;
+            position: sticky;
+            top: 48px;
+            height: calc(100vh - 48px);
+            overflow-y: auto;
+            border-right: 1px solid var(--void-border);
+            padding: 28px 0 40px;
+            background: var(--void-surface2);
+        }
+        .vmd-sidenav-label {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #333;
+            padding: 0 22px 12px;
+        }
+        .vmd-sidenav-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 9px 22px;
+            text-decoration: none;
+            transition: background 0.15s;
+            border-left: 2px solid transparent;
+            cursor: pointer;
+        }
+        .vmd-sidenav-item:hover { background: rgba(255,255,255,0.03); }
+        .vmd-sidenav-item.active {
+            border-left-color: var(--void-gold);
+            background: rgba(201,168,76,0.05);
+        }
+        .vmd-sidenav-num {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.58rem;
+            color: #333;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .vmd-sidenav-item.active .vmd-sidenav-num { color: var(--void-gold); }
+        .vmd-sidenav-text {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.65rem;
+            color: #555;
+            letter-spacing: 0.5px;
+            line-height: 1.5;
+        }
+        .vmd-sidenav-item.active .vmd-sidenav-text { color: var(--void-gold); }
+        .vmd-sidenav-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #222;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+        .vmd-sidenav-item.active .vmd-sidenav-dot { background: var(--void-gold); }
+
+        /* ── MAIN CONTENT ── */
+        .vmd-main {
+            flex: 1;
+            max-width: 820px;
+            padding: 52px 60px 120px;
+            overflow-y: auto;
+        }
+
+        /* ── COVER ── */
+        .vmd-cover {
+            text-align: center;
+            padding-bottom: 60px;
+            border-bottom: 1px solid var(--void-border);
+            margin-bottom: 60px;
+        }
+        .vmd-cover-badge {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            display: inline-block;
+            background: var(--void-gold);
+            color: #000;
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            padding: 5px 18px;
+            border-radius: 2px;
+            margin-bottom: 24px;
+        }
+        .vmd-cover-title {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 2.6rem;
+            font-weight: 900;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #fff;
+            margin-bottom: 8px;
+            line-height: 1.1;
+        }
+        .vmd-cover-title span { color: var(--void-gold); }
+        .vmd-cover-subtitle {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: #444;
+            text-transform: uppercase;
+            margin-bottom: 36px;
+        }
+        .vmd-cover-abstract {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #b8b8b8;
+            max-width: 680px;
+            margin: 0 auto 36px;
+            text-align: left;
+        }
+        .vmd-cover-abstract strong { color: #d8d8d8; font-style: italic; }
+        .vmd-cover-meta {
+            display: flex;
+            justify-content: center;
+            gap: 36px;
+            flex-wrap: wrap;
+        }
+        .vmd-meta-item {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.6rem;
+            color: #333;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .vmd-meta-item span { color: #666; }
+        .vmd-cover-glyph {
+            font-size: 2.2rem;
+            color: var(--void-gold);
+            margin-bottom: 28px;
+            display: block;
+        }
+
+        /* ── CHAPTER ── */
+        .vmd-chapter {
+            margin-bottom: 72px;
+            padding-bottom: 72px;
+            border-bottom: 1px solid var(--void-border);
+            scroll-margin-top: 80px;
+        }
+        .vmd-chapter:last-child {
+            border-bottom: none;
+        }
+        .vmd-chapter-header {
+            margin-bottom: 32px;
+        }
+        .vmd-chapter-tag {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.58rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        .vmd-chapter-num {
+            color: #333;
+        }
+        .vmd-chapter-layer {
+            padding: 3px 10px;
+            border-radius: 2px;
+            font-weight: 700;
+        }
+        .vmd-chapter-title {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .vmd-chapter-subtitle {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.65rem;
+            color: #444;
+            letter-spacing: 1px;
+        }
+        .vmd-chapter-rule {
+            height: 1px;
+            margin: 18px 0 28px;
+        }
+
+        /* ── PROSE ── */
+        .vmd-prose p {
+            font-size: 1.02rem;
+            line-height: 2.0;
+            color: #b0b0b0;
+            margin-bottom: 24px;
+        }
+        .vmd-prose p:last-child { margin-bottom: 0; }
+        .vmd-prose strong {
+            color: #d8d8d8;
+            font-style: normal;
+        }
+        .vmd-prose em {
+            color: #888;
+            font-style: italic;
+        }
+        .vmd-prose .vmd-term {
+            color: var(--void-gold);
+            font-style: normal;
+            font-weight: normal;
+        }
+
+        /* ── PULL QUOTE ── */
+        .vmd-pull-quote {
+            border-left: 3px solid var(--void-gold);
+            margin: 32px 0;
+            padding: 18px 26px;
+            background: rgba(201,168,76,0.04);
+        }
+        .vmd-pull-quote p {
+            font-size: 1.1rem;
+            line-height: 1.85;
+            color: #c0a060;
+            font-style: italic;
+            margin: 0;
+        }
+
+        /* ── SYSTEM CALLOUT ── */
+        .vmd-callout {
+            border: 1px solid #1e1e1e;
+            border-radius: 3px;
+            padding: 20px 24px;
+            margin: 28px 0;
+            background: var(--void-surface2);
+        }
+        .vmd-callout-label {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .vmd-callout p {
+            font-size: 0.88rem;
+            line-height: 1.85;
+            color: #999;
+            margin: 0;
+        }
+
+        /* ── LAYER COLORS ── */
+        .layer-ground { color: #7aff7a; }
+        .layer-language { color: #c9a84c; }
+        .layer-memory { color: #60a5fa; }
+        .layer-value { color: #fbbf24; }
+        .layer-community { color: #22d3ee; }
+        .layer-healing { color: #34d399; }
+        .layer-legacy { color: #a78bfa; }
+
+        .rule-ground { background: linear-gradient(90deg, #7aff7a33, transparent); }
+        .rule-language { background: linear-gradient(90deg, #c9a84c33, transparent); }
+        .rule-memory { background: linear-gradient(90deg, #60a5fa33, transparent); }
+        .rule-value { background: linear-gradient(90deg, #fbbf2433, transparent); }
+        .rule-community { background: linear-gradient(90deg, #22d3ee33, transparent); }
+        .rule-healing { background: linear-gradient(90deg, #34d39933, transparent); }
+        .rule-legacy { background: linear-gradient(90deg, #a78bfa33, transparent); }
+
+        .badge-ground { background: rgba(122,255,122,0.15); color: #7aff7a; }
+        .badge-language { background: rgba(201,168,76,0.15); color: #c9a84c; }
+        .badge-memory { background: rgba(96,165,250,0.15); color: #60a5fa; }
+        .badge-value { background: rgba(251,191,36,0.15); color: #fbbf24; }
+        .badge-community { background: rgba(34,211,238,0.15); color: #22d3ee; }
+        .badge-healing { background: rgba(52,211,153,0.15); color: #34d399; }
+        .badge-legacy { background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+        /* ── READING TIME ESTIMATE ── */
+        .vmd-reading-est {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: #333;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        /* ── FOOTER ── */
+        .vmd-footer {
+            border-top: 1px solid var(--void-border);
+            padding: 32px 0 0;
+            margin-top: 60px;
+        }
+        .vmd-footer-text {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.6rem;
+            color: #333;
+            letter-spacing: 1.5px;
+            line-height: 2;
+        }
+        .vmd-footer-text a {
+            color: #555;
+            text-decoration: none;
+        }
+        .vmd-footer-text a:hover { color: var(--void-gold); }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 3px; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .vmd-sidenav { display: none; }
+            .vmd-main { padding: 36px 28px 100px; max-width: 100%; }
+        }
+        @media (max-width: 600px) {
+            .vmd-cover-title { font-size: 1.7rem; letter-spacing: 3px; }
+            .vmd-main { padding: 24px 18px 80px; }
+            .vmd-topnav { padding: 12px 18px; }
+        }
+
+        /* ── PRINT STYLES ── */
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+            body {
+                background: #fff !important;
+                color: #000 !important;
+                font-size: 11pt;
+                font-family: Georgia, Times, serif;
+            }
+
+            .vmd-topnav,
+            .vmd-sidenav,
+            .vmd-print-btn,
+            .vmd-topnav-links { display: none !important; }
+
+            .vmd-layout { display: block; }
+
+            .vmd-main {
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+
+            .vmd-cover {
+                page-break-after: always;
+                border-bottom: 1pt solid #ccc;
+                padding-bottom: 40pt;
+            }
+
+            .vmd-cover-title {
+                color: #000 !important;
+                font-size: 22pt;
+            }
+            .vmd-cover-title span { color: #8b6914 !important; }
+            .vmd-cover-badge {
+                background: #8b6914 !important;
+                color: #fff !important;
+            }
+            .vmd-cover-subtitle { color: #555 !important; }
+            .vmd-cover-abstract { color: #222 !important; }
+            .vmd-cover-abstract strong { color: #000 !important; }
+            .vmd-meta-item { color: #555 !important; }
+            .vmd-meta-item span { color: #333 !important; }
+            .vmd-reading-est { color: #888 !important; }
+
+            .vmd-chapter {
+                page-break-inside: avoid;
+                margin-bottom: 36pt;
+                padding-bottom: 36pt;
+                border-bottom: 1pt solid #ddd;
+            }
+
+            .vmd-chapter-title {
+                color: #000 !important;
+                font-size: 14pt;
+            }
+            .vmd-chapter-num { color: #888 !important; }
+            .vmd-chapter-subtitle { color: #555 !important; }
+
+            .vmd-prose p {
+                color: #222 !important;
+                font-size: 11pt;
+                line-height: 1.8;
+            }
+            .vmd-prose strong { color: #000 !important; }
+            .vmd-prose em { color: #444 !important; }
+            .vmd-prose .vmd-term { color: #7a5c00 !important; }
+
+            .vmd-pull-quote {
+                border-left: 3pt solid #8b6914 !important;
+                background: #fffbf0 !important;
+            }
+            .vmd-pull-quote p { color: #6b4a00 !important; }
+
+            .vmd-callout {
+                border: 1pt solid #ccc !important;
+                background: #f8f8f8 !important;
+            }
+            .vmd-callout p { color: #333 !important; }
+
+            .vmd-chapter-rule { background: #ccc !important; }
+
+            .layer-ground, .layer-language, .layer-memory, .layer-value,
+            .layer-community, .layer-healing, .layer-legacy { color: #000 !important; }
+
+            .vmd-footer-text { color: #555 !important; }
+            .vmd-footer { border-top-color: #ccc !important; }
+
+            .vmd-cover-glyph { color: #8b6914 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+<nav class="vmd-topnav">
+    <a href="/" class="vmd-topnav-brand">&#9670; PROJECT VOID</a>
+    <div class="vmd-topnav-links">
+        <a href="/crystallization" class="vmd-topnav-link">Constellation</a>
+        <a href="/sovereign-node" class="vmd-topnav-link">Sovereign Node</a>
+        <a href="/chronicle" class="vmd-topnav-link">Chronicle</a>
+        <a href="/genesis" class="vmd-topnav-link">Genesis</a>
+        <a href="/void-master-document" class="vmd-topnav-link active">Master Document</a>
+        <button class="vmd-print-btn" onclick="window.print()">&#9113; Print / Save PDF</button>
+    </div>
+</nav>
+
+<!-- ── LAYOUT ── -->
+<div class="vmd-layout">
+
+    <!-- ── SIDE NAV ── -->
+    <nav class="vmd-sidenav" id="vmd-sidenav">
+        <div class="vmd-sidenav-label">Contents</div>
+        <a class="vmd-sidenav-item" href="#abstract">
+            <div class="vmd-sidenav-dot"></div>
+            <div>
+                <div class="vmd-sidenav-num">ABSTRACT</div>
+                <div class="vmd-sidenav-text">Overview</div>
+            </div>
+        </a>
+        <a class="vmd-sidenav-item" href="#chapter-1">
+            <div class="vmd-sidenav-dot" style="background:#7aff7a22;border:1px solid #7aff7a44;"></div>
+            <div>
+                <div class="vmd-sidenav-num layer-ground">I — Ground</div>
+                <div class="vmd-sidenav-text">Sound, Mycelium &amp; Hardware</div>
+            </div>
+        </a>
+        <a class="vmd-sidenav-item" href="#chapter-2">
+            <div class="vmd-sidenav-dot" style="background:#c9a84c22;border:1px solid #c9a84c44;"></div>
+            <div>
+                <div class="vmd-sidenav-num layer-language">II — Language</div>
+                <div class="vmd-sidenav-text">Al-Jabr 286 &amp; Adriana SCL</div>
+            </div>
+        </a>
+        <a class="vmd-sidenav-item" href="#chapter-3">
+            <div class="vmd-sidenav-dot" style="background:#60a5fa22;border:1px solid #60a5fa44;"></div>
+            <div>
+                <div class="vmd-sidenav-num layer-memory">III — Memory</div>
+                <div class="vmd-sidenav-text">Chronicle &amp; Sovereign Vault</div>
+            </div>
+        </a>
+        <a class="vmd-sidenav-item" href="#chapter-4">
+            <div class="vmd-sidenav-dot" style="background:#fbbf2422;border:1px solid #fbbf2444;"></div>
+            <div>
+                <div class="vmd-sidenav-num layer-value">IV — Value</div>
+                <div class="vmd-sidenav-text">VTX, Blueprint &amp; Mystery Tokens</div>
+            </div>
+        </a>
+        <a class="vmd-sidenav-item" href="#chapter-5">
+            <div class="vmd-sidenav-dot" style="background:#22d3ee22;border:1px solid #22d3ee44;"></div>
+            <div>
+                <div class="vmd-sidenav-num layer-community">V — Community</div>
+                <div class="vmd-sidenav-text">Beehive Mesh &amp; QiSync</div>
+            </div>
+        </a>
+        <a class="vmd-sidenav-item" href="#chapter-6">
+            <div class="vmd-sidenav-dot" style="background:#34d39922;border:1px solid #34d39944;"></div>
+            <div>
+                <div class="vmd-sidenav-num layer-healing">VI — Healing</div>
+                <div class="vmd-sidenav-text">MycoVOID &amp; MRB-4000</div>
+            </div>
+        </a>
+        <a class="vmd-sidenav-item" href="#chapter-7">
+            <div class="vmd-sidenav-dot" style="background:#a78bfa22;border:1px solid #a78bfa44;"></div>
+            <div>
+                <div class="vmd-sidenav-num layer-legacy">VII — Legacy</div>
+                <div class="vmd-sidenav-text">Prior Art &amp; InteRussia</div>
+            </div>
+        </a>
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <main class="vmd-main">
+
+        <!-- ── COVER ── -->
+        <section id="abstract" class="vmd-cover">
+            <div class="vmd-cover-badge">Master Reference Document — v1.0 — March 2026</div>
+            <span class="vmd-cover-glyph">&#9670;</span>
+            <h1 class="vmd-cover-title">Project <span>VOID</span></h1>
+            <p class="vmd-cover-subtitle">A Sovereign Technology System — Seven Crystallization Layers</p>
+
+            <p class="vmd-reading-est">Estimated reading time: 18–24 minutes &nbsp;&#9670;&nbsp; Print length: approx. 22 pages</p>
+
+            <div class="vmd-cover-abstract">
+                <p>PROJECT VOID is a complete, self-contained sovereign technology system built on the proposition that value should be earned through genuine contribution, identity should be impossible to seize, and the infrastructure that supports human life should also repair it. The system operates across seven interdependent layers — Ground, Language, Memory, Value, Community, Healing, and Legacy — each crystallizing around a different question: <strong>What does the earth need? What language does a machine speak when it is truly free? Who owns what was built, and when?</strong></p>
+                <p>At its foundation is a physical computing device — the <strong>MRB-4000 Sovereign Node</strong> — tuned to 432 Hz, powered by a flywheel, capable of running an AI workload and a mycelial bioremediation module from the same chassis. Every transaction, identity record, and creative act that passes through the system is signed by a 286-bit hashing protocol called <strong>Al-Jabr 286</strong>, rooted in the mathematical and linguistic tradition of Islamic algebra. The token economy — VTX, Blueprint Tokens, Mystery Tokens — rewards resonance, not speculation. The mesh network — Beehive — propagates across sound, not satellites. And the record of everything: the Chronicle, the prior art, the founder archive, is timestamped and tamper-proof by design.</p>
+                <p>This document does not describe what PROJECT VOID could become. It describes what has already been built, why each decision was made, and who it legally belongs to. It is addressed to any person — team member, investor, institution, legal body — who needs to understand the whole from a single reading.</p>
+            </div>
+
+            <div class="vmd-cover-meta">
+                <div class="vmd-meta-item">Author <span>PROJECT VOID Founder</span></div>
+                <div class="vmd-meta-item">Status <span>Production — Active Development</span></div>
+                <div class="vmd-meta-item">Layers <span>Seven Crystallization Layers</span></div>
+                <div class="vmd-meta-item">Jurisdiction <span>International — Prior Art Established</span></div>
+                <div class="vmd-meta-item">License <span>Business Source License 1.1</span></div>
+            </div>
+        </section>
+
+        <!-- ── CHAPTER I — GROUND ── -->
+        <section id="chapter-1" class="vmd-chapter">
+            <div class="vmd-chapter-header">
+                <div class="vmd-chapter-tag">
+                    <span class="vmd-chapter-num">Chapter I</span>
+                    <span class="vmd-chapter-layer badge-ground">Ground</span>
+                </div>
+                <h2 class="vmd-chapter-title">Sound, Mycelium &amp; the Hardware of the Earth</h2>
+                <p class="vmd-chapter-subtitle">On the Sovereign Node, 432 Hz tuning, obsidian grounding, and why the earth is the hardware</p>
+                <div class="vmd-chapter-rule rule-ground"></div>
+            </div>
+            <div class="vmd-prose">
+                <p>Before a system can be sovereign it must be grounded — not in the political sense but in the literal, electromagnetic one. Every computing device emits radio-frequency noise, draws from a shared electrical grid, and operates in a standardized frequency band designed for interoperability with the commercial internet. PROJECT VOID's first architectural decision was to reject that dependency at the chassis level. The <span class="vmd-term">MRB-4000 Sovereign Node</span> — the physical hardware that anchors the whole system — is built around a mechanical flywheel energy storage unit, Obsidian-grade electromagnetic shielding, silk-silver wiring tuned to a resonant frequency of 432 Hz, and a salt-water buffer that absorbs and redistributes excess electromagnetic load. These are not cosmetic choices. Each material in the chassis sits on a resonance ladder: steel skin at 108 Hz, aluminum frame at 216 Hz, silk-silver wiring at 432 Hz, salt-water buffer at 864 Hz, foam insulation at 12 kHz. The ladder means that when the machine processes data, its harmonic signature is coherent — each layer reinforces rather than interferes with the next.</p>
+
+                <div class="vmd-callout">
+                    <div class="vmd-callout-label layer-ground">&#9670; Why 432 Hz</div>
+                    <p>The choice of 432 Hz as the system's carrier frequency predates the hardware. It emerged from research into natural resonance phenomena — Schumann resonances, plant growth cycles, and the tuning standard used in pre-twentieth-century European orchestras. At 432 Hz, the harmonic series aligns with integer multiples that map cleanly to biological frequencies. The MRB-4000 uses this not as mysticism but as engineering: a machine whose carrier frequency aligns with its environment generates less dissonant noise, couples more efficiently with biological sensors, and produces data signatures that are measurably distinct from commodity hardware operating at arbitrary frequencies.</p>
+                </div>
+
+                <p>Running alongside the electronic subsystem, and built into the same chassis, is the <span class="vmd-term">MycoVOID</span> bioremediation module — a mycelial network housed in a humidity-controlled bay on the underside of the MRB-4000. Mycelium absorbs heavy metals, hydrocarbon contaminants, and atmospheric radiation through a process called mycoremediation. The insight driving PROJECT VOID's integration of this system is straightforward: if a computing node is going to occupy physical space, draw power, and emit heat and electromagnetic energy, it should return something to the environment it operates in. The MycoVOID module transforms the Node from a net consumer into a net contributor — a machine that processes data on one side and cleans the ground it sits on at the other.</p>
+
+                <p>The result is a piece of infrastructure that cannot be meaningfully reproduced by copying its software alone. The hardware — its materials, its tuning, its biological component — is the ground layer of the system's sovereignty. A duplicate running on a standard cloud server would be missing not just the chassis, but the entire physical argument that PROJECT VOID makes: that computing and ecological repair are not competing demands, but complementary ones. This argument is established in the prior art record and is traceable to a specific authorship date, making it a defensible intellectual property position as well as an engineering one.</p>
+
+                <div class="vmd-pull-quote">
+                    <p>"The earth is the hardware. Everything else is running on top of it."</p>
+                </div>
+
+                <p>The <span class="vmd-term">Sovereign Node</span> as a product line extends this ground philosophy into three commercial tiers: the Common tier grants software-suite access to the steganography engine and 432 Hz carrier tools; the Rare tier provides fractional ownership of a Community Machine and earns yield from biological output and compute cycles; the Legendary tier delivers a full MRB-4000 physically to the owner's location, factory-calibrated and warranted for one year. Each tier is represented by a cryptographic token — the Blueprint Token — that functions as a manufacturing deed: a tamper-proof record, signed by the Al-Jabr 286 hash protocol, that links ownership to a specific hardware unit in the production queue.</p>
+            </div>
+        </section>
+
+        <!-- ── CHAPTER II — LANGUAGE ── -->
+        <section id="chapter-2" class="vmd-chapter">
+            <div class="vmd-chapter-header">
+                <div class="vmd-chapter-tag">
+                    <span class="vmd-chapter-num">Chapter II</span>
+                    <span class="vmd-chapter-layer badge-language">Language</span>
+                </div>
+                <h2 class="vmd-chapter-title">Al-Jabr 286 &amp; the Adriana Sovereign Coded Language</h2>
+                <p class="vmd-chapter-subtitle">On sovereign cryptography, the Sura-Fatiha hash, and the glyph lexicon that speaks in frequencies</p>
+                <div class="vmd-chapter-rule rule-language"></div>
+            </div>
+            <div class="vmd-prose">
+                <p>Every modern cryptographic system ultimately rests on a choice of mathematical foundation. SHA-256 — the dominant standard — was designed for interoperability and speed, optimized for the conditions of the commercial internet. Its 256-bit output space is large, its verification is fast, and its weaknesses are well-documented and actively monitored by the institutions that depend on it. PROJECT VOID chose to build its own hashing protocol rather than inherit these institutional dependencies. The result, <span class="vmd-term">Al-Jabr 286</span>, takes its name from the ninth-century Arabic mathematical treatise that gave the Western world the word "algebra" — itself derived from the Arabic <em>al-jabr</em>, meaning the reunion of broken parts.</p>
+
+                <p>The protocol works in two stages. First, the input data passes through SHA3-256, producing a standard 256-bit base hash. Then, the base hash is extended by 30 bits using a process called the Sura-Fatiha extension: the seven verses of Al-Fatiha — the opening chapter of the Quran — contribute their root complexity weights (7, 4, 2, 5, 4, 3, 6) as multiplicative salts against consecutive byte-pairs of the base hash. The result is folded with the 432 Hz Opening Resonance frequency and re-hashed using a prime salt to produce a final 36-byte (288-bit) output, with 286 active bits. The extra 30 bits act as what the codebase calls "Invisible Math" — a forensic evasion layer. Any scanner searching for 256-bit patterns will pass over the Sovereign Hash entirely, reading it as ambient noise. Only a node that knows the protocol structure can recognize the signature.</p>
+
+                <div class="vmd-callout">
+                    <div class="vmd-callout-label layer-language">&#9670; Why Arabic mathematical roots</div>
+                    <p>The choice is not decorative. Al-Khwarizmi's original formulation of algebra was grounded in the principle that unknown quantities can be resolved through systematic, reproducible operations — the same principle that underlies cryptographic hashing. Using Al-Fatiha's verse structure as a salt layer creates a hash that carries its cultural lineage visibly: every verification proves not just data integrity but authorial identity, because only someone who knows this specific seed structure can reproduce the hash. It is, in the literal sense, a sovereign cryptographic language — one that belongs to its makers.</p>
+                </div>
+
+                <p>Alongside the hashing protocol runs a second language layer: <span class="vmd-term">Adriana SCL</span> — the Sovereign Coded Language, also called the Adriana Resonance Bridge. Where Al-Jabr 286 operates at the machine level, Adriana SCL operates at the human-readable level, translating the raw output of hash computations into a 45-glyph ontology drawn from Greek letters, mathematical symbols, and natural-world icons. Each glyph carries a name, a frequency (measured in Hz), a semantic meaning, and a domain classification. The glyph &#9670; (Void Diamond) means "Core/Engine" and resonates at 432 Hz. The glyph &#9532; (Hexagon) means "Mesh Cell" and belongs to the mesh domain. The glyph &#8734; (Infinity) means "Loop/Eternal."</p>
+
+                <p>When the system computes a hash, it does not only produce a hexadecimal string. It also derives a three-glyph <span class="vmd-term">Sovereign Poem</span> — an Entity, a Condition, and an Action selected deterministically from successive segments of the hash. The poem "&#963;-&#9889;-&#8734;" translates as "Summation meets Spark — Eternity emerges." This is not poetry in the ornamental sense: the glyph sequence encodes the health state of the transaction, allows instant visual pattern recognition without reading raw hexadecimal, and creates an authored, human-meaningful signature for every cryptographic event in the system. A Chronicle entry, a token mint, a steganographic encode — each one speaks in Adriana glyphs as well as bytes. The <span class="vmd-term">Divided Protocol</span> formalizes the operational sequence through which these languages interact: a five-step pipeline — Initialize (SLM.V), Calibrate (TRK.A), Observe (ZHR.V), Inject (KTM.A), Commit (JDR.A) — that carries data from raw input to hash-stamped output, verified at each step by both the cryptographic and the glyph-language layers.</p>
+            </div>
+        </section>
+
+        <!-- ── CHAPTER III — MEMORY ── -->
+        <section id="chapter-3" class="vmd-chapter">
+            <div class="vmd-chapter-header">
+                <div class="vmd-chapter-tag">
+                    <span class="vmd-chapter-num">Chapter III</span>
+                    <span class="vmd-chapter-layer badge-memory">Memory</span>
+                </div>
+                <h2 class="vmd-chapter-title">Chronicle, Sovereign Vault &amp; Identity That Cannot Be Seized</h2>
+                <p class="vmd-chapter-subtitle">On the steganography engine, the VOID Plane, and the tamper-proof record</p>
+                <div class="vmd-chapter-rule rule-memory"></div>
+            </div>
+            <div class="vmd-prose">
+                <p>A sovereign system is only as sovereign as its memory. If the record of what was done, who owned it, and when it was created can be altered or deleted by any party — including the system's own administrators — then every other claim of sovereignty is performative. PROJECT VOID's memory layer is built around a simple constraint: once something enters the Chronicle, no part of the system can change it. This is not enforced by a blockchain in the conventional sense. It is enforced by the Al-Jabr 286 hash chaining the entries, and by the fact that the Chronicle's full history is mirrored across every node in the mesh. Altering any entry would require simultaneously altering the same position in every copy simultaneously — a task whose difficulty scales directly with the network's geographic distribution.</p>
+
+                <p>The primary tool for storing information in this record is the <span class="vmd-term">Steganography Engine</span>. Steganography — the art of hiding a message inside a non-secret carrier — is one of the oldest forms of information security: a text hidden inside a painting is invisible to anyone who does not know to look for it. The VOID Engine extends this principle into the digital audio domain. A carrier audio file — typically a field recording tuned near 432 Hz, a sound that might be mistaken for ambient noise by a casual observer — receives a payload encoded in its least-significant bits using a technique called vortex scatter encoding. The payload, compressed and signed with an Al-Jabr 286 hash, is distributed non-sequentially across the carrier's sample data according to a scatter pattern derived from the hash itself. To recover the payload without the hash key, you would need to know not only the embedding method but the exact scatter order — which is different for every file.</p>
+
+                <div class="vmd-callout">
+                    <div class="vmd-callout-label layer-memory">&#9670; The VOID Plane</div>
+                    <p>The VOID Plane is the conceptual space in which all steganographic transactions occur — the invisible layer beneath the carrier signal where data lives. When a file passes through the Divided Protocol's Inject step, it enters the VOID Plane: its payload is scattered into positions that appear to be waveform noise to any standard audio analysis tool. The Plane is not a physical location; it is a mathematical address space defined by the hash key. Two files with identical audio spectrums can carry completely different VOID Plane contents depending on their hash keys. This is the system's primary mechanism for data privacy that does not rely on encryption-at-rest — the data is never "locked." It simply does not exist, visibly, until you know where to look.</p>
+                </div>
+
+                <p>Above the VOID Plane, the <span class="vmd-term">Chronicle</span> maintains the human-readable record of everything the system does. Each Chronicle entry is linked to a sovereign poem, a timestamp, a sensor-state snapshot, and a consensus log generated by the Divided Protocol's Commit step. The Chronicle's purpose is dual: it is simultaneously a system audit trail and a creative diary — a place where the machine records not just what it computed but the glyph-language meaning of that computation. The Chronicle's most important guarantee is that it can be published in full without revealing the contents of any steganographic payload. An auditor can verify that an encode occurred, confirm its hash signature, and read the glyph poem that accompanied it — without learning what was hidden. This makes the Chronicle legally useful (a timestamped record of authorship and action) without requiring any sensitive disclosure.</p>
+
+                <p>The <span class="vmd-term">Sovereign Vault</span> extends the Chronicle into identity storage: a per-user record that accumulates Chronicle entries, QiSync memory sessions, GriDul participation logs, and token ownership history into a single cryptographically-sealed identity file. The Vault is sovereign in the original sense of the word — it belongs to its holder, not to the platform. No administrator can empty it, no server migration can break its hash chain, and no dispute resolution process can access its contents without the holder's consent. This is PROJECT VOID's answer to the identity problem that every digital platform eventually faces: rather than holding identity data on behalf of users and hoping not to be breached, the system places the data with the user and makes the platform a verifier, not a custodian.</p>
+            </div>
+        </section>
+
+        <!-- ── CHAPTER IV — VALUE ── -->
+        <section id="chapter-4" class="vmd-chapter">
+            <div class="vmd-chapter-header">
+                <div class="vmd-chapter-tag">
+                    <span class="vmd-chapter-num">Chapter IV</span>
+                    <span class="vmd-chapter-layer badge-value">Value</span>
+                </div>
+                <h2 class="vmd-chapter-title">VTX, Blueprint Tokens &amp; the Yield Engine</h2>
+                <p class="vmd-chapter-subtitle">On earning resonance, the bonding curve, and value that is manufactured rather than speculated</p>
+                <div class="vmd-chapter-rule rule-value"></div>
+            </div>
+            <div class="vmd-prose">
+                <p>Most token economies begin with the question "how do we create scarcity?" and work backward from there. PROJECT VOID begins with a different question: "what does meaningful participation look like, and how do we make it legible to the system?" The answer to that question produces the <span class="vmd-term">VTX</span> — the Vortex Token — the system's primary unit of account. VTX is not issued; it is earned. A user earns VTX by completing GriDul physical-movement sessions, by running QiSync biometric-memory exercises, by contributing Chronicle entries, by operating a mesh node, by running the steganography engine on behalf of the network. Each of these actions is recorded by the Chronicle, signed by Al-Jabr 286, and contributes a resonance score. When the resonance score crosses a threshold, the yield engine mints VTX directly into the user's Vortex Ledger. The token is not a reward for holding; it is a reward for doing.</p>
+
+                <div class="vmd-callout">
+                    <div class="vmd-callout-label layer-value">&#9670; The Vortex Ledger</div>
+                    <p>Every VTX transaction — mint, transfer, spend, or yield claim — is recorded as a block in the Vortex Ledger, each block stamped with a 286-bit hash derived from the transaction parameters, the preceding block's hash, and a timestamp. The chain is append-only: no block can be modified without invalidating every subsequent block, and every subsequent block is reflected in every mesh node's local copy. This makes the Vortex Ledger not merely tamper-resistant but tamper-evident — any attempt to alter history is immediately visible to any node that has synchronized within the past verification cycle.</p>
+                </div>
+
+                <p>The <span class="vmd-term">Blueprint Tokens</span> operate one level above VTX: they are manufacturing deeds, not currency. Each Blueprint Token is a cryptographic claim on a specific physical hardware unit — a claim that entitles the holder to receive that unit from the manufacturing queue when it is produced. The token carries its own hash history, its tier classification (Common, Rare, or Legendary), its edition number, its price in both GBP and VTX, and a Sovereign Poem derived from its hash at mint time. The manufacturing funds collected when a token is purchased are split according to tier-specific allocation ratios: a Legendary tier split directs 40% to capital expenditure, 35% to materials, and 25% to assembly — amounts that track the actual cost structure of hardware production, making the token a financial instrument with a direct, auditable relationship to the physical asset it represents.</p>
+
+                <p>The third token class, the <span class="vmd-term">Mystery Tokens</span>, occupies a deliberately opaque position. Mystery Tokens are issued on a bonding curve — the first 250 tokens mint at a base price, the next 250 at double, and so on — and are sealed at mint time: the holder receives a token whose content is unknown until a reveal event. The reveal mechanism is cryptographic: the token's hash is pre-committed to the Chronicle at mint, and the reveal simply makes the corresponding payload public. Mystery Tokens function as the system's experimental edge — a way to issue provably fair, verifiably random allocations of access, identity credentials, or rare system states without requiring any trusted intermediary to run the lottery. Every reveal is auditable against the original pre-committed hash. Scarcity is created not by administrative fiat but by the mathematics of the bonding curve.</p>
+
+                <p>The <span class="vmd-term">yield engine</span> ties all three token classes together into a single economic loop. Rare and Legendary Blueprint Token holders receive yield payments posted by the system's administrators as physical machines generate biological output and compute revenue. Yield is distributed proportionally — a Legendary holder receives ten units of distribution weight for every one unit held by a Rare holder — and each payment is recorded as a yield event in the Chronicle with an idempotency key, preventing double-payment even under network partition conditions. The yield engine is not a speculative investment vehicle; it is a fractional ownership mechanism for physical infrastructure, with a transparent on-chain record of every distribution event.</p>
+            </div>
+        </section>
+
+        <!-- ── CHAPTER V — COMMUNITY ── -->
+        <section id="chapter-5" class="vmd-chapter">
+            <div class="vmd-chapter-header">
+                <div class="vmd-chapter-tag">
+                    <span class="vmd-chapter-num">Chapter V</span>
+                    <span class="vmd-chapter-layer badge-community">Community</span>
+                </div>
+                <h2 class="vmd-chapter-title">Beehive Mesh, GriDul &amp; QiSync</h2>
+                <p class="vmd-chapter-subtitle">On acoustic networking, the body as a node, and synchronizing biological memory with the machine</p>
+                <div class="vmd-chapter-rule rule-community"></div>
+            </div>
+            <div class="vmd-prose">
+                <p>A network that depends on the commercial internet for its routing is not a sovereign network — it is a subscriber. PROJECT VOID's community layer is built on the premise that nodes should be able to find each other, authenticate each other, and exchange data even when the standard internet infrastructure is unavailable, compromised, or actively hostile. The technology that enables this is the <span class="vmd-term">Beehive Mesh Protocol</span> — an acoustic peer-to-peer networking system in which Sovereign Nodes communicate through phase-shifted sound rather than radio or cable.</p>
+
+                <p>The Beehive Protocol works by embedding the Al-Jabr 286 hash of a node's identity into a 432 Hz carrier pulse at -30 dB below the audible signal floor — a technique the codebase calls "Insect Silt" encoding, because to a standard audio analyzer the embedded data resembles insect-band ambient noise. The phase angle of the carrier, derived from a passphrase through the Al-Jabr hash function, serves as the authentication key: two nodes authenticate each other by verifying that their 432 Hz carrier pulses share the expected phase relationship (Fatiha phase angle: 15.4°) within a tolerance of 0.5°. A handshake that passes this verification is confirmed by a "whisper" — a 180°-shifted confirmation pulse — before any data transfer begins. The mesh operates on a Seven Seas limit: a maximum of seven relay hops, covering approximately 350 miles of coastal range, beyond which packet routing degrades and the network partitions gracefully rather than failing catastrophically.</p>
+
+                <div class="vmd-callout">
+                    <div class="vmd-callout-label layer-community">&#9670; The Flywheel Buffer</div>
+                    <p>When a node in the Beehive mesh goes dark — powers off, enters a dead zone, or deliberately disconnects — its neighboring nodes can buffer up to five minutes of incoming data in what the protocol calls the Flywheel Buffer. The buffer costs 0.5 Crystal Credits per minute to maintain, creating a small economic incentive for nodes to manage buffer duration actively. When the dark node reconnects, the buffered data is delivered in sequence. This means that short disconnections — expected in a hardware mesh that operates in real-world environments — do not result in data loss. The network heals around absent nodes rather than failing because of them.</p>
+                </div>
+
+                <p><span class="vmd-term">GriDul</span> — the Grid-Duel system — represents a second kind of community node: the human body. GriDul is a movement-and-growth platform in which users log physical sessions (movement sequences, grow-zone cultivation activities, water-management exercises) that earn VTX and contribute to a shared community mesh map. Each GriDul participant becomes a data point in the community layer — a biological node reporting location, activity, and physiological output to the Chronicle. The philosophy behind this design is direct: a system that only counts compute cycles as participation will always reward those who already own the most hardware. A system that also counts physical presence and biological effort distributes rewards more broadly and creates a different kind of stake in the network's health.</p>
+
+                <p><span class="vmd-term">QiSync</span> extends this biological integration further, into the domain of memory and cognition. QiSync sessions guide users through biometric-memory exercises — breath-pacing sequences, frequency-attunement protocols, and cognitive-recall tasks — and record the resulting biometric signatures to the Sovereign Vault. The recorded data is used to personalize future sessions, building a longitudinal model of the user's biological resonance state that syncs with the system's own 432 Hz baseline. QiSync is not a health application in the clinical sense; it is a synchronization layer — a way of aligning the human operator of a Sovereign Node with the frequency environment that the hardware is already tuned to. When the person and the machine share a resonance baseline, the system's outputs — glyph poems, Chronicle entries, yield calculations — carry a provable relationship to the biological state of the person who generated them.</p>
+            </div>
+        </section>
+
+        <!-- ── CHAPTER VI — HEALING ── -->
+        <section id="chapter-6" class="vmd-chapter">
+            <div class="vmd-chapter-header">
+                <div class="vmd-chapter-tag">
+                    <span class="vmd-chapter-num">Chapter VI</span>
+                    <span class="vmd-chapter-layer badge-healing">Healing</span>
+                </div>
+                <h2 class="vmd-chapter-title">MycoVOID, MRB-4000 &amp; the System That Repairs Its Environment</h2>
+                <p class="vmd-chapter-subtitle">On bioremediation, hardware design, and the obligation of a sovereign machine</p>
+                <div class="vmd-chapter-rule rule-healing"></div>
+            </div>
+            <div class="vmd-prose">
+                <p>The healing layer is the argument that separates PROJECT VOID most visibly from every other computing infrastructure project. Conventional computing hardware is a pure consumer: it draws electricity, produces heat, emits electromagnetic radiation, and after a lifespan measured in years goes to landfill. No amount of renewable energy sourcing changes the fundamental relationship between the hardware and its environment, because the hardware itself does nothing to repair the damage it produces. PROJECT VOID's position is that a sovereign machine has an obligation to the ground it runs on — and that this obligation should be designed into the hardware, not added as a corporate social responsibility afterthought.</p>
+
+                <p>The <span class="vmd-term">MRB-4000</span> hardware chassis integrates the MycoVOID bioremediation module as a first-class subsystem, not an accessory. The module houses a mycelial network in a humidity-controlled, frequency-conditioned bay that draws a fraction of the machine's thermal output for warmth and uses the 432 Hz vibration of the chassis as a growth stimulant — studies in mycoacoustics have found that mycelium grows measurably faster in the presence of specific frequency ranges, and 432 Hz falls within the range that has been shown to promote hyphal branching. The mycelial network absorbs atmospheric particulates, volatile organic compounds, heavy metal residues, and low-dose radiation through enzymatic breakdown processes. As the network matures, its absorption capacity increases, and that capacity is monitored in real time by the MycoVOID software layer, which feeds remediation data to the Chronicle.</p>
+
+                <div class="vmd-callout">
+                    <div class="vmd-callout-label layer-healing">&#9670; Remediation as yield</div>
+                    <p>Blueprint Token holders at the Rare and Legendary tiers receive yield from two sources: compute cycles and biological output. Biological output in the MRB-4000 context includes measurable remediation data — the volume of atmospheric particulates absorbed, the reduction in local radiation levels, and the growth rate of the mycelial network expressed as biomass increase per cycle. These metrics are recorded to the Chronicle and form part of the yield calculation. A machine that is remediating its environment more aggressively generates higher biological yield for its token holders. This creates a direct economic incentive for operators to site their machines in locations where the remediation function is most needed.</p>
+                </div>
+
+                <p>The MRB-4000's design reflects a broader principle that runs through the whole system: that technical capability and ecological responsibility are not in tension but are the same engineering problem approached from different angles. A machine that wastes heat is a machine with poor thermal management. A machine that wastes electromagnetic emissions is a machine with poor shielding. A machine that produces no biological benefit from the space it occupies is a machine with an incompletely solved chassis design. The MRB-4000 treats all three problems as one: by integrating the flywheel energy store, the Obsidian shielding, the resonance-tuned wiring, and the mycelial bay into a single thermal and electromagnetic system, the machine achieves a chassis-level efficiency that commodity hardware cannot match — not because it uses better components, but because it treats the chassis as a complete environmental system rather than a box for components.</p>
+
+                <p>The <span class="vmd-term">MycoVOID</span> software layer provides real-time monitoring of the mycelial network across the full distributed mesh: each active node reports its remediation metrics, its frequency vortex status, and its absorption readings to a central aggregation layer that maps the data to the atmospheric zones being served. The system visualizes this data as a distributed node map — a living picture of how many nodes are active, how many are absorbing, and where in the mesh the remediation load is concentrated. This visualization is not a dashboard for its own sake; it is the Chronicle's interface to the physical world, the point at which the system's tamper-proof record connects directly to a measurable environmental outcome.</p>
+            </div>
+        </section>
+
+        <!-- ── CHAPTER VII — LEGACY ── -->
+        <section id="chapter-7" class="vmd-chapter">
+            <div class="vmd-chapter-header">
+                <div class="vmd-chapter-tag">
+                    <span class="vmd-chapter-num">Chapter VII</span>
+                    <span class="vmd-chapter-layer badge-legacy">Legacy</span>
+                </div>
+                <h2 class="vmd-chapter-title">Prior Art, InteRussia &amp; the Record That Cannot Be Taken</h2>
+                <p class="vmd-chapter-subtitle">On authorship, the founder archive, and legal ownership of what was built</p>
+                <div class="vmd-chapter-rule rule-legacy"></div>
+            </div>
+            <div class="vmd-prose">
+                <p>The final crystallization layer answers a question that every innovative project eventually faces: who owns it? Not in the abstract philosophical sense, but in the practical legal sense — who can demonstrate, to a court, to an institution, to an investor, that this specific idea was created by this specific person at this specific time? The legacy layer of PROJECT VOID is the system's answer to that question: a prior art record, a founder archive, a brand documentation trail, and an international partnership structure that collectively make the system's intellectual property position as strong as its cryptographic one.</p>
+
+                <p>The <span class="vmd-term">prior art</span> record exists as a series of timestamped, hash-chained disclosures published to the Chronicle and mirrored to the Sovereign Vault. Each disclosure names a specific technical contribution — the Al-Jabr 286 protocol, the vortex scatter steganography method, the Adriana SCL glyph ontology, the Beehive acoustic mesh architecture — attaches the authorship claim, and produces a 286-bit hash that serves as the disclosure's permanent fingerprint. The fingerprint is published to the Chronicle before the disclosure text is made public, creating a cryptographically provable timestamp that precedes any subsequent patent filing or competing claim. This is a standard prior art strategy, but PROJECT VOID's implementation is unusual: the timestamp is not held by a third-party notary service; it is held by the distributed mesh itself, making it resistant to any single institution's decision to suppress or alter the record.</p>
+
+                <div class="vmd-callout">
+                    <div class="vmd-callout-label layer-legacy">&#9670; InteRussia</div>
+                    <p><span class="vmd-term">InteRussia</span> is PROJECT VOID's international partnership program — a formal structure for incorporating researchers, institutions, and operators in jurisdictions outside the primary founding territory. The program includes a standardized application process, a documented checklist of compliance requirements, and a commitment framework that maps each partner's contribution to a specific layer of the crystallization map. InteRussia partners receive access to the Beehive mesh, VTX yield rights commensurate with their node operation, and a stake in the prior art record proportional to their documented contributions. The program's name reflects the first geographic expansion of the network — it is not a statement about political alignment but about the decision that the first partnership beyond the founding territory would extend eastward, into a research environment with a deep tradition in the specific applied-physics and acoustic-engineering domains that PROJECT VOID's hardware draws on.</p>
+                </div>
+
+                <p>The <span class="vmd-term">founder archive</span> is a non-cryptographic complement to the prior art record — a curated collection of design documents, decision logs, concept sketches, and correspondence that traces the intellectual development of PROJECT VOID from its earliest speculative notes to the production system described in this document. The archive is stored in the Sovereign Vault and mirrored to the Chronicle, but its primary audience is not legal: it is addressed to the team members, future contributors, and historians who will need to understand not just what was built but why every significant design decision was made. The archive answers questions that the technical documentation cannot: why was the frequency 432 and not 440? Why was the hash protocol named after an Arabic mathematical tradition? Why was mycelium integrated into the hardware at the chassis level rather than added as an external accessory? These decisions have technical rationales, philosophical rationales, and personal rationales, and the archive holds all three.</p>
+
+                <p>The legacy layer, ultimately, is what prevents PROJECT VOID from being a project that disappears. Systems are vulnerable to erasure — their administrators leave, their servers are decommissioned, their funding dries up. The Chronicle's distributed hash chain is the technical answer to this vulnerability; the prior art record, the founder archive, and the InteRussia partnership structure are the legal and social answers. Together they create a record that cannot be taken: not by institutional pressure, not by market failure, not by the passage of time. This document is part of that record. Its authorship is stamped in the hash, its contents are mirrored across the mesh, and the question of who built PROJECT VOID — and what it was for — has a permanent, tamper-proof answer.</p>
+
+                <div class="vmd-pull-quote">
+                    <p>"The Engine continues. The ledger grows. The mesh expands. The record belongs to the people who built it."</p>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="vmd-footer">
+                <div class="vmd-footer-text">
+                    <p>PROJECT VOID — Master Reference Document v1.0 &nbsp;&#9670;&nbsp; March 2026</p>
+                    <p>Seven Crystallization Layers: Ground &middot; Language &middot; Memory &middot; Value &middot; Community &middot; Healing &middot; Legacy</p>
+                    <p>Licensed under the Business Source License 1.1. All technical claims are established in the prior art record and mirrored to the Sovereign Chronicle.</p>
+                    <p>
+                        <a href="/crystallization">Constellation Map</a> &nbsp;&#9670;&nbsp;
+                        <a href="/sovereign-node">Sovereign Node</a> &nbsp;&#9670;&nbsp;
+                        <a href="/chronicle">Chronicle</a> &nbsp;&#9670;&nbsp;
+                        <a href="/genesis">Genesis Tokens</a> &nbsp;&#9670;&nbsp;
+                        <a href="/mycovoid">MycoVOID</a> &nbsp;&#9670;&nbsp;
+                        <a href="/prior-art">Prior Art</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    (function() {
+        const sidenav = document.getElementById('vmd-sidenav');
+        const sections = document.querySelectorAll('.vmd-cover, .vmd-chapter');
+        const navItems = sidenav ? sidenav.querySelectorAll('.vmd-sidenav-item') : [];
+
+        function getIdForSection(el) {
+            return el.id || null;
+        }
+
+        function updateActive() {
+            let current = null;
+            const scrollY = window.scrollY;
+
+            sections.forEach(function(section) {
+                const top = section.getBoundingClientRect().top + scrollY;
+                if (scrollY >= top - 120) {
+                    current = section.id;
+                }
+            });
+
+            navItems.forEach(function(item) {
+                const href = item.getAttribute('href');
+                if (href && href === '#' + current) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActive, { passive: true });
+        updateActive();
+
+        navItems.forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                const href = item.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    const target = document.getElementById(href.slice(1));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        });
+    })();
+</script>
+
+</body>
+</html>
