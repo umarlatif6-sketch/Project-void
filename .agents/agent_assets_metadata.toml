@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "qt8WeM0GMEhbKqkbVqX4b"
+uri = "file://.local/research/project-void-landscape-research.md"
+type = "text"
+title = "PROJECT VOID — Deep Research Report (March 2026)"
