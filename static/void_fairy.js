@@ -6,6 +6,7 @@
     var userTier = 'ghost';
     var userIsFounder = false;
     var userIsGuardian = false;
+    var greetingDelivered = false;
 
     function checkAuth(callback) {
         fetch('/api/fairy/context').then(function(r) {
@@ -46,6 +47,11 @@
         if (userTier === 'sovereign') return { text: 'SOVEREIGN', color: '#c9a84c' };
         if (userTier === 'journalist') return { text: 'JOURNALIST', color: '#2dd4bf' };
         return { text: 'GHOST', color: '#666' };
+    }
+
+    function shouldAutoOpen() {
+        var path = window.location.pathname;
+        return path === '/welcome/vanguard' || path === '/welcome' || path === '/launch' || path === '/';
     }
 
     function createWidget() {
@@ -142,6 +148,9 @@
                 panel.classList.add('visible');
                 toggle.classList.add('active');
                 document.getElementById('fairy-input').focus();
+                if (!greetingDelivered) {
+                    deliverGreeting();
+                }
             } else {
                 panel.classList.remove('visible');
                 toggle.classList.remove('active');
@@ -161,6 +170,56 @@
                 e.preventDefault();
                 sendMessage();
             }
+        });
+
+        if (shouldAutoOpen()) {
+            setTimeout(function() {
+                isOpen = true;
+                panel.classList.add('visible');
+                toggle.classList.add('active');
+                setTimeout(function() {
+                    deliverGreeting();
+                }, 600);
+            }, 800);
+        }
+    }
+
+    function deliverGreeting() {
+        if (greetingDelivered || isSending) return;
+        greetingDelivered = true;
+
+        var container = document.getElementById('fairy-messages');
+        if (!container) return;
+
+        isSending = true;
+        var sendBtn = document.getElementById('fairy-send');
+        if (sendBtn) sendBtn.disabled = true;
+        var typingEl = document.getElementById('fairy-typing');
+        if (typingEl) typingEl.classList.add('active');
+        var toggleEl = document.getElementById('fairy-toggle');
+        if (toggleEl) toggleEl.classList.add('pulse');
+
+        fetch('/api/fairy/greeting', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (typingEl) typingEl.classList.remove('active');
+            if (toggleEl) toggleEl.classList.remove('pulse');
+            isSending = false;
+            if (sendBtn) sendBtn.disabled = false;
+
+            var greeting = data.greeting || getWelcomeText().replace(/<br>/g, '\n');
+            typewriterMessage(greeting, function() {
+                history.push({ role: 'assistant', content: greeting });
+            });
+        })
+        .catch(function() {
+            if (typingEl) typingEl.classList.remove('active');
+            if (toggleEl) toggleEl.classList.remove('pulse');
+            isSending = false;
+            if (sendBtn) sendBtn.disabled = false;
         });
     }
 
@@ -187,6 +246,41 @@
         container.scrollTop = container.scrollHeight;
     }
 
+    var SAFE_INTERNAL_PATH = /^\/[a-zA-Z0-9\-_/]*$/;
+
+    function renderMessageContent(bubble, content) {
+        var linkRegex = /\u2192\s*\[([^\]]+)\]\(([^)]+)\)/g;
+        var lastIndex = 0;
+        var match;
+        var fragment = document.createDocumentFragment();
+
+        while ((match = linkRegex.exec(content)) !== null) {
+            if (match.index > lastIndex) {
+                fragment.appendChild(document.createTextNode(content.slice(lastIndex, match.index)));
+            }
+            var rawHref = match[2];
+            if (SAFE_INTERNAL_PATH.test(rawHref)) {
+                var arrow = document.createTextNode('\u2192 ');
+                var link = document.createElement('a');
+                link.href = rawHref;
+                link.textContent = match[1];
+                link.className = 'fairy-nav-link';
+                link.style.cssText = 'color:#c9a84c;text-decoration:underline;cursor:pointer;';
+                fragment.appendChild(arrow);
+                fragment.appendChild(link);
+            } else {
+                fragment.appendChild(document.createTextNode('\u2192 ' + match[1]));
+            }
+            lastIndex = match.index + match[0].length;
+        }
+
+        if (lastIndex < content.length) {
+            fragment.appendChild(document.createTextNode(content.slice(lastIndex)));
+        }
+
+        bubble.appendChild(fragment);
+    }
+
     function typewriterMessage(content, callback) {
         var container = document.getElementById('fairy-messages');
         var welcome = container.querySelector('.fairy-welcome');
@@ -209,7 +303,7 @@
 
         typewriterActive = true;
         var toggle = document.getElementById('fairy-toggle');
-        toggle.classList.add('pulse');
+        if (toggle) toggle.classList.add('pulse');
 
         var idx = 0;
         var speed = 18;
@@ -229,8 +323,10 @@
                 setTimeout(typeNext, delay);
             } else {
                 if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+                textNode.textContent = '';
+                renderMessageContent(bubble, content);
                 typewriterActive = false;
-                toggle.classList.remove('pulse');
+                if (toggle) toggle.classList.remove('pulse');
                 if (callback) callback();
             }
         }
