@@ -39,13 +39,18 @@ def _init_fairy_tables():
             )
         """)
         conn.commit()
-        try:
-            cur.execute("""
-                ALTER TABLE fairy_profiles ADD COLUMN IF NOT EXISTS depth_level INTEGER DEFAULT 0
-            """)
-            conn.commit()
-        except Exception:
-            conn.rollback()
+        for alter_stmt in [
+            "ALTER TABLE fairy_profiles ADD COLUMN IF NOT EXISTS depth_level INTEGER DEFAULT 0",
+            "ALTER TABLE fairy_profiles ADD COLUMN IF NOT EXISTS colour_resonance FLOAT DEFAULT 0.5",
+            "ALTER TABLE fairy_profiles ADD COLUMN IF NOT EXISTS sound_resonance FLOAT DEFAULT 0.5",
+            "ALTER TABLE fairy_profiles ADD COLUMN IF NOT EXISTS emotional_resonance_log JSONB DEFAULT '[]'",
+            "ALTER TABLE fairy_profiles ADD COLUMN IF NOT EXISTS last_message_at TIMESTAMP DEFAULT NULL",
+        ]:
+            try:
+                cur.execute(alter_stmt)
+                conn.commit()
+            except Exception:
+                conn.rollback()
         cur.close()
         conn.close()
     except Exception:
@@ -60,33 +65,82 @@ def get_fairy_profile(user_id):
         conn = _get_db()
         cur = conn.cursor()
         cur.execute(
-            "SELECT communication_style, topics_of_interest, message_count, depth_level FROM fairy_profiles WHERE user_id = %s",
+            """SELECT communication_style, topics_of_interest, message_count, depth_level,
+                      colour_resonance, sound_resonance, emotional_resonance_log, last_message_at
+               FROM fairy_profiles WHERE user_id = %s""",
             (user_id,)
         )
         row = cur.fetchone()
         cur.close()
         conn.close()
         if row:
-            return {"style": row[0] or "", "topics": row[1] or "", "count": row[2] or 0, "depth_level": row[3] or 0}
-        return {"style": "", "topics": "", "count": 0, "depth_level": 0}
+            emo_log = row[6]
+            if isinstance(emo_log, str):
+                try:
+                    emo_log = json.loads(emo_log)
+                except Exception:
+                    emo_log = []
+            return {
+                "style": row[0] or "",
+                "topics": row[1] or "",
+                "count": row[2] or 0,
+                "depth_level": row[3] or 0,
+                "colour_resonance": float(row[4]) if row[4] is not None else 0.5,
+                "sound_resonance": float(row[5]) if row[5] is not None else 0.5,
+                "emotional_resonance_log": emo_log if isinstance(emo_log, list) else [],
+                "last_message_at": row[7],
+            }
+        return {"style": "", "topics": "", "count": 0, "depth_level": 0,
+                "colour_resonance": 0.5, "sound_resonance": 0.5, "emotional_resonance_log": [],
+                "last_message_at": None}
     except Exception:
-        return {"style": "", "topics": "", "count": 0, "depth_level": 0}
+        return {"style": "", "topics": "", "count": 0, "depth_level": 0,
+                "colour_resonance": 0.5, "sound_resonance": 0.5, "emotional_resonance_log": [],
+                "last_message_at": None}
 
 
-def update_fairy_profile(user_id, style, topics, count, depth_level=0):
+def update_fairy_profile(user_id, style, topics, count, depth_level=0,
+                         colour_resonance=None, sound_resonance=None,
+                         emotional_resonance_log=None, update_message_at=False):
     try:
         conn = _get_db()
         cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO fairy_profiles (user_id, communication_style, topics_of_interest, message_count, depth_level, updated_at)
-            VALUES (%s, %s, %s, %s, %s, NOW())
-            ON CONFLICT (user_id) DO UPDATE SET
-                communication_style = EXCLUDED.communication_style,
-                topics_of_interest = EXCLUDED.topics_of_interest,
-                message_count = EXCLUDED.message_count,
-                depth_level = EXCLUDED.depth_level,
-                updated_at = NOW()
-        """, (user_id, style, topics, count, depth_level))
+        cr = colour_resonance if colour_resonance is not None else 0.5
+        sr = sound_resonance if sound_resonance is not None else 0.5
+        erl = json.dumps(emotional_resonance_log if emotional_resonance_log is not None else [])
+        if update_message_at:
+            cur.execute("""
+                INSERT INTO fairy_profiles (user_id, communication_style, topics_of_interest,
+                    message_count, depth_level, colour_resonance, sound_resonance,
+                    emotional_resonance_log, last_message_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s::jsonb, NOW(), NOW())
+                ON CONFLICT (user_id) DO UPDATE SET
+                    communication_style = EXCLUDED.communication_style,
+                    topics_of_interest = EXCLUDED.topics_of_interest,
+                    message_count = EXCLUDED.message_count,
+                    depth_level = EXCLUDED.depth_level,
+                    colour_resonance = EXCLUDED.colour_resonance,
+                    sound_resonance = EXCLUDED.sound_resonance,
+                    emotional_resonance_log = EXCLUDED.emotional_resonance_log,
+                    last_message_at = NOW(),
+                    updated_at = NOW()
+            """, (user_id, style, topics, count, depth_level, cr, sr, erl))
+        else:
+            cur.execute("""
+                INSERT INTO fairy_profiles (user_id, communication_style, topics_of_interest,
+                    message_count, depth_level, colour_resonance, sound_resonance,
+                    emotional_resonance_log, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s::jsonb, NOW())
+                ON CONFLICT (user_id) DO UPDATE SET
+                    communication_style = EXCLUDED.communication_style,
+                    topics_of_interest = EXCLUDED.topics_of_interest,
+                    message_count = EXCLUDED.message_count,
+                    depth_level = EXCLUDED.depth_level,
+                    colour_resonance = EXCLUDED.colour_resonance,
+                    sound_resonance = EXCLUDED.sound_resonance,
+                    emotional_resonance_log = EXCLUDED.emotional_resonance_log,
+                    updated_at = NOW()
+            """, (user_id, style, topics, count, depth_level, cr, sr, erl))
         conn.commit()
         cur.close()
         conn.close()
@@ -331,6 +385,167 @@ def _build_adaptive_context(tier, is_founder, is_guardian, profile_style, profil
     return "\n".join(parts)
 
 
+_CANONICAL_COLOURS = [
+    "#c9a84c",
+    "#2dd4bf",
+    "#60a5fa",
+    "#a78bfa",
+    "#f87171",
+    "#34d399",
+    "#fb923c",
+    "#f472b6",
+]
+
+_EMOTION_KEYWORDS = {
+    "happy":   ["happy", "joy", "glad", "great", "wonderful", "amazing", "love", "good", "fantastic", "awesome", "excited", "pleased", "cheerful", "delight"],
+    "sad":     ["sad", "unhappy", "depressed", "miserable", "down", "blue", "grief", "sorrow", "cry", "weep", "heartbreak", "lonely", "hopeless", "lost"],
+    "angry":   ["angry", "furious", "rage", "frustrated", "hate", "annoyed", "irritated", "mad", "outraged", "hostile", "bitter", "livid", "enraged"],
+    "numb":    ["numb", "empty", "blank", "nothing", "void", "hollow", "detached", "disconnected", "indifferent", "apathetic", "flat", "expressionless"],
+    "anxious": ["anxious", "worry", "worried", "nervous", "scared", "fear", "afraid", "panic", "stress", "stressed", "dread", "uneasy", "tense", "overwhelmed"],
+    "elated":  ["elated", "ecstatic", "euphoric", "thrilled", "overjoyed", "exhilarated", "jubilant", "bliss", "radiant", "soaring", "magnificent", "extraordinary"],
+}
+
+_EMOTION_COLOURS = {
+    "happy":   "#fbbf24",
+    "sad":     "#6366f1",
+    "angry":   "#f87171",
+    "numb":    "#475569",
+    "anxious": "#fb923c",
+    "elated":  "#34d399",
+}
+
+
+def _score_emotion(text):
+    words = re.findall(r"[a-z]+", text.lower())
+    word_set = set(words)
+    scores = {}
+    for emotion, keywords in _EMOTION_KEYWORDS.items():
+        matches = sum(1 for kw in keywords if kw in word_set or any(kw in w for w in words))
+        scores[emotion] = matches
+
+    total = sum(scores.values())
+    if total == 0:
+        return {"emotion": "numb", "intensity": 0.1}
+
+    primary = max(scores, key=scores.get)
+    intensity = min(1.0, scores[primary] / max(1, len(words) * 0.15))
+    intensity = round(max(0.05, intensity), 3)
+    return {"emotion": primary, "intensity": intensity}
+
+
+def _score_engagement(message, history, prev_message_time=None):
+    import datetime
+
+    word_count = len(message.split())
+    length_score = min(1.0, word_count / 50.0)
+
+    emotional_words = []
+    for keywords in _EMOTION_KEYWORDS.values():
+        emotional_words.extend(keywords)
+    msg_lower = message.lower()
+    emo_density = min(1.0, sum(1 for kw in emotional_words if kw in msg_lower) / max(1, word_count) * 10)
+
+    time_score = 0.0
+    if prev_message_time is not None:
+        try:
+            now = datetime.datetime.utcnow()
+            if isinstance(prev_message_time, datetime.datetime):
+                elapsed_seconds = (now - prev_message_time).total_seconds()
+            else:
+                elapsed_seconds = float(prev_message_time)
+            if elapsed_seconds < 30:
+                time_score = 0.3
+            elif elapsed_seconds < 120:
+                time_score = 0.15
+            elif elapsed_seconds < 300:
+                time_score = 0.0
+            elif elapsed_seconds < 1800:
+                time_score = -0.1
+            else:
+                time_score = -0.2
+        except Exception:
+            time_score = 0.0
+
+    raw = (length_score * 0.35 + emo_density * 0.35 + (time_score + 0.2) * 0.3) - 0.3
+    delta = round(max(-0.3, min(0.4, raw)), 3)
+    return delta
+
+
+def _compute_colour_resonance(current, delta, emotion):
+    nudge = delta * 0.05
+    if emotion in ("happy", "elated"):
+        nudge += 0.02
+    elif emotion in ("sad", "numb"):
+        nudge -= 0.02
+    new_val = max(0.0, min(1.0, current + nudge))
+    return round(new_val, 4)
+
+
+def _compute_sound_resonance(current, delta, emotion, intensity):
+    nudge = delta * 0.04
+    if emotion in ("elated", "happy"):
+        nudge += intensity * 0.03
+    elif emotion in ("angry",):
+        nudge += intensity * 0.02
+    elif emotion in ("sad", "numb"):
+        nudge -= intensity * 0.02
+    new_val = max(0.0, min(1.0, current + nudge))
+    return round(new_val, 4)
+
+
+def _derive_plant_seed(emotional_resonance_log, user_id):
+    emotion_counts = {}
+    total_intensity = 0.0
+    for entry in emotional_resonance_log:
+        em = entry.get("emotion", "numb")
+        intensity = float(entry.get("intensity", 0.1))
+        emotion_counts[em] = emotion_counts.get(em, 0) + 1
+        total_intensity += intensity
+
+    n = len(emotional_resonance_log)
+    dominant = max(emotion_counts, key=emotion_counts.get) if emotion_counts else "numb"
+    avg_intensity = round(total_intensity / max(1, n), 3)
+
+    user_seed = (int(str(user_id or 0)) * 31337) % 1000
+    variety = round((user_seed / 1000.0) * 0.4, 3)
+
+    return {
+        "dominant_emotion": dominant,
+        "avg_intensity": avg_intensity,
+        "variety": variety,
+        "log_length": n,
+        "emotion_counts": emotion_counts,
+    }
+
+
+def _colour_resonance_to_theme_hint(colour_resonance, emotional_resonance_log):
+    idx = round(colour_resonance * (len(_CANONICAL_COLOURS) - 1))
+    idx = max(0, min(len(_CANONICAL_COLOURS) - 1, idx))
+    accent = _CANONICAL_COLOURS[idx]
+    return {"accent": accent, "transition": "2s"}
+
+
+def _build_tone_hint(sound_resonance, emotion, intensity):
+    base_freq = 432.0
+    overtone_factor = 1.0 + (sound_resonance - 0.5) * 0.4
+    gain = 0.03 + sound_resonance * 0.06
+    if emotion in ("angry",):
+        gain = min(0.12, gain + intensity * 0.04)
+        overtone_factor = min(1.3, overtone_factor + 0.1)
+    elif emotion in ("sad", "numb"):
+        gain = max(0.02, gain - intensity * 0.02)
+        overtone_factor = max(0.7, overtone_factor - 0.1)
+    elif emotion in ("elated", "happy"):
+        overtone_factor = min(1.4, overtone_factor + intensity * 0.15)
+    return {
+        "base_hz": round(base_freq, 2),
+        "overtone_factor": round(overtone_factor, 3),
+        "gain": round(gain, 4),
+        "emotion": emotion,
+        "intensity": intensity,
+    }
+
+
 def _run_profile_analysis(user_id, profile, new_count, conversation_sample):
     try:
         sanitized_sample = _sanitize_for_llm(conversation_sample)
@@ -377,19 +592,44 @@ def _run_profile_analysis(user_id, profile, new_count, conversation_sample):
                     new_depth = profile.get("depth_level", 0)
             except (ValueError, TypeError):
                 new_depth = profile.get("depth_level", 0)
-            update_fairy_profile(user_id, new_style, new_topics, new_count, new_depth)
+            update_fairy_profile(user_id, new_style, new_topics, new_count, new_depth,
+                                 profile.get("colour_resonance", 0.5),
+                                 profile.get("sound_resonance", 0.5),
+                                 profile.get("emotional_resonance_log", []))
         else:
-            update_fairy_profile(user_id, profile["style"], profile["topics"], new_count, profile.get("depth_level", 0))
+            update_fairy_profile(user_id, profile["style"], profile["topics"], new_count,
+                                 profile.get("depth_level", 0),
+                                 profile.get("colour_resonance", 0.5),
+                                 profile.get("sound_resonance", 0.5),
+                                 profile.get("emotional_resonance_log", []))
     except Exception:
-        update_fairy_profile(user_id, profile["style"], profile["topics"], new_count, profile.get("depth_level", 0))
+        update_fairy_profile(user_id, profile["style"], profile["topics"], new_count,
+                             profile.get("depth_level", 0),
+                             profile.get("colour_resonance", 0.5),
+                             profile.get("sound_resonance", 0.5),
+                             profile.get("emotional_resonance_log", []))
 
 
 def _maybe_update_profile(user_id, tier, message, history_items, reply):
     profile = get_fairy_profile(user_id)
     new_count = profile["count"] + 1
 
+    emotion_data = _score_emotion(message)
+    emotion = emotion_data["emotion"]
+    intensity = emotion_data["intensity"]
+
+    emo_log = list(profile.get("emotional_resonance_log") or [])
+    emo_log.append({"emotion": emotion, "intensity": intensity})
+    emo_log = emo_log[-10:]
+
+    engagement_delta = _score_engagement(message, history_items, profile.get("last_message_at"))
+    new_cr = _compute_colour_resonance(profile.get("colour_resonance", 0.5), engagement_delta, emotion)
+    new_sr = _compute_sound_resonance(profile.get("sound_resonance", 0.5), engagement_delta, emotion, intensity)
+
     if new_count % 3 != 0:
-        update_fairy_profile(user_id, profile["style"], profile["topics"], new_count, profile.get("depth_level", 0))
+        update_fairy_profile(user_id, profile["style"], profile["topics"], new_count,
+                             profile.get("depth_level", 0), new_cr, new_sr, emo_log,
+                             update_message_at=True)
         return
 
     recent_user_msgs = []
@@ -399,12 +639,20 @@ def _maybe_update_profile(user_id, tier, message, history_items, reply):
     recent_user_msgs.append(message[:500])
     conversation_sample = "\n---\n".join(recent_user_msgs[-6:])
 
+    updated_profile = dict(profile)
+    updated_profile["colour_resonance"] = new_cr
+    updated_profile["sound_resonance"] = new_sr
+    updated_profile["emotional_resonance_log"] = emo_log
+
     t = threading.Thread(
         target=_run_profile_analysis,
-        args=(user_id, profile, new_count, conversation_sample),
+        args=(user_id, updated_profile, new_count, conversation_sample),
         daemon=True
     )
     t.start()
+    update_fairy_profile(user_id, profile["style"], profile["topics"], new_count,
+                         profile.get("depth_level", 0), new_cr, new_sr, emo_log,
+                         update_message_at=True)
 
 
 @fairy_bp.route("/api/fairy/ask", methods=["POST"])
@@ -434,11 +682,27 @@ def fairy_ask():
     is_founder = session.get("is_founder", False)
     is_guardian = session.get("is_guardian", False)
 
+    emotion_data = _score_emotion(message)
+    emotion = emotion_data["emotion"]
+    intensity = emotion_data["intensity"]
+
+    profile_pre = get_fairy_profile(user_id)
+    emo_log_pre = list(profile_pre.get("emotional_resonance_log") or [])
+    emo_log_post = (emo_log_pre + [{"emotion": emotion, "intensity": intensity}])[-10:]
+    engagement_delta = _score_engagement(message, history, profile_pre.get("last_message_at"))
+    cr_post = _compute_colour_resonance(profile_pre.get("colour_resonance", 0.5), engagement_delta, emotion)
+    sr_post = _compute_sound_resonance(profile_pre.get("sound_resonance", 0.5), engagement_delta, emotion, intensity)
+
+    theme_hint = _colour_resonance_to_theme_hint(cr_post, emo_log_post)
+    tone_hint = _build_tone_hint(sr_post, emotion, intensity)
+    emotion_state = {"emotion": emotion, "intensity": intensity, "colour": _EMOTION_COLOURS.get(emotion, "#c9a84c")}
+    resonance_log_seed = _derive_plant_seed(emo_log_post, user_id)
+
     hex_detections = detect_hex_in_message(message)
     hex_flowers = []
     if hex_detections:
         try:
-            count = get_fairy_profile(user_id).get("count", 0)
+            count = profile_pre.get("count", 0)
             if count >= 30:
                 _res_state = "resonant"
             elif count >= 10:
@@ -465,7 +729,15 @@ def fairy_ask():
             _maybe_update_profile(user_id, tier, message, history, local_response)
         except Exception:
             pass
-        resp = {"reply": local_response, "tier": tier, "is_founder": is_founder}
+        resp = {
+            "reply": local_response,
+            "tier": tier,
+            "is_founder": is_founder,
+            "emotion_state": emotion_state,
+            "theme_hint": theme_hint,
+            "tone_hint": tone_hint,
+            "resonance_log_seed": resonance_log_seed,
+        }
         if hex_flowers:
             resp["hex_flowers"] = hex_flowers
         return jsonify(resp)
@@ -479,6 +751,14 @@ def fairy_ask():
     adaptive_ctx = _build_adaptive_context(tier, is_founder, is_guardian, profile["style"], profile["topics"], profile.get("depth_level", 0))
     if adaptive_ctx:
         messages.append({"role": "system", "content": adaptive_ctx})
+
+    emotion_ctx = (
+        f"## EMOTIONAL FREQUENCY — CURRENT MESSAGE\n"
+        f"The user's current emotional frequency: {emotion} (intensity: {intensity:.2f}). "
+        f"Mirror this emotional tone in your reply — if they are {emotion}, let your language carry that frequency. "
+        f"Do not name the emotion explicitly. Embody it."
+    )
+    messages.append({"role": "system", "content": emotion_ctx})
 
     mesa_keywords = re.compile(
         r"mesa|swarm|simulation|simulat|predict|agent(s)?\s+(said|found|show)|latest run",
@@ -532,7 +812,15 @@ def fairy_ask():
         except Exception:
             pass
 
-        resp = {"reply": reply, "tier": tier, "is_founder": is_founder}
+        resp = {
+            "reply": reply,
+            "tier": tier,
+            "is_founder": is_founder,
+            "emotion_state": emotion_state,
+            "theme_hint": theme_hint,
+            "tone_hint": tone_hint,
+            "resonance_log_seed": resonance_log_seed,
+        }
         if hex_flowers:
             resp["hex_flowers"] = hex_flowers
         return jsonify(resp)
@@ -597,11 +885,41 @@ def fairy_context():
     is_founder = session.get("is_founder", False)
     display_name = session.get("display_name", "")
     is_guardian = session.get("is_guardian", False)
+    user_id = session.get("user_id")
+
+    theme_hint = None
+    tone_hint = None
+    resonance_log_seed = None
+    emotion_state = None
+    try:
+        profile = get_fairy_profile(user_id)
+        emo_log = profile.get("emotional_resonance_log") or []
+        cr = profile.get("colour_resonance", 0.5)
+        sr = profile.get("sound_resonance", 0.5)
+        if emo_log:
+            theme_hint = _colour_resonance_to_theme_hint(cr, emo_log)
+            last_entry = emo_log[-1]
+            last_emotion = last_entry.get("emotion", "numb")
+            last_intensity = last_entry.get("intensity", 0.1)
+            tone_hint = _build_tone_hint(sr, last_emotion, last_intensity)
+            resonance_log_seed = _derive_plant_seed(emo_log, user_id)
+            emotion_state = {
+                "emotion": last_emotion,
+                "intensity": last_intensity,
+                "colour": _EMOTION_COLOURS.get(last_emotion, "#c9a84c"),
+            }
+    except Exception:
+        pass
+
     return jsonify({
         "tier": tier,
         "is_founder": is_founder,
         "is_guardian": is_guardian,
-        "display_name": display_name
+        "display_name": display_name,
+        "theme_hint": theme_hint,
+        "tone_hint": tone_hint,
+        "resonance_log_seed": resonance_log_seed,
+        "emotion_state": emotion_state,
     })
 
 
