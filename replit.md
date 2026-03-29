@@ -30,6 +30,24 @@ No specific user preferences were provided in the original `replit.md` file.
 - **Navigation:** "VOID Game" gold link in engine nav and landing nav; "Shop ◆" button in game topbar
 - **Ledger:** Rewards use tx_type='mint_game'; spends use tx_type='burn'
 
+## PEACE Flywheel Blueprint (Task #23)
+- **Route:** `/peace/flywheel` — `routes/peace.py` blueprint (`peace_bp`)
+- **Template:** `templates/peace_flywheel.html`
+- **SVG Blueprint:** `static/peace_flywheel.svg` — true-scale 60mm disc, printable on A4
+  - Outer circle with 60mm diameter label
+  - Two centre string holes (⌀6mm, 20mm apart) with callout labels
+  - Three concentric sound-hole rings: inner (16×⌀1.2mm, r10, green), mid (12×⌀2mm, r16, gold), outer (8×⌀3mm, r22, purple)
+  - Crosshair drilling alignment guide; PEACE watermark; ring guide dashed circles
+- **Page Sections:**
+  - SVG blueprint display + download link (standalone SVG file)
+  - Material & string specification panel (hardwood/acrylic/brass, thickness, silk string 1.2m)
+  - How-to-spin 5-step phirki method panel
+  - Frequency reference table (conceptual tones at ~200/400/700 RPM per ring)
+  - Blueprint legend (ring colour key)
+- **Linked from:**
+  - `templates/sovereign.html` — Genesis Kit section (id="genesis-kit-section")
+  - `templates/marketplace.html` — PEACE token economy hero section
+
 ## System Architecture
 PROJECT VOID features a Flask-based web UI and a command-line interface, with the `void_engine` as its core. It operates on a Brain (Flask web app) + Body (local Python node) hybrid architecture.
 

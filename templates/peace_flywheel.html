@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEACE Flywheel Blueprint — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --gold: #c9a84c;
+            --gold-dim: rgba(201,168,76,0.15);
+            --gold-border: rgba(201,168,76,0.25);
+            --purple: #7c5cff;
+            --green: #4ade80;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            min-height: 100vh;
+        }
+
+        .fw-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .fw-nav-brand {
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .fw-nav-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .fw-nav-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .fw-nav-link:hover { color: var(--gold); }
+        .fw-nav-link.active { color: var(--gold); }
+
+        /* HERO */
+        .fw-hero {
+            text-align: center;
+            padding: 64px 24px 48px;
+            border-bottom: 1px solid var(--border);
+            background: radial-gradient(ellipse at 50% 0%, #12100a 0%, var(--bg) 70%);
+            position: relative;
+            overflow: hidden;
+        }
+        .fw-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        .fw-badge {
+            display: inline-block;
+            background: var(--gold-dim);
+            border: 1px solid var(--gold-border);
+            color: var(--gold);
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            padding: 5px 16px;
+            border-radius: 2px;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+        .fw-hero-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin: 0 0 10px;
+        }
+        .fw-hero-sub {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            max-width: 560px;
+            margin: 0 auto 8px;
+            line-height: 1.8;
+        }
+        .fw-hero-lore {
+            font-size: 0.72rem;
+            color: #555;
+            max-width: 520px;
+            margin: 12px auto 0;
+            line-height: 2;
+        }
+
+        /* MAIN LAYOUT */
+        .fw-main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        @media (max-width: 800px) {
+            .fw-main { grid-template-columns: 1fr; }
+        }
+
+        /* BLUEPRINT PANEL */
+        .fw-blueprint-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .fw-blueprint-frame {
+            background: #0a0a0f;
+            border: 1px solid var(--gold-border);
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .fw-blueprint-frame svg {
+            width: 100%;
+            max-width: 340px;
+            height: auto;
+        }
+        .fw-blueprint-label {
+            font-size: 0.58rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .fw-download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            background: var(--gold-dim);
+            border: 1px solid var(--gold-border);
+            border-radius: 6px;
+            color: var(--gold);
+            font-family: inherit;
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            justify-content: center;
+        }
+        .fw-download-btn:hover {
+            background: rgba(201,168,76,0.25);
+            border-color: var(--gold);
+        }
+
+        /* INFO PANELS */
+        .fw-info-col {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .fw-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .fw-panel-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            background: rgba(201,168,76,0.04);
+        }
+        .fw-panel-body {
+            padding: 20px;
+        }
+
+        /* MATERIAL SPEC */
+        .fw-spec-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .fw-spec-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .fw-spec-label {
+            font-size: 0.55rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .fw-spec-value {
+            font-size: 0.78rem;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .fw-spec-note {
+            grid-column: 1/-1;
+            font-size: 0.68rem;
+            color: #555;
+            line-height: 1.9;
+            margin-top: 4px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* HOW TO SPIN */
+        .fw-spin-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .fw-spin-step {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .fw-step-num {
+            min-width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gold-dim);
+            border: 1px solid var(--gold-border);
+            color: var(--gold);
+            font-size: 0.65rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .fw-step-text {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            line-height: 1.9;
+        }
+        .fw-step-text strong {
+            color: var(--text);
+        }
+
+        /* FREQUENCY TABLE */
+        .fw-freq-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.68rem;
+        }
+        .fw-freq-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+        }
+        .fw-freq-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid rgba(42,42,58,0.5);
+            color: var(--text-dim);
+            vertical-align: middle;
+        }
+        .fw-freq-table tr:last-child td {
+            border-bottom: none;
+        }
+        .fw-ring-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 7px;
+            vertical-align: middle;
+        }
+        .fw-ring-dot.outer { background: var(--purple); }
+        .fw-ring-dot.mid   { background: var(--gold); }
+        .fw-ring-dot.inner { background: var(--green); }
+
+        .fw-freq-val {
+            color: var(--text);
+            font-weight: 600;
+        }
+        .fw-freq-note {
+            font-size: 0.58rem;
+            color: #444;
+            margin-top: 12px;
+            line-height: 1.9;
+        }
+
+        /* LEGEND row */
+        .fw-legend-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .fw-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+
+        /* LINK-BACK */
+        .fw-linkback {
+            text-align: center;
+            padding: 0 24px 60px;
+            font-size: 0.65rem;
+            color: #333;
+            letter-spacing: 1px;
+            line-height: 2;
+        }
+        .fw-linkback a {
+            color: var(--gold);
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 0.6rem;
+        }
+        .fw-linkback a:hover { color: #e0c060; }
+        .fw-linkback-divider {
+            color: #2a2a3a;
+            margin: 0 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="fw-nav">
+        <a href="/launch" class="fw-nav-brand">&#9670; PROJECT VOID</a>
+        <div class="fw-nav-links">
+            <a href="/sovereign" class="fw-nav-link">Hardware</a>
+            <a href="/gridul" class="fw-nav-link">GriDul</a>
+            <a href="/marketplace" class="fw-nav-link">Marketplace</a>
+            <a href="/pricing" class="fw-nav-link">Pricing</a>
+            <a href="/peace/flywheel" class="fw-nav-link active">PEACE Flywheel</a>
+        </div>
+    </nav>
+
+    <section class="fw-hero">
+        <div class="fw-badge">PEACE COIN &#183; PHIRKI BLUEPRINT &#183; SOVEREIGN OBJECT</div>
+        <h1 class="fw-hero-title">PEACE Flywheel</h1>
+        <p class="fw-hero-sub">A printable, drillable, cuttable disc — spun by silk string in the tradition of the Pakistani whirligig (phirki). Cut your own. Spin your own. Sing your own frequencies.</p>
+        <p class="fw-hero-lore">Hole rings drilled in concentric patterns produce audible tones as the disc hits high RPM. Different hole arrangements, different frequencies. Print on A4. Cut from hardwood, acrylic, or brass. Loop a silk string. Spin.</p>
+    </section>
+
+    <div class="fw-main">
+
+        <!-- LEFT: BLUEPRINT -->
+        <div class="fw-blueprint-panel">
+            <div class="fw-blueprint-frame">
+                <img src="/static/peace_flywheel.svg" alt="PEACE Flywheel Blueprint SVG diagram" style="width:100%; max-width:340px; height:auto; display:block;">
+            </div>
+            <p class="fw-blueprint-label">True scale 1:1 — print on A4 · 60 mm diameter</p>
+
+            <a href="/static/peace_flywheel.svg" download="PEACE_Flywheel_Blueprint.svg" class="fw-download-btn">
+                &#11015; Download SVG Blueprint
+            </a>
+            <p style="font-size:0.6rem; color:#444; text-align:center; letter-spacing:1px; margin-top:-6px;">
+                Open in browser or vector app &rarr; print at <strong style="color:#555;">100% scale</strong> &rarr; disc prints at exactly 60 mm diameter
+            </p>
+
+            <div class="fw-panel">
+                <div class="fw-panel-header">Blueprint Legend</div>
+                <div class="fw-panel-body">
+                    <div class="fw-legend-row" style="margin-top:0; padding-top:0; border-top:none;">
+                        <div class="fw-legend-item"><span class="fw-ring-dot inner"></span>Inner ring — HIGH FREQ</div>
+                        <div class="fw-legend-item"><span class="fw-ring-dot mid"></span>Mid ring — MID TONE</div>
+                        <div class="fw-legend-item"><span class="fw-ring-dot outer"></span>Outer ring — LOW HUM</div>
+                    </div>
+                    <p style="font-size:0.65rem; color:#444; margin-top:14px; line-height:1.9;">Outer circle = disc edge. Two large centre holes = string through-holes. Crosshair = drilling centre. Dashed circles = ring guide lines (do not drill).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: INFO PANELS -->
+        <div class="fw-info-col">
+
+            <!-- MATERIALS & STRING -->
+            <div class="fw-panel">
+                <div class="fw-panel-header">&#9670; Material &amp; String Specification</div>
+                <div class="fw-panel-body">
+                    <div class="fw-spec-grid">
+                        <div class="fw-spec-item">
+                            <span class="fw-spec-label">Disc Material Options</span>
+                            <span class="fw-spec-value">Hardwood (birch/oak)<br>Clear acrylic<br>Coin-weight brass</span>
+                        </div>
+                        <div class="fw-spec-item">
+                            <span class="fw-spec-label">Recommended Thickness</span>
+                            <span class="fw-spec-value">3–5 mm hardwood<br>4–6 mm acrylic<br>2–3 mm brass</span>
+                        </div>
+                        <div class="fw-spec-item">
+                            <span class="fw-spec-label">Disc Diameter</span>
+                            <span class="fw-spec-value">60 mm (blueprint scale)</span>
+                        </div>
+                        <div class="fw-spec-item">
+                            <span class="fw-spec-label">String Type</span>
+                            <span class="fw-spec-value">Natural silk thread<br>~1.2 m length<br>Knotted loop</span>
+                        </div>
+                        <div class="fw-spec-item">
+                            <span class="fw-spec-label">String Holes</span>
+                            <span class="fw-spec-value">2 × &#8960; 6 mm<br>Spaced 20 mm apart<br>Centred on disc</span>
+                        </div>
+                        <div class="fw-spec-item">
+                            <span class="fw-spec-label">String Elasticity</span>
+                            <span class="fw-spec-value">Low stretch preferred<br>Avoid elastic/nylon<br>Silk or linen only</span>
+                        </div>
+                        <p class="fw-spec-note">
+                            Hardwood produces the warmest tone and longest spin. Brass gives the most resonant hum from the outer holes. Acrylic produces higher-pitched tones from the inner ring. Keep hole edges smooth — a burr will dampen the tone. Sand or file all drilled holes flush.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HOW TO SPIN -->
+            <div class="fw-panel">
+                <div class="fw-panel-header">&#9670; How to Spin — Phirki Method</div>
+                <div class="fw-panel-body">
+                    <div class="fw-spin-steps">
+                        <div class="fw-spin-step">
+                            <div class="fw-step-num">1</div>
+                            <p class="fw-step-text"><strong>Thread the string.</strong> Loop the silk string through both centre holes so the disc hangs at the midpoint of the loop. Tie the loop ends together behind each hand — one end per hand.</p>
+                        </div>
+                        <div class="fw-spin-step">
+                            <div class="fw-step-num">2</div>
+                            <p class="fw-step-text"><strong>Wind up.</strong> Hold both ends of the string taut and swing the disc in circles (like a jump rope) 8–12 times to twist the string. The disc should be visibly twisted at rest.</p>
+                        </div>
+                        <div class="fw-spin-step">
+                            <div class="fw-step-num">3</div>
+                            <p class="fw-step-text"><strong>Pull to spin.</strong> With arms slightly extended, pull your hands apart sharply. The string unwinds and the disc accelerates. Do not let the string go fully slack.</p>
+                        </div>
+                        <div class="fw-spin-step">
+                            <div class="fw-step-num">4</div>
+                            <p class="fw-step-text"><strong>Release and pull again.</strong> As the disc re-winds in the opposite direction, relax your hands slightly, then pull again at the moment of maximum re-wind. This <em>pull&#8202;—&#8202;release&#8202;—&#8202;pull</em> rhythm maintains rotation indefinitely.</p>
+                        </div>
+                        <div class="fw-spin-step">
+                            <div class="fw-step-num">5</div>
+                            <p class="fw-step-text"><strong>Listen.</strong> At low RPM you will hear only the mid ring. Past ~400 RPM the outer ring begins to hum. At high RPM (700+) all three rings sing simultaneously — a convergent tone unique to each disc material.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FREQUENCY REFERENCE TABLE -->
+            <div class="fw-panel">
+                <div class="fw-panel-header">&#9670; Frequency Reference Table <span style="font-size:0.55rem; color:#555; font-weight:400; letter-spacing:1px;">(conceptual — hole count × radius at RPM)</span></div>
+                <div class="fw-panel-body">
+                    <table class="fw-freq-table">
+                        <thead>
+                            <tr>
+                                <th>Ring</th>
+                                <th>Holes · Radius</th>
+                                <th>~200 RPM</th>
+                                <th>~400 RPM</th>
+                                <th>~700 RPM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="fw-ring-dot inner"></span>Inner</td>
+                                <td>16 × r10</td>
+                                <td><span class="fw-freq-val">~53 Hz</span></td>
+                                <td><span class="fw-freq-val">~107 Hz</span></td>
+                                <td><span class="fw-freq-val">~187 Hz</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="fw-ring-dot mid"></span>Mid</td>
+                                <td>12 × r16</td>
+                                <td><span class="fw-freq-val">~40 Hz</span></td>
+                                <td><span class="fw-freq-val">~80 Hz</span></td>
+                                <td><span class="fw-freq-val">~140 Hz</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="fw-ring-dot outer"></span>Outer</td>
+                                <td>8 × r22</td>
+                                <td><span class="fw-freq-val">~27 Hz</span></td>
+                                <td><span class="fw-freq-val">~53 Hz</span></td>
+                                <td><span class="fw-freq-val">~93 Hz</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="fw-freq-note">
+                        Approximate tones only — based on hole-count × RPM / 60. Actual pitch depends on disc material, hole diameter, edge finish, and air resistance. Brass discs at high RPM approach the 108 Hz resonance of the VOID Sovereign Node steel shell. The inner ring at ~700 RPM approaches the 185–190 Hz harmonic sub-octave of 432 Hz (A4 village standard). No acoustic simulation has been performed; values are a conceptual reference for tuning hole counts.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="fw-linkback">
+        <a href="/sovereign#genesis-kit-section">&#9670; Genesis 10 Kit</a>
+        <span class="fw-linkback-divider">|</span>
+        <a href="/sovereign">Hardware Overview</a>
+        <span class="fw-linkback-divider">|</span>
+        <a href="/marketplace">PEACE Token Marketplace</a>
+        <span class="fw-linkback-divider">|</span>
+        <a href="/launch">Project VOID Home</a>
+        <br><br>
+        The PEACE flywheel is a sovereign object. Print it. Cut it. Spin it. Own it.
+    </div>
+
+</body>
+</html>
