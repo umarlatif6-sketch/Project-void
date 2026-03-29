@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GriDul Grow — Aquaponics Planner — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --gd-bg: #090909;
+            --gd-surface: #101010;
+            --gd-surface2: #0c0c0c;
+            --gd-border: #1c1c1c;
+            --gd-gold: #c9a84c;
+            --gd-teal: #00bfa5;
+            --gd-green: #4caf50;
+            --gd-red: #ff5252;
+            --gd-text: #e0e0e0;
+            --gd-muted: #555;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--gd-bg);
+            color: var(--gd-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .gd-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--gd-border);
+            background: rgba(9,9,9,0.97);
+            position: sticky; top: 0; z-index: 100;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .gd-nav-brand { font-size: 0.9rem; font-weight: 700; color: var(--gd-gold); letter-spacing: 3px; text-decoration: none; }
+        .gd-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .gd-nav-link { color: #888; text-decoration: none; font-size: 0.72rem; letter-spacing: 1px; transition: color 0.2s; }
+        .gd-nav-link:hover, .gd-nav-link.active { color: var(--gd-green); }
+
+        .gd-hero {
+            text-align: center;
+            padding: 60px 24px 40px;
+            background: radial-gradient(ellipse at 50% 0%, #091309 0%, var(--gd-bg) 65%);
+            border-bottom: 1px solid var(--gd-border);
+            position: relative;
+        }
+        .gd-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gd-green), transparent);
+        }
+        .gd-hero-badge {
+            display: inline-block;
+            background: var(--gd-green);
+            color: #000;
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+        .gd-hero-title { font-size: 2.2rem; font-weight: 900; letter-spacing: 5px; margin: 0 0 8px; text-transform: uppercase; color: #fff; }
+        .gd-hero-title .accent { color: var(--gd-green); }
+        .gd-hero-sub { font-size: 0.75rem; color: #666; max-width: 560px; margin: 0 auto; line-height: 1.8; }
+
+        .gd-main {
+            max-width: 1020px;
+            margin: 0 auto;
+            padding: 48px 24px 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+        }
+
+        /* ZONE GRID */
+        .zones-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .zone-card {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        .zone-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--gd-green), transparent);
+        }
+        .zone-header {
+            padding: 18px 20px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--gd-border);
+        }
+        .zone-header-info {}
+        .zone-name { font-size: 0.9rem; font-weight: 700; color: #d0d0d0; margin-bottom: 4px; letter-spacing: 1px; }
+        .zone-type-badge {
+            display: inline-block;
+            font-size: 0.52rem;
+            letter-spacing: 2px;
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            background: rgba(76,175,80,0.1);
+            border: 1px solid rgba(76,175,80,0.2);
+            color: var(--gd-green);
+        }
+        .zone-delete-btn {
+            background: none;
+            border: none;
+            color: #333;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 4px;
+            transition: color 0.15s;
+        }
+        .zone-delete-btn:hover { color: var(--gd-red); }
+
+        .zone-body { padding: 16px 20px 20px; }
+        .zone-notes { font-size: 0.65rem; color: #555; margin-bottom: 14px; line-height: 1.7; }
+
+        /* PLANTS */
+        .plants-section { margin-bottom: 16px; }
+        .plants-label {
+            font-size: 0.52rem;
+            letter-spacing: 2px;
+            color: var(--gd-muted);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .plant-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            background: var(--gd-surface2);
+            border: 1px solid var(--gd-border);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            gap: 8px;
+        }
+        .plant-name { font-size: 0.72rem; color: #d0d0d0; }
+        .plant-variety { font-size: 0.6rem; color: #555; }
+        .plant-harvest {
+            font-size: 0.6rem;
+            color: var(--gd-green);
+            text-align: right;
+            white-space: nowrap;
+        }
+        .plant-harvest.soon { color: var(--gd-gold); }
+        .plant-harvest.overdue { color: var(--gd-red); }
+        .plant-delete-btn {
+            background: none;
+            border: none;
+            color: #333;
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 2px;
+            transition: color 0.15s;
+            flex-shrink: 0;
+        }
+        .plant-delete-btn:hover { color: var(--gd-red); }
+        .plants-empty { font-size: 0.65rem; color: #333; padding: 8px 0; }
+
+        /* LOGS */
+        .logs-section { margin-bottom: 14px; }
+        .log-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.62rem;
+            color: #555;
+            padding: 4px 0;
+            border-bottom: 1px solid #111;
+        }
+        .log-row:last-child { border-bottom: none; }
+        .log-type {
+            font-size: 0.52rem;
+            letter-spacing: 1.5px;
+            padding: 2px 6px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .log-type.water { background: rgba(0,191,165,0.1); color: var(--gd-teal); }
+        .log-type.feed { background: rgba(76,175,80,0.1); color: var(--gd-green); }
+        .log-type.harvest { background: rgba(201,168,76,0.1); color: var(--gd-gold); }
+        .log-type.check { background: rgba(255,255,255,0.05); color: #777; }
+        .log-type.prune { background: rgba(124,92,255,0.1); color: #7c5cff; }
+        .log-type.other { background: rgba(255,255,255,0.05); color: #666; }
+        .log-notes { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .log-date { white-space: nowrap; color: #333; }
+
+        /* ZONE ACTIONS */
+        .zone-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-top: 14px;
+            border-top: 1px solid var(--gd-border);
+        }
+        .zone-action-btn {
+            font-size: 0.6rem;
+            letter-spacing: 1.5px;
+            padding: 6px 14px;
+            border-radius: 3px;
+            border: 1px solid var(--gd-border);
+            background: transparent;
+            color: #777;
+            font-family: inherit;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+            text-transform: uppercase;
+        }
+        .zone-action-btn:hover { border-color: var(--gd-green); color: var(--gd-green); }
+        .zone-action-btn.log { }
+        .zone-action-btn.log:hover { border-color: var(--gd-teal); color: var(--gd-teal); }
+
+        /* ADD ZONE CARD */
+        .zone-add-card {
+            background: var(--gd-surface);
+            border: 1px dashed var(--gd-border);
+            border-radius: 6px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: border-color 0.15s;
+            min-height: 180px;
+        }
+        .zone-add-card:hover { border-color: var(--gd-green); }
+        .zone-add-icon { font-size: 2rem; color: #333; }
+        .zone-add-label { font-size: 0.65rem; letter-spacing: 2px; color: #444; text-transform: uppercase; }
+        .zone-add-sub { font-size: 0.58rem; color: #333; }
+
+        /* MODAL */
+        .gd-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .gd-modal-overlay.visible { display: flex; }
+        .gd-modal {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 6px;
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        .gd-modal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--gd-green), transparent);
+        }
+        .gd-modal-title { font-size: 0.7rem; letter-spacing: 3px; color: var(--gd-green); text-transform: uppercase; margin-bottom: 24px; }
+        .gd-field { margin-bottom: 18px; }
+        .gd-field label { display: block; font-size: 0.58rem; letter-spacing: 2px; color: var(--gd-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .gd-field input, .gd-field select, .gd-field textarea {
+            width: 100%;
+            background: var(--gd-surface2);
+            border: 1px solid var(--gd-border);
+            border-radius: 4px;
+            color: var(--gd-text);
+            font-family: inherit;
+            font-size: 0.78rem;
+            padding: 9px 12px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .gd-field input:focus, .gd-field select:focus, .gd-field textarea:focus { border-color: var(--gd-green); }
+        .gd-field textarea { resize: vertical; min-height: 70px; }
+        .gd-field select option { background: #111; }
+        .gd-modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+        .btn-confirm {
+            background: var(--gd-green);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 22px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-confirm:hover { opacity: 0.85; }
+        .btn-cancel {
+            background: transparent;
+            color: #555;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 10px 18px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .btn-cancel:hover { color: #999; }
+
+        .zones-limit-note { font-size: 0.65rem; color: #444; text-align: center; padding: 8px; }
+
+        /* ── ATTENTION DASHBOARD ─────────────────────────────── */
+        .attention-section { margin-bottom: 0; }
+        .attention-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .attention-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gd-text);
+        }
+        .attention-count {
+            background: var(--gd-red);
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 99px;
+        }
+        .attention-count.ok {
+            background: var(--gd-green);
+        }
+        .attention-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .attention-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-left: 3px solid var(--gd-muted);
+            border-radius: 4px;
+            padding: 10px 14px;
+            font-size: 0.7rem;
+        }
+        .attention-item.urgent { border-left-color: var(--gd-red); }
+        .attention-item.soon { border-left-color: var(--gd-gold); }
+        .attention-item.info { border-left-color: var(--gd-teal); }
+        .attention-icon {
+            font-size: 1rem;
+            line-height: 1;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .attention-msg { color: var(--gd-text); line-height: 1.6; }
+        .attention-badge {
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 2px 6px;
+            border-radius: 2px;
+            margin-left: 6px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+        .attention-badge.urgent { background: rgba(255,82,82,0.15); color: var(--gd-red); border: 1px solid rgba(255,82,82,0.3); }
+        .attention-badge.soon { background: rgba(201,168,76,0.15); color: var(--gd-gold); border: 1px solid rgba(201,168,76,0.3); }
+        .attention-none {
+            font-size: 0.7rem;
+            color: #444;
+            padding: 12px 0;
+        }
+        /* ─────────────────────────────────────────────────────── */
+
+        @media (max-width: 600px) {
+            .gd-nav { padding: 12px 16px; }
+            .gd-main { padding: 28px 16px 60px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="gd-nav">
+        <a href="/gridul" class="gd-nav-brand">◆ GriDul</a>
+        <div class="gd-nav-links">
+            <a href="/gridul" class="gd-nav-link">Home</a>
+            <a href="/gridul/move" class="gd-nav-link">Move</a>
+            <a href="/gridul/grow" class="gd-nav-link active">Grow</a>
+            <a href="/gridul/mesh" class="gd-nav-link">Mesh</a>
+            <a href="/" class="gd-nav-link">VOID</a>
+        </div>
+    </nav>
+
+    <section class="gd-hero">
+        <div class="gd-hero-badge">Pillar 02</div>
+        <h1 class="gd-hero-title">GriDul <span class="accent">Grow</span></h1>
+        <p class="gd-hero-sub">
+            Home aquaponics planner for small spaces. Up to three growing zones.
+            Add plants, log water cycles, track your harvest estimates.
+        </p>
+    </section>
+
+    <main class="gd-main">
+        {% if zones %}
+        <section class="attention-section">
+            <div class="attention-header">
+                <span class="attention-title">Today's Attention</span>
+                {% if attention_items %}
+                    {% set urgent_count = attention_items | selectattr('urgency', 'eq', 'urgent') | list | length %}
+                    <span class="attention-count{% if urgent_count == 0 %} ok{% endif %}">
+                        {{ attention_items | length }} item{{ 's' if attention_items | length != 1 else '' }}
+                    </span>
+                {% else %}
+                    <span class="attention-count ok">All good</span>
+                {% endif %}
+            </div>
+            <div class="attention-list">
+                {% if attention_items %}
+                    {% for item in attention_items %}
+                    <div class="attention-item {{ item.urgency }}">
+                        <span class="attention-icon">
+                            {% if item.item_type == 'water' %}💧
+                            {% elif item.item_type == 'feed' %}🌿
+                            {% elif item.item_type == 'check' %}🔍
+                            {% elif item.item_type == 'harvest' %}🌾
+                            {% else %}⚡{% endif %}
+                        </span>
+                        <span class="attention-msg">
+                            {{ item.message }}
+                            {% if item.urgency == 'urgent' %}
+                                <span class="attention-badge urgent">urgent</span>
+                            {% elif item.urgency == 'soon' %}
+                                <span class="attention-badge soon">soon</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="attention-none">All zones are on schedule. Nothing urgent today.</div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <div class="zones-grid" id="zones-grid">
+            {% for zone in zones %}
+            <div class="zone-card" id="zone-card-{{ zone.id }}">
+                <div class="zone-header">
+                    <div class="zone-header-info">
+                        <div class="zone-name">{{ zone.name }}</div>
+                        <span class="zone-type-badge">{{ zone.zone_type }}</span>
+                    </div>
+                    <button class="zone-delete-btn" onclick="deleteZone({{ zone.id }})" title="Remove zone">✕</button>
+                </div>
+                <div class="zone-body">
+                    {% if zone.notes %}
+                    <div class="zone-notes">{{ zone.notes }}</div>
+                    {% endif %}
+
+                    <div class="plants-section">
+                        <div class="plants-label">Plants ({{ zone.plants|length }})</div>
+                        {% if zone.plants %}
+                            {% for plant in zone.plants %}
+                            <div class="plant-row" id="plant-row-{{ plant.id }}">
+                                <div>
+                                    <div class="plant-name">{{ plant.name }}</div>
+                                    {% if plant.variety %}<div class="plant-variety">{{ plant.variety }}</div>{% endif %}
+                                </div>
+                                <div class="plant-harvest
+                                    {% if plant.days_remaining is not none %}
+                                        {% if plant.days_remaining <= 0 %}overdue
+                                        {% elif plant.days_remaining <= 14 %}soon{% endif %}
+                                    {% endif %}">
+                                    {% if plant.days_remaining is not none %}
+                                        {% if plant.days_remaining <= 0 %}Harvest ready!
+                                        {% elif plant.days_remaining <= 14 %}{{ plant.days_remaining }}d left
+                                        {% else %}{{ plant.days_remaining }}d
+                                        {% endif %}
+                                    {% else %}—{% endif %}
+                                </div>
+                                <button class="plant-delete-btn" onclick="deletePlant({{ plant.id }})" title="Remove plant">✕</button>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="plants-empty">No plants yet — add one below.</div>
+                        {% endif %}
+                    </div>
+
+                    {% if zone.recent_logs %}
+                    <div class="logs-section">
+                        <div class="plants-label">Recent Logs</div>
+                        {% for log in zone.recent_logs %}
+                        <div class="log-row">
+                            <span class="log-type {{ log.log_type }}">{{ log.log_type }}</span>
+                            <span class="log-notes">{{ log.notes or '—' }}</span>
+                            <span class="log-date">{{ log.created_at[:10] if log.created_at else '' }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="zone-actions">
+                        <button class="zone-action-btn" onclick="openAddPlant({{ zone.id }})">+ Plant</button>
+                        <button class="zone-action-btn log" onclick="openAddLog({{ zone.id }})">+ Log</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if zones|length < 3 %}
+            <div class="zone-add-card" onclick="openAddZone()">
+                <div class="zone-add-icon">+</div>
+                <div class="zone-add-label">Add Growing Zone</div>
+                <div class="zone-add-sub">{{ zones|length }}/3 zones used</div>
+            </div>
+            {% else %}
+            <div class="zone-add-card" style="cursor:default;">
+                <div class="zone-add-icon" style="color:#222;">▣</div>
+                <div class="zone-add-label">3/3 Zones Used</div>
+                <div class="zone-add-sub">Remove a zone to add another</div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if not zones %}
+        <div style="text-align:center; color:#333; font-size:0.72rem; margin-top:-24px;">
+            No zones yet. Click the card above to create your first growing zone.
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- ADD ZONE MODAL -->
+    <div class="gd-modal-overlay" id="add-zone-modal">
+        <div class="gd-modal">
+            <div class="gd-modal-title">Add Growing Zone</div>
+            <div class="gd-field">
+                <label>Zone Name</label>
+                <input type="text" id="zone-name" placeholder="e.g. Kitchen Window Box">
+            </div>
+            <div class="gd-field">
+                <label>Zone Type</label>
+                <select id="zone-type">
+                    <option value="hydroponic">Hydroponic</option>
+                    <option value="aquaponic">Aquaponic</option>
+                    <option value="container">Container</option>
+                    <option value="soil">Soil Bed</option>
+                </select>
+            </div>
+            <div class="gd-field">
+                <label>Notes (optional)</label>
+                <textarea id="zone-notes" placeholder="Any notes about this zone..."></textarea>
+            </div>
+            <div class="gd-modal-actions">
+                <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+                <button class="btn-confirm" onclick="submitAddZone()">Add Zone</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD PLANT MODAL -->
+    <div class="gd-modal-overlay" id="add-plant-modal">
+        <div class="gd-modal">
+            <div class="gd-modal-title">Add Plant</div>
+            <input type="hidden" id="plant-zone-id">
+            <div class="gd-field">
+                <label>Plant Name</label>
+                <input type="text" id="plant-name" placeholder="e.g. Cucumber">
+            </div>
+            <div class="gd-field">
+                <label>Variety (optional)</label>
+                <input type="text" id="plant-variety" placeholder="e.g. Lebanese, Cherry, Basil">
+            </div>
+            <div class="gd-field">
+                <label>Date Planted</label>
+                <input type="date" id="plant-date">
+            </div>
+            <div class="gd-field">
+                <label>Days to Harvest</label>
+                <input type="number" id="plant-harvest-days" value="60" min="1" max="365">
+            </div>
+            <div class="gd-modal-actions">
+                <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+                <button class="btn-confirm" onclick="submitAddPlant()">Add Plant</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD LOG MODAL -->
+    <div class="gd-modal-overlay" id="add-log-modal">
+        <div class="gd-modal">
+            <div class="gd-modal-title">Log Zone Activity</div>
+            <input type="hidden" id="log-zone-id">
+            <div class="gd-field">
+                <label>Activity Type</label>
+                <select id="log-type">
+                    <option value="water">Water</option>
+                    <option value="feed">Feed / Nutrients</option>
+                    <option value="check">Check / Inspection</option>
+                    <option value="harvest">Harvest</option>
+                    <option value="prune">Prune / Trim</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="gd-field">
+                <label>Notes (optional)</label>
+                <textarea id="log-notes" placeholder="Any observations..."></textarea>
+            </div>
+            <div class="gd-modal-actions">
+                <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+                <button class="btn-confirm" onclick="submitAddLog()">Log Activity</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function closeModals() {
+            document.querySelectorAll('.gd-modal-overlay').forEach(m => m.classList.remove('visible'));
+        }
+        function openAddZone() { document.getElementById('add-zone-modal').classList.add('visible'); }
+        function openAddPlant(zoneId) {
+            document.getElementById('plant-zone-id').value = zoneId;
+            document.getElementById('plant-date').value = new Date().toISOString().slice(0,10);
+            document.getElementById('add-plant-modal').classList.add('visible');
+        }
+        function openAddLog(zoneId) {
+            document.getElementById('log-zone-id').value = zoneId;
+            document.getElementById('add-log-modal').classList.add('visible');
+        }
+
+        async function submitAddZone() {
+            const name = document.getElementById('zone-name').value.trim();
+            if (!name) { alert('Zone name required'); return; }
+            const res = await fetch('/api/gridul/grow/zones', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name,
+                    zone_type: document.getElementById('zone-type').value,
+                    notes: document.getElementById('zone-notes').value.trim()
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to add zone');
+            }
+        }
+
+        async function submitAddPlant() {
+            const name = document.getElementById('plant-name').value.trim();
+            if (!name) { alert('Plant name required'); return; }
+            const res = await fetch('/api/gridul/grow/plants', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    zone_id: parseInt(document.getElementById('plant-zone-id').value),
+                    name,
+                    variety: document.getElementById('plant-variety').value.trim(),
+                    date_planted: document.getElementById('plant-date').value || null,
+                    harvest_days: parseInt(document.getElementById('plant-harvest-days').value) || 60
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to add plant');
+            }
+        }
+
+        async function submitAddLog() {
+            const res = await fetch('/api/gridul/grow/log', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    zone_id: parseInt(document.getElementById('log-zone-id').value),
+                    log_type: document.getElementById('log-type').value,
+                    notes: document.getElementById('log-notes').value.trim()
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to log activity');
+            }
+        }
+
+        async function deleteZone(zoneId) {
+            if (!confirm('Remove this zone and all its plants?')) return;
+            const res = await fetch('/api/gridul/grow/zones/' + zoneId, { method: 'DELETE' });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                document.getElementById('zone-card-' + zoneId).remove();
+            } else {
+                alert(data.error || 'Failed to remove zone');
+            }
+        }
+
+        async function deletePlant(plantId) {
+            if (!confirm('Remove this plant?')) return;
+            const res = await fetch('/api/gridul/grow/plants/' + plantId, { method: 'DELETE' });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                document.getElementById('plant-row-' + plantId).remove();
+            } else {
+                alert(data.error || 'Failed to remove plant');
+            }
+        }
+
+        document.querySelectorAll('.gd-modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) closeModals();
+            });
+        });
+    </script>
+</body>
+</html>

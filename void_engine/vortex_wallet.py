@@ -453,6 +453,61 @@ def mint_qisync(user_id, session_id, metabolism_score, stance, duration_sec):
         conn.close()
 
 
+def mint_gridul_move(user_id, session_id, score, completed_count, duration_sec):
+    """
+    Grant VTX at the end of a GriDul Move session.
+
+    Thresholds (based on completion ratio):
+      score >= 0.9  (9-10 positions) → 4.0 VTX
+      score >= 0.7  (7-8 positions)  → 2.5 VTX
+      score >= 0.5  (5-6 positions)  → 1.5 VTX
+      score >= 0.3  (3-4 positions)  → 0.5 VTX
+      else                           → 0.1 VTX
+    """
+    if score >= 0.9:
+        base = Decimal("4.0")
+    elif score >= 0.7:
+        base = Decimal("2.5")
+    elif score >= 0.5:
+        base = Decimal("1.5")
+    elif score >= 0.3:
+        base = Decimal("0.5")
+    else:
+        base = Decimal("0.1")
+
+    duration_bonus = Decimal(str(min(duration_sec, 900))) / Decimal("900") * Decimal("0.5")
+    amount = (base + duration_bonus).quantize(Decimal("0.0001"))
+
+    payload_hash = fatiha_286_hexdigest_from_str(f"gridul_move_{user_id}_{session_id}")
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'mint_gridul_move'",
+            (payload_hash,),
+        )
+        if cur.fetchone():
+            conn.close()
+            return {"already_minted": True, "session_id": session_id}
+        block = _create_block(cur, "mint_gridul_move", None, user_id, amount, payload_hash)
+        cur.execute(
+            "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id = %s",
+            (amount, user_id),
+        )
+        conn.commit()
+        block["vtx_earned"] = float(amount)
+        block["score"] = score
+        block["completed_count"] = completed_count
+        block["duration_sec"] = duration_sec
+        return block
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
 def spend_vtx(user_id, amount_decimal, purpose):
     amount = amount_decimal.quantize(Decimal("0.0001"))
     if amount <= 0:

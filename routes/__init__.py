@@ -19,6 +19,7 @@ from routes.apply_interussia import apply_interussia_bp
 from routes.mycovoid import mycovoid_bp
 from routes.qisync import qisync_bp
 from routes.game import game_bp
+from routes.gridul import gridul_bp
 
 
 def register_blueprints(app):
@@ -43,3 +44,4 @@ def register_blueprints(app):
     app.register_blueprint(mycovoid_bp)
     app.register_blueprint(qisync_bp)
     app.register_blueprint(game_bp)
+    app.register_blueprint(gridul_bp)

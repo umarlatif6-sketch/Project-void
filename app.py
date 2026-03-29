@@ -39,6 +39,11 @@ def _startup_migrations():
         ensure_game_inventory_table()
     except Exception as e:
         logger.error("Game inventory table setup failed: %s", e)
+    try:
+        from routes.gridul import init_gridul_tables
+        init_gridul_tables()
+    except Exception as e:
+        logger.error("GriDul table setup failed: %s", e)
 
 try:
     from routes import register_blueprints

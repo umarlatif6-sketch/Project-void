@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GriDul — Community Mesh — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --gd-bg: #090909;
+            --gd-surface: #101010;
+            --gd-surface2: #0d0d0d;
+            --gd-border: #1c1c1c;
+            --gd-gold: #c9a84c;
+            --gd-teal: #00bfa5;
+            --gd-text: #e0e0e0;
+            --gd-muted: #555;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--gd-bg);
+            color: var(--gd-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .gd-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--gd-border);
+            background: rgba(9,9,9,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .gd-nav-brand {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gd-gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .gd-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .gd-nav-link {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .gd-nav-link:hover { color: var(--gd-teal); }
+
+        /* HERO */
+        .gd-hero {
+            text-align: center;
+            padding: 90px 24px 72px;
+            background: radial-gradient(ellipse at 50% 0%, #0a1511 0%, var(--gd-bg) 70%);
+            border-bottom: 1px solid var(--gd-border);
+            position: relative;
+            overflow: hidden;
+        }
+        .gd-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gd-teal), var(--gd-gold), transparent);
+        }
+        .gd-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 120%, rgba(0,191,165,0.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .gd-badge {
+            display: inline-block;
+            background: rgba(0,191,165,0.12);
+            border: 1px solid rgba(0,191,165,0.3);
+            color: var(--gd-teal);
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            padding: 5px 16px;
+            border-radius: 2px;
+            margin-bottom: 28px;
+            text-transform: uppercase;
+        }
+
+        /* ADRIANA GLYPH TITLE */
+        .gd-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 0 0 18px;
+            flex-wrap: wrap;
+        }
+        .gd-glyph {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 14px;
+            position: relative;
+        }
+        .gd-glyph-char {
+            font-size: 3.8rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ffffff 30%, var(--gd-teal) 70%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            position: relative;
+        }
+        .gd-glyph-char.gold {
+            background: linear-gradient(135deg, var(--gd-gold) 20%, #fff7d6 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gd-glyph-sub {
+            font-size: 0.5rem;
+            letter-spacing: 3px;
+            color: var(--gd-muted);
+            text-transform: uppercase;
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+        .gd-glyph-sep {
+            width: 1px;
+            height: 48px;
+            background: linear-gradient(180deg, transparent, var(--gd-border), transparent);
+            margin: 0 4px;
+            align-self: center;
+        }
+
+        .gd-subtitle {
+            font-size: 0.78rem;
+            color: var(--gd-teal);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .gd-tagline {
+            font-size: 0.82rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto 12px;
+            line-height: 1.9;
+        }
+        .gd-meaning {
+            display: inline-flex;
+            gap: 20px;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: #444;
+            text-transform: uppercase;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .gd-meaning span { color: var(--gd-gold); }
+
+        /* PILLAR CARDS */
+        .gd-pillars {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 72px 24px 100px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .gd-pillar {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 6px;
+            padding: 36px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s, transform 0.15s;
+        }
+        .gd-pillar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+        }
+        .gd-pillar.move::before { background: linear-gradient(90deg, var(--gd-teal), transparent); }
+        .gd-pillar.grow::before { background: linear-gradient(90deg, #4caf50, transparent); }
+        .gd-pillar.mesh::before { background: linear-gradient(90deg, var(--gd-gold), transparent); }
+        .gd-pillar:hover {
+            border-color: var(--gd-teal);
+            transform: translateY(-3px);
+        }
+        .gd-pillar.grow:hover { border-color: #4caf50; }
+        .gd-pillar.mesh:hover { border-color: var(--gd-gold); }
+
+        .gd-pillar-num {
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            color: var(--gd-muted);
+            text-transform: uppercase;
+        }
+        .gd-pillar-icon {
+            font-size: 2.2rem;
+            line-height: 1;
+        }
+        .gd-pillar-name {
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+        .gd-pillar-name .accent { color: var(--gd-teal); }
+        .gd-pillar.grow .gd-pillar-name .accent { color: #4caf50; }
+        .gd-pillar.mesh .gd-pillar-name .accent { color: var(--gd-gold); }
+        .gd-pillar-desc {
+            font-size: 0.75rem;
+            color: #666;
+            line-height: 1.85;
+            flex: 1;
+        }
+        .gd-pillar-cta {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gd-teal);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gd-pillar.grow .gd-pillar-cta { color: #4caf50; }
+        .gd-pillar.mesh .gd-pillar-cta { color: var(--gd-gold); }
+        .gd-pillar-cta::after { content: '→'; }
+
+        .gd-pillar-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .gd-tag {
+            font-size: 0.55rem;
+            letter-spacing: 1.5px;
+            padding: 3px 10px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            background: rgba(0,191,165,0.08);
+            border: 1px solid rgba(0,191,165,0.15);
+            color: var(--gd-teal);
+        }
+        .gd-pillar.grow .gd-tag {
+            background: rgba(76,175,80,0.08);
+            border-color: rgba(76,175,80,0.15);
+            color: #4caf50;
+        }
+        .gd-pillar.mesh .gd-tag {
+            background: rgba(201,168,76,0.08);
+            border-color: rgba(201,168,76,0.15);
+            color: var(--gd-gold);
+        }
+
+        /* FOOTER NOTE */
+        .gd-footer-note {
+            text-align: center;
+            padding: 0 24px 60px;
+            font-size: 0.65rem;
+            color: #333;
+            letter-spacing: 1px;
+            line-height: 2;
+        }
+        .gd-footer-note strong { color: #555; }
+
+        @media (max-width: 600px) {
+            .gd-hero { padding: 60px 16px 48px; }
+            .gd-glyph-char { font-size: 2.8rem; }
+            .gd-pillars { padding: 40px 16px 60px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="gd-nav">
+        <a href="/" class="gd-nav-brand">◆ VOID ENGINE</a>
+        <div class="gd-nav-links">
+            <a href="/gridul" class="gd-nav-link" style="color: var(--gd-teal);">GriDul</a>
+            <a href="/gridul/move" class="gd-nav-link">Move</a>
+            <a href="/gridul/grow" class="gd-nav-link">Grow</a>
+            <a href="/gridul/mesh" class="gd-nav-link">Mesh</a>
+            <a href="/qisync" class="gd-nav-link">QiSync</a>
+            <a href="/marketplace" class="gd-nav-link">Marketplace</a>
+        </div>
+    </nav>
+
+    <section class="gd-hero">
+        <div class="gd-badge">VOID ENGINE — COMMUNITY MESH MODULE</div>
+
+        <div class="gd-title">
+            <div class="gd-glyph">
+                <span class="gd-glyph-char">G</span>
+                <span class="gd-glyph-sub">Grid</span>
+            </div>
+            <div class="gd-glyph-sep"></div>
+            <div class="gd-glyph">
+                <span class="gd-glyph-char gold">r</span>
+                <span class="gd-glyph-sub">Root</span>
+            </div>
+            <div class="gd-glyph-sep"></div>
+            <div class="gd-glyph">
+                <span class="gd-glyph-char">i</span>
+                <span class="gd-glyph-sub">Intel</span>
+            </div>
+            <div class="gd-glyph-sep"></div>
+            <div class="gd-glyph">
+                <span class="gd-glyph-char gold">D</span>
+                <span class="gd-glyph-sub">Div Opt</span>
+            </div>
+            <div class="gd-glyph-sep"></div>
+            <div class="gd-glyph">
+                <span class="gd-glyph-char">u</span>
+                <span class="gd-glyph-sub">UL</span>
+            </div>
+            <div class="gd-glyph-sep"></div>
+            <div class="gd-glyph">
+                <span class="gd-glyph-char gold">l</span>
+                <span class="gd-glyph-sub">Upper</span>
+            </div>
+        </div>
+
+        <p class="gd-subtitle">Grid · Umar Latif · Ultimate · Upper Level</p>
+        <p class="gd-tagline">
+            Simple enough for anyone. Sovereign underneath.<br>
+            Move your body. Grow your food. Share with your neighbours.
+        </p>
+        <div class="gd-meaning">
+            <div>Grid <span>→ Structure</span></div>
+            <div>ul <span>→ Umar Latif</span></div>
+            <div>Ultimate <span>→ Apex</span></div>
+            <div>Upper Level <span>→ Above</span></div>
+        </div>
+    </section>
+
+    <main class="gd-pillars">
+        <a href="/gridul/move" class="gd-pillar move">
+            <div class="gd-pillar-num">Pillar 01 / 03</div>
+            <div class="gd-pillar-icon">⚡</div>
+            <div class="gd-pillar-name">GriDul <span class="accent">Move</span></div>
+            <p class="gd-pillar-desc">
+                Daily calisthenics movement tracker. Work through structured position sets —
+                standing, transition, ground, recovery. Log reps, track breath timing, earn VTX
+                on session completion.
+            </p>
+            <div class="gd-pillar-tags">
+                <span class="gd-tag">Daily Practice</span>
+                <span class="gd-tag">VTX Rewards</span>
+                <span class="gd-tag">10 Positions</span>
+            </div>
+            <div class="gd-pillar-cta">Start Moving</div>
+        </a>
+
+        <a href="/gridul/grow" class="gd-pillar grow">
+            <div class="gd-pillar-num">Pillar 02 / 03</div>
+            <div class="gd-pillar-icon">🌱</div>
+            <div class="gd-pillar-name">GriDul <span class="accent">Grow</span></div>
+            <p class="gd-pillar-desc">
+                Home aquaponics planner for small spaces. Set up to three growing zones,
+                add plants, track water cycles, and see what needs attention today.
+                Cucumbers, tomatoes, herbs — all welcome.
+            </p>
+            <div class="gd-pillar-tags">
+                <span class="gd-tag">3 Zones</span>
+                <span class="gd-tag">Water Cycles</span>
+                <span class="gd-tag">Harvest Tracker</span>
+            </div>
+            <div class="gd-pillar-cta">Plan Your Garden</div>
+        </a>
+
+        <a href="/gridul/mesh" class="gd-pillar mesh">
+            <div class="gd-pillar-num">Pillar 03 / 03</div>
+            <div class="gd-pillar-icon">◆</div>
+            <div class="gd-pillar-name">GriDul <span class="accent">Mesh</span></div>
+            <p class="gd-pillar-desc">
+                Neighbourhood food exchange. Post what you're growing and have surplus of.
+                Browse by postcode. Request a trade or free pickup.
+                No money — barter or free only. Listings last 14 days.
+            </p>
+            <div class="gd-pillar-tags">
+                <span class="gd-tag">Postcode Search</span>
+                <span class="gd-tag">Barter / Free</span>
+                <span class="gd-tag">14-day Listings</span>
+            </div>
+            <div class="gd-pillar-cta">Browse the Mesh</div>
+        </a>
+    </main>
+
+    <div class="gd-footer-note">
+        <strong>GriDul</strong> is the public-facing, accessible layer of VOID —
+        sovereign infrastructure for everyday life.<br>
+        Each letter styled in Adriana glyph format. Each pillar a mirror.
+    </div>
+</body>
+</html>

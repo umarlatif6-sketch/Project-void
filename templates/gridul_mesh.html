@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GriDul Mesh — Food Exchange — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --gd-bg: #090909;
+            --gd-surface: #101010;
+            --gd-surface2: #0c0c0c;
+            --gd-border: #1c1c1c;
+            --gd-gold: #c9a84c;
+            --gd-teal: #00bfa5;
+            --gd-red: #ff5252;
+            --gd-text: #e0e0e0;
+            --gd-muted: #555;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--gd-bg);
+            color: var(--gd-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .gd-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--gd-border);
+            background: rgba(9,9,9,0.97);
+            position: sticky; top: 0; z-index: 100;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .gd-nav-brand { font-size: 0.9rem; font-weight: 700; color: var(--gd-gold); letter-spacing: 3px; text-decoration: none; }
+        .gd-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .gd-nav-link { color: #888; text-decoration: none; font-size: 0.72rem; letter-spacing: 1px; transition: color 0.2s; }
+        .gd-nav-link:hover, .gd-nav-link.active { color: var(--gd-gold); }
+
+        .gd-hero {
+            text-align: center;
+            padding: 60px 24px 40px;
+            background: radial-gradient(ellipse at 50% 0%, #131007 0%, var(--gd-bg) 65%);
+            border-bottom: 1px solid var(--gd-border);
+            position: relative;
+        }
+        .gd-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gd-gold), transparent);
+        }
+        .gd-hero-badge {
+            display: inline-block;
+            background: var(--gd-gold);
+            color: #000;
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+        .gd-hero-title { font-size: 2.2rem; font-weight: 900; letter-spacing: 5px; margin: 0 0 8px; text-transform: uppercase; color: #fff; }
+        .gd-hero-title .accent { color: var(--gd-gold); }
+        .gd-hero-sub { font-size: 0.75rem; color: #666; max-width: 560px; margin: 0 auto; line-height: 1.8; }
+
+        .gd-main {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 48px 24px 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+        }
+
+        /* TOOLBAR */
+        .mesh-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .mesh-search-wrap {
+            display: flex;
+            gap: 0;
+            flex: 1;
+            min-width: 200px;
+        }
+        .mesh-search-input {
+            flex: 1;
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-right: none;
+            border-radius: 4px 0 0 4px;
+            color: var(--gd-text);
+            font-family: inherit;
+            font-size: 0.78rem;
+            padding: 9px 14px;
+            outline: none;
+            transition: border-color 0.15s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .mesh-search-input:focus { border-color: var(--gd-gold); }
+        .mesh-search-btn {
+            background: var(--gd-gold);
+            color: #000;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            padding: 9px 18px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .mesh-search-btn:hover { opacity: 0.85; }
+        .btn-post {
+            background: transparent;
+            color: var(--gd-gold);
+            border: 1px solid rgba(201,168,76,0.4);
+            border-radius: 4px;
+            padding: 9px 20px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.15s;
+            white-space: nowrap;
+        }
+        .btn-post:hover { background: rgba(201,168,76,0.08); }
+
+        /* LISTINGS */
+        .listings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .listing-card {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 6px;
+            padding: 20px;
+            position: relative;
+            transition: border-color 0.15s;
+        }
+        .listing-card:hover { border-color: rgba(201,168,76,0.25); }
+        .listing-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, var(--gd-gold), transparent);
+        }
+        .listing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+        .listing-title { font-size: 0.85rem; font-weight: 700; color: #d0d0d0; }
+        .exchange-badge {
+            font-size: 0.5rem;
+            letter-spacing: 2px;
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .exchange-badge.free { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.2); color: var(--gd-teal); }
+        .exchange-badge.barter { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.2); color: var(--gd-gold); }
+
+        .listing-desc { font-size: 0.7rem; color: #666; line-height: 1.7; margin-bottom: 12px; }
+        .listing-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6rem;
+            color: #444;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .listing-postcode { color: var(--gd-gold); }
+        .listing-qty { color: #888; }
+        .listing-user { color: #555; }
+
+        .listing-actions { display: flex; gap: 8px; }
+        .btn-request {
+            flex: 1;
+            background: rgba(201,168,76,0.1);
+            color: var(--gd-gold);
+            border: 1px solid rgba(201,168,76,0.25);
+            border-radius: 4px;
+            padding: 8px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-request:hover { background: rgba(201,168,76,0.2); }
+
+        .listings-empty {
+            text-align: center;
+            color: #333;
+            font-size: 0.72rem;
+            padding: 48px 24px;
+            border: 1px dashed var(--gd-border);
+            border-radius: 6px;
+        }
+        .listings-loading {
+            text-align: center;
+            color: #444;
+            font-size: 0.7rem;
+            padding: 32px;
+        }
+
+        /* MY LISTINGS */
+        .my-listings-section {}
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .section-head-title {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--gd-muted);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .section-head-line { flex: 1; height: 1px; background: var(--gd-border); }
+
+        .my-listing-row {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 4px;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .my-listing-info {}
+        .my-listing-title { font-size: 0.8rem; color: #ccc; margin-bottom: 4px; }
+        .my-listing-meta { font-size: 0.6rem; color: #444; display: flex; gap: 14px; flex-wrap: wrap; }
+        .my-listing-postcode { color: var(--gd-gold); }
+        .my-listing-expires { color: #444; }
+        .btn-remove-listing {
+            background: none;
+            border: 1px solid #333;
+            color: #444;
+            border-radius: 4px;
+            padding: 6px 14px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .btn-remove-listing:hover { border-color: var(--gd-red); color: var(--gd-red); }
+
+        /* INBOUND REQUESTS PANEL */
+        .inbound-section {}
+        .inbound-empty { font-size: 0.65rem; color: #333; padding: 10px 0; }
+        .inbound-row {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-left: 3px solid var(--gd-gold);
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            font-size: 0.68rem;
+        }
+        .inbound-listing-title { color: var(--gd-gold); font-weight: 700; margin-bottom: 4px; }
+        .inbound-meta { font-size: 0.58rem; color: #555; margin-bottom: 6px; letter-spacing: 1px; }
+        .inbound-message { color: var(--gd-text); line-height: 1.6; border-left: 2px solid #222; padding-left: 10px; }
+
+        /* MODAL */
+        .gd-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .gd-modal-overlay.visible { display: flex; }
+        .gd-modal {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 6px;
+            padding: 32px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+        }
+        .gd-modal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--gd-gold), transparent);
+        }
+        .gd-modal-title { font-size: 0.7rem; letter-spacing: 3px; color: var(--gd-gold); text-transform: uppercase; margin-bottom: 24px; }
+        .gd-field { margin-bottom: 18px; }
+        .gd-field label { display: block; font-size: 0.58rem; letter-spacing: 2px; color: var(--gd-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .gd-field input, .gd-field select, .gd-field textarea {
+            width: 100%;
+            background: var(--gd-surface2);
+            border: 1px solid var(--gd-border);
+            border-radius: 4px;
+            color: var(--gd-text);
+            font-family: inherit;
+            font-size: 0.78rem;
+            padding: 9px 12px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .gd-field input:focus, .gd-field select:focus, .gd-field textarea:focus { border-color: var(--gd-gold); }
+        .gd-field textarea { resize: vertical; min-height: 70px; }
+        .gd-field select option { background: #111; }
+        .gd-modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+        .btn-confirm {
+            background: var(--gd-gold);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 22px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-confirm:hover { opacity: 0.85; }
+        .btn-cancel {
+            background: transparent;
+            color: #555;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 10px 18px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .btn-cancel:hover { color: #999; }
+
+        .gd-toast {
+            position: fixed;
+            bottom: 28px; right: 28px;
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 5px;
+            padding: 12px 22px;
+            color: var(--gd-text);
+            font-size: 0.75rem;
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+        .gd-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .gd-toast.success { border-color: rgba(76,175,80,0.4); color: #4caf50; }
+        .gd-toast.error { border-color: rgba(255,82,82,0.4); color: var(--gd-red); }
+
+        @media (max-width: 600px) {
+            .gd-nav { padding: 12px 16px; }
+            .gd-main { padding: 28px 16px 60px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="gd-nav">
+        <a href="/gridul" class="gd-nav-brand">◆ GriDul</a>
+        <div class="gd-nav-links">
+            <a href="/gridul" class="gd-nav-link">Home</a>
+            <a href="/gridul/move" class="gd-nav-link">Move</a>
+            <a href="/gridul/grow" class="gd-nav-link">Grow</a>
+            <a href="/gridul/mesh" class="gd-nav-link active">Mesh</a>
+            <a href="/" class="gd-nav-link">VOID</a>
+        </div>
+    </nav>
+
+    <section class="gd-hero">
+        <div class="gd-hero-badge">Pillar 03</div>
+        <h1 class="gd-hero-title">GriDul <span class="accent">Mesh</span></h1>
+        <p class="gd-hero-sub">
+            Neighbourhood food exchange. Post your surplus. Browse by postcode.
+            Barter or give free — no money changes hands. Listings live for 14 days.
+        </p>
+    </section>
+
+    <main class="gd-main">
+        <!-- TOOLBAR -->
+        <div class="mesh-toolbar">
+            <div class="mesh-search-wrap">
+                <input type="text" class="mesh-search-input" id="postcode-input"
+                       placeholder="POSTCODE PREFIX (e.g. SW1, E1, M14)"
+                       maxlength="8">
+                <button class="mesh-search-btn" onclick="searchListings()">Search</button>
+            </div>
+            <button class="btn-post" onclick="openPostListing()">+ Post Surplus</button>
+        </div>
+
+        <!-- BROWSE -->
+        <div>
+            <div class="section-head">
+                <div class="section-head-title">Community Listings</div>
+                <div class="section-head-line"></div>
+                <div id="listings-count" style="font-size:0.55rem; color:#333; letter-spacing:2px; white-space:nowrap;"></div>
+            </div>
+            <div id="listings-container">
+                <div class="listings-loading">Loading listings...</div>
+            </div>
+        </div>
+
+        <!-- MY LISTINGS -->
+        {% if my_listings %}
+        <div class="my-listings-section">
+            <div class="section-head">
+                <div class="section-head-title">My Active Listings</div>
+                <div class="section-head-line"></div>
+            </div>
+            {% for listing in my_listings %}
+            <div class="my-listing-row" id="my-listing-{{ listing.id }}">
+                <div class="my-listing-info">
+                    <div class="my-listing-title">{{ listing.title }}</div>
+                    <div class="my-listing-meta">
+                        <span class="my-listing-postcode">{{ listing.postcode_prefix }}</span>
+                        <span>{{ listing.exchange_type }}</span>
+                        {% if listing.quantity %}<span>{{ listing.quantity }}</span>{% endif %}
+                        <span class="my-listing-expires">expires {{ listing.expires_at[:10] if listing.expires_at else '—' }}</span>
+                    </div>
+                </div>
+                <button class="btn-remove-listing" onclick="removeListing({{ listing.id }})">Remove</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- INBOUND REQUESTS (populated via JS if logged in) -->
+        <div class="inbound-section" id="inbound-section" style="display:none;">
+            <div class="section-head">
+                <div class="section-head-title">Requests on My Listings</div>
+                <div class="section-head-line"></div>
+            </div>
+            <div id="inbound-list"></div>
+        </div>
+    </main>
+
+    <!-- POST LISTING MODAL -->
+    <div class="gd-modal-overlay" id="post-listing-modal">
+        <div class="gd-modal">
+            <div class="gd-modal-title">Post Surplus Listing</div>
+            <div class="gd-field">
+                <label>What are you sharing?</label>
+                <input type="text" id="listing-title" placeholder="e.g. Courgettes, Tomatoes, Herbs">
+            </div>
+            <div class="gd-field">
+                <label>Description (optional)</label>
+                <textarea id="listing-desc" placeholder="Variety, condition, any notes..."></textarea>
+            </div>
+            <div class="gd-field">
+                <label>Quantity</label>
+                <input type="text" id="listing-qty" placeholder="e.g. About 1kg, 6 plants, a handful">
+            </div>
+            <div class="gd-field">
+                <label>Your Postcode Area</label>
+                <input type="text" id="listing-postcode" placeholder="e.g. SW1A, E1, M14"
+                       maxlength="8" style="text-transform:uppercase;">
+            </div>
+            <div class="gd-field">
+                <label>Exchange Type</label>
+                <select id="listing-exchange">
+                    <option value="free">Free — No exchange needed</option>
+                    <option value="barter">Barter — Open to trades</option>
+                </select>
+            </div>
+            <div class="gd-modal-actions">
+                <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+                <button class="btn-confirm" onclick="submitPostListing()">Post Listing</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REQUEST MODAL -->
+    <div class="gd-modal-overlay" id="request-modal">
+        <div class="gd-modal">
+            <div class="gd-modal-title">Request / Message</div>
+            <input type="hidden" id="request-listing-id">
+            <p style="font-size:0.68rem; color:#666; margin-bottom:18px; line-height:1.7;">
+                Send a message to the poster. Keep it friendly — arrange pickup or trade details offline.
+            </p>
+            <div class="gd-field">
+                <label>Your Message</label>
+                <textarea id="request-message" placeholder="Hi, I'd love to take some of these..." style="min-height:90px;"></textarea>
+            </div>
+            <div class="gd-modal-actions">
+                <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+                <button class="btn-confirm" onclick="submitRequest()">Send Request</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="gd-toast" id="toast"></div>
+
+    <script>
+        function showToast(msg, type) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = 'gd-toast show ' + (type || '');
+            setTimeout(() => el.classList.remove('show'), 3200);
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.gd-modal-overlay').forEach(m => m.classList.remove('visible'));
+        }
+
+        function openPostListing() {
+            document.getElementById('post-listing-modal').classList.add('visible');
+        }
+
+        function openRequest(listingId) {
+            document.getElementById('request-listing-id').value = listingId;
+            document.getElementById('request-message').value = '';
+            document.getElementById('request-modal').classList.add('visible');
+        }
+
+        async function searchListings() {
+            const postcode = document.getElementById('postcode-input').value.trim().toUpperCase();
+            await loadListings(postcode);
+        }
+
+        async function loadListings(postcode) {
+            const container = document.getElementById('listings-container');
+            const countEl = document.getElementById('listings-count');
+            container.innerHTML = '<div class="listings-loading">Loading...</div>';
+
+            try {
+                const url = '/api/gridul/mesh/listings' + (postcode ? '?postcode=' + encodeURIComponent(postcode) : '');
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    container.innerHTML = '<div class="listings-empty">Failed to load listings.</div>';
+                    return;
+                }
+
+                const listings = data.listings || [];
+                countEl.textContent = listings.length + ' LISTING' + (listings.length !== 1 ? 'S' : '');
+
+                if (listings.length === 0) {
+                    container.innerHTML = '<div class="listings-empty">' +
+                        (postcode ? 'No listings found near ' + postcode + '.' : 'No active listings yet. Be the first to post your surplus.') +
+                        '</div>';
+                    return;
+                }
+
+                const grid = document.createElement('div');
+                grid.className = 'listings-grid';
+                listings.forEach(l => {
+                    const expires = l.expires_at ? l.expires_at.slice(0,10) : '—';
+                    grid.innerHTML += `
+                        <div class="listing-card">
+                            <div class="listing-header">
+                                <div class="listing-title">${escHtml(l.title)}</div>
+                                <span class="exchange-badge ${l.exchange_type}">${l.exchange_type}</span>
+                            </div>
+                            ${l.description ? `<div class="listing-desc">${escHtml(l.description)}</div>` : ''}
+                            <div class="listing-meta">
+                                <span class="listing-postcode">◆ ${escHtml(l.postcode_prefix)}</span>
+                                ${l.quantity ? `<span class="listing-qty">${escHtml(l.quantity)}</span>` : ''}
+                                <span class="listing-user">${escHtml(l.username || 'anon')}</span>
+                            </div>
+                            <div class="listing-actions">
+                                <button class="btn-request" onclick="openRequest(${l.id})">Request / Message</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = '';
+                container.appendChild(grid);
+            } catch (e) {
+                container.innerHTML = '<div class="listings-empty">Network error. Please try again.</div>';
+            }
+        }
+
+        function escHtml(str) {
+            return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        async function submitPostListing() {
+            const title = document.getElementById('listing-title').value.trim();
+            const postcode = document.getElementById('listing-postcode').value.trim().toUpperCase();
+            if (!title) { alert('Title required'); return; }
+            if (!postcode || postcode.length < 2) { alert('Postcode area required (e.g. SW1, E14, M14)'); return; }
+
+            const res = await fetch('/api/gridul/mesh/listings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    title,
+                    description: document.getElementById('listing-desc').value.trim(),
+                    quantity: document.getElementById('listing-qty').value.trim(),
+                    postcode_prefix: postcode,
+                    exchange_type: document.getElementById('listing-exchange').value
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                closeModals();
+                showToast('Listing posted. Active for 14 days.', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                if (res.status === 401) {
+                    alert('Please log in to post a listing.');
+                } else {
+                    alert(data.error || 'Failed to post listing');
+                }
+            }
+        }
+
+        async function submitRequest() {
+            const listingId = document.getElementById('request-listing-id').value;
+            const message = document.getElementById('request-message').value.trim();
+
+            const res = await fetch('/api/gridul/mesh/requests', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ listing_id: parseInt(listingId), message })
+            });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                closeModals();
+                showToast('Request sent!', 'success');
+            } else {
+                if (res.status === 401) {
+                    alert('Please log in to send a request.');
+                } else {
+                    alert(data.error || 'Failed to send request');
+                }
+            }
+        }
+
+        async function removeListing(listingId) {
+            if (!confirm('Remove this listing?')) return;
+            const res = await fetch('/api/gridul/mesh/listings/' + listingId, { method: 'DELETE' });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                const el = document.getElementById('my-listing-' + listingId);
+                if (el) el.remove();
+                showToast('Listing removed.', 'success');
+            } else {
+                alert(data.error || 'Failed to remove listing');
+            }
+        }
+
+        document.querySelectorAll('.gd-modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) closeModals();
+            });
+        });
+
+        document.getElementById('postcode-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchListings();
+        });
+
+        loadListings('');
+        loadInboundRequests();
+
+        async function loadInboundRequests() {
+            try {
+                const res = await fetch('/api/gridul/mesh/inbound-requests');
+                if (res.status === 401) return;
+                const data = await res.json();
+                const section = document.getElementById('inbound-section');
+                const container = document.getElementById('inbound-list');
+                if (!data.requests || data.requests.length === 0) {
+                    section.style.display = 'none';
+                    return;
+                }
+                section.style.display = 'block';
+                container.innerHTML = data.requests.map(r => `
+                    <div class="inbound-row">
+                        <div class="inbound-listing-title">${escHtml(r.listing_title)}</div>
+                        <div class="inbound-meta">
+                            FROM ${escHtml(r.requester_username)} &nbsp;·&nbsp;
+                            ${r.created_at ? r.created_at.slice(0,10) : '—'}
+                        </div>
+                        <div class="inbound-message">${escHtml(r.message || '(no message)')}</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                /* silent — inbound panel is supplementary */
+            }
+        }
+
+        function escHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+</html>

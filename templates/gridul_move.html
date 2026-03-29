@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GriDul Move — Daily Movement — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --gd-bg: #090909;
+            --gd-surface: #101010;
+            --gd-surface2: #0c0c0c;
+            --gd-border: #1c1c1c;
+            --gd-gold: #c9a84c;
+            --gd-teal: #00bfa5;
+            --gd-red: #ff5252;
+            --gd-green: #4caf50;
+            --gd-text: #e0e0e0;
+            --gd-muted: #555;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--gd-bg);
+            color: var(--gd-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .gd-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--gd-border);
+            background: rgba(9,9,9,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .gd-nav-brand { font-size: 0.9rem; font-weight: 700; color: var(--gd-gold); letter-spacing: 3px; text-decoration: none; }
+        .gd-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .gd-nav-link { color: #888; text-decoration: none; font-size: 0.72rem; letter-spacing: 1px; transition: color 0.2s; }
+        .gd-nav-link:hover, .gd-nav-link.active { color: var(--gd-teal); }
+
+        /* HERO */
+        .gd-hero {
+            text-align: center;
+            padding: 60px 24px 40px;
+            background: radial-gradient(ellipse at 50% 0%, #0a1511 0%, var(--gd-bg) 65%);
+            border-bottom: 1px solid var(--gd-border);
+            position: relative;
+        }
+        .gd-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gd-teal), transparent);
+        }
+        .gd-hero-badge {
+            display: inline-block;
+            background: var(--gd-teal);
+            color: #000;
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+        .gd-hero-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            margin: 0 0 8px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+        .gd-hero-title .accent { color: var(--gd-teal); }
+        .gd-hero-sub {
+            font-size: 0.75rem;
+            color: #666;
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* MAIN LAYOUT */
+        .gd-main {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 48px 24px 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+        }
+
+        /* PHASE TABS */
+        .phase-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .phase-tab {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 4px;
+            padding: 8px 18px;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #666;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .phase-tab:hover { border-color: var(--gd-teal); color: var(--gd-teal); }
+        .phase-tab.active { border-color: var(--gd-teal); color: var(--gd-teal); background: rgba(0,191,165,0.06); }
+
+        /* POSITION GRID */
+        .positions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .pos-card {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 6px;
+            padding: 20px;
+            transition: border-color 0.15s;
+            position: relative;
+        }
+        .pos-card.completed {
+            border-color: var(--gd-teal);
+            background: rgba(0,191,165,0.04);
+        }
+        .pos-card.hidden { display: none; }
+
+        .pos-phase-badge {
+            font-size: 0.52rem;
+            letter-spacing: 2px;
+            color: var(--gd-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .pos-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #d0d0d0;
+            margin-bottom: 14px;
+            letter-spacing: 1px;
+        }
+
+        .pos-info {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .pos-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .pos-info-label {
+            font-size: 0.52rem;
+            letter-spacing: 2px;
+            color: var(--gd-muted);
+            text-transform: uppercase;
+        }
+        .pos-info-val {
+            font-size: 0.82rem;
+            color: var(--gd-gold);
+            font-weight: 700;
+        }
+
+        .pos-breath {
+            font-size: 0.65rem;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+        .pos-cue {
+            font-size: 0.65rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .pos-check {
+            position: absolute;
+            top: 16px; right: 16px;
+            width: 28px; height: 28px;
+            border: 2px solid var(--gd-border);
+            border-radius: 50%;
+            background: transparent;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            color: var(--gd-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .pos-card.completed .pos-check {
+            border-color: var(--gd-teal);
+            background: var(--gd-teal);
+            color: #000;
+        }
+
+        /* SESSION PANEL */
+        .session-panel {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 6px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+        .session-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--gd-teal), transparent);
+        }
+
+        .session-status {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gd-teal);
+            margin-bottom: 20px;
+        }
+
+        .session-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .session-metric {
+            background: var(--gd-surface2);
+            border: 1px solid var(--gd-border);
+            border-radius: 4px;
+            padding: 14px;
+            text-align: center;
+        }
+        .session-metric-val {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--gd-teal);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+        .session-metric-val.gold { color: var(--gd-gold); }
+        .session-metric-label {
+            font-size: 0.52rem;
+            letter-spacing: 2px;
+            color: var(--gd-muted);
+            text-transform: uppercase;
+        }
+
+        .session-progress-wrap { margin-bottom: 20px; }
+        .session-progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: var(--gd-muted);
+            text-transform: uppercase;
+        }
+        .session-progress-track {
+            background: #151515;
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .session-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gd-teal), #00e5cc);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .session-controls { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn-start {
+            background: var(--gd-teal);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 28px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .btn-start:hover { opacity: 0.85; }
+        .btn-start:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-end {
+            background: transparent;
+            color: var(--gd-red);
+            border: 1px solid var(--gd-red);
+            border-radius: 4px;
+            padding: 12px 24px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: none;
+            transition: background 0.15s;
+        }
+        .btn-end:hover { background: rgba(255,82,82,0.08); }
+
+        /* REWARD OVERLAY */
+        .gd-reward-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+        }
+        .gd-reward-overlay.visible { display: flex; }
+        .gd-reward-modal {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-teal);
+            border-radius: 6px;
+            padding: 40px 44px;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            position: relative;
+        }
+        .gd-reward-modal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--gd-teal), var(--gd-gold));
+        }
+        .gd-reward-badge { font-size: 0.58rem; letter-spacing: 3px; color: var(--gd-teal); text-transform: uppercase; margin-bottom: 14px; }
+        .gd-reward-vtx { font-size: 3rem; font-weight: 900; color: var(--gd-gold); line-height: 1; margin-bottom: 4px; }
+        .gd-reward-vtx-label { font-size: 0.65rem; letter-spacing: 3px; color: var(--gd-muted); margin-bottom: 20px; }
+        .gd-reward-stats { font-size: 0.7rem; color: #555; line-height: 2; margin-bottom: 24px; }
+        .gd-reward-stats span { color: #999; }
+        .gd-reward-close {
+            background: var(--gd-teal);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 28px;
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .gd-no-reward-note { font-size: 0.68rem; color: #444; margin-bottom: 20px; line-height: 1.8; }
+
+        /* HISTORY */
+        .history-section { margin-top: 8px; }
+        .history-title {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--gd-muted);
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .history-title::after { content: ''; flex: 1; height: 1px; background: var(--gd-border); }
+        .history-row {
+            background: var(--gd-surface);
+            border: 1px solid var(--gd-border);
+            border-radius: 4px;
+            padding: 14px 18px;
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.72rem;
+        }
+        .history-date { color: #444; font-size: 0.62rem; }
+        .history-reps { color: var(--gd-teal); }
+        .history-vtx { color: var(--gd-gold); font-weight: 700; }
+        .history-score { color: #888; }
+        .history-empty { text-align: center; color: #333; font-size: 0.72rem; padding: 28px; }
+
+        @media (max-width: 600px) {
+            .gd-nav { padding: 12px 16px; }
+            .gd-main { padding: 28px 16px 60px; }
+            .history-row { grid-template-columns: 1fr auto; }
+            .history-score { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="gd-nav">
+        <a href="/gridul" class="gd-nav-brand">◆ GriDul</a>
+        <div class="gd-nav-links">
+            <a href="/gridul" class="gd-nav-link">Home</a>
+            <a href="/gridul/move" class="gd-nav-link active">Move</a>
+            <a href="/gridul/grow" class="gd-nav-link">Grow</a>
+            <a href="/gridul/mesh" class="gd-nav-link">Mesh</a>
+            <a href="/" class="gd-nav-link">VOID</a>
+        </div>
+    </nav>
+
+    <section class="gd-hero">
+        <div class="gd-hero-badge">Pillar 01</div>
+        <h1 class="gd-hero-title">GriDul <span class="accent">Move</span></h1>
+        <p class="gd-hero-sub">
+            Work through 10 positions across four phases: standing, transition, ground, recovery.
+            Complete your session and earn VTX. Minimum 60 seconds and 3 positions to qualify.
+        </p>
+    </section>
+
+    <main class="gd-main">
+        <!-- SESSION PANEL -->
+        <div class="session-panel">
+            <div class="session-status" id="session-status">READY TO START</div>
+            <div class="session-metrics">
+                <div class="session-metric">
+                    <div class="session-metric-val" id="m-elapsed">0:00</div>
+                    <div class="session-metric-label">Elapsed</div>
+                </div>
+                <div class="session-metric">
+                    <div class="session-metric-val gold" id="m-completed">0</div>
+                    <div class="session-metric-label">Positions</div>
+                </div>
+                <div class="session-metric">
+                    <div class="session-metric-val" id="m-reps">0</div>
+                    <div class="session-metric-label">Total Reps</div>
+                </div>
+                <div class="session-metric">
+                    <div class="session-metric-val gold" id="m-score">0%</div>
+                    <div class="session-metric-label">Completion</div>
+                </div>
+            </div>
+            <div class="session-progress-wrap">
+                <div class="session-progress-label">
+                    <span>SESSION PROGRESS</span>
+                    <span id="progress-text">0 / 10</span>
+                </div>
+                <div class="session-progress-track">
+                    <div class="session-progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            <div class="session-controls">
+                <button class="btn-start" id="btn-start">Start Session</button>
+                <button class="btn-end" id="btn-end">End &amp; Log Session</button>
+            </div>
+        </div>
+
+        <!-- PHASE FILTER -->
+        <div>
+            <div class="phase-tabs">
+                <button class="phase-tab active" data-phase="all">All Phases</button>
+                <button class="phase-tab" data-phase="standing">Standing</button>
+                <button class="phase-tab" data-phase="transition">Transition</button>
+                <button class="phase-tab" data-phase="ground">Ground</button>
+                <button class="phase-tab" data-phase="recovery">Recovery</button>
+            </div>
+        </div>
+
+        <!-- POSITIONS -->
+        <div class="positions-grid" id="positions-grid">
+            {% for pos in positions %}
+            <div class="pos-card" id="card-{{ pos.id }}" data-phase="{{ pos.phase }}" data-id="{{ pos.id }}" data-reps="{{ pos.reps }}">
+                <div class="pos-phase-badge">{{ pos.phase }}</div>
+                <div class="pos-name">{{ pos.name }}</div>
+                <div class="pos-info">
+                    <div class="pos-info-item">
+                        <span class="pos-info-label">Target</span>
+                        <span class="pos-info-val">{{ pos.reps }}</span>
+                    </div>
+                    <div class="pos-info-item">
+                        <span class="pos-info-label">Unit</span>
+                        <span class="pos-info-val" style="font-size:0.65rem; color:#888;">
+                            {% if pos.reps <= 30 and pos.phase == 'recovery' %}sec
+                            {% elif pos.phase == 'recovery' %}sec
+                            {% else %}reps{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="pos-breath">Breath: {{ pos.breath }}</div>
+                <div class="pos-cue">{{ pos.cue }}</div>
+                <button class="pos-check" title="Mark complete" onclick="togglePosition('{{ pos.id }}', {{ pos.reps }})">✓</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- HISTORY -->
+        <div class="history-section">
+            <div class="history-title">Session History</div>
+            {% if history %}
+                {% for s in history %}
+                <div class="history-row">
+                    <div class="history-date">{{ s.created_at[:10] if s.created_at else '—' }}</div>
+                    <div class="history-reps">{{ s.total_reps }} reps</div>
+                    <div class="history-score">{{ (s.score * 100)|int }}%</div>
+                    <div class="history-vtx">+{{ "%.2f"|format(s.vtx_earned) }} VTX</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="history-empty">No sessions logged yet. Start your first session above.</div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- REWARD OVERLAY -->
+    <div class="gd-reward-overlay" id="reward-overlay">
+        <div class="gd-reward-modal">
+            <div class="gd-reward-badge">Session Complete</div>
+            <div class="gd-reward-vtx" id="reward-vtx">0.00</div>
+            <div class="gd-reward-vtx-label">VTX EARNED</div>
+            <div id="no-reward-note" class="gd-no-reward-note" style="display:none;"></div>
+            <div class="gd-reward-stats" id="reward-stats"></div>
+            <button class="gd-reward-close" onclick="closeReward()">Done</button>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        let sessionStartTime = null;
+        let sessionActive = false;
+        let timerInterval = null;
+        let completedPositions = new Set();
+        let totalReps = 0;
+        const TOTAL_POSITIONS = {{ positions|length }};
+
+        function togglePosition(posId, reps) {
+            if (!sessionActive) {
+                alert('Please start a session first.');
+                return;
+            }
+            const card = document.getElementById('card-' + posId);
+            if (completedPositions.has(posId)) {
+                completedPositions.delete(posId);
+                totalReps -= reps;
+                card.classList.remove('completed');
+            } else {
+                completedPositions.add(posId);
+                totalReps += reps;
+                card.classList.add('completed');
+            }
+            updateMetrics();
+        }
+
+        function updateMetrics() {
+            const count = completedPositions.size;
+            const score = Math.round((count / TOTAL_POSITIONS) * 100);
+            document.getElementById('m-completed').textContent = count;
+            document.getElementById('m-reps').textContent = totalReps;
+            document.getElementById('m-score').textContent = score + '%';
+            document.getElementById('progress-fill').style.width = score + '%';
+            document.getElementById('progress-text').textContent = count + ' / ' + TOTAL_POSITIONS;
+        }
+
+        function updateTimer() {
+            if (!sessionStartTime) return;
+            const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            document.getElementById('m-elapsed').textContent =
+                mins + ':' + String(secs).padStart(2, '0');
+        }
+
+        async function startSession() {
+            const btn = document.getElementById('btn-start');
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/gridul/move/session-start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({})
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) {
+                    if (res.status === 401) {
+                        alert('Please log in to track your session.');
+                    } else {
+                        alert(data.error || 'Failed to start session');
+                    }
+                    btn.disabled = false;
+                    return;
+                }
+                sessionId = data.session_id;
+                sessionStartTime = Date.now();
+                sessionActive = true;
+                completedPositions = new Set();
+                totalReps = 0;
+                updateMetrics();
+                timerInterval = setInterval(updateTimer, 1000);
+                document.getElementById('session-status').textContent = 'SESSION ACTIVE';
+                document.getElementById('btn-end').style.display = 'inline-block';
+                btn.style.display = 'none';
+            } catch (e) {
+                alert('Network error. Please try again.');
+                btn.disabled = false;
+            }
+        }
+
+        async function endSession() {
+            if (!sessionId || !sessionActive) return;
+            const btn = document.getElementById('btn-end');
+            btn.disabled = true;
+            clearInterval(timerInterval);
+            const durationSec = Math.floor((Date.now() - sessionStartTime) / 1000);
+
+            try {
+                const res = await fetch('/api/gridul/move/session-end', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        completed_positions: Array.from(completedPositions),
+                        duration_sec: durationSec
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) {
+                    alert(data.error || 'Failed to save session');
+                    btn.disabled = false;
+                    return;
+                }
+                sessionActive = false;
+                showReward(data);
+                setTimeout(() => location.reload(), 4000);
+            } catch (e) {
+                alert('Network error. Please try again.');
+                btn.disabled = false;
+            }
+        }
+
+        function showReward(data) {
+            const overlay = document.getElementById('reward-overlay');
+            const vtxEl = document.getElementById('reward-vtx');
+            const statsEl = document.getElementById('reward-stats');
+            const noRewardEl = document.getElementById('no-reward-note');
+
+            if (data.rewarded) {
+                vtxEl.textContent = data.vtx_earned.toFixed(4);
+                noRewardEl.style.display = 'none';
+            } else {
+                vtxEl.textContent = '0.00';
+                noRewardEl.style.display = 'block';
+                noRewardEl.textContent = 'Minimum 60 seconds and 3 positions required for VTX reward.';
+            }
+            const mins = Math.floor(data.duration_sec / 60);
+            const secs = data.duration_sec % 60;
+            statsEl.innerHTML = `
+                <div><span>Positions completed:</span> ${data.completed_count} / ${TOTAL_POSITIONS}</div>
+                <div><span>Total reps:</span> ${data.total_reps}</div>
+                <div><span>Duration:</span> ${mins}:${String(secs).padStart(2,'0')}</div>
+                <div><span>Completion score:</span> ${Math.round(data.score * 100)}%</div>
+            `;
+            overlay.classList.add('visible');
+        }
+
+        function closeReward() {
+            document.getElementById('reward-overlay').classList.remove('visible');
+        }
+
+        document.getElementById('btn-start').addEventListener('click', startSession);
+        document.getElementById('btn-end').addEventListener('click', endSession);
+
+        document.querySelectorAll('.phase-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                const phase = this.dataset.phase;
+                document.querySelectorAll('.pos-card').forEach(card => {
+                    if (phase === 'all' || card.dataset.phase === phase) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
