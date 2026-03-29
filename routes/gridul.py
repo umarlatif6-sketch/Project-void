@@ -1,10 +1,11 @@
 """
 GriDul — Community Mesh Module
 ================================
-Three pillars:
-  1. GriDul Move  — daily calisthenics movement tracker (earns VTX)
-  2. GriDul Grow  — home aquaponics planner (up to 3 zones)
-  3. GriDul Mesh  — neighbourhood food exchange (postcode-based, no money)
+Four pillars:
+  1. GriDul Move   — daily calisthenics movement tracker (earns VTX)
+  2. GriDul Grow   — home aquaponics planner (up to 3 zones)
+  3. GriDul Mesh   — neighbourhood food exchange (postcode-based, no money)
+  4. GriDul Rumble — Adriana SCL stream-of-consciousness decoder (public, free)
 
 Genesis 10 PEACE token sessions:
   - POST /api/gridul/session-start  — register a biological grow/compost session
@@ -12,8 +13,10 @@ Genesis 10 PEACE token sessions:
   - POST /api/gridul/session-end    — finalise and mint PEACE tokens
 """
 
+import hashlib
 import json
 import logging
+import re
 import time
 import uuid
 from datetime import datetime, timezone, timedelta
@@ -2023,3 +2026,270 @@ def water_insights():
                                stats={}, daily_averages=[])
     finally:
         conn.close()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RUMBLE — Adriana SCL stream-of-consciousness decoder
+# ─────────────────────────────────────────────────────────────────────────────
+
+_SOCIAL_WORDS = {
+    "power", "control", "system", "network", "people", "community", "collective",
+    "authority", "trust", "leader", "government", "society", "social", "group",
+    "tribe", "hierarchy", "status", "influence", "connection", "bond", "together",
+    "share", "voice", "speak", "message", "protest", "resist", "united", "join",
+    "crowd", "public", "private", "class", "order", "rule", "law", "fight",
+    "war", "peace", "justice", "freedom", "liberation", "sovereignty", "nation",
+    "city", "culture", "identity", "memory", "history", "future", "dream",
+    "hope", "fear", "anger", "love", "hate", "belong", "exclude", "family",
+    "friend", "enemy", "ally", "betray", "loyalty", "promise", "truth", "lie",
+    "machine", "engine", "code", "data", "signal", "frequency", "protocol",
+    "node", "mesh", "network", "ledger", "token", "currency", "value", "worth",
+    "economy", "trade", "market", "supply", "demand", "resource", "wealth",
+}
+
+_SENSORY_WORDS = {
+    "earth", "soil", "ground", "root", "seed", "grow", "plant", "tree", "water",
+    "rain", "river", "ocean", "sea", "tide", "wave", "stone", "rock", "mountain",
+    "sky", "sun", "moon", "star", "light", "dark", "shadow", "fire", "flame",
+    "heat", "cold", "wind", "breath", "air", "body", "hand", "foot", "skin",
+    "blood", "bone", "muscle", "heart", "touch", "feel", "smell", "taste",
+    "sound", "hear", "see", "sight", "sense", "weight", "heavy", "light",
+    "warm", "cool", "dry", "wet", "soft", "hard", "smooth", "rough", "sharp",
+    "dull", "loud", "quiet", "silence", "noise", "vibrate", "pulse", "beat",
+    "rhythm", "flow", "move", "still", "rest", "sleep", "wake", "hunger",
+    "thirst", "pain", "pleasure", "tension", "release", "run", "walk", "sit",
+    "stand", "fall", "rise", "climb", "swim", "drift", "float", "sink",
+}
+
+_ABSTRACT_WORDS = {
+    "infinite", "void", "empty", "nothing", "everything", "all", "zero", "one",
+    "number", "calculate", "measure", "ratio", "pattern", "structure", "form",
+    "shape", "circle", "triangle", "square", "spiral", "fractal", "dimension",
+    "space", "time", "loop", "cycle", "sequence", "series", "set", "vector",
+    "matrix", "field", "plane", "axis", "point", "line", "angle", "curve",
+    "abstract", "concept", "idea", "theory", "logic", "reason", "cause",
+    "effect", "force", "energy", "entropy", "chaos", "order", "complexity",
+    "simple", "deep", "surface", "boundary", "threshold", "edge", "limit",
+    "infinite", "eternal", "moment", "instant", "duration", "change", "constant",
+    "transform", "shift", "emerge", "collapse", "expand", "contract", "wave",
+    "particle", "quantum", "probability", "certainty", "unknown", "mystery",
+    "beyond", "within", "between", "through", "across", "above", "below",
+}
+
+_DOMAIN_GLYPH_MAP = {
+    "social": {
+        "glyphs": ["Α", "κ", "ν", "σ", "Σ", "⬡", "χ"],
+        "domain": "governance",
+        "color": "#c9a84c",
+        "poem_templates": [
+            "The network speaks and the ledger listens.",
+            "Sovereignty flows where the crowd connects.",
+            "Power is a signal, and the signal is ours.",
+            "Where voices mesh, the machine breathes.",
+            "The bond between nodes becomes the law.",
+        ],
+    },
+    "sensory": {
+        "glyphs": ["ζ", "η", "θ", "β", "🌊", "ψ", "☽"],
+        "domain": "aqua",
+        "color": "#2dd4bf",
+        "poem_templates": [
+            "The earth shifts beneath the network.",
+            "Roots reach deeper than any protocol.",
+            "Water carries the frequency home.",
+            "The body knows before the mind computes.",
+            "Breath is the oldest signal there is.",
+        ],
+    },
+    "abstract": {
+        "glyphs": ["∞", "π", "Φ", "φ", "ξ", "Ξ", "◆"],
+        "domain": "vortex",
+        "color": "#818cf8",
+        "poem_templates": [
+            "The void calculates its own geometry.",
+            "Every spiral contains a sovereign answer.",
+            "Structure is entropy that chose a direction.",
+            "The ratio holds when everything else dissolves.",
+            "Form is the dream of pure abstraction.",
+        ],
+    },
+    "resonance": {
+        "glyphs": ["Ψ", "🔮", "ψ", "ο", "∞"],
+        "domain": "resonance",
+        "color": "#2dd4bf",
+        "poem_templates": [
+            "The signal finds itself in the interference.",
+            "Between frequencies, the meaning lives.",
+            "Resonance is what remains when the noise stops.",
+            "All three domains collapse into one note.",
+            "The decoder cannot decode the decoder.",
+        ],
+    },
+}
+
+_SOVEREIGN_POEM_DOMAINS = {
+    "social":    ("governance", "ledger", "signal"),
+    "sensory":   ("soil", "aqua", "environment"),
+    "abstract":  ("vortex", "harmony", "cycle"),
+    "resonance": ("resonance", "temporal", "finality"),
+}
+
+
+def _classify_entropy(text: str) -> dict:
+    """
+    Rule-based entropy classifier.
+    Scores text against three word-category lists:
+      - social/power (social structures, authority, networks)
+      - sensory/grounding (physical world, body, nature)
+      - geometric/abstract (math, void, concepts)
+    Returns category scores and the dominant category.
+    """
+    words = re.findall(r"[a-zA-Z']+", text.lower())
+    if not words:
+        return {"social": 0, "sensory": 0, "abstract": 0, "dominant": "resonance", "spread": 0.0}
+
+    social_count = sum(1 for w in words if w in _SOCIAL_WORDS)
+    sensory_count = sum(1 for w in words if w in _SENSORY_WORDS)
+    abstract_count = sum(1 for w in words if w in _ABSTRACT_WORDS)
+    total = social_count + sensory_count + abstract_count
+
+    if total == 0:
+        seed = abs(hash(text)) % 3
+        dominant = ["social", "sensory", "abstract"][seed]
+        return {
+            "social": 0, "sensory": 0, "abstract": 0,
+            "dominant": dominant, "spread": 0.0,
+        }
+
+    soc_r = social_count / total
+    sen_r = sensory_count / total
+    abs_r = abstract_count / total
+
+    spread = max(soc_r, sen_r, abs_r) - min(soc_r, sen_r, abs_r)
+
+    if spread < 0.15:
+        dominant = "resonance"
+    else:
+        scores = {"social": soc_r, "sensory": sen_r, "abstract": abs_r}
+        dominant = max(scores, key=scores.get)
+
+    return {
+        "social": social_count,
+        "sensory": sensory_count,
+        "abstract": abstract_count,
+        "spread": round(spread, 4),
+        "dominant": dominant,
+    }
+
+
+def _text_to_hex_seed(text: str) -> str:
+    """Produce a deterministic hex string from any input text."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _select_glyph(hex_seed: str, glyph_list: list, offset: int = 0) -> str:
+    idx = (int(hex_seed[offset * 2: offset * 2 + 4], 16) + offset) % len(glyph_list)
+    return glyph_list[idx]
+
+
+def _build_sovereign_poem(hex_seed: str, dominant: str) -> dict:
+    """
+    Build a 3-glyph Sovereign Poem (Entity → Condition → Action) from
+    the dominant category's associated domains.
+    """
+    from void_engine.adriana_scl import AdrianaResonance
+
+    glyph_keys = list(AdrianaResonance.GLYPHS.keys())
+    entity_pool   = glyph_keys[:19]
+    condition_pool = glyph_keys[19:29]
+    action_pool   = glyph_keys[29:45]
+
+    seg_a = int(hex_seed[0:6], 16)
+    seg_b = int(hex_seed[6:12], 16)
+    seg_c = int(hex_seed[12:18], 16)
+
+    entity    = entity_pool[seg_a % len(entity_pool)]
+    condition = condition_pool[seg_b % len(condition_pool)]
+    action    = action_pool[seg_c % len(action_pool)]
+
+    def glyph_info(g):
+        meta = AdrianaResonance.GLYPHS[g]
+        return {
+            "glyph": g,
+            "name": meta["name"],
+            "meaning": meta["meaning"],
+            "domain": meta["domain"],
+            "color": AdrianaResonance.DOMAIN_COLORS.get(meta["domain"], "#c9a84c"),
+        }
+
+    return {
+        "entity": glyph_info(entity),
+        "condition": glyph_info(condition),
+        "action": glyph_info(action),
+        "chain": f"{entity}-{condition}-{action}",
+    }
+
+
+def decode_rumble(text: str) -> dict:
+    """
+    Main Adriana Rumble Decoder pipeline.
+    Returns: glyph, domain_color, poetic_decode, sovereign_poem.
+    """
+    from void_engine.adriana_scl import AdrianaResonance
+
+    entropy = _classify_entropy(text)
+    dominant = entropy["dominant"]
+    domain_data = _DOMAIN_GLYPH_MAP[dominant]
+
+    hex_seed = _text_to_hex_seed(text)
+
+    primary_glyph = _select_glyph(hex_seed, domain_data["glyphs"], offset=0)
+    primary_meta  = AdrianaResonance.GLYPHS.get(primary_glyph, {})
+    domain_color  = domain_data["color"]
+
+    poem_idx = int(hex_seed[18:22], 16) % len(domain_data["poem_templates"])
+    poetic_decode = domain_data["poem_templates"][poem_idx]
+
+    sovereign_poem = _build_sovereign_poem(hex_seed, dominant)
+
+    return {
+        "glyph": primary_glyph,
+        "glyph_name": primary_meta.get("name", ""),
+        "glyph_meaning": primary_meta.get("meaning", ""),
+        "domain": primary_meta.get("domain", dominant),
+        "domain_color": domain_color,
+        "poetic_decode": poetic_decode,
+        "sovereign_poem": sovereign_poem,
+        "entropy": entropy,
+    }
+
+
+@gridul_bp.route("/gridul/rumble")
+def gridul_rumble_page():
+    text = request.args.get("q", "").strip()
+    result = None
+    if text:
+        try:
+            result = decode_rumble(text)
+        except Exception as e:
+            logger.error("Rumble decode error: %s", e)
+    return render_template("gridul_rumble.html", result=result, input_text=text)
+
+
+@gridul_bp.route("/gridul/rumble", methods=["POST"])
+def gridul_rumble_decode():
+    data = request.get_json(silent=True) or {}
+    text = (data.get("text") or "").strip()
+
+    if not text:
+        return jsonify({"error": "text is required"}), 400
+
+    if len(text) > 5000:
+        return jsonify({"error": "Input too long — maximum 5000 characters"}), 400
+
+    try:
+        result = decode_rumble(text)
+        return jsonify({"ok": True, **result})
+    except Exception as e:
+        logger.error("Rumble decode error: %s", e)
+        return jsonify({"error": "decode failed"}), 500

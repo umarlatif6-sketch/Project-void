@@ -83,6 +83,22 @@ PROJECT VOID features a Flask-based web UI and a command-line interface, with th
 - **NFT Marketplace (Blueprint Tokens):** A DePIN system where NFTs represent manufacturing slots for Sovereign Node machines, built on Al-Jabr 286-bit hashing and the Vortex Ledger. Includes Common, Rare, and Legendary tiers with corresponding access and ownership.
 - **QiSync BioStance & Mastication Tracker:** A feature (`/qisync`) that uses a CSI Backend (`StanceDetector`, `MasticationDetector`) to monitor user biometrics (stance, mastication) via Wi-Fi CSI, phone sensors, or simulation. Users earn VTX rewards based on a composite metabolism score.
 
+## GriDul Rumble Decoder — Adriana SCL Module (Task #24)
+- **Route:** `GET/POST /gridul/rumble` — in `routes/gridul.py` (`gridul_bp`)
+- **Template:** `templates/gridul_rumble.html`
+- **Public, no login required, no data saved, deterministic from input**
+- **Entropy Classifier:** Rule-based Python function `_classify_entropy()` — scores words against three sets:
+  - Social/power words (governance, network, economy) → gold domain
+  - Sensory/physical words (earth, water, body, root) → teal aqua domain
+  - Geometric/abstract words (void, spiral, fractal, ratio) → purple vortex domain
+  - Equal spread (< 0.15 ratio spread) → "resonance" domain
+- **Glyph selection:** Deterministic SHA-256 hash of input text, offset into domain-specific glyph pool
+- **Sovereign Poem:** 3-glyph chain (Entity → Condition → Action) derived from hex seed segments using AdrianaResonance GLYPHS ontology
+- **Share link:** URL-encoded `?q=` param — anyone opening the link sees the same decode
+- **Animations:** CSS ripple rings, glyph glow-pulse, typewriter poetic decode reveal
+- **Mobile:** `navigator.vibrate([100, 50, 200])` on reveal
+- **Landing page:** GriDul `gridul.html` updated with Rumble card (Pillar 04/04) and nav link
+
 ## External Dependencies
 - **Python:** 3.11
 - **numpy:** Audio processing

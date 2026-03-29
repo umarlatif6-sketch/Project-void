@@ -220,12 +220,21 @@
         .gd-pillar.move::before { background: linear-gradient(90deg, var(--gd-teal), transparent); }
         .gd-pillar.grow::before { background: linear-gradient(90deg, #4caf50, transparent); }
         .gd-pillar.mesh::before { background: linear-gradient(90deg, var(--gd-gold), transparent); }
+        .gd-pillar.rumble::before { background: linear-gradient(90deg, #818cf8, transparent); }
         .gd-pillar:hover {
             border-color: var(--gd-teal);
             transform: translateY(-3px);
         }
         .gd-pillar.grow:hover { border-color: #4caf50; }
         .gd-pillar.mesh:hover { border-color: var(--gd-gold); }
+        .gd-pillar.rumble:hover { border-color: #818cf8; }
+        .gd-pillar.rumble .gd-pillar-name .accent { color: #818cf8; }
+        .gd-pillar.rumble .gd-pillar-cta { color: #818cf8; }
+        .gd-pillar.rumble .gd-tag {
+            background: rgba(129,140,248,0.08);
+            border-color: rgba(129,140,248,0.15);
+            color: #818cf8;
+        }
 
         .gd-pillar-num {
             font-size: 0.55rem;
@@ -323,6 +332,7 @@
             <a href="/genesis" class="gd-nav-link">Genesis 10</a>
             <a href="/gridul/fertilizer" class="gd-nav-link">Fertilizer</a>
             <a href="/gridul/water" class="gd-nav-link">Water</a>
+            <a href="/gridul/rumble" class="gd-nav-link">Rumble</a>
             <a href="/qisync" class="gd-nav-link">QiSync</a>
             <a href="/marketplace" class="gd-nav-link">Marketplace</a>
         </div>
@@ -387,7 +397,7 @@
 
     <main class="gd-pillars">
         <a href="/gridul/move" class="gd-pillar move">
-            <div class="gd-pillar-num">Pillar 01 / 03</div>
+            <div class="gd-pillar-num">Pillar 01 / 04</div>
             <div class="gd-pillar-icon">⚡</div>
             <div class="gd-pillar-name">GriDul <span class="accent">Move</span></div>
             <p class="gd-pillar-desc">
@@ -404,7 +414,7 @@
         </a>
 
         <a href="/gridul/grow" class="gd-pillar grow">
-            <div class="gd-pillar-num">Pillar 02 / 03</div>
+            <div class="gd-pillar-num">Pillar 02 / 04</div>
             <div class="gd-pillar-icon">🌱</div>
             <div class="gd-pillar-name">GriDul <span class="accent">Grow</span></div>
             <p class="gd-pillar-desc">
@@ -421,7 +431,7 @@
         </a>
 
         <a href="/gridul/mesh" class="gd-pillar mesh">
-            <div class="gd-pillar-num">Pillar 03 / 03</div>
+            <div class="gd-pillar-num">Pillar 03 / 04</div>
             <div class="gd-pillar-icon">◆</div>
             <div class="gd-pillar-name">GriDul <span class="accent">Mesh</span></div>
             <p class="gd-pillar-desc">
@@ -435,6 +445,24 @@
                 <span class="gd-tag">14-day Listings</span>
             </div>
             <div class="gd-pillar-cta">Browse the Mesh</div>
+        </a>
+
+        <a href="/gridul/rumble" class="gd-pillar rumble">
+            <div class="gd-pillar-num">Pillar 04 / 04</div>
+            <div class="gd-pillar-icon">🔮</div>
+            <div class="gd-pillar-name">GriDul <span class="accent">Rumble</span></div>
+            <p class="gd-pillar-desc">
+                Adriana SCL stream-of-consciousness decoder. Type anything —
+                gibberish, verse, noise, feeling. The system maps your entropy
+                onto the 45-glyph ontology and returns a sovereign meaning.
+                No login. No data saved. Free forever.
+            </p>
+            <div class="gd-pillar-tags">
+                <span class="gd-tag">Any Language</span>
+                <span class="gd-tag">Glyph Decode</span>
+                <span class="gd-tag">Public Access</span>
+            </div>
+            <div class="gd-pillar-cta">Decode the Rumble</div>
         </a>
     </main>
 
