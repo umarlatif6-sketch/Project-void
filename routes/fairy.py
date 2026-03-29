@@ -1,13 +1,17 @@
 import os
 import re
 import json
+import logging
 import threading
 from flask import Blueprint, request, jsonify, session
 from routes.auth import login_required, _check_rate_limit
 from openai import OpenAI
 from void_engine.al_jabr_286 import fatiha_286_hexdigest
 from void_engine.adriana_scl import AdrianaResonance
+from void_engine.adriana_local import get_engine, CONFIDENCE_THRESHOLD
 from void_engine.db_pool import get_db
+
+logger = logging.getLogger(__name__)
 
 fairy_bp = Blueprint("fairy", __name__)
 
@@ -415,6 +419,17 @@ def fairy_ask():
     tier = session.get("tier", "ghost")
     is_founder = session.get("is_founder", False)
     is_guardian = session.get("is_guardian", False)
+
+    local_response, local_confidence = get_engine().match(message)
+    if local_confidence >= CONFIDENCE_THRESHOLD:
+        logger.info("LOCAL_HIT intent_confidence=%.2f user_id=%s", local_confidence, user_id)
+        try:
+            _maybe_update_profile(user_id, tier, message, history, local_response)
+        except Exception:
+            pass
+        return jsonify({"reply": local_response, "tier": tier, "is_founder": is_founder})
+
+    logger.info("API_CALL intent_confidence=%.2f user_id=%s", local_confidence, user_id)
 
     profile = get_fairy_profile(user_id)
 
