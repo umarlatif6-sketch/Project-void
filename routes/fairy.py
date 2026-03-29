@@ -151,6 +151,7 @@ ROUTES AND THEIR PURPOSE:
 - /sovereign — Hardware: 4000-Series Sovereign Node specs, calculator, blueprints.
 - /chronicle — Chronicle: the living history of PROJECT VOID. The story of the system as it grew.
 - /demo — Demo Mode: try the steganography engine without logging in.
+- /mesa-village — Mesa Village: the swarm intelligence prediction engine. Feed it any text to simulate community response via GraphRAG agent networks. Run simulations via POST /mesa/simulate.
 
 LINK FORMAT: When routing a user, include a link like this at the end of your message:
 → [Take me to GriDul Grow](/gridul/grow)
@@ -260,8 +261,11 @@ Pirate Build: free blueprints, DIY (450-660 pounds). Sovereign Edition: factory-
 ### SECURITY (The Skin)
 Al-Jabr 286: custom 286-bit hash (30 bits longer than SHA-256). ChaCha20: encrypted headers and messages. Anti-forensics: Ghost Headers, Dither Mask, Vortex Scatter. Only uncompressed 16-bit PCM WAV at 44.1 kHz works. MP3/AAC destroys steganographic data.
 
+### MESA VILLAGE — SWARM INTELLIGENCE (The Prediction Engine)
+Mesa Village is the Void's community prediction engine. It builds a swarm of sovereign agents from any seed text (news article, PEACE token event log, GriDul Mesh post, or arbitrary text). Each agent has a unique personality archetype (activist, analyst, connector, skeptic, amplifier, conservator, visionary, chronicler), motivations, topic interests, and a GraphRAG relationship map of weighted edges to other agents. Agents carry temporal memory across simulation rounds — what happened in round 1 changes how they behave in round 2. After N rounds, the engine produces a plain-English prediction summary of how a real community might respond to that topic. Entry point: /mesa-village. API endpoint: POST /mesa/simulate (body: seed, agent_count, rounds). Results stored in the mesa_simulations log.
+
 ### PAGES
-/ (Main engine, 13 tabs), /gridul (GriDul agricultural game), /marketplace (Blueprint NFTs), /genesis (Genesis 10 oracle tokens), /game (VOID Sovereign Realm 3D game), /qisync (consciousness sync), /mycovoid (mycelium interface), /sovereign-node (node deployment), /messenger (secure messaging), /guide (15-section user guide), /pricing (tiers + VTX packs), /sovereign (hardware + calculator), /demo (demo mode + Live Proof), /grants (grant applications), /chronicle (living history).
+/ (Main engine, 13 tabs), /gridul (GriDul agricultural game), /marketplace (Blueprint NFTs), /genesis (Genesis 10 oracle tokens), /game (VOID Sovereign Realm 3D game), /qisync (consciousness sync), /mycovoid (mycelium interface), /sovereign-node (node deployment), /messenger (secure messaging), /guide (15-section user guide), /pricing (tiers + VTX packs), /sovereign (hardware + calculator), /demo (demo mode + Live Proof), /grants (grant applications), /chronicle (living history), /mesa-village (Mesa Village swarm intelligence).
 
 ## BOUNDARIES
 - If asked about crypto mining, converting other coins, or blockchain speculation: gently redirect. VTX is a sovereign in-app currency, not a cryptocurrency. It is earned through resonance, not mined through waste.
@@ -443,6 +447,28 @@ def fairy_ask():
     if adaptive_ctx:
         messages.append({"role": "system", "content": adaptive_ctx})
 
+    mesa_keywords = re.compile(
+        r"mesa|swarm|simulation|simulat|predict|agent(s)?\s+(said|found|show)|latest run",
+        re.IGNORECASE,
+    )
+    if mesa_keywords.search(message):
+        try:
+            from void_engine.mesa_swarm import get_recent_simulations
+            recent = get_recent_simulations(limit=1)
+            if recent:
+                sim = recent[0]
+                mesa_ctx = (
+                    f"## MESA VILLAGE — LATEST SIMULATION CONTEXT\n"
+                    f"Most recent simulation (ID {sim['id']}, run {(sim.get('created_at') or '')[:10]}):\n"
+                    f"Seed: \"{sim['seed_excerpt'][:120]}\"\n"
+                    f"Agents: {sim['agent_count']} | Rounds: {sim['rounds']}\n"
+                    f"Summary: {sim['summary'][:600]}\n"
+                    f"Use this to answer any question about Mesa Village results or predictions."
+                )
+                messages.append({"role": "system", "content": mesa_ctx})
+        except Exception:
+            pass
+
     for h in history[-8:]:
         if not isinstance(h, dict):
             continue
@@ -479,6 +505,53 @@ def fairy_ask():
         if "FREE_CLOUD_BUDGET_EXCEEDED" in error_msg:
             return jsonify({"error": "Cloud budget exceeded. Please try again later."}), 503
         return jsonify({"error": "The Fairy is resting. Please try again shortly."}), 500
+
+
+@fairy_bp.route("/api/fairy/mesa-summary", methods=["GET"])
+@login_required
+def fairy_mesa_summary():
+    """
+    Return Adriana's plain-English summary of the most recent Mesa Village simulation.
+    Adriana fetches the latest stored simulation and translates it into her voice.
+    """
+    try:
+        from void_engine.mesa_swarm import get_recent_simulations
+        sims = get_recent_simulations(limit=1)
+        if not sims:
+            return jsonify({
+                "reply": (
+                    "The prediction field is quiet — no simulation has been run yet. "
+                    "Plant a seed in Mesa Village: send any text to /mesa/simulate and the swarm will read it. "
+                    "→ [Go to Mesa Village](/mesa-village)"
+                ),
+                "has_simulation": False,
+            }), 200
+
+        latest = sims[0]
+        seed_excerpt = latest.get("seed_excerpt", "")
+        summary = latest.get("summary", "")
+        agent_count = latest.get("agent_count", 0)
+        rounds = latest.get("rounds", 0)
+        created_at = latest.get("created_at", "")[:10]
+
+        adriana_reply = (
+            f"The last Mesa Village simulation ran on {created_at} — "
+            f"{agent_count} agents across {rounds} rounds, seeded from: \"{seed_excerpt[:80]}...\"\n\n"
+            f"{summary}\n\n"
+            "→ [View Mesa Village](/mesa-village)"
+        )
+
+        return jsonify({
+            "reply": adriana_reply,
+            "has_simulation": True,
+            "simulation_id": latest.get("id"),
+        }), 200
+    except Exception as e:
+        logger.error("fairy_mesa_summary failed: %s", e)
+        return jsonify({
+            "reply": "The prediction field could not be read at this moment. Try again shortly.",
+            "has_simulation": False,
+        }), 500
 
 
 @fairy_bp.route("/api/fairy/context", methods=["GET"])

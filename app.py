@@ -69,6 +69,11 @@ def _startup_migrations():
         _init_mesa_tables()
     except Exception as e:
         logger.error("Mesa tables init failed: %s", e)
+    try:
+        from void_engine.mesa_swarm import _init_mesa_simulations_table
+        _init_mesa_simulations_table()
+    except Exception as e:
+        logger.error("Mesa simulations table init failed: %s", e)
 
 try:
     from routes import register_blueprints

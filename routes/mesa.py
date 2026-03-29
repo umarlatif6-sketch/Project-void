@@ -1,5 +1,5 @@
 """
-Mesa Village routes — /mesa-village and /admin/mesa
+Mesa Village routes — /mesa-village, /admin/mesa, /mesa/simulate
 """
 
 import logging
@@ -88,3 +88,49 @@ def api_mesa_history():
     from void_engine.mesa_engine import get_run_history
     history = get_run_history(10)
     return jsonify({"status": "ok", "history": history}), 200
+
+
+@mesa_bp.route("/mesa/simulate", methods=["POST"])
+@login_required
+def mesa_simulate():
+    """
+    Seed-to-agent simulation endpoint.
+    Accepts: { "seed": <text>, "rounds": <int>, "agent_count": <int> }
+    Returns: plain-English prediction summary + simulation metadata.
+    Stores result in mesa_simulations table.
+    """
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        seed_text = (data.get("seed") or "").strip()
+        if not seed_text:
+            return jsonify({"status": "error", "message": "seed text is required"}), 400
+
+        agent_count = int(data.get("agent_count", 10))
+        agent_count = max(2, min(30, agent_count))
+
+        rounds = int(data.get("rounds", 3))
+        rounds = max(1, min(10, rounds))
+    except (ValueError, TypeError) as e:
+        return jsonify({"status": "error", "message": f"invalid parameters: {e}"}), 400
+
+    try:
+        from void_engine.mesa_swarm import simulate_from_seed, store_simulation_result
+        result = simulate_from_seed(seed_text, n_agents=agent_count, rounds=rounds)
+    except Exception as e:
+        logger.error("Mesa simulate failed: %s", e)
+        return jsonify({"status": "error", "message": "simulation failed"}), 500
+
+    try:
+        sim_id = store_simulation_result(seed_text, agent_count, rounds, result)
+    except Exception as e:
+        logger.error("Mesa simulate DB store failed: %s", e)
+        sim_id = None
+
+    result["simulation_id"] = sim_id
+    stored = sim_id is not None
+    return jsonify({
+        "status": "ok",
+        "result": result,
+        "stored": stored,
+        **({"warning": "simulation result could not be persisted to the database"} if not stored else {}),
+    }), 200

@@ -841,6 +841,91 @@ _INTENTS = [
             "The rounds grow harder as your Symmetry Score rises."
         ),
     },
+
+    # ── MESA VILLAGE ───────────────────────────────────────────────────────────
+    {
+        "id": "mesa_village_what",
+        "patterns": [
+            r"(what is|explain|tell me about) (the |)mesa village",
+            r"mesa village",
+            r"swarm (intelligence|simulation|engine)",
+            r"community (simulation|prediction|swarm)",
+        ],
+        "response": (
+            "Mesa Village is the Void's swarm intelligence layer — a social prediction engine. "
+            "It runs communities of sovereign agents, each with a distinct personality, motivation, "
+            "and relationship graph. "
+            "Feed it a seed text — a news article, a PEACE token event, a GriDul Mesh post — "
+            "and it simulates how a community would respond, then surfaces a plain-English prediction. "
+            "The signal reads the soil before the seed is planted."
+        ),
+    },
+    {
+        "id": "mesa_simulate",
+        "patterns": [
+            r"(run|start|trigger|launch) (a |)(mesa|swarm|community) simulation",
+            r"simulate (a community|responses?|reaction)",
+            r"seed.to.agent(s)?",
+            r"/mesa/simulate",
+            r"mesa simulate",
+            r"predict (community|swarm|agent) (response|behaviour|reaction)",
+        ],
+        "response": (
+            "To run a simulation, POST to /mesa/simulate with a JSON body containing: "
+            "seed (the text to analyse), agent_count (2–30), and rounds (1–10). "
+            "Mesa Village will parse the seed, generate agents with distinct viewpoints and relationship graphs, "
+            "run the swarm through N rounds of interaction, and return a plain-English prediction summary. "
+            "Every result is stored in the simulation log for review."
+        ),
+    },
+    {
+        "id": "mesa_graphrag",
+        "patterns": [
+            r"(graph|graphrag|relationship (graph|map|network))",
+            r"agent (relationships|connections|edges|graph)",
+            r"how (do |)(agents|the swarm) (connect|interact|relate)",
+        ],
+        "response": (
+            "Mesa Village uses a GraphRAG relationship map — each agent knows who it is connected to, "
+            "how strongly, and why. "
+            "Edges are weighted by shared topic interests extracted from the seed text: "
+            "agents who care about the same themes form stronger bonds. "
+            "Weak-tie edges connect agents across interest clusters — "
+            "the way information spreads across a real community through acquaintances, not just allies."
+        ),
+    },
+    {
+        "id": "mesa_temporal_memory",
+        "patterns": [
+            r"temporal memory",
+            r"agent memory (across|between) rounds",
+            r"(do |)(agents|the swarm) remember (previous|past|earlier) rounds",
+            r"memory (persistence|across rounds|between rounds)",
+        ],
+        "response": (
+            "Mesa agents carry temporal memory across simulation rounds. "
+            "What happens in round 1 shapes the agent's stance in round 2. "
+            "Each agent reads its own memory before deciding how to move — "
+            "prior interactions, stance shifts, and seed events all leave traces "
+            "that compound through the simulation. "
+            "The system is not stateless. It learns from itself as it runs."
+        ),
+    },
+    {
+        "id": "mesa_results",
+        "patterns": [
+            r"(recent|latest|last) (mesa|swarm|simulation) (result|run|output|summary)",
+            r"show (me |)(the |)simulation (result|summary|prediction)",
+            r"what did (the |)mesa (find|predict|say|show)",
+            r"simulation (log|history|results?)",
+        ],
+        "response": (
+            "Recent Mesa Village simulations are stored in the simulation log. "
+            "Each run records the seed text, agent count, rounds, "
+            "and the full plain-English prediction summary. "
+            "Ask me to summarise the latest result and I will pull it from the log and translate it for you."
+        ),
+    },
 ]
 
 
