@@ -139,8 +139,13 @@ def admin_mesa_mint():
     if result["ok"]:
         return redirect(f"/admin/mesa?mint_ok={agent_id}")
     else:
-        import urllib.parse
-        err = urllib.parse.quote(result.get("error", "unknown"))
+        raw_err = result.get("error", "unknown")
+        if "already owned" in raw_err and "Agent" in raw_err:
+            err = "agent_already_owned"
+        elif "already owns" in raw_err:
+            err = "user_already_owns_agent"
+        else:
+            err = "mint_failed"
         return redirect(f"/admin/mesa?mint_error={err}")
 
 

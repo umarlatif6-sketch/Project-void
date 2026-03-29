@@ -605,6 +605,7 @@ def get_all_agent_slots(page: int = 1, per_page: int = 100) -> Dict:
     """
     Return paginated list of all 1,000 agent NFT slots with ownership info.
     Each slot has a deterministic glyph derived from its slot index.
+    Owner username is live-joined from the users table to avoid stale labels.
     """
     _init_agent_nft_table()
     from void_engine.db_pool import get_db
@@ -612,7 +613,13 @@ def get_all_agent_slots(page: int = 1, per_page: int = 100) -> Dict:
         conn = get_db()
         try:
             cur = conn.cursor()
-            cur.execute("SELECT agent_id, user_id, username, claimed_at FROM agent_nft_owners")
+            cur.execute("""
+                SELECT o.agent_id, o.user_id,
+                       COALESCE(u.username, o.username) AS username,
+                       o.claimed_at
+                FROM agent_nft_owners o
+                LEFT JOIN users u ON u.id = o.user_id
+            """)
             rows = cur.fetchall()
         finally:
             conn.close()
@@ -695,7 +702,8 @@ def get_user_owned_agent(user_id: int) -> Optional[Dict]:
 
 
 def get_agent_slot(agent_id: int) -> Optional[Dict]:
-    """Return full info for a specific agent NFT slot."""
+    """Return full info for a specific agent NFT slot.
+    Owner username is live-joined from users to avoid stale labels."""
     if agent_id < 0 or agent_id > 999:
         return None
     _init_agent_nft_table()
@@ -704,10 +712,14 @@ def get_agent_slot(agent_id: int) -> Optional[Dict]:
         conn = get_db()
         try:
             cur = conn.cursor()
-            cur.execute(
-                "SELECT user_id, username, claimed_at, nft_token FROM agent_nft_owners WHERE agent_id = %s",
-                (agent_id,)
-            )
+            cur.execute("""
+                SELECT o.user_id,
+                       COALESCE(u.username, o.username) AS username,
+                       o.claimed_at, o.nft_token
+                FROM agent_nft_owners o
+                LEFT JOIN users u ON u.id = o.user_id
+                WHERE o.agent_id = %s
+            """, (agent_id,))
             row = cur.fetchone()
         finally:
             conn.close()
@@ -811,6 +823,8 @@ def mint_agent_nft(agent_id: int, user_id: int, username: str) -> Dict:
 
 def revoke_agent_nft(agent_id: int) -> Dict:
     """Admin: revoke ownership of an agent NFT slot."""
+    if agent_id < 0 or agent_id > 999:
+        return {"ok": False, "error": "agent_id must be 0–999"}
     _init_agent_nft_table()
     from void_engine.db_pool import get_db
     try:
@@ -818,7 +832,10 @@ def revoke_agent_nft(agent_id: int) -> Dict:
         try:
             cur = conn.cursor()
             cur.execute("DELETE FROM agent_nft_owners WHERE agent_id = %s", (agent_id,))
+            deleted = cur.rowcount
             conn.commit()
+            if deleted == 0:
+                return {"ok": False, "error": f"Agent #{agent_id} has no owner to revoke"}
             return {"ok": True}
         finally:
             conn.close()
