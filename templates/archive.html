@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Founder's Archive — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <meta name="description" content="The living document behind PROJECT VOID — the person, the journey, the faith, the family, and the why.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IM+Fell+English:ital@0;1&display=swap');
+
+        :root {
+            --arch-bg: #0d0b08;
+            --arch-surface: #141209;
+            --arch-gold: #c9a84c;
+            --arch-gold-dim: rgba(201, 168, 76, 0.18);
+            --arch-gold-glow: rgba(201, 168, 76, 0.08);
+            --arch-text: #e8e0d0;
+            --arch-text-dim: #9a8e78;
+            --arch-text-faint: #5a5040;
+            --arch-border: rgba(201, 168, 76, 0.12);
+            --arch-crest: #c9a84c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Crimson Pro', 'Georgia', serif;
+            background: var(--arch-bg);
+            color: var(--arch-text);
+            min-height: 100vh;
+            line-height: 1.9;
+        }
+
+        /* ── NAV ── */
+        .arch-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 40px;
+            background: rgba(13, 11, 8, 0.92);
+            border-bottom: 1px solid var(--arch-border);
+            backdrop-filter: blur(8px);
+        }
+
+        .arch-nav-brand {
+            font-family: 'IM Fell English', serif;
+            font-size: 14px;
+            letter-spacing: 3px;
+            color: var(--arch-gold);
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        .arch-nav-back {
+            font-size: 13px;
+            color: var(--arch-text-dim);
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .arch-nav-back:hover { color: var(--arch-gold); }
+
+        /* ── HERO ── */
+        .arch-hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 40px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .arch-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 50% 50%, rgba(201, 168, 76, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .arch-hero-eyebrow {
+            font-size: 11px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--arch-gold);
+            margin-bottom: 32px;
+            opacity: 0.8;
+        }
+
+        .arch-crest-symbol {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 48px;
+            position: relative;
+        }
+
+        .arch-crest-symbol svg {
+            width: 100%;
+            height: 100%;
+            opacity: 0.85;
+        }
+
+        .arch-hero-title {
+            font-family: 'IM Fell English', serif;
+            font-size: clamp(36px, 6vw, 72px);
+            font-weight: 400;
+            color: var(--arch-text);
+            line-height: 1.15;
+            margin-bottom: 28px;
+            letter-spacing: 1px;
+        }
+
+        .arch-hero-title em {
+            color: var(--arch-gold);
+            font-style: italic;
+        }
+
+        .arch-hero-byline {
+            font-size: 18px;
+            color: var(--arch-text-dim);
+            font-style: italic;
+            max-width: 560px;
+            margin: 0 auto 56px;
+            line-height: 1.7;
+        }
+
+        .arch-scroll-hint {
+            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--arch-text-faint);
+            animation: arch-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes arch-pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
+        }
+
+        /* ── DIVIDER ── */
+        .arch-divider {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 80px auto;
+            max-width: 800px;
+            padding: 0 40px;
+        }
+
+        .arch-divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--arch-border);
+        }
+
+        .arch-divider-mark {
+            color: var(--arch-gold);
+            font-size: 18px;
+            opacity: 0.6;
+        }
+
+        /* ── CHAPTER ── */
+        .arch-chapter {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 0 40px 120px;
+            position: relative;
+        }
+
+        .arch-chapter-header {
+            margin-bottom: 48px;
+        }
+
+        .arch-chapter-num {
+            font-size: 11px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--arch-gold);
+            opacity: 0.65;
+            margin-bottom: 12px;
+        }
+
+        .arch-chapter-title {
+            font-family: 'IM Fell English', serif;
+            font-size: clamp(28px, 4vw, 46px);
+            font-weight: 400;
+            color: var(--arch-text);
+            line-height: 1.2;
+        }
+
+        .arch-chapter-title em {
+            font-style: italic;
+            color: var(--arch-gold);
+        }
+
+        /* ── PROSE ── */
+        .arch-prose {
+            font-size: 19px;
+            line-height: 1.95;
+            color: var(--arch-text);
+        }
+
+        .arch-prose p {
+            margin-bottom: 28px;
+        }
+
+        .arch-prose p:last-child {
+            margin-bottom: 0;
+        }
+
+        .arch-prose em {
+            font-style: italic;
+            color: var(--arch-text);
+        }
+
+        .arch-prose strong {
+            color: var(--arch-gold);
+            font-weight: 600;
+        }
+
+        .arch-prose blockquote {
+            border-left: 2px solid var(--arch-gold);
+            padding-left: 28px;
+            margin: 40px 0;
+            font-style: italic;
+            color: var(--arch-text-dim);
+            font-size: 21px;
+            line-height: 1.7;
+        }
+
+        /* ── RESONANCE BUTTON ── */
+        .arch-resonate {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 48px;
+            padding-top: 36px;
+            border-top: 1px solid var(--arch-border);
+        }
+
+        .arch-resonate-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            background: transparent;
+            border: 1px solid var(--arch-border);
+            border-radius: 2px;
+            color: var(--arch-text-dim);
+            font-family: 'Crimson Pro', serif;
+            font-size: 15px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.25s;
+        }
+
+        .arch-resonate-btn:hover {
+            border-color: var(--arch-gold);
+            color: var(--arch-gold);
+            background: var(--arch-gold-glow);
+        }
+
+        .arch-resonate-btn.resonated {
+            border-color: var(--arch-gold);
+            color: var(--arch-gold);
+            background: var(--arch-gold-dim);
+        }
+
+        .arch-resonate-count {
+            font-size: 13px;
+            color: var(--arch-text-faint);
+            letter-spacing: 1px;
+        }
+
+        /* ── MEDALLION SECTION ── */
+        .arch-medallion {
+            max-width: 760px;
+            margin: 0 auto 120px;
+            padding: 60px 40px;
+            background: rgba(201, 168, 76, 0.03);
+            border: 1px solid var(--arch-border);
+            border-radius: 2px;
+            text-align: center;
+            position: relative;
+        }
+
+        .arch-medallion::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--arch-gold), transparent);
+        }
+
+        .arch-medallion-crest {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 32px;
+        }
+
+        .arch-medallion-crest svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .arch-medallion-title {
+            font-family: 'IM Fell English', serif;
+            font-size: 32px;
+            color: var(--arch-gold);
+            margin-bottom: 20px;
+        }
+
+        .arch-medallion-text {
+            font-size: 18px;
+            line-height: 1.9;
+            color: var(--arch-text-dim);
+            max-width: 580px;
+            margin: 0 auto 32px;
+        }
+
+        .arch-medallion-text em {
+            color: var(--arch-text);
+            font-style: italic;
+        }
+
+        /* ── SHARE ── */
+        .arch-share {
+            max-width: 760px;
+            margin: 0 auto 160px;
+            padding: 0 40px;
+            text-align: center;
+        }
+
+        .arch-share-label {
+            font-size: 11px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--arch-text-faint);
+            margin-bottom: 24px;
+        }
+
+        .arch-share-url {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 480px;
+            margin: 0 auto 16px;
+            padding: 14px 18px;
+            background: var(--arch-surface);
+            border: 1px solid var(--arch-border);
+            border-radius: 2px;
+        }
+
+        .arch-share-url-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--arch-text-dim);
+            letter-spacing: 0.5px;
+            font-family: 'Crimson Pro', serif;
+            word-break: break-all;
+        }
+
+        .arch-share-copy {
+            padding: 6px 16px;
+            background: transparent;
+            border: 1px solid var(--arch-border);
+            border-radius: 2px;
+            color: var(--arch-gold);
+            font-family: 'Crimson Pro', serif;
+            font-size: 13px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .arch-share-copy:hover {
+            background: var(--arch-gold-dim);
+        }
+
+        .arch-share-note {
+            font-size: 15px;
+            font-style: italic;
+            color: var(--arch-text-faint);
+        }
+
+        /* ── FOOTER ── */
+        .arch-footer {
+            border-top: 1px solid var(--arch-border);
+            text-align: center;
+            padding: 48px 40px;
+        }
+
+        .arch-footer-text {
+            font-size: 13px;
+            color: var(--arch-text-faint);
+            letter-spacing: 2px;
+        }
+
+        .arch-footer-link {
+            color: var(--arch-text-dim);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .arch-footer-link:hover { color: var(--arch-gold); }
+
+        /* ── SECTION NAV (sticky sidebar dots on desktop) ── */
+        .arch-section-nav {
+            position: fixed;
+            right: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            z-index: 50;
+        }
+
+        .arch-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--arch-border);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .arch-dot::after {
+            content: attr(data-label);
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--arch-text-faint);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+
+        .arch-dot:hover::after,
+        .arch-dot.active::after {
+            opacity: 1;
+        }
+
+        .arch-dot.active {
+            background: var(--arch-gold);
+            box-shadow: 0 0 8px rgba(201, 168, 76, 0.5);
+        }
+
+        .arch-dot:hover {
+            background: var(--arch-text-dim);
+        }
+
+        @media (max-width: 900px) {
+            .arch-section-nav { display: none; }
+            .arch-nav { padding: 16px 24px; }
+            .arch-chapter { padding: 0 24px 80px; }
+            .arch-hero { padding: 100px 24px 60px; }
+            .arch-medallion { margin: 0 24px 80px; padding: 40px 24px; }
+            .arch-share { margin: 0 0 100px; padding: 0 24px; }
+            .arch-divider { padding: 0 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav class="arch-nav">
+        <a href="/launch" class="arch-nav-brand">PROJECT VOID</a>
+        <a href="/launch" class="arch-nav-back">&#8592; Return</a>
+    </nav>
+
+    <!-- SECTION NAV DOTS -->
+    <nav class="arch-section-nav" id="sectionNav">
+        <div class="arch-dot active" data-label="Opening" data-target="section-hero" onclick="scrollTo('section-hero')"></div>
+        <div class="arch-dot" data-label="The Mind" data-target="section-mind" onclick="scrollTo('section-mind')"></div>
+        <div class="arch-dot" data-label="The Journey" data-target="section-journey" onclick="scrollTo('section-journey')"></div>
+        <div class="arch-dot" data-label="The Faith" data-target="section-faith" onclick="scrollTo('section-faith')"></div>
+        <div class="arch-dot" data-label="The Family" data-target="section-family" onclick="scrollTo('section-family')"></div>
+        <div class="arch-dot" data-label="The Work" data-target="section-work" onclick="scrollTo('section-work')"></div>
+        <div class="arch-dot" data-label="The Why" data-target="section-why" onclick="scrollTo('section-why')"></div>
+        <div class="arch-dot" data-label="The Crest" data-target="section-crest" onclick="scrollTo('section-crest')"></div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="arch-hero" id="section-hero">
+        <p class="arch-hero-eyebrow">Founder's Archive</p>
+
+        <div class="arch-crest-symbol">
+            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="60" cy="60" r="56" stroke="#c9a84c" stroke-width="1" opacity="0.3"/>
+                <circle cx="60" cy="60" r="44" stroke="#c9a84c" stroke-width="0.5" opacity="0.2"/>
+                <polygon points="60,16 72,48 108,48 80,68 90,100 60,80 30,100 40,68 12,48 48,48" stroke="#c9a84c" stroke-width="1" fill="none" opacity="0.6"/>
+                <circle cx="60" cy="60" r="6" fill="#c9a84c" opacity="0.7"/>
+                <line x1="60" y1="16" x2="60" y2="104" stroke="#c9a84c" stroke-width="0.4" opacity="0.2"/>
+                <line x1="16" y1="60" x2="104" y2="60" stroke="#c9a84c" stroke-width="0.4" opacity="0.2"/>
+            </svg>
+        </div>
+
+        <h1 class="arch-hero-title">The Person Who<br>Built <em>This</em></h1>
+        <p class="arch-hero-byline">A living record of the mind, the journey, the faith, the family, and the reason this exists at all.</p>
+        <p class="arch-scroll-hint">Read slowly &#8595;</p>
+    </section>
+
+    <!-- DIVIDER -->
+    <div class="arch-divider">
+        <div class="arch-divider-line"></div>
+        <span class="arch-divider-mark">&#9670;</span>
+        <div class="arch-divider-line"></div>
+    </div>
+
+    <!-- CHAPTER I — THE MIND -->
+    <section class="arch-chapter" id="section-mind">
+        <div class="arch-chapter-header">
+            <p class="arch-chapter-num">Chapter I</p>
+            <h2 class="arch-chapter-title">The <em>Mind</em></h2>
+        </div>
+        <div class="arch-prose">
+            <p>Some minds do not process information the way the world expects. They move laterally — drawing connections between things that should have nothing to do with each other, finding structural patterns hidden inside apparently unrelated problems. This is not a gift that announces itself. It arrives as confusion first. As the feeling of being somewhere else when everyone else is present.</p>
+
+            <p>The founder of PROJECT VOID describes his thinking as a kind of <strong>layered translation</strong> — ideas arriving not in words but in shapes, in systems, in weights. A problem does not present itself as a question; it arrives as a pressure that won't lift until the underlying architecture is understood. Sleep is negotiable. Distraction is not possible when something is unresolved.</p>
+
+            <blockquote>"I don't just think about problems. I live inside them until I understand what they're made of."</blockquote>
+
+            <p>This is the same mind that sat with steganography not as a technical curiosity but as a philosophical necessity — the question of how truth survives inside hostile environments. How information moves when the channel itself is compromised. How sound can carry something invisible. These are not engineering questions. They are questions about resistance, about preservation, about what endures.</p>
+
+            <p>The answers came the same way they always do: not through research first, but through understanding the shape of the problem. Then building. Then refining. Then beginning again. This is how PROJECT VOID was built — not from a whiteboard but from a mind that does not stop until the thing is real.</p>
+        </div>
+        <div class="arch-resonate">
+            <button class="arch-resonate-btn" data-section="mind" onclick="resonate(this, 'mind')">
+                <span>&#9670;</span> This resonates
+            </button>
+            <span class="arch-resonate-count" id="count-mind"></span>
+        </div>
+    </section>
+
+    <div class="arch-divider">
+        <div class="arch-divider-line"></div>
+        <span class="arch-divider-mark">&#9670;</span>
+        <div class="arch-divider-line"></div>
+    </div>
+
+    <!-- CHAPTER II — THE JOURNEY -->
+    <section class="arch-chapter" id="section-journey">
+        <div class="arch-chapter-header">
+            <p class="arch-chapter-num">Chapter II</p>
+            <h2 class="arch-chapter-title">The <em>Journey</em></h2>
+        </div>
+        <div class="arch-prose">
+            <p>The geography of a life leaves marks that no CV captures. China. Australia. Thailand. Each place a different pressure. Each move a recalibration of what was certain and what was not.</p>
+
+            <p>The taxi rides matter. Not as metaphor but as fact — there were periods where the work was physical, immediate, and without the language of ambition. Driving. Waiting. Watching a city move. These hours were not wasted. They were the hours in which things were understood at a level that comfort rarely reaches.</p>
+
+            <blockquote>"You learn more about a place from inside a taxi at 2am than you ever will from a conference room."</blockquote>
+
+            <p>Living between countries is not the same as travelling between them. It requires a person to build themselves out of portable things — principles, pattern recognition, relationships, and the willingness to begin again without the advantage of being known. This founder did this more than once. Not because the previous chapter failed, but because <strong>the next chapter required it</strong>.</p>
+
+            <p>Australia shaped the thinking about systems — how institutions work, who they serve, what they leave unaddressed. China revealed the scale at which technology operates when it is not constrained by the assumptions of a smaller imagination. Thailand offered something quieter: the understanding that stability is not a destination but a practice.</p>
+
+            <p>These are not travel stories. They are the substrate of the worldview that made this platform possible — a platform built for people who operate across borders, across institutions, across the visible and invisible lines of a world that does not always welcome what it cannot categorise.</p>
+        </div>
+        <div class="arch-resonate">
+            <button class="arch-resonate-btn" data-section="journey" onclick="resonate(this, 'journey')">
+                <span>&#9670;</span> This resonates
+            </button>
+            <span class="arch-resonate-count" id="count-journey"></span>
+        </div>
+    </section>
+
+    <div class="arch-divider">
+        <div class="arch-divider-line"></div>
+        <span class="arch-divider-mark">&#9670;</span>
+        <div class="arch-divider-line"></div>
+    </div>
+
+    <!-- CHAPTER III — THE FAITH -->
+    <section class="arch-chapter" id="section-faith">
+        <div class="arch-chapter-header">
+            <p class="arch-chapter-num">Chapter III</p>
+            <h2 class="arch-chapter-title">The <em>Faith</em></h2>
+        </div>
+        <div class="arch-prose">
+            <p>This is not a religious product. But it was built by a religious person, and that cannot be separated from what it is.</p>
+
+            <p>Islam, for this founder, is not background. It is the operating system underneath everything else — the filter through which decisions are made, the accountability structure that does not bend to market pressure or investor preference. The concept of the <strong>haram filter</strong> is real and it is active. There are things this platform will not do, not because of regulation, but because of what God permits and what He does not.</p>
+
+            <blockquote>"I am not building for the market. I am building for a record that will outlast me. And that record is not kept by shareholders."</blockquote>
+
+            <p>This changes the nature of the work. When the final accountability is to God rather than to a quarterly report, the incentives shift. Shortcuts that harm people are not strategic risks — they are transgressions. Features that surveil without consent are not edge cases — they are violations. The ethics here are not a marketing layer. They are the foundation.</p>
+
+            <p>The platform's commitment to privacy, to the sovereignty of the individual over their information, to building tools that protect rather than extract — these do not come from a tech philosophy. They come from a theology. From the belief that the person carrying this responsibility was given something to steward, not to exploit.</p>
+
+            <p>That is a different kind of founder. And it produces a different kind of product.</p>
+        </div>
+        <div class="arch-resonate">
+            <button class="arch-resonate-btn" data-section="faith" onclick="resonate(this, 'faith')">
+                <span>&#9670;</span> This resonates
+            </button>
+            <span class="arch-resonate-count" id="count-faith"></span>
+        </div>
+    </section>
+
+    <div class="arch-divider">
+        <div class="arch-divider-line"></div>
+        <span class="arch-divider-mark">&#9670;</span>
+        <div class="arch-divider-line"></div>
+    </div>
+
+    <!-- CHAPTER IV — THE FAMILY -->
+    <section class="arch-chapter" id="section-family">
+        <div class="arch-chapter-header">
+            <p class="arch-chapter-num">Chapter IV</p>
+            <h2 class="arch-chapter-title">The <em>Family</em></h2>
+        </div>
+        <div class="arch-prose">
+            <p>His father had sixteen siblings. Sixteen. That number carries weight beyond arithmetic — it describes a world where responsibility is not a concept but a daily texture. Where the unit of survival is not the individual but the branch. Where contribution is measured not in personal achievement but in what you add to the people who came before and the people who will come after.</p>
+
+            <p>Thirty-six cousins. A family that extends outward in every direction, carrying different names, different postcodes, different lives, but connected by a single root. This is not nostalgia. It is architecture — a model for how human beings can be organised around lineage, care, and mutual accountability rather than around transaction.</p>
+
+            <blockquote>"I grew up understanding that I was not alone. I was a branch. And branches carry the weight of the tree."</blockquote>
+
+            <p>The wife. The children. The quieter, more immediate circle that makes the work possible without knowing every detail of it. The person who holds the home together while the mind is elsewhere — not because they were asked to carry it alone, but because they understand what is being built and why. This kind of partnership is rare. It is also the reason any of this is sustainable.</p>
+
+            <p>Family is not a distraction from the mission. It <em>is</em> the mission. The platform's emphasis on sovereignty, on protecting what belongs to people, on building across generations — all of this traces back to a man who understands, at a cellular level, what it means to carry a branch of people and to refuse to let it break on his watch.</p>
+        </div>
+        <div class="arch-resonate">
+            <button class="arch-resonate-btn" data-section="family" onclick="resonate(this, 'family')">
+                <span>&#9670;</span> This resonates
+            </button>
+            <span class="arch-resonate-count" id="count-family"></span>
+        </div>
+    </section>
+
+    <div class="arch-divider">
+        <div class="arch-divider-line"></div>
+        <span class="arch-divider-mark">&#9670;</span>
+        <div class="arch-divider-line"></div>
+    </div>
+
+    <!-- CHAPTER V — THE WORK -->
+    <section class="arch-chapter" id="section-work">
+        <div class="arch-chapter-header">
+            <p class="arch-chapter-num">Chapter V</p>
+            <h2 class="arch-chapter-title">The <em>Work</em></h2>
+        </div>
+        <div class="arch-prose">
+            <p>There was a takeaway job. This is mentioned not as a detail of hardship but as a detail of seriousness — because what happened inside that job was not resignation. It was calculation.</p>
+
+            <p>The visa had a timeline. The timeline had a calculation. And inside that calculation was a five-year window — a period of relative peace in which the building could happen without the ground shifting underneath. The takeaway job was not a step backward. It was a strategy. A way of buying time, of holding the structure stable, of keeping the hands busy while the mind did the real work.</p>
+
+            <blockquote>"People look at what you're doing now and miss what you're building toward. I have always been building toward something they cannot see yet."</blockquote>
+
+            <p>The <strong>five year peace</strong> is a concept that deserves its own chapter. Not every builder gets one. Most are caught between urgency and instability, between the pressure to produce immediately and the impossibility of building something lasting under that pressure. This founder understood that the work required a protected window — a period in which external noise was managed, obligations were met, and the deeper construction could proceed.</p>
+
+            <p>This is not passive patience. It is active patience — the kind that requires discipline, foresight, and the willingness to be misunderstood in the present in order to be understood in the future. The work that is visible in PROJECT VOID today was built during that quieter time. Not in spite of constraint. Because of it.</p>
+        </div>
+        <div class="arch-resonate">
+            <button class="arch-resonate-btn" data-section="work" onclick="resonate(this, 'work')">
+                <span>&#9670;</span> This resonates
+            </button>
+            <span class="arch-resonate-count" id="count-work"></span>
+        </div>
+    </section>
+
+    <div class="arch-divider">
+        <div class="arch-divider-line"></div>
+        <span class="arch-divider-mark">&#9670;</span>
+        <div class="arch-divider-line"></div>
+    </div>
+
+    <!-- CHAPTER VI — THE WHY -->
+    <section class="arch-chapter" id="section-why">
+        <div class="arch-chapter-header">
+            <p class="arch-chapter-num">Chapter VI</p>
+            <h2 class="arch-chapter-title">The <em>Why</em></h2>
+        </div>
+        <div class="arch-prose">
+            <p>The question behind all questions: why does any of this exist?</p>
+
+            <p>Not to be successful. Not to exit. Not to scale to a number that looks impressive in a deck. Those outcomes may come. They are not the reason.</p>
+
+            <p>The reason is answering to God. Not in the way the phrase is often used — as a comfortable abstraction or a pious gesture. But in the literal sense: that every gift, every capacity, every advantage that was given to a person carries with it an obligation to use it well. To waste what was given is not neutral. It is a failure of stewardship.</p>
+
+            <blockquote>"I was given a mind that can see certain things. I was given a life that gave me access to certain experiences. I was given the time to build. What would it say about me if I used none of that for anything that mattered?"</blockquote>
+
+            <p>Building from earth is another part of this. Not from capital. Not from privilege. Not from a network that opened doors. From the ground — from the actual texture of having worked hard jobs, lived in unfamiliar places, navigated systems that were not designed for people like him, and emerged with a clarity that comfort cannot produce.</p>
+
+            <p>The people this platform is built for are not the people with the most resources. They are the people who most need a tool they can trust — journalists working under hostile governments, individuals whose data is not protected by the systems meant to protect it, communities whose communication is surveilled because of who they are rather than what they've done.</p>
+
+            <p>This is the why. It is not marketable. It does not fit in a tagline. But it is the reason every technical decision in this platform points in the same direction — toward the person who cannot afford for their information to be found.</p>
+        </div>
+        <div class="arch-resonate">
+            <button class="arch-resonate-btn" data-section="why" onclick="resonate(this, 'why')">
+                <span>&#9670;</span> This resonates
+            </button>
+            <span class="arch-resonate-count" id="count-why"></span>
+        </div>
+    </section>
+
+    <div class="arch-divider">
+        <div class="arch-divider-line"></div>
+        <span class="arch-divider-mark">&#9670;</span>
+        <div class="arch-divider-line"></div>
+    </div>
+
+    <!-- MEDALLION CREST -->
+    <section class="arch-medallion" id="section-crest">
+        <div class="arch-medallion-crest">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="36" stroke="#c9a84c" stroke-width="1" opacity="0.4"/>
+                <circle cx="40" cy="40" r="28" stroke="#c9a84c" stroke-width="0.6" opacity="0.25"/>
+                <path d="M40 10 L46 28 L64 28 L50 38 L55 56 L40 46 L25 56 L30 38 L16 28 L34 28 Z" stroke="#c9a84c" stroke-width="1" fill="rgba(201,168,76,0.06)" opacity="0.8"/>
+                <circle cx="40" cy="40" r="4" fill="#c9a84c" opacity="0.9"/>
+                <text x="40" y="72" text-anchor="middle" font-family="serif" font-size="5" fill="#c9a84c" opacity="0.5" letter-spacing="2">LINEAGE</text>
+            </svg>
+        </div>
+
+        <h2 class="arch-medallion-title">The Medallion Crest</h2>
+        <p class="arch-medallion-text">Every architect carries a crest. Not as decoration — as a record. A way of making <em>contribution legible across generations</em>. The people who build things, who carry responsibility for a branch of people, who use what they were given rather than burying it — they leave a mark that outlasts them. The Medallion Crest is how PROJECT VOID will encode that mark into the platform itself.</p>
+
+        <p class="arch-medallion-text">Every Sovereign-tier builder, every head of lineage within the ecosystem, earns a crest that carries their signature forward — a living artefact of what they contributed, visible to those who come after. <em>Not an NFT. A record. A form of permanence that money cannot buy.</em></p>
+
+        <p style="font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--arch-text-faint); margin-top: 24px;">Coming to the platform</p>
+    </section>
+
+    <!-- SHARE -->
+    <section class="arch-share">
+        <p class="arch-share-label">Pass this forward</p>
+        <div class="arch-share-url">
+            <span class="arch-share-url-text" id="shareUrl"></span>
+            <button class="arch-share-copy" onclick="copyLink()">Copy</button>
+        </div>
+        <p class="arch-share-note"><em>If something here meant something to you, send it to someone who should read it.</em></p>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="arch-footer">
+        <p class="arch-footer-text">
+            <a href="/launch" class="arch-footer-link">PROJECT VOID</a>
+            &nbsp;&#9670;&nbsp;
+            Founder's Archive &nbsp;&#9670;&nbsp;
+            A living document
+        </p>
+    </footer>
+
+    <script>
+        // Set share URL
+        document.getElementById('shareUrl').textContent = window.location.href;
+
+        // Copy link
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                const btn = document.querySelector('.arch-share-copy');
+                btn.textContent = 'Copied';
+                setTimeout(() => btn.textContent = 'Copy', 2000);
+            });
+        }
+
+        // Scroll to section
+        function scrollTo(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Resonance tracking
+        const resonated = new Set(JSON.parse(localStorage.getItem('arch_resonated') || '[]'));
+
+        function resonate(btn, section) {
+            if (resonated.has(section)) return;
+            resonated.add(section);
+            localStorage.setItem('arch_resonated', JSON.stringify([...resonated]));
+            btn.classList.add('resonated');
+            btn.querySelector('span').textContent = '◆';
+
+            fetch('/archive/resonate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ section })
+            })
+            .then(r => r.json())
+            .then(data => {
+                const el = document.getElementById('count-' + section);
+                if (el && data.count) {
+                    el.textContent = data.count + (data.count === 1 ? ' person resonated' : ' people resonated');
+                }
+            });
+        }
+
+        // Load existing resonance counts
+        fetch('/archive/resonance')
+            .then(r => r.json())
+            .then(data => {
+                for (const [section, count] of Object.entries(data)) {
+                    const el = document.getElementById('count-' + section);
+                    if (el && count > 0) {
+                        el.textContent = count + (count === 1 ? ' person resonated' : ' people resonated');
+                    }
+                }
+            });
+
+        // Restore resonated state from localStorage
+        resonated.forEach(section => {
+            const btn = document.querySelector(`[data-section="${section}"]`);
+            if (btn) {
+                btn.classList.add('resonated');
+                btn.querySelector('span').textContent = '◆';
+            }
+        });
+
+        // Section nav dots active state
+        const sections = [
+            { id: 'section-hero', dot: 0 },
+            { id: 'section-mind', dot: 1 },
+            { id: 'section-journey', dot: 2 },
+            { id: 'section-faith', dot: 3 },
+            { id: 'section-family', dot: 4 },
+            { id: 'section-work', dot: 5 },
+            { id: 'section-why', dot: 6 },
+            { id: 'section-crest', dot: 7 },
+        ];
+
+        const dots = document.querySelectorAll('.arch-dot');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const match = sections.find(s => s.id === entry.target.id);
+                    if (match !== undefined) {
+                        dots.forEach(d => d.classList.remove('active'));
+                        if (dots[match.dot]) dots[match.dot].classList.add('active');
+                    }
+                }
+            });
+        }, { threshold: 0.4 });
+
+        sections.forEach(s => {
+            const el = document.getElementById(s.id);
+            if (el) observer.observe(el);
+        });
+    </script>
+</body>
+</html>

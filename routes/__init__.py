@@ -23,6 +23,7 @@ from routes.gridul import gridul_bp
 from routes.peace import peace_bp
 from routes.genesis import genesis_bp
 from routes.prior_art import prior_art_bp
+from routes.archive import archive_bp
 
 
 def register_blueprints(app):
@@ -51,3 +52,4 @@ def register_blueprints(app):
     app.register_blueprint(peace_bp)
     app.register_blueprint(genesis_bp)
     app.register_blueprint(prior_art_bp)
+    app.register_blueprint(archive_bp)
