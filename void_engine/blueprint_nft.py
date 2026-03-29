@@ -1544,3 +1544,169 @@ def get_active_rental_for_user(user_id):
         }
     finally:
         conn.close()
+
+
+GENESIS_10_DROP = {
+    "tier": "legendary",
+    "title": "Sovereign Node Blueprint",
+    "description": (
+        "Genesis 10 — the first 10 biological mesh nodes. Grants the right to participate "
+        "in the VOID biological mesh network, earn PEACE tokens for verified environmental "
+        "actions (composting, aquaponics), and be publicly listed as a founding member of "
+        "the sovereign biological economy."
+    ),
+    "total_editions": 10,
+    "price_gbp": 250000,
+    "price_vtx": Decimal("5000"),
+    "collection": "genesis_10",
+}
+
+
+def seed_genesis_10():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT COUNT(*) FROM blueprint_tokens WHERE collection = 'genesis_10'"
+        )
+        if cur.fetchone()[0] > 0:
+            logger.info("Genesis 10 tokens already seeded, skipping")
+            return
+
+        drop = GENESIS_10_DROP
+        for edition in range(1, drop["total_editions"] + 1):
+            token_hash = _generate_token_hash(drop["tier"], drop["title"], edition, drop["total_editions"])
+            metadata = {
+                "tier_config": TIER_CONFIG[drop["tier"]]["label"],
+                "minted_epoch": datetime.now(timezone.utc).isoformat(),
+                "edition": f"{edition}/{drop['total_editions']}",
+                "drop": "genesis_10",
+                "collection": "genesis_10",
+                "phase_sig": fatiha_286_truncated(token_hash.encode("utf-8"), 16),
+                "biological_mesh": True,
+                "peace_eligible": True,
+            }
+            cur.execute(
+                """INSERT INTO blueprint_tokens
+                   (token_hash, tier, title, description, edition_number, total_editions,
+                    price_gbp, price_vtx, metadata_json, status, collection)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'available', 'genesis_10')""",
+                (token_hash, drop["tier"], drop["title"], drop["description"],
+                 edition, drop["total_editions"], drop["price_gbp"], drop["price_vtx"],
+                 json.dumps(metadata)),
+            )
+        conn.commit()
+        logger.info("Seeded Genesis 10 Blueprint Tokens (10 editions)")
+    except Exception:
+        conn.rollback()
+        logger.exception("Failed to seed Genesis 10 tokens")
+    finally:
+        conn.close()
+
+
+def get_genesis_10_listings():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT id, token_hash, tier, title, description, edition_number, total_editions,
+                      price_gbp, price_vtx, status, minted_at
+               FROM blueprint_tokens
+               WHERE collection = 'genesis_10'
+               ORDER BY edition_number"""
+        )
+        rows = cur.fetchall()
+        tokens = []
+        for r in rows:
+            tokens.append({
+                "id": r[0],
+                "token_hash": r[1][:16] + "...",
+                "tier": r[2],
+                "title": r[3],
+                "description": r[4],
+                "edition_number": r[5],
+                "total_editions": r[6],
+                "price_gbp": r[7],
+                "price_display": f"\u00a3{r[7] / 100:,.0f}",
+                "price_vtx": float(r[8]),
+                "status": r[9],
+                "minted_at": r[10].isoformat() if r[10] else None,
+                "sovereign_poem": hash_to_sovereign_poem(r[1]),
+            })
+        available = sum(1 for t in tokens if t["status"] == "available")
+        return {
+            "tokens": tokens,
+            "total": len(tokens),
+            "available": available,
+            "sold": len(tokens) - available,
+        }
+    finally:
+        conn.close()
+
+
+def regenerate_leaders_md():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT bt.edition_number, u.username, tow.purchased_at,
+                      bt.token_hash, u.id
+               FROM token_ownership tow
+               JOIN blueprint_tokens bt ON bt.id = tow.token_id
+               JOIN users u ON u.id = tow.owner_id
+               WHERE bt.collection = 'genesis_10'
+               ORDER BY tow.purchased_at ASC"""
+        )
+        rows = cur.fetchall()
+
+        user_ids = [r[4] for r in rows] if rows else []
+        node_id_map = {}
+        if user_ids:
+            cur.execute(
+                """SELECT DISTINCT ON (user_id) user_id, node_id
+                   FROM genesis_oracle_events
+                   WHERE user_id = ANY(%s)
+                   ORDER BY user_id, submitted_at DESC""",
+                (user_ids,),
+            )
+            for uid, nid in cur.fetchall():
+                node_id_map[uid] = nid
+
+        lines = [
+            "# GENESIS 10 — Sovereign Node Registry",
+            "",
+            "> The first 10 biological mesh nodes. Each entry below is a verified Genesis 10 holder —",
+            "> a founding participant in the PROJECT VOID biological economy.",
+            "",
+            "| # | Node ID | Registration |",
+            "|---|---------|--------------|",
+        ]
+
+        if rows:
+            for i, r in enumerate(rows, 1):
+                edition = r[0]
+                username = r[1] or "anonymous"
+                registered = r[2].strftime("%Y-%m-%d") if r[2] else "—"
+                user_id = r[4]
+                node_id = node_id_map.get(user_id) or f"VOID-G10-{edition:02d}"
+                lines.append(f"| {i} | {node_id} ({username}) | {registered} |")
+        else:
+            lines.append("| — | *Awaiting first claim...* | — |")
+
+        lines += [
+            "",
+            "---",
+            "",
+            "*Registry auto-updates as Genesis 10 Blueprint NFTs are claimed.*  ",
+            "*Verified by the Al-Jabr 286 Sovereign Hash chain.*",
+        ]
+
+        md_content = "\n".join(lines) + "\n"
+        with open("GENESIS_LEADERS.md", "w") as f:
+            f.write(md_content)
+        logger.info("GENESIS_LEADERS.md regenerated (%d holders)", len(rows))
+    except Exception as e:
+        logger.error("regenerate_leaders_md failed: %s", e)
+    finally:
+        conn.close()

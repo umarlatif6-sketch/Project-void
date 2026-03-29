@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis 10 — Sovereign Node Blueprint — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-green: #4caf50;
+            --void-violet: #7c5cff;
+            --void-red: #ff5252;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .g-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .g-nav-brand { font-size: 0.95rem; font-weight: 700; color: var(--void-gold); letter-spacing: 2px; text-decoration: none; }
+        .g-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .g-nav-link { color: #aaa; text-decoration: none; font-size: 0.75rem; letter-spacing: 1px; transition: color 0.2s; }
+        .g-nav-link:hover, .g-nav-link.active { color: var(--void-gold); }
+
+        /* HERO */
+        .g-hero {
+            text-align: center;
+            padding: 96px 32px 64px;
+            background:
+                radial-gradient(ellipse at 50% 0%, #1a1200 0%, var(--void-bg) 70%),
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(201,168,76,0.02) 40px, rgba(201,168,76,0.02) 41px);
+            border-bottom: 1px solid var(--void-border);
+            position: relative;
+            overflow: hidden;
+        }
+        .g-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--void-gold), var(--void-teal), var(--void-gold), transparent);
+        }
+        .g-hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .g-hero-badge {
+            display: inline-block;
+            background: var(--void-gold);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+        .g-hero-scarcity {
+            display: inline-block;
+            border: 1px solid var(--void-gold);
+            color: var(--void-gold);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+        .g-hero-title {
+            font-size: 3.2rem;
+            font-weight: 900;
+            letter-spacing: 6px;
+            margin: 0 0 12px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 40px rgba(201,168,76,0.3);
+        }
+        .g-hero-title span { color: var(--void-gold); }
+        .g-hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--void-gold);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+        .g-hero-desc {
+            font-size: 0.9rem;
+            color: #777;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.9;
+        }
+        .g-hero-desc strong { color: var(--void-gold); }
+        .g-scarcity-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(201,168,76,0.06);
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 6px;
+            padding: 18px 32px;
+            margin-bottom: 32px;
+        }
+        .g-sc-num { font-size: 2.8rem; font-weight: 900; color: var(--void-gold); line-height: 1; }
+        .g-sc-label { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: #666; text-align: left; }
+        .g-sc-sep { width: 1px; height: 44px; background: rgba(201,168,76,0.2); }
+        .g-hero-cta {
+            display: inline-block;
+            background: var(--void-gold);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 14px 40px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.15s;
+            text-decoration: none;
+        }
+        .g-hero-cta:hover { opacity: 0.85; }
+        .g-hero-cta-secondary {
+            display: inline-block;
+            border: 1px solid var(--void-border);
+            color: #666;
+            border-radius: 4px;
+            padding: 14px 32px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            transition: border-color 0.15s, color 0.15s;
+            margin-left: 12px;
+        }
+        .g-hero-cta-secondary:hover { border-color: var(--void-gold); color: var(--void-gold); }
+
+        /* MAIN */
+        .g-main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 72px 24px 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 80px;
+        }
+
+        /* SECTION */
+        .g-section-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 36px;
+        }
+        .g-section-num { font-size: 0.55rem; letter-spacing: 3px; color: var(--void-gold); opacity: 0.6; }
+        .g-section-title { font-size: 0.9rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--void-text); }
+        .g-section-line { flex: 1; height: 1px; background: var(--void-border); }
+
+        /* WHAT YOU GET */
+        .g-perks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .g-perk {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 6px;
+            padding: 28px;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+        .g-perk:hover { border-color: rgba(201,168,76,0.3); }
+        .g-perk-icon { font-size: 1.6rem; margin-bottom: 14px; display: block; }
+        .g-perk-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--void-gold); margin-bottom: 10px; }
+        .g-perk-body { font-size: 0.78rem; color: #666; line-height: 1.7; }
+
+        /* TOKEN GRID */
+        .g-token-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
+        }
+        .g-token-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color 0.2s;
+            cursor: pointer;
+        }
+        .g-token-card:hover { border-color: rgba(201,168,76,0.4); }
+        .g-token-card.sold {
+            opacity: 0.45;
+            cursor: default;
+        }
+        .g-token-card.sold:hover { border-color: var(--void-border); }
+        .g-token-num {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--void-gold);
+            margin-bottom: 4px;
+            line-height: 1;
+        }
+        .g-token-label { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--void-muted); margin-bottom: 12px; }
+        .g-token-status {
+            display: inline-block;
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 2px;
+            border: 1px solid var(--void-green);
+            color: var(--void-green);
+        }
+        .g-token-status.sold { border-color: var(--void-muted); color: var(--void-muted); }
+        .g-token-price { font-size: 0.68rem; color: #555; margin-top: 8px; }
+
+        /* PURCHASE PANEL */
+        .g-purchase-panel {
+            background: var(--void-surface);
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 8px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .g-purchase-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--void-gold), var(--void-teal), var(--void-gold));
+        }
+        .g-purchase-header { display: flex; gap: 32px; margin-bottom: 32px; flex-wrap: wrap; }
+        .g-purchase-price-block { }
+        .g-purchase-price-vtx { font-size: 2.8rem; font-weight: 900; color: var(--void-gold); line-height: 1; margin-bottom: 4px; }
+        .g-purchase-price-vtx-label { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--void-muted); }
+        .g-purchase-price-gbp { font-size: 1rem; color: #666; margin-top: 8px; }
+        .g-purchase-desc { font-size: 0.8rem; color: #666; line-height: 1.8; max-width: 520px; }
+        .g-token-select-label { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--void-muted); margin-bottom: 8px; }
+        .g-token-select {
+            width: 100%;
+            background: #0d0d0d;
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            color: var(--void-text);
+            font-family: inherit;
+            font-size: 0.8rem;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+        }
+        .g-buy-btn {
+            background: var(--void-gold);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 14px 40px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.15s;
+            display: block;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+        .g-buy-btn:hover { opacity: 0.85; }
+        .g-buy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .g-purchase-note { font-size: 0.68rem; color: #444; text-align: center; line-height: 1.8; }
+        .g-purchase-note a { color: var(--void-gold); text-decoration: none; }
+        .g-purchase-result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #0d0d0d;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            color: var(--void-green);
+            display: none;
+        }
+        .g-purchase-error {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: rgba(255,82,82,0.07);
+            border: 1px solid rgba(255,82,82,0.2);
+            border-radius: 4px;
+            font-size: 0.72rem;
+            color: var(--void-red);
+            display: none;
+        }
+        .g-holder-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(76,175,80,0.08);
+            border: 1px solid var(--void-green);
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--void-green);
+            margin-bottom: 24px;
+        }
+
+        /* HARDWARE */
+        .g-download-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 600px) { .g-download-grid { grid-template-columns: 1fr; } }
+        .g-download-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 6px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .g-download-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--void-teal); }
+        .g-download-desc { font-size: 0.78rem; color: #666; line-height: 1.7; flex: 1; }
+        .g-download-btn {
+            display: inline-block;
+            background: transparent;
+            border: 1px solid var(--void-teal);
+            color: var(--void-teal);
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-family: inherit;
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: background 0.15s;
+            text-align: center;
+        }
+        .g-download-btn:hover { background: rgba(0,191,165,0.08); }
+
+        /* LEADERS */
+        .g-leaders-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+        .g-leaders-table th {
+            text-align: left;
+            padding: 8px 14px;
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            border-bottom: 1px solid var(--void-border);
+            text-transform: uppercase;
+        }
+        .g-leaders-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #161616;
+            color: #888;
+        }
+        .g-leaders-table td:first-child { color: var(--void-gold); font-weight: 700; }
+        .g-leaders-table td:nth-child(2) { color: var(--void-teal); }
+        .g-leaders-table tr:last-child td { border-bottom: none; }
+        .g-leaders-empty { padding: 32px; text-align: center; color: #444; font-size: 0.75rem; }
+
+        /* PROSE */
+        .g-prose { font-size: 0.82rem; color: #666; line-height: 1.9; max-width: 800px; }
+        .g-prose p { margin: 0 0 16px; }
+        .g-prose strong { color: var(--void-gold); }
+        .g-prose em { color: var(--void-teal); font-style: normal; }
+
+        /* LOGIN PROMPT */
+        .g-login-prompt {
+            background: rgba(201,168,76,0.05);
+            border: 1px solid rgba(201,168,76,0.15);
+            border-radius: 6px;
+            padding: 24px 28px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .g-login-prompt a { color: var(--void-gold); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav class="g-nav">
+        <a href="/" class="g-nav-brand">&#9670; VOID</a>
+        <div class="g-nav-links">
+            <a href="/" class="g-nav-link">Engine</a>
+            <a href="/genesis" class="g-nav-link active">Genesis 10</a>
+            <a href="/genesis/oracle" class="g-nav-link">Oracle</a>
+            <a href="/gridul" class="g-nav-link">GriDul Grow</a>
+            <a href="/marketplace" class="g-nav-link">Marketplace</a>
+            <a href="/sovereign-node" class="g-nav-link">Sovereign Node</a>
+        </div>
+    </nav>
+
+    <div class="g-hero">
+        <div class="g-hero-eyebrow">
+            <span class="g-hero-badge">&#9670; Genesis 10</span>
+            <span class="g-hero-scarcity" id="hero-scarcity">
+                {{ listings.available }} of {{ listings.total }} REMAINING
+            </span>
+        </div>
+        <h1 class="g-hero-title">SOVEREIGN NODE <span>BLUEPRINT</span></h1>
+        <p class="g-hero-subtitle">The First Real Transaction in the Biological Economy</p>
+        <p class="g-hero-desc">
+            Ten limited-edition Blueprint NFTs. Each one grants a node runner the right to join
+            the <strong>biological mesh network</strong>, earn <strong>PEACE tokens</strong> for verified
+            environmental actions, and be publicly registered as a <strong>founding member</strong> of the
+            PROJECT VOID sovereign economy.
+        </p>
+
+        <div class="g-scarcity-bar">
+            <div>
+                <div class="g-sc-num" id="sc-available">{{ listings.available }}</div>
+                <div class="g-sc-label">Available</div>
+            </div>
+            <div class="g-sc-sep"></div>
+            <div>
+                <div class="g-sc-num" id="sc-sold">{{ listings.sold }}</div>
+                <div class="g-sc-label">Claimed</div>
+            </div>
+            <div class="g-sc-sep"></div>
+            <div>
+                <div class="g-sc-num">10</div>
+                <div class="g-sc-label">Total Ever</div>
+            </div>
+        </div>
+
+        <div>
+            <a href="#purchase" class="g-hero-cta">Claim Your Node</a>
+            <a href="/genesis/oracle" class="g-hero-cta-secondary">Oracle &#8594;</a>
+        </div>
+    </div>
+
+    <main class="g-main">
+        <!-- WHAT YOU GET -->
+        <section>
+            <div class="g-section-head">
+                <span class="g-section-num">01</span>
+                <span class="g-section-title">What You Receive</span>
+                <span class="g-section-line"></span>
+            </div>
+            <div class="g-perks-grid">
+                <div class="g-perk">
+                    <span class="g-perk-icon">&#9670;</span>
+                    <div class="g-perk-title">Biological Mesh Access</div>
+                    <div class="g-perk-body">Right to participate in the VOID biological mesh network as a founding node. Your environmental actions are recorded on the Al-Jabr 286 sovereign hash chain.</div>
+                </div>
+                <div class="g-perk">
+                    <span class="g-perk-icon">&#9653;</span>
+                    <div class="g-perk-title">PEACE Token Earnings</div>
+                    <div class="g-perk-body">Earn PEACE tokens for every verified compost or aquaponics cycle. PEACE is only mintable by biological action — not purchasable. Genesis 10 runners unlock the oracle submission pathway.</div>
+                </div>
+                <div class="g-perk">
+                    <span class="g-perk-icon">&#11089;</span>
+                    <div class="g-perk-title">Public Registry Listing</div>
+                    <div class="g-perk-body">Your Node ID is permanently recorded in the GENESIS_LEADERS.md public registry — the first 10 sovereign node founders in the PROJECT VOID history.</div>
+                </div>
+                <div class="g-perk">
+                    <span class="g-perk-icon">&#9651;</span>
+                    <div class="g-perk-title">Hardware Oracle Package</div>
+                    <div class="g-perk-body">Download the <code>verify_life_therm.py</code> script and README — the NVIDIA Orin compatible thermal verification oracle for submitting biological proof to the mesh.</div>
+                </div>
+                <div class="g-perk">
+                    <span class="g-perk-icon">&#9679;</span>
+                    <div class="g-perk-title">GriDul Grow Sessions</div>
+                    <div class="g-perk-body">Run biological grow cycles directly in the VOID platform via GriDul Grow. Each verified session mints PEACE tokens on the sovereign ledger.</div>
+                </div>
+                <div class="g-perk">
+                    <span class="g-perk-icon">&#9658;</span>
+                    <div class="g-perk-title">Founding Member Status</div>
+                    <div class="g-perk-body">Permanent recognition as one of the first 10 actors in the biological economy. First-mover position as the network expands to GEAR tokens and the full 4000 Series deployment.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOKEN AVAILABILITY -->
+        <section>
+            <div class="g-section-head">
+                <span class="g-section-num">02</span>
+                <span class="g-section-title">Node Availability</span>
+                <span class="g-section-line"></span>
+            </div>
+            <div class="g-token-grid" id="token-grid">
+                {% for token in listings.tokens %}
+                <div class="g-token-card {% if token.status != 'available' %}sold{% endif %}"
+                     data-token-id="{{ token.id }}"
+                     onclick="selectToken({{ token.id }}, '{{ token.status }}')">
+                    <div class="g-token-num">{{ '%02d'|format(token.edition_number) }}</div>
+                    <div class="g-token-label">Node #{{ token.edition_number }}</div>
+                    <span class="g-token-status {% if token.status != 'available' %}sold{% endif %}">
+                        {{ token.status if token.status != 'available' else 'Available' }}
+                    </span>
+                    <div class="g-token-price">{{ "%.0f"|format(token.price_vtx) }} VTX</div>
+                </div>
+                {% else %}
+                <div style="grid-column:1/-1; text-align:center; color:#444; font-size:0.75rem; padding:32px;">
+                    Loading Genesis 10 availability...
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- PURCHASE -->
+        <section id="purchase">
+            <div class="g-section-head">
+                <span class="g-section-num">03</span>
+                <span class="g-section-title">Claim a Node</span>
+                <span class="g-section-line"></span>
+            </div>
+
+            {% if is_holder %}
+            <div class="g-holder-badge">
+                &#9670; You are a Genesis 10 Node Runner
+            </div>
+            {% endif %}
+
+            {% if user_id %}
+            <div class="g-purchase-panel">
+                <div class="g-purchase-header">
+                    <div class="g-purchase-price-block">
+                        <div class="g-purchase-price-vtx" id="selected-price-vtx">5,000</div>
+                        <div class="g-purchase-price-vtx-label">VTX per node</div>
+                        <div class="g-purchase-price-gbp">£2,500 GBP equivalent</div>
+                    </div>
+                    <div class="g-purchase-desc">
+                        Select an available node below and purchase with your VTX balance.
+                        Each node is a unique edition (1/10 through 10/10).
+                        Your node ID will be registered to your account and added to the
+                        Genesis Leaders public registry.
+                    </div>
+                </div>
+
+                <div class="g-token-select-label">Select Available Node</div>
+                <select class="g-token-select" id="token-selector">
+                    <option value="">— Select a node to claim —</option>
+                    {% for token in listings.tokens %}
+                    {% if token.status == 'available' %}
+                    <option value="{{ token.id }}">Node #{{ '%02d'|format(token.edition_number) }} — Edition {{ token.edition_number }}/10 — {{ "%.0f"|format(token.price_vtx) }} VTX</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+
+                <button class="g-buy-btn" id="buy-btn" onclick="purchaseNode()">
+                    &#9670; CLAIM NODE WITH VTX
+                </button>
+
+                <div class="g-purchase-note">
+                    Requires {{ "%.0f"|format(listings.tokens[0].price_vtx if listings.tokens else 5000) }} VTX in your wallet.
+                    Don't have enough? <a href="/marketplace">Get VTX &#8594;</a>
+                </div>
+                <div class="g-purchase-result" id="purchase-result"></div>
+                <div class="g-purchase-error" id="purchase-error"></div>
+            </div>
+            {% else %}
+            <div class="g-login-prompt">
+                <strong style="color:var(--void-gold);">Sign in to claim a Genesis 10 node.</strong><br>
+                <a href="/">Sign in to PROJECT VOID &#8594;</a>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- ORACLE / HARDWARE -->
+        <section>
+            <div class="g-section-head">
+                <span class="g-section-num">04</span>
+                <span class="g-section-title">Oracle &amp; Hardware Package</span>
+                <span class="g-section-line"></span>
+            </div>
+            <div class="g-prose" style="margin-bottom:32px;">
+                <p>
+                    The <strong>Adriana Oracle</strong> is the on-chain verification system for biological actions.
+                    Node runners submit thermal HDR readings from their NVIDIA Orin hardware —
+                    the oracle validates the reading and mints <strong>PEACE tokens</strong> to the ledger.
+                </p>
+                <p>
+                    The <em>verify_life_therm.py</em> script reads the MLX90640 thermal camera,
+                    computes a Heat Dissipation Rate (HDR), and prints a Proof of Resonance certificate.
+                    Submit the HDR value to the oracle at <a href="/genesis/oracle" style="color:var(--void-gold);">/genesis/oracle</a>.
+                </p>
+            </div>
+            <div class="g-download-grid">
+                <div class="g-download-card">
+                    <div class="g-download-title">&#9651; verify_life_therm.py</div>
+                    <div class="g-download-desc">
+                        Thermal biological verification oracle. Reads MLX90640 sensor data, computes HDR,
+                        and prints a Proof of Resonance certificate. Compatible with NVIDIA Orin and Raspberry Pi.
+                        Includes simulation mode for testing without hardware.
+                    </div>
+                    <a href="/genesis/download/verify_life_therm.py" class="g-download-btn" download>
+                        &#8595; Download Script
+                    </a>
+                </div>
+                <div class="g-download-card">
+                    <div class="g-download-title">&#9642; README_ORACLE.md</div>
+                    <div class="g-download-desc">
+                        Complete documentation for the Genesis 10 hardware package.
+                        Covers installation, wiring, usage, oracle submission workflow,
+                        and PEACE token mechanics.
+                    </div>
+                    <a href="/genesis/download/README_ORACLE.md" class="g-download-btn" download>
+                        &#8595; Download README
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- GENESIS LEADERS -->
+        <section>
+            <div class="g-section-head">
+                <span class="g-section-num">05</span>
+                <span class="g-section-title">Genesis Leaders Registry</span>
+                <span class="g-section-line"></span>
+            </div>
+            <div class="g-prose" style="margin-bottom:24px;">
+                <p>The first 10 nodes to be claimed. Permanently recorded in
+                <strong>GENESIS_LEADERS.md</strong> in the project repository.
+                Each entry is verifiable against the Al-Jabr 286 ledger.</p>
+            </div>
+            <div class="g-purchase-panel" style="padding:0; border-radius:6px; overflow:hidden;">
+                {% if listings.sold > 0 %}
+                <table class="g-leaders-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Node ID</th>
+                            <th>Status</th>
+                            <th>Registered</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaders-body">
+                        {% for token in listings.tokens %}
+                        {% if token.status != 'available' %}
+                        <tr>
+                            <td>{{ token.edition_number }}</td>
+                            <td>VOID-G10-{{ '%02d'|format(token.edition_number) }}</td>
+                            <td><span style="color:var(--void-green);font-size:0.65rem;letter-spacing:1px;">CLAIMED</span></td>
+                            <td style="color:#555;">—</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="g-leaders-empty">
+                    &#9670; No nodes claimed yet. Be the first founding member.<br>
+                    <span style="font-size:0.68rem; margin-top:8px; display:block;">
+                        The first claim will appear here and in GENESIS_LEADERS.md
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- GRIDUL LINK -->
+        <section style="text-align:center; padding:40px 0;">
+            <div style="font-size:0.65rem; letter-spacing:3px; text-transform:uppercase; color:var(--void-muted); margin-bottom:20px;">
+                Already a Genesis 10 holder?
+            </div>
+            <a href="/gridul" style="display:inline-flex; align-items:center; gap:12px; background:var(--void-surface); border:1px solid var(--void-green); border-radius:6px; padding:20px 36px; text-decoration:none; color:var(--void-green); font-size:0.8rem; letter-spacing:2px; text-transform:uppercase; transition:background 0.15s;">
+                &#127807; Start GriDul Grow Session &#8594;
+            </a>
+            <span style="display:block; margin:0 20px; font-size:0.68rem; color:#444; margin-top:12px;">
+                Complete biological grow cycles to earn PEACE tokens
+            </span>
+        </section>
+    </main>
+
+    <script>
+    let selectedTokenId = null;
+
+    function selectToken(tokenId, status) {
+        if (status !== 'available') return;
+        selectedTokenId = tokenId;
+        document.querySelectorAll('.g-token-card').forEach(c => {
+            c.style.borderColor = '';
+        });
+        const card = document.querySelector(`.g-token-card[data-token-id="${tokenId}"]`);
+        if (card) card.style.borderColor = 'var(--void-gold)';
+        const sel = document.getElementById('token-selector');
+        if (sel) sel.value = tokenId;
+    }
+
+    async function purchaseNode() {
+        const sel = document.getElementById('token-selector');
+        const tokenId = sel ? sel.value : selectedTokenId;
+        if (!tokenId) {
+            showError('Please select an available node first.');
+            return;
+        }
+
+        const btn = document.getElementById('buy-btn');
+        btn.disabled = true;
+        btn.textContent = 'PROCESSING...';
+
+        try {
+            const resp = await fetch('/api/genesis/purchase', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token_id: parseInt(tokenId), method: 'vtx'}),
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                const result = document.getElementById('purchase-result');
+                result.style.display = 'block';
+                result.innerHTML = [
+                    '&#9670; Node claimed successfully!',
+                    '<br>Token: ' + data.title,
+                    '<br>VTX spent: ' + data.spent_vtx,
+                    '<br>Block: #' + (data.block && data.block.block_index),
+                    '<br><a href="/genesis/oracle" style="color:var(--void-green);">Submit oracle readings &#8594;</a>',
+                ].join('');
+                document.getElementById('purchase-error').style.display = 'none';
+                refreshListings();
+            } else {
+                showError(data.error || 'Purchase failed. Please try again.');
+                btn.disabled = false;
+                btn.textContent = '&#9670; CLAIM NODE WITH VTX';
+            }
+        } catch(e) {
+            showError('Network error: ' + e.message);
+            btn.disabled = false;
+            btn.textContent = '&#9670; CLAIM NODE WITH VTX';
+        }
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('purchase-error');
+        el.style.display = 'block';
+        el.textContent = msg;
+    }
+
+    async function refreshListings() {
+        try {
+            const resp = await fetch('/api/genesis/listings');
+            const data = await resp.json();
+            if (data.ok) {
+                document.getElementById('sc-available').textContent = data.available;
+                document.getElementById('sc-sold').textContent = data.sold;
+                document.getElementById('hero-scarcity').textContent =
+                    data.available + ' of ' + data.total + ' REMAINING';
+            }
+        } catch(e) {}
+    }
+    </script>
+</body>
+</html>

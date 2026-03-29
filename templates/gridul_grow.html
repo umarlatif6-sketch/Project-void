@@ -397,9 +397,145 @@
         }
         /* ─────────────────────────────────────────────────────── */
 
+        /* PEACE SESSION PANEL */
+        .peace-section {
+            background: var(--gd-surface);
+            border: 1px solid rgba(76,175,80,0.25);
+            border-radius: 6px;
+            padding: 28px 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        .peace-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--gd-green), var(--gd-teal));
+        }
+        .peace-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .peace-section-title {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gd-green);
+        }
+        .peace-bal-display {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gd-green);
+        }
+        .peace-section-sub {
+            font-size: 0.68rem;
+            color: #555;
+            line-height: 1.7;
+            margin: 0 0 20px;
+        }
+        .peace-action-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .peace-action-btn {
+            background: var(--gd-surface2);
+            border: 1px solid var(--gd-border);
+            border-radius: 4px;
+            padding: 8px 16px;
+            color: #888;
+            font-family: inherit;
+            font-size: 0.68rem;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .peace-action-btn:hover, .peace-action-btn.selected {
+            border-color: var(--gd-green);
+            color: var(--gd-green);
+            background: rgba(76,175,80,0.08);
+        }
+        .peace-controls-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .peace-dur-label { font-size: 0.6rem; letter-spacing: 2px; color: var(--gd-muted); text-transform: uppercase; }
+        .peace-dur-select {
+            background: var(--gd-surface2);
+            border: 1px solid var(--gd-border);
+            border-radius: 4px;
+            color: #bbb;
+            font-family: inherit;
+            font-size: 0.72rem;
+            padding: 7px 10px;
+        }
+        .peace-start-btn {
+            background: var(--gd-green);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 24px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .peace-start-btn:hover { opacity: 0.85; }
+        .peace-stop-btn {
+            background: transparent;
+            color: var(--gd-red);
+            border: 1px solid var(--gd-red);
+            border-radius: 4px;
+            padding: 8px 20px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .peace-metrics-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .peace-metric {
+            background: var(--gd-surface2);
+            border: 1px solid var(--gd-border);
+            border-radius: 4px;
+            padding: 12px 16px;
+            text-align: center;
+            min-width: 90px;
+        }
+        .peace-metric-val { font-size: 1.4rem; font-weight: 900; color: var(--gd-green); line-height: 1; margin-bottom: 4px; }
+        .peace-metric-lbl { font-size: 0.55rem; letter-spacing: 2px; color: var(--gd-muted); text-transform: uppercase; }
+        .peace-log {
+            background: #060606;
+            border: 1px solid #181818;
+            border-radius: 4px;
+            padding: 10px 14px;
+            font-size: 0.68rem;
+            color: #444;
+            line-height: 2;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .peace-log-line { display: block; }
+        .peace-log-line.good { color: var(--gd-green); }
+        .peace-log-line.warn { color: var(--gd-gold); }
+        .peace-log-line.info { color: var(--gd-teal); }
+
         @media (max-width: 600px) {
             .gd-nav { padding: 12px 16px; }
             .gd-main { padding: 28px 16px 60px; }
+            .peace-section { padding: 20px 16px; }
         }
     </style>
 </head>
@@ -551,7 +687,81 @@
             No zones yet. Click the card above to create your first growing zone.
         </div>
         {% endif %}
+
+        <!-- PEACE SESSION TRACKER -->
+        <section class="peace-section">
+            <div class="peace-section-header">
+                <span class="peace-section-title">&#9642; Earn PEACE Tokens</span>
+                {% if is_genesis_holder %}
+                <span class="peace-bal-display">&#9653; <span id="peace-bal">{{ "%.4f"|format(peace_balance) }}</span> PEACE</span>
+                {% else %}
+                <span style="font-size:0.6rem;letter-spacing:2px;color:#444;text-transform:uppercase;">Genesis 10 Required</span>
+                {% endif %}
+            </div>
+
+            {% if is_genesis_holder %}
+            <p class="peace-section-sub">
+                Log an active grow or compost session to mint PEACE — proof-of-biological-work.
+                Sessions must run for at least 60 seconds. Daily cap: 5.0 PEACE.
+            </p>
+
+            <div class="peace-action-row">
+                <button class="peace-action-btn selected" data-action="aquaponics">&#127754; Aquaponics</button>
+                <button class="peace-action-btn" data-action="grow">&#127808; Grow Cycle</button>
+                <button class="peace-action-btn" data-action="compost">&#127807; Compost</button>
+                <button class="peace-action-btn" data-action="harvest">&#127806; Harvest</button>
+            </div>
+
+            <div class="peace-controls-row">
+                <label class="peace-dur-label">Duration</label>
+                <select class="peace-dur-select" id="peace-duration">
+                    <option value="120">2 minutes</option>
+                    <option value="300" selected>5 minutes</option>
+                    <option value="600">10 minutes</option>
+                    <option value="1800">30 minutes</option>
+                    <option value="3600">1 hour</option>
+                </select>
+                <button class="peace-start-btn" id="peace-start-btn">START SESSION</button>
+                <button class="peace-stop-btn" id="peace-stop-btn" style="display:none;">COMPLETE CYCLE</button>
+            </div>
+
+            <div class="peace-metrics-row" id="peace-metrics" style="display:none;">
+                <div class="peace-metric"><div class="peace-metric-val" id="pm-elapsed">0:00</div><div class="peace-metric-lbl">Elapsed</div></div>
+                <div class="peace-metric"><div class="peace-metric-val" id="pm-score">0.000</div><div class="peace-metric-lbl">Grow Score</div></div>
+                <div class="peace-metric"><div class="peace-metric-val" id="pm-progress">0%</div><div class="peace-metric-lbl">Progress</div></div>
+            </div>
+
+            <div class="peace-log" id="peace-log">
+                <span class="peace-log-line">[ GRIDUL GROW ] Select an action type and start your session</span>
+            </div>
+            {% else %}
+            <div style="padding: 32px 0; text-align: center;">
+                <div style="font-size: 1.6rem; margin-bottom: 14px; color: #1e1e1e;">&#9646;</div>
+                <div style="font-size: 0.72rem; letter-spacing: 2px; color: #444; text-transform: uppercase; margin-bottom: 10px;">Sovereign Node Access Required</div>
+                <p style="font-size: 0.68rem; color: #333; max-width: 380px; margin: 0 auto 20px; line-height: 1.8;">
+                    PEACE token minting is exclusively available to Genesis 10 Blueprint NFT holders —
+                    the founding biological mesh nodes of the VOID economy.
+                </p>
+                <a href="/genesis" style="display:inline-block;background:transparent;border:1px solid #2a2a2a;border-radius:4px;padding:9px 28px;font-family:inherit;font-size:0.68rem;letter-spacing:2px;color:#555;text-transform:uppercase;text-decoration:none;transition:border-color 0.15s,color 0.15s;"
+                   onmouseover="this.style.borderColor='#4caf50';this.style.color='#4caf50';"
+                   onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#555';">
+                    View Genesis 10 NFTs
+                </a>
+            </div>
+            {% endif %}
+        </section>
     </main>
+
+    <div class="gd-modal-overlay" id="peace-reward-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:600; align-items:center; justify-content:center;">
+        <div style="background:#101010; border:1px solid var(--gd-green); border-radius:6px; padding:40px 48px; text-align:center; max-width:380px; width:90%; position:relative;">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gd-green),var(--gd-teal));border-radius:6px 6px 0 0;"></div>
+            <div style="font-size:0.6rem;letter-spacing:3px;color:var(--gd-green);text-transform:uppercase;margin-bottom:14px;">&#9642; Biological Resonance Achieved</div>
+            <div id="peace-reward-amt" style="font-size:3rem;font-weight:900;color:var(--gd-green);line-height:1;">+1.0</div>
+            <div style="font-size:0.7rem;letter-spacing:3px;color:#666;margin:6px 0 24px;">PEACE TOKEN MINTED</div>
+            <div id="peace-reward-stats" style="font-size:0.72rem;color:#555;line-height:2;margin-bottom:24px;"></div>
+            <button onclick="document.getElementById('peace-reward-overlay').style.display='none';" style="background:var(--gd-green);color:#000;border:none;border-radius:4px;padding:10px 32px;font-family:inherit;font-size:0.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">CLOSE</button>
+        </div>
+    </div>
 
     <!-- ADD ZONE MODAL -->
     <div class="gd-modal-overlay" id="add-zone-modal">
@@ -738,6 +948,125 @@
                 if (e.target === this) closeModals();
             });
         });
+
+        /* ── PEACE SESSION LOGIC ─────────────────────────────── */
+        if (!document.getElementById('peace-start-btn')) { /* non-holder view */ }
+        else {
+        let peaceSessionId = null;
+        let peaceTickInterval = null;
+        let peaceElapsed = 0;
+        let peaceTargetSecs = 300;
+        let peaceGrowScore = 0;
+        let peaceSelectedAction = 'aquaponics';
+
+        document.querySelectorAll('.peace-action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (peaceSessionId) return;
+                document.querySelectorAll('.peace-action-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                peaceSelectedAction = this.dataset.action;
+            });
+        });
+
+        function peaceLog(msg, cls) {
+            const log = document.getElementById('peace-log');
+            const line = document.createElement('span');
+            line.className = 'peace-log-line' + (cls ? ' ' + cls : '');
+            const ts = new Date().toLocaleTimeString();
+            line.textContent = '[ ' + ts + ' ] ' + msg;
+            log.innerHTML = '';
+            log.appendChild(line);
+        }
+
+        function formatTime(secs) {
+            const m = Math.floor(secs / 60);
+            const s = secs % 60;
+            return m + ':' + String(s).padStart(2, '0');
+        }
+
+        function updateMetrics() {
+            document.getElementById('pm-elapsed').textContent = formatTime(peaceElapsed);
+            document.getElementById('pm-score').textContent = peaceGrowScore.toFixed(3);
+            const pct = Math.min(100, Math.round((peaceElapsed / peaceTargetSecs) * 100));
+            document.getElementById('pm-progress').textContent = pct + '%';
+        }
+
+        document.getElementById('peace-start-btn').addEventListener('click', async function() {
+            peaceTargetSecs = parseInt(document.getElementById('peace-duration').value) || 300;
+            const res = await fetch('/api/gridul/session-start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action_type: peaceSelectedAction, target_sec: peaceTargetSecs })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) {
+                peaceLog(data.error || 'Failed to start session', 'warn');
+                return;
+            }
+            peaceSessionId = data.session_id;
+            peaceElapsed = 0;
+            peaceGrowScore = 0;
+            document.getElementById('peace-start-btn').style.display = 'none';
+            document.getElementById('peace-stop-btn').style.display = '';
+            document.getElementById('peace-metrics').style.display = 'flex';
+            peaceLog('Session started — ' + peaceSelectedAction + ' mode active', 'info');
+            updateMetrics();
+            peaceTickInterval = setInterval(async () => {
+                peaceElapsed++;
+                updateMetrics();
+                if (peaceElapsed % 15 === 0) {
+                    const tr = await fetch('/api/gridul/tick', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ session_id: peaceSessionId, elapsed_seconds: peaceElapsed, activity: 1.0 })
+                    });
+                    const td = await tr.json();
+                    if (td.grow_score !== undefined) {
+                        peaceGrowScore = td.grow_score;
+                        updateMetrics();
+                    }
+                    if (td.message) peaceLog(td.message, 'good');
+                }
+            }, 1000);
+        });
+
+        document.getElementById('peace-stop-btn').addEventListener('click', async function() {
+            clearInterval(peaceTickInterval);
+            peaceTickInterval = null;
+            const res = await fetch('/api/gridul/session-end', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ session_id: peaceSessionId, elapsed_seconds: peaceElapsed })
+            });
+            const data = await res.json();
+            peaceSessionId = null;
+            document.getElementById('peace-start-btn').style.display = '';
+            document.getElementById('peace-stop-btn').style.display = 'none';
+            document.getElementById('peace-metrics').style.display = 'none';
+            if (res.ok && data.ok) {
+                const minted = data.peace_minted || 0;
+                if (minted > 0) {
+                    const newBal = data.new_balance || 0;
+                    document.getElementById('peace-bal').textContent = newBal.toFixed(4);
+                    document.getElementById('peace-reward-amt').textContent = '+' + minted.toFixed(4);
+                    document.getElementById('peace-reward-stats').innerHTML =
+                        'Duration: ' + formatTime(peaceElapsed) + '<br>' +
+                        'Action: ' + peaceSelectedAction + '<br>' +
+                        'New Balance: ' + newBal.toFixed(4) + ' PEACE';
+                    const overlay = document.getElementById('peace-reward-overlay');
+                    overlay.style.display = 'flex';
+                    peaceLog('Session complete — ' + minted.toFixed(4) + ' PEACE minted', 'good');
+                } else {
+                    peaceLog(data.message || 'Session ended. No PEACE minted (check minimum time).', 'warn');
+                }
+            } else {
+                peaceLog(data.error || 'Session ended.', '');
+            }
+            peaceElapsed = 0;
+            peaceGrowScore = 0;
+        });
+        } /* end Genesis holder block */
+        /* ─────────────────────────────────────────────────────── */
     </script>
 </body>
 </html>

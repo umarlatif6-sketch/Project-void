@@ -14,6 +14,8 @@
             --gd-border: #1c1c1c;
             --gd-gold: #c9a84c;
             --gd-teal: #00bfa5;
+            --gd-green: #4caf50;
+            --gd-red: #ff5252;
             --gd-text: #e0e0e0;
             --gd-muted: #555;
         }
@@ -54,7 +56,23 @@
             letter-spacing: 1px;
             transition: color 0.2s;
         }
-        .gd-nav-link:hover { color: var(--gd-teal); }
+        .gd-nav-link:hover, .gd-nav-link.active { color: var(--gd-teal); }
+
+        /* PEACE BALANCE BAR */
+        .gd-peace-strip {
+            background: rgba(76,175,80,0.06);
+            border-bottom: 1px solid rgba(76,175,80,0.15);
+            padding: 10px 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.7rem;
+        }
+        .gd-peace-strip-label { color: var(--gd-muted); letter-spacing: 2px; text-transform: uppercase; }
+        .gd-peace-strip-val { color: var(--gd-green); font-weight: 700; font-size: 0.85rem; }
+        .gd-peace-strip-note { color: #444; margin-left: auto; }
+        .gd-peace-strip a { color: var(--gd-green); text-decoration: none; }
+        .gd-peace-strip a:hover { text-decoration: underline; }
 
         /* HERO */
         .gd-hero {
@@ -289,6 +307,8 @@
             .gd-hero { padding: 60px 16px 48px; }
             .gd-glyph-char { font-size: 2.8rem; }
             .gd-pillars { padding: 40px 16px 60px; }
+            .gd-peace-strip { flex-wrap: wrap; }
+            .gd-peace-strip-note { margin-left: 0; }
         }
     </style>
 </head>
@@ -296,14 +316,24 @@
     <nav class="gd-nav">
         <a href="/" class="gd-nav-brand">◆ VOID ENGINE</a>
         <div class="gd-nav-links">
-            <a href="/gridul" class="gd-nav-link" style="color: var(--gd-teal);">GriDul</a>
+            <a href="/gridul" class="gd-nav-link active">GriDul</a>
             <a href="/gridul/move" class="gd-nav-link">Move</a>
             <a href="/gridul/grow" class="gd-nav-link">Grow</a>
             <a href="/gridul/mesh" class="gd-nav-link">Mesh</a>
+            <a href="/genesis" class="gd-nav-link">Genesis 10</a>
             <a href="/qisync" class="gd-nav-link">QiSync</a>
             <a href="/marketplace" class="gd-nav-link">Marketplace</a>
         </div>
     </nav>
+
+    <div class="gd-peace-strip">
+        <span class="gd-peace-strip-label">&#9653; PEACE</span>
+        <span class="gd-peace-strip-val" id="peace-strip-val">{{ "%.4f"|format(peace_balance) }}</span>
+        <span class="gd-peace-strip-note">
+            Earn PEACE via <a href="/gridul/grow">Grow cycles</a> or
+            <a href="/genesis/oracle">Genesis 10 Oracle</a>
+        </span>
+    </div>
 
     <section class="gd-hero">
         <div class="gd-badge">VOID ENGINE — COMMUNITY MESH MODULE</div>
@@ -377,12 +407,12 @@
             <div class="gd-pillar-name">GriDul <span class="accent">Grow</span></div>
             <p class="gd-pillar-desc">
                 Home aquaponics planner for small spaces. Set up to three growing zones,
-                add plants, track water cycles, and see what needs attention today.
-                Cucumbers, tomatoes, herbs — all welcome.
+                add plants, track water cycles, and earn PEACE tokens through verified
+                biological grow sessions.
             </p>
             <div class="gd-pillar-tags">
                 <span class="gd-tag">3 Zones</span>
-                <span class="gd-tag">Water Cycles</span>
+                <span class="gd-tag">PEACE Tokens</span>
                 <span class="gd-tag">Harvest Tracker</span>
             </div>
             <div class="gd-pillar-cta">Plan Your Garden</div>
@@ -409,7 +439,9 @@
     <div class="gd-footer-note">
         <strong>GriDul</strong> is the public-facing, accessible layer of VOID —
         sovereign infrastructure for everyday life.<br>
-        Each letter styled in Adriana glyph format. Each pillar a mirror.
+        Each letter styled in Adriana glyph format. Each pillar a mirror.<br>
+        Genesis 10 node runners earn <strong>PEACE tokens</strong> through verified biological actions.
+        <a href="/genesis" style="color: var(--gd-gold); text-decoration: none;">Genesis 10 →</a>
     </div>
 </body>
 </html>

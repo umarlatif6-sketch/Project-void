@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis Oracle — Thermal Verification — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-green: #4caf50;
+            --void-violet: #7c5cff;
+            --void-red: #ff5252;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .or-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .or-nav-brand { font-size: 0.95rem; font-weight: 700; color: var(--void-gold); letter-spacing: 2px; text-decoration: none; }
+        .or-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .or-nav-link { color: #aaa; text-decoration: none; font-size: 0.75rem; letter-spacing: 1px; transition: color 0.2s; }
+        .or-nav-link:hover, .or-nav-link.active { color: var(--void-gold); }
+
+        .or-hero {
+            text-align: center;
+            padding: 72px 32px 48px;
+            background: radial-gradient(ellipse at 50% 0%, #0d1209 0%, var(--void-bg) 72%);
+            border-bottom: 1px solid var(--void-border);
+            position: relative;
+        }
+        .or-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--void-teal), var(--void-gold), var(--void-teal), transparent);
+        }
+        .or-hero-badge {
+            display: inline-block;
+            background: transparent;
+            border: 1px solid var(--void-teal);
+            color: var(--void-teal);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .or-hero-title {
+            font-size: 2.4rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            margin: 0 0 10px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+        .or-hero-title span { color: var(--void-teal); }
+        .or-hero-sub {
+            font-size: 0.85rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.9;
+        }
+        .or-hero-sub strong { color: var(--void-gold); }
+
+        .or-main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 52px 24px 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 52px;
+        }
+
+        /* PEACE BALANCE */
+        .or-peace-bar {
+            background: var(--void-surface);
+            border: 1px solid var(--void-green);
+            border-radius: 6px;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .or-peace-label { font-size: 0.62rem; letter-spacing: 2px; color: var(--void-muted); text-transform: uppercase; }
+        .or-peace-val { font-size: 1.5rem; font-weight: 900; color: var(--void-green); }
+
+        /* PANEL */
+        .or-panel {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 6px;
+            padding: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+        .or-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--void-teal), var(--void-gold));
+        }
+        .or-panel-title {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--void-teal);
+            margin-bottom: 28px;
+        }
+
+        /* FORM */
+        .or-form-row { margin-bottom: 20px; }
+        .or-form-label { display: block; font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--void-muted); margin-bottom: 8px; }
+        .or-input {
+            width: 100%;
+            background: #0d0d0d;
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            color: var(--void-text);
+            font-family: inherit;
+            font-size: 0.82rem;
+            padding: 12px 16px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .or-input:focus { border-color: var(--void-teal); }
+        .or-action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 0;
+        }
+        .or-action-btn {
+            background: #0d0d0d;
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 16px;
+            cursor: pointer;
+            text-align: center;
+            transition: border-color 0.15s;
+            color: var(--void-text);
+            font-family: inherit;
+        }
+        .or-action-btn:hover { border-color: var(--void-teal); }
+        .or-action-btn.selected { border-color: var(--void-teal); background: rgba(0,191,165,0.06); }
+        .or-action-btn .or-action-icon { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+        .or-action-btn .or-action-label { font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: #aaa; }
+        .or-submit-btn {
+            background: var(--void-teal);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 14px 36px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.15s;
+            display: block;
+            width: 100%;
+            margin-top: 24px;
+        }
+        .or-submit-btn:hover { opacity: 0.85; }
+        .or-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .or-result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #0d0d0d;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            display: none;
+            border: 1px solid var(--void-green);
+        }
+        .or-result.error { border-color: var(--void-red); color: var(--void-red); }
+        .or-result.success { color: var(--void-green); }
+        .or-result.warn { border-color: var(--void-gold); color: var(--void-gold); }
+        .or-hdr-hint {
+            font-size: 0.68rem;
+            color: #444;
+            margin-top: 6px;
+            line-height: 1.6;
+        }
+
+        /* HISTORY */
+        .or-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        .or-history-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 0.56rem;
+            letter-spacing: 2px;
+            color: var(--void-muted);
+            border-bottom: 1px solid var(--void-border);
+            text-transform: uppercase;
+        }
+        .or-history-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #161616;
+            color: #777;
+            vertical-align: top;
+        }
+        .or-history-table td:first-child { color: var(--void-teal); }
+        .or-history-table tr:last-child td { border-bottom: none; }
+        .or-verified { color: var(--void-green) !important; }
+        .or-rejected { color: var(--void-red) !important; }
+        .or-empty { text-align: center; padding: 32px; color: #444; font-size: 0.75rem; }
+
+        /* DOWNLOAD */
+        .or-download-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+        .or-download-btn {
+            display: inline-block;
+            background: transparent;
+            border: 1px solid var(--void-teal);
+            color: var(--void-teal);
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-family: inherit;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+        .or-download-btn:hover { background: rgba(0,191,165,0.07); }
+
+        /* PROSE */
+        .or-prose { font-size: 0.8rem; color: #666; line-height: 1.85; }
+        .or-prose strong { color: var(--void-gold); }
+        .or-prose code { background: #0d0d0d; padding: 2px 6px; border-radius: 3px; color: var(--void-teal); font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+    <nav class="or-nav">
+        <a href="/" class="or-nav-brand">&#9670; VOID</a>
+        <div class="or-nav-links">
+            <a href="/" class="or-nav-link">Engine</a>
+            <a href="/genesis" class="or-nav-link">Genesis 10</a>
+            <a href="/genesis/oracle" class="or-nav-link active">Oracle</a>
+            <a href="/gridul" class="or-nav-link">GriDul Grow</a>
+            <a href="/marketplace" class="or-nav-link">Marketplace</a>
+        </div>
+    </nav>
+
+    <div class="or-hero">
+        <span class="or-hero-badge">&#9651; Adriana Oracle</span>
+        <h1 class="or-hero-title">GENESIS <span>ORACLE</span></h1>
+        <p class="or-hero-sub">
+            Submit your thermal verification data. The oracle validates your HDR reading against the
+            biological threshold and mints <strong>PEACE tokens</strong> to the sovereign ledger.
+        </p>
+    </div>
+
+    <main class="or-main">
+        <div class="or-peace-bar">
+            <div>
+                <div class="or-peace-label">PEACE Balance</div>
+                <div class="or-peace-val" id="peace-display">{{ "%.4f"|format(peace_balance) }}</div>
+            </div>
+            <div style="margin-left:auto; font-size:0.7rem; color:#444;">
+                Not purchasable.<br>Earned by biological action only.
+            </div>
+        </div>
+
+        <!-- SUBMISSION FORM -->
+        <div class="or-panel">
+            <div class="or-panel-title">&#9642; Submit Verification Event</div>
+
+            <div class="or-form-row">
+                <label class="or-form-label">Node ID</label>
+                <input type="text" id="node-id" class="or-input" placeholder="e.g. SALFORD_M6_01" spellcheck="false">
+            </div>
+
+            <div class="or-form-row">
+                <label class="or-form-label">Action Type</label>
+                <div class="or-action-grid">
+                    <button class="or-action-btn selected" data-action="compost">
+                        <span class="or-action-icon">&#127807;</span>
+                        <span class="or-action-label">Compost</span>
+                    </button>
+                    <button class="or-action-btn" data-action="aquaponics">
+                        <span class="or-action-icon">&#127754;</span>
+                        <span class="or-action-label">Aquaponics</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="or-form-row">
+                <label class="or-form-label">HDR Value (Heat Dissipation Rate °C/sample)</label>
+                <input type="number" id="hdr-value" class="or-input" placeholder="e.g. 0.1823" step="0.0001" min="0">
+                <div class="or-hdr-hint">
+                    From <code>verify_life_therm.py</code> output — the <code>hdr_value</code> field.
+                    Minimum 0.05 required for verification and PEACE minting.
+                </div>
+            </div>
+
+            <div class="or-form-row">
+                <label class="or-form-label">Timestamp (ISO format, optional)</label>
+                <input type="text" id="event-ts" class="or-input" placeholder="2026-03-29T03:45:00+00:00">
+            </div>
+
+            <button class="or-submit-btn" id="submit-btn" onclick="submitOracle()">
+                &#9670; SUBMIT TO ORACLE
+            </button>
+            <div class="or-result" id="or-result"></div>
+        </div>
+
+        <!-- HARDWARE -->
+        <div class="or-panel">
+            <div class="or-panel-title">&#9642; Hardware Package</div>
+            <div class="or-prose">
+                <p>
+                    Run <code>verify_life_therm.py</code> on your NVIDIA Orin (or Raspberry Pi) to generate
+                    a verified HDR reading from the MLX90640 thermal camera. The script prints a
+                    <strong>Proof of Resonance</strong> certificate when the biological threshold is met.
+                </p>
+                <p>
+                    <strong>Quick start:</strong><br>
+                    <code>pip install adafruit-circuitpython-mlx90640 numpy</code><br>
+                    <code>python3 verify_life_therm.py --node-id YOUR_NODE_ID --action compost</code><br>
+                    <code>python3 verify_life_therm.py --node-id YOUR_NODE_ID --action compost --simulate</code>
+                </p>
+            </div>
+            <div class="or-download-row">
+                <a href="/genesis/download/verify_life_therm.py" class="or-download-btn" download>
+                    &#8595; verify_life_therm.py
+                </a>
+                <a href="/genesis/download/README_ORACLE.md" class="or-download-btn" download>
+                    &#8595; README_ORACLE.md
+                </a>
+            </div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="or-panel">
+            <div class="or-panel-title">&#9642; Submission History</div>
+            {% if history %}
+            <table class="or-history-table">
+                <thead>
+                    <tr>
+                        <th>Node ID</th>
+                        <th>Action</th>
+                        <th>HDR</th>
+                        <th>Verified</th>
+                        <th>PEACE</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ev in history %}
+                    <tr>
+                        <td>{{ ev.node_id }}</td>
+                        <td>{{ ev.action_type }}</td>
+                        <td>{{ "%.4f"|format(ev.hdr_value) }}</td>
+                        <td class="{{ 'or-verified' if ev.verified else 'or-rejected' }}">
+                            {{ 'VERIFIED' if ev.verified else 'BELOW THRESHOLD' }}
+                        </td>
+                        <td style="color:var(--void-green);">{{ "+%.1f"|format(ev.peace_minted) if ev.peace_minted > 0 else '—' }}</td>
+                        <td>{{ ev.timestamp[:16] if ev.timestamp else '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="or-empty">
+                No submissions yet.<br>
+                <span style="font-size:0.68rem; margin-top:8px; display:block;">
+                    Run <code>verify_life_therm.py</code> and submit your first HDR reading above.
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script>
+    let selectedAction = 'compost';
+
+    document.querySelectorAll('.or-action-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.or-action-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedAction = btn.dataset.action;
+        });
+    });
+
+    async function submitOracle() {
+        const nodeId = document.getElementById('node-id').value.trim();
+        const hdrRaw = document.getElementById('hdr-value').value;
+        const ts = document.getElementById('event-ts').value.trim();
+
+        if (!nodeId) { showResult('Node ID is required.', 'error'); return; }
+        if (!hdrRaw) { showResult('HDR value is required.', 'error'); return; }
+
+        const hdr = parseFloat(hdrRaw);
+        if (isNaN(hdr) || hdr < 0) { showResult('HDR value must be a non-negative number.', 'error'); return; }
+
+        const btn = document.getElementById('submit-btn');
+        btn.disabled = true;
+        btn.textContent = 'SUBMITTING TO ORACLE...';
+
+        try {
+            const payload = {
+                node_id: nodeId,
+                action_type: selectedAction,
+                hdr_value: hdr,
+            };
+            if (ts) payload.timestamp = ts;
+
+            const resp = await fetch('/api/genesis/oracle', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload),
+            });
+            const data = await resp.json();
+
+            if (data.ok) {
+                const cls = data.verified ? 'success' : 'warn';
+                const peaceMsg = data.peace_minted > 0
+                    ? `\n+${data.peace_minted.toFixed(1)} PEACE minted to your wallet.`
+                    : '';
+                showResult(data.message + peaceMsg, cls);
+                if (data.peace_minted > 0) {
+                    refreshBalance();
+                    setTimeout(() => location.reload(), 2000);
+                }
+            } else {
+                showResult(data.error || 'Submission failed.', 'error');
+            }
+        } catch(e) {
+            showResult('Network error: ' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '&#9670; SUBMIT TO ORACLE';
+        }
+    }
+
+    function showResult(msg, cls) {
+        const el = document.getElementById('or-result');
+        el.style.display = 'block';
+        el.className = 'or-result ' + cls;
+        el.textContent = msg;
+    }
+
+    async function refreshBalance() {
+        try {
+            const r = await fetch('/api/gridul/balance');
+            const d = await r.json();
+            if (d.peace_balance !== undefined)
+                document.getElementById('peace-display').textContent = d.peace_balance.toFixed(4);
+        } catch(e) {}
+    }
+    </script>
+</body>
+</html>

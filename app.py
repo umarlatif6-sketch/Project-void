@@ -44,6 +44,16 @@ def _startup_migrations():
         init_gridul_tables()
     except Exception as e:
         logger.error("GriDul table setup failed: %s", e)
+    try:
+        from void_engine.vortex_wallet import ensure_genesis_tables
+        ensure_genesis_tables()
+    except Exception as e:
+        logger.error("Genesis tables setup failed: %s", e)
+    try:
+        from void_engine.blueprint_nft import seed_genesis_10
+        seed_genesis_10()
+    except Exception as e:
+        logger.error("Genesis 10 token seeding failed: %s", e)
 
 try:
     from routes import register_blueprints

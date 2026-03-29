@@ -5,18 +5,62 @@ Three pillars:
   1. GriDul Move  — daily calisthenics movement tracker (earns VTX)
   2. GriDul Grow  — home aquaponics planner (up to 3 zones)
   3. GriDul Mesh  — neighbourhood food exchange (postcode-based, no money)
+
+Genesis 10 PEACE token sessions:
+  - POST /api/gridul/session-start  — register a biological grow/compost session
+  - POST /api/gridul/tick           — report progress
+  - POST /api/gridul/session-end    — finalise and mint PEACE tokens
 """
 
 import json
 import logging
+import time
 import uuid
 from datetime import datetime, timezone, timedelta
+from typing import Dict
 
 from flask import Blueprint, render_template, jsonify, session, request
 from void_engine.db_pool import get_db
 
 logger = logging.getLogger(__name__)
 gridul_bp = Blueprint("gridul", __name__)
+
+# ── Genesis 10 holder check ────────────────────────────────────────────────────
+
+def _is_genesis_10_holder(user_id):
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT 1 FROM token_ownership tow
+               JOIN blueprint_tokens bt ON bt.id = tow.token_id
+               WHERE tow.owner_id = %s AND bt.collection = 'genesis_10'
+               LIMIT 1""",
+            (user_id,),
+        )
+        return cur.fetchone() is not None
+    finally:
+        conn.close()
+
+
+# ── PEACE session store ────────────────────────────────────────────────────────
+
+_SESSIONS: Dict[str, dict] = {}
+_SESSION_MAX_AGE = 7200
+_TICK_INTERVAL_S = 0.8
+_MIN_REWARD_DURATION = 60
+_VALID_ACTIONS = {"compost", "aquaponics", "grow", "harvest"}
+
+
+def _prune():
+    now = time.time()
+    stale = [k for k, v in _SESSIONS.items() if now - v["start_time"] > _SESSION_MAX_AGE]
+    for k in stale:
+        _SESSIONS.pop(k, None)
+
+
+def _key(user_id, session_id):
+    return f"{user_id}:{session_id}"
 
 
 # ── DB init ───────────────────────────────────────────────────────────────────
@@ -194,7 +238,15 @@ MOVE_POSITIONS = [
 
 @gridul_bp.route("/gridul")
 def gridul_landing():
-    return render_template("gridul.html")
+    user_id = session.get("user_id")
+    peace_balance = 0.0
+    if user_id:
+        try:
+            from void_engine.vortex_wallet import get_peace_balance
+            peace_balance = get_peace_balance(user_id)
+        except Exception:
+            pass
+    return render_template("gridul.html", peace_balance=peace_balance)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -522,7 +574,20 @@ def gridul_grow():
             logger.error("GriDul Grow load error: %s", e)
         finally:
             conn.close()
-    return render_template("gridul_grow.html", zones=zones, attention_items=attention_items)
+    peace_balance = 0.0
+    is_holder = False
+    if user_id:
+        try:
+            from void_engine.vortex_wallet import get_peace_balance
+            peace_balance = get_peace_balance(user_id)
+        except Exception:
+            pass
+        try:
+            is_holder = _is_genesis_10_holder(user_id)
+        except Exception:
+            pass
+    return render_template("gridul_grow.html", zones=zones, attention_items=attention_items,
+                           peace_balance=peace_balance, is_genesis_holder=is_holder)
 
 
 @gridul_bp.route("/api/gridul/grow/zones", methods=["POST"])
@@ -962,3 +1027,188 @@ def gridul_mesh_inbound_requests():
         return jsonify({"error": "failed to load inbound requests"}), 500
     finally:
         conn.close()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PEACE TOKEN SESSIONS  (Genesis 10 biological economy)
+# ─────────────────────────────────────────────────────────────────────────────
+
+@gridul_bp.route("/api/gridul/session-start", methods=["POST"])
+def gridul_session_start():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+
+    try:
+        if not _is_genesis_10_holder(user_id):
+            return jsonify({"error": "Genesis 10 NFT required to earn PEACE"}), 403
+    except Exception as exc:
+        logger.error("Genesis holder check failed: %s", exc)
+        return jsonify({"error": "Could not verify Genesis 10 holder status"}), 500
+
+    data = request.get_json(silent=True) or {}
+    action_type = data.get("action_type", "compost")
+    target_sec = int(data.get("target_sec", 300))
+
+    if action_type not in _VALID_ACTIONS:
+        action_type = "compost"
+    target_sec = max(60, min(3600, target_sec))
+
+    _prune()
+    session_id = str(uuid.uuid4())
+    k = _key(user_id, session_id)
+
+    _SESSIONS[k] = {
+        "user_id": user_id,
+        "session_id": session_id,
+        "action_type": action_type,
+        "target_sec": target_sec,
+        "start_time": time.time(),
+        "tick_count": 0,
+        "last_tick_time": 0.0,
+        "grow_score": 0.0,
+        "ended": False,
+    }
+
+    logger.info("GriDul PEACE session started: user=%s sid=%s action=%s target=%ds",
+                user_id, session_id, action_type, target_sec)
+
+    return jsonify({"ok": True, "session_id": session_id, "action_type": action_type})
+
+
+@gridul_bp.route("/api/gridul/tick", methods=["POST"])
+def gridul_tick():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    session_id = data.get("session_id")
+
+    if not session_id:
+        return jsonify({"error": "session_id required"}), 400
+
+    k = _key(user_id, session_id)
+    rec = _SESSIONS.get(k)
+    if not rec:
+        return jsonify({"error": "session not found or expired"}), 404
+    if rec["ended"]:
+        return jsonify({"error": "session already ended"}), 409
+
+    now = time.time()
+    elapsed = now - rec["start_time"]
+
+    if now - rec["last_tick_time"] < _TICK_INTERVAL_S:
+        return jsonify({
+            "ok": True,
+            "rate_limited": True,
+            "elapsed_sec": round(elapsed, 1),
+            "grow_score": round(rec["grow_score"], 4),
+        })
+
+    if elapsed > rec["target_sec"] + 60:
+        return jsonify({"error": "session timed out"}), 409
+
+    rec["last_tick_time"] = now
+    rec["tick_count"] += 1
+
+    activity = max(0.0, min(1.0, float(data.get("activity", 1.0))))
+    rec["grow_score"] = min(1.0, rec["grow_score"] + 0.02 * activity)
+
+    progress = min(1.0, elapsed / rec["target_sec"])
+
+    return jsonify({
+        "ok": True,
+        "elapsed_sec": round(elapsed, 1),
+        "grow_score": round(rec["grow_score"], 4),
+        "progress": round(progress, 4),
+        "tick_count": rec["tick_count"],
+    })
+
+
+@gridul_bp.route("/api/gridul/session-end", methods=["POST"])
+def gridul_session_end():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+
+    try:
+        if not _is_genesis_10_holder(user_id):
+            return jsonify({"error": "Genesis 10 NFT required to earn PEACE"}), 403
+    except Exception as exc:
+        logger.error("Genesis holder check failed: %s", exc)
+        return jsonify({"error": "Could not verify Genesis 10 holder status"}), 500
+
+    data = request.get_json(silent=True) or {}
+    session_id = data.get("session_id")
+    if not session_id:
+        return jsonify({"error": "session_id required"}), 400
+
+    k = _key(user_id, session_id)
+    rec = _SESSIONS.get(k)
+    if not rec:
+        return jsonify({"error": "session not found or expired"}), 404
+    if rec["ended"]:
+        return jsonify({"error": "session already ended", "already_ended": True}), 409
+
+    rec["ended"] = True
+    elapsed = time.time() - rec["start_time"]
+
+    if elapsed < _MIN_REWARD_DURATION:
+        _SESSIONS.pop(k, None)
+        return jsonify({
+            "ok": True,
+            "rewarded": False,
+            "reason": f"Minimum grow time is {_MIN_REWARD_DURATION}s (ran {int(elapsed)}s)",
+            "grow_score": 0.0,
+        })
+
+    grow_score = rec["grow_score"]
+
+    try:
+        from void_engine.vortex_wallet import mint_peace_gridul
+        result = mint_peace_gridul(user_id, session_id, rec["action_type"], grow_score)
+    except Exception as exc:
+        logger.error("mint_peace_gridul failed: %s", exc)
+        _SESSIONS.pop(k, None)
+        return jsonify({"error": "reward processing failed"}), 500
+
+    _SESSIONS.pop(k, None)
+
+    peace_minted = float(result.get("peace_earned", 0))
+    logger.info("GriDul PEACE ended: user=%s sid=%s grow_score=%.3f elapsed=%.0fs peace=%.4f",
+                user_id, session_id, grow_score, elapsed, peace_minted)
+
+    new_balance = 0.0
+    if peace_minted > 0:
+        try:
+            from void_engine.vortex_wallet import get_peace_balance
+            new_balance = get_peace_balance(user_id)
+        except Exception:
+            pass
+
+    return jsonify({
+        "ok": True,
+        "session_id": session_id,
+        "grow_score": round(grow_score, 4),
+        "elapsed_sec": round(elapsed, 1),
+        "action_type": rec["action_type"],
+        "peace_minted": peace_minted,
+        "new_balance": new_balance,
+        "message": result.get("message") or result.get("reason", ""),
+        "reward": result,
+    })
+
+
+@gridul_bp.route("/api/gridul/balance")
+def gridul_peace_balance():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "authentication required"}), 401
+    try:
+        from void_engine.vortex_wallet import get_peace_balance
+        balance = get_peace_balance(user_id)
+        return jsonify({"ok": True, "peace_balance": balance})
+    except Exception as exc:
+        logger.error("peace balance error: %s", exc)
+        return jsonify({"ok": False, "peace_balance": 0.0})

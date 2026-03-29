@@ -1,8 +1,11 @@
 import os
+import logging
 from decimal import Decimal
 from datetime import datetime, timezone
 from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str, fatiha_286_truncated
 from void_engine.db_pool import get_db
+
+logger = logging.getLogger(__name__)
 
 
 def _get_db():
@@ -893,5 +896,115 @@ def validate_chain(limit=100):
             "errors": errors,
             "message": "Chain integrity verified" if valid else f"{len(errors)} chain break(s) detected",
         }
+    finally:
+        conn.close()
+
+
+PEACE_PER_ACTION = Decimal("1.0")
+PEACE_DAILY_CAP = Decimal("5.0")
+
+
+def ensure_genesis_tables():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS peace_balance NUMERIC(20,4) DEFAULT 0
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS genesis_oracle_events (
+                id SERIAL PRIMARY KEY,
+                node_id VARCHAR(100) NOT NULL,
+                user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                action_type VARCHAR(50) NOT NULL,
+                hdr_value NUMERIC(10,4),
+                timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                verified BOOLEAN DEFAULT FALSE,
+                peace_minted NUMERIC(10,4) DEFAULT 0,
+                ledger_block_index INTEGER
+            )
+        """)
+        conn.commit()
+        logger.info("Genesis tables ready (genesis_oracle_events + peace_balance)")
+    except Exception as e:
+        conn.rollback()
+        logger.error("ensure_genesis_tables failed: %s", e)
+    finally:
+        conn.close()
+
+
+def mint_peace(user_id, action_type, event_id):
+    amount = PEACE_PER_ACTION.quantize(Decimal("0.0001"))
+    payload_hash = fatiha_286_hexdigest_from_str(f"peace_{user_id}_{event_id}")
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'mint_peace'",
+            (payload_hash,),
+        )
+        if cur.fetchone():
+            conn.close()
+            return {"already_minted": True, "event_id": event_id}
+
+        cur.execute(
+            """SELECT COALESCE(SUM(amount), 0)
+               FROM vortex_ledger
+               WHERE to_user_id = %s AND tx_type = 'mint_peace'
+                 AND timestamp >= NOW() - INTERVAL '24 hours'""",
+            (user_id,),
+        )
+        earned_today = cur.fetchone()[0]
+        if earned_today + amount > PEACE_DAILY_CAP:
+            conn.close()
+            return {
+                "cap_reached": True,
+                "earned_today": float(earned_today),
+                "daily_cap": float(PEACE_DAILY_CAP),
+                "message": f"Daily PEACE cap of {float(PEACE_DAILY_CAP)} reached. Come back tomorrow.",
+            }
+
+        block = _create_block(cur, "mint_peace", None, user_id, amount, payload_hash)
+        cur.execute(
+            """UPDATE users
+               SET peace_balance = COALESCE(peace_balance, 0) + %s
+               WHERE id = %s""",
+            (amount, user_id),
+        )
+        conn.commit()
+        block["peace_earned"] = float(amount)
+        block["action_type"] = action_type
+        return block
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def mint_peace_gridul(user_id, session_id, action_type, grow_score):
+    if grow_score < 0.3:
+        return {"rewarded": False, "reason": "Grow score too low for PEACE reward"}
+    event_id = f"gridul_{user_id}_{session_id}"
+    block = mint_peace(user_id, action_type, event_id)
+    if block.get("peace_earned"):
+        block["rewarded"] = True
+        block["grow_score"] = grow_score
+    return block
+
+
+def get_peace_balance(user_id):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT COALESCE(peace_balance, 0) FROM users WHERE id = %s",
+            (user_id,),
+        )
+        row = cur.fetchone()
+        return float(row[0]) if row else 0.0
     finally:
         conn.close()
