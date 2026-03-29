@@ -452,6 +452,11 @@ def run_simulation(agent_count: int = 100, rounds: int = 5,
     completed_at = datetime.now(timezone.utc)
     _store_run_complete(run_id, report, agents, completed_at)
 
+    try:
+        generate_reports_after_simulation(run_id, agents)
+    except Exception as _e:
+        logger.warning("generate_reports_after_simulation failed (non-fatal): %s", _e)
+
     logger.info("Mesa simulation %s complete in %.2fs", run_id,
                 (completed_at - started_at).total_seconds())
 
@@ -891,137 +896,209 @@ def get_run_history(limit: int = 10) -> List[Dict]:
 # Adriana Agent Intelligence Reports — Task #49
 # ─────────────────────────────────────────────────────────────────────────────
 
-TRANSLATION_FEE_PEACE = Decimal("5.00")
-
-_REPORT_GLYPHS_BY_ROLE = {
-    "ledger":    ["σ", "τ", "◆", "θ", "σ", "η"],
-    "core":      ["◆", "Φ", "Ψ", "θ", "◆", "📈"],
-    "genesis":   ["α", "⚡", "φ", "📈", "α", "δ"],
-    "sovereign": ["Ψ", "◆", "σ", "Φ", "Ψ", "τ"],
-    "spiral":    ["φ", "η", "α", "📈", "φ", "⚡"],
-    "node":      ["ν", "Φ", "η", "τ", "ν", "📉"],
-    "temporal":  ["τ", "σ", "◆", "θ↓", "τ", "η"],
-    "scatter":   ["ξ", "⚡", "φ", "📉", "ξ", "δ"],
-    "harmonic":  ["Φ", "ψ", "◆", "θ", "Φ", "η"],
-    "oracle":    ["🔮", "Ψ", "τ", "📈", "🔮", "φ"],
-    "igniter":   ["⚡", "α", "δ", "📈", "⚡", "Φ"],
-    "breath":    ["ψ", "η", "Φ", "θ↓", "ψ", "◆"],
-    "transform": ["δ", "⚡", "α", "📈", "δ", "ξ"],
-    "finality":  ["ω", "σ", "τ", "📉", "ω", "◆"],
-    "flow":      ["η", "φ", "ψ", "📈", "η", "Φ"],
-}
+_DEFAULT_TRANSLATION_FEE = Decimal("5.00")
 
 _REPORT_SEPARATORS = ["-", "·", "—", "~", "::"]
 
-_ENGLISH_TEMPLATES = {
+_ENGLISH_TEMPLATES_BY_ROLE = {
     "ledger": [
-        "Your agent has been cataloguing resource movements across the swarm. Seventeen micro-transfers were logged this cycle. The ledger remains balanced; no anomalies detected. Watch for accumulation pressure in the northern quadrant.",
-        "The sovereign ledger reports steady accumulation. Three wealth-concentration events were neutralised by flow agents. Your agent anticipates moderate PEACE token velocity in the next simulation round.",
+        (
+            "Your agent has been cataloguing resource movements across the swarm. "
+            "{interactions} micro-transfers were logged this cycle; PEACE balance holds at {peace:.2f}. "
+            "The ledger remains balanced. Watch for accumulation pressure if activity ({activity:.0%}) climbs further."
+        ),
+        (
+            "Sovereign ledger report: steady accumulation at {peace:.2f} PEACE. "
+            "Agent activity was {activity:.0%} this round — {interactions} interactions recorded. "
+            "Three wealth-concentration events were neutralised by flow agents. Anticipate moderate token velocity ahead."
+        ),
     ],
     "core": [
-        "Stability anchors are holding. Your agent absorbed resonance variance from twelve active zones and re-emitted a calibrated signal. The core pulse is strong. No structural drift detected.",
-        "Your agent stabilised two destabilisation attempts from scatter-archetype neighbours. Harmonic convergence at 84%. The mesh remains coherent under current load.",
+        (
+            "Stability anchors holding. Agent absorbed resonance variance across {interactions} active links "
+            "and re-emitted a calibrated signal at {activity:.0%} activity. PEACE reserve: {peace:.2f}. "
+            "No structural drift detected — core pulse is strong."
+        ),
+        (
+            "Your agent stabilised {interactions} destabilisation attempts from scatter-archetype neighbours. "
+            "Harmonic convergence at {activity:.0%}. PEACE balance: {peace:.2f}. The mesh remains coherent."
+        ),
     ],
     "genesis": [
-        "Three new seed events were introduced to the swarm this cycle. Your agent catalysed growth in two emergent clusters. Blueprint token activity is trending upward — seed conditions are fertile.",
-        "Your agent seeded a micro-coalition of five flow nodes. Early-stage network effects are compounding. Expect an activity surge within two simulation rounds.",
+        (
+            "Seed conditions are fertile. Your agent catalysed growth in {interactions} emergent clusters "
+            "at {activity:.0%} activity. PEACE reserve: {peace:.2f}. Blueprint token activity is trending upward."
+        ),
+        (
+            "Your agent seeded a micro-coalition this cycle — {interactions} nodes activated. "
+            "Early-stage network effects are compounding at {activity:.0%} engagement. "
+            "PEACE balance: {peace:.2f}. Expect an activity surge within two rounds."
+        ),
     ],
     "sovereign": [
-        "Governance signals are propagating through forty-two relay nodes. Your agent issued three leadership directives; two were adopted by the swarm consensus layer. Dissent index: low.",
-        "Your agent exerted sovereign influence across the eastern corridor of the mesh. Seven subordinate agents adjusted their activity parameters in response. Stability coefficient: 0.91.",
+        (
+            "Governance signals propagating through {interactions} relay nodes. "
+            "Agent activity: {activity:.0%}. PEACE balance: {peace:.2f}. "
+            "Two directives adopted by the swarm consensus layer. Dissent index: low."
+        ),
+        (
+            "Sovereign influence exerted across {interactions} subordinate nodes at {activity:.0%} intensity. "
+            "PEACE: {peace:.2f}. Stability coefficient: 0.91. Agents are responding."
+        ),
     ],
     "spiral": [
-        "Expansion pressure is building in the outer rings. Your agent distributed twenty-three micro-allocations across the periphery. The spiral is widening — new territory is being mapped.",
-        "Your agent traced a distribution arc spanning fourteen zones. Resource density in the core has decreased slightly; peripheral coverage increased by 18%. The expansion is on schedule.",
+        (
+            "Expansion pressure building in the outer rings. Your agent distributed PEACE across {interactions} zones "
+            "at {activity:.0%} activity. Reserve: {peace:.2f}. The spiral is widening — new territory mapped."
+        ),
+        (
+            "Distribution arc traced across {interactions} zones at {activity:.0%} engagement. "
+            "PEACE balance: {peace:.2f}. Peripheral coverage increased; core density decreased slightly. On schedule."
+        ),
     ],
     "node": [
-        "Relay traffic is elevated. Your agent forwarded eighty-nine packets across the mesh this cycle, with a 97% delivery success rate. Two dead-end routes were flagged for rerouting.",
-        "Networking activity peaked at 14:22 UTC. Your agent brokered connections between three previously isolated clusters. Cross-cluster information flow increased by 34%.",
+        (
+            "Relay traffic elevated. Your agent forwarded packets across {interactions} links "
+            "at {activity:.0%} efficiency. PEACE reserve: {peace:.2f}. "
+            "Dead-end routes flagged for rerouting — mesh integrity holding."
+        ),
+        (
+            "Networking activity peaked this cycle. Your agent brokered {interactions} cross-cluster connections "
+            "at {activity:.0%} load. PEACE: {peace:.2f}. Information flow increased by 34%."
+        ),
     ],
     "temporal": [
-        "Time-weighted analysis of the past six rounds indicates a stable oscillation pattern. Your agent flagged one anomalous timing event — a 2.3-standard-deviation spike in round 4. No action required yet.",
-        "Your agent has been tracking long-cycle patterns since the genesis event. A 12-round convergence window opens soon. Position your resources accordingly.",
+        (
+            "Time-weighted analysis of {interactions} rounds shows stable oscillation. "
+            "Agent activity: {activity:.0%}. PEACE balance: {peace:.2f}. "
+            "One anomalous timing event flagged — 2.3σ spike. No action required yet."
+        ),
+        (
+            "Your agent has been tracking long-cycle patterns. {interactions} interactions logged. "
+            "Activity: {activity:.0%}. PEACE: {peace:.2f}. "
+            "A convergence window opens soon — position resources accordingly."
+        ),
     ],
     "scatter": [
-        "Dispersal complete. Your agent scattered forty-one resource units across nine non-contiguous zones. Volatility remains high — the scatter pattern is intentional and operating as designed.",
-        "Your agent seeded chaos into two over-consolidated zones. The dispersal event triggered a liquidity cascade affecting twenty-three downstream agents. Entropy is serving its purpose.",
+        (
+            "Dispersal complete. Your agent scattered PEACE across {interactions} non-contiguous zones "
+            "at {activity:.0%} volatility. Reserve: {peace:.2f}. "
+            "Entropy is serving its purpose — the scatter pattern is operating as designed."
+        ),
+        (
+            "Your agent seeded chaos into {interactions} over-consolidated zones at {activity:.0%} intensity. "
+            "PEACE reserve: {peace:.2f}. A liquidity cascade followed. Volatility remains intentional."
+        ),
     ],
     "harmonic": [
-        "Harmonic coherence report: the swarm is operating at 79% synchrony. Your agent dampened seven interference patterns and amplified three resonance peaks. The mesh is singing.",
-        "Your agent detected a dissonance cluster in the western zone and applied corrective harmonic pressure. Balance is restored. The dominant frequency has shifted to a more stable mode.",
+        (
+            "Harmonic coherence report: swarm at {activity:.0%} synchrony. "
+            "Your agent dampened interference across {interactions} links. PEACE: {peace:.2f}. The mesh is singing."
+        ),
+        (
+            "Dissonance cluster detected and neutralised — {interactions} corrective interactions at {activity:.0%}. "
+            "PEACE balance: {peace:.2f}. Dominant frequency stabilised. Balance is restored."
+        ),
     ],
     "oracle": [
-        "Predictive scan complete. Your agent identified two high-probability convergence events in the next simulation round: a PEACE token velocity spike (confidence: 83%) and a gridul activation cluster (confidence: 71%).",
-        "The oracle signal is clear. Three dormant agents are about to reactivate — your agent flagged them before they became visible to the swarm. Position accordingly.",
+        (
+            "Predictive scan complete. Your agent identified {interactions} high-probability convergence events "
+            "at {activity:.0%} foresight accuracy. PEACE reserve: {peace:.2f}. "
+            "PEACE token velocity spike predicted — confidence 83%. Gridul activation cluster: 71%."
+        ),
+        (
+            "The oracle signal is clear. {interactions} dormant agents are about to reactivate — "
+            "flagged before they were visible to the swarm. PEACE: {peace:.2f}. Activity: {activity:.0%}. Position accordingly."
+        ),
     ],
     "igniter": [
-        "Spark delivered. Your agent triggered activation in five dormant nodes this cycle. The urgency signal propagated through eleven relay hops before dissipating. Fire is spreading in the right direction.",
-        "Your agent detected a stagnation pocket in the central zone and deployed an ignition pulse. Seven agents responded with elevated activity. The swarm is alive again.",
+        (
+            "Spark delivered. Your agent triggered activation in {interactions} dormant nodes "
+            "at {activity:.0%} urgency. PEACE: {peace:.2f}. The urgency signal propagated. Fire is spreading."
+        ),
+        (
+            "Stagnation pocket detected. Your agent deployed an ignition pulse — {interactions} agents responded "
+            "at {activity:.0%} activity. PEACE reserve: {peace:.2f}. The swarm is alive again."
+        ),
     ],
     "breath": [
-        "Resonance check: the swarm is breathing. Your agent synchronised with twenty-eight empathy-adjacent nodes and amplified the community signal. Emotional coherence is at its highest point this epoch.",
-        "Your agent absorbed distress signals from three over-extended nodes and redistributed calm. The breath is even. The swarm is holding together.",
+        (
+            "Resonance check: the swarm is breathing. Your agent synchronised with {interactions} empathy-adjacent nodes "
+            "at {activity:.0%} coherence. PEACE: {peace:.2f}. Emotional coherence at its highest this epoch."
+        ),
+        (
+            "Your agent absorbed distress signals from {interactions} over-extended nodes and redistributed calm. "
+            "Activity: {activity:.0%}. PEACE: {peace:.2f}. The breath is even. The swarm is holding together."
+        ),
     ],
     "transform": [
-        "Transformation event logged. Your agent facilitated a structural shift in one major cluster, converting four hoarding-bias nodes to flow-bias. The swarm is adapting.",
-        "Your agent absorbed an instability shock and re-emitted it as a directed change signal. Three agents updated their behaviour parameters in response. Adaptation index: 0.88.",
+        (
+            "Transformation event logged. Your agent facilitated structural shifts across {interactions} cluster links "
+            "at {activity:.0%} intensity. PEACE: {peace:.2f}. Four hoarding-bias nodes converted to flow-bias."
+        ),
+        (
+            "Instability shock absorbed and re-emitted as directed change signal. {interactions} agents updated "
+            "behaviour parameters at {activity:.0%} responsiveness. PEACE reserve: {peace:.2f}. Adaptation index: 0.88."
+        ),
     ],
     "finality": [
-        "Conservation mode active. Your agent consolidated three over-extended resource positions and sealed two leaking allocation channels. The epoch is ending cleanly.",
-        "Your agent issued a closure signal to seven expiring micro-coalitions. Resources were recovered and redistributed to the reserve pool. The cycle closes in balance.",
+        (
+            "Conservation mode active. Your agent consolidated {interactions} over-extended positions "
+            "at {activity:.0%} efficiency. PEACE: {peace:.2f}. Leaking allocation channels sealed. Epoch ending cleanly."
+        ),
+        (
+            "Closure signal issued to {interactions} expiring micro-coalitions. Activity: {activity:.0%}. "
+            "PEACE reserve: {peace:.2f}. Resources recovered and redistributed to reserve pool. Cycle closes in balance."
+        ),
     ],
     "flow": [
-        "Flow is optimal. Your agent maintained continuous resource circulation through thirty-one nodes this cycle. No blockages detected. Liquidity is at seasonal high.",
-        "Your agent amplified two lagging flow corridors and dissolved one bottleneck near the core. Token velocity is climbing. The current is running true.",
+        (
+            "Flow is optimal. Your agent maintained continuous PEACE circulation through {interactions} nodes "
+            "at {activity:.0%} throughput. Reserve: {peace:.2f}. No blockages detected. Liquidity at seasonal high."
+        ),
+        (
+            "Your agent amplified {interactions} lagging flow corridors at {activity:.0%} velocity. "
+            "PEACE balance: {peace:.2f}. Token velocity is climbing. The current is running true."
+        ),
     ],
 }
 
 
-def _generate_glyph_report(agent_id: int, role: str, rng: random.Random) -> str:
-    glyphs = _REPORT_GLYPHS_BY_ROLE.get(role, ["◆", "σ", "η", "τ", "φ", "Φ"])
-    seps = _REPORT_SEPARATORS
-    chains = []
-    for _ in range(4):
-        length = rng.randint(3, 6)
-        chain = rng.sample(glyphs * 2, length)
-        sep = rng.choice(seps)
-        chains.append(sep.join(chain))
-    branch_sep = rng.choice([" | ", " ⊕ ", " ↔ "])
-    report = branch_sep.join(chains)
-    epoch = int(time.time()) // 3600
-    return f"[{agent_id:04d}::{epoch:x}] {report}"
-
-
-def _generate_plain_translation(role: str, rng: random.Random) -> str:
-    templates = _ENGLISH_TEMPLATES.get(role, _ENGLISH_TEMPLATES["flow"])
-    return rng.choice(templates)
-
-
 def _init_adriana_report_tables():
+    """Ensure agent intelligence report tables and void_config table exist."""
     from void_engine.db_pool import get_db
     conn = get_db()
     try:
         cur = conn.cursor()
         cur.execute("""
             CREATE TABLE IF NOT EXISTS agent_intelligence_reports (
-                id          SERIAL PRIMARY KEY,
-                agent_id    INTEGER NOT NULL,
+                id           SERIAL PRIMARY KEY,
+                agent_id     INTEGER NOT NULL,
                 glyph_report TEXT NOT NULL,
-                epoch_hour  BIGINT NOT NULL,
+                epoch_hour   BIGINT NOT NULL,
+                sim_run_id   TEXT,
                 generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 UNIQUE (agent_id, epoch_hour)
             )
         """)
         cur.execute("""
             CREATE TABLE IF NOT EXISTS adriana_translations (
-                id          SERIAL PRIMARY KEY,
-                agent_id    INTEGER NOT NULL,
-                user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                report_id   INTEGER NOT NULL REFERENCES agent_intelligence_reports(id) ON DELETE CASCADE,
-                translation TEXT NOT NULL,
-                peace_spent NUMERIC NOT NULL DEFAULT 5,
+                id           SERIAL PRIMARY KEY,
+                agent_id     INTEGER NOT NULL,
+                user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                report_id    INTEGER NOT NULL REFERENCES agent_intelligence_reports(id) ON DELETE CASCADE,
+                translation  TEXT NOT NULL,
+                peace_spent  NUMERIC NOT NULL DEFAULT 5,
+                ledger_block INTEGER,
                 purchased_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 UNIQUE (agent_id, user_id, report_id)
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS void_config (
+                key   TEXT PRIMARY KEY,
+                value TEXT NOT NULL,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
         """)
         conn.commit()
@@ -1032,10 +1109,167 @@ def _init_adriana_report_tables():
         conn.close()
 
 
+def get_translation_fee() -> Decimal:
+    """Return the admin-configured Adriana translation fee (falls back to default)."""
+    _init_adriana_report_tables()
+    from void_engine.db_pool import get_db
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT value FROM void_config WHERE key = 'adriana_translation_fee'")
+            row = cur.fetchone()
+            if row:
+                return Decimal(row[0]).quantize(Decimal("0.01"))
+        finally:
+            conn.close()
+    except Exception:
+        pass
+    return _DEFAULT_TRANSLATION_FEE
+
+
+def set_translation_fee(new_fee: Decimal) -> bool:
+    """Admin: persist a new Adriana translation fee to void_config."""
+    _init_adriana_report_tables()
+    from void_engine.db_pool import get_db
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO void_config (key, value, updated_at)
+                VALUES ('adriana_translation_fee', %s, NOW())
+                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+            """, (str(new_fee.quantize(Decimal("0.01"))),))
+            conn.commit()
+            return True
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.error("set_translation_fee failed: %s", e)
+        return False
+
+
+def _fetch_agent_sim_memory(owner_user_id: int) -> Optional[Dict]:
+    """
+    Fetch the most recent mesa_agent_states row for this user to extract
+    simulation-grounded metrics (activity, peace_balance, interactions).
+    Returns None if no simulation data is available.
+    """
+    from void_engine.db_pool import get_db
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT mas.peace_balance, mas.memory, mas.glyph, mas.run_id
+                FROM mesa_agent_states mas
+                JOIN mesa_simulation_runs msr ON msr.run_id = mas.run_id
+                WHERE mas.user_id = %s AND msr.status = 'complete'
+                ORDER BY msr.completed_at DESC
+                LIMIT 1
+            """, (owner_user_id,))
+            row = cur.fetchone()
+            if not row:
+                return None
+            peace_balance, memory_json, glyph, run_id = row
+            memory = memory_json if isinstance(memory_json, list) else []
+            last_round = memory[-1] if memory else {}
+            return {
+                "peace_balance": float(peace_balance or 0),
+                "activity": float(last_round.get("activity", 0.5)),
+                "interactions": int(last_round.get("interactions", 0)),
+                "peace_flow": float(last_round.get("peace_flow", 0)),
+                "run_id": run_id,
+            }
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.warning("_fetch_agent_sim_memory failed: %s", e)
+        return None
+
+
+def _build_glyph_report_from_lexicon(agent_id: int, role: str, rng: random.Random) -> str:
+    """
+    Generate a glyph-chain intelligence report using the Adriana SCL lexicon.
+    Chains use entity, condition, and action glyphs drawn from adriana.lex.
+    Falls back to ARCHETYPE_MAP glyphs if the lexicon is unavailable.
+    """
+    try:
+        from void_engine.adriana_transpiler import AdrianaLexicon
+        lexicon = AdrianaLexicon()
+        entities = [e.glyph for e in lexicon.by_category("entity")]
+        conditions = [e.glyph for e in lexicon.by_category("condition")]
+        actions = [e.glyph for e in lexicon.by_category("action")]
+    except Exception:
+        entities = []
+        conditions = []
+        actions = []
+
+    archetype_glyph = _assign_archetype(agent_id, seed_extra="nft_slot")
+
+    if not entities:
+        pool = list(ARCHETYPE_MAP.keys())
+        entities = pool
+        conditions = ["📈", "📉", "⚡", "🔮"]
+        actions = [archetype_glyph]
+
+    seps = _REPORT_SEPARATORS
+    chains = []
+    for _ in range(4):
+        entity = rng.choice(entities)
+        condition = rng.choice(conditions)
+        act = rng.choice(actions) if actions else archetype_glyph
+        extra_act = rng.choice(actions) if actions and rng.random() > 0.5 else None
+        parts = [archetype_glyph, entity, condition, act]
+        if extra_act:
+            parts.append(extra_act)
+        sep = rng.choice(seps)
+        chains.append(sep.join(parts))
+
+    branch_sep = rng.choice([" | ", " ⊕ ", " ↔ "])
+    report_body = branch_sep.join(chains)
+    epoch = int(time.time()) // 3600
+    return f"[{agent_id:04d}::{epoch:x}] {report_body}"
+
+
+def _build_plain_translation(
+    role: str,
+    rng: random.Random,
+    sim_data: Optional[Dict] = None,
+) -> str:
+    """
+    Generate a plain-English translation of the Adriana glyph report.
+    Uses simulation-grounded metrics (activity, PEACE balance, interactions)
+    if sim_data is available; falls back to plausible defaults otherwise.
+    """
+    templates = _ENGLISH_TEMPLATES_BY_ROLE.get(role, _ENGLISH_TEMPLATES_BY_ROLE["flow"])
+    template = rng.choice(templates)
+
+    if sim_data:
+        activity = sim_data.get("activity", 0.5)
+        peace = sim_data.get("peace_balance", 50.0)
+        interactions = max(1, sim_data.get("interactions", 3))
+    else:
+        activity = rng.uniform(0.35, 0.85)
+        peace = rng.uniform(10.0, 200.0)
+        interactions = rng.randint(1, 12)
+
+    try:
+        return template.format(
+            activity=activity,
+            peace=peace,
+            interactions=interactions,
+        )
+    except (KeyError, ValueError):
+        return template
+
+
 def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
     """
     Return the current-epoch intelligence report for an agent slot.
     Generates and persists if one doesn't exist for this epoch hour.
+    The glyph report is built from Adriana SCL lexicon glyphs.
     """
     if agent_id < 0 or agent_id > 999:
         return None
@@ -1052,13 +1286,14 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
         try:
             cur = conn.cursor()
             cur.execute(
-                "SELECT id, glyph_report, generated_at FROM agent_intelligence_reports "
+                "SELECT id, glyph_report, generated_at, sim_run_id "
+                "FROM agent_intelligence_reports "
                 "WHERE agent_id = %s AND epoch_hour = %s",
                 (agent_id, epoch_hour)
             )
             row = cur.fetchone()
             if row:
-                report_id, glyph_report, generated_at = row
+                report_id, glyph_report, generated_at, sim_run_id = row
                 return {
                     "report_id": report_id,
                     "agent_id": agent_id,
@@ -1066,11 +1301,12 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
                     "role": role,
                     "glyph_report": glyph_report,
                     "epoch_hour": epoch_hour,
+                    "sim_run_id": sim_run_id,
                     "generated_at": generated_at.isoformat() if generated_at else None,
                 }
 
             rng = random.Random(f"{agent_id}:{epoch_hour}")
-            glyph_report = _generate_glyph_report(agent_id, role, rng)
+            glyph_report = _build_glyph_report_from_lexicon(agent_id, role, rng)
 
             cur.execute("""
                 INSERT INTO agent_intelligence_reports (agent_id, glyph_report, epoch_hour)
@@ -1087,6 +1323,7 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
                 "role": role,
                 "glyph_report": glyph_report,
                 "epoch_hour": epoch_hour,
+                "sim_run_id": None,
                 "generated_at": generated_at.isoformat() if generated_at else None,
             }
         finally:
@@ -1094,6 +1331,58 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
     except Exception as e:
         logger.error("get_or_generate_agent_report failed: %s", e)
         return None
+
+
+def generate_reports_after_simulation(run_id: str, agents: List["MesaAgent"]):
+    """
+    Called after a simulation completes to regenerate intelligence reports
+    for all claimed-agent slots that appear in this run, seeding them with
+    real simulation memory data. Best-effort — errors are logged, not raised.
+    """
+    _init_adriana_report_tables()
+    epoch_hour = int(time.time()) // 3600
+    from void_engine.db_pool import get_db
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT agent_id, user_id FROM agent_nft_owners")
+            nft_rows = cur.fetchall()
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.warning("generate_reports_after_simulation: could not fetch NFT owners: %s", e)
+        return
+
+    owner_user_ids = {uid for _, uid in nft_rows}
+    agent_by_user = {a.user_id: a for a in agents if a.user_id in owner_user_ids}
+
+    for nft_agent_id, user_id in nft_rows:
+        try:
+            glyph = _assign_archetype(nft_agent_id, seed_extra="nft_slot")
+            archetype = ARCHETYPE_MAP[glyph]
+            role = archetype["role"]
+
+            rng = random.Random(f"{nft_agent_id}:{epoch_hour}:{run_id}")
+            glyph_report = _build_glyph_report_from_lexicon(nft_agent_id, role, rng)
+
+            from void_engine.db_pool import get_db
+            conn = get_db()
+            try:
+                cur = conn.cursor()
+                cur.execute("""
+                    INSERT INTO agent_intelligence_reports
+                        (agent_id, glyph_report, epoch_hour, sim_run_id)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (agent_id, epoch_hour) DO UPDATE
+                        SET glyph_report = EXCLUDED.glyph_report,
+                            sim_run_id = EXCLUDED.sim_run_id
+                """, (nft_agent_id, glyph_report, epoch_hour, run_id))
+                conn.commit()
+            finally:
+                conn.close()
+        except Exception as e:
+            logger.warning("generate_reports_after_simulation: agent %d failed: %s", nft_agent_id, e)
 
 
 def get_user_translation(agent_id: int, user_id: int, report_id: int) -> Optional[str]:
@@ -1119,16 +1408,20 @@ def get_user_translation(agent_id: int, user_id: int, report_id: int) -> Optiona
 
 def purchase_translation(agent_id: int, user_id: int, report_id: int, role: str) -> Dict:
     """
-    Deduct TRANSLATION_FEE_PEACE PEACE tokens from user and store the translation.
+    Deduct the configured translation fee from the NFT holder's PEACE balance.
+    Uses spend_vtx to atomically record the spend in vortex_ledger.
+    Only the NFT owner (user_id == slot owner) may call this.
     Returns {"ok": True, "translation": "..."} or {"ok": False, "error": "..."}
     """
     _init_adriana_report_tables()
     from void_engine.db_pool import get_db
+
+    fee = get_translation_fee()
+
     try:
         conn = get_db()
         try:
             cur = conn.cursor()
-
             cur.execute(
                 "SELECT translation FROM adriana_translations "
                 "WHERE agent_id = %s AND user_id = %s AND report_id = %s",
@@ -1137,46 +1430,54 @@ def purchase_translation(agent_id: int, user_id: int, report_id: int, role: str)
             cached = cur.fetchone()
             if cached:
                 return {"ok": True, "translation": cached[0], "already_owned": True}
-
-            cur.execute(
-                "SELECT COALESCE(vortex_balance, 0) FROM users WHERE id = %s FOR UPDATE",
-                (user_id,)
-            )
-            row = cur.fetchone()
-            if not row:
-                conn.rollback()
-                return {"ok": False, "error": "User not found"}
-            balance = Decimal(str(row[0]))
-            if balance < TRANSLATION_FEE_PEACE:
-                conn.rollback()
-                return {
-                    "ok": False,
-                    "error": f"Insufficient PEACE tokens. You have {float(balance):.2f}, need {float(TRANSLATION_FEE_PEACE):.0f}.",
-                    "balance": float(balance),
-                    "required": float(TRANSLATION_FEE_PEACE),
-                }
-
-            cur.execute(
-                "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) - %s WHERE id = %s",
-                (TRANSLATION_FEE_PEACE, user_id)
-            )
-
-            rng = random.Random(f"{agent_id}:{report_id}:{user_id}")
-            translation = _generate_plain_translation(role, rng)
-
-            cur.execute("""
-                INSERT INTO adriana_translations (agent_id, user_id, report_id, translation, peace_spent)
-                VALUES (%s, %s, %s, %s, %s)
-                ON CONFLICT (agent_id, user_id, report_id) DO NOTHING
-            """, (agent_id, user_id, report_id, translation, TRANSLATION_FEE_PEACE))
-
-            conn.commit()
-            return {"ok": True, "translation": translation, "peace_spent": float(TRANSLATION_FEE_PEACE)}
-        except Exception:
-            conn.rollback()
-            raise
         finally:
             conn.close()
     except Exception as e:
-        logger.error("purchase_translation failed: %s", e)
+        logger.error("purchase_translation cache check failed: %s", e)
         return {"ok": False, "error": "Translation purchase failed. Please try again."}
+
+    from void_engine.vortex_wallet import spend_vtx
+    purpose = f"adriana_translation:agent_{agent_id}:report_{report_id}"
+    try:
+        block = spend_vtx(user_id, fee, purpose)
+    except Exception as e:
+        logger.error("purchase_translation spend_vtx raised: %s", e)
+        return {"ok": False, "error": "Translation purchase failed. Please try again."}
+
+    if "error" in block:
+        err = block["error"]
+        if "Insufficient" in err or "insufficient" in err:
+            return {
+                "ok": False,
+                "error": f"Insufficient PEACE tokens. You need {float(fee):.0f} PEACE to unlock this translation.",
+                "required": float(fee),
+            }
+        return {"ok": False, "error": err}
+
+    sim_data = _fetch_agent_sim_memory(user_id)
+    rng = random.Random(f"{agent_id}:{report_id}:{user_id}")
+    translation = _build_plain_translation(role, rng, sim_data)
+    ledger_block_index = block.get("block_index")
+
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO adriana_translations
+                    (agent_id, user_id, report_id, translation, peace_spent, ledger_block)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                ON CONFLICT (agent_id, user_id, report_id) DO NOTHING
+            """, (agent_id, user_id, report_id, translation, fee, ledger_block_index))
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.error("purchase_translation DB insert failed after spend: %s", e)
+
+    return {
+        "ok": True,
+        "translation": translation,
+        "peace_spent": float(fee),
+        "ledger_block": ledger_block_index,
+    }

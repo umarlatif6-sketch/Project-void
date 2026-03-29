@@ -273,7 +273,7 @@
             {% endif %}
         </div>
     </div>
-    {% else %}
+    {% elif is_owner %}
     <div class="translation-card">
         <div class="glyph-report-label">
             <span>Decoded Intelligence Briefing</span>
@@ -295,11 +295,23 @@
                     <div class="translate-fee-desc">One-time fee per report epoch. Once purchased, re-reads are free forever.</div>
                 </div>
             </div>
-            <form method="POST" action="/mesa-village/agent/{{ slot.agent_id }}/translate" style="width:100%;">
+            <form method="POST" action="/mesa-village/agents/{{ slot.agent_id }}/translate" style="width:100%;">
                 <button type="submit" class="translate-btn">
                     ⬡ Unlock Translation — {{ fee|int }} PEACE
                 </button>
             </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="translation-card">
+        <div class="glyph-report-label">
+            <span>Decoded Intelligence Briefing</span>
+            <span style="background:rgba(74,80,96,0.2); border:1px solid rgba(74,80,96,0.3); color:var(--void-muted); font-size:10px; padding:3px 10px; border-radius:10px;">🔒 OWNER ONLY</span>
+        </div>
+        <div class="locked-overlay">
+            <div class="locked-icon">🔒</div>
+            <div>Intelligence translations are exclusive to the NFT holder of this agent slot.</div>
+            <div style="margin-top:8px; font-size:11px;">Only the owner of Agent #{{ slot.agent_id }} can purchase and read the plain-English translation.</div>
         </div>
     </div>
     {% endif %}

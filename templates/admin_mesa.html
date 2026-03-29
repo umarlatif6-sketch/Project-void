@@ -137,6 +137,12 @@
     {% if mint_error %}
     <div class="adm-banner error">✗ {{ mint_error.replace("_", " ") }}</div>
     {% endif %}
+    {% if fee_ok %}
+    <div class="adm-banner success">✓ Adriana translation fee updated to {{ fee_ok }} PEACE.</div>
+    {% endif %}
+    {% if fee_error %}
+    <div class="adm-banner error">✗ Fee update failed: {{ fee_error.replace("_", " ") }}</div>
+    {% endif %}
 
     <div class="adm-section-title">Mint Agent NFT</div>
     <div class="adm-card">
@@ -166,6 +172,21 @@
                 <button type="submit" class="adm-btn" style="background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:#f87171;">✕ Revoke</button>
             </form>
         </div>
+    </div>
+
+    <div class="adm-section-title">Adriana Translation Fee</div>
+    <div class="adm-card">
+        <p style="font-size:12px; color:var(--void-muted); margin-bottom:18px;">Set the PEACE token fee NFT holders pay to unlock the plain-English translation of their agent's intelligence report. Stored in void_config and recorded in the ledger on each purchase.</p>
+        <form method="POST" action="/admin/mesa/fee">
+            <div class="adm-form-grid">
+                <div class="adm-field">
+                    <label>Translation Fee (PEACE)</label>
+                    <input type="number" name="translation_fee" step="0.01" min="0.01" value="{{ current_fee|round(2) }}" required>
+                    <span class="adm-hint">Current fee: {{ current_fee|round(2) }} PEACE. Each purchase atomically records a spend block in the Vortex ledger.</span>
+                </div>
+            </div>
+            <button type="submit" class="adm-btn">⬡ Update Translation Fee</button>
+        </form>
     </div>
 
     <div class="adm-section-title">Trigger New Simulation Round</div>

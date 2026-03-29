@@ -30,7 +30,7 @@ def mesa_village():
 @mesa_bp.route("/admin/mesa", methods=["GET"])
 @admin_required
 def admin_mesa_get():
-    from void_engine.mesa_engine import get_latest_run, get_run_history
+    from void_engine.mesa_engine import get_latest_run, get_run_history, get_translation_fee
     latest = get_latest_run()
     history = get_run_history(20)
     triggered = request.args.get("triggered")
@@ -38,6 +38,9 @@ def admin_mesa_get():
     mint_ok = request.args.get("mint_ok")
     revoke_ok = request.args.get("revoke_ok")
     mint_error = request.args.get("mint_error")
+    fee_ok = request.args.get("fee_ok")
+    fee_error = request.args.get("fee_error")
+    current_fee = float(get_translation_fee())
     return render_template(
         "admin_mesa.html",
         latest=latest,
@@ -47,6 +50,9 @@ def admin_mesa_get():
         mint_ok=mint_ok,
         revoke_ok=revoke_ok,
         mint_error=mint_error,
+        fee_ok=fee_ok,
+        fee_error=fee_error,
+        current_fee=current_fee,
     )
 
 
@@ -165,12 +171,12 @@ def admin_mesa_revoke():
         return redirect(f"/admin/mesa?mint_error=revoke_failed")
 
 
-@mesa_bp.route("/mesa-village/agent/<int:agent_id>/report")
+@mesa_bp.route("/mesa-village/agents/<int:agent_id>")
 @login_required
 def agent_report(agent_id: int):
     from void_engine.mesa_engine import (
         get_agent_slot, get_or_generate_agent_report,
-        get_user_translation, TRANSLATION_FEE_PEACE,
+        get_user_translation, get_translation_fee,
     )
     slot = get_agent_slot(agent_id)
     if slot is None:
@@ -180,8 +186,9 @@ def agent_report(agent_id: int):
     user_id = session.get("user_id")
     translation = None
     already_translated = False
+    is_owner = bool(slot.get("owner") and slot["owner"]["user_id"] == user_id)
 
-    if report and user_id:
+    if report and user_id and is_owner:
         cached = get_user_translation(agent_id, user_id, report["report_id"])
         if cached:
             translation = cached
@@ -190,40 +197,68 @@ def agent_report(agent_id: int):
     translate_error = request.args.get("translate_error")
     translate_ok = request.args.get("translate_ok")
 
+    fee = get_translation_fee()
+
     return render_template(
         "agent_report.html",
         slot=slot,
         report=report,
         translation=translation,
         already_translated=already_translated,
-        fee=float(TRANSLATION_FEE_PEACE),
+        is_owner=is_owner,
+        fee=float(fee),
         translate_error=translate_error,
         translate_ok=translate_ok,
     )
 
 
-@mesa_bp.route("/mesa-village/agent/<int:agent_id>/translate", methods=["POST"])
+@mesa_bp.route("/mesa-village/agents/<int:agent_id>/translate", methods=["POST"])
 @login_required
 def agent_translate(agent_id: int):
     from void_engine.mesa_engine import (
-        get_or_generate_agent_report, purchase_translation,
+        get_agent_slot, get_or_generate_agent_report, purchase_translation,
     )
     user_id = session.get("user_id")
     if not user_id:
-        return redirect(f"/mesa-village/agent/{agent_id}/report?translate_error=not_logged_in")
+        return redirect(f"/mesa-village/agents/{agent_id}?translate_error=not_logged_in")
+
+    slot = get_agent_slot(agent_id)
+    if slot is None:
+        return redirect("/mesa-village/agents")
+
+    if not (slot.get("owner") and slot["owner"]["user_id"] == user_id):
+        return redirect(f"/mesa-village/agents/{agent_id}?translate_error=not_owner")
 
     report = get_or_generate_agent_report(agent_id)
     if not report:
-        return redirect(f"/mesa-village/agent/{agent_id}/report?translate_error=no_report")
+        return redirect(f"/mesa-village/agents/{agent_id}?translate_error=no_report")
 
     result = purchase_translation(agent_id, user_id, report["report_id"], report["role"])
     if result["ok"]:
-        return redirect(f"/mesa-village/agent/{agent_id}/report?translate_ok=1")
+        return redirect(f"/mesa-village/agents/{agent_id}?translate_ok=1")
     else:
         error = result.get("error", "failed")
-        if "Insufficient" in error:
-            return redirect(f"/mesa-village/agent/{agent_id}/report?translate_error=insufficient_peace")
-        return redirect(f"/mesa-village/agent/{agent_id}/report?translate_error=failed")
+        if "Insufficient" in error or "insufficient" in error:
+            return redirect(f"/mesa-village/agents/{agent_id}?translate_error=insufficient_peace")
+        return redirect(f"/mesa-village/agents/{agent_id}?translate_error=failed")
+
+
+@mesa_bp.route("/admin/mesa/fee", methods=["POST"])
+@admin_required
+def admin_mesa_set_fee():
+    from void_engine.mesa_engine import set_translation_fee
+    from decimal import Decimal, InvalidOperation
+    try:
+        raw = (request.form.get("translation_fee") or "").strip()
+        new_fee = Decimal(raw).quantize(Decimal("0.01"))
+        if new_fee <= 0:
+            raise ValueError("Fee must be positive")
+    except (InvalidOperation, ValueError):
+        return redirect("/admin/mesa?fee_error=invalid_fee")
+    ok = set_translation_fee(new_fee)
+    if ok:
+        return redirect(f"/admin/mesa?fee_ok={float(new_fee):.2f}")
+    return redirect("/admin/mesa?fee_error=save_failed")
 
 
 @mesa_bp.route("/mesa/simulate", methods=["POST"])
