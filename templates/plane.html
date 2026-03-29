@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID Plane — Star Map</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg: #04040a;
+            --gold: #c9a84c;
+            --gold-dim: rgba(201,168,76,0.15);
+            --teal: #2dd4bf;
+            --purple: #818cf8;
+            --text: #c8c8d8;
+            --muted: #444;
+            --surface: rgba(10,10,20,0.92);
+            --border: rgba(255,255,255,0.06);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            width: 100%; height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            overflow: hidden;
+        }
+
+        /* NAV */
+        .plane-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 24px;
+            background: rgba(4,4,10,0.95);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+        }
+        .plane-nav-brand {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .plane-nav-links {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+        .plane-nav-link {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            transition: color 0.2s;
+        }
+        .plane-nav-link:hover { color: var(--text); }
+        .plane-nav-vtx {
+            font-size: 0.65rem;
+            color: var(--gold);
+            letter-spacing: 2px;
+        }
+        .plane-nav-vtx-val {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        /* MAIN CANVAS AREA */
+        .plane-canvas-wrap {
+            position: fixed;
+            top: 46px; left: 0; right: 340px; bottom: 48px;
+            overflow: hidden;
+        }
+        #plane-svg {
+            width: 100%; height: 100%;
+            cursor: default;
+        }
+
+        /* SIDE PANEL */
+        .plane-side {
+            position: fixed;
+            top: 46px; right: 0;
+            width: 340px;
+            bottom: 48px;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .plane-side-header {
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .plane-side-title {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .plane-side-user {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+        .plane-side-bal {
+            font-size: 0.62rem;
+            color: var(--muted);
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+        .plane-side-bal strong { color: var(--gold); }
+
+        .plane-side-section {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .plane-side-section-title {
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .plane-zone-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .plane-zone-card-name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .plane-zone-card-res {
+            font-size: 0.6rem;
+            color: var(--teal);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .plane-zone-card-res-bar {
+            height: 3px;
+            background: rgba(45,212,191,0.1);
+            border-radius: 2px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .plane-zone-card-res-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--teal), var(--gold));
+            border-radius: 2px;
+            transition: width 0.5s;
+        }
+        .plane-zone-card-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-family: inherit;
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            margin-right: 6px;
+        }
+        .plane-zone-card-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .plane-empty-state {
+            font-size: 0.7rem;
+            color: var(--muted);
+            line-height: 1.9;
+            padding: 8px 0;
+        }
+        .plane-empty-state strong { color: var(--text); }
+
+        /* BOTTOM BAR */
+        .plane-bottom {
+            position: fixed;
+            bottom: 0; left: 0; right: 340px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(4,4,10,0.92);
+            border-top: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+        }
+        .plane-crystallization {
+            font-size: 0.62rem;
+            letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .plane-crystallization em {
+            color: var(--gold);
+            font-style: normal;
+        }
+
+        /* TOOLTIP */
+        #plane-tooltip {
+            position: fixed;
+            pointer-events: none;
+            z-index: 500;
+            background: rgba(4,4,14,0.98);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px 16px;
+            max-width: 240px;
+            display: none;
+            backdrop-filter: blur(16px);
+        }
+        .tt-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .tt-sub {
+            font-size: 0.6rem;
+            color: var(--muted);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .tt-owner {
+            font-size: 0.65rem;
+            color: var(--teal);
+            margin-bottom: 4px;
+        }
+        .tt-resonance {
+            font-size: 0.6rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        .tt-desc {
+            font-size: 0.65rem;
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+        .tt-btn {
+            display: inline-block;
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-family: inherit;
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            padding: 5px 12px;
+            cursor: pointer;
+            border-radius: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.15s;
+            margin-right: 6px;
+        }
+        .tt-btn:hover { background: var(--gold-dim); }
+        .tt-btn-sec {
+            border-color: var(--teal);
+            color: var(--teal);
+        }
+        .tt-btn-sec:hover { background: rgba(45,212,191,0.1); }
+
+        /* CLAIM MODAL */
+        #claim-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 600;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+        #claim-modal.open { display: flex; }
+        .claim-modal-card {
+            background: #090914;
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 8px;
+            padding: 36px 32px;
+            max-width: 400px;
+            width: 90%;
+        }
+        .claim-modal-title {
+            font-size: 1.0rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .claim-modal-zone {
+            font-size: 0.75rem;
+            color: #fff;
+            margin-bottom: 18px;
+        }
+        .claim-modal-cost {
+            background: rgba(201,168,76,0.06);
+            border: 1px solid rgba(201,168,76,0.15);
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-size: 0.7rem;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+        }
+        .claim-modal-balance {
+            font-size: 0.65rem;
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+        .claim-modal-balance strong { color: var(--text); }
+        .claim-modal-error {
+            font-size: 0.65rem;
+            color: #f87171;
+            margin-bottom: 14px;
+            display: none;
+        }
+        .claim-modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .claim-modal-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+        .claim-modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .claim-modal-btn-confirm {
+            background: var(--gold);
+            color: #000;
+            font-weight: 700;
+        }
+        .claim-modal-btn-cancel {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        /* DUNGEON EDITOR MODAL */
+        #dungeon-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 600;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+        #dungeon-modal.open { display: flex; }
+        .dungeon-modal-card {
+            background: #090914;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 32px;
+            max-width: 440px;
+            width: 90%;
+        }
+        .dungeon-modal-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+        .dungeon-modal-zone {
+            font-size: 0.65rem;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+        }
+        .dungeon-modal-textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.7rem;
+            line-height: 1.7;
+            padding: 12px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 14px;
+        }
+        .dungeon-modal-textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+        .dungeon-modal-publish {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 0.65rem;
+            color: var(--muted);
+            cursor: pointer;
+        }
+        .dungeon-modal-publish input { cursor: pointer; }
+        .dungeon-modal-publish strong { color: var(--text); }
+        .dungeon-modal-actions { display: flex; gap: 12px; }
+        .dungeon-modal-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+        .dungeon-modal-btn-save {
+            background: var(--teal);
+            color: #000;
+            font-weight: 700;
+        }
+        .dungeon-modal-btn-cancel {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+        .dungeon-modal-status {
+            font-size: 0.62rem;
+            color: var(--teal);
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* SVG styles */
+        .plane-zone-polygon {
+            cursor: pointer;
+            transition: filter 0.2s;
+        }
+        .plane-zone-polygon:hover {
+            filter: brightness(1.6);
+        }
+        .star-node { cursor: pointer; }
+        .star-node:hover .star-glow { opacity: 1 !important; }
+        .star-link { opacity: 0.3; }
+
+        /* RESPONSIVE */
+        @media (max-width: 720px) {
+            .plane-canvas-wrap { right: 0; bottom: 100px; }
+            .plane-side {
+                top: auto;
+                width: 100%;
+                height: 100px;
+                bottom: 48px;
+                overflow-y: auto;
+                flex-direction: row;
+                flex-wrap: nowrap;
+            }
+            .plane-side-section { flex-shrink: 0; min-width: 220px; }
+            .plane-bottom { right: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="plane-nav">
+    <a href="/" class="plane-nav-brand">◆ VOID ENGINE</a>
+    <div class="plane-nav-links">
+        <a href="/" class="plane-nav-link">Engine</a>
+        <a href="/marketplace" class="plane-nav-link">Marketplace</a>
+        <a href="/gridul" class="plane-nav-link">GriDul</a>
+        <a href="/chronicle" class="plane-nav-link">Chronicle</a>
+        <a href="/plane" class="plane-nav-link" style="color:var(--gold)">Plane</a>
+        {% if user_id %}
+        <span class="plane-nav-vtx">◆ <span class="plane-nav-vtx-val" id="nav-vtx-bal">{{ "%.2f"|format(vtx_balance) }}</span> VTX</span>
+        {% else %}
+        <a href="/login" class="plane-nav-link" style="color:var(--gold)">Login</a>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="plane-canvas-wrap">
+    <svg id="plane-svg" viewBox="0 0 1200 880" preserveAspectRatio="xMidYMid meet">
+        <defs>
+            <radialGradient id="star-glow-gradient" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="glow-filter">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+            <filter id="star-filter">
+                <feGaussianBlur stdDeviation="6" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+            {% for star in stars %}
+            <radialGradient id="star-grad-{{ star.id }}" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="{{ star.color }}" stop-opacity="0.7"/>
+                <stop offset="60%" stop-color="{{ star.color }}" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="{{ star.color }}" stop-opacity="0"/>
+            </radialGradient>
+            {% endfor %}
+        </defs>
+
+        <!-- Background stars dust -->
+        <rect width="1200" height="880" fill="#04040a"/>
+
+        <!-- Random dust particles (static SVG pattern) -->
+        <g opacity="0.4">
+            {% for i in range(180) %}
+            <circle
+                cx="{{ (i * 137 + 23) % 1200 }}"
+                cy="{{ (i * 197 + 51) % 880 }}"
+                r="{{ 0.4 if i % 5 == 0 else 0.2 }}"
+                fill="#ffffff"
+                opacity="{{ 0.6 if i % 7 == 0 else 0.25 }}"
+            />
+            {% endfor %}
+        </g>
+
+        <!-- Star connection lines -->
+        <g class="star-links" id="star-links" stroke="#c9a84c" stroke-width="0.6" opacity="0.2">
+        </g>
+
+        <!-- Zone polygons -->
+        <g id="zone-polygons"></g>
+
+        <!-- Zone labels -->
+        <g id="zone-labels" font-family="'SF Mono', Consolas, monospace" font-size="7" fill="rgba(255,255,255,0.45)" text-anchor="middle" pointer-events="none"></g>
+
+        <!-- Stars -->
+        <g id="constellation-stars">
+            {% for star in stars %}
+            <g class="star-node"
+               data-star-id="{{ star.id }}"
+               data-star-name="{{ star.name }}"
+               data-star-layer="{{ star.layer }}"
+               data-star-desc="{{ star.description }}"
+               data-star-page="{{ star.page }}"
+               data-star-color="{{ star.color }}"
+               transform="translate({{ star.x }}, {{ star.y }})">
+                <circle class="star-glow" r="36" fill="url(#star-grad-{{ star.id }})" opacity="0.5"/>
+                <circle r="12" fill="{{ star.color }}" opacity="0.18"/>
+                <circle r="7" fill="{{ star.color }}" opacity="0.6" filter="url(#star-filter)"/>
+                <circle r="4" fill="#ffffff" opacity="0.9"/>
+                <text y="-18" text-anchor="middle" font-family="'SF Mono',Consolas,monospace"
+                      font-size="9" fill="{{ star.color }}" font-weight="700" letter-spacing="1"
+                      opacity="0.9">{{ star.name }}</text>
+                <text y="-8" text-anchor="middle" font-family="'SF Mono',Consolas,monospace"
+                      font-size="6.5" fill="{{ star.color }}" opacity="0.5" letter-spacing="0.5">Layer {{ star.layer }}</text>
+            </g>
+            {% endfor %}
+        </g>
+    </svg>
+</div>
+
+<!-- SIDE PANEL -->
+<aside class="plane-side">
+    <div class="plane-side-header">
+        <div class="plane-side-title">Your Territory</div>
+        {% if user_id %}
+        <div class="plane-side-user">◆ {{ display_name or username }}</div>
+        <div class="plane-side-bal">VTX Balance: <strong id="side-vtx-bal">{{ "%.2f"|format(vtx_balance) }}</strong></div>
+        {% else %}
+        <div class="plane-side-user" style="color:var(--muted)">Not logged in</div>
+        <div class="plane-side-bal"><a href="/login" style="color:var(--gold); text-decoration:none;">Login to claim zones</a></div>
+        {% endif %}
+    </div>
+
+    <div class="plane-side-section">
+        <div class="plane-side-section-title">Owned Zones</div>
+        {% if user_id %}
+            {% if user_zones %}
+                {% for zone in user_zones %}
+                <div class="plane-zone-card">
+                    <div class="plane-zone-card-name">{{ zone.name }}</div>
+                    <div class="plane-zone-card-res">Resonance: {{ "%.1f"|format(zone.resonance_score) }}/100</div>
+                    <div class="plane-zone-card-res-bar">
+                        <div class="plane-zone-card-res-fill" style="width:{{ zone.resonance_score }}%"></div>
+                    </div>
+                    <button class="plane-zone-card-btn"
+                            onclick="openDungeonEditor('{{ zone.zone_key }}', '{{ zone.name }}', {{ zone.dungeon_description|tojson }}, {{ zone.dungeon_published|tojson }})">
+                        Edit Dungeon
+                    </button>
+                    {% if zone.dungeon_published %}
+                    <button class="plane-zone-card-btn" style="border-color:var(--teal);color:var(--teal);"
+                            onclick="locateZone('{{ zone.zone_key }}')">Enter Dungeon</button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="plane-empty-state">
+                You have no claimed zones yet.<br>
+                <strong>Click an unclaimed zone</strong> on the map to claim it for {{ zone_claim_cost }} VTX.
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="plane-empty-state">
+            <a href="/login" style="color:var(--gold); text-decoration:none;">Login</a> to claim zones on the VOID Plane.
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="plane-side-section">
+        <div class="plane-side-section-title">Crystallization Layers</div>
+        {% for star in stars %}
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:{{ star.color }};flex-shrink:0;display:inline-block;box-shadow:0 0 6px {{ star.color }};"></span>
+            <div>
+                <div style="font-size:0.68rem;color:#fff;font-weight:700;">{{ star.name }}</div>
+                <div style="font-size:0.58rem;color:var(--muted);">Layer {{ star.layer }}</div>
+            </div>
+            <a href="{{ star.page }}" style="margin-left:auto;font-size:0.55rem;color:var(--muted);text-decoration:none;letter-spacing:1px;" title="{{ star.description }}">→</a>
+        </div>
+        {% endfor %}
+    </div>
+</aside>
+
+<!-- BOTTOM BAR -->
+<div class="plane-bottom">
+    <div class="plane-crystallization">
+        ◆ &nbsp; <em>In the ground of language</em>, memory holds value — community heals the <em>legacy</em>. &nbsp; ◆
+    </div>
+</div>
+
+<!-- TOOLTIP -->
+<div id="plane-tooltip"></div>
+
+<!-- CLAIM MODAL -->
+<div id="claim-modal">
+    <div class="claim-modal-card">
+        <div class="claim-modal-title">Claim Zone</div>
+        <div class="claim-modal-zone" id="claim-zone-name">—</div>
+        <div class="claim-modal-cost">Cost: {{ zone_claim_cost }} VTX</div>
+        <div class="claim-modal-balance">Your balance: <strong id="claim-balance">0</strong> VTX</div>
+        <div class="claim-modal-error" id="claim-error"></div>
+        <div class="claim-modal-actions">
+            <button class="claim-modal-btn claim-modal-btn-confirm" id="claim-confirm-btn" onclick="doClaimZone()">Claim Zone</button>
+            <button class="claim-modal-btn claim-modal-btn-cancel" onclick="closeClaimModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- DUNGEON EDITOR MODAL -->
+<div id="dungeon-modal">
+    <div class="dungeon-modal-card">
+        <div class="dungeon-modal-title">Edit Dungeon</div>
+        <div class="dungeon-modal-zone" id="dungeon-zone-label">—</div>
+        <textarea class="dungeon-modal-textarea" id="dungeon-desc-textarea" rows="5"
+                  placeholder="Describe your dungeon — what visitors will find, the world you've built here..."></textarea>
+        <label class="dungeon-modal-publish">
+            <input type="checkbox" id="dungeon-publish-check">
+            <div><strong>Publish dungeon</strong> — makes "Enter Dungeon" visible to other users</div>
+        </label>
+        <div class="dungeon-modal-actions">
+            <button class="dungeon-modal-btn dungeon-modal-btn-save" onclick="saveDungeon()">Save</button>
+            <button class="dungeon-modal-btn dungeon-modal-btn-cancel" onclick="closeDungeonModal()">Cancel</button>
+        </div>
+        <div class="dungeon-modal-status" id="dungeon-status"></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    var STARS = {{ stars | tojson }};
+    var USER_ID = {{ user_id | tojson }};
+    var VTX_BALANCE = {{ vtx_balance | tojson }};
+    var CLAIM_COST = {{ zone_claim_cost | tojson }};
+
+    var zones = [];
+    var currentClaimZoneKey = null;
+    var currentDungeonZoneKey = null;
+    var tooltip = document.getElementById('plane-tooltip');
+
+    function svgPt(el, clientX, clientY) {
+        var svg = document.getElementById('plane-svg');
+        var pt = svg.createSVGPoint();
+        pt.x = clientX; pt.y = clientY;
+        return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function resonanceColor(score) {
+        if (score >= 75) return '#c9a84c';
+        if (score >= 50) return '#2dd4bf';
+        if (score >= 25) return '#6366f1';
+        if (score > 0)   return '#444466';
+        return '#1a1a2e';
+    }
+
+    function resonanceFill(score) {
+        var alpha = 0.08 + (score / 100) * 0.28;
+        return alpha;
+    }
+
+    function centroid(pts) {
+        var sx = 0, sy = 0;
+        pts.forEach(function(p) { sx += p[0]; sy += p[1]; });
+        return [sx / pts.length, sy / pts.length];
+    }
+
+    function drawStarLinks() {
+        var linkOrder = [
+            ['ground','language'],
+            ['language','memory'],
+            ['memory','value'],
+            ['value','community'],
+            ['community','healing'],
+            ['healing','legacy'],
+            ['legacy','ground'],
+            ['ground','memory'],
+            ['language','community'],
+        ];
+        var starMap = {};
+        STARS.forEach(function(s) { starMap[s.id] = s; });
+        var g = document.getElementById('star-links');
+        linkOrder.forEach(function(pair) {
+            var a = starMap[pair[0]], b = starMap[pair[1]];
+            if (!a || !b) return;
+            var line = document.createElementNS('http://www.w3.org/2000/svg','line');
+            line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+            line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+            g.appendChild(line);
+        });
+    }
+
+    function renderZones(zonesData) {
+        zones = zonesData;
+        var g = document.getElementById('zone-polygons');
+        var gl = document.getElementById('zone-labels');
+        g.innerHTML = '';
+        gl.innerHTML = '';
+
+        zones.forEach(function(z) {
+            if (!z.polygon || !z.polygon.length) return;
+            var pts = z.polygon.map(function(p) { return p[0] + ',' + p[1]; }).join(' ');
+            var poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+            poly.setAttribute('points', pts);
+            var col = resonanceColor(z.resonance_score);
+            poly.setAttribute('fill', col);
+            poly.setAttribute('fill-opacity', resonanceFill(z.resonance_score));
+            poly.setAttribute('stroke', z.owner_id ? col : '#1a1a2e');
+            poly.setAttribute('stroke-width', z.owner_id ? '0.8' : '0.4');
+            poly.setAttribute('stroke-opacity', z.owner_id ? '0.6' : '0.3');
+            poly.setAttribute('class', 'plane-zone-polygon');
+            poly.setAttribute('data-zone-key', z.zone_key);
+            poly.addEventListener('mouseenter', function(e) { showZoneTooltip(z, e); });
+            poly.addEventListener('mouseleave', hideTooltip);
+            poly.addEventListener('mousemove', function(e) { moveTooltip(e); });
+            poly.addEventListener('click', function(e) { onZoneClick(z, e); });
+            g.appendChild(poly);
+
+            var c = centroid(z.polygon);
+            var label = document.createElementNS('http://www.w3.org/2000/svg','text');
+            label.setAttribute('x', c[0]);
+            label.setAttribute('y', c[1] + 3);
+            label.textContent = z.name;
+            var words = z.name.split(/(?=[A-Z])/).join(' ');
+            if (z.name.length > 10) {
+                label.setAttribute('font-size', '5.5');
+            }
+            gl.appendChild(label);
+        });
+    }
+
+    function showZoneTooltip(z, e) {
+        var html = '<div class="tt-title">' + z.name + '</div>';
+        if (z.owner_id) {
+            html += '<div class="tt-sub">◆ CLAIMED</div>';
+            html += '<div class="tt-owner">Owner: ' + (z.owner_display_name || z.owner_username || 'Unknown') + '</div>';
+            html += '<div class="tt-resonance">Resonance: ' + z.resonance_score.toFixed(1) + ' / 100</div>';
+            if (z.dungeon_published && z.dungeon_description) {
+                html += '<div class="tt-desc">' + z.dungeon_description.substring(0, 100) + (z.dungeon_description.length > 100 ? '...' : '') + '</div>';
+            }
+            if (z.is_mine) {
+                html += '<button class="tt-btn" onclick="openDungeonEditor(\'' + z.zone_key + '\',\'' + z.name.replace(/'/g, "\\'") + '\',' + JSON.stringify(z.dungeon_description || '') + ',' + (z.dungeon_published ? 'true' : 'false') + ')">Edit Dungeon</button>';
+            } else if (z.dungeon_published) {
+                html += '<a class="tt-btn tt-btn-sec" href="/plane/dungeon/' + z.zone_key + '">Enter Dungeon</a>';
+            }
+        } else {
+            html += '<div class="tt-sub">○ UNCLAIMED</div>';
+            if (USER_ID) {
+                html += '<button class="tt-btn" onclick="openClaimModal(\'' + z.zone_key + '\',\'' + z.name.replace(/'/g, "\\'") + '\')">Claim for ' + CLAIM_COST + ' VTX</button>';
+            } else {
+                html += '<a class="tt-btn" href="/login">Login to Claim</a>';
+            }
+        }
+        tooltip.innerHTML = html;
+        tooltip.style.display = 'block';
+        moveTooltip(e);
+    }
+
+    function showStarTooltip(star, e) {
+        var html = '<div class="tt-title">◆ ' + star.name + '</div>';
+        html += '<div class="tt-sub">CRYSTALLIZATION LAYER ' + star.layer + '</div>';
+        html += '<div class="tt-desc">' + star.description + '</div>';
+        html += '<a class="tt-btn tt-btn-sec" href="' + star.page + '">Visit Layer →</a>';
+        tooltip.innerHTML = html;
+        tooltip.style.display = 'block';
+        moveTooltip(e);
+    }
+
+    function moveTooltip(e) {
+        var x = e.clientX + 16, y = e.clientY - 10;
+        var rect = tooltip.getBoundingClientRect();
+        if (x + rect.width > window.innerWidth - 20) x = e.clientX - rect.width - 16;
+        if (y + rect.height > window.innerHeight - 20) y = window.innerHeight - rect.height - 10;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+    }
+
+    function hideTooltip() {
+        tooltip.style.display = 'none';
+    }
+
+    function onZoneClick(z, e) {
+        if (z.owner_id) return;
+        if (!USER_ID) {
+            window.location.href = '/login';
+            return;
+        }
+        openClaimModal(z.zone_key, z.name);
+    }
+
+    window.openClaimModal = function(zoneKey, zoneName) {
+        currentClaimZoneKey = zoneKey;
+        document.getElementById('claim-zone-name').textContent = zoneName;
+        document.getElementById('claim-balance').textContent = VTX_BALANCE.toFixed(2);
+        document.getElementById('claim-error').style.display = 'none';
+        document.getElementById('claim-error').textContent = '';
+        var btn = document.getElementById('claim-confirm-btn');
+        btn.disabled = VTX_BALANCE < CLAIM_COST;
+        if (VTX_BALANCE < CLAIM_COST) {
+            document.getElementById('claim-error').textContent = 'Insufficient VTX. You need ' + CLAIM_COST + ' VTX.';
+            document.getElementById('claim-error').style.display = 'block';
+        }
+        document.getElementById('claim-modal').classList.add('open');
+        hideTooltip();
+    };
+
+    window.closeClaimModal = function() {
+        document.getElementById('claim-modal').classList.remove('open');
+        currentClaimZoneKey = null;
+    };
+
+    window.doClaimZone = function() {
+        if (!currentClaimZoneKey) return;
+        var btn = document.getElementById('claim-confirm-btn');
+        btn.disabled = true;
+        btn.textContent = 'Claiming…';
+        document.getElementById('claim-error').style.display = 'none';
+
+        fetch('/api/plane/claim', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({zone_key: currentClaimZoneKey}),
+            credentials: 'same-origin',
+        })
+        .then(function(r) { return r.json().then(function(d) { return {ok: r.ok, d: d}; }); })
+        .then(function(res) {
+            btn.disabled = false;
+            btn.textContent = 'Claim Zone';
+            if (res.ok && res.d.ok) {
+                VTX_BALANCE = res.d.new_balance;
+                document.getElementById('nav-vtx-bal') && (document.getElementById('nav-vtx-bal').textContent = VTX_BALANCE.toFixed(2));
+                document.getElementById('side-vtx-bal') && (document.getElementById('side-vtx-bal').textContent = VTX_BALANCE.toFixed(2));
+                closeClaimModal();
+                loadZones();
+                window.location.reload();
+            } else {
+                var err = document.getElementById('claim-error');
+                err.textContent = (res.d && res.d.error) || 'Claim failed';
+                err.style.display = 'block';
+            }
+        })
+        .catch(function() {
+            btn.disabled = false;
+            btn.textContent = 'Claim Zone';
+            var err = document.getElementById('claim-error');
+            err.textContent = 'Network error. Please try again.';
+            err.style.display = 'block';
+        });
+    };
+
+    window.openDungeonEditor = function(zoneKey, zoneName, desc, published) {
+        currentDungeonZoneKey = zoneKey;
+        document.getElementById('dungeon-zone-label').textContent = zoneName;
+        document.getElementById('dungeon-desc-textarea').value = desc || '';
+        document.getElementById('dungeon-publish-check').checked = !!published;
+        document.getElementById('dungeon-status').style.display = 'none';
+        document.getElementById('dungeon-modal').classList.add('open');
+        hideTooltip();
+    };
+
+    window.closeDungeonModal = function() {
+        document.getElementById('dungeon-modal').classList.remove('open');
+        currentDungeonZoneKey = null;
+    };
+
+    window.saveDungeon = function() {
+        if (!currentDungeonZoneKey) return;
+        var desc = document.getElementById('dungeon-desc-textarea').value.trim();
+        var pub = document.getElementById('dungeon-publish-check').checked;
+        var status = document.getElementById('dungeon-status');
+        status.textContent = 'Saving…';
+        status.style.display = 'block';
+        status.style.color = 'var(--muted)';
+
+        fetch('/api/plane/dungeon', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({zone_key: currentDungeonZoneKey, description: desc, publish: pub}),
+            credentials: 'same-origin',
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.ok) {
+                status.textContent = 'Saved!';
+                status.style.color = 'var(--teal)';
+                setTimeout(function() { closeDungeonModal(); loadZones(); }, 1000);
+            } else {
+                status.textContent = d.error || 'Save failed';
+                status.style.color = '#f87171';
+            }
+        })
+        .catch(function() {
+            status.textContent = 'Network error';
+            status.style.color = '#f87171';
+        });
+    };
+
+    window.locateZone = function(zoneKey) {
+        var z = zones.find(function(z) { return z.zone_key === zoneKey; });
+        if (!z || !z.polygon) return;
+        alert('Zone "' + z.name + '" — dungeon entrance (future milestone: 3D world navigation)');
+    };
+
+    function loadZones() {
+        fetch('/api/plane/zones', {credentials: 'same-origin'})
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            renderZones(data.zones || []);
+        })
+        .catch(function(e) {
+            console.error('Failed to load zones:', e);
+        });
+    }
+
+    function attachStarListeners() {
+        document.querySelectorAll('.star-node').forEach(function(el) {
+            var starId = el.getAttribute('data-star-id');
+            var star = STARS.find(function(s) { return s.id === starId; });
+            if (!star) return;
+            el.addEventListener('mouseenter', function(e) { showStarTooltip(star, e); });
+            el.addEventListener('mouseleave', hideTooltip);
+            el.addEventListener('mousemove', moveTooltip);
+            el.addEventListener('click', function() {
+                window.location.href = star.page;
+            });
+        });
+    }
+
+    document.getElementById('claim-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeClaimModal();
+    });
+    document.getElementById('dungeon-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeDungeonModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { closeClaimModal(); closeDungeonModal(); }
+    });
+
+    drawStarLinks();
+    attachStarListeners();
+    loadZones();
+
+})();
+</script>
+
+</body>
+</html>

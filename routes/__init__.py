@@ -26,6 +26,7 @@ from routes.prior_art import prior_art_bp
 from routes.archive import archive_bp
 from routes.brand import brand_bp
 from routes.crystallization import crystallization_bp
+from routes.plane import plane_bp
 
 
 def register_blueprints(app):
@@ -57,3 +58,4 @@ def register_blueprints(app):
     app.register_blueprint(archive_bp)
     app.register_blueprint(brand_bp)
     app.register_blueprint(crystallization_bp)
+    app.register_blueprint(plane_bp)

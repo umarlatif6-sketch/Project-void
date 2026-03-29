@@ -45,6 +45,11 @@ def _startup_migrations():
     except Exception as e:
         logger.error("GriDul table setup failed: %s", e)
     try:
+        from routes.plane import init_plane_tables
+        init_plane_tables()
+    except Exception as e:
+        logger.error("Plane table setup failed: %s", e)
+    try:
         from void_engine.vortex_wallet import ensure_genesis_tables
         ensure_genesis_tables()
     except Exception as e:
