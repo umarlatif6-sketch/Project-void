@@ -578,6 +578,44 @@
         </div>
     </div>
 
+    <!-- MYCELIUM ENGINE STATUS PANEL (full width) -->
+    <div class="mv-card mv-card-wide" id="mv-engine-panel">
+        <div class="mv-card-title">
+            <span class="mv-glyph">&#9670;</span> Live Mycelium Network Engine
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:18px;" id="mv-engine-stats">
+            <div class="mv-absorption-cell">
+                <div class="mv-absorption-val" id="eng-active-nodes" style="color:var(--myco-spore);">—</div>
+                <div class="mv-absorption-label">Active Nodes</div>
+            </div>
+            <div class="mv-absorption-cell">
+                <div class="mv-absorption-val" id="eng-resource-flow" style="color:var(--myco-pulse);">—</div>
+                <div class="mv-absorption-label">Resource Flow</div>
+                <div class="mv-absorption-unit">total allocation</div>
+            </div>
+            <div class="mv-absorption-cell">
+                <div class="mv-absorption-val" id="eng-avg-signal" style="color:var(--void-gold);">—</div>
+                <div class="mv-absorption-label">Avg Signal</div>
+                <div class="mv-absorption-unit">propagation</div>
+            </div>
+            <div class="mv-absorption-cell">
+                <div class="mv-absorption-val" id="eng-step-count" style="color:var(--void-muted);">—</div>
+                <div class="mv-absorption-label">Simulation Steps</div>
+            </div>
+        </div>
+        <div style="font-size:0.65rem;letter-spacing:1.5px;color:var(--void-muted);margin-bottom:8px;">STRONGEST SIGNAL PATH</div>
+        <div id="eng-signal-path" style="font-size:0.72rem;color:var(--myco-spore);letter-spacing:1px;min-height:20px;">—</div>
+        <div style="margin-top:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <button onclick="refreshMycoEngine()" id="eng-refresh-btn"
+                style="background:transparent;border:1px solid var(--myco-spore);color:var(--myco-spore);
+                       border-radius:3px;padding:7px 18px;font-family:inherit;font-size:0.65rem;
+                       letter-spacing:2px;cursor:pointer;transition:background 0.15s;">
+                Refresh Network State
+            </button>
+            <span id="eng-status-text" style="font-size:0.65rem;color:#444;letter-spacing:1px;"></span>
+        </div>
+    </div>
+
     <!-- MRB-4000 BLUEPRINT ARCHIVE LINK (full width) -->
     <div class="mv-card mv-card-wide" style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
         <div>
@@ -1035,6 +1073,59 @@
     setInterval(tick, 1000);
 
 })();
+
+/* ── Mycelium Engine Status Refresh ── */
+function refreshMycoEngine() {
+    var btn = document.getElementById('eng-refresh-btn');
+    var statusEl = document.getElementById('eng-status-text');
+    if (btn) btn.disabled = true;
+    if (statusEl) statusEl.textContent = 'Fetching…';
+
+    fetch('/api/mycovoid/status')
+        .then(function(r) {
+            if (r.status === 401) {
+                if (statusEl) statusEl.textContent = 'Login required to view network status';
+                if (btn) btn.disabled = false;
+                return null;
+            }
+            return r.json();
+        })
+        .then(function(data) {
+            if (!data) return;
+            if (!data.ok || !data.network) throw new Error(data.error || 'no data');
+            var n = data.network;
+            var activeEl = document.getElementById('eng-active-nodes');
+            var flowEl = document.getElementById('eng-resource-flow');
+            var signalEl = document.getElementById('eng-avg-signal');
+            var stepsEl = document.getElementById('eng-step-count');
+            var pathEl = document.getElementById('eng-signal-path');
+
+            if (activeEl) activeEl.textContent = n.active_nodes;
+            if (flowEl) flowEl.textContent = n.total_resource_flow.toFixed(1);
+            if (signalEl) signalEl.textContent = (n.avg_signal_strength * 100).toFixed(1) + '%';
+            if (stepsEl) stepsEl.textContent = n.step_count;
+            if (pathEl) {
+                var path = n.strongest_signal_path || [];
+                pathEl.textContent = path.length > 0
+                    ? 'Node ' + path.join(' → Node ')
+                    : 'No active path';
+            }
+
+            var nodeOnlineEl = document.getElementById('mv-node-online-count');
+            if (nodeOnlineEl) nodeOnlineEl.textContent = n.active_nodes;
+
+            if (statusEl) statusEl.textContent = 'Updated — ' + new Date().toLocaleTimeString();
+            if (btn) btn.disabled = false;
+        })
+        .catch(function(err) {
+            if (statusEl) statusEl.textContent = 'Error: ' + err.message;
+            if (btn) btn.disabled = false;
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    refreshMycoEngine();
+});
 </script>
     <link rel="stylesheet" href="/static/void_fairy.css">
     <link rel="stylesheet" href="/static/resonance_handshake.css">

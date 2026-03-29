@@ -665,6 +665,48 @@ class VirtualVoidSimulator:
         if section in self._environment_state:
             self._environment_state[section].update(updates)
 
+    def feed_village_resonance(self, zone_id: str, mesa_result: Dict) -> None:
+        """
+        Ingest a Mesa village simulation result into the VirtualVoidSimulator
+        environment state under the "village_sim" section.
+
+        The aggregate resonance score and agent activity level are mapped to
+        physical simulator parameters (aquaponics nutrient demand, flywheel
+        energy reserve) so that zone-level human activity propagates through
+        the hardware model.
+
+        Called by /api/village/simulate/<zone_id> after each Mesa run.
+        """
+        resonance = float(mesa_result.get("resonance_score", 0.0))
+        activity = float(mesa_result.get("activity_level", 0.0))
+        agent_count = int(mesa_result.get("agent_count", 0))
+
+        # Update or create the village_sim section
+        village = self._environment_state.get("village_sim", {})
+        village[zone_id] = {
+            "resonance_score": resonance,
+            "activity_level": activity,
+            "agent_count": agent_count,
+            "steps_run": mesa_result.get("steps_run", 0),
+            "agent_types": mesa_result.get("agent_types", {}),
+        }
+        self._environment_state["village_sim"] = village
+
+        # Propagate into physical subsystems: high activity increases aquaponics
+        # ammonia demand (agents consume nutrients) and reduces flywheel energy
+        # reserve slightly (zone activity draws from the shared energy pool)
+        activity_coefficient = min(1.0, activity * agent_count / 10.0)
+        aquaponics = self._environment_state["aquaponics"]
+        aquaponics["ammonia_ppm"] = min(
+            2.0,
+            aquaponics["ammonia_ppm"] + activity_coefficient * 0.02
+        )
+        flywheel = self._environment_state["flywheel"]
+        flywheel["energy_reserve_wh"] = max(
+            0.0,
+            flywheel["energy_reserve_wh"] - activity_coefficient * 0.5
+        )
+
     def simulate_action(self, action: Dict) -> Dict:
         sim_state = self.get_state()
         action_type = action.get("type", "unknown")

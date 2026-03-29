@@ -772,10 +772,111 @@
         </div>
     </section>
 
-    <!-- ── SECTION 03: LIVE TRAINING PANEL ── -->
+    <!-- ── SECTION 03: SESSION TONE GENERATOR ── -->
     <section>
         <div class="qs-section-head">
             <span class="qs-section-num">03</span>
+            <span class="qs-section-title">Session Tone — 432 Hz SOL / Schumann Resonance</span>
+            <div class="qs-section-line"></div>
+        </div>
+        <div class="qs-section-body">
+            <div class="qs-prose">
+                <p>
+                    Generate a binaural audio file tuned to <strong>432 Hz (SOL solfeggio)</strong>
+                    with a <strong>7.83 Hz Schumann resonance</strong> beat frequency. The left
+                    channel carries the base carrier at 432 Hz; the right channel shifts to
+                    439.83 Hz, creating the binaural differential perceived by the brain as a
+                    7.83 Hz standing wave — matching Earth's natural electromagnetic cavity
+                    resonance.
+                </p>
+                <p>
+                    Each generated file is named with the current session ID and logged to the
+                    VOID chronicle as a zero-cost event. Use during stance practice or meditation.
+                </p>
+            </div>
+            <div style="margin-top:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <select id="toneDuration" class="qs-duration-select">
+                    <option value="30">30 seconds</option>
+                    <option value="60" selected>1 minute</option>
+                    <option value="120">2 minutes</option>
+                    <option value="300">5 minutes</option>
+                </select>
+                <button class="qs-start-btn" id="toneBtn" onclick="generateTone()">
+                    Generate Session Tone
+                </button>
+                <span id="toneStatus" style="font-size:0.7rem;color:var(--void-muted);"></span>
+            </div>
+            <div id="tonePlayer" style="margin-top:16px;display:none;">
+                <audio id="toneAudio" controls style="width:100%;filter:invert(0.85) hue-rotate(180deg);"></audio>
+                <div style="font-size:0.65rem;color:#444;margin-top:8px;letter-spacing:1px;" id="toneFilename"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION 03B: AUDIO STEGANOGRAPHY ── -->
+    <section>
+        <div class="qs-section-head">
+            <span class="qs-section-num">03B</span>
+            <span class="qs-section-title">Audio Steganography — WaveWhisper Layer</span>
+            <div class="qs-section-line"></div>
+        </div>
+        <div class="qs-section-body">
+            <div style="font-size:0.72rem;line-height:1.7;color:var(--void-muted);margin-bottom:20px;">
+                Hide a message inside the <strong>432 Hz carrier tone</strong> using one of two encoding layers.
+                <br>
+                <span style="color:var(--void-teal);">Spectrogram mode</span> — the text is <em>literally drawn</em> in the frequency domain.
+                Open the WAV in any spectrogram viewer and the message appears as visible glyphs at 900–3600 Hz.
+                <br>
+                <span style="color:var(--void-teal);">WaveWhisper mode</span> — 14-segment display audio segments are overlaid sample-level onto the 432 Hz carrier.
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;">
+                <div style="flex:1;min-width:180px;">
+                    <label style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--void-muted);display:block;margin-bottom:6px;">Message (max 32 chars)</label>
+                    <input type="text" id="stegaMessage" maxlength="32" placeholder="VOID 432"
+                        style="width:100%;background:#0a0a0a;border:1px solid #2a2a2a;color:#e8e8e8;padding:8px 10px;font-size:0.75rem;letter-spacing:1px;border-radius:3px;box-sizing:border-box;">
+                </div>
+                <div style="min-width:140px;">
+                    <label style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--void-muted);display:block;margin-bottom:6px;">Encoding Layer</label>
+                    <select id="stegaMethod" style="background:#0a0a0a;border:1px solid #2a2a2a;color:#e8e8e8;padding:8px 10px;font-size:0.72rem;border-radius:3px;">
+                        <option value="spectrogram" selected>Spectrogram (visible glyphs)</option>
+                        <option value="wavewhisper">WaveWhisper (segment overlay)</option>
+                    </select>
+                </div>
+                <div style="min-width:110px;">
+                    <label style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--void-muted);display:block;margin-bottom:6px;">Duration</label>
+                    <select id="stegaDuration" style="background:#0a0a0a;border:1px solid #2a2a2a;color:#e8e8e8;padding:8px 10px;font-size:0.72rem;border-radius:3px;">
+                        <option value="10" selected>10 s</option>
+                        <option value="20">20 s</option>
+                        <option value="30">30 s</option>
+                    </select>
+                </div>
+            </div>
+            <button class="qs-start-btn" id="stegaBtn" onclick="encodeStega()">Encode into 432 Hz Carrier</button>
+            <span id="stegaStatus" style="font-size:0.7rem;color:var(--void-muted);margin-left:12px;"></span>
+
+            <div id="stegaPlayer" style="margin-top:16px;display:none;">
+                <audio id="stegaAudio" controls style="width:100%;filter:invert(0.85) hue-rotate(180deg);"></audio>
+                <div style="font-size:0.65rem;color:#444;margin-top:8px;letter-spacing:1px;" id="stegaFilename"></div>
+                <div id="stegaHint" style="margin-top:10px;padding:10px 14px;background:#0d1a12;border-left:2px solid var(--void-teal);font-size:0.65rem;color:var(--void-muted);line-height:1.6;display:none;"></div>
+            </div>
+
+            <div style="margin-top:24px;padding-top:16px;border-top:1px solid #1a1a1a;">
+                <div style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--void-muted);margin-bottom:10px;">Resonance Purity Check</div>
+                <div style="font-size:0.7rem;color:#555;margin-bottom:10px;">
+                    Upload any WAV to measure its 432 Hz signal-to-noise ratio and harmonic alignment.
+                </div>
+                <input type="file" id="resonanceFile" accept=".wav" style="display:none;" onchange="checkResonance(this)">
+                <button class="qs-start-btn" style="font-size:0.65rem;padding:6px 16px;" onclick="document.getElementById('resonanceFile').click()">Upload WAV for Analysis</button>
+                <span id="resonanceStatus" style="font-size:0.7rem;color:var(--void-muted);margin-left:12px;"></span>
+                <div id="resonanceResult" style="margin-top:12px;display:none;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION 04: LIVE TRAINING PANEL ── -->
+    <section>
+        <div class="qs-section-head">
+            <span class="qs-section-num">04</span>
             <span class="qs-section-title">Live Training Module</span>
             <div class="qs-section-line"></div>
         </div>
@@ -983,6 +1084,159 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(function(){});
 });
+
+// ── Tone Generator ─────────────────────────────────────────────────────────
+function generateTone() {
+    var dur = document.getElementById('toneDuration').value || '60';
+    var sid = sessionId || ('standalone_' + Date.now());
+    var statusEl = document.getElementById('toneStatus');
+    var btn = document.getElementById('toneBtn');
+    var player = document.getElementById('tonePlayer');
+    var audio = document.getElementById('toneAudio');
+    var filenameEl = document.getElementById('toneFilename');
+
+    btn.disabled = true;
+    statusEl.textContent = 'Generating ' + dur + 's WAV…';
+
+    var url = '/api/qisync/tone?duration=' + dur + '&session_id=' + encodeURIComponent(sid);
+    fetch(url)
+        .then(function(r) {
+            if (!r.ok) throw new Error('Server error ' + r.status);
+            return r.blob();
+        })
+        .then(function(blob) {
+            var objUrl = URL.createObjectURL(blob);
+            audio.src = objUrl;
+            player.style.display = 'block';
+            filenameEl.textContent = 'qisync_sol_schumann_' + sid + '.wav — 432 Hz SOL · 7.83 Hz Schumann';
+            statusEl.textContent = 'Ready — ' + dur + 's binaural tone generated.';
+            btn.disabled = false;
+
+            var dlA = document.createElement('a');
+            dlA.href = objUrl;
+            dlA.download = 'qisync_sol_schumann_' + sid + '.wav';
+            dlA.style.display = 'inline-block';
+            dlA.style.marginLeft = '12px';
+            dlA.style.fontSize = '0.65rem';
+            dlA.style.color = 'var(--void-teal)';
+            dlA.style.letterSpacing = '1px';
+            dlA.textContent = '↓ Download WAV';
+            if (!document.getElementById('toneDownload')) {
+                dlA.id = 'toneDownload';
+                filenameEl.appendChild(dlA);
+            } else {
+                var old = document.getElementById('toneDownload');
+                old.href = objUrl;
+                old.download = dlA.download;
+            }
+        })
+        .catch(function(err) {
+            statusEl.textContent = 'Error: ' + err.message;
+            btn.disabled = false;
+        });
+}
+
+// ── Audio Steganography ─────────────────────────────────────────────────────
+function encodeStega() {
+    var msg = (document.getElementById('stegaMessage').value || '').trim();
+    if (!msg) { msg = 'VOID 432'; }
+    var method = document.getElementById('stegaMethod').value;
+    var dur = document.getElementById('stegaDuration').value;
+    var statusEl = document.getElementById('stegaStatus');
+    var btn = document.getElementById('stegaBtn');
+    var player = document.getElementById('stegaPlayer');
+    var audio = document.getElementById('stegaAudio');
+    var filenameEl = document.getElementById('stegaFilename');
+    var hintEl = document.getElementById('stegaHint');
+
+    btn.disabled = true;
+    statusEl.textContent = 'Encoding "' + msg + '" via ' + method + '…';
+    player.style.display = 'none';
+    hintEl.style.display = 'none';
+
+    fetch('/api/qisync/stega/encode', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: msg, method: method, duration: parseFloat(dur)})
+    })
+    .then(function(r) {
+        if (!r.ok) throw new Error('Server error ' + r.status);
+        return r.blob();
+    })
+    .then(function(blob) {
+        var objUrl = URL.createObjectURL(blob);
+        audio.src = objUrl;
+        player.style.display = 'block';
+
+        var safeName = msg.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
+        filenameEl.textContent = 'void_stega_' + method + '_' + safeName + '.wav';
+
+        var dlA = document.createElement('a');
+        dlA.href = objUrl;
+        dlA.download = filenameEl.textContent;
+        dlA.style.cssText = 'margin-left:12px;font-size:0.65rem;color:var(--void-teal);letter-spacing:1px;';
+        dlA.textContent = '↓ Download';
+        filenameEl.appendChild(dlA);
+
+        if (method === 'spectrogram') {
+            hintEl.innerHTML = '&#x25B6; Open this WAV in <strong>Audacity → Spectrogram view</strong> or any online spectrogram tool.<br>The message <em>"' + msg + '"</em> is drawn as visible glyphs between 900–3600 Hz on the 432 Hz carrier.';
+        } else {
+            hintEl.innerHTML = '&#x25B6; WaveWhisper overlay: the message <em>"' + msg + '"</em> is encoded as 14-segment display audio patterns, mixed at sample level into the 432 Hz carrier.';
+        }
+        hintEl.style.display = 'block';
+
+        statusEl.textContent = 'Done — ' + dur + 's encoded.';
+        btn.disabled = false;
+    })
+    .catch(function(err) {
+        statusEl.textContent = 'Error: ' + err.message;
+        btn.disabled = false;
+    });
+}
+
+function checkResonance(input) {
+    var file = input.files[0];
+    if (!file) return;
+    var statusEl = document.getElementById('resonanceStatus');
+    var resultEl = document.getElementById('resonanceResult');
+
+    statusEl.textContent = 'Analysing ' + file.name + '…';
+    resultEl.style.display = 'none';
+
+    var fd = new FormData();
+    fd.append('file', file);
+
+    fetch('/api/qisync/stega/check-resonance', {method: 'POST', body: fd})
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (!d.ok) { statusEl.textContent = 'Error: ' + (d.error || 'unknown'); return; }
+        var r = d.resonance;
+        var colour = r.quality === 'Clear' ? '#3fa86e' : r.quality === 'Acceptable' ? '#c8a14a' : '#9b4a4a';
+        resultEl.innerHTML =
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;font-size:0.68rem;">' +
+            '<div style="background:#0d1a12;padding:10px;border-radius:3px;">' +
+                '<div style="color:var(--void-muted);letter-spacing:1px;margin-bottom:4px;">QUALITY</div>' +
+                '<div style="color:' + colour + ';font-size:1rem;font-weight:600;">' + r.quality + '</div>' +
+            '</div>' +
+            '<div style="background:#0a0a14;padding:10px;border-radius:3px;">' +
+                '<div style="color:var(--void-muted);letter-spacing:1px;margin-bottom:4px;">432 Hz SNR</div>' +
+                '<div style="color:#e8e8e8;font-size:0.85rem;">' + r.snr_db + ' dB</div>' +
+            '</div>' +
+            '<div style="background:#0a0a14;padding:10px;border-radius:3px;">' +
+                '<div style="color:var(--void-muted);letter-spacing:1px;margin-bottom:4px;">864 Hz HARMONIC</div>' +
+                '<div style="color:#e8e8e8;font-size:0.85rem;">' + r.harmonic_864_power.toFixed(0) + ' pwr</div>' +
+            '</div>' +
+            '</div>' +
+            (r.warning ? '<div style="margin-top:8px;padding:8px 12px;background:#1a0d0d;border-left:2px solid #7a3a3a;font-size:0.65rem;color:#9b6060;">' + r.warning + '</div>' : '');
+        resultEl.style.display = 'block';
+        statusEl.textContent = file.name + ' — analysis complete.';
+        input.value = '';
+    })
+    .catch(function(err) {
+        statusEl.textContent = 'Error: ' + err.message;
+        input.value = '';
+    });
+}
 
 // ── UI helpers ─────────────────────────────────────────────────────────────
 function selectStance(key, el) {

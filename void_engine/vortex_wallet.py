@@ -1134,3 +1134,35 @@ def mint_memory_session(user_id, session_id, recall_score, memory_level):
         raise
     finally:
         conn.close()
+
+
+def log_qisync_tone(user_id: int, session_id: str, tone_hz: float = 432.0,
+                    beat_hz: float = 7.83, duration_sec: float = 60.0) -> dict:
+    """
+    Record a QiSync tone generation event in the vortex ledger as a
+    zero-cost chronicle entry (no VTX minted or spent).
+    """
+    payload_str = f"qisync_tone_{user_id}_{session_id}_{int(tone_hz)}_{int(beat_hz*100)}"
+    payload_hash = fatiha_286_hexdigest_from_str(payload_str)
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id FROM vortex_ledger WHERE payload_hash = %s AND tx_type = 'qisync_tone'",
+            (payload_hash,),
+        )
+        if cur.fetchone():
+            return {"already_logged": True, "session_id": session_id}
+        block = _create_block(cur, "qisync_tone", user_id, user_id,
+                              Decimal("0"), payload_hash, None)
+        conn.commit()
+        block["tone_hz"] = tone_hz
+        block["beat_hz"] = beat_hz
+        block["duration_sec"] = duration_sec
+        return block
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()

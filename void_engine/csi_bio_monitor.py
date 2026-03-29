@@ -441,8 +441,19 @@ class SimulatedCSIBioMonitor(CSIBioMonitor):
         self._temperature = self._walk(self._temperature, 0.05, 18.0, 28.0)
         self._ph = self._walk(self._ph, 0.005, 6.0, 7.5)
         self._dissolved_oxygen = self._walk(self._dissolved_oxygen, 0.05, 5.0, 9.0)
-        self._growth_density = self._walk(self._growth_density, 0.003, 0.0, 1.0)
         self._moisture = self._walk(self._moisture, 0.005, 0.0, 1.0)
+
+        # Pull growth_density from the live mycelium engine when available.
+        # This grounds the CSI simulation in the actual network dynamics so
+        # that the simulated sensor readings reflect real mycelium activity.
+        mycelium_growth = self._get_mycelium_growth_density()
+        if mycelium_growth is not None:
+            # Blend mycelium reading with existing random walk (80/20 towards network)
+            self._growth_density = 0.8 * mycelium_growth + 0.2 * self._walk(
+                self._growth_density, 0.003, 0.0, 1.0
+            )
+        else:
+            self._growth_density = self._walk(self._growth_density, 0.003, 0.0, 1.0)
 
         self._packet_count += 1
 
@@ -455,6 +466,25 @@ class SimulatedCSIBioMonitor(CSIBioMonitor):
             "moisture": round(self._moisture, 4),
             "csi_source": "simulation",
         }
+
+    @staticmethod
+    def _get_mycelium_growth_density() -> Optional[float]:
+        """
+        Query the live mycelium network for its current active-node ratio,
+        which maps to CSI-observable growth density.
+
+        Returns None silently if the service is unavailable.
+        """
+        try:
+            from void_engine.mycelium_service import get_network_status
+            status = get_network_status(run_steps=0)
+            total = status.get("total_nodes", 0)
+            active = status.get("active_nodes", 0)
+            if total > 0:
+                return min(1.0, active / total)
+        except Exception:
+            pass
+        return None
 
     def _walk(self, value: float, step: float, lo: float, hi: float) -> float:
         delta = self._rng.gauss(0, step)

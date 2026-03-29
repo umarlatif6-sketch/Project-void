@@ -309,6 +309,7 @@ class AdrianaTranspiler:
 
         if result.success:
             self._total_compression_ratio += compression.get("ratio", 1.0)
+            self._notify_village_resonance(expression, commands, compression)
 
         self._history.append({
             "expression": expression,
@@ -377,6 +378,41 @@ class AdrianaTranspiler:
             "ratio": round(ratio, 2),
             "density": round(len(commands) / max(adriana_chars, 1) * 100, 2),
         }
+
+    def _notify_village_resonance(
+        self,
+        expression: str,
+        commands: List["SimulatorCommand"],
+        compression: Dict,
+    ) -> None:
+        """
+        Feed a successful transpile event into the village simulation.
+
+        Each glyph chain represents an adriana-type agent action, contributing
+        to zone activity and resonance within the VirtualVoidSimulator.  The
+        call is best-effort and must not raise (transpile correctness is primary).
+        """
+        try:
+            import routes.shared as _shared
+            harness = getattr(_shared, "harness_sim", None)
+            if harness is None:
+                return
+
+            # Derive zone key from first glyph token; fall back to 'adriana'
+            first_token = expression.split("-")[0].strip() or "adriana"
+            zone_id = re.sub(r"[^\w]", "_", first_token).lower() or "adriana"
+
+            mesa_result = {
+                "zone_id": zone_id,
+                "agent_count": max(1, len(commands)),
+                "activity_level": min(1.0, compression.get("density", 0.0) / 10.0),
+                "resonance_score": compression.get("ratio", 1.0) * len(commands) * 4.32,
+                "steps_run": 1,
+                "agent_types": {"adriana": len(commands)},
+            }
+            harness.feed_village_resonance(zone_id, mesa_result)
+        except Exception:
+            pass
 
     @property
     def stats(self) -> Dict:

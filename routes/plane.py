@@ -11,10 +11,47 @@ Seven stars correspond to the seven VOID crystallization layers:
 
 import logging
 import math
+import threading
 from datetime import datetime, timezone, timedelta
 from flask import Blueprint, render_template, jsonify, session, request
 from void_engine.db_pool import get_db
 from routes.auth import login_required
+
+_sim_lock = threading.Lock()
+_sim_in_flight: set = set()
+
+
+def _bg_refresh_zone_resonance(zone_id: str, zone_key: str, owner_id: int) -> None:
+    """
+    Run village simulation for one zone in a background thread and persist the
+    resonance_score back to the DB.  Guards against concurrent runs for the
+    same zone.
+    """
+    if zone_key in _sim_in_flight:
+        return
+    with _sim_lock:
+        if zone_key in _sim_in_flight:
+            return
+        _sim_in_flight.add(zone_key)
+
+    try:
+        from void_engine.village_sim import simulate_zone
+        result = simulate_zone(zone_key, owner_id=owner_id)
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE void_plane_zones SET resonance_score = %s, updated_at = NOW() WHERE id = %s",
+                (result["resonance_score"], zone_id)
+            )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as exc:
+        logging.getLogger(__name__).debug("bg village sim failed for %s: %s", zone_key, exc)
+    finally:
+        with _sim_lock:
+            _sim_in_flight.discard(zone_key)
 
 logger = logging.getLogger(__name__)
 
@@ -354,18 +391,20 @@ def api_plane_zones():
             SELECT z.id, z.zone_key, z.name, z.polygon_coords,
                    z.owner_id, u.username, u.display_name,
                    z.claimed_at, z.resonance_score,
-                   z.dungeon_description, z.dungeon_published
+                   z.dungeon_description, z.dungeon_published,
+                   z.updated_at
             FROM void_plane_zones z
             LEFT JOIN users u ON u.id = z.owner_id
             ORDER BY z.id ASC
         """)
         zones = []
-        owner_ids_seen = {}
         user_id = session.get("user_id")
+        now = datetime.now(timezone.utc)
+        stale_cutoff = timedelta(minutes=5)
 
         for row in cur.fetchall():
             zone_id, zone_key, name, polygon_coords, owner_id, username, display_name, \
-                claimed_at, resonance_score, dungeon_description, dungeon_published = row
+                claimed_at, resonance_score, dungeon_description, dungeon_published, updated_at = row
 
             zones.append({
                 "id": zone_id,
@@ -381,6 +420,20 @@ def api_plane_zones():
                 "dungeon_published": dungeon_published or False,
                 "is_mine": (owner_id == user_id) if user_id else False,
             })
+
+            # Kick off background village simulation for owned zones with stale scores
+            if owner_id is not None:
+                last_update = updated_at
+                if last_update is not None and last_update.tzinfo is None:
+                    last_update = last_update.replace(tzinfo=timezone.utc)
+                age = now - last_update if last_update else stale_cutoff + timedelta(seconds=1)
+                if age >= stale_cutoff and zone_key not in _sim_in_flight:
+                    t = threading.Thread(
+                        target=_bg_refresh_zone_resonance,
+                        args=(zone_id, zone_key, owner_id),
+                        daemon=True
+                    )
+                    t.start()
 
         return jsonify({"zones": zones, "stars": CONSTELLATION_STARS})
     except Exception as e:
@@ -523,3 +576,68 @@ def api_plane_resonance_refresh():
         return jsonify({"error": "Refresh failed"}), 500
     finally:
         conn.close()
+
+
+@plane_bp.route("/api/village/simulate/<zone_id>")
+@login_required
+def api_village_simulate(zone_id: str):
+    """
+    Run a Mesa village simulation for the given VOID Plane zone.
+
+    Returns agent_count, activity_level, and resonance_score computed
+    from the zone owner's recent platform activity.  Updates the zone's
+    resonance_score in the DB as a side-effect.
+    """
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, owner_id FROM void_plane_zones
+            WHERE zone_key = %s
+        """, (zone_id,))
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "zone not found"}), 404
+
+        db_zone_id, owner_id = row
+    except Exception as e:
+        logger.error("Village simulate DB lookup error: %s", e)
+        return jsonify({"error": "database error"}), 500
+    finally:
+        conn.close()
+
+    try:
+        from void_engine.village_sim import simulate_zone
+        result = simulate_zone(zone_id, owner_id=owner_id)
+    except Exception as exc:
+        logger.error("Village simulation error for %s: %s", zone_id, exc)
+        return jsonify({"error": "simulation error"}), 500
+
+    # Only the zone owner may persist resonance back to the DB.
+    # Other authenticated users can read the simulation but do not mutate state.
+    caller_id = session.get("user_id")
+    if owner_id is not None and str(owner_id) == str(caller_id):
+        try:
+            conn2 = get_db()
+            try:
+                cur2 = conn2.cursor()
+                cur2.execute("""
+                    UPDATE void_plane_zones
+                    SET resonance_score = %s, updated_at = NOW()
+                    WHERE zone_key = %s AND owner_id = %s
+                """, (result["resonance_score"], zone_id, owner_id))
+                conn2.commit()
+            finally:
+                conn2.close()
+        except Exception as exc:
+            logger.debug("Village resonance write-back failed: %s", exc)
+
+    # Feed Mesa results into VirtualVoidSimulator so zone activity propagates
+    # into the physical hardware model (aquaponics, flywheel energy reserve)
+    try:
+        import routes.shared as _shared
+        _shared.harness_sim.feed_village_resonance(zone_id, result)
+    except Exception as exc:
+        logger.debug("VirtualVoidSimulator village feed failed: %s", exc)
+
+    return jsonify({"ok": True, "simulation": result})

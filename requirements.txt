@@ -11,3 +11,6 @@ cryptography==46.0.5
 fpdf2>=2.8.5
 sounddevice>=0.4.6
 python-docx
+mesa>=3.3.1
+binaural>=0.1.2
+WaveWhisper>=1.0.2

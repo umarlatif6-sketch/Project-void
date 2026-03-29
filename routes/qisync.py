@@ -251,6 +251,50 @@ def qisync_page():
     return render_template("qisync.html")
 
 
+@qisync_bp.route("/api/qisync/tone")
+def qisync_tone():
+    """
+    Generate and stream a 432 Hz (SOL) binaural WAV tuned to the Schumann
+    resonance (7.83 Hz beat).  Named by session_id query param if provided.
+
+    No authentication required — the WAV is downloadable by anyone.
+    """
+    from flask import Response, send_file
+    import io
+
+    session_id = request.args.get("session_id", "standalone")
+    try:
+        duration = max(10.0, min(300.0, float(request.args.get("duration", 60.0))))
+    except (ValueError, TypeError):
+        duration = 60.0
+
+    try:
+        from void_engine.binaural_tone import generate_sol_schumann_wav
+        wav_bytes = generate_sol_schumann_wav(duration=duration)
+    except Exception as exc:
+        logger.error("Tone generation error: %s", exc)
+        return jsonify({"error": "tone generation failed"}), 500
+
+    user_id = session.get("user_id")
+    if user_id:
+        try:
+            from void_engine.vortex_wallet import log_qisync_tone
+            log_qisync_tone(user_id, session_id, tone_hz=432.0, beat_hz=7.83,
+                            duration_sec=duration)
+        except Exception as exc:
+            logger.debug("Tone ledger log failed: %s", exc)
+
+    filename = f"qisync_sol_schumann_{session_id}.wav"
+    buf = io.BytesIO(wav_bytes)
+    buf.seek(0)
+    return send_file(
+        buf,
+        mimetype="audio/wav",
+        as_attachment=False,
+        download_name=filename,
+    )
+
+
 @qisync_bp.route("/api/qisync/csi-status")
 def qisync_csi_status():
     try:
@@ -853,3 +897,88 @@ def memory_insights():
                                stats={}, level_distribution=[], leaderboard=[])
     finally:
         conn.close()
+
+
+# =============================================================================
+# AUDIO STEGANOGRAPHY — WaveWhisper + Spectrogram Layer
+# =============================================================================
+
+@qisync_bp.route("/api/qisync/stega/encode", methods=["POST"])
+def qisync_stega_encode():
+    """
+    Encode a message into a 432 Hz audio carrier using one of two methods:
+      method=spectrogram  — text painted visibly into the spectrogram (default)
+      method=wavewhisper  — 14-segment display samples overlaid onto the tone
+
+    Body (JSON or form):
+      message  — string to hide, max 64 chars
+      method   — "spectrogram" | "wavewhisper"
+      duration — seconds of output audio (10–30, default 10)
+
+    Returns: WAV audio stream
+    """
+    from flask import send_file
+    import io
+
+    data = request.get_json(silent=True) or request.form
+    message = str(data.get("message", "VOID") or "VOID").strip()[:64]
+    method = str(data.get("method", "spectrogram")).strip().lower()
+    if method not in ("spectrogram", "wavewhisper"):
+        method = "spectrogram"
+
+    try:
+        duration = max(5.0, min(30.0, float(data.get("duration", 10.0))))
+    except (ValueError, TypeError):
+        duration = 10.0
+
+    if not message:
+        return jsonify({"error": "message required"}), 400
+
+    try:
+        from void_engine.audio_stega import encode_message
+        wav_bytes = encode_message(message, method=method, duration=duration)
+    except Exception as exc:
+        logger.error("Steganography encode failed: %s", exc)
+        return jsonify({"error": "encode failed"}), 500
+
+    safe_msg = "".join(c if c.isalnum() else "_" for c in message[:20])
+    filename = f"void_stega_{method}_{safe_msg}.wav"
+    buf = io.BytesIO(wav_bytes)
+    buf.seek(0)
+    return send_file(
+        buf,
+        mimetype="audio/wav",
+        as_attachment=False,
+        download_name=filename,
+    )
+
+
+@qisync_bp.route("/api/qisync/stega/check-resonance", methods=["POST"])
+def qisync_stega_check_resonance():
+    """
+    Check the 432 Hz resonance purity of an uploaded WAV file.
+
+    Accepts multipart/form-data with field `file` (WAV).
+    Returns JSON with snr_db, quality, and harmonic breakdown.
+    """
+    import tempfile, os
+    f = request.files.get("file")
+    if f is None:
+        return jsonify({"error": "no file uploaded"}), 400
+    if not f.filename.lower().endswith(".wav"):
+        return jsonify({"error": "WAV files only"}), 400
+
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        f.save(tmp.name)
+        tmp_path = tmp.name
+
+    try:
+        from void_engine.stega import check_resonance_purity
+        result = check_resonance_purity(tmp_path)
+        return jsonify({"ok": True, "resonance": result})
+    except Exception as exc:
+        logger.error("Resonance check failed: %s", exc)
+        return jsonify({"error": "resonance check failed"}), 500
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
