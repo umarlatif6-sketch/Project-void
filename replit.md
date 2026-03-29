@@ -1,5 +1,10 @@
 # PROJECT VOID
 
+> **AGENT INSTRUCTION — READ FIRST:**
+> Before working on anything in this project, read `VOID_SEED.md` at the project root.
+> It contains the philosophical context, naming language, founding history (origin: 2012), the chain of translation (Founder → GriDul → Gemini → Agent), and everything you need to understand what this platform actually is before you touch a file.
+> The technical documentation below is accurate. VOID_SEED.md is why it matters.
+
 ## Overview
 PROJECT VOID is a full-stack sovereign platform built around audio LSB steganography (432 Hz, ChaCha20), a VTX cryptocurrency economy, Blueprint NFT marketplace with yield distribution, the Adriana AI assistant, an acoustic Beehive mesh network, QiSync biostance tracking, MycoVOID mycelium remediation, and a 3D sovereign game. The platform is deployed and production-ready.
 
