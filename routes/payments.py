@@ -107,17 +107,38 @@ def checkout_success():
     if session_id:
         try:
             sc = get_stripe_client()
-            cs = sc.checkout.Session.retrieve(session_id)
+            cs = sc.checkout.Session.retrieve(session_id, expand=["subscription"])
+            cs_status = cs.get("status", "")
+            payment_status = cs.get("payment_status", "")
             meta = cs.get("metadata", {})
             meta_user_id = meta.get("user_id", "")
             current_user_id = str(session.get("user_id", ""))
-            if meta_user_id == current_user_id:
+
+            paid = (cs_status == "complete" and payment_status == "paid")
+            if not paid:
+                subscription = cs.get("subscription")
+                if subscription:
+                    sub_status = subscription.get("status", "") if isinstance(subscription, dict) else ""
+                    if sub_status in ("active", "trialing"):
+                        paid = True
+
+            if meta_user_id == current_user_id and paid:
                 tier = meta.get("tier", "")
-                if tier == "journalist":
-                    return redirect("/welcome/vanguard")
-        except Exception:
-            pass
-    return redirect("/")
+                if tier in ("journalist", "sovereign"):
+                    from datetime import datetime, timedelta, timezone
+                    expires = datetime.now(timezone.utc) + timedelta(days=31)
+                    _set_user_tier(int(current_user_id), tier, expires)
+                    sub_obj = cs.get("subscription")
+                    sub_id = sub_obj.get("id") if isinstance(sub_obj, dict) else sub_obj
+                    if sub_id:
+                        _set_stripe_ids(int(current_user_id), subscription_id=sub_id)
+                    session["tier"] = tier
+                    session["base_tier"] = tier
+                    return redirect(f"/welcome?tier={tier}")
+        except Exception as e:
+            current_app.logger.error(f"checkout_success error: {e}")
+            return redirect("/pricing?payment_error=1")
+    return redirect("/pricing?payment_pending=1")
 
 
 @payments_bp.route("/api/subscribe/portal", methods=["POST"])

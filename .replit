@@ -46,7 +46,7 @@ FOUNDER_USERNAME = "adriana"
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--timeout=120", "--workers=2", "--reuse-port", "--preload", "app:app"]
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--workers=2", "app:app"]
 build = ["bash", "-c", "pip install -r requirements.txt && python scripts/migrate.py"]
 
 [postMerge]

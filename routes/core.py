@@ -136,6 +136,20 @@ def welcome_vanguard():
                            user_tier=session.get("tier", "ghost"))
 
 
+@core_bp.route("/welcome")
+@login_required
+def welcome():
+    tier = request.args.get("tier") or session.get("tier", "ghost")
+    if tier not in ("journalist", "sovereign"):
+        tier = session.get("tier", "ghost")
+    if tier not in ("journalist", "sovereign"):
+        return redirect("/pricing")
+    return render_template("welcome.html",
+                           username=session.get("username", ""),
+                           display_name=session.get("display_name", ""),
+                           user_tier=tier)
+
+
 @core_bp.route("/guide")
 def guide_page():
     return render_template("guide.html")

@@ -364,6 +364,21 @@
     </div>
 
     <script>
+    (function() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('payment_error') === '1') {
+            var msg = document.createElement('div');
+            msg.style.cssText = 'background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;padding:12px 20px;text-align:center;font-size:12px;letter-spacing:1px;';
+            msg.textContent = 'There was an issue verifying your payment. Your subscription will activate within a few minutes — please check your pricing page or contact support if your tier is not updated.';
+            document.querySelector('.pricing-hero').after(msg);
+        } else if (params.get('payment_pending') === '1') {
+            var msg = document.createElement('div');
+            msg.style.cssText = 'background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);color:#c9a84c;padding:12px 20px;text-align:center;font-size:12px;letter-spacing:1px;';
+            msg.textContent = 'Payment received — your tier will activate shortly. Refresh this page in a moment.';
+            document.querySelector('.pricing-hero').after(msg);
+        }
+    })();
+
     function subscribe(tier) {
         fetch('/api/subscribe/' + tier, {
             method: 'POST',
