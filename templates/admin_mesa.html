@@ -149,13 +149,9 @@
                     <span class="adm-hint">The slot number to mint. Check the <a href="/mesa-village/agents">Agent Registry</a> for available slots.</span>
                 </div>
                 <div class="adm-field">
-                    <label>User ID</label>
-                    <input type="number" name="user_id" required placeholder="e.g. 7">
-                </div>
-                <div class="adm-field adm-field-full">
-                    <label>Username</label>
-                    <input type="text" name="username" required placeholder="e.g. cryptovoid99">
-                    <span class="adm-hint">Display name shown in the registry. Should match the user's actual username.</span>
+                    <label>User (ID or Email)</label>
+                    <input type="text" name="identifier" required placeholder="e.g. 7  or  user@example.com">
+                    <span class="adm-hint">Enter the user's numeric ID or their registered email. The username is resolved automatically from the account.</span>
                 </div>
             </div>
             <button type="submit" class="adm-btn">⬡ Mint Agent NFT</button>

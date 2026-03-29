@@ -562,7 +562,7 @@ def get_latest_run() -> Optional[Dict]:
 
 
 def _init_agent_nft_table():
-    """Ensure agent_nft_owners table exists."""
+    """Ensure agent_nft_owners table exists with proper constraints."""
     from void_engine.db_pool import get_db
     conn = get_db()
     try:
@@ -570,11 +570,23 @@ def _init_agent_nft_table():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS agent_nft_owners (
                 agent_id   INTEGER PRIMARY KEY CHECK (agent_id >= 0 AND agent_id <= 999),
-                user_id    INTEGER NOT NULL,
+                user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 username   TEXT NOT NULL,
                 claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 nft_token  TEXT NOT NULL UNIQUE
             )
+        """)
+        cur.execute("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint
+                    WHERE conname = 'agent_nft_owners_user_id_unique'
+                ) THEN
+                    ALTER TABLE agent_nft_owners
+                    ADD CONSTRAINT agent_nft_owners_user_id_unique UNIQUE (user_id);
+                END IF;
+            END $$;
         """)
         conn.commit()
     except Exception as e:
@@ -725,9 +737,43 @@ def get_agent_slot(agent_id: int) -> Optional[Dict]:
     }
 
 
+def resolve_user_for_mint(identifier: str) -> Optional[Dict]:
+    """
+    Resolve a user from the users table by numeric ID or email.
+    Returns {"user_id": int, "username": str} or None if not found.
+    """
+    from void_engine.db_pool import get_db
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            identifier = identifier.strip()
+            if identifier.isdigit():
+                cur.execute(
+                    "SELECT id, username FROM users WHERE id = %s",
+                    (int(identifier),)
+                )
+            else:
+                cur.execute(
+                    "SELECT id, username FROM users WHERE lower(email) = lower(%s)",
+                    (identifier,)
+                )
+            row = cur.fetchone()
+            if not row:
+                return None
+            uid, uname = row
+            return {"user_id": uid, "username": uname or f"user_{uid}"}
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.warning("resolve_user_for_mint failed: %s", e)
+        return None
+
+
 def mint_agent_nft(agent_id: int, user_id: int, username: str) -> Dict:
     """
     Admin: assign an agent NFT slot to a user.
+    user_id and username must be pre-resolved from the users table.
     Returns {"ok": True} or {"ok": False, "error": "..."}
     """
     if agent_id < 0 or agent_id > 999:
@@ -749,7 +795,7 @@ def mint_agent_nft(agent_id: int, user_id: int, username: str) -> Dict:
                 (user_id,)
             )
             if cur.fetchone():
-                return {"ok": False, "error": f"User already owns an agent"}
+                return {"ok": False, "error": "User already owns an agent"}
             cur.execute("""
                 INSERT INTO agent_nft_owners (agent_id, user_id, username, nft_token)
                 VALUES (%s, %s, %s, %s)

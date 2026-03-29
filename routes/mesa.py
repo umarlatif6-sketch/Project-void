@@ -123,19 +123,24 @@ def mesa_agents_registry():
 def admin_mesa_mint():
     try:
         agent_id = int(request.form.get("agent_id", ""))
-        target_user_id = int(request.form.get("user_id", ""))
-        username = (request.form.get("username") or "").strip()
-        if not username:
-            return redirect("/admin/mesa?mint_error=username_required")
     except (ValueError, TypeError):
-        return redirect("/admin/mesa?mint_error=invalid_input")
+        return redirect("/admin/mesa?mint_error=invalid_agent_id")
 
-    from void_engine.mesa_engine import mint_agent_nft
-    result = mint_agent_nft(agent_id, target_user_id, username)
+    identifier = (request.form.get("identifier") or "").strip()
+    if not identifier:
+        return redirect("/admin/mesa?mint_error=user_identifier_required")
+
+    from void_engine.mesa_engine import resolve_user_for_mint, mint_agent_nft
+    user_info = resolve_user_for_mint(identifier)
+    if not user_info:
+        return redirect(f"/admin/mesa?mint_error=user_not_found")
+
+    result = mint_agent_nft(agent_id, user_info["user_id"], user_info["username"])
     if result["ok"]:
         return redirect(f"/admin/mesa?mint_ok={agent_id}")
     else:
-        err = result.get("error", "unknown")
+        import urllib.parse
+        err = urllib.parse.quote(result.get("error", "unknown"))
         return redirect(f"/admin/mesa?mint_error={err}")
 
 
