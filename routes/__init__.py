@@ -28,6 +28,7 @@ from routes.brand import brand_bp
 from routes.crystallization import crystallization_bp
 from routes.plane import plane_bp
 from routes.void_master_document import void_master_document_bp
+from routes.inner_voice import inner_voice_bp
 
 
 def register_blueprints(app):
@@ -61,3 +62,4 @@ def register_blueprints(app):
     app.register_blueprint(crystallization_bp)
     app.register_blueprint(plane_bp)
     app.register_blueprint(void_master_document_bp)
+    app.register_blueprint(inner_voice_bp)

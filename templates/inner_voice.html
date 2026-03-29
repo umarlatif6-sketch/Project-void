@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inner Voice — Silent Speech Module — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-red: #ff5252;
+            --void-green: #4caf50;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+            --myco-spore: #7aff7a;
+            --myco-pulse: #00e5cc;
+            --iv-cyan: #00e5ff;
+            --iv-dim-cyan: #007a8a;
+            --iv-neural: #9c6fff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        .mv-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .mv-nav-brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .mv-nav-links { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+        .mv-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .mv-nav-link:hover { color: var(--void-gold); }
+        .mv-nav-link.active { color: var(--iv-cyan); }
+
+        /* ── HERO ── */
+        .iv-hero {
+            text-align: center;
+            padding: 52px 32px 36px;
+            background: radial-gradient(ellipse at 50% 0%, #00101a 0%, var(--void-bg) 72%);
+            border-bottom: 1px solid var(--void-border);
+            position: relative;
+        }
+        .iv-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--iv-cyan), transparent);
+        }
+        .iv-hero-badge {
+            display: inline-block;
+            background: var(--iv-cyan);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 18px;
+        }
+        .iv-hero-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #fff;
+            margin: 0 0 10px;
+        }
+        .iv-hero-title span { color: var(--iv-cyan); }
+        .iv-hero-sub {
+            color: #666;
+            font-size: 0.78rem;
+            max-width: 660px;
+            margin: 0 auto;
+            line-height: 1.7;
+            letter-spacing: 0.5px;
+        }
+        .iv-hero-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .iv-meta-item {
+            font-size: 0.62rem;
+            color: #555;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .iv-meta-item span { color: #888; }
+
+        /* ── MAIN ── */
+        .iv-main {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 36px 24px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ── CARD ── */
+        .iv-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 24px 28px;
+            position: relative;
+        }
+        .iv-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,229,255,0.25), transparent);
+        }
+        .iv-card-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--iv-cyan);
+            text-transform: uppercase;
+            margin: 0 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .iv-card-title .iv-num {
+            color: #444;
+            font-weight: 400;
+        }
+        .iv-body {
+            font-size: 0.82rem;
+            line-height: 1.85;
+            color: #b0b0b0;
+        }
+        .iv-body p { margin: 0 0 14px; }
+        .iv-body p:last-child { margin-bottom: 0; }
+        .iv-body strong { color: #d0d0d0; font-weight: 600; }
+        .iv-body em { color: #999; font-style: italic; }
+
+        /* ── ARCHITECTURE DIAGRAM ── */
+        .iv-arch {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            font-size: 0.72rem;
+            line-height: 1.65;
+            color: #888;
+            background: #0a0f12;
+            border: 1px solid #1a2530;
+            border-radius: 3px;
+            padding: 20px 24px;
+            overflow-x: auto;
+            margin: 16px 0;
+            white-space: pre;
+        }
+        .iv-arch .h { color: var(--iv-cyan); }
+        .iv-arch .n { color: var(--iv-neural); }
+        .iv-arch .g { color: var(--myco-spore); }
+        .iv-arch .a { color: var(--void-gold); }
+        .iv-arch .r { color: var(--void-red); }
+        .iv-arch .d { color: #555; }
+
+        /* ── TABLE ── */
+        .iv-table-wrap {
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+        .iv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        .iv-table th {
+            background: #0a0f12;
+            color: var(--iv-cyan);
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            padding: 10px 16px;
+            text-align: left;
+            border-bottom: 1px solid #1a2530;
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .iv-table td {
+            padding: 9px 16px;
+            color: #a0a0a0;
+            border-bottom: 1px solid #191919;
+            vertical-align: top;
+        }
+        .iv-table tr:last-child td { border-bottom: none; }
+        .iv-table tr:hover td { background: rgba(0,229,255,0.02); }
+        .iv-table td.td-comp { color: var(--iv-cyan); font-weight: 600; white-space: nowrap; }
+        .iv-table td.td-price { color: var(--myco-spore); font-weight: 700; }
+        .iv-table td.td-role { color: #c0c0c0; }
+
+        /* ── SPEC GRID ── */
+        .iv-spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .iv-spec-cell {
+            border: 1px solid #1a2530;
+            border-radius: 3px;
+            padding: 14px 16px;
+            background: #0a0f12;
+        }
+        .iv-spec-label {
+            font-size: 0.58rem;
+            color: #555;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .iv-spec-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--iv-cyan);
+            letter-spacing: 1px;
+        }
+        .iv-spec-unit {
+            font-size: 0.62rem;
+            color: #555;
+            margin-top: 3px;
+        }
+
+        /* ── CONTRAST GRID ── */
+        .iv-contrast-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0;
+        }
+        @media (max-width: 640px) {
+            .iv-contrast-grid { grid-template-columns: 1fr; }
+        }
+        .iv-contrast-col {
+            border: 1px solid #1e1e1e;
+            border-radius: 4px;
+            padding: 18px 20px;
+            background: var(--void-surface2);
+        }
+        .iv-contrast-col.theirs { border-color: rgba(255,82,82,0.2); }
+        .iv-contrast-col.ours { border-color: rgba(0,229,255,0.2); }
+        .iv-contrast-header {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1e1e1e;
+        }
+        .iv-contrast-header.theirs { color: var(--void-red); }
+        .iv-contrast-header.ours { color: var(--iv-cyan); }
+        .iv-contrast-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            font-size: 0.74rem;
+            color: #888;
+            line-height: 1.55;
+        }
+        .iv-contrast-item:last-child { margin-bottom: 0; }
+        .iv-contrast-item .marker {
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            margin-top: 2px;
+        }
+        .iv-contrast-col.theirs .marker { color: var(--void-red); }
+        .iv-contrast-col.ours .marker { color: var(--iv-cyan); }
+
+        /* ── MASK DIAGRAM ── */
+        .iv-mask-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .iv-mask-point {
+            border: 1px solid #1a2530;
+            border-radius: 3px;
+            padding: 14px 16px;
+            background: #0a0f12;
+        }
+        .iv-mask-point-label {
+            font-size: 0.58rem;
+            color: var(--iv-neural);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .iv-mask-point-name {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--void-text);
+            margin-bottom: 6px;
+        }
+        .iv-mask-point-desc {
+            font-size: 0.7rem;
+            color: #777;
+            line-height: 1.6;
+        }
+
+        /* ── QUOTE / PRIOR ART BOX ── */
+        .iv-quote {
+            border-left: 3px solid var(--iv-cyan);
+            padding: 16px 22px;
+            margin: 20px 0;
+            background: rgba(0,229,255,0.03);
+            border-radius: 0 4px 4px 0;
+        }
+        .iv-quote p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #90c8d0;
+            font-style: italic;
+            line-height: 1.8;
+        }
+        .iv-quote .iv-quote-label {
+            display: block;
+            font-size: 0.58rem;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-style: normal;
+        }
+
+        /* ── PRIOR ART NOTICE ── */
+        .iv-prior-art-box {
+            border: 1px solid rgba(0,229,255,0.3);
+            background: rgba(0,229,255,0.03);
+            border-radius: 4px;
+            padding: 24px 28px;
+        }
+        .iv-prior-art-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--iv-cyan);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .iv-prior-art-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .iv-prior-art-field {
+            font-size: 0.7rem;
+            line-height: 1.6;
+        }
+        .iv-prior-art-field .label { color: #555; letter-spacing: 1px; display: block; margin-bottom: 2px; font-size: 0.6rem; text-transform: uppercase; }
+        .iv-prior-art-field .value { color: #c0c0c0; }
+        .iv-prior-art-field .value.highlight { color: var(--iv-cyan); font-weight: 700; }
+        .iv-prior-art-body {
+            font-size: 0.78rem;
+            color: #909090;
+            line-height: 1.8;
+            border-top: 1px solid #1e1e1e;
+            padding-top: 14px;
+        }
+
+        /* ── BREADCRUMB ── */
+        .iv-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0 0;
+            font-size: 0.62rem;
+            color: #444;
+            letter-spacing: 1px;
+        }
+        .iv-breadcrumb a { color: #555; text-decoration: none; }
+        .iv-breadcrumb a:hover { color: var(--iv-cyan); }
+        .iv-breadcrumb .sep { color: #333; }
+        .iv-breadcrumb .current { color: var(--iv-cyan); }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<nav class="mv-nav">
+    <a href="/" class="mv-nav-brand">&#9670; PROJECT VOID</a>
+    <div class="mv-nav-links">
+        <a href="/" class="mv-nav-link">Engine</a>
+        <a href="/sovereign-node" class="mv-nav-link">Sovereign Node</a>
+        <a href="/beehive/demo" class="mv-nav-link">Beehive</a>
+        <a href="/mycovoid" class="mv-nav-link">MycoVOID</a>
+        <a href="/mrb4000" class="mv-nav-link">MRB-4000</a>
+        <a href="/inner-voice" class="mv-nav-link active">Inner Voice</a>
+        <a href="/guide" class="mv-nav-link">Guide</a>
+        {% if username %}
+        <span class="mv-nav-link" style="color:#555">&#9670; {{ username }}</span>
+        <a href="/api/auth/logout" class="mv-nav-link">Logout</a>
+        {% else %}
+        <a href="/login" class="mv-nav-link">Login</a>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="iv-hero">
+    <div class="iv-hero-badge">VOID RESEARCH MODULE — SILENT SPEECH</div>
+    <h1 class="iv-hero-title">Inner <span>Voice</span></h1>
+    <p class="iv-hero-sub">
+        Neuromuscular silent speech detection via sEMG — processed entirely on the MRB-4000.<br>
+        Your internal monologue. Locally decoded. Sovereign by design.
+    </p>
+    <div class="iv-hero-meta">
+        <div class="iv-meta-item"><span>Module:</span> Rumble-and-Decode</div>
+        <div class="iv-meta-item"><span>Hardware:</span> MRB-4000 VTB Protocol</div>
+        <div class="iv-meta-item"><span>Processing:</span> On-Device · Zero Cloud</div>
+        <div class="iv-meta-item"><span>Status:</span> Concept · Prior Art Filed</div>
+    </div>
+</div>
+
+<div class="iv-main">
+
+    <div class="iv-breadcrumb">
+        <a href="/mrb4000">MRB-4000</a>
+        <span class="sep">›</span>
+        <span class="current">Inner Voice — Silent Speech Module</span>
+    </div>
+
+    <!-- §00 CONCEPT OVERVIEW -->
+    <div class="iv-card">
+        <div class="iv-card-title">
+            <span class="iv-num">§00</span> Concept Overview
+        </div>
+        <div class="iv-body">
+            <p>
+                The <strong>Inner Voice Module</strong> is a VOID research concept that reads neuromuscular signals generated during internal speech — sub-vocalisations that occur when a person thinks in words — without producing any audible sound. When a person forms words silently, the jaw, tongue, and throat muscles fire in micro-contractions detectable by surface electromyography (sEMG). These signals carry the full phonetic signature of intended speech.
+            </p>
+            <p>
+                This maps directly onto the architecture pioneered by MIT's AlterEgo project. Where AlterEgo transmits captured signals to cloud inference servers, <strong>VOID's Rumble-and-Decode approach processes everything locally on the MRB-4000</strong> — the internal monologue never leaves the body. Intent decoding is handled by the Adriana SDK running on the ESP32-S3 with BioSig 3.9, with decoded intent delivered to applications via the MRB-4000 VTB Protocol trigger.
+            </p>
+            <p>
+                The result is a silent speech interface that is sovereign by architecture: no microphone, no internet uplink, no proprietary inference cloud. The biological signal, the computation, and the output all remain within a single closed-loop system that the user controls.
+            </p>
+        </div>
+        <div class="iv-quote">
+            <span class="iv-quote-label">VOID Architecture Principle</span>
+            <p>
+                "The internal monologue is the most intimate signal a human generates. It must never leave the body unencrypted, and it must never be processed by a system the speaker does not own. Rumble-and-Decode is the architecture that enforces this. Local inference or no inference."
+            </p>
+        </div>
+    </div>
+
+    <!-- §01 SIGNAL CHAIN ARCHITECTURE -->
+    <div class="iv-card">
+        <div class="iv-card-title">
+            <span class="iv-num">§01</span> Signal Chain Architecture
+        </div>
+        <div class="iv-body">
+            <p>
+                The full signal chain from biological event to application trigger spans five processing stages. Each stage is self-contained and runs on hardware the user physically possesses. The chain below represents the canonical VOID Inner Voice architecture.
+            </p>
+        </div>
+
+        <div class="iv-arch"><span class="d">┌─────────────────────────────────────────────────────────────────────────────────┐
+│                    INNER VOICE — RUMBLE-AND-DECODE SIGNAL CHAIN                │
+└─────────────────────────────────────────────────────────────────────────────────┘</span>
+
+<span class="n"> [STAGE 1 — BIOLOGICAL ACQUISITION]</span>
+
+   <span class="h">Ag/AgCl Dry Electrodes</span> × 4
+   ├── Masseter muscle (left jaw)          <span class="d">→ primary articulation signal</span>
+   ├── Masseter muscle (right jaw)         <span class="d">→ bilateral symmetry reference</span>
+   ├── Suprahyoid muscle (sublingual)      <span class="d">→ tongue/palate motion correlates</span>
+   └── Mastoid process (behind ear)        <span class="d">→ ground / noise reference electrode</span>
+
+   Signal amplitude:  <span class="h">5 – 500 µV</span>   Bandwidth: <span class="h">20 Hz – 500 Hz</span>
+
+<span class="d">        │
+        │  differential pair (twisted shielded wire, 50 Ω)
+        ▼</span>
+<span class="n"> [STAGE 2 — ANALOGUE-TO-DIGITAL CONVERSION]</span>
+
+   <span class="h">ADS1299 24-bit ADC Breakout</span>
+   ├── 8-channel simultaneous sampling     <span class="d">→ 4 electrode channels active</span>
+   ├── Sample rate: <span class="h">250 SPS</span>              <span class="d">→ per channel, Nyquist-adequate</span>
+   ├── Gain: <span class="h">24×</span> (programmable)          <span class="d">→ amplifies sub-mV sEMG to ADC range</span>
+   ├── CMRR: <span class="h">&gt;110 dB</span>                    <span class="d">→ suppresses mains hum / RF artefacts</span>
+   └── SPI bus → ESP32-S3               <span class="d">→ 10 MHz CLK, 3.3 V logic</span>
+
+<span class="d">        │
+        │  SPI at 10 MHz
+        ▼</span>
+<span class="n"> [STAGE 3 — WIRELESS TRANSMISSION / LOCAL MCU]</span>
+
+   <span class="h">ESP32-S3 (dual-core Xtensa LX7, 240 MHz)</span>
+   ├── BLE 5.0 to MRB-4000               <span class="d">→ encrypted local link, &lt;5 m range</span>
+   ├── RAM buffer: <span class="h">512 KB PSRAM</span>          <span class="d">→ holds 2 s rolling acquisition window</span>
+   ├── Pre-filter: <span class="h">20–500 Hz bandpass</span>    <span class="d">→ eliminates DC drift + high-freq noise</span>
+   └── Notch: <span class="h">50/60 Hz</span>                  <span class="d">→ mains interference rejection</span>
+
+<span class="d">        │
+        │  BLE 5.0 (AES-128 encrypted)
+        ▼</span>
+<span class="n"> [STAGE 4 — SIGNAL PROCESSING (BioSig 3.9)]</span>
+
+   <span class="h">BioSig 3.9</span> running on MRB-4000 host
+   ├── RMS envelope extraction            <span class="d">→ per-channel activation profile</span>
+   ├── Wavelet decomposition (db4)        <span class="d">→ frequency-band feature vectors</span>
+   ├── Muscle-onset detection             <span class="d">→ threshold: 3× baseline RMS</span>
+   └── Feature matrix → Adriana SDK      <span class="d">→ structured phonetic feature payload</span>
+
+<span class="d">        │
+        │  internal IPC
+        ▼</span>
+<span class="n"> [STAGE 5 — INTENT DECODING (Adriana SDK)]</span>
+
+   <span class="h">Adriana SDK</span> — intent classification engine
+   ├── Input: BioSig feature matrix       <span class="d">→ per-phoneme muscle activation map</span>
+   ├── Classifier: lightweight MLP        <span class="d">→ trained per user (on-device, local)</span>
+   ├── Output: decoded intent token       <span class="d">→ word / command / glyph</span>
+   └── Trigger: <span class="h">MRB-4000 VTB Protocol</span>   <span class="d">→ fires application action on match</span>
+
+<span class="g">        ▼
+   APPLICATION OUTPUT — sovereign, local, zero-uplink</span></div>
+
+        <div class="iv-spec-grid">
+            <div class="iv-spec-cell">
+                <div class="iv-spec-label">Signal Channels</div>
+                <div class="iv-spec-value">4</div>
+                <div class="iv-spec-unit">sEMG differential pairs</div>
+            </div>
+            <div class="iv-spec-cell">
+                <div class="iv-spec-label">ADC Resolution</div>
+                <div class="iv-spec-value">24-bit</div>
+                <div class="iv-spec-unit">ADS1299 per channel</div>
+            </div>
+            <div class="iv-spec-cell">
+                <div class="iv-spec-label">Sample Rate</div>
+                <div class="iv-spec-value">250 SPS</div>
+                <div class="iv-spec-unit">Per channel simultaneous</div>
+            </div>
+            <div class="iv-spec-cell">
+                <div class="iv-spec-label">Signal Bandwidth</div>
+                <div class="iv-spec-value">20–500 Hz</div>
+                <div class="iv-spec-unit">Post-filter sEMG band</div>
+            </div>
+            <div class="iv-spec-cell">
+                <div class="iv-spec-label">MCU Clock</div>
+                <div class="iv-spec-value">240 MHz</div>
+                <div class="iv-spec-unit">ESP32-S3 dual-core</div>
+            </div>
+            <div class="iv-spec-cell">
+                <div class="iv-spec-label">Wireless Link</div>
+                <div class="iv-spec-value">BLE 5.0</div>
+                <div class="iv-spec-unit">AES-128, &lt;5 m range</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- §02 HARDWARE SPECIFICATION TABLE -->
+    <div class="iv-card">
+        <div class="iv-card-title">
+            <span class="iv-num">§02</span> Hardware Specification Table
+        </div>
+        <div class="iv-body">
+            <p>
+                All components are commercially available as of 2026. Prices are estimated retail / breakout-board pricing. No custom silicon is required for the prototype stage.
+            </p>
+        </div>
+        <div class="iv-table-wrap">
+            <table class="iv-table">
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Part / Spec</th>
+                        <th>Role in System</th>
+                        <th>Est. Price (2026)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="td-comp">ADS1299 Breakout</td>
+                        <td>Texas Instruments ADS1299EEG-FE<br><span style="color:#555;font-size:0.68rem;">24-bit, 8-ch, 250 SPS</span></td>
+                        <td class="td-role">Simultaneous multi-channel sEMG analogue-to-digital conversion. 24-bit resolution captures sub-microvolt phoneme-grade muscle contractions.</td>
+                        <td class="td-price">~$38</td>
+                    </tr>
+                    <tr>
+                        <td class="td-comp">ESP32-S3 Module</td>
+                        <td>Espressif ESP32-S3-WROOM-1<br><span style="color:#555;font-size:0.68rem;">240 MHz, BLE 5.0, 512 KB PSRAM</span></td>
+                        <td class="td-role">Reads ADS1299 over SPI. Applies bandpass and notch pre-filtering. Transmits buffered frame data to MRB-4000 host via encrypted BLE link.</td>
+                        <td class="td-price">~$4</td>
+                    </tr>
+                    <tr>
+                        <td class="td-comp">Ag/AgCl Dry Electrodes</td>
+                        <td>Silver/Silver-Chloride dry disc<br><span style="color:#555;font-size:0.68rem;">10 mm diameter, snap connector</span></td>
+                        <td class="td-role">Four electrodes: left and right Masseter, Suprahyoid, and Mastoid reference. Dry contact for wearable use — no gel required. Low impedance (&lt;10 kΩ dry).</td>
+                        <td class="td-price">~$12 (pack of 10)</td>
+                    </tr>
+                    <tr>
+                        <td class="td-comp">LiPo 500 mAh</td>
+                        <td>3.7 V, 500 mAh, 45×25×5 mm<br><span style="color:#555;font-size:0.68rem;">with JST-PH 2.0 connector</span></td>
+                        <td class="td-role">Powers the ADS1299 + ESP32-S3 sub-system. Estimated runtime: 8–12 hours continuous acquisition. Charged via USB-C pass-through on the VOID-Mask housing.</td>
+                        <td class="td-price">~$8</td>
+                    </tr>
+                    <tr>
+                        <td class="td-comp">Silver Conductive Ink</td>
+                        <td>Ag-loaded epoxy ink<br><span style="color:#555;font-size:0.68rem;">resistivity ≤0.001 Ω·cm, screen-print grade</span></td>
+                        <td class="td-role">Screen-printed onto TPU mask interior. Forms the conductive carbon-black channels that route sEMG signals from electrode contact points to the ADS1299 breakout without rigid wiring.</td>
+                        <td class="td-price">~$22 (10 mL syringe)</td>
+                    </tr>
+                    <tr>
+                        <td class="td-comp">TPU Shell</td>
+                        <td>Shore 85A TPU, 2 mm wall<br><span style="color:#555;font-size:0.68rem;">custom moulded / 3D printed</span></td>
+                        <td class="td-role">VOID-Mask outer casing. Flexible yet shape-retaining. Integrates four electrode pockets and internal conductive channel traces. Stealth earmuff form-factor.</td>
+                        <td class="td-price">~$14 (material)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="iv-body" style="margin-top:14px;">
+            <p>
+                <strong>Total estimated BOM (prototype):</strong> <span style="color:var(--myco-spore);font-weight:700;">~$98</span> per unit at single-unit pricing. Volume pricing reduces this to approximately $55–60 at 100-unit scale.
+            </p>
+        </div>
+    </div>
+
+    <!-- §03 VOID-MASK PHYSICAL DESIGN -->
+    <div class="iv-card">
+        <div class="iv-card-title">
+            <span class="iv-num">§03</span> VOID-Mask — Physical Design
+        </div>
+        <div class="iv-body">
+            <p>
+                The <strong>VOID-Mask</strong> is the wearable housing for the Inner Voice electrode array. Its design goal is stealth: it must look like an ordinary earmuff or audio headset, with no visible medical-device aesthetics. The electrode contact points are positioned on the interior surface, making contact with the jaw and behind-ear anatomy when worn.
+            </p>
+            <p>
+                The shell is moulded from Shore 85A thermoplastic polyurethane (TPU) — the same material used in industrial protective earmuffs. It is flexible enough to conform to varying face geometries and firm enough to maintain electrode pressure contact without adhesive.
+            </p>
+            <p>
+                Conductive carbon-black channels are screen-printed on the mask interior using silver conductive ink. These replace conventional wiring, creating flush internal signal traces that are invisible from outside the device and protected from flexion fatigue by the elastomeric substrate.
+            </p>
+        </div>
+
+        <div class="iv-mask-grid">
+            <div class="iv-mask-point">
+                <div class="iv-mask-point-label">Electrode Point A</div>
+                <div class="iv-mask-point-name">Left Masseter</div>
+                <div class="iv-mask-point-desc">Primary articulation channel. Masseter fires during jaw movements associated with phoneme formation. Left channel provides dominant signal for bilabial and velar consonants.</div>
+            </div>
+            <div class="iv-mask-point">
+                <div class="iv-mask-point-label">Electrode Point B</div>
+                <div class="iv-mask-point-name">Right Masseter</div>
+                <div class="iv-mask-point-desc">Bilateral symmetry reference. Differencing left and right Masseter channels cancels shared-mode artefacts (chewing, swallowing) and isolates lateralised speech motor signals.</div>
+            </div>
+            <div class="iv-mask-point">
+                <div class="iv-mask-point-label">Electrode Point C</div>
+                <div class="iv-mask-point-name">Suprahyoid (Sublingual)</div>
+                <div class="iv-mask-point-desc">Tongue and palate motion correlates. The suprahyoid group activates during vowel formation and alveolar consonants. Positioned beneath the chin, flush with the underside of the jaw.</div>
+            </div>
+            <div class="iv-mask-point">
+                <div class="iv-mask-point-label">Electrode Point D</div>
+                <div class="iv-mask-point-name">Mastoid Reference</div>
+                <div class="iv-mask-point-desc">Ground and noise reference electrode. Placed on the mastoid process (behind the ear) — a bony, electrically quiet surface. Used to drive the right-leg drive (RLD) circuit for common-mode rejection.</div>
+            </div>
+        </div>
+
+        <div class="iv-body">
+            <p style="margin-top:14px;">
+                <strong>Form factor:</strong> Stealth earmuff profile — 85 × 65 mm per cup, 8 mm interior depth, 22 mm headband arc. Total device weight including battery: <strong>~95 g</strong>. The ADS1299 breakout and ESP32-S3 board are housed in the left cup behind the driver plate, connected to the right cup electrodes via the flexible headband internal cable channel.
+            </p>
+        </div>
+    </div>
+
+    <!-- §04 THEIR MODEL vs VOID MODEL -->
+    <div class="iv-card">
+        <div class="iv-card-title">
+            <span class="iv-num">§04</span> Centralised Mind-Reading vs Sovereign Processing
+        </div>
+        <div class="iv-body">
+            <p>
+                The core architectural divide in silent speech technology is not technical — it is political. The question is not whether sEMG can decode sub-vocalisation (it can). The question is where the decoding occurs and who controls the inference model.
+            </p>
+        </div>
+
+        <div class="iv-contrast-grid">
+            <div class="iv-contrast-col theirs">
+                <div class="iv-contrast-header theirs">&#9650; Their Model — Centralised</div>
+                <div class="iv-contrast-item">
+                    <span class="marker">&#9650;</span>
+                    <span>Raw sEMG waveforms transmitted to cloud inference servers. The complete phonetic signature of your internal speech leaves your body in plaintext or lightly encrypted form.</span>
+                </div>
+                <div class="iv-contrast-item">
+                    <span class="marker">&#9650;</span>
+                    <span>Inference model is proprietary and opaque. The company defines what counts as a "word" and what gets logged, retained, or monetised.</span>
+                </div>
+                <div class="iv-contrast-item">
+                    <span class="marker">&#9850;</span>
+                    <span>Terms of Service grant broad rights to "improve the product" using biometric data — including sub-vocal speech patterns — without per-use consent.</span>
+                </div>
+                <div class="iv-contrast-item">
+                    <span class="marker">&#9850;</span>
+                    <span>Cloud dependency means the device fails without internet. Functionality can be revoked remotely. Updates to the model are pushed without user review.</span>
+                </div>
+                <div class="iv-contrast-item">
+                    <span class="marker">&#9850;</span>
+                    <span>No hardware access: the device is a locked peripheral. Users cannot inspect, modify, or audit the inference pipeline.</span>
+                </div>
+            </div>
+            <div class="iv-contrast-col ours">
+                <div class="iv-contrast-header ours">&#9670; VOID Model — Sovereign</div>
+                <div class="iv-contrast-item">
+                    <span class="marker">&#9670;</span>
+                    <span>All inference runs on the MRB-4000 host device. sEMG signals never leave the local BLE link. No uplink required at any stage from electrode to application output.</span>
+                </div>
+                <div class="iv-contrast-item">
+                    <span class="marker">&#9670;</span>
+                    <span>Adriana SDK classifier is trained per user, on-device. The user's personal phoneme model is stored locally in encrypted flash. No cloud training corpus required.</span>
+                </div>
+                <div class="iv-contrast-item">
+                    <span class="marker">&#9670;</span>
+                    <span>Open BioSig processing pipeline. Every filter, every threshold, every feature extraction step is inspectable and modifiable by the user or their delegate.</span>
+                </div>
+                <div class="iv-contrast-item">
+                    <span class="marker">&#9670;</span>
+                    <span>Offline-first by design. The system operates identically with or without network access. Functionality cannot be remotely revoked or metered.</span>
+                </div>
+                <div class="iv-contrast-item">
+                    <span class="marker">&#9670;</span>
+                    <span>Full hardware access. Schematics, firmware, and BioSig configuration are user-owned. The inference model weights belong to the person who generated the training data.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- §05 PRIOR ART NOTICE -->
+    <div class="iv-card">
+        <div class="iv-card-title">
+            <span class="iv-num">§05</span> Prior Art Notice
+        </div>
+
+        <div class="iv-prior-art-box">
+            <div class="iv-prior-art-title">&#9670; Defensive Publication — Inner Voice / Rumble-and-Decode</div>
+            <div class="iv-prior-art-meta">
+                <div class="iv-prior-art-field">
+                    <span class="label">Publication Date</span>
+                    <span class="value highlight"><time datetime="{{ publication_date_iso }}">{{ publication_date }}</time></span>
+                </div>
+                <div class="iv-prior-art-field">
+                    <span class="label">Inventor / Originator</span>
+                    <span class="value">{{ inventor }}</span>
+                </div>
+                <div class="iv-prior-art-field">
+                    <span class="label">Project</span>
+                    <span class="value">PROJECT VOID</span>
+                </div>
+                <div class="iv-prior-art-field">
+                    <span class="label">Module</span>
+                    <span class="value">Inner Voice — Rumble-and-Decode</span>
+                </div>
+                <div class="iv-prior-art-field">
+                    <span class="label">Interface Standard</span>
+                    <span class="value">MRB-4000 VTB Protocol</span>
+                </div>
+                <div class="iv-prior-art-field">
+                    <span class="label">Publication Scope</span>
+                    <span class="value">Biological / Fungal Interface for Silent Speech</span>
+                </div>
+            </div>
+            <div class="iv-prior-art-body">
+                <p style="margin:0 0 12px;">
+                    This page constitutes a <strong>defensive prior art publication</strong> establishing {{ inventor }}'s claim to the specific architecture described herein: the combination of surface electromyography (sEMG) acquisition at jaw-muscle sites (Masseter, Suprahyoid), analogue-to-digital conversion via the ADS1299, wireless transmission via ESP32-S3 BLE, signal processing via BioSig 3.9, intent decoding via the Adriana SDK, and application triggering via the MRB-4000 VTB Protocol — with all computation performed on the local device with no cloud inference component.
+                </p>
+                <p style="margin:0 0 12px;">
+                    The specific contribution claimed here is the <strong>biological/fungal interface for silent speech</strong>: the use of the MRB-4000 mycelium-resonance platform as the computational substrate for sEMG-based sub-vocalisation decoding. This is distinct from prior art in cloud-based neural silent speech systems (AlterEgo, Meta's EMG wristband, Meta CTRL-Labs) in that the inference pipeline is closed, local, and architecturally sovereign.
+                </p>
+                <p style="margin:0;">
+                    Published publicly at <strong>project-void.replit.app/inner-voice</strong> on <strong>{{ publication_date }}</strong>. This publication is intended to prevent future patent claims on this specific combination by commercial entities and to establish {{ inventor }}'s priority date in the field of sovereign, on-device sub-vocalisation decoding via biological computing substrates.
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
