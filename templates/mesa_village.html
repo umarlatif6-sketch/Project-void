@@ -187,10 +187,10 @@
         <span>MESA VILLAGE</span>
     </div>
     <nav class="mv-nav">
+        <a href="/mesa-village/agents">Agent Registry</a>
         <a href="/">Engine</a>
         <a href="/gridul">GriDul</a>
         <a href="/genesis">Genesis</a>
-        <a href="/crystallization">Constellation</a>
         <a href="/chronicle">Chronicle</a>
     </nav>
 </div>
@@ -199,6 +199,20 @@
     <h1>⬡ MESA VILLAGE</h1>
     <p>Swarm Intelligence Engine — 1,000 sovereign agents with independent personalities, long-term memory, and social logic. Seeded from VOID data. Predicts PEACE token flow and emergent community behaviour.</p>
 </div>
+
+{% if my_agent %}
+<div style="max-width:1100px; margin: 16px auto 0; padding: 0 20px;">
+    <div style="background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(167,139,250,0.06)); border: 1px solid rgba(201,168,76,0.35); border-radius: 8px; padding: 14px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+        <span style="font-size:36px; line-height:1;">{{ my_agent.glyph }}</span>
+        <div style="flex:1; min-width:160px;">
+            <div style="font-size:10px; color:var(--void-gold); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:2px;">Your Agent</div>
+            <div style="font-size:15px; color:var(--void-text); font-weight:bold;">Agent #{{ my_agent.agent_id }} — {{ my_agent.role }}</div>
+            <div style="font-size:11px; color:var(--void-muted);">{{ my_agent.trait }} · {{ my_agent.bias }}</div>
+        </div>
+        <a href="/mesa-village/agents" style="background:rgba(201,168,76,0.12); border:1px solid rgba(201,168,76,0.35); color:var(--void-gold); font-size:11px; padding:6px 14px; border-radius:12px; letter-spacing:0.08em; text-transform:uppercase; text-decoration:none; white-space:nowrap;">⬡ NFT Holder → View Registry</a>
+    </div>
+</div>
+{% endif %}
 
 {% if latest %}
 {% set report = latest.report %}

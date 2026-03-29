@@ -14,13 +14,16 @@ mesa_bp = Blueprint("mesa", __name__)
 @mesa_bp.route("/mesa-village")
 @login_required
 def mesa_village():
-    from void_engine.mesa_engine import get_latest_run, get_run_history
+    from void_engine.mesa_engine import get_latest_run, get_run_history, get_user_owned_agent
     latest = get_latest_run()
     history = get_run_history(10)
+    user_id = session.get("user_id")
+    my_agent = get_user_owned_agent(user_id) if user_id else None
     return render_template(
         "mesa_village.html",
         latest=latest,
         history=history,
+        my_agent=my_agent,
     )
 
 
@@ -32,12 +35,18 @@ def admin_mesa_get():
     history = get_run_history(20)
     triggered = request.args.get("triggered")
     error = request.args.get("error")
+    mint_ok = request.args.get("mint_ok")
+    revoke_ok = request.args.get("revoke_ok")
+    mint_error = request.args.get("mint_error")
     return render_template(
         "admin_mesa.html",
         latest=latest,
         history=history,
         triggered=triggered,
         error=error,
+        mint_ok=mint_ok,
+        revoke_ok=revoke_ok,
+        mint_error=mint_error,
     )
 
 
@@ -88,6 +97,62 @@ def api_mesa_history():
     from void_engine.mesa_engine import get_run_history
     history = get_run_history(10)
     return jsonify({"status": "ok", "history": history}), 200
+
+
+@mesa_bp.route("/mesa-village/agents")
+@login_required
+def mesa_agents_registry():
+    from void_engine.mesa_engine import get_all_agent_slots, get_user_owned_agent
+    try:
+        page = max(1, int(request.args.get("page", 1)))
+    except (ValueError, TypeError):
+        page = 1
+    data = get_all_agent_slots(page=page, per_page=100)
+    user_id = session.get("user_id")
+    my_agent = get_user_owned_agent(user_id) if user_id else None
+    return render_template(
+        "mesa_agents.html",
+        data=data,
+        my_agent=my_agent,
+        page=page,
+    )
+
+
+@mesa_bp.route("/admin/mesa/mint", methods=["POST"])
+@admin_required
+def admin_mesa_mint():
+    try:
+        agent_id = int(request.form.get("agent_id", ""))
+        target_user_id = int(request.form.get("user_id", ""))
+        username = (request.form.get("username") or "").strip()
+        if not username:
+            return redirect("/admin/mesa?mint_error=username_required")
+    except (ValueError, TypeError):
+        return redirect("/admin/mesa?mint_error=invalid_input")
+
+    from void_engine.mesa_engine import mint_agent_nft
+    result = mint_agent_nft(agent_id, target_user_id, username)
+    if result["ok"]:
+        return redirect(f"/admin/mesa?mint_ok={agent_id}")
+    else:
+        err = result.get("error", "unknown")
+        return redirect(f"/admin/mesa?mint_error={err}")
+
+
+@mesa_bp.route("/admin/mesa/revoke", methods=["POST"])
+@admin_required
+def admin_mesa_revoke():
+    try:
+        agent_id = int(request.form.get("agent_id", ""))
+    except (ValueError, TypeError):
+        return redirect("/admin/mesa?mint_error=invalid_input")
+
+    from void_engine.mesa_engine import revoke_agent_nft
+    result = revoke_agent_nft(agent_id)
+    if result["ok"]:
+        return redirect(f"/admin/mesa?revoke_ok={agent_id}")
+    else:
+        return redirect(f"/admin/mesa?mint_error=revoke_failed")
 
 
 @mesa_bp.route("/mesa/simulate", methods=["POST"])

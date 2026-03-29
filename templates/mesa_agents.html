@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Registry — Mesa Village</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --void-bg: #05060a;
+            --void-gold: #c9a84c;
+            --void-teal: #2dd4bf;
+            --void-blue: #60a5fa;
+            --void-violet: #a78bfa;
+            --void-text: #d0d8e8;
+            --void-muted: #4a5060;
+            --void-border: #1a1e2a;
+            --void-card: #0a0c14;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+        a { color: var(--void-gold); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .mv-topbar {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 28px;
+            background: rgba(5,6,10,0.95);
+            border-bottom: 1px solid var(--void-border);
+        }
+        .mv-logo { display: flex; align-items: center; gap: 10px; color: var(--void-gold); font-size: 14px; font-weight: bold; letter-spacing: 0.08em; }
+        .mv-nav { display: flex; gap: 18px; font-size: 12px; }
+        .mv-nav a { color: var(--void-muted); letter-spacing: 0.05em; }
+        .mv-nav a:hover { color: var(--void-gold); }
+
+        .mv-hero {
+            text-align: center;
+            padding: 48px 24px 28px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.07) 0%, transparent 60%);
+        }
+        .mv-hero h1 { font-size: 24px; color: var(--void-gold); letter-spacing: 0.12em; margin-bottom: 8px; }
+        .mv-hero p { color: var(--void-muted); font-size: 12px; max-width: 580px; margin: 0 auto; line-height: 1.6; }
+
+        .mv-stats-bar {
+            display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+            padding: 14px 24px; border-bottom: 1px solid var(--void-border);
+        }
+        .mv-stat {
+            background: var(--void-card); border: 1px solid var(--void-border);
+            border-radius: 6px; padding: 10px 18px;
+            display: flex; flex-direction: column; align-items: center; min-width: 110px;
+        }
+        .mv-stat-label { font-size: 10px; color: var(--void-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+        .mv-stat-value { font-size: 20px; color: var(--void-gold); font-weight: bold; }
+
+        .mv-my-agent {
+            max-width: 1100px; margin: 24px auto 0; padding: 0 20px;
+        }
+        .mv-my-agent-card {
+            background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(167,139,250,0.06));
+            border: 1px solid rgba(201,168,76,0.35);
+            border-radius: 10px; padding: 20px 24px;
+            display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+        }
+        .mv-my-glyph { font-size: 48px; line-height: 1; }
+        .mv-my-info { flex: 1; min-width: 180px; }
+        .mv-my-title { font-size: 11px; color: var(--void-gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+        .mv-my-name { font-size: 18px; color: var(--void-text); font-weight: bold; margin-bottom: 4px; }
+        .mv-my-role { font-size: 12px; color: var(--void-muted); }
+        .mv-my-token { font-size: 10px; color: var(--void-muted); margin-top: 8px; font-family: monospace; letter-spacing: 0.05em; }
+        .mv-my-badge {
+            background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.4);
+            color: var(--void-gold); font-size: 11px; padding: 5px 14px; border-radius: 14px;
+            letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+        }
+
+        .mv-main { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+
+        .mv-section-title {
+            font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--void-muted); margin-bottom: 16px;
+            border-left: 2px solid var(--void-gold); padding-left: 10px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .mv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .mv-slot {
+            background: var(--void-card);
+            border: 1px solid var(--void-border);
+            border-radius: 6px;
+            padding: 10px 6px 8px;
+            text-align: center;
+            cursor: default;
+            transition: border-color 0.18s, background 0.18s;
+            position: relative;
+        }
+        .mv-slot.claimed {
+            border-color: rgba(201,168,76,0.4);
+            background: rgba(201,168,76,0.05);
+        }
+        .mv-slot.mine {
+            border-color: var(--void-gold);
+            background: rgba(201,168,76,0.12);
+            box-shadow: 0 0 14px rgba(201,168,76,0.18);
+        }
+        .mv-slot:hover {
+            border-color: rgba(201,168,76,0.5);
+            background: rgba(201,168,76,0.07);
+        }
+        .mv-slot-glyph { font-size: 22px; margin-bottom: 3px; }
+        .mv-slot-id { font-size: 9px; color: var(--void-muted); letter-spacing: 0.04em; }
+        .mv-slot-role { font-size: 9px; color: var(--void-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mv-slot-owner { font-size: 8px; color: var(--void-gold); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mv-slot-dot {
+            position: absolute; top: 5px; right: 5px;
+            width: 6px; height: 6px; border-radius: 50%;
+        }
+        .mv-slot-dot.claimed { background: var(--void-gold); }
+        .mv-slot-dot.unclaimed { background: var(--void-muted); opacity: 0.4; }
+        .mv-slot-mine-label {
+            position: absolute; top: 4px; left: 4px;
+            font-size: 7px; color: var(--void-gold); letter-spacing: 0.06em;
+            text-transform: uppercase; font-weight: bold;
+        }
+
+        .mv-pagination {
+            display: flex; gap: 8px; align-items: center; justify-content: center;
+            margin-top: 8px; margin-bottom: 28px;
+        }
+        .mv-page-btn {
+            display: inline-block;
+            background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.25);
+            color: var(--void-gold); font-size: 11px; padding: 6px 14px;
+            border-radius: 4px; cursor: pointer; letter-spacing: 0.05em;
+            text-decoration: none; transition: background 0.18s;
+        }
+        .mv-page-btn:hover { background: rgba(201,168,76,0.18); text-decoration: none; }
+        .mv-page-btn.active { background: rgba(201,168,76,0.22); border-color: var(--void-gold); }
+        .mv-page-btn.disabled { opacity: 0.3; pointer-events: none; }
+        .mv-page-info { font-size: 11px; color: var(--void-muted); }
+
+        .mv-legend {
+            display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; font-size: 11px;
+        }
+        .mv-legend-item { display: flex; align-items: center; gap: 6px; color: var(--void-muted); }
+        .mv-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        .mv-no-agent {
+            background: var(--void-card); border: 1px solid var(--void-border);
+            border-radius: 8px; padding: 20px 24px; margin-bottom: 4px;
+            color: var(--void-muted); font-size: 12px; line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .mv-topbar { flex-direction: column; gap: 10px; }
+            .mv-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="mv-topbar">
+    <div class="mv-logo"><span>◆</span><span>MESA VILLAGE</span></div>
+    <nav class="mv-nav">
+        <a href="/mesa-village">Dashboard</a>
+        <a href="/gridul">GriDul</a>
+        <a href="/genesis">Genesis</a>
+        <a href="/chronicle">Chronicle</a>
+    </nav>
+</div>
+
+<div class="mv-hero">
+    <h1>⬡ AGENT REGISTRY</h1>
+    <p>1,000 sovereign agent slots. Each slot carries a unique Adriana archetype glyph and can be claimed as an NFT by a community member. Claimed agents carry their owner into the intelligence simulation.</p>
+</div>
+
+<div class="mv-stats-bar">
+    <div class="mv-stat">
+        <span class="mv-stat-label">Total Slots</span>
+        <span class="mv-stat-value">{{ data.total }}</span>
+    </div>
+    <div class="mv-stat">
+        <span class="mv-stat-label">Claimed</span>
+        <span class="mv-stat-value" style="color:var(--void-gold);">{{ data.total_claimed }}</span>
+    </div>
+    <div class="mv-stat">
+        <span class="mv-stat-label">Unclaimed</span>
+        <span class="mv-stat-value" style="color:var(--void-muted);">{{ data.total_unclaimed }}</span>
+    </div>
+    <div class="mv-stat">
+        <span class="mv-stat-label">Page</span>
+        <span class="mv-stat-value">{{ data.page }}/{{ data.total_pages }}</span>
+    </div>
+</div>
+
+<div class="mv-my-agent">
+    {% if my_agent %}
+    <div class="mv-my-agent-card">
+        <div class="mv-my-glyph">{{ my_agent.glyph }}</div>
+        <div class="mv-my-info">
+            <div class="mv-my-title">Your Agent</div>
+            <div class="mv-my-name">Agent #{{ my_agent.agent_id }}</div>
+            <div class="mv-my-role">{{ my_agent.role }} · {{ my_agent.trait }} · {{ my_agent.bias }}</div>
+            <div class="mv-my-token">NFT: {{ my_agent.nft_token }}</div>
+        </div>
+        <div class="mv-my-badge">⬡ NFT Holder</div>
+    </div>
+    {% else %}
+    <div class="mv-no-agent">
+        You do not currently hold an Agent NFT. Contact an admin to have one minted to your account.
+    </div>
+    {% endif %}
+</div>
+
+<div class="mv-main">
+
+    <div class="mv-section-title">
+        <span>Agents {{ (data.page - 1) * data.per_page }}–{{ [(data.page * data.per_page - 1), (data.total - 1)]|min }}</span>
+        <div class="mv-legend">
+            <div class="mv-legend-item"><div class="mv-legend-dot" style="background:var(--void-gold);"></div>Claimed</div>
+            <div class="mv-legend-item"><div class="mv-legend-dot" style="background:var(--void-muted); opacity:0.5;"></div>Unclaimed</div>
+        </div>
+    </div>
+
+    <div class="mv-grid">
+        {% for slot in data.slots %}
+        {% set is_mine = my_agent and my_agent.agent_id == slot.agent_id %}
+        <div class="mv-slot {% if is_mine %}mine{% elif slot.claimed %}claimed{% endif %}"
+             title="Agent #{{ slot.agent_id }} — {{ slot.glyph }} {{ slot.role }} ({{ slot.trait }}){% if slot.owner %} · Owned by {{ slot.owner.username }}{% endif %}">
+            {% if is_mine %}<div class="mv-slot-mine-label">YOURS</div>{% endif %}
+            <div class="mv-slot-dot {% if slot.claimed %}claimed{% else %}unclaimed{% endif %}"></div>
+            <div class="mv-slot-glyph">{{ slot.glyph }}</div>
+            <div class="mv-slot-id">#{{ slot.agent_id }}</div>
+            <div class="mv-slot-role">{{ slot.role }}</div>
+            {% if slot.owner %}
+            <div class="mv-slot-owner">{{ slot.owner.username }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mv-pagination">
+        {% if data.page > 1 %}
+        <a href="/mesa-village/agents?page={{ data.page - 1 }}" class="mv-page-btn">← Prev</a>
+        {% else %}
+        <span class="mv-page-btn disabled">← Prev</span>
+        {% endif %}
+
+        {% for p in range(1, data.total_pages + 1) %}
+        {% if p == data.page %}
+        <span class="mv-page-btn active">{{ p }}</span>
+        {% elif (p - data.page)|abs <= 2 %}
+        <a href="/mesa-village/agents?page={{ p }}" class="mv-page-btn">{{ p }}</a>
+        {% endif %}
+        {% endfor %}
+
+        {% if data.page < data.total_pages %}
+        <a href="/mesa-village/agents?page={{ data.page + 1 }}" class="mv-page-btn">Next →</a>
+        {% else %}
+        <span class="mv-page-btn disabled">Next →</span>
+        {% endif %}
+    </div>
+
+</div>
+
+</body>
+</html>

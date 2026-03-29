@@ -128,6 +128,50 @@
     <div class="adm-banner error">✗ Simulation failed to start. Check server logs.</div>
     {% endif %}
 
+    {% if mint_ok %}
+    <div class="adm-banner success">✓ Agent #{{ mint_ok }} successfully minted to user.</div>
+    {% endif %}
+    {% if revoke_ok %}
+    <div class="adm-banner success">✓ Agent #{{ revoke_ok }} ownership revoked.</div>
+    {% endif %}
+    {% if mint_error %}
+    <div class="adm-banner error">✗ {{ mint_error.replace("_", " ") }}</div>
+    {% endif %}
+
+    <div class="adm-section-title">Mint Agent NFT</div>
+    <div class="adm-card">
+        <p style="font-size:12px; color:var(--void-muted); margin-bottom:18px;">Assign one of the 1,000 sovereign agent slots to a user account. Each user may hold only one agent. Each slot may only be owned by one user.</p>
+        <form method="POST" action="/admin/mesa/mint">
+            <div class="adm-form-grid">
+                <div class="adm-field">
+                    <label>Agent ID (0–999)</label>
+                    <input type="number" name="agent_id" min="0" max="999" required placeholder="e.g. 42">
+                    <span class="adm-hint">The slot number to mint. Check the <a href="/mesa-village/agents">Agent Registry</a> for available slots.</span>
+                </div>
+                <div class="adm-field">
+                    <label>User ID</label>
+                    <input type="number" name="user_id" required placeholder="e.g. 7">
+                </div>
+                <div class="adm-field adm-field-full">
+                    <label>Username</label>
+                    <input type="text" name="username" required placeholder="e.g. cryptovoid99">
+                    <span class="adm-hint">Display name shown in the registry. Should match the user's actual username.</span>
+                </div>
+            </div>
+            <button type="submit" class="adm-btn">⬡ Mint Agent NFT</button>
+        </form>
+        <div style="margin-top: 20px; border-top: 1px solid var(--void-border); padding-top: 16px;">
+            <p style="font-size:11px; color:var(--void-muted); margin-bottom:12px;">Revoke an agent NFT (returns slot to unclaimed):</p>
+            <form method="POST" action="/admin/mesa/revoke" style="display:flex; gap:10px; align-items:flex-end;">
+                <div class="adm-field" style="flex:1; max-width:200px;">
+                    <label>Agent ID to Revoke</label>
+                    <input type="number" name="agent_id" min="0" max="999" required placeholder="e.g. 42">
+                </div>
+                <button type="submit" class="adm-btn" style="background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:#f87171;">✕ Revoke</button>
+            </form>
+        </div>
+    </div>
+
     <div class="adm-section-title">Trigger New Simulation Round</div>
     <div class="adm-card">
         <form method="POST" action="/admin/mesa/run" id="runForm">

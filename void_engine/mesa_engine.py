@@ -561,6 +561,226 @@ def get_latest_run() -> Optional[Dict]:
         return None
 
 
+def _init_agent_nft_table():
+    """Ensure agent_nft_owners table exists."""
+    from void_engine.db_pool import get_db
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS agent_nft_owners (
+                agent_id   INTEGER PRIMARY KEY CHECK (agent_id >= 0 AND agent_id <= 999),
+                user_id    INTEGER NOT NULL,
+                username   TEXT NOT NULL,
+                claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                nft_token  TEXT NOT NULL UNIQUE
+            )
+        """)
+        conn.commit()
+    except Exception as e:
+        logger.error("agent_nft_owners init failed: %s", e)
+        conn.rollback()
+    finally:
+        conn.close()
+
+
+def _nft_token_for(agent_id: int) -> str:
+    """Generate a deterministic unique token for an agent NFT slot."""
+    return hashlib.sha256(f"void:agent_nft:{agent_id}:sovereign".encode()).hexdigest()[:32]
+
+
+def get_all_agent_slots(page: int = 1, per_page: int = 100) -> Dict:
+    """
+    Return paginated list of all 1,000 agent NFT slots with ownership info.
+    Each slot has a deterministic glyph derived from its slot index.
+    """
+    _init_agent_nft_table()
+    from void_engine.db_pool import get_db
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT agent_id, user_id, username, claimed_at FROM agent_nft_owners")
+            rows = cur.fetchall()
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.warning("get_all_agent_slots db error: %s", e)
+        rows = []
+
+    owners_by_id = {}
+    for agent_id, user_id, username, claimed_at in rows:
+        owners_by_id[agent_id] = {
+            "user_id": user_id,
+            "username": username,
+            "claimed_at": claimed_at.isoformat() if claimed_at else None,
+        }
+
+    total = 1000
+    offset = (page - 1) * per_page
+    slots = []
+    for i in range(offset, min(offset + per_page, total)):
+        glyph = _assign_archetype(i, seed_extra="nft_slot")
+        archetype = ARCHETYPE_MAP[glyph]
+        owner = owners_by_id.get(i)
+        slots.append({
+            "agent_id": i,
+            "glyph": glyph,
+            "role": archetype["role"],
+            "trait": archetype["trait"],
+            "bias": archetype["bias"],
+            "nft_token": _nft_token_for(i),
+            "claimed": owner is not None,
+            "owner": owner,
+        })
+
+    total_claimed = len(owners_by_id)
+    return {
+        "slots": slots,
+        "total": total,
+        "total_claimed": total_claimed,
+        "total_unclaimed": total - total_claimed,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": (total + per_page - 1) // per_page,
+    }
+
+
+def get_user_owned_agent(user_id: int) -> Optional[Dict]:
+    """Return the agent slot owned by this user, or None."""
+    _init_agent_nft_table()
+    from void_engine.db_pool import get_db
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT agent_id, claimed_at, nft_token FROM agent_nft_owners WHERE user_id = %s",
+                (user_id,)
+            )
+            row = cur.fetchone()
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.warning("get_user_owned_agent failed: %s", e)
+        return None
+
+    if not row:
+        return None
+
+    agent_id, claimed_at, nft_token = row
+    glyph = _assign_archetype(agent_id, seed_extra="nft_slot")
+    archetype = ARCHETYPE_MAP[glyph]
+    return {
+        "agent_id": agent_id,
+        "glyph": glyph,
+        "role": archetype["role"],
+        "trait": archetype["trait"],
+        "bias": archetype["bias"],
+        "nft_token": nft_token,
+        "claimed_at": claimed_at.isoformat() if claimed_at else None,
+    }
+
+
+def get_agent_slot(agent_id: int) -> Optional[Dict]:
+    """Return full info for a specific agent NFT slot."""
+    if agent_id < 0 or agent_id > 999:
+        return None
+    _init_agent_nft_table()
+    from void_engine.db_pool import get_db
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT user_id, username, claimed_at, nft_token FROM agent_nft_owners WHERE agent_id = %s",
+                (agent_id,)
+            )
+            row = cur.fetchone()
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.warning("get_agent_slot failed: %s", e)
+        row = None
+
+    glyph = _assign_archetype(agent_id, seed_extra="nft_slot")
+    archetype = ARCHETYPE_MAP[glyph]
+    owner = None
+    if row:
+        user_id, username, claimed_at, nft_token = row
+        owner = {
+            "user_id": user_id,
+            "username": username,
+            "claimed_at": claimed_at.isoformat() if claimed_at else None,
+        }
+    return {
+        "agent_id": agent_id,
+        "glyph": glyph,
+        "role": archetype["role"],
+        "trait": archetype["trait"],
+        "bias": archetype["bias"],
+        "nft_token": _nft_token_for(agent_id),
+        "claimed": owner is not None,
+        "owner": owner,
+    }
+
+
+def mint_agent_nft(agent_id: int, user_id: int, username: str) -> Dict:
+    """
+    Admin: assign an agent NFT slot to a user.
+    Returns {"ok": True} or {"ok": False, "error": "..."}
+    """
+    if agent_id < 0 or agent_id > 999:
+        return {"ok": False, "error": "agent_id must be 0–999"}
+    _init_agent_nft_table()
+    from void_engine.db_pool import get_db
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT agent_id FROM agent_nft_owners WHERE agent_id = %s",
+                (agent_id,)
+            )
+            if cur.fetchone():
+                return {"ok": False, "error": f"Agent #{agent_id} is already owned"}
+            cur.execute(
+                "SELECT agent_id FROM agent_nft_owners WHERE user_id = %s",
+                (user_id,)
+            )
+            if cur.fetchone():
+                return {"ok": False, "error": f"User already owns an agent"}
+            cur.execute("""
+                INSERT INTO agent_nft_owners (agent_id, user_id, username, nft_token)
+                VALUES (%s, %s, %s, %s)
+            """, (agent_id, user_id, username, _nft_token_for(agent_id)))
+            conn.commit()
+            return {"ok": True}
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.error("mint_agent_nft failed: %s", e)
+        return {"ok": False, "error": str(e)}
+
+
+def revoke_agent_nft(agent_id: int) -> Dict:
+    """Admin: revoke ownership of an agent NFT slot."""
+    _init_agent_nft_table()
+    from void_engine.db_pool import get_db
+    try:
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM agent_nft_owners WHERE agent_id = %s", (agent_id,))
+            conn.commit()
+            return {"ok": True}
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.error("revoke_agent_nft failed: %s", e)
+        return {"ok": False, "error": str(e)}
+
+
 def get_run_history(limit: int = 10) -> List[Dict]:
     """Fetch recent simulation run summaries."""
     from void_engine.db_pool import get_db
