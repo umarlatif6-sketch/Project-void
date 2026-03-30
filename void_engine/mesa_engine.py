@@ -1316,9 +1316,14 @@ def _build_plain_translation(
 
 def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
     """
-    Return the current-epoch intelligence report for an agent slot.
-    Generates and persists if one doesn't exist for this epoch hour.
-    The glyph report is built from Adriana SCL lexicon glyphs.
+    Return the latest intelligence report for an agent slot.
+
+    Priority order:
+      1. Latest simulation-derived report (sim_run_id IS NOT NULL), most recent first.
+      2. Any existing report (fallback from a previous page view).
+      3. If nothing exists, generate a synthetic fallback and store it once.
+         Synthetic reports are never created on top of an existing simulation report —
+         hour rollovers do not trigger regeneration.
     """
     if agent_id < 0 or agent_id > 999:
         return None
@@ -1327,7 +1332,6 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
     glyph = _assign_archetype(agent_id, seed_extra="nft_slot")
     archetype = ARCHETYPE_MAP[glyph]
     role = archetype["role"]
-    epoch_hour = int(time.time()) // 3600
 
     from void_engine.db_pool import get_db
     try:
@@ -1335,14 +1339,17 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
         try:
             cur = conn.cursor()
             cur.execute(
-                "SELECT id, glyph_report, generated_at, sim_run_id "
+                "SELECT id, glyph_report, generated_at, sim_run_id, epoch_hour "
                 "FROM agent_intelligence_reports "
-                "WHERE agent_id = %s AND epoch_hour = %s",
-                (agent_id, epoch_hour)
+                "WHERE agent_id = %s "
+                "ORDER BY CASE WHEN sim_run_id IS NOT NULL THEN 0 ELSE 1 END, "
+                "         generated_at DESC "
+                "LIMIT 1",
+                (agent_id,)
             )
             row = cur.fetchone()
             if row:
-                report_id, glyph_report, generated_at, sim_run_id = row
+                report_id, glyph_report, generated_at, sim_run_id, epoch_hour = row
                 return {
                     "report_id": report_id,
                     "agent_id": agent_id,
@@ -1354,6 +1361,7 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
                     "generated_at": generated_at.isoformat() if generated_at else None,
                 }
 
+            epoch_hour = int(time.time()) // 3600
             glyph_report = _build_glyph_report_from_memory(
                 agent_id, role, [], epoch_hour
             )
@@ -1361,11 +1369,19 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
             cur.execute("""
                 INSERT INTO agent_intelligence_reports (agent_id, glyph_report, epoch_hour)
                 VALUES (%s, %s, %s)
-                ON CONFLICT (agent_id, epoch_hour) DO UPDATE SET glyph_report = EXCLUDED.glyph_report
+                ON CONFLICT (agent_id, epoch_hour) DO NOTHING
                 RETURNING id, generated_at
             """, (agent_id, glyph_report, epoch_hour))
-            report_id, generated_at = cur.fetchone()
+            inserted = cur.fetchone()
+            if not inserted:
+                cur.execute(
+                    "SELECT id, generated_at FROM agent_intelligence_reports "
+                    "WHERE agent_id = %s ORDER BY generated_at DESC LIMIT 1",
+                    (agent_id,)
+                )
+                inserted = cur.fetchone()
             conn.commit()
+            report_id, generated_at = inserted
             return {
                 "report_id": report_id,
                 "agent_id": agent_id,
@@ -1385,41 +1401,37 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
 
 def generate_reports_after_simulation(run_id: str, agents: List["MesaAgent"]):
     """
-    Called after a simulation completes to regenerate intelligence reports
-    for all claimed-agent slots. Each NFT owner's linked simulation agent
-    (matched by user_id) supplies the real round-by-round memory for glyph
-    generation. Non-linked NFT slots use epoch-seeded fallback memory.
+    Called after a simulation completes to persist intelligence reports for
+    every agent that ran in this simulation, using their actual round-by-round
+    memory for glyph generation.
+
+    Covers all simulated agents (not just NFT owners):
+    - Agents whose simulation agent_id matches an NFT slot: stored with real memory.
+    - All other simulated agent IDs: also stored with their real sim memory.
+
+    This ensures any NFT slot that participated in the simulation gets a
+    simulation-derived report, which `get_or_generate_agent_report` will
+    prefer over any synthetic fallback report.
+
     Best-effort — errors are logged, not raised.
     """
     _init_adriana_report_tables()
     epoch_hour = int(time.time()) // 3600
-    from void_engine.db_pool import get_db
-    try:
-        conn = get_db()
-        try:
-            cur = conn.cursor()
-            cur.execute("SELECT agent_id, user_id FROM agent_nft_owners")
-            nft_rows = cur.fetchall()
-        finally:
-            conn.close()
-    except Exception as e:
-        logger.warning("generate_reports_after_simulation: could not fetch NFT owners: %s", e)
-        return
 
-    owner_user_ids = {uid for _, uid in nft_rows}
-    agent_by_user = {a.user_id: a for a in agents if getattr(a, "user_id", None) in owner_user_ids}
-
-    for nft_agent_id, user_id in nft_rows:
+    for agent in agents:
         try:
-            glyph = _assign_archetype(nft_agent_id, seed_extra="nft_slot")
+            agent_id = agent.agent_id
+            if agent_id < 0 or agent_id > 999:
+                continue
+
+            glyph = _assign_archetype(agent_id, seed_extra="nft_slot")
             archetype = ARCHETYPE_MAP[glyph]
             role = archetype["role"]
 
-            sim_agent = agent_by_user.get(user_id)
-            memory = list(getattr(sim_agent, "memory", [])) if sim_agent else []
+            memory = list(getattr(agent, "memory", []))
 
             glyph_report = _build_glyph_report_from_memory(
-                nft_agent_id, role, memory, epoch_hour, run_id
+                agent_id, role, memory, epoch_hour, run_id
             )
 
             from void_engine.db_pool import get_db
@@ -1433,12 +1445,15 @@ def generate_reports_after_simulation(run_id: str, agents: List["MesaAgent"]):
                     ON CONFLICT (agent_id, epoch_hour) DO UPDATE
                         SET glyph_report = EXCLUDED.glyph_report,
                             sim_run_id = EXCLUDED.sim_run_id
-                """, (nft_agent_id, glyph_report, epoch_hour, run_id))
+                """, (agent_id, glyph_report, epoch_hour, run_id))
                 conn.commit()
             finally:
                 conn.close()
         except Exception as e:
-            logger.warning("generate_reports_after_simulation: agent %d failed: %s", nft_agent_id, e)
+            logger.warning(
+                "generate_reports_after_simulation: agent %s failed: %s",
+                getattr(agent, "agent_id", "?"), e
+            )
 
 
 def get_user_translation(agent_id: int, user_id: int, report_id: int) -> Optional[str]:
