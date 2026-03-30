@@ -1464,76 +1464,92 @@ def get_user_translation(agent_id: int, user_id: int, report_id: int) -> Optiona
 
 def purchase_translation(agent_id: int, user_id: int, report_id: int, role: str) -> Dict:
     """
-    Deduct the configured translation fee from the NFT holder's PEACE balance.
-    Uses spend_peace_tokens to atomically debit peace_balance and record an
-    auditable ledger block in vortex_ledger. Only the NFT owner may call this.
-    Returns {"ok": True, "translation": "..."} or {"ok": False, "error": "..."}
+    Atomically debit PEACE tokens and persist the translation in one DB transaction.
+
+    The entire flow — user row lock, balance check, ledger block creation, and
+    adriana_translations insert — happens inside a single connection/transaction.
+    If any step fails the whole thing rolls back: no charge without unlock.
+    Concurrent requests are serialised by the FOR UPDATE lock on the user row.
+
+    Only the NFT owner (user_id == slot.owner.user_id) should be able to call
+    this; ownership is enforced at the route level before this function is reached.
     """
     _init_adriana_report_tables()
-    from void_engine.db_pool import get_db
-
     fee = get_translation_fee()
 
-    try:
-        conn = get_db()
-        try:
-            cur = conn.cursor()
-            cur.execute(
-                "SELECT translation FROM adriana_translations "
-                "WHERE agent_id = %s AND user_id = %s AND report_id = %s",
-                (agent_id, user_id, report_id)
-            )
-            cached = cur.fetchone()
-            if cached:
-                return {"ok": True, "translation": cached[0], "already_owned": True}
-        finally:
-            conn.close()
-    except Exception as e:
-        logger.error("purchase_translation cache check failed: %s", e)
-        return {"ok": False, "error": "Translation purchase failed. Please try again."}
+    from void_engine.db_pool import get_db
+    from void_engine.vortex_wallet import _create_block
+    from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
 
-    from void_engine.vortex_wallet import spend_peace_tokens
-    purpose = f"adriana_translation_a{agent_id}"
+    conn = get_db()
     try:
-        block = spend_peace_tokens(user_id, fee, purpose)
-    except Exception as e:
-        logger.error("purchase_translation spend_peace_tokens raised: %s", e)
-        return {"ok": False, "error": "Translation purchase failed. Please try again."}
+        cur = conn.cursor()
 
-    if "error" in block:
-        err = block["error"]
-        if "Insufficient" in err or "insufficient" in err:
+        cur.execute(
+            "SELECT COALESCE(peace_balance, 0) FROM users WHERE id = %s FOR UPDATE",
+            (user_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            conn.rollback()
+            return {"ok": False, "error": "User not found"}
+        balance = Decimal(str(row[0]))
+
+        cur.execute(
+            "SELECT translation FROM adriana_translations "
+            "WHERE agent_id = %s AND user_id = %s AND report_id = %s",
+            (agent_id, user_id, report_id),
+        )
+        cached = cur.fetchone()
+        if cached:
+            conn.rollback()
+            return {"ok": True, "translation": cached[0], "already_owned": True}
+
+        if balance < fee:
+            conn.rollback()
             return {
                 "ok": False,
-                "error": f"Insufficient PEACE tokens. You need {float(fee):.2f} PEACE to unlock this translation.",
+                "error": (
+                    f"Insufficient PEACE tokens. You have {float(balance):.2f} PEACE, "
+                    f"need {float(fee):.2f}."
+                ),
                 "required": float(fee),
             }
-        return {"ok": False, "error": err}
 
-    sim_data = _fetch_agent_sim_memory(user_id)
-    rng = random.Random(f"{agent_id}:{report_id}:{user_id}")
-    translation = _build_plain_translation(role, rng, sim_data)
-    ledger_block_index = block.get("block_index")
+        cur.execute(
+            "UPDATE users SET peace_balance = COALESCE(peace_balance, 0) - %s WHERE id = %s",
+            (fee, user_id),
+        )
 
-    try:
-        conn = get_db()
-        try:
-            cur = conn.cursor()
-            cur.execute("""
-                INSERT INTO adriana_translations
-                    (agent_id, user_id, report_id, translation, peace_spent, ledger_block)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                ON CONFLICT (agent_id, user_id, report_id) DO NOTHING
-            """, (agent_id, user_id, report_id, translation, fee, ledger_block_index))
-            conn.commit()
-        finally:
-            conn.close()
+        payload_hash = fatiha_286_hexdigest_from_str(
+            f"peace_adriana_{agent_id}_{user_id}_{report_id}"
+        )
+        block = _create_block(
+            cur, "burn_peace_adriana_translation", user_id, None, fee, payload_hash
+        )
+        ledger_block_index = block.get("block_index")
+
+        sim_data = _fetch_agent_sim_memory(user_id)
+        rng = random.Random(f"{agent_id}:{report_id}:{user_id}")
+        translation = _build_plain_translation(role, rng, sim_data)
+
+        cur.execute("""
+            INSERT INTO adriana_translations
+                (agent_id, user_id, report_id, translation, peace_spent, ledger_block)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT (agent_id, user_id, report_id) DO NOTHING
+        """, (agent_id, user_id, report_id, translation, fee, ledger_block_index))
+
+        conn.commit()
+        return {
+            "ok": True,
+            "translation": translation,
+            "peace_spent": float(fee),
+            "ledger_block": ledger_block_index,
+        }
     except Exception as e:
-        logger.error("purchase_translation DB insert failed after spend: %s", e)
-
-    return {
-        "ok": True,
-        "translation": translation,
-        "peace_spent": float(fee),
-        "ledger_block": ledger_block_index,
-    }
+        conn.rollback()
+        logger.error("purchase_translation failed: %s", e)
+        return {"ok": False, "error": "Translation purchase failed. Please try again."}
+    finally:
+        conn.close()
