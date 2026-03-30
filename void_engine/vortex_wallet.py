@@ -1171,6 +1171,56 @@ def log_qisync_tone(user_id: int, session_id: str, tone_hz: float = 432.0,
 PEACE_HEX_FLOWER_COST = Decimal("5")
 
 
+def spend_peace_tokens(user_id, amount_decimal, purpose):
+    """
+    Deduct PEACE tokens from a user's peace_balance and record an auditable
+    ledger block in vortex_ledger with tx_type 'burn_peace_<purpose>'.
+
+    Returns a block dict with 'block_index', 'peace_spent', 'purpose' keys,
+    or {"error": "..."} on failure.
+    """
+    amount = Decimal(str(amount_decimal)).quantize(Decimal("0.0001"))
+    if amount <= 0:
+        return {"error": "Amount must be positive"}
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT COALESCE(peace_balance, 0) FROM users WHERE id = %s FOR UPDATE",
+            (user_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            return {"error": "User not found"}
+        balance = Decimal(str(row[0]))
+        if balance < amount:
+            return {
+                "error": (
+                    f"Insufficient PEACE balance. You have {float(balance):.2f} PEACE, "
+                    f"need {float(amount):.2f}."
+                )
+            }
+
+        payload_hash = fatiha_286_hexdigest_from_str(f"peace_{purpose}_{user_id}")
+        tx_type = f"burn_peace_{purpose[:32]}"
+        block = _create_block(cur, tx_type, user_id, None, amount, payload_hash)
+
+        cur.execute(
+            "UPDATE users SET peace_balance = COALESCE(peace_balance, 0) - %s WHERE id = %s",
+            (amount, user_id),
+        )
+        conn.commit()
+        block["peace_spent"] = float(amount)
+        block["purpose"] = purpose
+        return block
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
 def burn_peace_for_hex_flower(user_id, hex_hash):
     """
     Burn 5 PEACE tokens from a user's balance to generate a Hex Flower.

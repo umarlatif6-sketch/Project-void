@@ -1189,48 +1189,97 @@ def _fetch_agent_sim_memory(owner_user_id: int) -> Optional[Dict]:
         return None
 
 
-def _build_glyph_report_from_lexicon(agent_id: int, role: str, rng: random.Random) -> str:
-    """
-    Generate a glyph-chain intelligence report using the Adriana SCL lexicon.
-    Chains use entity, condition, and action glyphs drawn from adriana.lex.
-    Falls back to ARCHETYPE_MAP glyphs if the lexicon is unavailable.
-    """
+def _load_adriana_lexicon_pools():
+    """Return (entities, conditions, actions) glyph lists from adriana.lex."""
     try:
         from void_engine.adriana_transpiler import AdrianaLexicon
         lexicon = AdrianaLexicon()
         entities = [e.glyph for e in lexicon.by_category("entity")]
         conditions = [e.glyph for e in lexicon.by_category("condition")]
         actions = [e.glyph for e in lexicon.by_category("action")]
+        if entities and conditions:
+            return entities, conditions, actions
     except Exception:
-        entities = []
-        conditions = []
-        actions = []
+        pass
+    return list(ARCHETYPE_MAP.keys()), ["📈", "📉", "⚡", "🔮"], []
 
+
+def _build_glyph_chain_from_round(
+    archetype_glyph: str,
+    entities: List[str],
+    conditions: List[str],
+    actions: List[str],
+    round_data: Dict,
+    round_index: int,
+) -> str:
+    """
+    Map a single simulation round's metrics to a deterministic glyph chain.
+    Selections are driven by actual values — activity, peace_flow, interactions.
+    """
+    activity = float(round_data.get("activity", 0.5))
+    interactions = int(round_data.get("interactions", 0))
+    peace_flow = float(round_data.get("peace_flow", 0.0))
+
+    n_ent = len(entities)
+    n_cond = len(conditions)
+    n_act = len(actions) if actions else 0
+
+    entity_idx = int(abs(activity) * 1000 + round_index * 37) % max(n_ent, 1)
+    entity = entities[entity_idx] if entities else archetype_glyph
+
+    cond_seed = int(abs(peace_flow) * 100 + interactions * 7 + round_index * 13)
+    condition = conditions[cond_seed % n_cond] if conditions else ("📈" if peace_flow >= 0 else "📉")
+
+    if actions:
+        act_idx = int(activity * 500 + abs(peace_flow) * 200 + round_index * 17) % n_act
+        action = actions[act_idx]
+    else:
+        action = archetype_glyph
+
+    sep = _REPORT_SEPARATORS[interactions % len(_REPORT_SEPARATORS)]
+    return sep.join([archetype_glyph, entity, condition, action])
+
+
+def _build_glyph_report_from_memory(
+    agent_id: int,
+    role: str,
+    memory: List[Dict],
+    epoch_hour: int,
+    run_id: Optional[str] = None,
+) -> str:
+    """
+    Build a glyph-chain intelligence report from actual simulation round data.
+    Each round in the agent's memory contributes one deterministic chain,
+    with glyph selection driven by activity, peace_flow, and interactions metrics.
+    Falls back to epoch-seeded random when no memory is available.
+    """
     archetype_glyph = _assign_archetype(agent_id, seed_extra="nft_slot")
+    entities, conditions, actions = _load_adriana_lexicon_pools()
 
-    if not entities:
-        pool = list(ARCHETYPE_MAP.keys())
-        entities = pool
-        conditions = ["📈", "📉", "⚡", "🔮"]
-        actions = [archetype_glyph]
+    rounds = memory[-4:] if len(memory) > 4 else memory
 
-    seps = _REPORT_SEPARATORS
     chains = []
-    for _ in range(4):
-        entity = rng.choice(entities)
-        condition = rng.choice(conditions)
-        act = rng.choice(actions) if actions else archetype_glyph
-        extra_act = rng.choice(actions) if actions and rng.random() > 0.5 else None
-        parts = [archetype_glyph, entity, condition, act]
-        if extra_act:
-            parts.append(extra_act)
-        sep = rng.choice(seps)
-        chains.append(sep.join(parts))
+    if rounds:
+        for i, round_data in enumerate(rounds):
+            chains.append(_build_glyph_chain_from_round(
+                archetype_glyph, entities, conditions, actions, round_data, i
+            ))
+    else:
+        seed = f"{agent_id}:{epoch_hour}:{run_id or 'epoch'}"
+        rng = random.Random(seed)
+        for i in range(4):
+            fake_round = {
+                "activity": rng.uniform(0.2, 0.9),
+                "interactions": rng.randint(0, 8),
+                "peace_flow": rng.uniform(-2.0, 5.0),
+            }
+            chains.append(_build_glyph_chain_from_round(
+                archetype_glyph, entities, conditions, actions, fake_round, i
+            ))
 
-    branch_sep = rng.choice([" | ", " ⊕ ", " ↔ "])
+    branch_sep = [" | ", " ⊕ ", " ↔ "][epoch_hour % 3]
     report_body = branch_sep.join(chains)
-    epoch = int(time.time()) // 3600
-    return f"[{agent_id:04d}::{epoch:x}] {report_body}"
+    return f"[{agent_id:04d}::{epoch_hour:x}] {report_body}"
 
 
 def _build_plain_translation(
@@ -1305,8 +1354,9 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
                     "generated_at": generated_at.isoformat() if generated_at else None,
                 }
 
-            rng = random.Random(f"{agent_id}:{epoch_hour}")
-            glyph_report = _build_glyph_report_from_lexicon(agent_id, role, rng)
+            glyph_report = _build_glyph_report_from_memory(
+                agent_id, role, [], epoch_hour
+            )
 
             cur.execute("""
                 INSERT INTO agent_intelligence_reports (agent_id, glyph_report, epoch_hour)
@@ -1336,8 +1386,10 @@ def get_or_generate_agent_report(agent_id: int) -> Optional[Dict]:
 def generate_reports_after_simulation(run_id: str, agents: List["MesaAgent"]):
     """
     Called after a simulation completes to regenerate intelligence reports
-    for all claimed-agent slots that appear in this run, seeding them with
-    real simulation memory data. Best-effort — errors are logged, not raised.
+    for all claimed-agent slots. Each NFT owner's linked simulation agent
+    (matched by user_id) supplies the real round-by-round memory for glyph
+    generation. Non-linked NFT slots use epoch-seeded fallback memory.
+    Best-effort — errors are logged, not raised.
     """
     _init_adriana_report_tables()
     epoch_hour = int(time.time()) // 3600
@@ -1355,7 +1407,7 @@ def generate_reports_after_simulation(run_id: str, agents: List["MesaAgent"]):
         return
 
     owner_user_ids = {uid for _, uid in nft_rows}
-    agent_by_user = {a.user_id: a for a in agents if a.user_id in owner_user_ids}
+    agent_by_user = {a.user_id: a for a in agents if getattr(a, "user_id", None) in owner_user_ids}
 
     for nft_agent_id, user_id in nft_rows:
         try:
@@ -1363,8 +1415,12 @@ def generate_reports_after_simulation(run_id: str, agents: List["MesaAgent"]):
             archetype = ARCHETYPE_MAP[glyph]
             role = archetype["role"]
 
-            rng = random.Random(f"{nft_agent_id}:{epoch_hour}:{run_id}")
-            glyph_report = _build_glyph_report_from_lexicon(nft_agent_id, role, rng)
+            sim_agent = agent_by_user.get(user_id)
+            memory = list(getattr(sim_agent, "memory", [])) if sim_agent else []
+
+            glyph_report = _build_glyph_report_from_memory(
+                nft_agent_id, role, memory, epoch_hour, run_id
+            )
 
             from void_engine.db_pool import get_db
             conn = get_db()
@@ -1409,8 +1465,8 @@ def get_user_translation(agent_id: int, user_id: int, report_id: int) -> Optiona
 def purchase_translation(agent_id: int, user_id: int, report_id: int, role: str) -> Dict:
     """
     Deduct the configured translation fee from the NFT holder's PEACE balance.
-    Uses spend_vtx to atomically record the spend in vortex_ledger.
-    Only the NFT owner (user_id == slot owner) may call this.
+    Uses spend_peace_tokens to atomically debit peace_balance and record an
+    auditable ledger block in vortex_ledger. Only the NFT owner may call this.
     Returns {"ok": True, "translation": "..."} or {"ok": False, "error": "..."}
     """
     _init_adriana_report_tables()
@@ -1436,12 +1492,12 @@ def purchase_translation(agent_id: int, user_id: int, report_id: int, role: str)
         logger.error("purchase_translation cache check failed: %s", e)
         return {"ok": False, "error": "Translation purchase failed. Please try again."}
 
-    from void_engine.vortex_wallet import spend_vtx
-    purpose = f"adriana_translation:agent_{agent_id}:report_{report_id}"
+    from void_engine.vortex_wallet import spend_peace_tokens
+    purpose = f"adriana_translation_a{agent_id}"
     try:
-        block = spend_vtx(user_id, fee, purpose)
+        block = spend_peace_tokens(user_id, fee, purpose)
     except Exception as e:
-        logger.error("purchase_translation spend_vtx raised: %s", e)
+        logger.error("purchase_translation spend_peace_tokens raised: %s", e)
         return {"ok": False, "error": "Translation purchase failed. Please try again."}
 
     if "error" in block:
@@ -1449,7 +1505,7 @@ def purchase_translation(agent_id: int, user_id: int, report_id: int, role: str)
         if "Insufficient" in err or "insufficient" in err:
             return {
                 "ok": False,
-                "error": f"Insufficient PEACE tokens. You need {float(fee):.0f} PEACE to unlock this translation.",
+                "error": f"Insufficient PEACE tokens. You need {float(fee):.2f} PEACE to unlock this translation.",
                 "required": float(fee),
             }
         return {"ok": False, "error": err}
