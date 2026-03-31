@@ -1584,6 +1584,12 @@ def _msg_fernet_key() -> bytes:
     Uses PBKDF2-HMAC-SHA256 with a domain-specific salt so the raw secret
     is never used as the key directly. SESSION_SECRET must be set (same
     variable used by the Flask app itself); no insecure fallback is provided.
+
+    **Key rotation warning**: changing SESSION_SECRET renders all existing
+    ``plain_content_enc`` values permanently undecryptable.  If SESSION_SECRET
+    must be rotated, re-encrypt stored ciphertexts with the old key first, or
+    accept that historical message plaintext will be irrecoverable (glyph content
+    is always preserved and readable without a key).
     """
     import os
     raw = os.environ.get("SESSION_SECRET", "")
@@ -1613,13 +1619,24 @@ def _msg_encrypt(text: str) -> str:
 
 
 def _msg_decrypt(ciphertext: str) -> str:
-    """Decrypt a Fernet token produced by _msg_encrypt."""
+    """Decrypt a Fernet token produced by _msg_encrypt.
+
+    Returns ``[decryption error]`` on ``InvalidToken`` (wrong key, tampered
+    ciphertext) or ``[encoding error]`` if the result is not valid UTF-8.
+    Other unexpected errors are re-raised so they appear in logs.
+    """
     from cryptography.fernet import Fernet, InvalidToken
     try:
         f = Fernet(_msg_fernet_key())
-        return f.decrypt(ciphertext.encode("ascii")).decode("utf-8")
-    except (InvalidToken, Exception):
+        raw = f.decrypt(ciphertext.encode("ascii"))
+    except InvalidToken:
         return "[decryption error]"
+    except Exception:
+        return "[decryption error]"
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return "[encoding error]"
 
 
 def _text_to_glyph_chain(text: str) -> str:
@@ -1713,8 +1730,10 @@ def get_all_claimed_agents() -> List[Dict]:
     try:
         cur = conn.cursor()
         cur.execute("""
-            SELECT o.agent_id, o.user_id, o.username
+            SELECT o.agent_id, o.user_id,
+                   COALESCE(u.username, o.username) AS username
             FROM agent_nft_owners o
+            LEFT JOIN users u ON u.id = o.user_id
             ORDER BY o.agent_id
         """)
         rows = cur.fetchall()
