@@ -1568,3 +1568,426 @@ def purchase_translation(agent_id: int, user_id: int, report_id: int, role: str)
         return {"ok": False, "error": "Translation purchase failed. Please try again."}
     finally:
         conn.close()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Inter-holder agent messaging
+# ─────────────────────────────────────────────────────────────────────────────
+
+import base64
+import hashlib as _hashlib
+
+
+def _msg_key_stream(length: int) -> bytes:
+    """Generate a deterministic XOR key stream from the app secret."""
+    import os
+    secret = os.environ.get("SECRET_KEY", "void_adriana_msg_432hz").encode("utf-8")
+    result = b""
+    i = 0
+    while len(result) < length:
+        result += _hashlib.sha256(secret + str(i).encode()).digest()
+        i += 1
+    return result[:length]
+
+
+def _msg_encrypt(text: str) -> str:
+    """XOR encrypt plain text with a server-derived key stream (standard library only)."""
+    tb = text.encode("utf-8")
+    ks = _msg_key_stream(len(tb))
+    return base64.b64encode(bytes(a ^ b for a, b in zip(tb, ks))).decode("ascii")
+
+
+def _msg_decrypt(ciphertext: str) -> str:
+    """Reverse the XOR encryption."""
+    try:
+        tb = base64.b64decode(ciphertext.encode("ascii"))
+        ks = _msg_key_stream(len(tb))
+        return bytes(a ^ b for a, b in zip(tb, ks)).decode("utf-8")
+    except Exception:
+        return "[decryption error]"
+
+
+def _text_to_glyph_chain(text: str) -> str:
+    """
+    Encode plain-English message text into a deterministic Adriana glyph chain.
+    Words are grouped into chunks of 3; each chunk yields an entity-condition-action
+    triplet selected by SHA-256 hash. Up to 8 triplets are produced.
+    """
+    entities, conditions, actions = _load_adriana_lexicon_pools()
+    words = text.split()
+    if not words:
+        return "Ω-∅-⏸️"
+
+    chunks = [words[i: i + 3] for i in range(0, min(len(words), 24), 3)]
+    triplets = []
+    for chunk in chunks:
+        h = int(_hashlib.sha256(" ".join(chunk).lower().encode()).hexdigest(), 16)
+        entity = entities[h % max(len(entities), 1)] if entities else "Ω"
+        cond = conditions[(h >> 8) % max(len(conditions), 1)] if conditions else "≈"
+        action = actions[(h >> 16) % max(len(actions), 1)] if actions else "📡"
+        triplets.append(f"{entity}-{cond}-{action}")
+
+    return "|".join(triplets)
+
+
+def _init_message_tables():
+    """Create agent_messages and agent_message_translations tables if absent."""
+    from void_engine.db_pool import get_db
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS agent_messages (
+                id SERIAL PRIMARY KEY,
+                sender_agent_id INTEGER NOT NULL,
+                recipient_agent_id INTEGER NOT NULL,
+                sender_user_id INTEGER NOT NULL,
+                recipient_user_id INTEGER NOT NULL,
+                glyph_content TEXT NOT NULL,
+                plain_content_enc TEXT NOT NULL,
+                sent_at TIMESTAMPTZ DEFAULT NOW(),
+                CONSTRAINT chk_no_self_msg CHECK (sender_agent_id != recipient_agent_id)
+            )
+        """)
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_agent_messages_recipient
+                ON agent_messages (recipient_agent_id, sent_at DESC)
+        """)
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_agent_messages_sender
+                ON agent_messages (sender_agent_id, sent_at DESC)
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS agent_message_translations (
+                id SERIAL PRIMARY KEY,
+                message_id INTEGER NOT NULL REFERENCES agent_messages(id) ON DELETE CASCADE,
+                user_id INTEGER NOT NULL,
+                unlocked_at TIMESTAMPTZ DEFAULT NOW(),
+                peace_spent NUMERIC(16,8) NOT NULL DEFAULT 0,
+                ledger_block INTEGER,
+                UNIQUE (message_id, user_id)
+            )
+        """)
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        logger.error("_init_message_tables failed: %s", e)
+    finally:
+        conn.close()
+
+
+def get_all_claimed_agents() -> List[Dict]:
+    """
+    Return all agent slots that have an NFT owner.
+    Used to populate the recipient selector in the compose UI.
+    """
+    _init_message_tables()
+    from void_engine.db_pool import get_db
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT o.agent_id, o.user_id, o.username, o.minted_at
+            FROM agent_nft_owners o
+            ORDER BY o.agent_id
+        """)
+        rows = cur.fetchall()
+        result = []
+        for agent_id, user_id, username, minted_at in rows:
+            glyph = _assign_archetype(agent_id, seed_extra="nft_slot")
+            archetype = ARCHETYPE_MAP.get(glyph, {"role": "agent", "trait": "", "bias": ""})
+            result.append({
+                "agent_id": agent_id,
+                "user_id": user_id,
+                "username": username,
+                "glyph": glyph,
+                "role": archetype["role"],
+            })
+        return result
+    except Exception as e:
+        logger.error("get_all_claimed_agents failed: %s", e)
+        return []
+    finally:
+        conn.close()
+
+
+def send_agent_message(
+    sender_agent_id: int,
+    sender_user_id: int,
+    recipient_agent_id: int,
+    recipient_user_id: int,
+    plain_text: str,
+) -> Dict:
+    """
+    Send a plain-English message from one agent-holder to another.
+    Stores the encrypted plain text and the Adriana glyph encoding.
+    Returns {"ok": True, "message_id": id} or {"ok": False, "error": ...}.
+    """
+    _init_message_tables()
+    plain_text = plain_text.strip()
+    if not plain_text:
+        return {"ok": False, "error": "Message cannot be empty."}
+    if len(plain_text) > 2000:
+        return {"ok": False, "error": "Message too long (max 2000 characters)."}
+    if sender_agent_id == recipient_agent_id:
+        return {"ok": False, "error": "Cannot message your own agent."}
+
+    glyph_content = _text_to_glyph_chain(plain_text)
+    plain_enc = _msg_encrypt(plain_text)
+
+    from void_engine.db_pool import get_db
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO agent_messages
+                (sender_agent_id, recipient_agent_id, sender_user_id,
+                 recipient_user_id, glyph_content, plain_content_enc)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id, sent_at
+        """, (sender_agent_id, recipient_agent_id, sender_user_id,
+              recipient_user_id, glyph_content, plain_enc))
+        row = cur.fetchone()
+        conn.commit()
+        return {"ok": True, "message_id": row[0], "sent_at": row[1].isoformat()}
+    except Exception as e:
+        conn.rollback()
+        logger.error("send_agent_message failed: %s", e)
+        return {"ok": False, "error": "Failed to send message. Please try again."}
+    finally:
+        conn.close()
+
+
+def get_inbox_messages(recipient_agent_id: int, viewer_user_id: int) -> List[Dict]:
+    """
+    Return received messages for an agent, with translation status for the viewer.
+    Plain text is NOT returned here — only glyph content + whether the viewer has
+    purchased the translation (in which case the decrypted text is included).
+    """
+    _init_message_tables()
+    from void_engine.db_pool import get_db
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT m.id, m.sender_agent_id, m.sender_user_id,
+                   m.glyph_content, m.plain_content_enc, m.sent_at,
+                   t.unlocked_at
+            FROM agent_messages m
+            LEFT JOIN agent_message_translations t
+                ON t.message_id = m.id AND t.user_id = %s
+            WHERE m.recipient_agent_id = %s
+            ORDER BY m.sent_at DESC
+            LIMIT 50
+        """, (viewer_user_id, recipient_agent_id))
+        rows = cur.fetchall()
+        messages = []
+        for row in rows:
+            msg_id, s_agent, s_user, glyph, plain_enc, sent_at, unlocked_at = row
+            s_glyph = _assign_archetype(s_agent, seed_extra="nft_slot")
+            s_archetype = ARCHETYPE_MAP.get(s_glyph, {"role": "agent"})
+            cur.execute(
+                "SELECT username FROM agent_nft_owners WHERE agent_id = %s",
+                (s_agent,)
+            )
+            owner_row = cur.fetchone()
+            sender_username = owner_row[0] if owner_row else f"Agent #{s_agent}"
+            msg = {
+                "message_id": msg_id,
+                "sender_agent_id": s_agent,
+                "sender_user_id": s_user,
+                "sender_glyph": s_glyph,
+                "sender_role": s_archetype["role"],
+                "sender_username": sender_username,
+                "glyph_content": glyph,
+                "sent_at": sent_at.isoformat() if sent_at else None,
+                "unlocked": unlocked_at is not None,
+                "plain_text": _msg_decrypt(plain_enc) if unlocked_at else None,
+            }
+            messages.append(msg)
+        return messages
+    except Exception as e:
+        logger.error("get_inbox_messages failed: %s", e)
+        return []
+    finally:
+        conn.close()
+
+
+def get_sent_messages(sender_agent_id: int, sender_user_id: int) -> List[Dict]:
+    """
+    Return sent messages for an agent. Senders always see the plain text they wrote.
+    """
+    _init_message_tables()
+    from void_engine.db_pool import get_db
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT m.id, m.recipient_agent_id, m.glyph_content,
+                   m.plain_content_enc, m.sent_at
+            FROM agent_messages m
+            WHERE m.sender_agent_id = %s AND m.sender_user_id = %s
+            ORDER BY m.sent_at DESC
+            LIMIT 50
+        """, (sender_agent_id, sender_user_id))
+        rows = cur.fetchall()
+        messages = []
+        for row in rows:
+            msg_id, r_agent, glyph, plain_enc, sent_at = row
+            r_glyph = _assign_archetype(r_agent, seed_extra="nft_slot")
+            r_archetype = ARCHETYPE_MAP.get(r_glyph, {"role": "agent"})
+            cur.execute(
+                "SELECT username FROM agent_nft_owners WHERE agent_id = %s",
+                (r_agent,)
+            )
+            owner_row = cur.fetchone()
+            recipient_username = owner_row[0] if owner_row else f"Agent #{r_agent}"
+            messages.append({
+                "message_id": msg_id,
+                "recipient_agent_id": r_agent,
+                "recipient_glyph": r_glyph,
+                "recipient_role": r_archetype["role"],
+                "recipient_username": recipient_username,
+                "glyph_content": glyph,
+                "plain_text": _msg_decrypt(plain_enc),
+                "sent_at": sent_at.isoformat() if sent_at else None,
+            })
+        return messages
+    except Exception as e:
+        logger.error("get_sent_messages failed: %s", e)
+        return []
+    finally:
+        conn.close()
+
+
+def purchase_message_translation(message_id: int, user_id: int) -> Dict:
+    """
+    Spend PEACE tokens to unlock the plain-English translation of a received message.
+    Uses the same fee as report translations (get_translation_fee()).
+    Atomic: FOR UPDATE lock → idempotency check → balance check → debit → ledger
+    block → insert translation record → commit.
+    """
+    _init_message_tables()
+    fee = get_translation_fee()
+
+    from void_engine.db_pool import get_db
+    from void_engine.vortex_wallet import _create_block
+    from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
+
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT COALESCE(peace_balance, 0) FROM users WHERE id = %s FOR UPDATE",
+            (user_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            conn.rollback()
+            return {"ok": False, "error": "User not found"}
+        balance = Decimal(str(row[0]))
+
+        cur.execute(
+            "SELECT id FROM agent_message_translations WHERE message_id = %s AND user_id = %s",
+            (message_id, user_id),
+        )
+        if cur.fetchone():
+            conn.rollback()
+            return {"ok": True, "already_owned": True}
+
+        cur.execute(
+            "SELECT plain_content_enc, recipient_user_id FROM agent_messages WHERE id = %s",
+            (message_id,),
+        )
+        msg_row = cur.fetchone()
+        if not msg_row:
+            conn.rollback()
+            return {"ok": False, "error": "Message not found"}
+        plain_enc, recipient_user_id = msg_row
+        if recipient_user_id != user_id:
+            conn.rollback()
+            return {"ok": False, "error": "Not your message"}
+
+        if balance < fee:
+            conn.rollback()
+            return {
+                "ok": False,
+                "error": (
+                    f"Insufficient PEACE tokens. You have {float(balance):.2f} PEACE, "
+                    f"need {float(fee):.2f}."
+                ),
+                "required": float(fee),
+            }
+
+        cur.execute(
+            "UPDATE users SET peace_balance = COALESCE(peace_balance, 0) - %s WHERE id = %s",
+            (fee, user_id),
+        )
+
+        payload_hash = fatiha_286_hexdigest_from_str(
+            f"peace_adriana_msg_{message_id}_{user_id}"
+        )
+        block = _create_block(
+            cur, "burn_peace_adriana_msg_translation", user_id, None, fee, payload_hash
+        )
+        ledger_block_index = block.get("block_index")
+
+        cur.execute("""
+            INSERT INTO agent_message_translations
+                (message_id, user_id, peace_spent, ledger_block)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (message_id, user_id) DO NOTHING
+        """, (message_id, user_id, fee, ledger_block_index))
+
+        conn.commit()
+        return {
+            "ok": True,
+            "plain_text": _msg_decrypt(plain_enc),
+            "peace_spent": float(fee),
+            "ledger_block": ledger_block_index,
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("purchase_message_translation failed: %s", e)
+        return {"ok": False, "error": "Translation purchase failed. Please try again."}
+    finally:
+        conn.close()
+
+
+def get_admin_message_log(limit: int = 100) -> List[Dict]:
+    """
+    Return message metadata for admin review (no message content).
+    Includes sender/recipient agent IDs, timestamps, and whether translated.
+    """
+    _init_message_tables()
+    from void_engine.db_pool import get_db
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT m.id, m.sender_agent_id, m.recipient_agent_id,
+                   m.sent_at,
+                   COUNT(t.id) AS translation_count
+            FROM agent_messages m
+            LEFT JOIN agent_message_translations t ON t.message_id = m.id
+            GROUP BY m.id, m.sender_agent_id, m.recipient_agent_id, m.sent_at
+            ORDER BY m.sent_at DESC
+            LIMIT %s
+        """, (limit,))
+        rows = cur.fetchall()
+        return [
+            {
+                "message_id": r[0],
+                "sender_agent_id": r[1],
+                "recipient_agent_id": r[2],
+                "sent_at": r[3].isoformat() if r[3] else None,
+                "translations_purchased": r[4],
+            }
+            for r in rows
+        ]
+    except Exception as e:
+        logger.error("get_admin_message_log failed: %s", e)
+        return []
+    finally:
+        conn.close()

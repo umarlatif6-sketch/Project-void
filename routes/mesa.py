@@ -30,7 +30,9 @@ def mesa_village():
 @mesa_bp.route("/admin/mesa", methods=["GET"])
 @admin_required
 def admin_mesa_get():
-    from void_engine.mesa_engine import get_latest_run, get_run_history, get_translation_fee
+    from void_engine.mesa_engine import (
+        get_latest_run, get_run_history, get_translation_fee, get_admin_message_log,
+    )
     latest = get_latest_run()
     history = get_run_history(20)
     triggered = request.args.get("triggered")
@@ -41,6 +43,7 @@ def admin_mesa_get():
     fee_ok = request.args.get("fee_ok")
     fee_error = request.args.get("fee_error")
     current_fee = float(get_translation_fee())
+    message_log = get_admin_message_log(100)
     return render_template(
         "admin_mesa.html",
         latest=latest,
@@ -53,6 +56,7 @@ def admin_mesa_get():
         fee_ok=fee_ok,
         fee_error=fee_error,
         current_fee=current_fee,
+        message_log=message_log,
     )
 
 
@@ -108,7 +112,7 @@ def api_mesa_history():
 @mesa_bp.route("/mesa-village/agents")
 @login_required
 def mesa_agents_registry():
-    from void_engine.mesa_engine import get_all_agent_slots, get_user_owned_agent
+    from void_engine.mesa_engine import get_all_agent_slots, get_user_owned_agent, get_all_claimed_agents
     try:
         page = max(1, int(request.args.get("page", 1)))
     except (ValueError, TypeError):
@@ -116,11 +120,18 @@ def mesa_agents_registry():
     data = get_all_agent_slots(page=page, per_page=100)
     user_id = session.get("user_id")
     my_agent = get_user_owned_agent(user_id) if user_id else None
+    claimed_agents = get_all_claimed_agents() if my_agent else []
+    recipients = [a for a in claimed_agents if a["agent_id"] != (my_agent["agent_id"] if my_agent else -1)]
+    msg_ok = request.args.get("msg_ok")
+    msg_error = request.args.get("msg_error")
     return render_template(
         "mesa_agents.html",
         data=data,
         my_agent=my_agent,
         page=page,
+        recipients=recipients,
+        msg_ok=msg_ok,
+        msg_error=msg_error,
     )
 
 
@@ -177,6 +188,7 @@ def agent_report(agent_id: int):
     from void_engine.mesa_engine import (
         get_agent_slot, get_or_generate_agent_report,
         get_user_translation, get_translation_fee,
+        get_inbox_messages, get_sent_messages, get_all_claimed_agents,
     )
     slot = get_agent_slot(agent_id)
     if slot is None:
@@ -194,8 +206,16 @@ def agent_report(agent_id: int):
             translation = cached
             already_translated = True
 
+    inbox = get_inbox_messages(agent_id, user_id) if (user_id and is_owner) else []
+    sent = get_sent_messages(agent_id, user_id) if (user_id and is_owner) else []
+    claimed_agents = get_all_claimed_agents() if (user_id and is_owner) else []
+    recipients = [a for a in claimed_agents if a["agent_id"] != agent_id]
+
     translate_error = request.args.get("translate_error")
     translate_ok = request.args.get("translate_ok")
+    msg_error = request.args.get("msg_error")
+    msg_ok = request.args.get("msg_ok")
+    msg_translated = request.args.get("msg_translated")
 
     fee = get_translation_fee()
 
@@ -209,6 +229,12 @@ def agent_report(agent_id: int):
         fee=float(fee),
         translate_error=translate_error,
         translate_ok=translate_ok,
+        inbox=inbox,
+        sent=sent,
+        recipients=recipients,
+        msg_error=msg_error,
+        msg_ok=msg_ok,
+        msg_translated=msg_translated,
     )
 
 
@@ -259,6 +285,84 @@ def admin_mesa_set_fee():
     if ok:
         return redirect(f"/admin/mesa?fee_ok={float(new_fee):.2f}")
     return redirect("/admin/mesa?fee_error=save_failed")
+
+
+@mesa_bp.route("/mesa-village/agents/<int:agent_id>/send-message", methods=["POST"])
+@login_required
+def agent_send_message(agent_id: int):
+    from void_engine.mesa_engine import (
+        get_agent_slot, get_all_claimed_agents, send_agent_message,
+    )
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=not_logged_in")
+
+    sender_slot = get_agent_slot(agent_id)
+    if not sender_slot:
+        return redirect("/mesa-village/agents")
+    if not (sender_slot.get("owner") and sender_slot["owner"]["user_id"] == user_id):
+        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=not_owner")
+
+    try:
+        recipient_agent_id = int(request.form.get("recipient_agent_id", ""))
+    except (ValueError, TypeError):
+        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=invalid_recipient")
+
+    if recipient_agent_id == agent_id:
+        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=self_message")
+
+    recipient_slot = get_agent_slot(recipient_agent_id)
+    if not recipient_slot or not recipient_slot.get("owner"):
+        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=recipient_not_found")
+    recipient_user_id = recipient_slot["owner"]["user_id"]
+
+    plain_text = (request.form.get("message_text") or "").strip()
+    if not plain_text:
+        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=empty_message")
+
+    result = send_agent_message(
+        sender_agent_id=agent_id,
+        sender_user_id=user_id,
+        recipient_agent_id=recipient_agent_id,
+        recipient_user_id=recipient_user_id,
+        plain_text=plain_text,
+    )
+    if result["ok"]:
+        return redirect(f"/mesa-village/agents/{agent_id}?msg_ok=1")
+    return redirect(f"/mesa-village/agents/{agent_id}?msg_error=send_failed")
+
+
+@mesa_bp.route("/mesa-village/messages/<int:message_id>/translate", methods=["POST"])
+@login_required
+def message_translate(message_id: int):
+    from void_engine.mesa_engine import purchase_message_translation
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/mesa-village")
+
+    redirect_agent_id = request.form.get("agent_id", "")
+    try:
+        redirect_agent_id = int(redirect_agent_id)
+    except (ValueError, TypeError):
+        return redirect("/mesa-village")
+
+    result = purchase_message_translation(message_id, user_id)
+    if result.get("ok"):
+        return redirect(f"/mesa-village/agents/{redirect_agent_id}?msg_translated={message_id}")
+    error = result.get("error", "failed")
+    if "Insufficient" in error or "insufficient" in error:
+        return redirect(f"/mesa-village/agents/{redirect_agent_id}?msg_error=insufficient_peace")
+    if "Not your message" in error:
+        return redirect(f"/mesa-village/agents/{redirect_agent_id}?msg_error=not_your_message")
+    return redirect(f"/mesa-village/agents/{redirect_agent_id}?msg_error=translate_failed")
+
+
+@mesa_bp.route("/api/mesa/recipients")
+@login_required
+def api_mesa_recipients():
+    from void_engine.mesa_engine import get_all_claimed_agents
+    agents = get_all_claimed_agents()
+    return jsonify({"ok": True, "agents": agents}), 200
 
 
 @mesa_bp.route("/mesa/simulate", methods=["POST"])

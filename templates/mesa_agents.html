@@ -163,6 +163,39 @@
             color: var(--void-muted); font-size: 12px; line-height: 1.6;
         }
 
+        .mv-compose-card {
+            background: var(--void-card);
+            border: 1px solid rgba(167,139,250,0.3);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-top: 16px;
+        }
+        .mv-compose-card select, .mv-compose-card textarea {
+            width: 100%; background: rgba(26,30,42,0.8);
+            border: 1px solid var(--void-border); color: var(--void-text);
+            font-family: inherit; font-size: 13px;
+            padding: 8px 12px; border-radius: 5px; outline: none;
+            transition: border-color 0.2s; margin-top: 10px;
+        }
+        .mv-compose-card textarea { resize: vertical; min-height: 70px; }
+        .mv-compose-card select:focus, .mv-compose-card textarea:focus { border-color: rgba(167,139,250,0.4); }
+        .mv-compose-btn {
+            margin-top: 10px; width: 100%;
+            background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.4);
+            color: var(--void-violet); font-family: inherit; font-size: 13px;
+            padding: 11px 24px; border-radius: 6px; cursor: pointer;
+            letter-spacing: 0.08em; transition: background 0.2s;
+        }
+        .mv-compose-btn:hover { background: rgba(167,139,250,0.22); }
+        .mv-banner {
+            max-width: 1100px; margin: 12px auto 0; padding: 0 20px;
+        }
+        .mv-banner-inner {
+            padding: 10px 16px; border-radius: 5px; font-size: 12px;
+        }
+        .mv-banner-ok { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); color: #34d399; }
+        .mv-banner-err { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: #f87171; }
+
         @media (max-width: 600px) {
             .mv-topbar { flex-direction: column; gap: 10px; }
             .mv-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
@@ -205,6 +238,24 @@
     </div>
 </div>
 
+    {% if msg_ok %}
+    <div style="max-width:1100px; margin: 0 auto 0; padding: 12px 20px 0;">
+        <div style="background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.25); color:#34d399; padding:10px 16px; border-radius:5px; font-size:12px;">
+            ✓ Your agent has transmitted the message. The recipient sees it in Adriana glyph-language.
+        </div>
+    </div>
+    {% endif %}
+    {% if msg_error %}
+    <div style="max-width:1100px; margin: 0 auto 0; padding: 12px 20px 0;">
+        <div style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.25); color:#f87171; padding:10px 16px; border-radius:5px; font-size:12px;">
+            {% if msg_error == "insufficient_peace" %}⚠ Insufficient PEACE tokens to send this transmission.
+            {% elif msg_error == "empty_message" %}⚠ Message cannot be empty.
+            {% elif msg_error == "send_failed" %}⚠ Transmission failed. Please try again.
+            {% else %}⚠ Error: {{ msg_error.replace("_", " ") }}{% endif %}
+        </div>
+    </div>
+    {% endif %}
+
 <div class="mv-my-agent">
     {% if my_agent %}
     <div class="mv-my-agent-card">
@@ -217,6 +268,22 @@
         </div>
         <a href="/mesa-village/agents/{{ my_agent.agent_id }}" class="mv-my-badge" style="text-decoration:none;">⬡ View Intel Report</a>
     </div>
+    {% if recipients %}
+    <div class="mv-compose-card">
+        <div style="font-size:10px; letter-spacing:0.12em; color:var(--void-violet); margin-bottom:4px;">SEND AGENT TRANSMISSION</div>
+        <div style="font-size:12px; color:var(--void-muted); line-height:1.6;">Your message will be Adriana-encoded before delivery. Recipients must spend PEACE to translate the glyph sequence.</div>
+        <form method="POST" action="/mesa-village/agents/{{ my_agent.agent_id }}/send-message">
+            <select name="recipient_agent_id" required>
+                <option value="" disabled selected>— Select recipient agent —</option>
+                {% for r in recipients %}
+                <option value="{{ r.agent_id }}">{{ r.glyph }} Agent #{{ r.agent_id }} — {{ r.role }} ({{ r.username }})</option>
+                {% endfor %}
+            </select>
+            <textarea name="message_text" placeholder="Write your message here…" maxlength="2000" required></textarea>
+            <button type="submit" class="mv-compose-btn">⬡ Transmit via Agent — Adriana Encoded</button>
+        </form>
+    </div>
+    {% endif %}
     {% else %}
     <div class="mv-no-agent">
         You do not currently hold an Agent NFT. Contact an admin to have one minted to your account.

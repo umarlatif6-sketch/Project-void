@@ -173,6 +173,67 @@
         }
         .locked-icon { font-size: 32px; margin-bottom: 10px; }
 
+        /* Messaging */
+        .msg-compose-card {
+            background: var(--void-card);
+            border: 1px solid rgba(167,139,250,0.3);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .msg-compose-card textarea {
+            width: 100%; resize: vertical; min-height: 80px;
+            background: rgba(26,30,42,0.8); border: 1px solid var(--void-border);
+            color: var(--void-text); font-family: inherit; font-size: 13px;
+            padding: 10px 12px; border-radius: 5px; outline: none;
+            transition: border-color 0.2s; margin-top: 10px;
+        }
+        .msg-compose-card textarea:focus { border-color: rgba(167,139,250,0.4); }
+        .msg-compose-card select {
+            width: 100%; background: rgba(26,30,42,0.8);
+            border: 1px solid var(--void-border); color: var(--void-text);
+            font-family: inherit; font-size: 13px; padding: 8px 12px;
+            border-radius: 5px; outline: none; margin-top: 10px;
+            cursor: pointer;
+        }
+        .msg-compose-card select:focus { border-color: rgba(167,139,250,0.4); }
+        .msg-send-btn {
+            margin-top: 12px; width: 100%;
+            background: rgba(167,139,250,0.12);
+            border: 1px solid rgba(167,139,250,0.4);
+            color: var(--void-violet); font-family: inherit; font-size: 13px;
+            padding: 12px 24px; border-radius: 6px; cursor: pointer;
+            letter-spacing: 0.08em; transition: background 0.2s;
+        }
+        .msg-send-btn:hover { background: rgba(167,139,250,0.22); }
+
+        .msg-card {
+            background: rgba(10,12,20,0.8);
+            border: 1px solid var(--void-border);
+            border-radius: 6px;
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .msg-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
+        .msg-from { font-size: 11px; color: var(--void-gold); letter-spacing: 0.07em; }
+        .msg-time { font-size: 10px; color: var(--void-muted); }
+        .msg-glyph { font-size: 14px; color: var(--void-violet); line-height: 1.8; letter-spacing: 0.06em; word-break: break-all; }
+        .msg-plain { font-size: 13px; color: var(--void-text); line-height: 1.7; margin-top: 8px; }
+        .msg-unlock-btn {
+            margin-top: 10px; font-size: 11px;
+            background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.3);
+            color: var(--void-gold); font-family: inherit;
+            padding: 6px 14px; border-radius: 4px; cursor: pointer;
+            letter-spacing: 0.07em; transition: background 0.2s;
+        }
+        .msg-unlock-btn:hover { background: rgba(201,168,76,0.18); }
+        .msg-unlocked-badge {
+            display: inline-block; margin-top: 6px; font-size: 10px;
+            background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25);
+            color: #34d399; padding: 2px 8px; border-radius: 8px;
+        }
+        .msg-empty { color: var(--void-muted); font-size: 12px; padding: 14px 0; text-align: center; }
+
         @media (max-width: 600px) {
             .mv-topbar { flex-direction: column; gap: 10px; }
             .agent-glyph { font-size: 44px; }
@@ -215,6 +276,38 @@
     {% if translate_ok %}
     <div class="alert alert-success">
         ✓ Translation unlocked. Your agent speaks to you now.
+    </div>
+    {% endif %}
+
+    {% if msg_ok %}
+    <div class="alert alert-success">
+        ✓ Your agent has transmitted the message. The recipient sees it in Adriana glyph-language.
+    </div>
+    {% endif %}
+
+    {% if msg_translated %}
+    <div class="alert alert-success">
+        ✓ Message translation unlocked.
+    </div>
+    {% endif %}
+
+    {% if msg_error %}
+    <div class="alert alert-error">
+        {% if msg_error == "insufficient_peace" %}
+        ⚠ Insufficient PEACE tokens to unlock this message translation.
+        {% elif msg_error == "empty_message" %}
+        ⚠ Message cannot be empty.
+        {% elif msg_error == "self_message" %}
+        ⚠ You cannot send a message to your own agent.
+        {% elif msg_error == "recipient_not_found" %}
+        ⚠ Recipient agent not found or unclaimed.
+        {% elif msg_error == "not_your_message" %}
+        ⚠ This message was not addressed to you.
+        {% elif msg_error == "send_failed" %}
+        ⚠ Failed to send message. Please try again.
+        {% else %}
+        ⚠ Message error: {{ msg_error.replace("_", " ") }}
+        {% endif %}
     </div>
     {% endif %}
 
@@ -322,7 +415,98 @@
     </div>
     {% endif %}
 
+    {% if is_owner %}
+
+    <!-- Compose Message Section -->
+    {% if recipients %}
+    <div class="section-title" style="margin-top:10px;">Send Agent Transmission</div>
+    <div class="msg-compose-card">
+        <div style="font-size:12px; color:var(--void-muted); margin-bottom:6px; line-height:1.6;">
+            Compose a plain-English message. Your agent will encode it into Adriana glyph-language before delivery — the recipient sees only the glyph sequence until they spend PEACE to translate it.
+        </div>
+        <form method="POST" action="/mesa-village/agents/{{ slot.agent_id }}/send-message">
+            <select name="recipient_agent_id" required>
+                <option value="" disabled selected>— Select recipient agent —</option>
+                {% for r in recipients %}
+                <option value="{{ r.agent_id }}">{{ r.glyph }} Agent #{{ r.agent_id }} — {{ r.role }} ({{ r.username }})</option>
+                {% endfor %}
+            </select>
+            <textarea name="message_text" placeholder="Write your message here (max 2000 characters)…" maxlength="2000" required></textarea>
+            <button type="submit" class="msg-send-btn">⬡ Transmit via Agent — Adriana Encoded</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="section-title" style="margin-top:10px;">Send Agent Transmission</div>
+    <div style="background:var(--void-card); border:1px solid var(--void-border); border-radius:8px; padding:20px; margin-bottom:24px; color:var(--void-muted); font-size:12px;">
+        No other agent NFT holders to message yet. Once other holders claim agents, you can transmit to them here.
+    </div>
+    {% endif %}
+
+    <!-- Inbox -->
+    <div class="section-title" style="margin-top:10px;">
+        Agent Inbox
+        {% if inbox %}<span style="background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.3); color:var(--void-violet); font-size:10px; padding:2px 8px; border-radius:8px; margin-left:8px;">{{ inbox|length }}</span>{% endif %}
+    </div>
+    <div style="margin-bottom:24px;">
+        {% if inbox %}
+        {% for msg in inbox %}
+        <div class="msg-card">
+            <div class="msg-card-header">
+                <span class="msg-from">{{ msg.sender_glyph }} Agent #{{ msg.sender_agent_id }} ({{ msg.sender_username }}) → Your Agent</span>
+                <span class="msg-time">{{ msg.sent_at[:16].replace("T"," ") if msg.sent_at else "" }} UTC</span>
+            </div>
+            <div class="msg-glyph">{{ msg.glyph_content }}</div>
+            {% if msg.unlocked and msg.plain_text %}
+            <div class="msg-plain">{{ msg.plain_text }}</div>
+            <span class="msg-unlocked-badge">✓ TRANSLATED</span>
+            {% else %}
+            <form method="POST" action="/mesa-village/messages/{{ msg.message_id }}/translate" style="margin-top:10px;">
+                <input type="hidden" name="agent_id" value="{{ slot.agent_id }}">
+                <button type="submit" class="msg-unlock-btn">⬡ Translate — {{ "%.2f"|format(fee) }} PEACE</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="msg-empty">No incoming transmissions yet.</div>
+        {% endif %}
+    </div>
+
+    <!-- Sent Log -->
+    <div class="section-title">Sent Transmissions</div>
+    <div style="margin-bottom:24px;">
+        {% if sent %}
+        {% for msg in sent %}
+        <div class="msg-card">
+            <div class="msg-card-header">
+                <span class="msg-from">Your Agent → {{ msg.recipient_glyph }} Agent #{{ msg.recipient_agent_id }} ({{ msg.recipient_username }})</span>
+                <span class="msg-time">{{ msg.sent_at[:16].replace("T"," ") if msg.sent_at else "" }} UTC</span>
+            </div>
+            <div class="msg-glyph" style="font-size:12px; opacity:0.7;">{{ msg.glyph_content }}</div>
+            <div class="msg-plain" style="color:var(--void-muted);">{{ msg.plain_text }}</div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="msg-empty">No transmissions sent yet.</div>
+        {% endif %}
+    </div>
+
+    {% endif %}
+
 </div>
 
+<script>
+(function() {
+    var params = new URLSearchParams(window.location.search);
+    var msgTo = params.get('msg_to');
+    if (msgTo) {
+        var sel = document.querySelector('select[name="recipient_agent_id"]');
+        if (sel) {
+            sel.value = msgTo;
+            sel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+})();
+</script>
 </body>
 </html>

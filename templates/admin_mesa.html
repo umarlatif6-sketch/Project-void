@@ -270,6 +270,43 @@
         <div style="color:var(--void-muted); font-size:12px; text-align:center; padding:20px;">No simulation runs yet.</div>
         {% endif %}
     </div>
+
+    <div class="adm-section-title">Agent Message Log</div>
+    <div class="adm-card">
+        <p style="font-size:12px; color:var(--void-muted); margin-bottom:18px;">Moderation view — metadata only. Message content and translations are never shown here.</p>
+        {% if message_log %}
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>From Agent</th>
+                    <th>To Agent</th>
+                    <th>Sent</th>
+                    <th>Translations Purchased</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in message_log %}
+                <tr>
+                    <td style="color:var(--void-muted); font-size:11px;">#{{ m.message_id }}</td>
+                    <td style="color:var(--void-gold);">Agent #{{ m.sender_agent_id }}</td>
+                    <td style="color:var(--void-gold);">Agent #{{ m.recipient_agent_id }}</td>
+                    <td style="color:var(--void-muted);">{{ (m.sent_at or "")[:16].replace("T"," ") }}</td>
+                    <td>
+                        {% if m.translations_purchased > 0 %}
+                        <span class="badge-complete">{{ m.translations_purchased }}</span>
+                        {% else %}
+                        <span style="color:var(--void-muted);">0</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="color:var(--void-muted); font-size:12px; text-align:center; padding:20px;">No agent messages sent yet.</div>
+        {% endif %}
+    </div>
 </div>
 
 <script>
