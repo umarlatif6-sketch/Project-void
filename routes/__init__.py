@@ -35,6 +35,7 @@ from routes.founders_room import founders_room_bp
 from routes.hex_flower import hex_flower_bp
 from routes.transmissions import transmissions_bp
 from routes.origin_map import origin_map_bp
+from routes.voidecho import voidecho_bp
 
 
 def register_blueprints(app):
@@ -75,3 +76,4 @@ def register_blueprints(app):
     app.register_blueprint(hex_flower_bp)
     app.register_blueprint(transmissions_bp)
     app.register_blueprint(origin_map_bp)
+    app.register_blueprint(voidecho_bp)

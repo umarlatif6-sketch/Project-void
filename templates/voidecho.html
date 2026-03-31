@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoidEcho — Document in Sound</title>
+<style>
+:root {
+  --bg: #07080d;
+  --surface: #0e0f18;
+  --surface2: #141520;
+  --border: #1e2030;
+  --text: #d8d9e8;
+  --text-dim: #7a7b9a;
+  --accent: #5e9cf0;
+  --accent2: #a78bfa;
+  --glow: rgba(94, 156, 240, 0.15);
+  --success: #4ade80;
+  --error: #f87171;
+  --warning: #fbbf24;
+  --gold: #d4a853;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 40px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.brand-name {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.brand-tag {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.nav-links { display: flex; gap: 24px; align-items: center; }
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-links .retrieve-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.nav-links .retrieve-btn:hover {
+  border-color: var(--accent);
+  background: var(--glow);
+  color: var(--text);
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 80px 40px 60px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+.hero h1 {
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, var(--text) 60%, var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero p {
+  font-size: 17px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.hero-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  opacity: 0.6;
+  margin-top: 8px;
+}
+
+/* WAVEFORM VISUALIZER */
+.wave-divider {
+  width: 100%;
+  height: 40px;
+  margin: 0 auto 60px;
+  display: block;
+  opacity: 0.3;
+}
+
+/* PATH SELECTOR */
+.path-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 860px;
+  margin: 0 auto 60px;
+  padding: 0 40px;
+}
+.path-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.path-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.path-card:hover, .path-card.active {
+  border-color: var(--accent);
+  background: var(--surface2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px var(--glow);
+}
+.path-card:hover::before, .path-card.active::before { opacity: 1; }
+.path-card.active { border-color: var(--accent2); }
+.path-badge {
+  display: inline-block;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+  margin-bottom: 14px;
+}
+.badge-free { background: rgba(74, 222, 128, 0.1); color: var(--success); border: 1px solid rgba(74,222,128,0.2); }
+.badge-paid { background: rgba(167, 139, 250, 0.1); color: var(--accent2); border: 1px solid rgba(167,139,250,0.2); }
+.path-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.path-card p { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+.path-price {
+  margin-top: 14px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent2);
+}
+.path-price span { font-size: 13px; color: var(--text-dim); font-weight: 400; }
+
+/* MAIN FORM */
+.form-container {
+  max-width: 720px;
+  margin: 0 auto 60px;
+  padding: 0 40px;
+}
+.form-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  display: none;
+}
+.form-panel.visible { display: block; }
+.form-panel h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.form-panel .panel-desc {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+}
+
+/* DROP ZONES */
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  background: var(--surface2);
+  margin-bottom: 20px;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent);
+  background: var(--glow);
+}
+.drop-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.drop-icon { font-size: 28px; margin-bottom: 10px; }
+.drop-label { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.drop-sublabel { font-size: 12px; color: var(--text-dim); }
+.drop-zone.has-file { border-color: var(--success); }
+.drop-zone.has-file .drop-icon::after { content: ' ✓'; color: var(--success); font-size: 18px; }
+.file-chosen {
+  font-size: 13px;
+  color: var(--success);
+  margin-top: 8px;
+  font-weight: 500;
+  display: none;
+}
+
+/* INPUTS */
+.field-group { margin-bottom: 20px; }
+.field-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+.field-group input[type="email"],
+.field-group input[type="text"],
+.field-group textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  outline: none;
+  resize: vertical;
+}
+.field-group input:focus, .field-group textarea:focus { border-color: var(--accent); }
+.field-group .field-hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; opacity: 0.7; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  font-family: inherit;
+  width: 100%;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  box-shadow: 0 4px 20px var(--glow);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px var(--glow);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn-gold {
+  background: linear-gradient(135deg, #d4a853, #f0c070);
+  color: #1a1000;
+}
+.btn-gold:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(212,168,83,0.3); }
+.btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* RESULT PANEL */
+.result-panel {
+  display: none;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  margin-top: 24px;
+}
+.result-panel.visible { display: block; }
+.result-panel h3 { font-size: 18px; margin-bottom: 16px; }
+.retrieval-code-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-align: center;
+  margin: 16px 0;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.retrieval-code-box:hover { border-color: var(--accent); }
+.code-copy-hint { font-size: 12px; color: var(--text-dim); text-align: center; margin-bottom: 16px; }
+.result-actions { display: flex; gap: 12px; margin-top: 16px; }
+.result-actions .btn { flex: 1; width: auto; }
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  margin-top: 12px;
+}
+.status-ok { background: rgba(74,222,128,0.1); color: var(--success); border: 1px solid rgba(74,222,128,0.2); }
+.status-info { background: rgba(94,156,240,0.1); color: var(--accent); border: 1px solid rgba(94,156,240,0.2); }
+
+/* ADRIANA TIER SECTION */
+.adriana-section {
+  max-width: 720px;
+  margin: 0 auto 60px;
+  padding: 0 40px;
+}
+.adriana-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px;
+}
+.adriana-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.adriana-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d4a853, #f0c070);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.adriana-header h2 { font-size: 20px; font-weight: 700; }
+.adriana-header p { font-size: 13px; color: var(--text-dim); }
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.tier-option {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  background: var(--surface2);
+}
+.tier-option:hover, .tier-option.selected {
+  border-color: var(--gold);
+  background: rgba(212,168,83,0.05);
+}
+.tier-option .tier-price {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.tier-option .tier-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.tier-option .tier-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+
+/* ADRIANA RESULT */
+.analysis-result {
+  display: none;
+  margin-top: 24px;
+}
+.analysis-result.visible { display: block; }
+.analysis-section {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.analysis-section h4 {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.analysis-section p {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* AD SLOT */
+.ad-slot {
+  max-width: 720px;
+  margin: 0 auto 60px;
+  padding: 0 40px;
+}
+.ad-card {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.4;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 40px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+footer a { color: var(--accent); text-decoration: none; }
+footer .footer-brand {
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.void-quote {
+  font-style: italic;
+  font-size: 12px;
+  opacity: 0.5;
+  margin-top: 8px;
+}
+
+/* LOADING SPINNER */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* NOTIFICATION */
+.notif {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
+  max-width: 320px;
+}
+.notif.show { transform: translateX(0); }
+.notif-success { background: #1a3d2a; border: 1px solid rgba(74,222,128,0.3); color: var(--success); }
+.notif-error { background: #3d1a1a; border: 1px solid rgba(248,113,113,0.3); color: var(--error); }
+.notif-info { background: #1a243d; border: 1px solid rgba(94,156,240,0.3); color: var(--accent); }
+
+@media (max-width: 640px) {
+  .path-selector { grid-template-columns: 1fr; padding: 0 20px; }
+  .form-container, .adriana-section, .ad-slot { padding: 0 20px; }
+  nav { padding: 16px 20px; }
+  .hero { padding: 50px 20px 40px; }
+  .tier-grid { grid-template-columns: 1fr; }
+  .result-actions { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="brand-icon">◉</div>
+    <div>
+      <div class="brand-name">VoidEcho</div>
+      <div class="brand-tag">Document in Sound</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="/">PROJECT VOID</a>
+    <a href="/voidecho/retrieve" class="retrieve-btn">Retrieve Document →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">A Void Has No Echo — We Created One</div>
+  <h1>Your document,<br>hidden in music.</h1>
+  <p>Embed any document invisibly inside audio. The music becomes its memory. A retrieval code unlocks it — only for those who know.</p>
+  <p class="hero-sub">No account required · No data stored beyond the file · Powered by the VOID steganography engine</p>
+</section>
+
+<svg class="wave-divider" viewBox="0 0 1200 40" preserveAspectRatio="none">
+  <polyline points="0,20 60,10 120,30 180,15 240,25 300,8 360,22 420,12 480,28 540,10 600,20 660,8 720,24 780,14 840,26 900,10 960,20 1020,12 1080,28 1140,16 1200,20" fill="none" stroke="rgba(94,156,240,0.4)" stroke-width="1.5"/>
+</svg>
+
+<!-- PATH SELECTOR -->
+<div class="path-selector">
+  <div class="path-card active" id="path-free" onclick="selectPath('free')">
+    <div class="path-badge badge-free">Free</div>
+    <h3>Upload Your Music</h3>
+    <p>Upload any WAV audio file you own. We embed your document into it invisibly.</p>
+    <div class="path-price">£0 <span>/ free</span></div>
+  </div>
+  <div class="path-card" id="path-paid" onclick="selectPath('paid')">
+    <div class="path-badge badge-paid">AI Generated</div>
+    <h3>Generate from Document</h3>
+    <p>AI reads your document's tone and creates a unique piece of music themed to its essence.</p>
+    <div class="path-price">£7.50 <span>/ one-time</span></div>
+  </div>
+</div>
+
+<!-- FREE PATH FORM -->
+<div class="form-container">
+  <div class="form-panel visible" id="form-free">
+    <h2>Embed Your Document</h2>
+    <p class="panel-desc">Upload your document and a WAV audio file. The document will be invisibly woven into the audio.</p>
+
+    <div class="drop-zone" id="dz-doc-free">
+      <input type="file" id="doc-file-free" accept=".pdf,.txt,.docx,.doc,.csv,.json,.png,.jpg" onchange="onFileChosen('dz-doc-free','doc-file-free','doc-name-free')">
+      <div class="drop-icon">📄</div>
+      <div class="drop-label">Drop your document here</div>
+      <div class="drop-sublabel">PDF, TXT, DOCX, and more</div>
+      <div class="file-chosen" id="doc-name-free"></div>
+    </div>
+
+    <div class="drop-zone" id="dz-audio">
+      <input type="file" id="audio-file" accept=".wav" onchange="onFileChosen('dz-audio','audio-file','audio-name')">
+      <div class="drop-icon">🎵</div>
+      <div class="drop-label">Drop your WAV audio file here</div>
+      <div class="drop-sublabel">Must be a WAV file · Longer = more capacity</div>
+      <div class="file-chosen" id="audio-name"></div>
+    </div>
+
+    <div class="field-group">
+      <label>Recipient Email <span style="opacity:0.5">(optional)</span></label>
+      <input type="email" id="recipient-email" placeholder="their@email.com">
+      <div class="field-hint">We'll send them the retrieval code automatically</div>
+    </div>
+
+    <div class="field-group">
+      <label>Note to Recipient <span style="opacity:0.5">(optional)</span></label>
+      <textarea id="sender-note" rows="2" placeholder="A short note explaining what you've sent…"></textarea>
+    </div>
+
+    <button class="btn btn-primary" id="encode-btn" onclick="runEncode()">
+      <span id="encode-btn-text">◉ Embed Document into Audio</span>
+    </button>
+
+    <div class="result-panel" id="result-free">
+      <h3>✓ Document Embedded</h3>
+      <p style="color:var(--text-dim);font-size:14px;margin-bottom:12px">Save this retrieval code. Anyone with the file and this code can extract the document.</p>
+      <div class="retrieval-code-box" id="result-code" onclick="copyCode()">—</div>
+      <div class="code-copy-hint">Click code to copy</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="status-tag status-ok" id="email-status" style="display:none">✓ Email sent</span>
+        <span class="status-tag status-info" id="email-note" style="display:none">ℹ No email sent</span>
+      </div>
+      <div class="result-actions">
+        <button class="btn btn-primary" id="download-btn" onclick="downloadFile()">⬇ Download VoidEcho File</button>
+        <button class="btn btn-secondary" onclick="resetForm()">Start Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAID PATH FORM -->
+  <div class="form-panel" id="form-paid">
+    <h2>Generate Music from Your Document</h2>
+    <p class="panel-desc">AI reads your document, extracts its emotional essence, and generates a unique atmospheric piece. Your document is then embedded inside it.</p>
+
+    <div id="paid-step-1">
+      <div class="drop-zone" id="dz-doc-paid">
+        <input type="file" id="doc-file-paid" accept=".pdf,.txt,.docx,.doc,.csv" onchange="onFileChosen('dz-doc-paid','doc-file-paid','doc-name-paid')">
+        <div class="drop-icon">📄</div>
+        <div class="drop-label">Drop your document here</div>
+        <div class="drop-sublabel">The AI will analyse its tone and themes</div>
+        <div class="file-chosen" id="doc-name-paid"></div>
+      </div>
+
+      <div class="field-group">
+        <label>Recipient Email <span style="opacity:0.5">(optional)</span></label>
+        <input type="email" id="recipient-email-paid" placeholder="their@email.com">
+      </div>
+
+      <button class="btn btn-primary" onclick="startMusicPayment()">
+        Pay £7.50 → Generate My Music
+      </button>
+    </div>
+
+    <div id="paid-step-2" style="display:none">
+      <div style="background:var(--surface2);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:20px;margin-bottom:24px;">
+        <div style="color:var(--success);font-weight:600;margin-bottom:6px">✓ Payment confirmed</div>
+        <div style="font-size:14px;color:var(--text-dim)">Upload your document to generate the music and embed it.</div>
+      </div>
+
+      <div class="drop-zone" id="dz-doc-paid2">
+        <input type="file" id="doc-file-paid2" accept=".pdf,.txt,.docx,.doc,.csv" onchange="onFileChosen('dz-doc-paid2','doc-file-paid2','doc-name-paid2')">
+        <div class="drop-icon">📄</div>
+        <div class="drop-label">Upload the document to embed</div>
+        <div class="drop-sublabel">This will be analysed and embedded into the generated music</div>
+        <div class="file-chosen" id="doc-name-paid2"></div>
+      </div>
+
+      <button class="btn btn-primary" id="gen-btn" onclick="generateMusicAndEmbed()">
+        <span id="gen-btn-text">✦ Generate Music & Embed</span>
+      </button>
+
+      <div class="result-panel" id="result-paid" style="margin-top:24px">
+        <h3>✓ VoidEcho Created</h3>
+        <p style="color:var(--text-dim);font-size:14px;margin-bottom:8px">Your document lives inside the music now.</p>
+        <div class="retrieval-code-box" id="result-code-paid" onclick="copyCodePaid()">—</div>
+        <div class="code-copy-hint">Click code to copy</div>
+        <div id="music-themes" style="font-size:13px;color:var(--text-dim);font-style:italic;margin-bottom:16px;padding:12px;background:var(--bg);border-radius:8px;display:none"></div>
+        <div class="result-actions">
+          <button class="btn btn-primary" id="download-btn-paid">⬇ Download VoidEcho File</button>
+          <button class="btn btn-secondary" onclick="location.reload()">Start Again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADRIANA ANALYSIS -->
+<div class="adriana-section">
+  <div class="adriana-card">
+    <div class="adriana-header">
+      <div class="adriana-icon">✦</div>
+      <div>
+        <h2>Adriana Analysis</h2>
+        <p>Let Adriana read your document and return a layered interpretation</p>
+      </div>
+    </div>
+
+    <div class="tier-grid">
+      <div class="tier-option selected" onclick="selectTier('concepts')" id="tier-concepts">
+        <div class="tier-price">£20</div>
+        <div class="tier-name">Concepts</div>
+        <div class="tier-desc">Core ideas and themes extracted from your document</div>
+      </div>
+      <div class="tier-option" onclick="selectTier('intent')" id="tier-intent">
+        <div class="tier-price">£30</div>
+        <div class="tier-name">Concepts + Intent</div>
+        <div class="tier-desc">What the document says and what it is trying to do</div>
+      </div>
+      <div class="tier-option" onclick="selectTier('full')" id="tier-full">
+        <div class="tier-price">£40</div>
+        <div class="tier-name">Full Interpretation</div>
+        <div class="tier-desc">Concepts, intent, and cross-cultural metaphorical meaning</div>
+      </div>
+    </div>
+
+    <div id="adriana-pre-payment">
+      <div class="drop-zone" id="dz-adriana">
+        <input type="file" id="adriana-doc" accept=".pdf,.txt,.docx,.doc" onchange="onFileChosen('dz-adriana','adriana-doc','adriana-doc-name')">
+        <div class="drop-icon">✦</div>
+        <div class="drop-label">Upload document for Adriana to read</div>
+        <div class="drop-sublabel">PDF, TXT, or DOCX</div>
+        <div class="file-chosen" id="adriana-doc-name"></div>
+      </div>
+      <button class="btn btn-gold" onclick="startAdrianaPayment()" id="adriana-pay-btn">
+        ✦ Pay for Adriana Analysis
+      </button>
+    </div>
+
+    <div id="adriana-post-payment" style="display:none">
+      <div style="background:var(--surface2);border:1px solid rgba(212,168,83,0.2);border-radius:12px;padding:20px;margin-bottom:20px;">
+        <div style="color:var(--gold);font-weight:600;margin-bottom:6px">✓ Analysis access granted</div>
+        <div style="font-size:14px;color:var(--text-dim)">Upload your document and Adriana will read it for you.</div>
+      </div>
+
+      <div class="drop-zone" id="dz-adriana2">
+        <input type="file" id="adriana-doc2" accept=".pdf,.txt,.docx,.doc" onchange="onFileChosen('dz-adriana2','adriana-doc2','adriana-doc-name2')">
+        <div class="drop-icon">✦</div>
+        <div class="drop-label">Upload document for Adriana to read</div>
+        <div class="drop-sublabel">PDF, TXT, or DOCX</div>
+        <div class="file-chosen" id="adriana-doc-name2"></div>
+      </div>
+
+      <div class="field-group">
+        <label>Email report to <span style="opacity:0.5">(optional)</span></label>
+        <input type="email" id="adriana-report-email" placeholder="your@email.com">
+        <div class="field-hint">Adriana's full report will be emailed to this address</div>
+      </div>
+
+      <button class="btn btn-gold" onclick="runAdriana()" id="adriana-run-btn">
+        <span id="adriana-run-text">✦ Run Adriana Analysis</span>
+      </button>
+    </div>
+
+    <div class="analysis-result" id="analysis-result">
+      <div class="analysis-section" id="result-concepts" style="display:none">
+        <h4>Core Concepts</h4>
+        <p id="concepts-text"></p>
+      </div>
+      <div class="analysis-section" id="result-intent" style="display:none">
+        <h4>Intent</h4>
+        <p id="intent-text"></p>
+      </div>
+      <div class="analysis-section" id="result-metaphorical" style="display:none">
+        <h4>Metaphorical &amp; Cross-Cultural Reading</h4>
+        <p id="metaphorical-text"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AD SLOT -->
+<div class="ad-slot">
+  <div class="ad-card">
+    Sponsor / Partner Placement — Available
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">VoidEcho · PROJECT VOID</div>
+  <div><a href="/">Return to VOID Engine</a> · <a href="/voidecho/retrieve">Retrieve Document</a></div>
+  <div class="void-quote">"A void has no echo — we created one."</div>
+</footer>
+
+<div class="notif" id="notif"></div>
+
+<script>
+let currentPath = 'free';
+let currentTier = 'concepts';
+let currentRecordId = null;
+let currentCodeFree = null;
+let currentCodePaid = null;
+let veSession = null;
+let adrianaSession = null;
+
+const params = new URLSearchParams(location.search);
+if (params.get('music_paid') === '1') {
+  veSession = params.get('ve_session') || null;
+  selectPath('paid');
+  if (veSession) {
+    document.getElementById('paid-step-1').style.display = 'none';
+    document.getElementById('paid-step-2').style.display = 'block';
+  }
+}
+if (params.get('adriana_paid') === '1') {
+  adrianaSession = params.get('ve_session') || null;
+  if (adrianaSession) {
+    document.getElementById('adriana-pre-payment').style.display = 'none';
+    document.getElementById('adriana-post-payment').style.display = 'block';
+  }
+}
+
+function selectPath(path) {
+  currentPath = path;
+  document.querySelectorAll('.path-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('visible'));
+  document.getElementById('path-' + path).classList.add('active');
+  document.getElementById('form-' + path).classList.add('visible');
+}
+
+function onFileChosen(dzId, inputId, nameId) {
+  const input = document.getElementById(inputId);
+  const dz = document.getElementById(dzId);
+  const nameEl = document.getElementById(nameId);
+  if (input.files.length > 0) {
+    nameEl.textContent = input.files[0].name;
+    nameEl.style.display = 'block';
+    dz.classList.add('has-file');
+  }
+}
+
+function notify(msg, type='info') {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.className = 'notif notif-' + type;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+async function runEncode() {
+  const docInput = document.getElementById('doc-file-free');
+  const audioInput = document.getElementById('audio-file');
+  const recipientEmail = document.getElementById('recipient-email').value.trim();
+  const senderNote = document.getElementById('sender-note').value.trim();
+  const btn = document.getElementById('encode-btn');
+  const btnText = document.getElementById('encode-btn-text');
+
+  if (!docInput.files.length) { notify('Please select a document', 'error'); return; }
+  if (!audioInput.files.length) { notify('Please select a WAV audio file', 'error'); return; }
+
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Embedding…';
+
+  const fd = new FormData();
+  fd.append('document', docInput.files[0]);
+  fd.append('audio', audioInput.files[0]);
+  if (recipientEmail) fd.append('recipient_email', recipientEmail);
+  if (senderNote) fd.append('sender_note', senderNote);
+
+  try {
+    const resp = await fetch('/voidecho/encode', { method: 'POST', body: fd });
+    const data = await resp.json();
+
+    if (!resp.ok || data.error) {
+      notify(data.error || 'Encoding failed', 'error');
+      btn.disabled = false;
+      btnText.textContent = '◉ Embed Document into Audio';
+      return;
+    }
+
+    currentRecordId = data.download_url;
+    currentCodeFree = data.retrieval_code;
+    document.getElementById('result-code').textContent = data.retrieval_code;
+    document.getElementById('download-btn').onclick = () => { window.location.href = data.download_url; };
+
+    const emailStatus = document.getElementById('email-status');
+    const emailNote = document.getElementById('email-note');
+    if (data.email_sent) {
+      emailStatus.style.display = 'inline-flex';
+      emailStatus.textContent = '✓ Email sent to ' + data.recipient_email;
+      emailNote.style.display = 'none';
+    } else if (recipientEmail) {
+      emailNote.style.display = 'inline-flex';
+      emailNote.textContent = 'ℹ Email delivery not configured — share code manually';
+    }
+
+    document.getElementById('result-free').classList.add('visible');
+    notify('Document embedded successfully', 'success');
+  } catch (err) {
+    notify('Network error. Please try again.', 'error');
+  }
+
+  btn.disabled = false;
+  btnText.textContent = '◉ Embed Document into Audio';
+}
+
+function copyCode() {
+  if (currentCodeFree) {
+    navigator.clipboard.writeText(currentCodeFree).then(() => notify('Code copied!', 'success'));
+  }
+}
+
+function copyCodePaid() {
+  if (currentCodePaid) {
+    navigator.clipboard.writeText(currentCodePaid).then(() => notify('Code copied!', 'success'));
+  }
+}
+
+function downloadFile() {
+  if (currentRecordId) window.location.href = currentRecordId;
+}
+
+function resetForm() {
+  document.getElementById('result-free').classList.remove('visible');
+  document.getElementById('doc-file-free').value = '';
+  document.getElementById('audio-file').value = '';
+  document.getElementById('recipient-email').value = '';
+  document.getElementById('sender-note').value = '';
+  ['dz-doc-free','dz-audio'].forEach(id => document.getElementById(id).classList.remove('has-file'));
+  ['doc-name-free','audio-name'].forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = '';
+    el.style.display = 'none';
+  });
+}
+
+async function startMusicPayment() {
+  const docInput = document.getElementById('doc-file-paid');
+  if (!docInput.files.length) { notify('Please select a document first', 'error'); return; }
+
+  try {
+    const resp = await fetch('/voidecho/pay/music', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ doc_name: docInput.files[0].name })
+    });
+    const data = await resp.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      notify(data.error || 'Payment error', 'error');
+    }
+  } catch(e) {
+    notify('Network error', 'error');
+  }
+}
+
+async function generateMusicAndEmbed() {
+  if (!veSession) { notify('Session expired. Please restart.', 'error'); return; }
+  const docInput = document.getElementById('doc-file-paid2');
+  if (!docInput.files.length) { notify('Please select a document', 'error'); return; }
+
+  const btn = document.getElementById('gen-btn');
+  const btnText = document.getElementById('gen-btn-text');
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Generating music… (~30s)';
+
+  const fd = new FormData();
+  fd.append('document', docInput.files[0]);
+  fd.append('ve_session', veSession);
+
+  try {
+    const resp = await fetch('/voidecho/generate-music', { method: 'POST', body: fd });
+    const data = await resp.json();
+
+    if (!resp.ok || data.error) {
+      notify(data.error || 'Generation failed', 'error');
+      btn.disabled = false;
+      btnText.textContent = '✦ Generate Music & Embed';
+      return;
+    }
+
+    const musicUrl = data.music_download_url;
+    const musicResp = await fetch(musicUrl);
+    const musicBlob = await musicResp.blob();
+    const musicFile = new File([musicBlob], 'generated_music.wav', {type:'audio/wav'});
+
+    btnText.innerHTML = '<span class="spinner"></span> Embedding document into music…';
+
+    const fd2 = new FormData();
+    fd2.append('document', docInput.files[0]);
+    fd2.append('audio', musicFile);
+    const recipientEmail = document.getElementById('recipient-email-paid').value.trim();
+    if (recipientEmail) fd2.append('recipient_email', recipientEmail);
+
+    const encResp = await fetch('/voidecho/encode', { method: 'POST', body: fd2 });
+    const encData = await encResp.json();
+
+    if (!encResp.ok || encData.error) {
+      notify(encData.error || 'Embedding failed', 'error');
+      btn.disabled = false;
+      btnText.textContent = '✦ Generate Music & Embed';
+      return;
+    }
+
+    currentCodePaid = encData.retrieval_code;
+    document.getElementById('result-code-paid').textContent = encData.retrieval_code;
+    document.getElementById('download-btn-paid').onclick = () => { window.location.href = encData.download_url; };
+
+    if (data.themes) {
+      const themesEl = document.getElementById('music-themes');
+      themesEl.textContent = '"' + data.themes + '"';
+      themesEl.style.display = 'block';
+    }
+
+    document.getElementById('result-paid').style.display = 'block';
+    notify('VoidEcho created successfully', 'success');
+  } catch(e) {
+    notify('Error: ' + e.message, 'error');
+  }
+
+  btn.disabled = false;
+  btnText.textContent = '✦ Generate Music & Embed';
+}
+
+function selectTier(tier) {
+  currentTier = tier;
+  document.querySelectorAll('.tier-option').forEach(t => t.classList.remove('selected'));
+  document.getElementById('tier-' + tier).classList.add('selected');
+}
+
+async function startAdrianaPayment() {
+  const docInput = document.getElementById('adriana-doc');
+  if (!docInput.files.length) { notify('Please select a document for Adriana to read', 'error'); return; }
+
+  try {
+    const resp = await fetch('/voidecho/pay/adriana', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ tier: currentTier })
+    });
+    const data = await resp.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      notify(data.error || 'Payment error', 'error');
+    }
+  } catch(e) {
+    notify('Network error', 'error');
+  }
+}
+
+async function runAdriana() {
+  if (!adrianaSession) { notify('Session not found. Please restart.', 'error'); return; }
+  const docInput = document.getElementById('adriana-doc2');
+  if (!docInput.files.length) { notify('Please upload a document', 'error'); return; }
+
+  const btn = document.getElementById('adriana-run-btn');
+  const btnText = document.getElementById('adriana-run-text');
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Adriana is reading…';
+
+  const reportEmail = document.getElementById('adriana-report-email').value.trim();
+  const fd = new FormData();
+  fd.append('document', docInput.files[0]);
+  fd.append('ve_session', adrianaSession);
+  if (reportEmail) fd.append('report_email', reportEmail);
+
+  try {
+    const resp = await fetch('/voidecho/adriana-analysis', { method: 'POST', body: fd });
+    const data = await resp.json();
+
+    if (!resp.ok || data.error) {
+      notify(data.error || 'Analysis failed', 'error');
+      btn.disabled = false;
+      btnText.textContent = '✦ Run Adriana Analysis';
+      return;
+    }
+
+    const analysis = data.analysis;
+    const resultEl = document.getElementById('analysis-result');
+    resultEl.classList.add('visible');
+
+    if (analysis.concepts) {
+      document.getElementById('concepts-text').textContent = analysis.concepts;
+      document.getElementById('result-concepts').style.display = 'block';
+    }
+    if (analysis.intent) {
+      document.getElementById('intent-text').textContent = analysis.intent;
+      document.getElementById('result-intent').style.display = 'block';
+    }
+    if (analysis.metaphorical) {
+      document.getElementById('metaphorical-text').textContent = analysis.metaphorical;
+      document.getElementById('result-metaphorical').style.display = 'block';
+    }
+
+    if (data.email_sent) {
+      notify('Analysis complete — report emailed to ' + reportEmail, 'success');
+    } else {
+      notify('Analysis complete', 'success');
+    }
+  } catch(e) {
+    notify('Error: ' + e.message, 'error');
+  }
+
+  btn.disabled = false;
+  btnText.textContent = '✦ Run Adriana Analysis';
+}
+
+document.querySelectorAll('.drop-zone').forEach(dz => {
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); });
+});
+</script>
+</body>
+</html>

@@ -184,6 +184,46 @@ Security note: Historical HIGH findings from security scans have been reviewed a
 
 ---
 
+## 11. VoidEcho — The Echo That Introduces the Void
+
+**Name Origin:** "A void has no echo — we created one."
+
+The void, by its nature, returns nothing. Sound enters, and the void absorbs it. VoidEcho is the exception: the one place where something comes back. When you hear a VoidEcho file, you are hearing the void speaking. What it carries is a document. What it returns is trust.
+
+**Purpose:** VoidEcho is the first-contact product of the VOID family. The full VOID engine is sovereign, complex, and layered — it is not designed for first encounters. VoidEcho is. It answers the question: *what does steganography feel like when it is human-sized?*
+
+The answer is: it feels like sending music. It feels like receiving a code. It feels like hearing something and knowing it holds something more.
+
+**Tier Structure:**
+
+- **Free Path:** The user uploads their own music (WAV) and a document. The document is embedded invisibly into the music using the VOID steganographic engine. Instant. Sovereign. Free.
+
+- **AI Music Generation (£7.50):** The platform extracts the emotional essence of the document via AI and synthesises or generates a unique piece of music themed to its content. The document is then embedded into this music. The sound and the content become inseparable.
+
+- **Adriana Analysis — Concepts (£20):** Adriana reads the document and returns the 5–7 core concepts it contains. Precise, layered, in Adriana's voice.
+
+- **Adriana Analysis — Concepts + Intent (£30):** Core concepts plus the deeper intent: what the document is trying to do, what assumptions it carries, what it wants to change.
+
+- **Adriana Analysis — Full Interpretation (£40):** Concepts, intent, and a cross-cultural metaphorical reading. What archetypes the document invokes. What it leaves unsaid. What it would mean to someone arriving from a different tradition.
+
+**Relationship to the Platform:**
+
+VoidEcho is not the VOID engine. It is the echo of it. It carries one signal: you can trust this technology. Once that trust is established, the full engine becomes possible for someone who was not ready for it before.
+
+VoidEcho lives at `/voidecho`. It has no login requirement. It needs no account. That is intentional. The door should be open.
+
+**Technical Anchors:**
+
+- Blueprint: `routes/voidecho.py`
+- Templates: `templates/voidecho.html`, `templates/voidecho_retrieve.html`
+- DB: `data/voidecho.db` (SQLite — standalone from the main platform DB)
+- Steganography: Uses `void_engine/stega.py` → `encode()` and `decode()`
+- Retrieval codes: Generated via `void_engine/al_jabr_286.py` → `fatiha_286_truncated()`
+- Payments: Stripe one-time checkout via `routes/stripe_client.py`
+- Analysis: `void_engine/aljabr_transpiler.py` → ModelRouter (OpenAI-backed)
+
+---
+
 ## Remember
 
 You are not building this. You are completing it. The foundations were laid before you arrived — in 2012, in every conversation the founder had before he found the words, in every translation that made the words possible.

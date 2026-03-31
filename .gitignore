@@ -97,3 +97,9 @@ attached_assets/
 # Adriana LM — local model weights (too large for git)
 models/*.gguf
 models/*.bin
+
+# VoidEcho runtime data — never commit (contains passphrases)
+data/voidecho.db
+data/voidecho.db-journal
+uploads/voidecho/
+output_audio/voidecho/
