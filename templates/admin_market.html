@@ -367,6 +367,157 @@
             <p style="color: var(--text-dim);">No market configs found. Run the startup migration first.</p>
             {% endif %}
         </div>
+
+        <!-- VOIDECHO ADMIN SECTION -->
+        <div class="admin-section">
+            <div class="admin-section-title">VoidEcho — Ad Slot Configuration</div>
+            <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 16px;">
+                Configure the large panel ad slot shown to free-tier users on the VoidEcho page.
+                Leave blank for the default PROJECT VOID branded panel.
+            </p>
+            <div id="ve-ad-status" style="font-size:12px;color:var(--text-dim);margin-bottom:12px"></div>
+            <div style="display:grid;gap:12px;max-width:700px">
+                <div>
+                    <label style="display:block;color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Ad Image URL</label>
+                    <input type="url" id="ve-ad-image-url" class="edit-input" placeholder="https://..." style="width:100%">
+                </div>
+                <div>
+                    <label style="display:block;color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Ad Link URL (optional)</label>
+                    <input type="url" id="ve-ad-link-url" class="edit-input" placeholder="https://..." style="width:100%">
+                </div>
+                <div>
+                    <label style="display:block;color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Ad Label / Caption (optional)</label>
+                    <input type="text" id="ve-ad-label" class="edit-input" placeholder="Sponsored" style="width:300px">
+                </div>
+                <div>
+                    <label style="display:block;color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Embed HTML (alternative to image URL)</label>
+                    <textarea id="ve-ad-embed-html" class="edit-input" style="width:100%;height:80px;font-family:monospace;font-size:12px" placeholder="<iframe ...></iframe>"></textarea>
+                </div>
+                <div>
+                    <button class="save-btn" onclick="saveVoidEchoAdConfig()">Save Ad Config</button>
+                    <button class="save-btn" onclick="clearVoidEchoAdConfig()" style="background:#6b6b8a;margin-left:8px">Clear / Reset to Default</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VOIDECHO DUST TRACKER -->
+        <div class="admin-section">
+            <div class="admin-section-title">VoidEcho — Settlement Dust Accumulator</div>
+            <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 16px;">
+                VTX gift transactions are settled to 6 decimal places. The sub-6-decimal remainder is accumulated below.
+                This is disclosed to users as the "settlement precision standard."
+            </p>
+            <button class="save-btn" onclick="loadDustData()">Load Dust Stats</button>
+            <div id="dust-stats" style="margin-top:16px;display:none">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:500px">
+                    <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px">
+                        <div style="color:var(--text-dim);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Total Dust Accumulated</div>
+                        <div id="dust-total" style="font-size:20px;font-weight:700;color:#d4a853;font-family:monospace">—</div>
+                        <div style="color:var(--text-dim);font-size:11px;margin-top:4px">VTX</div>
+                    </div>
+                    <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px">
+                        <div style="color:var(--text-dim);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Total Gift Transactions</div>
+                        <div id="dust-count" style="font-size:20px;font-weight:700;font-family:monospace">—</div>
+                        <div style="color:var(--text-dim);font-size:11px;margin-top:4px">gifts processed</div>
+                    </div>
+                </div>
+                <div style="margin-top:16px">
+                    <div style="color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Recent Gifts</div>
+                    <table class="admin-table" style="max-width:800px">
+                        <thead>
+                            <tr>
+                                <th>Transmission</th>
+                                <th>Sender</th>
+                                <th>Raw VTX</th>
+                                <th>Settled VTX</th>
+                                <th>Dust</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dust-gifts-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        </div>
     </div>
 </body>
+<script>
+async function loadVoidEchoAdConfig() {
+    try {
+        const resp = await fetch('/voidecho/admin/ad-config');
+        if (!resp.ok) return;
+        const data = await resp.json();
+        document.getElementById('ve-ad-image-url').value = data.ad_image_url || '';
+        document.getElementById('ve-ad-link-url').value = data.ad_link_url || '';
+        document.getElementById('ve-ad-label').value = data.ad_label || '';
+        document.getElementById('ve-ad-embed-html').value = data.ad_embed_html || '';
+    } catch(e) {}
+}
+
+async function saveVoidEchoAdConfig() {
+    const statusEl = document.getElementById('ve-ad-status');
+    statusEl.textContent = 'Saving…';
+    try {
+        const resp = await fetch('/voidecho/admin/ad-config', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                ad_image_url: document.getElementById('ve-ad-image-url').value,
+                ad_link_url: document.getElementById('ve-ad-link-url').value,
+                ad_label: document.getElementById('ve-ad-label').value,
+                ad_embed_html: document.getElementById('ve-ad-embed-html').value,
+            })
+        });
+        const data = await resp.json();
+        statusEl.style.color = data.success ? 'var(--success, #4ade80)' : 'var(--error, #f87171)';
+        statusEl.textContent = data.success ? '✓ Ad config saved — takes effect on next page load' : (data.error || 'Save failed');
+    } catch(e) {
+        statusEl.style.color = 'var(--error, #f87171)';
+        statusEl.textContent = 'Error: ' + e.message;
+    }
+}
+
+async function clearVoidEchoAdConfig() {
+    document.getElementById('ve-ad-image-url').value = '';
+    document.getElementById('ve-ad-link-url').value = '';
+    document.getElementById('ve-ad-label').value = '';
+    document.getElementById('ve-ad-embed-html').value = '';
+    await saveVoidEchoAdConfig();
+}
+
+async function loadDustData() {
+    try {
+        const resp = await fetch('/voidecho/admin/dust');
+        if (!resp.ok) {
+            alert('Failed to load dust data: ' + resp.status);
+            return;
+        }
+        const data = await resp.json();
+        document.getElementById('dust-stats').style.display = 'block';
+        const d = data.dust_accumulator || {};
+        document.getElementById('dust-total').textContent = d.total_dust || '0.0000000000';
+        document.getElementById('dust-count').textContent = d.gift_count || 0;
+        const tbody = document.getElementById('dust-gifts-table');
+        tbody.innerHTML = '';
+        (data.recent_gifts || []).forEach(g => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-family:monospace;font-size:11px">${g.transmission_id.slice(0,12)}…</td>
+                <td style="font-size:12px">${g.sender_vtx_address || 'anon'}</td>
+                <td style="font-family:monospace;font-size:12px">${parseFloat(g.amount_raw).toFixed(6)}</td>
+                <td style="font-family:monospace;font-size:12px;color:#4ade80">${g.amount_settled}</td>
+                <td style="font-family:monospace;font-size:11px;color:#d4a853">${parseFloat(g.dust_amount).toFixed(10)}</td>
+                <td style="font-size:11px;color:var(--text-dim)">${(g.created_at||'').slice(0,16)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch(e) {
+        alert('Error loading dust data: ' + e.message);
+    }
+}
+
+loadVoidEchoAdConfig();
+</script>
 </html>

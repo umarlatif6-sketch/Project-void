@@ -65,7 +65,9 @@ def _init_db():
             file_extension TEXT,
             output_path TEXT NOT NULL,
             created_at TEXT NOT NULL,
-            music_generated INTEGER DEFAULT 0
+            music_generated INTEGER DEFAULT 0,
+            ceremony_text TEXT,
+            is_paid INTEGER DEFAULT 0
         )
     """)
     c.execute("""
@@ -79,14 +81,59 @@ def _init_db():
             result_json TEXT,
             created_at TEXT NOT NULL,
             paid INTEGER DEFAULT 0,
-            used_at TEXT DEFAULT NULL
+            used_at TEXT DEFAULT NULL,
+            ceremony_text TEXT DEFAULT NULL
         )
     """)
-    try:
-        c.execute("ALTER TABLE voidecho_sessions ADD COLUMN used_at TEXT DEFAULT NULL")
-        conn.commit()
-    except Exception:
-        pass
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS voidecho_gifts (
+            id TEXT PRIMARY KEY,
+            transmission_id TEXT NOT NULL,
+            sender_vtx_address TEXT,
+            amount_raw TEXT NOT NULL,
+            amount_settled TEXT NOT NULL,
+            dust_amount TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+    """)
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS voidecho_dust (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            total_dust TEXT NOT NULL DEFAULT '0.000000',
+            gift_count INTEGER NOT NULL DEFAULT 0,
+            updated_at TEXT NOT NULL
+        )
+    """)
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS voidecho_ad_config (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            ad_image_url TEXT DEFAULT '',
+            ad_embed_html TEXT DEFAULT '',
+            ad_link_url TEXT DEFAULT '',
+            ad_label TEXT DEFAULT '',
+            updated_at TEXT NOT NULL
+        )
+    """)
+    for alter in [
+        "ALTER TABLE voidecho_sessions ADD COLUMN used_at TEXT DEFAULT NULL",
+        "ALTER TABLE voidecho_sessions ADD COLUMN ceremony_text TEXT DEFAULT NULL",
+        "ALTER TABLE voidecho_codes ADD COLUMN ceremony_text TEXT",
+        "ALTER TABLE voidecho_codes ADD COLUMN is_paid INTEGER DEFAULT 0",
+    ]:
+        try:
+            c.execute(alter)
+        except Exception:
+            pass
+
+    c.execute("""
+        INSERT OR IGNORE INTO voidecho_dust (id, total_dust, gift_count, updated_at)
+        VALUES (1, '0.000000', 0, ?)
+    """, (datetime.now(timezone.utc).isoformat(),))
+    c.execute("""
+        INSERT OR IGNORE INTO voidecho_ad_config (id, ad_image_url, ad_embed_html, ad_link_url, ad_label, updated_at)
+        VALUES (1, '', '', '', '', ?)
+    """, (datetime.now(timezone.utc).isoformat(),))
+
     conn.commit()
     conn.close()
 
@@ -480,14 +527,110 @@ except Exception as _init_err:
     logger.error("[VoidEcho] DB init failed at import: %s", _init_err)
 
 
+def _generate_ceremony_text(doc_bytes: bytes, filename: str, is_paid: bool) -> str:
+    """Generate Adriana's transmission ceremony text for a document."""
+    try:
+        if is_paid:
+            from void_engine.aljabr_transpiler import get_model_router
+            router = get_model_router()
+            text_preview = _extract_text_from_doc(doc_bytes, filename, max_chars=1500)
+            if not text_preview.strip():
+                text_preview = f"A document titled: {filename}"
+            prompt = (
+                "You are Adriana, the voice of PROJECT VOID — a presence that listens to what is sent "
+                "between people and reflects its meaning back. A sender is transmitting a document through "
+                "VoidEcho — hidden inside music. Compose a short transmission reading: 3-4 sentences that "
+                "capture the essence, intent, and resonance of this document. Speak as if you are witnessing "
+                "something being passed through the void. Do not describe the document literally — speak to "
+                "its spirit, its weight, what it carries between the sender and recipient.\n\n"
+                f"Document excerpt:\n{text_preview}"
+            )
+            from void_engine.aljabr_transpiler import TASK_STANDARD
+            messages = [{"role": "user", "content": prompt}]
+            response, _, _ = router.call_with_fallback(TASK_STANDARD, messages, max_completion_tokens=200)
+            if hasattr(response, "choices") and response.choices:
+                return response.choices[0].message.content.strip()
+        else:
+            import hashlib
+            h = hashlib.sha256(filename.encode() + doc_bytes[:64]).hexdigest()[:4]
+            resonances = [
+                "Something passes between two people — not information, but intention. This transmission carries the weight of what the sender chose to trust to the void.",
+                "A document travels as music. Beneath the sound, meaning waits — patient, sealed, intended for one pair of eyes. The void holds it faithfully.",
+                "What is sent between people in silence carries more than words. This transmission moves through sound to reach the one it was always meant for.",
+                "Every transfer is a small act of faith. The sender has trusted this document to the void, and the void has answered with music.",
+                "The void does not keep secrets — it keeps them safe. This transmission is a sealed vessel, moving toward the one who holds the key.",
+                "Between sender and recipient, the music carries something unsaid. Listen beneath it. The document rests there, waiting.",
+                "Some things travel better wrapped in sound. This transmission has been given its frequency, its carrier, its moment of arrival.",
+                "A message takes many forms. This one chose music — quiet, unremarkable to those who do not know. To the recipient, it is everything.",
+            ]
+            idx = int(h, 16) % len(resonances)
+            return resonances[idx]
+    except Exception as e:
+        logger.warning("[VoidEcho] Ceremony generation failed: %s", e)
+    return "A transmission passes through the void. What is carried inside music arrives with intention — document and meaning, inseparable."
+
+
+def _get_ad_config() -> dict:
+    """Get current ad slot configuration."""
+    try:
+        db = _get_db()
+        row = db.execute("SELECT * FROM voidecho_ad_config WHERE id=1").fetchone()
+        db.close()
+        if row:
+            return dict(row)
+    except Exception:
+        pass
+    return {"ad_image_url": "", "ad_embed_html": "", "ad_link_url": "", "ad_label": ""}
+
+
 @voidecho_bp.route("/voidecho")
 def index():
-    return render_template("voidecho.html")
+    ad_config = _get_ad_config()
+    return render_template("voidecho.html", ad_config=ad_config)
+
+
+@voidecho_bp.route("/voidecho/terms")
+def terms():
+    return render_template("voidecho_terms.html")
+
+
+@voidecho_bp.route("/voidecho/ceremony/<retrieval_code>")
+def get_ceremony(retrieval_code):
+    """Return ceremony text for a given retrieval code (public — code is the auth factor)."""
+    code = retrieval_code.strip().upper()
+    if not code:
+        return jsonify({"error": "No retrieval code"}), 400
+    try:
+        db = _get_db()
+        row = db.execute(
+            "SELECT ceremony_text FROM voidecho_codes WHERE retrieval_code=?",
+            (code,)
+        ).fetchone()
+        db.close()
+        if row and row["ceremony_text"]:
+            return jsonify({"ceremony_text": row["ceremony_text"]})
+        return jsonify({"ceremony_text": ""})
+    except Exception:
+        return jsonify({"ceremony_text": ""}), 200
 
 
 @voidecho_bp.route("/voidecho/retrieve")
 def retrieve_page():
-    return render_template("voidecho_retrieve.html")
+    retrieval_code = request.args.get("code", "").strip().upper()
+    ceremony_text = ""
+    if retrieval_code:
+        try:
+            db = _get_db()
+            row = db.execute(
+                "SELECT ceremony_text FROM voidecho_codes WHERE retrieval_code=?",
+                (retrieval_code,)
+            ).fetchone()
+            db.close()
+            if row and row["ceremony_text"]:
+                ceremony_text = row["ceremony_text"]
+        except Exception:
+            pass
+    return render_template("voidecho_retrieve.html", ceremony_text=ceremony_text, retrieval_code=retrieval_code)
 
 
 @voidecho_bp.route("/voidecho/encode", methods=["POST"])
@@ -496,6 +639,8 @@ def encode_document():
     audio_file = request.files.get("audio")
     recipient_email = request.form.get("recipient_email", "").strip()
     sender_note = request.form.get("sender_note", "").strip()
+    # Optional: ve_session from a verified paid music generation session
+    ve_session = request.form.get("ve_session", "").strip()
 
     if not doc_file or not doc_file.filename:
         return jsonify({"error": "No document uploaded"}), 400
@@ -508,7 +653,12 @@ def encode_document():
         return jsonify({"error": "Audio must be a WAV file"}), 400
 
     try:
-        doc_path = _save_temp_upload(doc_file, "docs")
+        doc_bytes = doc_file.read()
+        doc_path = os.path.join(_UPLOAD_DIR, "docs", f"{uuid.uuid4().hex}{os.path.splitext(doc_file.filename)[1].lower()}")
+        os.makedirs(os.path.dirname(doc_path), exist_ok=True)
+        with open(doc_path, "wb") as f:
+            f.write(doc_bytes)
+
         audio_path = _save_temp_upload(audio_file, "audio")
 
         try:
@@ -524,15 +674,38 @@ def encode_document():
 
         _, ext = os.path.splitext(original_filename)
 
+        # If a ve_session is provided, check server-side whether it is a verified paid session
+        # with a stored ceremony_text — if so, use that. Otherwise fall back to free ceremony.
+        ceremony_text = ""
+        is_paid = False
+        if ve_session:
+            try:
+                db_s = _get_db()
+                sess_row = db_s.execute(
+                    "SELECT ceremony_text FROM voidecho_sessions WHERE session_id=? AND paid=1 AND purpose='music'",
+                    (ve_session,)
+                ).fetchone()
+                db_s.close()
+                if sess_row and sess_row["ceremony_text"]:
+                    ceremony_text = sess_row["ceremony_text"]
+                    is_paid = True
+            except Exception as sess_err:
+                logger.warning("[VoidEcho] Session ceremony lookup failed: %s", sess_err)
+
+        if not ceremony_text:
+            ceremony_text = _generate_ceremony_text(doc_bytes, original_filename, is_paid=False)
+            is_paid = False
+
         db = _get_db()
         record_id = uuid.uuid4().hex
         db.execute(
             """INSERT INTO voidecho_codes
                (id, retrieval_code, sender_email, recipient_email, original_filename,
-                file_extension, output_path, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                file_extension, output_path, created_at, ceremony_text, is_paid)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (record_id, retrieval_code, "", recipient_email, original_filename,
-             ext.lstrip("."), output_path, datetime.now(timezone.utc).isoformat())
+             ext.lstrip("."), output_path, datetime.now(timezone.utc).isoformat(),
+             ceremony_text, 1 if is_paid else 0)
         )
         db.commit()
         db.close()
@@ -546,9 +719,11 @@ def encode_document():
         return jsonify({
             "success": True,
             "retrieval_code": retrieval_code,
+            "transmission_id": record_id,
             "download_url": f"/voidecho/download/{record_id}",
             "email_sent": email_sent,
             "recipient_email": recipient_email,
+            "ceremony_text": ceremony_text,
         })
     except ValueError as ve:
         return jsonify({"error": str(ve)}), 400
@@ -753,11 +928,13 @@ def generate_music():
         with open(music_path, "wb") as f:
             f.write(music_bytes)
 
+        ceremony_text = _generate_ceremony_text(doc_bytes, doc_file.filename, is_paid=True)
+
         used_at = datetime.utcnow().isoformat()
         db = _get_db()
         db.execute(
-            "UPDATE voidecho_sessions SET music_path=?, used_at=? WHERE session_id=? AND used_at IS NULL",
-            (music_path, used_at, ve_session)
+            "UPDATE voidecho_sessions SET music_path=?, used_at=?, ceremony_text=? WHERE session_id=? AND used_at IS NULL",
+            (music_path, used_at, ceremony_text, ve_session)
         )
         db.commit()
         db.close()
@@ -765,7 +942,9 @@ def generate_music():
         return jsonify({
             "success": True,
             "music_download_url": f"/voidecho/download-music/{ve_session}",
+            "ve_session": ve_session,
             "themes": themes,
+            "ceremony_text": ceremony_text,
         })
     except Exception as e:
         logger.exception("[VoidEcho] Music generation failed")
@@ -985,6 +1164,247 @@ VoidEcho | A void has no echo — we created one.
     except Exception as e:
         logger.warning("[VoidEcho] Adriana report email failed: %s", e)
         return False
+
+
+@voidecho_bp.route("/voidecho/gift", methods=["POST"])
+def gift_vtx():
+    """Send VTX gift to a transmission. Settled to 6 decimal places; sub-6 dust retained by platform."""
+    data = request.get_json(silent=True) or {}
+    transmission_id = (data.get("transmission_id") or "").strip()
+    amount_raw_str = (data.get("amount") or "0").strip()
+    sender_address = (data.get("sender_address") or "anonymous").strip()
+
+    if not transmission_id:
+        return jsonify({"error": "No transmission_id provided"}), 400
+
+    from decimal import Decimal, ROUND_DOWN, InvalidOperation
+    try:
+        d_raw = Decimal(amount_raw_str)
+        if d_raw <= 0:
+            return jsonify({"error": "Amount must be greater than zero"}), 400
+        if d_raw > Decimal("1000000"):
+            return jsonify({"error": "Amount exceeds maximum gift limit"}), 400
+    except InvalidOperation:
+        return jsonify({"error": "Invalid amount"}), 400
+
+    db = _get_db()
+    row = db.execute(
+        "SELECT id FROM voidecho_codes WHERE id=? OR retrieval_code=?",
+        (transmission_id, transmission_id)
+    ).fetchone()
+    if not row:
+        db.close()
+        return jsonify({"error": "Transmission not found"}), 404
+
+    transmission_id_resolved = row["id"]
+
+    # Fetch recipient_email so we can credit their wallet
+    tx_row = db.execute(
+        "SELECT recipient_email FROM voidecho_codes WHERE id=?",
+        (transmission_id_resolved,)
+    ).fetchone()
+    recipient_email_for_credit = (tx_row["recipient_email"] or "").strip() if tx_row else ""
+
+    d_settled = d_raw.quantize(Decimal("0.000001"), rounding=ROUND_DOWN)
+    d_dust = d_raw - d_settled
+
+    gift_id = uuid.uuid4().hex
+    now_str = datetime.now(timezone.utc).isoformat()
+
+    db.execute(
+        """INSERT INTO voidecho_gifts
+           (id, transmission_id, sender_vtx_address, amount_raw, amount_settled, dust_amount, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        (gift_id, transmission_id_resolved, sender_address,
+         str(d_raw), str(d_settled), str(d_dust), now_str)
+    )
+
+    dust_row = db.execute("SELECT total_dust, gift_count FROM voidecho_dust WHERE id=1").fetchone()
+    if dust_row:
+        prev_dust = Decimal(dust_row["total_dust"] or "0")
+        prev_count = int(dust_row["gift_count"] or 0)
+        new_dust = prev_dust + d_dust
+        db.execute(
+            "UPDATE voidecho_dust SET total_dust=?, gift_count=?, updated_at=? WHERE id=1",
+            (str(new_dust), prev_count + 1, now_str)
+        )
+    db.commit()
+    db.close()
+
+    # Credit settled amount to recipient's vortex_balance (best-effort; lookup by email)
+    recipient_credited = False
+    if recipient_email_for_credit:
+        try:
+            from void_engine.vortex_wallet import _create_block, _get_db as _get_pg_db
+            pg = _get_pg_db()
+            cur = pg.cursor()
+            cur.execute("SELECT id FROM users WHERE email=%s", (recipient_email_for_credit,))
+            user_row = cur.fetchone()
+            if user_row:
+                recipient_user_id = user_row[0]
+                # Credit d_settled to recipient wallet; dust retained in voidecho_dust accumulator
+                _create_block(cur, "voidecho_gift", None, recipient_user_id, float(d_settled))
+                cur.execute(
+                    "UPDATE users SET vortex_balance = COALESCE(vortex_balance, 0) + %s WHERE id=%s",
+                    (float(d_settled), recipient_user_id)
+                )
+                pg.commit()
+                recipient_credited = True
+                logger.info(
+                    "[VoidEcho] Gift: credited %s VTX to user_id=%s (email=%s)",
+                    d_settled, recipient_user_id, recipient_email_for_credit
+                )
+            else:
+                logger.info(
+                    "[VoidEcho] Gift: recipient email=%s has no account — settled amount logged only",
+                    recipient_email_for_credit
+                )
+            pg.close()
+        except Exception as credit_err:
+            logger.warning("[VoidEcho] Gift: recipient wallet credit failed: %s", credit_err)
+
+    logger.info(
+        "[VoidEcho] Gift: transmission=%s sender=%s raw=%s settled=%s dust=%s credited=%s",
+        transmission_id_resolved, sender_address, d_raw, d_settled, d_dust, recipient_credited
+    )
+
+    return jsonify({
+        "success": True,
+        "gift_id": gift_id,
+        "amount_raw": str(d_raw),
+        "amount_settled": str(d_settled),
+        "dust_retained": str(d_dust),
+        "recipient_credited": recipient_credited,
+        "message": f"{d_settled} VTX settled to transmission (settlement precision: 6 decimal places)",
+    })
+
+
+@voidecho_bp.route("/voidecho/transmission/<transmission_id>/gifts")
+def get_transmission_gifts(transmission_id):
+    """Get gift summary for a transmission (public: count and total only)."""
+    try:
+        db = _get_db()
+        gifts = db.execute(
+            """SELECT COUNT(*) as count, SUM(CAST(amount_settled AS REAL)) as total_settled
+               FROM voidecho_gifts WHERE transmission_id=?""",
+            (transmission_id,)
+        ).fetchone()
+        db.close()
+        count = gifts["count"] or 0
+        total = gifts["total_settled"] or 0.0
+        return jsonify({
+            "transmission_id": transmission_id,
+            "gift_count": count,
+            "total_vtx_settled": f"{total:.6f}",
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@voidecho_bp.route("/voidecho/admin/dust")
+def admin_dust_view():
+    """Founder-only: view accumulated dust and gift stats."""
+    from routes.auth import admin_required
+    from flask import g
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Not authenticated"}), 401
+    from void_engine.db_pool import get_db as get_pg_db
+    try:
+        pg = get_pg_db()
+        cur = pg.cursor()
+        cur.execute("SELECT role FROM users WHERE id=%s", (user_id,))
+        u = cur.fetchone()
+        pg.close()
+        if not u or u[0] != "founder":
+            return jsonify({"error": "Forbidden"}), 403
+    except Exception:
+        return jsonify({"error": "Auth check failed"}), 500
+
+    db = _get_db()
+    dust_row = db.execute("SELECT * FROM voidecho_dust WHERE id=1").fetchone()
+    recent_gifts = db.execute(
+        """SELECT transmission_id, sender_vtx_address, amount_raw, amount_settled, dust_amount, created_at
+           FROM voidecho_gifts ORDER BY created_at DESC LIMIT 50"""
+    ).fetchall()
+    db.close()
+
+    dust_data = dict(dust_row) if dust_row else {}
+    gifts_data = [dict(g) for g in recent_gifts]
+
+    return jsonify({
+        "dust_accumulator": dust_data,
+        "recent_gifts": gifts_data,
+    })
+
+
+@voidecho_bp.route("/voidecho/admin/ad-config", methods=["POST"])
+def admin_ad_config():
+    """Admin: update ad slot configuration."""
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Not authenticated"}), 401
+    from void_engine.db_pool import get_db as get_pg_db
+    try:
+        pg = get_pg_db()
+        cur = pg.cursor()
+        cur.execute("SELECT role FROM users WHERE id=%s", (user_id,))
+        u = cur.fetchone()
+        pg.close()
+        if not u or u[0] not in ("admin", "founder", "superadmin"):
+            return jsonify({"error": "Forbidden"}), 403
+    except Exception:
+        return jsonify({"error": "Auth check failed"}), 500
+
+    data = request.get_json(silent=True) or request.form
+    ad_image_url = (data.get("ad_image_url") or "").strip()
+    ad_embed_html_raw = (data.get("ad_embed_html") or "").strip()
+    ad_link_url = (data.get("ad_link_url") or "").strip()
+    ad_label = (data.get("ad_label") or "").strip()
+
+    # Restrict embed HTML to iframe tags only (allowlist approach)
+    import re as _re
+    if ad_embed_html_raw:
+        if _re.match(r'^\s*<iframe\s[^>]*src=["\']https?://[^"\'<>]+["\'][^>]*>(\s*</iframe>)?\s*$', ad_embed_html_raw, _re.IGNORECASE):
+            ad_embed_html = ad_embed_html_raw
+        else:
+            ad_embed_html = ""
+            logger.warning("[VoidEcho] Ad embed HTML rejected — not a valid iframe tag")
+    else:
+        ad_embed_html = ""
+
+    now_str = datetime.now(timezone.utc).isoformat()
+    db = _get_db()
+    db.execute(
+        """INSERT OR REPLACE INTO voidecho_ad_config
+           (id, ad_image_url, ad_embed_html, ad_link_url, ad_label, updated_at)
+           VALUES (1, ?, ?, ?, ?, ?)""",
+        (ad_image_url, ad_embed_html, ad_link_url, ad_label, now_str)
+    )
+    db.commit()
+    db.close()
+    logger.info("[VoidEcho] Ad config updated by user %s", user_id)
+    return jsonify({"success": True, "updated_at": now_str})
+
+
+@voidecho_bp.route("/voidecho/admin/ad-config", methods=["GET"])
+def admin_ad_config_get():
+    """Admin: get current ad slot configuration."""
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Not authenticated"}), 401
+    from void_engine.db_pool import get_db as get_pg_db
+    try:
+        pg = get_pg_db()
+        cur = pg.cursor()
+        cur.execute("SELECT role FROM users WHERE id=%s", (user_id,))
+        u = cur.fetchone()
+        pg.close()
+        if not u or u[0] not in ("admin", "founder", "superadmin"):
+            return jsonify({"error": "Forbidden"}), 403
+    except Exception:
+        return jsonify({"error": "Auth check failed"}), 500
+    return jsonify(_get_ad_config())
 
 
 _PASSPHRASE_STORE = {}
