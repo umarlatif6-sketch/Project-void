@@ -344,7 +344,7 @@ def agent_send_message(agent_id: int):
 @mesa_bp.route("/mesa-village/messages/<int:message_id>/translate", methods=["POST"])
 @login_required
 def message_translate(message_id: int):
-    from void_engine.mesa_engine import purchase_message_translation
+    from void_engine.mesa_engine import purchase_message_translation, get_agent_slot
     user_id = session.get("user_id")
     if not user_id:
         return redirect("/mesa-village")
@@ -354,6 +354,10 @@ def message_translate(message_id: int):
         redirect_agent_id = int(redirect_agent_id)
     except (ValueError, TypeError):
         return redirect("/mesa-village")
+
+    agent_slot = get_agent_slot(redirect_agent_id)
+    if not agent_slot or not (agent_slot.get("owner") and agent_slot["owner"]["user_id"] == user_id):
+        return redirect("/mesa-village/agents")
 
     result = purchase_message_translation(message_id, user_id)
     if result.get("ok"):
