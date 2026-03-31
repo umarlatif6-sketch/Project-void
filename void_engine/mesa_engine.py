@@ -1622,8 +1622,9 @@ def _msg_decrypt(ciphertext: str) -> str:
     """Decrypt a Fernet token produced by _msg_encrypt.
 
     Returns ``[decryption error]`` on ``InvalidToken`` (wrong key, tampered
-    ciphertext) or ``[encoding error]`` if the result is not valid UTF-8.
-    Other unexpected errors are re-raised so they appear in logs.
+    ciphertext) or any other crypto failure, and ``[encoding error]`` if the
+    result is not valid UTF-8.  All failure branches return a sentinel string
+    so callers can safely display the result without additional checks.
     """
     from cryptography.fernet import Fernet, InvalidToken
     try:

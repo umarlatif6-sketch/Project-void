@@ -370,7 +370,10 @@ def message_translate(message_id: int):
 @login_required
 def api_mesa_recipients():
     from void_engine.mesa_engine import get_all_claimed_agents
-    agents = get_all_claimed_agents()
+    agents = [
+        {k: v for k, v in a.items() if k != "user_id"}
+        for a in get_all_claimed_agents()
+    ]
     return jsonify({"ok": True, "agents": agents}), 200
 
 
