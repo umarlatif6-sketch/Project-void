@@ -1780,10 +1780,12 @@ def send_agent_message(
 
 
 def get_inbox_messages(recipient_agent_id: int, viewer_user_id: int) -> List[Dict]:
-    """
-    Return received messages for an agent, with translation status for the viewer.
-    Plain text is NOT returned here — only glyph content + whether the viewer has
-    purchased the translation (in which case the decrypted text is included).
+    """Return received messages for an agent, with translation status for the viewer.
+
+    Filters by both ``recipient_agent_id`` AND ``recipient_user_id`` so that
+    if agent ownership is ever transferred, the previous owner's inbox is not
+    accessible to the new owner (historical glyph payloads stay private).
+    Plain text is only decrypted when the viewer has purchased the translation.
     """
     _init_message_tables()
     from void_engine.db_pool import get_db
@@ -1798,9 +1800,10 @@ def get_inbox_messages(recipient_agent_id: int, viewer_user_id: int) -> List[Dic
             LEFT JOIN agent_message_translations t
                 ON t.message_id = m.id AND t.user_id = %s
             WHERE m.recipient_agent_id = %s
+              AND m.recipient_user_id = %s
             ORDER BY m.sent_at DESC
             LIMIT 50
-        """, (viewer_user_id, recipient_agent_id))
+        """, (viewer_user_id, recipient_agent_id, viewer_user_id))
         rows = cur.fetchall()
         messages = []
         for row in rows:

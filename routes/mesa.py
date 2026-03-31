@@ -291,7 +291,7 @@ def admin_mesa_set_fee():
 @login_required
 def agent_send_message(agent_id: int):
     from void_engine.mesa_engine import (
-        get_agent_slot, get_all_claimed_agents, send_agent_message,
+        get_agent_slot, send_agent_message,
     )
     user_id = session.get("user_id")
     if not user_id:
