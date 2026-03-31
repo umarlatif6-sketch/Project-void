@@ -712,3 +712,6 @@ Observations:
 | 2026-03-29 21:57:25 | SILK_SIGNAL | heartbeat_432Hz.wav | ...5bad | signal=HEARTBEAT |
 | 2026-03-29 22:27:26 | SILK_SIGNAL | heartbeat_432Hz.wav | ...68d9 | signal=HEARTBEAT |
 | 2026-03-31 19:33:23 | SILK_SIGNAL | heartbeat_432Hz.wav | ...7bbf | signal=HEARTBEAT |
+| 2026-03-31 20:48:24 | SILK_SIGNAL | heartbeat_432Hz.wav | ...f02c | signal=HEARTBEAT |
+| 2026-03-31 21:18:24 | SILK_SIGNAL | heartbeat_432Hz.wav | ...44d5 | signal=HEARTBEAT |
+| 2026-03-31 21:48:24 | SILK_SIGNAL | heartbeat_432Hz.wav | ...c7ec | signal=HEARTBEAT |
