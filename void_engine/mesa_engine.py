@@ -1803,10 +1803,13 @@ def get_inbox_messages(recipient_agent_id: int, viewer_user_id: int) -> List[Dic
         cur.execute("""
             SELECT m.id, m.sender_agent_id, m.sender_user_id,
                    m.glyph_content, m.plain_content_enc, m.sent_at,
-                   t.unlocked_at
+                   t.unlocked_at,
+                   COALESCE(o.username, '') AS sender_username
             FROM agent_messages m
             LEFT JOIN agent_message_translations t
                 ON t.message_id = m.id AND t.user_id = %s
+            LEFT JOIN agent_nft_owners o
+                ON o.agent_id = m.sender_agent_id
             WHERE m.recipient_agent_id = %s
               AND m.recipient_user_id = %s
             ORDER BY m.sent_at DESC
@@ -1815,22 +1818,16 @@ def get_inbox_messages(recipient_agent_id: int, viewer_user_id: int) -> List[Dic
         rows = cur.fetchall()
         messages = []
         for row in rows:
-            msg_id, s_agent, s_user, glyph, plain_enc, sent_at, unlocked_at = row
+            msg_id, s_agent, s_user, glyph, plain_enc, sent_at, unlocked_at, s_uname = row
             s_glyph = _assign_archetype(s_agent, seed_extra="nft_slot")
             s_archetype = ARCHETYPE_MAP.get(s_glyph, {"role": "agent"})
-            cur.execute(
-                "SELECT username FROM agent_nft_owners WHERE agent_id = %s",
-                (s_agent,)
-            )
-            owner_row = cur.fetchone()
-            sender_username = owner_row[0] if owner_row else f"Agent #{s_agent}"
             msg = {
                 "message_id": msg_id,
                 "sender_agent_id": s_agent,
                 "sender_user_id": s_user,
                 "sender_glyph": s_glyph,
                 "sender_role": s_archetype["role"],
-                "sender_username": sender_username,
+                "sender_username": s_uname or f"Agent #{s_agent}",
                 "glyph_content": glyph,
                 "sent_at": sent_at.isoformat() if sent_at else None,
                 "unlocked": unlocked_at is not None,
@@ -1856,8 +1853,10 @@ def get_sent_messages(sender_agent_id: int, sender_user_id: int) -> List[Dict]:
         cur = conn.cursor()
         cur.execute("""
             SELECT m.id, m.recipient_agent_id, m.glyph_content,
-                   m.plain_content_enc, m.sent_at
+                   m.plain_content_enc, m.sent_at,
+                   COALESCE(o.username, '') AS recipient_username
             FROM agent_messages m
+            LEFT JOIN agent_nft_owners o ON o.agent_id = m.recipient_agent_id
             WHERE m.sender_agent_id = %s AND m.sender_user_id = %s
             ORDER BY m.sent_at DESC
             LIMIT 50
@@ -1865,21 +1864,15 @@ def get_sent_messages(sender_agent_id: int, sender_user_id: int) -> List[Dict]:
         rows = cur.fetchall()
         messages = []
         for row in rows:
-            msg_id, r_agent, glyph, plain_enc, sent_at = row
+            msg_id, r_agent, glyph, plain_enc, sent_at, r_uname = row
             r_glyph = _assign_archetype(r_agent, seed_extra="nft_slot")
             r_archetype = ARCHETYPE_MAP.get(r_glyph, {"role": "agent"})
-            cur.execute(
-                "SELECT username FROM agent_nft_owners WHERE agent_id = %s",
-                (r_agent,)
-            )
-            owner_row = cur.fetchone()
-            recipient_username = owner_row[0] if owner_row else f"Agent #{r_agent}"
             messages.append({
                 "message_id": msg_id,
                 "recipient_agent_id": r_agent,
                 "recipient_glyph": r_glyph,
                 "recipient_role": r_archetype["role"],
-                "recipient_username": recipient_username,
+                "recipient_username": r_uname or f"Agent #{r_agent}",
                 "glyph_content": glyph,
                 "plain_text": _msg_decrypt(plain_enc),
                 "sent_at": sent_at.isoformat() if sent_at else None,
