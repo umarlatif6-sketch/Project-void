@@ -255,3 +255,82 @@ class TestPurchaseTranslationAuth:
         )
         assert result["ok"] is False
         assert "insufficient" in result["error"].lower()
+
+
+class TestMessageTranslateRouteMapping:
+    """Tests for /mesa-village/messages/<id>/translate route redirect/error mapping."""
+
+    @pytest.fixture
+    def client(self):
+        from app import app as flask_app
+        flask_app.config["TESTING"] = True
+        flask_app.config["WTF_CSRF_ENABLED"] = False
+        with flask_app.test_client() as c:
+            yield c
+
+    def _login(self, client, user_id=44):
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["username"] = "adriana"
+            sess["role"] = "user"
+
+    def _owner_slot(self, agent_id, owner_user_id=44):
+        return {"agent_id": agent_id, "owner": {"user_id": owner_user_id, "username": "adriana"}}
+
+    def test_translate_success_redirects_with_message_id(self, client):
+        """Successful translation redirects to agent page with msg_translated param."""
+        self._login(client, user_id=44)
+        with patch("void_engine.mesa_engine.get_agent_slot", return_value=self._owner_slot(1, 44)), \
+             patch("void_engine.mesa_engine.purchase_message_translation", return_value={"ok": True}):
+            resp = client.post(
+                "/mesa-village/messages/42/translate",
+                data={"agent_id": "1"},
+                follow_redirects=False,
+            )
+        assert resp.status_code in (301, 302, 303)
+        loc = resp.headers.get("Location", "")
+        assert "msg_translated=42" in loc
+        assert "/mesa-village/agents/1" in loc
+
+    def test_translate_insufficient_peace_redirects(self, client):
+        """Insufficient PEACE error redirects with insufficient_peace error code."""
+        self._login(client, user_id=44)
+        with patch("void_engine.mesa_engine.get_agent_slot", return_value=self._owner_slot(1, 44)), \
+             patch("void_engine.mesa_engine.purchase_message_translation",
+                   return_value={"ok": False, "error": "Insufficient PEACE tokens."}):
+            resp = client.post(
+                "/mesa-village/messages/42/translate",
+                data={"agent_id": "1"},
+                follow_redirects=False,
+            )
+        assert resp.status_code in (301, 302, 303)
+        assert "msg_error=insufficient_peace" in resp.headers.get("Location", "")
+
+    def test_translate_not_your_message_redirects(self, client):
+        """Non-recipient gets not_your_message error code in redirect."""
+        self._login(client, user_id=44)
+        with patch("void_engine.mesa_engine.get_agent_slot", return_value=self._owner_slot(1, 44)), \
+             patch("void_engine.mesa_engine.purchase_message_translation",
+                   return_value={"ok": False, "error": "Not your message"}):
+            resp = client.post(
+                "/mesa-village/messages/42/translate",
+                data={"agent_id": "1"},
+                follow_redirects=False,
+            )
+        assert resp.status_code in (301, 302, 303)
+        assert "msg_error=not_your_message" in resp.headers.get("Location", "")
+
+    def test_translate_bad_agent_id_redirects_to_registry(self, client):
+        """Tampered/unowned agent_id redirects to registry without calling purchase."""
+        self._login(client, user_id=44)
+        unowned_slot = {"agent_id": 99, "owner": {"user_id": 77, "username": "other"}}
+        with patch("void_engine.mesa_engine.get_agent_slot", return_value=unowned_slot) as mock_slot, \
+             patch("void_engine.mesa_engine.purchase_message_translation") as mock_purchase:
+            resp = client.post(
+                "/mesa-village/messages/42/translate",
+                data={"agent_id": "99"},
+                follow_redirects=False,
+            )
+        assert resp.status_code in (301, 302, 303)
+        assert "/mesa-village/agents" in resp.headers.get("Location", "")
+        mock_purchase.assert_not_called()
