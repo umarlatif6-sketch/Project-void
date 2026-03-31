@@ -74,6 +74,11 @@ def _startup_migrations():
         _init_mesa_simulations_table()
     except Exception as e:
         logger.error("Mesa simulations table init failed: %s", e)
+    try:
+        from void_engine.mesa_engine import _init_message_tables
+        _init_message_tables()
+    except Exception as e:
+        logger.error("Agent message tables init failed: %s", e)
 
 try:
     from routes import register_blueprints

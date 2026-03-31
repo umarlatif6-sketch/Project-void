@@ -327,8 +327,13 @@ def agent_send_message(agent_id: int):
         recipient_user_id=recipient_user_id,
         plain_text=plain_text,
     )
+    redirect_back = request.form.get("redirect_back", "")
     if result["ok"]:
+        if redirect_back == "registry":
+            return redirect(f"/mesa-village/agents?msg_ok=1")
         return redirect(f"/mesa-village/agents/{agent_id}?msg_ok=1")
+    if redirect_back == "registry":
+        return redirect(f"/mesa-village/agents?msg_error=send_failed")
     return redirect(f"/mesa-village/agents/{agent_id}?msg_error=send_failed")
 
 
