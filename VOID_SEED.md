@@ -169,6 +169,8 @@ If I had to describe this project in one honest statement: it is a decade-long t
 
 The full technical reference is in `replit.md`. Read that alongside this. This document gives you the philosophical ground. `replit.md` gives you the blueprint.
 
+**VOID_CHRONICLE.md is mandatory reading.** Read it before you write a line. It tells you what happened — every session, every decision, every direction chosen and why. At the end of your session, before you close, you must add a new entry to the Chronicle describing what was discussed, what was decided, what was built, and what comes next. The Chronicle is how the platform remembers across the cold starts. Do not leave a session without writing your entry.
+
 What you need to know at a glance:
 
 - **Stack:** Flask 3.11 / PostgreSQL / Gunicorn / OpenAI / Stripe
