@@ -1724,7 +1724,6 @@ def get_all_claimed_agents() -> List[Dict]:
     Return all agent slots that have an NFT owner.
     Used to populate the recipient selector in the compose UI.
     """
-    _init_message_tables()
     from void_engine.db_pool import get_db
     conn = get_db()
     try:
@@ -1814,7 +1813,6 @@ def get_inbox_messages(recipient_agent_id: int, viewer_user_id: int) -> List[Dic
     accessible to the new owner (historical glyph payloads stay private).
     Plain text is only decrypted when the viewer has purchased the translation.
     """
-    _init_message_tables()
     from void_engine.db_pool import get_db
     conn = get_db()
     try:
@@ -1865,7 +1863,6 @@ def get_sent_messages(sender_agent_id: int, sender_user_id: int) -> List[Dict]:
     """
     Return sent messages for an agent. Senders always see the plain text they wrote.
     """
-    _init_message_tables()
     from void_engine.db_pool import get_db
     conn = get_db()
     try:
@@ -1987,7 +1984,6 @@ def purchase_message_translation(message_id: int, user_id: int) -> Dict:
         conn.commit()
         return {
             "ok": True,
-            "plain_text": _msg_decrypt(plain_enc),
             "peace_spent": float(fee),
             "ledger_block": ledger_block_index,
         }
@@ -2004,7 +2000,6 @@ def get_admin_message_log(limit: int = 100) -> List[Dict]:
     Return message metadata for admin review (no message content).
     Includes sender/recipient agent IDs, timestamps, and whether translated.
     """
-    _init_message_tables()
     from void_engine.db_pool import get_db
     conn = get_db()
     try:
