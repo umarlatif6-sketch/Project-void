@@ -1778,6 +1778,7 @@ def send_agent_message(
     multi-user access auditing and is more extensible than a denormalized flag.
     Returns {"ok": True, "message_id": id} or {"ok": False, "error": ...}.
     """
+    _init_message_tables()
     plain_text = plain_text.strip()
     if not plain_text:
         return {"ok": False, "error": "Message cannot be empty."}
@@ -1915,6 +1916,7 @@ def purchase_message_translation(message_id: int, user_id: int) -> Dict:
     Atomic: FOR UPDATE lock → idempotency check → balance check → debit → ledger
     block → insert translation record → commit.
     """
+    _init_message_tables()
     fee = get_translation_fee()
 
     from void_engine.db_pool import get_db
