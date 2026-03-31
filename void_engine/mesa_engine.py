@@ -1625,14 +1625,19 @@ def _msg_decrypt(ciphertext: str) -> str:
 def _text_to_glyph_chain(text: str) -> str:
     """Encode plain-English message text into an Adriana SCL glyph chain.
 
-    Produces a pipe-separated sequence of entity-condition-action triplets
-    using the same Adriana lexicon that AdrianaTranspiler consumes (adriana.lex).
-    The output format ``ENTITY-CONDITION-ACTION|ENTITY-CONDITION-ACTION|…``
-    is valid Adriana SCL v1.0 syntax (see adriana_transpiler.py).
-
+    Uses ``AdrianaLexicon`` (the same lexicon object that ``AdrianaTranspiler``
+    consumes at runtime) to populate the entity/condition/action symbol pools.
     Words are grouped into 3-word semantic chunks; each chunk is hashed with
-    SHA-256 to deterministically select one symbol per category from the lexicon.
-    Up to 8 triplets (24 words) are encoded.
+    SHA-256 to deterministically select one symbol per category.
+
+    Output format: ``ENTITY-CONDITION-ACTION|…`` (SCL v1.0 pipe-separated
+    triplet syntax, parseable by ``AdrianaTranspiler.transpile()``).
+
+    Note: The Adriana transpiler only decodes glyphs→commands; there is no
+    canonical inverse (text→glyph) path in the transpiler itself.  This function
+    implements that inverse direction by hashing semantic chunks against the live
+    lexicon — preserving Adriana's symbol vocabulary while extending the flow to
+    human-authored plain-text input.
     """
     entities, conditions, actions = _load_adriana_lexicon_pools()
     words = text.split()
@@ -1739,9 +1744,12 @@ def send_agent_message(
     recipient_user_id: int,
     plain_text: str,
 ) -> Dict:
-    """
-    Send a plain-English message from one agent-holder to another.
-    Stores the encrypted plain text and the Adriana glyph encoding.
+    """Send a plain-English message from one agent-holder to another.
+
+    Stores the encrypted plain text (via Fernet) and the Adriana glyph encoding.
+    Translation purchases are tracked in ``agent_message_translations`` (one row
+    per user per message) rather than a single boolean flag — this supports
+    multi-user access auditing and is more extensible than a denormalized flag.
     Returns {"ok": True, "message_id": id} or {"ok": False, "error": ...}.
     """
     _init_message_tables()
