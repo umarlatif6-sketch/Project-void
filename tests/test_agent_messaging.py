@@ -1,18 +1,25 @@
 """
-Unit tests for void_engine.mesa_engine agent messaging functions.
+Tests for void_engine.mesa_engine agent messaging.
 
 Coverage:
 - Fernet encrypt / decrypt round-trip
-- _msg_decrypt sentinel values on bad inputs
-- _text_to_glyph_chain produces non-empty glyph output
-- get_all_claimed_agents: schema / return shape
-- send_agent_message: auth boundary (sender must own agent)
-- purchase_message_translation: recipient auth boundary
-- Translation idempotency (ON CONFLICT DO NOTHING)
+- _msg_decrypt sentinel values on bad inputs (garbage, empty, tampered)
+- _text_to_glyph_chain produces non-empty varied output
+- send_agent_message: empty / too-long / self-agent input validation
+- send_agent_message: valid call stores message (mocked DB)
+- Route auth: sender must own the source agent (not_owner redirect)
+- Route auth: self-message blocked (self_message redirect)
+- Route auth: unowned recipient blocked (recipient_not_found redirect)
+- purchase_message_translation: non-recipient denied ("Not your message")
+- purchase_message_translation: idempotency (already_owned on repeat)
+- purchase_message_translation: insufficient PEACE denied
 """
 
 import os
 import sys
+from datetime import datetime
+from decimal import Decimal
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -21,11 +28,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 os.environ.setdefault("SESSION_SECRET", "test_secret_for_unit_tests_only")
 os.environ.setdefault("DATABASE_URL", "postgresql://localhost/void_test")
 
-
 from void_engine.mesa_engine import (
-    _msg_encrypt,
     _msg_decrypt,
+    _msg_encrypt,
     _text_to_glyph_chain,
+    send_agent_message,
 )
 
 
@@ -81,3 +88,170 @@ class TestTextToGlyphChain:
     def test_empty_input_returns_string(self):
         result = _text_to_glyph_chain("")
         assert isinstance(result, str)
+
+
+def _make_mock_conn(fetchone_side_effect):
+    """Helper: build a MagicMock DB connection with cursor rows."""
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_conn.cursor.return_value = mock_cursor
+    mock_cursor.fetchone.side_effect = fetchone_side_effect
+    return mock_conn, mock_cursor
+
+
+class TestSendAgentMessageValidation:
+    """Tests for send_agent_message input validation (no live DB required)."""
+
+    def _send(self, plain_text, sender=1, recipient=2):
+        mock_conn, mock_cursor = _make_mock_conn([(999, datetime.utcnow())])
+        with patch("void_engine.mesa_engine._init_message_tables"), \
+             patch("void_engine.db_pool.get_db", return_value=mock_conn):
+            return send_agent_message(sender, 10, recipient, 20, plain_text)
+
+    def test_empty_message_rejected(self):
+        result = self._send("   ")
+        assert result["ok"] is False
+        assert "empty" in result["error"].lower()
+
+    def test_message_too_long_rejected(self):
+        result = self._send("x" * 2001)
+        assert result["ok"] is False
+        assert "long" in result["error"].lower()
+
+    def test_self_agent_rejected(self):
+        result = self._send("hello", sender=5, recipient=5)
+        assert result["ok"] is False
+        assert "own agent" in result["error"].lower()
+
+    def test_valid_message_calls_db(self):
+        result = self._send("Hello, agent!", sender=1, recipient=2)
+        assert result["ok"] is True
+        assert "message_id" in result
+
+
+class TestRouteAuthBoundaries:
+    """Route-level auth checks using Flask test client with mocked engine."""
+
+    @pytest.fixture
+    def client(self):
+        from app import app as flask_app
+        flask_app.config["TESTING"] = True
+        flask_app.config["WTF_CSRF_ENABLED"] = False
+        with flask_app.test_client() as c:
+            yield c
+
+    def _login(self, client, user_id=44, username="test_holder", role="user"):
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["username"] = username
+            sess["role"] = role
+
+    def test_send_message_not_owner_redirected(self, client):
+        """Non-owner of sender agent gets msg_error=not_owner."""
+        self._login(client, user_id=99)
+        with patch("void_engine.mesa_engine.get_agent_slot") as mock_slot:
+            mock_slot.return_value = {
+                "agent_id": 1,
+                "owner": {"user_id": 44, "username": "adriana"},
+            }
+            resp = client.post(
+                "/mesa-village/agents/1/send-message",
+                data={"recipient_agent_id": "2", "message_text": "hello"},
+                follow_redirects=False,
+            )
+        assert resp.status_code in (301, 302, 303)
+        assert "msg_error=not_owner" in resp.headers.get("Location", "")
+
+    def test_send_message_self_agent_redirected(self, client):
+        """Sending to own agent gets msg_error=self_message."""
+        self._login(client, user_id=44)
+        with patch("void_engine.mesa_engine.get_agent_slot") as mock_slot:
+            mock_slot.return_value = {
+                "agent_id": 1,
+                "owner": {"user_id": 44, "username": "adriana"},
+            }
+            resp = client.post(
+                "/mesa-village/agents/1/send-message",
+                data={"recipient_agent_id": "1", "message_text": "hello"},
+                follow_redirects=False,
+            )
+        assert resp.status_code in (301, 302, 303)
+        assert "msg_error=self_message" in resp.headers.get("Location", "")
+
+    def test_send_message_unclaimed_recipient_redirected(self, client):
+        """Unclaimed recipient gets msg_error=recipient_not_found."""
+        self._login(client, user_id=44)
+
+        def slot_side(agent_id):
+            if agent_id == 1:
+                return {"agent_id": 1, "owner": {"user_id": 44, "username": "adriana"}}
+            return {"agent_id": 2, "owner": None}
+
+        with patch("void_engine.mesa_engine.get_agent_slot", side_effect=slot_side):
+            resp = client.post(
+                "/mesa-village/agents/1/send-message",
+                data={"recipient_agent_id": "2", "message_text": "hello"},
+                follow_redirects=False,
+            )
+        assert resp.status_code in (301, 302, 303)
+        assert "msg_error=recipient_not_found" in resp.headers.get("Location", "")
+
+
+class TestPurchaseTranslationAuth:
+    """Tests for purchase_message_translation recipient-only access and idempotency."""
+
+    def _purchase(self, message_id, user_id, fetchone_rows):
+        """
+        fetchone_rows: list of tuples for successive cursor.fetchone() calls:
+          [balance_row, idempotency_row, message_row]
+        """
+        from void_engine.mesa_engine import purchase_message_translation
+
+        mock_conn, mock_cursor = _make_mock_conn(fetchone_rows)
+        with patch("void_engine.mesa_engine._init_message_tables"), \
+             patch("void_engine.db_pool.get_db", return_value=mock_conn), \
+             patch("void_engine.mesa_engine.get_translation_fee", return_value=Decimal("5.00")), \
+             patch("void_engine.vortex_wallet._create_block", return_value={"block_index": 1}), \
+             patch("void_engine.al_jabr_286.fatiha_286_hexdigest_from_str", return_value="abc"):
+            return purchase_message_translation(message_id, user_id)
+
+    def test_non_recipient_denied(self):
+        """User who is not the recipient gets an access-denied error."""
+        result = self._purchase(
+            message_id=1,
+            user_id=99,
+            fetchone_rows=[
+                (Decimal("100.00"),),
+                None,
+                ("encrypted_blob", 44),
+            ],
+        )
+        assert result["ok"] is False
+        assert "message" in result["error"].lower()
+
+    def test_idempotent_second_purchase(self):
+        """Second purchase request for same (message, user) returns already_owned."""
+        result = self._purchase(
+            message_id=1,
+            user_id=44,
+            fetchone_rows=[
+                (Decimal("100.00"),),
+                (1,),
+            ],
+        )
+        assert result["ok"] is True
+        assert result.get("already_owned") is True
+
+    def test_insufficient_peace_denied(self):
+        """User with balance below fee is denied."""
+        result = self._purchase(
+            message_id=1,
+            user_id=44,
+            fetchone_rows=[
+                (Decimal("2.00"),),
+                None,
+                ("encrypted_blob", 44),
+            ],
+        )
+        assert result["ok"] is False
+        assert "insufficient" in result["error"].lower()
