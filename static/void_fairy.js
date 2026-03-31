@@ -938,6 +938,15 @@
         });
     }
 
+    function escHtml(s) {
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     function renderInlineHexFlower(hexStr, spec) {
         var container = document.getElementById('fairy-messages');
         if (!container) return;
@@ -1010,13 +1019,13 @@
         var truncHex = hexStr.length > 24 ? hexStr.slice(0, 12) + '...' + hexStr.slice(-8) : hexStr;
 
         card.innerHTML = '<div class="fairy-msg-bubble" style="padding:12px 14px;background:#0d0d0d;border:1px solid #1c1c1c;border-radius:6px;">' +
-            '<div style="font-size:0.58rem;letter-spacing:2px;color:#555;text-transform:uppercase;margin-bottom:8px;">⬡ Hex Flower — ' + truncHex + '</div>' +
+            '<div style="font-size:0.58rem;letter-spacing:2px;color:#555;text-transform:uppercase;margin-bottom:8px;">⬡ Hex Flower — ' + escHtml(truncHex) + '</div>' +
             '<div style="display:flex;align-items:center;gap:12px;">' +
                 svgParts.join('') +
                 '<div>' +
-                    '<div style="font-size:0.62rem;color:' + hColor + ';letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">⬡ ' + health + '</div>' +
+                    '<div style="font-size:0.62rem;color:' + hColor + ';letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">⬡ ' + escHtml(health) + '</div>' +
                     '<div style="margin-bottom:6px;">' + petalDots + '</div>' +
-                    '<div style="font-size:0.62rem;color:#666;line-height:1.6;">' + (spec.translation || '').slice(0, 120) + '</div>' +
+                    '<div style="font-size:0.62rem;color:#666;line-height:1.6;">' + escHtml((spec.translation || '').slice(0, 120)) + '</div>' +
                 '</div>' +
             '</div>' +
             '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #1c1c1c;">' +
