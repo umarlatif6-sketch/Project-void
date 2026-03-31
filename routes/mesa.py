@@ -376,10 +376,14 @@ def message_translate(message_id: int):
 @mesa_bp.route("/api/mesa/recipients")
 @login_required
 def api_mesa_recipients():
-    from void_engine.mesa_engine import get_all_claimed_agents
+    from void_engine.mesa_engine import get_all_claimed_agents, get_user_owned_agent
+    user_id = session.get("user_id")
+    owned = get_user_owned_agent(user_id) if user_id else None
+    own_agent_id = owned.get("agent_id") if owned else None
     agents = [
         {k: v for k, v in a.items() if k != "user_id"}
         for a in get_all_claimed_agents()
+        if a["agent_id"] != own_agent_id
     ]
     return jsonify({"ok": True, "agents": agents}), 200
 
