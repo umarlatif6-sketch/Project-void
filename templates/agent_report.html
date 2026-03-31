@@ -203,7 +203,7 @@
     {% if translate_error %}
     <div class="alert alert-error">
         {% if translate_error == "insufficient_peace" %}
-        ⚠ Insufficient PEACE tokens. You need {{ fee|int }} PEACE to unlock this translation. Earn more through Resonance, GriDul, or the Vortex Wallet.
+        ⚠ Insufficient PEACE tokens. You need {{ "%.2f"|format(fee) }} PEACE to unlock this translation. Earn more through Resonance, GriDul, or the Vortex Wallet.
         {% elif translate_error == "failed" %}
         ⚠ Translation purchase failed. Please try again.
         {% else %}
@@ -291,13 +291,13 @@
                 <div class="translate-fee-glyph">◈</div>
                 <div class="translate-fee-text">
                     <div class="translate-fee-label">Translation Fee</div>
-                    <div class="translate-fee-amount">{{ fee|int }} PEACE</div>
+                    <div class="translate-fee-amount">{{ "%.2f"|format(fee) }} PEACE</div>
                     <div class="translate-fee-desc">One-time fee per report epoch. Once purchased, re-reads are free forever.</div>
                 </div>
             </div>
             <form method="POST" action="/mesa-village/agents/{{ slot.agent_id }}/translate" style="width:100%;">
                 <button type="submit" class="translate-btn">
-                    ⬡ Unlock Translation — {{ fee|int }} PEACE
+                    ⬡ Unlock Translation — {{ "%.2f"|format(fee) }} PEACE
                 </button>
             </form>
         </div>
