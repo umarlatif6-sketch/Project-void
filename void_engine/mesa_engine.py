@@ -1578,40 +1578,61 @@ import base64
 import hashlib as _hashlib
 
 
-def _msg_key_stream(length: int) -> bytes:
-    """Generate a deterministic XOR key stream from the app secret."""
+def _msg_fernet_key() -> bytes:
+    """Derive a 32-byte Fernet key from the application session secret.
+
+    Uses PBKDF2-HMAC-SHA256 with a domain-specific salt so the raw secret
+    is never used as the key directly. SESSION_SECRET must be set (same
+    variable used by the Flask app itself); no insecure fallback is provided.
+    """
     import os
-    secret = os.environ.get("SECRET_KEY", "void_adriana_msg_432hz").encode("utf-8")
-    result = b""
-    i = 0
-    while len(result) < length:
-        result += _hashlib.sha256(secret + str(i).encode()).digest()
-        i += 1
-    return result[:length]
+    raw = os.environ.get("SESSION_SECRET", "")
+    if not raw:
+        raise RuntimeError(
+            "SESSION_SECRET environment variable is not set. "
+            "Agent message encryption cannot proceed."
+        )
+    derived = _hashlib.pbkdf2_hmac(
+        "sha256",
+        raw.encode("utf-8"),
+        b"void_adriana_msg_salt_v1",
+        iterations=100_000,
+        dklen=32,
+    )
+    return base64.urlsafe_b64encode(derived)
 
 
 def _msg_encrypt(text: str) -> str:
-    """XOR encrypt plain text with a server-derived key stream (standard library only)."""
-    tb = text.encode("utf-8")
-    ks = _msg_key_stream(len(tb))
-    return base64.b64encode(bytes(a ^ b for a, b in zip(tb, ks))).decode("ascii")
+    """Encrypt plain text with Fernet (AES-128-CBC + HMAC-SHA256).
+    Each call produces a unique ciphertext with a random IV.
+    Stored value is the Fernet token (URL-safe base64 string).
+    """
+    from cryptography.fernet import Fernet
+    f = Fernet(_msg_fernet_key())
+    return f.encrypt(text.encode("utf-8")).decode("ascii")
 
 
 def _msg_decrypt(ciphertext: str) -> str:
-    """Reverse the XOR encryption."""
+    """Decrypt a Fernet token produced by _msg_encrypt."""
+    from cryptography.fernet import Fernet, InvalidToken
     try:
-        tb = base64.b64decode(ciphertext.encode("ascii"))
-        ks = _msg_key_stream(len(tb))
-        return bytes(a ^ b for a, b in zip(tb, ks)).decode("utf-8")
-    except Exception:
+        f = Fernet(_msg_fernet_key())
+        return f.decrypt(ciphertext.encode("ascii")).decode("utf-8")
+    except (InvalidToken, Exception):
         return "[decryption error]"
 
 
 def _text_to_glyph_chain(text: str) -> str:
-    """
-    Encode plain-English message text into a deterministic Adriana glyph chain.
-    Words are grouped into chunks of 3; each chunk yields an entity-condition-action
-    triplet selected by SHA-256 hash. Up to 8 triplets are produced.
+    """Encode plain-English message text into an Adriana SCL glyph chain.
+
+    Produces a pipe-separated sequence of entity-condition-action triplets
+    using the same Adriana lexicon that AdrianaTranspiler consumes (adriana.lex).
+    The output format ``ENTITY-CONDITION-ACTION|ENTITY-CONDITION-ACTION|…``
+    is valid Adriana SCL v1.0 syntax (see adriana_transpiler.py).
+
+    Words are grouped into 3-word semantic chunks; each chunk is hashed with
+    SHA-256 to deterministically select one symbol per category from the lexicon.
+    Up to 8 triplets (24 words) are encoded.
     """
     entities, conditions, actions = _load_adriana_lexicon_pools()
     words = text.split()
