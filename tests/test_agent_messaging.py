@@ -334,3 +334,44 @@ class TestMessageTranslateRouteMapping:
         assert resp.status_code in (301, 302, 303)
         assert "/mesa-village/agents" in resp.headers.get("Location", "")
         mock_purchase.assert_not_called()
+
+
+class TestAdminMessageLogNoContent:
+    """Verify admin Mesa page renders message log without exposing message content."""
+
+    @pytest.fixture
+    def client(self):
+        from app import app as flask_app
+        flask_app.config["TESTING"] = True
+        flask_app.config["WTF_CSRF_ENABLED"] = False
+        with flask_app.test_client() as c:
+            yield c
+
+    def test_admin_mesa_renders_without_content_leak(self, client):
+        """Admin Mesa page renders the message log section; no plaintext content exposed."""
+        with client.session_transaction() as sess:
+            sess["user_id"] = 44
+            sess["username"] = "adriana"
+            sess["role"] = "founder"
+
+        sentinel_plain = "SUPER_SECRET_PLAIN_TEXT_DO_NOT_EXPOSE"
+        sentinel_glyph = "GLYPH_ONLY_VISIBLE"
+
+        fake_log = [
+            {
+                "message_id": 1,
+                "sender_agent_id": 10,
+                "recipient_agent_id": 20,
+                "sent_at": "2026-01-01T00:00:00",
+                "translations_purchased": 1,
+            }
+        ]
+
+        with patch("void_engine.mesa_engine.get_admin_message_log", return_value=fake_log):
+            resp = client.get("/admin/mesa")
+
+        assert resp.status_code == 200
+        body = resp.data.decode("utf-8", errors="replace")
+        assert sentinel_plain not in body
+        assert sentinel_glyph not in body
+        assert "sender_agent_id" not in body or "10" in body or "20" in body

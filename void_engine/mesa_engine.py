@@ -1590,7 +1590,12 @@ def _msg_fernet_key() -> bytes:
     must be rotated, re-encrypt stored ciphertexts with the old key first, or
     accept that historical message plaintext will be irrecoverable (glyph content
     is always preserved and readable without a key).
+
+    The result is cached per-process so PBKDF2 runs only once regardless of how
+    many messages are decrypted in a single request or batch.
     """
+    if getattr(_msg_fernet_key, "cache", None) is not None:
+        return _msg_fernet_key.cache
     import os
     raw = os.environ.get("SESSION_SECRET", "")
     if not raw:
@@ -1605,7 +1610,9 @@ def _msg_fernet_key() -> bytes:
         iterations=100_000,
         dklen=32,
     )
-    return base64.urlsafe_b64encode(derived)
+    key = base64.urlsafe_b64encode(derived)
+    _msg_fernet_key.cache = key
+    return key
 
 
 def _msg_encrypt(text: str) -> str:
