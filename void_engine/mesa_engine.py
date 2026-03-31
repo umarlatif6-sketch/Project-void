@@ -1713,13 +1713,13 @@ def get_all_claimed_agents() -> List[Dict]:
     try:
         cur = conn.cursor()
         cur.execute("""
-            SELECT o.agent_id, o.user_id, o.username, o.minted_at
+            SELECT o.agent_id, o.user_id, o.username
             FROM agent_nft_owners o
             ORDER BY o.agent_id
         """)
         rows = cur.fetchall()
         result = []
-        for agent_id, user_id, username, minted_at in rows:
+        for agent_id, user_id, username in rows:
             glyph = _assign_archetype(agent_id, seed_extra="nft_slot")
             archetype = ARCHETYPE_MAP.get(glyph, {"role": "agent", "trait": "", "bias": ""})
             result.append({
