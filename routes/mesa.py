@@ -338,6 +338,9 @@ def agent_send_message(agent_id: int):
         if redirect_back == "registry":
             return redirect(f"/mesa-village/agents?msg_ok=1")
         return redirect(f"/mesa-village/agents/{agent_id}?msg_ok=1")
+    error = result.get("error", "")
+    if "too long" in error.lower():
+        return _err("message_too_long")
     return _err("send_failed")
 
 
