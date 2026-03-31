@@ -294,31 +294,38 @@ def agent_send_message(agent_id: int):
         get_agent_slot, send_agent_message,
     )
     user_id = session.get("user_id")
+    redirect_back = request.form.get("redirect_back", "")
+
+    def _err(code: str):
+        if redirect_back == "registry":
+            return redirect(f"/mesa-village/agents?msg_error={code}")
+        return redirect(f"/mesa-village/agents/{agent_id}?msg_error={code}")
+
     if not user_id:
-        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=not_logged_in")
+        return _err("not_logged_in")
 
     sender_slot = get_agent_slot(agent_id)
     if not sender_slot:
         return redirect("/mesa-village/agents")
     if not (sender_slot.get("owner") and sender_slot["owner"]["user_id"] == user_id):
-        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=not_owner")
+        return _err("not_owner")
 
     try:
         recipient_agent_id = int(request.form.get("recipient_agent_id", ""))
     except (ValueError, TypeError):
-        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=invalid_recipient")
+        return _err("invalid_recipient")
 
     if recipient_agent_id == agent_id:
-        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=self_message")
+        return _err("self_message")
 
     recipient_slot = get_agent_slot(recipient_agent_id)
     if not recipient_slot or not recipient_slot.get("owner"):
-        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=recipient_not_found")
+        return _err("recipient_not_found")
     recipient_user_id = recipient_slot["owner"]["user_id"]
 
     plain_text = (request.form.get("message_text") or "").strip()
     if not plain_text:
-        return redirect(f"/mesa-village/agents/{agent_id}?msg_error=empty_message")
+        return _err("empty_message")
 
     result = send_agent_message(
         sender_agent_id=agent_id,
@@ -327,14 +334,11 @@ def agent_send_message(agent_id: int):
         recipient_user_id=recipient_user_id,
         plain_text=plain_text,
     )
-    redirect_back = request.form.get("redirect_back", "")
     if result["ok"]:
         if redirect_back == "registry":
             return redirect(f"/mesa-village/agents?msg_ok=1")
         return redirect(f"/mesa-village/agents/{agent_id}?msg_ok=1")
-    if redirect_back == "registry":
-        return redirect(f"/mesa-village/agents?msg_error=send_failed")
-    return redirect(f"/mesa-village/agents/{agent_id}?msg_error=send_failed")
+    return _err("send_failed")
 
 
 @mesa_bp.route("/mesa-village/messages/<int:message_id>/translate", methods=["POST"])
