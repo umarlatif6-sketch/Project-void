@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Outreach — PROJECT VOID</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+  body { background: #0a0a0a; color: #e0e0e0; font-family: 'Courier New', monospace; margin: 0; padding: 0; }
+  .so-container { max-width: 900px; margin: 0 auto; padding: 32px 16px 80px; }
+
+  .so-header { border-bottom: 1px solid #1e1e1e; padding-bottom: 20px; margin-bottom: 28px; }
+  .so-title { font-size: 12px; letter-spacing: 6px; color: #fff; text-transform: uppercase; }
+  .so-sub { font-size: 10px; color: #444; letter-spacing: 2px; margin-top: 4px; }
+  .back-link { font-size: 11px; color: #555; text-decoration: none; letter-spacing: 2px; float: right; margin-top: 4px; }
+  .back-link:hover { color: #c8a96e; }
+
+  .progress-bar-wrap { margin-bottom: 28px; }
+  .progress-bar-label { font-size: 10px; letter-spacing: 2px; color: #555; margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .progress-bar-outer { background: #111; border: 1px solid #1e1e1e; height: 6px; }
+  .progress-bar-inner { background: #c8a96e; height: 100%; transition: width 0.4s; }
+
+  .filters { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 14px; border: 1px solid #2a2a2a; background: transparent; color: #555;
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+  .filter-btn:hover, .filter-btn.active { border-color: #c8a96e; color: #c8a96e; }
+
+  .amb-count { font-size: 10px; color: #444; letter-spacing: 2px; margin-bottom: 16px; }
+
+  .card { border: 1px solid #1a1a1a; background: #0d0d0d; margin-bottom: 10px; transition: border-color 0.2s; }
+  .card:hover { border-color: #2a2a2a; }
+  .card.contacted { opacity: 0.45; border-color: #1a2a1a; }
+  .card.contacted .card-name { color: #446644; }
+
+  .card-header { display: flex; align-items: center; padding: 14px 16px 10px; gap: 12px; flex-wrap: wrap; }
+  .card-name { font-size: 13px; color: #e0e0e0; font-weight: bold; flex: 1; min-width: 140px; }
+  .card-field { font-size: 10px; color: #555; letter-spacing: 1px; }
+  .email-badge { font-size: 9px; letter-spacing: 1.5px; padding: 2px 8px; border: 1px solid;
+    text-transform: uppercase; white-space: nowrap; }
+  .badge-sent { color: #446644; border-color: #1a3a1a; }
+  .badge-unsent { color: #6a3a1a; border-color: #3a1a0a; }
+
+  .card-body { padding: 0 16px 14px; }
+
+  .social-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .social-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+    border: 1px solid #2a2a2a; color: #aaa; text-decoration: none; font-size: 10px;
+    letter-spacing: 1.5px; transition: all 0.2s; cursor: pointer; background: transparent;
+    font-family: 'Courier New', monospace; }
+  .social-btn:hover { border-color: #c8a96e; color: #c8a96e; }
+  .social-btn.x-btn { border-color: #2a2a2a; }
+  .social-btn.x-btn:hover { border-color: #1d9bf0; color: #1d9bf0; }
+  .social-btn.li-btn:hover { border-color: #0077b5; color: #0077b5; }
+  .social-btn.ig-btn:hover { border-color: #e1306c; color: #e1306c; }
+  .social-btn.copy-btn { border-color: #2a2a2a; }
+  .social-btn.copy-btn:hover { border-color: #c8a96e; color: #c8a96e; }
+  .social-btn.copy-btn.copied { border-color: #446644; color: #446644; }
+  .social-btn.none { color: #333; border-color: #151515; cursor: default; pointer-events: none; }
+
+  .msg-box { background: #080808; border: 1px solid #1a1a1a; padding: 12px 14px;
+    font-size: 11px; color: #666; line-height: 1.6; margin-bottom: 12px;
+    white-space: pre-wrap; word-break: break-word; max-height: 80px; overflow: hidden;
+    transition: max-height 0.3s; cursor: pointer; }
+  .msg-box.expanded { max-height: 300px; }
+  .msg-box:hover { color: #888; border-color: #2a2a2a; }
+
+  .action-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .done-btn { padding: 7px 16px; border: 1px solid #2a4a2a; background: transparent; color: #446644;
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; cursor: pointer;
+    transition: all 0.2s; }
+  .done-btn:hover { border-color: #446644; color: #6ac06a; }
+  .done-btn.undone { border-color: #3a3a3a; color: #555; }
+  .done-btn.undone:hover { border-color: #c8a96e; color: #c8a96e; }
+  .ref-pill { font-size: 9px; color: #333; letter-spacing: 1.5px; padding: 4px 8px; border: 1px solid #1a1a1a; }
+
+  .no-social { font-size: 10px; color: #333; letter-spacing: 1.5px; padding: 4px 0; }
+
+  @media (max-width: 600px) {
+    .card-header { gap: 8px; }
+    .social-btn { font-size: 9px; padding: 6px 10px; }
+    .so-container { padding: 20px 12px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="so-container">
+
+  <div class="so-header">
+    <a href="/admin/ambassadors" class="back-link">← AMBASSADOR PANEL</a>
+    <div class="so-title">SOCIAL OUTREACH</div>
+    <div class="so-sub">DIRECT CONTACT CENTRE — {{ stats.total }} AMBASSADORS</div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-label">
+      <span>CONTACTED VIA SOCIAL</span>
+      <span id="progress-label">{{ stats.contacted }} / {{ stats.total }}</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progress-bar"
+           style="width: {{ ((stats.contacted / stats.total) * 100) | round(1) if stats.total else 0 }}%"></div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filter('all', this)">ALL ({{ stats.total }})</button>
+    <button class="filter-btn" onclick="filter('pending', this)">NOT YET CONTACTED</button>
+    <button class="filter-btn" onclick="filter('has-x', this)">HAS X HANDLE</button>
+    <button class="filter-btn" onclick="filter('has-li', this)">HAS LINKEDIN</button>
+    <button class="filter-btn" onclick="filter('no-email', this)">EMAIL UNCERTAIN</button>
+  </div>
+
+  <div class="amb-count" id="visible-count">Showing {{ stats.total }} contacts</div>
+
+  <div id="cards-container">
+  {% for a in ambassadors %}
+  {% set has_x = a.twitter and a.twitter != '' %}
+  {% set has_li = a.linkedin and a.linkedin != '' %}
+  {% set has_ig = a.instagram and a.instagram != '' %}
+  {% set x_url = 'https://x.com/' + a.twitter.replace('@','') if has_x else '' %}
+  {% set li_url = 'https://' + a.linkedin if has_li else '' %}
+  {% set ig_url = 'https://instagram.com/' + a.instagram.replace('@','') if has_ig else '' %}
+
+  <div class="card {% if a.social_contacted %}contacted{% endif %}"
+       id="card-{{ a.id }}"
+       data-has-x="{{ '1' if has_x else '0' }}"
+       data-has-li="{{ '1' if has_li else '0' }}"
+       data-email-sent="{{ '1' if a.email_sent else '0' }}"
+       data-contacted="{{ '1' if a.social_contacted else '0' }}">
+
+    <div class="card-header">
+      <div>
+        <div class="card-name">{{ a.name }}</div>
+        <div class="card-field">{{ a.field }}</div>
+      </div>
+      <span class="email-badge {% if a.email_sent %}badge-sent{% else %}badge-unsent{% endif %}">
+        {% if a.email_sent %}EMAIL SENT{% else %}EMAIL UNSENT{% endif %}
+      </span>
+    </div>
+
+    <div class="card-body">
+      {% if has_x or has_li or has_ig %}
+
+      <div class="social-row">
+        {% if has_x %}
+        <a class="social-btn x-btn" href="{{ x_url }}" target="_blank" rel="noopener">
+          ✕ {{ a.twitter }}
+        </a>
+        {% else %}
+        <span class="social-btn none">✕ NO X HANDLE</span>
+        {% endif %}
+
+        {% if has_li %}
+        <a class="social-btn li-btn" href="{{ li_url }}" target="_blank" rel="noopener">
+          in LINKEDIN
+        </a>
+        {% endif %}
+
+        {% if has_ig %}
+        <a class="social-btn ig-btn" href="{{ ig_url }}" target="_blank" rel="noopener">
+          ◎ {{ a.instagram }}
+        </a>
+        {% endif %}
+      </div>
+
+      {% set x_msg = "I'm building Project VOID — a system that embeds data invisibly in sound and routes it across a mesh with no infrastructure. No servers. No central point. You were one of 91 people I thought should know it exists.\n\nYour referral link: https://void-stego-engine.replit.app/voidecho?ref=" + a.ref_code %}
+      {% set li_msg = a.name.split()[0] + " — I am building Project VOID: a sovereign distributed mesh networking system that uses acoustic steganography as its communication layer. Data encoded in sound, transmitted without infrastructure, verified by a purpose-built cryptographic integrity layer.\n\nYou are one of 91 people I identified as someone who should know this exists.\n\nYour personal access link: https://void-stego-engine.replit.app/voidecho?ref=" + a.ref_code + "\n\n— Umar Latif, Project VOID" %}
+
+      <div class="msg-box" id="msg-x-{{ a.id }}"
+           onclick="this.classList.toggle('expanded')"
+           title="Click to expand / collapse">{{ x_msg }}</div>
+
+      <div class="action-row">
+        {% if has_x %}
+        <button class="social-btn copy-btn" onclick="copyMsg('msg-x-{{ a.id }}', this)">
+          COPY X MESSAGE
+        </button>
+        {% endif %}
+        {% if has_li %}
+        <button class="social-btn copy-btn" onclick="copyCustom({{ a.id }}, 'li', this)">
+          COPY LINKEDIN MSG
+        </button>
+        {% endif %}
+        <button class="done-btn {% if a.social_contacted %}undone{% endif %}"
+                id="done-{{ a.id }}"
+                onclick="toggleContacted({{ a.id }}, this)">
+          {% if a.social_contacted %}MARK UNDONE{% else %}✓ MARK DONE{% endif %}
+        </button>
+        <span class="ref-pill">{{ a.ref_code }}</span>
+      </div>
+
+      {% else %}
+      <div class="no-social">NO SOCIAL HANDLES — email-only contact</div>
+      <div class="action-row" style="margin-top:8px;">
+        <button class="done-btn {% if a.social_contacted %}undone{% endif %}"
+                id="done-{{ a.id }}"
+                onclick="toggleContacted({{ a.id }}, this)">
+          {% if a.social_contacted %}MARK UNDONE{% else %}✓ MARK DONE{% endif %}
+        </button>
+        <span class="ref-pill">{{ a.ref_code }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  </div>
+
+</div>
+
+<script>
+const LI_MSGS = {
+  {% for a in ambassadors %}
+  {{ a.id }}: {{ ("'" + a.name.split()[0] + " — I am building Project VOID: a sovereign distributed mesh networking system that uses acoustic steganography as its communication layer. Data encoded in sound, transmitted without infrastructure, verified by a purpose-built cryptographic integrity layer.\\n\\nYou are one of 91 people I identified as someone who should know this exists.\\n\\nYour personal access link: https://void-stego-engine.replit.app/voidecho?ref=" + a.ref_code + "\\n\\n— Umar Latif, Project VOID'") | tojson }},
+  {% endfor %}
+};
+
+let contactedCount = {{ stats.contacted }};
+const total = {{ stats.total }};
+
+function updateProgress() {
+  const pct = total ? (contactedCount / total * 100).toFixed(1) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = contactedCount + ' / ' + total;
+}
+
+function copyMsg(id, btn) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+    btn.textContent = '✓ COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY X MESSAGE'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyCustom(ambId, platform, btn) {
+  const text = platform === 'li' ? LI_MSGS[ambId] : '';
+  navigator.clipboard.writeText(text.trim()).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function toggleContacted(ambId, btn) {
+  const card = document.getElementById('card-' + ambId);
+  const isContacted = card.dataset.contacted === '1';
+  const newState = !isContacted;
+
+  fetch('/api/ambassador/social-contacted/' + ambId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({contacted: newState})
+  }).then(r => r.json()).then(data => {
+    if (data.ok) {
+      card.dataset.contacted = newState ? '1' : '0';
+      card.classList.toggle('contacted', newState);
+      btn.textContent = newState ? 'MARK UNDONE' : '✓ MARK DONE';
+      btn.classList.toggle('undone', newState);
+      contactedCount += newState ? 1 : -1;
+      updateProgress();
+      recount();
+    }
+  });
+}
+
+function filter(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const cards = document.querySelectorAll('.card');
+  let visible = 0;
+  cards.forEach(card => {
+    let show = true;
+    if (type === 'pending') show = card.dataset.contacted !== '1';
+    else if (type === 'has-x') show = card.dataset.hasX === '1';
+    else if (type === 'has-li') show = card.dataset.hasLi === '1';
+    else if (type === 'no-email') show = card.dataset.emailSent !== '1';
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  document.getElementById('visible-count').textContent = 'Showing ' + visible + ' contacts';
+}
+
+function recount() {
+  const current = document.querySelector('.filter-btn.active');
+  if (current) filter(current.onclick.toString().match(/'(\w[^']+)'/)?.[1] || 'all', current);
+}
+</script>
+</body>
+</html>

@@ -431,6 +431,62 @@ def ref_landing(ref_code: str):
         cur.close()
 
 
+@ambassador_bp.route("/admin/social-outreach", methods=["GET"])
+@admin_required
+def social_outreach():
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, name, email, field, ref_code, email_sent,
+                   twitter_handle, linkedin_url, instagram_handle,
+                   COALESCE(social_contacted, FALSE) as social_contacted
+            FROM void_ambassadors
+            ORDER BY
+                CASE WHEN email_sent = FALSE THEN 0 ELSE 1 END,
+                CASE WHEN twitter_handle != '' THEN 0 ELSE 1 END,
+                name
+        """)
+        rows = cur.fetchall()
+        ambassadors = [
+            {
+                "id": r[0], "name": r[1], "email": r[2], "field": r[3],
+                "ref_code": r[4], "email_sent": r[5],
+                "twitter": r[6] or "", "linkedin": r[7] or "",
+                "instagram": r[8] or "", "social_contacted": r[9],
+            }
+            for r in rows
+        ]
+        cur.execute("SELECT COUNT(*) FROM void_ambassadors WHERE COALESCE(social_contacted, FALSE) = TRUE")
+        contacted = cur.fetchone()[0]
+        return render_template("social_outreach.html", ambassadors=ambassadors,
+                               stats={"total": len(ambassadors), "contacted": contacted})
+    except Exception as e:
+        logger.error("[Social Outreach] Load failed: %s", e)
+        return f"Error: {e}", 500
+    finally:
+        cur.close()
+
+
+@ambassador_bp.route("/api/ambassador/social-contacted/<int:ambassador_id>", methods=["POST"])
+@admin_required
+def mark_social_contacted(ambassador_id: int):
+    data = request.get_json() or {}
+    contacted = bool(data.get("contacted", True))
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("UPDATE void_ambassadors SET social_contacted=%s WHERE id=%s",
+                   (contacted, ambassador_id))
+        conn.commit()
+        return jsonify({"ok": True, "contacted": contacted})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+
+
 @ambassador_bp.route("/api/ambassador/stats", methods=["GET"])
 @admin_required
 def ambassador_stats():
