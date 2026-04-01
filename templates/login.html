@@ -21,6 +21,9 @@
             --red: #e74c3c;
             --green: #2d6a4f;
             --font: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            --echo-blue: #5e9cf0;
+            --echo-purple: #a78bfa;
+            --echo-glow: rgba(94, 156, 240, 0.15);
         }
         body {
             background: var(--bg);
@@ -33,6 +36,38 @@
             justify-content: center;
             padding: 20px;
         }
+        .portal-row {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            gap: 0;
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            z-index: 3;
+        }
+        .portal-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            flex-shrink: 0;
+            gap: 8px;
+        }
+        .portal-divider-line {
+            flex: 1;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.08) 70%, transparent);
+        }
+        .portal-divider-label {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--dim);
+            text-transform: uppercase;
+            writing-mode: vertical-rl;
+            padding: 4px 0;
+        }
         .login-card {
             width: 100%;
             max-width: 420px;
@@ -42,6 +77,124 @@
             padding: 40px 32px 32px;
             position: relative;
             box-shadow: 0 0 60px rgba(0,0,0,0.5);
+            flex: 1;
+        }
+        .echo-card {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px 32px 32px;
+            position: relative;
+            box-shadow: 0 0 60px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .echo-card-glow {
+            position: absolute;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border-radius: 12px;
+            pointer-events: none;
+            border: 1px solid rgba(94, 156, 240, 0.25);
+            box-shadow: 0 0 40px rgba(94, 156, 240, 0.07), inset 0 0 40px rgba(167, 139, 250, 0.04);
+        }
+        .echo-logo-mark {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--echo-blue), var(--echo-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 30px rgba(94, 156, 240, 0.25);
+        }
+        .echo-brand {
+            font-size: 20px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-weight: bold;
+            background: linear-gradient(90deg, var(--echo-blue), var(--echo-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .echo-tagline {
+            font-size: 13px;
+            color: var(--white);
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-style: italic;
+            opacity: 0.85;
+        }
+        .echo-desc {
+            font-size: 11px;
+            color: var(--dim);
+            letter-spacing: 1px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+            max-width: 280px;
+        }
+        .echo-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--echo-blue), var(--echo-purple));
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font);
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(94, 156, 240, 0.2);
+        }
+        .echo-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(94, 156, 240, 0.35);
+        }
+        .echo-footer {
+            margin-top: 28px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            width: 100%;
+            text-align: center;
+        }
+        .echo-footer p {
+            font-size: 9px;
+            color: var(--dim);
+            letter-spacing: 2px;
+        }
+        @media (max-width: 767px) {
+            .portal-row {
+                flex-direction: column;
+                max-width: 420px;
+            }
+            .portal-divider {
+                flex-direction: row;
+                width: 100%;
+                height: 36px;
+                gap: 8px;
+            }
+            .portal-divider-line {
+                flex: 1;
+                width: auto;
+                height: 1px;
+                background: linear-gradient(to right, transparent, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.08) 70%, transparent);
+            }
+            .portal-divider-label {
+                writing-mode: horizontal-tb;
+            }
         }
         .login-logo {
             text-align: center;
@@ -221,6 +374,9 @@
         .login-card {
             z-index: 3;
         }
+        .echo-card {
+            z-index: 3;
+        }
         .login-links {
             position: relative;
             z-index: 3;
@@ -229,56 +385,76 @@
 </head>
 <body>
     <canvas id="blueprint-bg"></canvas>
-    <div class="login-card" id="login-card">
-        <div class="login-border-glow"></div>
-        <div class="login-logo">
-            <div class="login-logo-icon">&#9670;</div>
-            <h1>PROJECT VOID</h1>
-            <p>Sovereign Access</p>
+    <div class="portal-row">
+        <div class="login-card" id="login-card">
+            <div class="login-border-glow"></div>
+            <div class="login-logo">
+                <div class="login-logo-icon">&#9670;</div>
+                <h1>PROJECT VOID</h1>
+                <p>Sovereign Access</p>
+            </div>
+
+            <div class="login-tabs">
+                <button class="login-tab active" data-form="login-form">Login</button>
+                <button class="login-tab" data-form="register-form">Register</button>
+            </div>
+
+            <div class="login-error" id="login-error"></div>
+            <div class="login-success" id="login-success"></div>
+
+            <form class="login-form active" id="login-form" onsubmit="return handleLogin(event)">
+                <div class="login-field">
+                    <label>Username</label>
+                    <input type="text" id="login-username" placeholder="Enter your username" autocomplete="username" required>
+                </div>
+                <div class="login-field">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="login-btn" id="login-btn">Enter the Vault</button>
+            </form>
+
+            <form class="login-form" id="register-form" onsubmit="return handleRegister(event)">
+                <div class="login-field">
+                    <label>Username</label>
+                    <input type="text" id="reg-username" placeholder="Choose a username (3-50 chars)" autocomplete="username" required minlength="3" maxlength="50">
+                </div>
+                <div class="login-field">
+                    <label>Display Name</label>
+                    <input type="text" id="reg-display" placeholder="How others will see you">
+                </div>
+                <div class="login-field">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" placeholder="Minimum 6 characters" autocomplete="new-password" required minlength="6">
+                </div>
+                <div class="login-field">
+                    <label>Confirm Password</label>
+                    <input type="password" id="reg-confirm" placeholder="Re-enter your password" autocomplete="new-password" required>
+                </div>
+                <button type="submit" class="login-btn" id="reg-btn">Create Account</button>
+            </form>
+
+            <div class="login-footer">
+                <p>Al-Jabr 286 Sovereign Hash &middot; 432 Hz</p>
+            </div>
         </div>
 
-        <div class="login-tabs">
-            <button class="login-tab active" data-form="login-form">Login</button>
-            <button class="login-tab" data-form="register-form">Register</button>
+        <div class="portal-divider">
+            <div class="portal-divider-line"></div>
+            <span class="portal-divider-label">or</span>
+            <div class="portal-divider-line"></div>
         </div>
 
-        <div class="login-error" id="login-error"></div>
-        <div class="login-success" id="login-success"></div>
-
-        <form class="login-form active" id="login-form" onsubmit="return handleLogin(event)">
-            <div class="login-field">
-                <label>Username</label>
-                <input type="text" id="login-username" placeholder="Enter your username" autocomplete="username" required>
+        <div class="echo-card">
+            <div class="echo-card-glow"></div>
+            <div class="echo-logo-mark">&#9835;</div>
+            <div class="echo-brand">VoidEcho</div>
+            <div class="echo-tagline">Your document lives inside the music</div>
+            <div class="echo-desc">Encode any file into audio — no account needed. Share the sound, retrieve the secret.</div>
+            <a href="/voidecho" class="echo-cta">Send a Document &#8594;</a>
+            <div class="echo-footer">
+                <p>No login required &middot; Steganographic encoding</p>
             </div>
-            <div class="login-field">
-                <label>Password</label>
-                <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" required>
-            </div>
-            <button type="submit" class="login-btn" id="login-btn">Enter the Vault</button>
-        </form>
-
-        <form class="login-form" id="register-form" onsubmit="return handleRegister(event)">
-            <div class="login-field">
-                <label>Username</label>
-                <input type="text" id="reg-username" placeholder="Choose a username (3-50 chars)" autocomplete="username" required minlength="3" maxlength="50">
-            </div>
-            <div class="login-field">
-                <label>Display Name</label>
-                <input type="text" id="reg-display" placeholder="How others will see you">
-            </div>
-            <div class="login-field">
-                <label>Password</label>
-                <input type="password" id="reg-password" placeholder="Minimum 6 characters" autocomplete="new-password" required minlength="6">
-            </div>
-            <div class="login-field">
-                <label>Confirm Password</label>
-                <input type="password" id="reg-confirm" placeholder="Re-enter your password" autocomplete="new-password" required>
-            </div>
-            <button type="submit" class="login-btn" id="reg-btn">Create Account</button>
-        </form>
-
-        <div class="login-footer">
-            <p>Al-Jabr 286 Sovereign Hash &middot; 432 Hz</p>
         </div>
     </div>
 
