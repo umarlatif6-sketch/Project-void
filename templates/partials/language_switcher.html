@@ -1,0 +1,52 @@
+<div class="lang-switcher" id="lang-switcher">
+    <button class="lang-switcher-btn" id="lang-switcher-toggle" title="Switch Language" aria-label="Language Switcher">
+        <span class="lang-switcher-globe">&#127760;</span>
+        <span class="lang-switcher-current" id="lang-switcher-label">EN</span>
+        <span class="lang-switcher-caret">&#9662;</span>
+    </button>
+    <div class="lang-switcher-dropdown" id="lang-switcher-dropdown" style="display:none;">
+        <div class="lang-switcher-list">
+            <button class="lang-option" data-lang="en" data-name="English" data-dir="ltr">
+                <span class="lang-flag">&#127468;&#127463;</span>
+                <span class="lang-name">English</span>
+            </button>
+            <button class="lang-option" data-lang="ur" data-name="Urdu" data-dir="rtl">
+                <span class="lang-flag">&#127477;&#127472;</span>
+                <span class="lang-name">اردو (Urdu)</span>
+            </button>
+            <button class="lang-option" data-lang="ar" data-name="Arabic" data-dir="rtl">
+                <span class="lang-flag">&#127480;&#127462;</span>
+                <span class="lang-name">العربية (Arabic)</span>
+            </button>
+            <button class="lang-option" data-lang="es" data-name="Spanish" data-dir="ltr">
+                <span class="lang-flag">&#127466;&#127480;</span>
+                <span class="lang-name">Español</span>
+            </button>
+            <button class="lang-option" data-lang="fr" data-name="French" data-dir="ltr">
+                <span class="lang-flag">&#127467;&#127479;</span>
+                <span class="lang-name">Français</span>
+            </button>
+            <button class="lang-option" data-lang="zh" data-name="Mandarin" data-dir="ltr">
+                <span class="lang-flag">&#127464;&#127475;</span>
+                <span class="lang-name">中文 (Mandarin)</span>
+            </button>
+            <button class="lang-option" data-lang="ru" data-name="Russian" data-dir="ltr">
+                <span class="lang-flag">&#127479;&#127482;</span>
+                <span class="lang-name">Русский</span>
+            </button>
+            <button class="lang-option" data-lang="ja" data-name="Japanese" data-dir="ltr">
+                <span class="lang-flag">&#127471;&#127477;</span>
+                <span class="lang-name">日本語</span>
+            </button>
+            <div class="lang-switcher-divider"></div>
+            <a href="/void-language" class="lang-option lang-option-void">
+                <span class="lang-flag" style="color:#7c5cff;">&#9670;</span>
+                <span class="lang-name">VOID Language</span>
+                <span class="lang-void-badge">EXPLORE</span>
+            </a>
+        </div>
+        <div class="lang-switcher-footer">
+            <span id="lang-translate-status" class="lang-translate-status"></span>
+        </div>
+    </div>
+</div>

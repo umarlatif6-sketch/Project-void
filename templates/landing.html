@@ -16,6 +16,7 @@
         <div class="landing-nav-links">
             <a href="/launch" class="landing-nav-link active">Home</a>
             <a href="/" class="landing-nav-link">Engine</a>
+            <a href="/void-language" class="landing-nav-link" style="color:#7c5cff;">VOID Language</a>
             <a href="/demo" class="landing-nav-link">Demo</a>
             <a href="/industries" class="landing-nav-link">Industries</a>
             <a href="/grants" class="landing-nav-link">Grants</a>
@@ -34,6 +35,9 @@
             <a href="/origin-map" class="landing-nav-link" style="color:#c9a84c">Origin Map</a>
             <a href="/transmissions" class="landing-nav-link" style="color:#d4956a">Transmissions</a>
             <a href="/login" class="landing-nav-link" style="color:#c9a84c">Login</a>
+        </div>
+        <div style="flex-shrink:0; margin-left:12px;">
+            {% include 'partials/language_switcher.html' %}
         </div>
     </nav>
 
@@ -320,5 +324,6 @@
     <link rel="stylesheet" href="/static/resonance_handshake.css">
     <script src="/static/resonance_handshake.js"></script>
     <script src="/static/void_fairy.js"></script>
+    <script src="/static/lang_switcher.js"></script>
 </body>
 </html>

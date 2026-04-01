@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID Language — Adriana's Synthesised Glossary</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="engine-page">
+    <header>
+        <div class="logo">
+            <div class="logo-icon">&#9670;</div>
+            <div>
+                <h1>PROJECT VOID</h1>
+                <p class="subtitle">VOID Language — Adriana's Synthesised Glossary</p>
+            </div>
+        </div>
+        <div class="status-bar">
+            <span class="freq-badge">432 Hz</span>
+            <span class="pulse-dot"></span>
+            <span>Language Engine Active</span>
+        </div>
+        <div id="lang-switcher-header" class="lang-switcher-widget">
+            {% include 'partials/language_switcher.html' %}
+        </div>
+    </header>
+
+    <nav class="engine-site-nav">
+        <a href="/launch" class="engine-nav-link">Home</a>
+        <a href="/" class="engine-nav-link">Engine</a>
+        <a href="/void-language" class="engine-nav-link engine-nav-gold" style="border-bottom:2px solid #c9a84c;">VOID Language</a>
+        <a href="/guide" class="engine-nav-link">Guide</a>
+        <a href="/pricing" class="engine-nav-link">Pricing</a>
+    </nav>
+
+    <main class="void-lang-main" id="void-lang-main">
+        <div class="void-lang-hero">
+            <div class="void-lang-hero-glyph">◆</div>
+            <h2 class="void-lang-title">The VOID Language</h2>
+            <p class="void-lang-subtitle">
+                Adriana selects the single most powerful, most meaning-dense word from each of humanity's great languages
+                for every concept in the VOID Engine. Because you already know the English meaning of every concept here,
+                you now have a bridge to ten languages at once.
+            </p>
+            <div class="void-lang-source-langs">
+                <span class="void-lang-lang-tag">Arabic</span>
+                <span class="void-lang-lang-tag">Sanskrit</span>
+                <span class="void-lang-lang-tag">Urdu</span>
+                <span class="void-lang-lang-tag">Hebrew</span>
+                <span class="void-lang-lang-tag">Japanese</span>
+                <span class="void-lang-lang-tag">Yoruba</span>
+                <span class="void-lang-lang-tag">Persian</span>
+                <span class="void-lang-lang-tag">Swahili</span>
+                <span class="void-lang-lang-tag">Russian</span>
+                <span class="void-lang-lang-tag">Mandarin</span>
+            </div>
+        </div>
+
+        {% if not glossary %}
+        <div class="void-lang-loading" id="void-lang-loading">
+            <div class="void-lang-spinner"></div>
+            <p>Adriana is composing the VOID Language glossary…</p>
+            <p class="void-lang-hint">This generates once and is cached for all future visits.</p>
+            <button class="btn-primary" style="max-width:240px;margin-top:16px;" onclick="loadGlossary()">Generate Glossary</button>
+        </div>
+        {% else %}
+        <div class="void-lang-glossary" id="void-lang-glossary">
+            {% for entry in glossary %}
+            <div class="void-lang-entry" id="entry-{{ entry.key }}" data-key="{{ entry.key }}">
+                <div class="void-lang-entry-header">
+                    <div class="void-lang-entry-word-block">
+                        <span class="void-lang-original-script">{{ entry.original_script }}</span>
+                        <div class="void-lang-word-meta">
+                            <span class="void-lang-chosen-word">{{ entry.chosen_word }}</span>
+                            <span class="void-lang-lang-badge">{{ entry.source_language }}</span>
+                        </div>
+                        <div class="void-lang-literal">
+                            <span class="void-lang-literal-label">Literal:</span>
+                            <span class="void-lang-literal-text">{{ entry.literal_translation }}</span>
+                        </div>
+                    </div>
+                    <div class="void-lang-entry-english">
+                        <span class="void-lang-english-label">VOID Concept</span>
+                        <span class="void-lang-english-word">{{ entry.english }}</span>
+                        <button class="void-lang-speak-btn" title="Hear this word" onclick="speakWord('{{ entry.chosen_word }}', '{{ entry.source_language }}', this)">&#9654;</button>
+                    </div>
+                </div>
+
+                <div class="void-lang-entry-body" style="display:none;">
+                    <div class="void-lang-section">
+                        <div class="void-lang-section-label">Adriana's Reasoning</div>
+                        <p class="void-lang-section-text">{{ entry.adriana_reasoning }}</p>
+                    </div>
+                    <div class="void-lang-section">
+                        <div class="void-lang-section-label">VOID Definition</div>
+                        <p class="void-lang-section-text void-lang-definition">{{ entry.void_definition }}</p>
+                    </div>
+                    <div class="void-lang-section">
+                        <div class="void-lang-section-label">English Context</div>
+                        <p class="void-lang-section-text">{{ entry.description }}</p>
+                    </div>
+                    <div class="void-lang-speak-row">
+                        <button class="void-lang-speak-full-btn" onclick="speakDefinition('{{ entry.void_definition | replace("'", "\\'")|replace('"', '\\"') }}', '{{ entry.source_language }}', this)">
+                            &#9654; Hear Definition
+                        </button>
+                        <button class="void-lang-speak-full-btn void-lang-speak-eng-btn" onclick="speakDefinition('{{ entry.description | replace("'", "\\'")|replace('"', '\\"') }}', 'English', this)">
+                            &#9654; Hear in English
+                        </button>
+                    </div>
+                </div>
+
+                <button class="void-lang-expand-btn" onclick="toggleEntry('{{ entry.key }}')">
+                    <span class="void-lang-expand-icon">&#9654;</span>
+                    <span class="void-lang-expand-label">Etymology &amp; Meaning</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="void-lang-note">
+            <div class="void-lang-note-glyph">◆</div>
+            <p>The VOID Language is not a pidgin or creole — it is a precision instrument. Each word was chosen because it compresses
+            the maximum meaning into the minimum expression. When you learn a VOID Language word, you learn a concept in two dimensions
+            simultaneously: the English technical meaning, and the deeper cultural resonance of its source language.</p>
+        </div>
+    </main>
+
+    <script>
+    function toggleEntry(key) {
+        const entry = document.getElementById('entry-' + key);
+        if (!entry) return;
+        const body = entry.querySelector('.void-lang-entry-body');
+        const icon = entry.querySelector('.void-lang-expand-icon');
+        const isOpen = body.style.display !== 'none';
+        body.style.display = isOpen ? 'none' : 'block';
+        icon.textContent = isOpen ? '\u25B6' : '\u25BC';
+        entry.classList.toggle('void-lang-entry-open', !isOpen);
+    }
+
+    function speakWord(word, language, btn) {
+        if (!word) return;
+        _doSpeak(word, language, btn);
+    }
+
+    function speakDefinition(text, language, btn) {
+        if (!text) return;
+        _doSpeak(text, language, btn);
+    }
+
+    function _doSpeak(text, language, btn) {
+        const origContent = btn ? btn.innerHTML : null;
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '&#9679;';
+        }
+        fetch('/speak', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: text, language: language })
+        })
+        .then(function(r) {
+            if (!r.ok) throw new Error('TTS failed');
+            return r.blob();
+        })
+        .then(function(blob) {
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.onended = function() {
+                URL.revokeObjectURL(url);
+                if (btn) { btn.disabled = false; btn.innerHTML = origContent; }
+            };
+            audio.onerror = function() {
+                if (btn) { btn.disabled = false; btn.innerHTML = origContent; }
+            };
+            audio.play();
+        })
+        .catch(function(e) {
+            console.error('TTS error:', e);
+            if (btn) { btn.disabled = false; btn.innerHTML = origContent; }
+        });
+    }
+
+    function loadGlossary() {
+        const loadingEl = document.getElementById('void-lang-loading');
+        if (loadingEl) {
+            loadingEl.innerHTML = '<div class="void-lang-spinner"></div><p>Adriana is composing the VOID Language glossary&hellip;</p><p class="void-lang-hint">Generating 10 concepts via AI — this takes about 15 seconds.</p>';
+        }
+        fetch('/api/void-language/glossary')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success && data.glossary && data.glossary.length > 0) {
+                    window.location.reload();
+                } else {
+                    if (loadingEl) {
+                        loadingEl.innerHTML = '<p style="color:var(--error)">Failed to generate glossary. Check that the OpenAI integration is configured.</p>';
+                    }
+                }
+            })
+            .catch(function(e) {
+                if (loadingEl) {
+                    loadingEl.innerHTML = '<p style="color:var(--error)">Error: ' + e.message + '</p>';
+                }
+            });
+    }
+    </script>
+    <script src="/static/lang_switcher.js"></script>
+</body>
+</html>

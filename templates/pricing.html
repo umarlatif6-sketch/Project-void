@@ -88,6 +88,7 @@
             <a href="/sovereign">Hardware</a>
             <a href="/guide">Guide</a>
             <a href="/pricing" class="active">Pricing</a>
+            <a href="/void-language" style="color:#7c5cff;">VOID Language</a>
             <a href="/messenger" style="color:#c9a84c">Messenger</a>
             {% if is_logged_in %}
             <a href="/api/auth/logout">Logout</a>
@@ -95,6 +96,7 @@
             <a href="/login" style="color:#c9a84c">Login</a>
             {% endif %}
         </div>
+        {% include 'partials/language_switcher.html' %}
     </nav>
 
     <section class="pricing-hero">
@@ -427,5 +429,6 @@
     <link rel="stylesheet" href="/static/resonance_handshake.css">
     <script src="/static/resonance_handshake.js"></script>
     <script src="/static/void_fairy.js"></script>
+    <script src="/static/lang_switcher.js"></script>
 </body>
 </html>

@@ -35,11 +35,13 @@
                 <input type="checkbox" id="low-power-toggle">
                 <span class="toggle-label">Low Power</span>
             </label>
+            {% include 'partials/language_switcher.html' %}
         </div>
     </header>
     <nav class="engine-site-nav">
         <a href="/launch" class="engine-nav-link">Home</a>
         <a href="/demo" class="engine-nav-link">Demo</a>
+        <a href="/void-language" class="engine-nav-link" style="color:#7c5cff;">VOID Language</a>
         <a href="/industries" class="engine-nav-link">Industries</a>
         <a href="/grants" class="engine-nav-link">Grants</a>
         <a href="/mycovoid-concept" class="engine-nav-link">MycoVOID</a>
@@ -1818,5 +1820,6 @@
         }
     })();
     </script>
+    <script src="/static/lang_switcher.js"></script>
 </body>
 </html>

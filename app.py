@@ -1,7 +1,7 @@
 import os
 import logging
 import threading
-from flask import Flask, render_template
+from flask import Flask, render_template, request, session
 
 logging.basicConfig(
     level=logging.INFO,
@@ -88,6 +88,49 @@ try:
 except Exception as e:
     logger.exception("FATAL: Failed to register blueprints during startup: %s", e)
     raise
+
+
+_LANG_SWITCHER_HTML = None
+
+def _get_lang_switcher_html():
+    global _LANG_SWITCHER_HTML
+    if _LANG_SWITCHER_HTML is None:
+        switcher_path = os.path.join(os.path.dirname(__file__), "templates", "partials", "language_switcher.html")
+        try:
+            with open(switcher_path, "r", encoding="utf-8") as f:
+                _LANG_SWITCHER_HTML = f.read().strip()
+        except Exception:
+            _LANG_SWITCHER_HTML = ""
+    return _LANG_SWITCHER_HTML
+
+
+@app.after_request
+def inject_language_switcher(response):
+    if response.content_type and "text/html" in response.content_type:
+        content = response.get_data(as_text=True)
+        if "<html" not in content or "</body>" not in content:
+            return response
+
+        script_tag = '<script src="/static/lang_switcher.js"></script>'
+        has_switcher = "lang-switcher" in content
+        has_script = "lang_switcher.js" in content
+
+        inject_parts = []
+        if not has_switcher:
+            switcher = _get_lang_switcher_html()
+            if switcher:
+                inject_parts.append(
+                    '<div style="position:fixed;top:12px;right:16px;z-index:9999">'
+                    + switcher
+                    + "</div>"
+                )
+        if not has_script:
+            inject_parts.append(script_tag)
+
+        if inject_parts:
+            content = content.replace("</body>", "\n".join(inject_parts) + "\n</body>", 1)
+            response.set_data(content)
+    return response
 
 
 @app.route("/health")

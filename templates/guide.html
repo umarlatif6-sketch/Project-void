@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PROJECT VOID — User Guide</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -93,9 +94,11 @@
             <a href="/sovereign">Hardware</a>
             <a href="/guide" class="active">Guide</a>
             <a href="/pricing">Pricing</a>
+            <a href="/void-language" style="color:#7c5cff;">VOID Language</a>
             <a href="/messenger" style="color:#c9a84c">Messenger</a>
             <a href="/login" style="color:#c9a84c">Login</a>
         </div>
+        {% include 'partials/language_switcher.html' %}
     </nav>
 
     <div class="guide-hero">
@@ -431,5 +434,6 @@
     <link rel="stylesheet" href="/static/resonance_handshake.css">
     <script src="/static/resonance_handshake.js"></script>
     <script src="/static/void_fairy.js"></script>
+    <script src="/static/lang_switcher.js"></script>
 </body>
 </html>

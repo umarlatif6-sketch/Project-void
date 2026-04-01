@@ -7,6 +7,7 @@ PROJECT VOID is a full-stack sovereign platform integrating audio LSB steganogra
 - Login page visual: 8-system colour-coded zone design on desktop (≥900px); subtle blueprint on mobile
 - Tone continuity: Adriana's voice is "a transmission received, not a response generated"
 - Security: all HIGH findings from scans are false positives (NaN guards in place, psycopg2 Identifier() used, MD5 only for audio checksums)
+- **VOID Language and site-wide translation must be maintained across all future work — this is a core permanent feature.**
 
 ## System Architecture
 
@@ -41,6 +42,7 @@ PROJECT VOID is a full-stack sovereign platform integrating audio LSB steganogra
 - **Master Reference Document:** 7 chapters covering all major systems, sticky side-nav.
 - **Model-Agnostic AI Switcher:** `ModelRouter` for `PRECISION / STANDARD / BULK` tiers, configurable costs, and fallback mechanisms.
 - **Agent Vision Layer:** Unified `search` interface across Firecrawl, Tavily, Exa, and Brave APIs for various research and data scraping tasks.
+- **VOID Language & Site Translation System:** Adriana's synthesised mixed-language glossary (`/void-language`). Adriana selects the most meaning-dense word from Arabic, Sanskrit, Urdu, Hebrew, Japanese, Yoruba, Persian, Swahili, Russian, and Mandarin for each VOID concept (VOID, resonance, silt, sovereign, echo, kinetic, silk, mycelium, peace, genesis). Every VOID Language term is interactive — clicking/tapping reveals etymology, source language, original script, Adriana's reasoning, and the full definition. A speaker icon triggers text-to-speech via OpenAI TTS. Site-wide language switcher (globe icon) lets any visitor read the entire site in Urdu, Arabic, Spanish, French, Mandarin, Russian, Japanese, or English. RTL layout is applied automatically for Urdu/Arabic. Key files: `void_engine/void_language.py`, `routes/void_language.py`, `templates/void_language.html`, `templates/partials/language_switcher.html`, `static/lang_switcher.js`. Endpoints: `/void-language` (glossary page), `/translate` (POST — translate text/HTML), `/speak` (POST — TTS audio), `/api/set-language` (POST — persist session preference), `/api/void-language/glossary` (GET — JSON glossary), `/api/languages` (GET — supported languages list). Glossary is generated once via OpenAI and cached to disk (`void_engine/void_language_glossary.json`).
 
 ## External Dependencies
 - **Python 3.11**
