@@ -79,6 +79,11 @@ def _startup_migrations():
         _init_message_tables()
     except Exception as e:
         logger.error("Agent message tables init failed: %s", e)
+    try:
+        from routes.ambassador import init_ambassador_tables
+        init_ambassador_tables()
+    except Exception as e:
+        logger.error("Ambassador tables init failed: %s", e)
 
 try:
     from routes import register_blueprints

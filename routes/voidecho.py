@@ -238,26 +238,19 @@ def _wav_to_16bit_mono(input_path: str) -> str:
 
 
 def _send_retrieval_email(recipient_email: str, retrieval_code: str, sender_note: str = ""):
-    """Send retrieval email via SendGrid or fallback to logging."""
-    try:
-        import smtplib
-        from email.mime.text import MIMEText
-        from email.mime.multipart import MIMEMultipart
+    """Send retrieval email via Gmail (primary) or SendGrid (fallback)."""
+    domains = os.environ.get("REPLIT_DOMAINS", "localhost:5000").split(",")
+    base_url = f"https://{domains[0]}"
+    retrieve_url = f"{base_url}/voidecho/retrieve"
 
-        sendgrid_key = os.environ.get("SENDGRID_API_KEY", "")
-        if sendgrid_key:
-            import urllib.request
-            domains = os.environ.get("REPLIT_DOMAINS", "localhost:5000").split(",")
-            base_url = f"https://{domains[0]}"
-
-            body = f"""You have received a VoidEcho file.
+    text_body = f"""You have received a VoidEcho transmission.
 
 Someone has embedded a document inside a piece of music and sent it to you.
 
-Your retrieval code: {retrieval_code}
+YOUR RETRIEVAL CODE: {retrieval_code}
 
 To retrieve your document:
-1. Visit: {base_url}/voidecho/retrieve
+1. Visit: {retrieve_url}
 2. Upload the VoidEcho audio file you were sent
 3. Enter your retrieval code: {retrieval_code}
 
@@ -265,27 +258,69 @@ To retrieve your document:
 
 — VoidEcho | A void has no echo. We created one.
 """
+
+    html_body = f"""<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">
+<style>
+body {{ font-family: 'Courier New', monospace; background: #0a0a0a; color: #e0e0e0; margin: 0; padding: 0; }}
+.c {{ max-width: 560px; margin: 0 auto; padding: 40px 24px; }}
+.logo {{ font-size: 18px; letter-spacing: 5px; color: #fff; border-bottom: 1px solid #222; padding-bottom: 20px; margin-bottom: 28px; }}
+p {{ line-height: 1.8; color: #bbb; font-size: 14px; }}
+.code-block {{ background: #111; border: 1px solid #333; padding: 20px 24px; margin: 24px 0; }}
+.code-label {{ font-size: 10px; color: #555; letter-spacing: 2px; margin-bottom: 8px; }}
+.code-val {{ font-size: 24px; letter-spacing: 4px; color: #fff; }}
+.cta {{ display: inline-block; margin-top: 16px; padding: 12px 24px; background: #fff; color: #0a0a0a; text-decoration: none; font-size: 12px; letter-spacing: 2px; font-weight: bold; }}
+.footer {{ margin-top: 40px; font-size: 11px; color: #333; border-top: 1px solid #111; padding-top: 16px; }}
+</style>
+</head>
+<body>
+<div class="c">
+  <div class="logo">VOIDECHO</div>
+  <p>You have received a <strong>VoidEcho transmission</strong>.</p>
+  <p>Someone has embedded a document inside a piece of music and sent it to you.</p>
+  <div class="code-block">
+    <div class="code-label">YOUR RETRIEVAL CODE</div>
+    <div class="code-val">{retrieval_code}</div>
+  </div>
+  {f'<p><em>A note from the sender: {sender_note}</em></p>' if sender_note else ''}
+  <p>To retrieve your document, visit the link below and upload the VoidEcho audio file alongside your retrieval code.</p>
+  <a href="{retrieve_url}" class="cta">RETRIEVE YOUR FILE</a>
+  <div class="footer">VoidEcho — A void has no echo. We created one.</div>
+</div>
+</body>
+</html>"""
+
+    try:
+        from void_engine.gmail_client import send_email as gmail_send
+        sent = gmail_send(recipient_email, "Your VoidEcho Retrieval Code", html_body, text_body)
+        if sent:
+            logger.info("[VoidEcho] Retrieval email sent via Gmail to %s", recipient_email)
+            return True
+    except Exception as e:
+        logger.warning("[VoidEcho] Gmail send failed, trying SendGrid: %s", e)
+
+    try:
+        import urllib.request
+        sendgrid_key = os.environ.get("SENDGRID_API_KEY", "")
+        if sendgrid_key:
             payload = json.dumps({
                 "personalizations": [{"to": [{"email": recipient_email}]}],
                 "from": {"email": "noreply@projectvoid.io", "name": "VoidEcho"},
                 "subject": "Your VoidEcho Retrieval Code",
-                "content": [{"type": "text/plain", "value": body}]
+                "content": [{"type": "text/plain", "value": text_body}]
             }).encode()
-
             req = urllib.request.Request(
                 "https://api.sendgrid.com/v3/mail/send",
                 data=payload,
-                headers={
-                    "Authorization": f"Bearer {sendgrid_key}",
-                    "Content-Type": "application/json"
-                },
+                headers={"Authorization": f"Bearer {sendgrid_key}", "Content-Type": "application/json"},
                 method="POST"
             )
             urllib.request.urlopen(req, timeout=10)
-            logger.info("[VoidEcho] Email sent to %s", recipient_email)
+            logger.info("[VoidEcho] Retrieval email sent via SendGrid to %s", recipient_email)
             return True
     except Exception as e:
-        logger.warning("[VoidEcho] Email send failed: %s", e)
+        logger.warning("[VoidEcho] SendGrid send also failed: %s", e)
 
     logger.info("[VoidEcho] Retrieval code %s for %s (email not sent)", retrieval_code, recipient_email)
     return False
@@ -1113,57 +1148,72 @@ def adriana_analysis():
 
 
 def _send_adriana_report_email(recipient_email: str, result: dict, tier: str, filename: str) -> bool:
-    """Send Adriana analysis report to the provided email address."""
-    try:
-        sendgrid_key = os.environ.get("SENDGRID_API_KEY", "")
-        if not sendgrid_key:
-            logger.info("[VoidEcho] Adriana report email skipped — no SENDGRID_API_KEY")
-            return False
+    """Send Adriana analysis report via Gmail (primary) or SendGrid (fallback)."""
+    tier_labels = {"concepts": "Core Concepts", "intent": "Concepts + Intent", "full": "Full Interpretation"}
+    tier_label = tier_labels.get(tier, tier.title())
 
-        tier_labels = {"concepts": "Core Concepts", "intent": "Concepts + Intent", "full": "Full Interpretation"}
-        tier_label = tier_labels.get(tier, tier.title())
+    sections_text = []
+    sections_html = []
+    if result.get("concepts"):
+        sections_text.append(f"CORE CONCEPTS\n{'='*40}\n{result['concepts']}")
+        sections_html.append(f"<h3 style='color:#fff;font-size:13px;letter-spacing:2px;'>CORE CONCEPTS</h3><p style='color:#bbb;'>{result['concepts']}</p>")
+    if result.get("intent"):
+        sections_text.append(f"\nINTENT\n{'='*40}\n{result['intent']}")
+        sections_html.append(f"<h3 style='color:#fff;font-size:13px;letter-spacing:2px;'>INTENT</h3><p style='color:#bbb;'>{result['intent']}</p>")
+    if result.get("metaphorical"):
+        sections_text.append(f"\nMETAPHORICAL & CROSS-CULTURAL READING\n{'='*40}\n{result['metaphorical']}")
+        sections_html.append(f"<h3 style='color:#fff;font-size:13px;letter-spacing:2px;'>METAPHORICAL READING</h3><p style='color:#bbb;'>{result['metaphorical']}</p>")
 
-        sections = []
-        if result.get("concepts"):
-            sections.append(f"CORE CONCEPTS\n{'='*40}\n{result['concepts']}")
-        if result.get("intent"):
-            sections.append(f"\nINTENT\n{'='*40}\n{result['intent']}")
-        if result.get("metaphorical"):
-            sections.append(f"\nMETAPHORICAL & CROSS-CULTURAL READING\n{'='*40}\n{result['metaphorical']}")
-
-        body = f"""Adriana Analysis Report — {tier_label}
+    text_body = f"""Adriana Analysis Report — {tier_label}
 Document: {filename}
 
-{chr(10).join(sections)}
+{chr(10).join(sections_text)}
 
 —
 This report was generated by Adriana, the interpretive intelligence within PROJECT VOID.
 VoidEcho | A void has no echo — we created one.
 """
+    html_body = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>body{{font-family:'Courier New',monospace;background:#0a0a0a;color:#e0e0e0;margin:0;padding:0;}}.c{{max-width:600px;margin:0 auto;padding:40px 24px;}}.logo{{font-size:16px;letter-spacing:5px;color:#fff;border-bottom:1px solid #222;padding-bottom:16px;margin-bottom:24px;}}.meta{{font-size:11px;color:#444;margin-bottom:24px;}}</style>
+</head><body><div class="c">
+<div class="logo">ADRIANA — VoidEcho</div>
+<div class="meta">ANALYSIS TIER: {tier_label.upper()} &nbsp;|&nbsp; DOCUMENT: {filename}</div>
+{''.join(sections_html)}
+<p style="margin-top:32px;font-size:11px;color:#333;border-top:1px solid #111;padding-top:16px;">This report was generated by Adriana, the interpretive intelligence within PROJECT VOID.<br>VoidEcho — A void has no echo. We created one.</p>
+</div></body></html>"""
 
+    try:
+        from void_engine.gmail_client import send_email as gmail_send
+        sent = gmail_send(recipient_email, f"Your Adriana Analysis Report — {filename}", html_body, text_body)
+        if sent:
+            logger.info("[VoidEcho] Adriana report emailed via Gmail to %s", recipient_email)
+            return True
+    except Exception as e:
+        logger.warning("[VoidEcho] Gmail send for Adriana report failed: %s", e)
+
+    try:
         import urllib.request
-        payload = json.dumps({
-            "personalizations": [{"to": [{"email": recipient_email}]}],
-            "from": {"email": "noreply@projectvoid.io", "name": "Adriana via VoidEcho"},
-            "subject": f"Your Adriana Analysis Report — {filename}",
-            "content": [{"type": "text/plain", "value": body}]
-        }).encode()
-
-        req = urllib.request.Request(
-            "https://api.sendgrid.com/v3/mail/send",
-            data=payload,
-            headers={
-                "Authorization": f"Bearer {sendgrid_key}",
-                "Content-Type": "application/json"
-            },
-            method="POST"
-        )
-        urllib.request.urlopen(req, timeout=10)
-        logger.info("[VoidEcho] Adriana report emailed to %s", recipient_email)
-        return True
+        sendgrid_key = os.environ.get("SENDGRID_API_KEY", "")
+        if sendgrid_key:
+            payload = json.dumps({
+                "personalizations": [{"to": [{"email": recipient_email}]}],
+                "from": {"email": "noreply@projectvoid.io", "name": "Adriana via VoidEcho"},
+                "subject": f"Your Adriana Analysis Report — {filename}",
+                "content": [{"type": "text/plain", "value": text_body}]
+            }).encode()
+            req = urllib.request.Request(
+                "https://api.sendgrid.com/v3/mail/send",
+                data=payload,
+                headers={"Authorization": f"Bearer {sendgrid_key}", "Content-Type": "application/json"},
+                method="POST"
+            )
+            urllib.request.urlopen(req, timeout=10)
+            logger.info("[VoidEcho] Adriana report emailed via SendGrid to %s", recipient_email)
+            return True
     except Exception as e:
         logger.warning("[VoidEcho] Adriana report email failed: %s", e)
-        return False
+    return False
 
 
 @voidecho_bp.route("/voidecho/gift", methods=["POST"])

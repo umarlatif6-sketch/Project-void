@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ambassador Outreach — PROJECT VOID</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+  body { background: #0a0a0a; color: #e0e0e0; font-family: 'Courier New', monospace; margin: 0; padding: 0; }
+  .amb-container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+  .amb-header { border-bottom: 1px solid #222; padding-bottom: 24px; margin-bottom: 36px; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .amb-title { font-size: 14px; letter-spacing: 6px; color: #fff; }
+  .amb-sub { font-size: 11px; color: #444; letter-spacing: 2px; margin-top: 4px; }
+  .stats-row { display: flex; gap: 24px; margin-bottom: 36px; flex-wrap: wrap; }
+  .stat-card { background: #111; border: 1px solid #222; padding: 16px 24px; flex: 1; min-width: 120px; }
+  .stat-label { font-size: 10px; letter-spacing: 2px; color: #555; margin-bottom: 6px; }
+  .stat-val { font-size: 26px; color: #fff; }
+  .actions-row { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; align-items: center; }
+  .btn { padding: 10px 20px; border: 1px solid #444; background: transparent; color: #ccc; font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+  .btn:hover { border-color: #fff; color: #fff; }
+  .btn-primary { background: #fff; color: #0a0a0a; border-color: #fff; }
+  .btn-primary:hover { background: #ddd; }
+  .btn-danger { border-color: #c00; color: #c00; }
+  .btn-danger:hover { background: #c00; color: #fff; }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+  .add-form { background: #0e0e0e; border: 1px solid #222; padding: 24px; margin-bottom: 32px; display: none; }
+  .add-form.visible { display: block; }
+  .form-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  .form-group { flex: 1; min-width: 200px; }
+  .form-group label { display: block; font-size: 10px; letter-spacing: 2px; color: #555; margin-bottom: 6px; }
+  .form-group input, .form-group textarea, .form-group select { width: 100%; background: #0a0a0a; border: 1px solid #333; color: #e0e0e0; padding: 8px 12px; font-family: 'Courier New', monospace; font-size: 13px; box-sizing: border-box; }
+  .form-group textarea { height: 60px; resize: vertical; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { font-size: 10px; letter-spacing: 2px; color: #555; padding: 10px 12px; text-align: left; border-bottom: 1px solid #1a1a1a; }
+  tbody tr { border-bottom: 1px solid #111; transition: background 0.15s; }
+  tbody tr:hover { background: #0e0e0e; }
+  td { padding: 12px; font-size: 12px; color: #bbb; vertical-align: middle; }
+  .ref-code { letter-spacing: 2px; color: #fff; font-size: 11px; }
+  .badge { display: inline-block; padding: 2px 8px; font-size: 10px; letter-spacing: 1px; border-radius: 2px; }
+  .badge-sent { background: #0a2a0a; color: #4a4; border: 1px solid #2a4a2a; }
+  .badge-pending { background: #1a1a0a; color: #aa8; border: 1px solid #3a3a1a; }
+  .td-actions { display: flex; gap: 8px; align-items: center; }
+  .msg { padding: 12px 16px; margin-bottom: 20px; border-radius: 2px; font-size: 12px; display: none; }
+  .msg-success { background: #0a2a0a; border: 1px solid #2a4a2a; color: #4a4; }
+  .msg-error { background: #2a0a0a; border: 1px solid #4a2a2a; color: #c66; }
+  .msg.visible { display: block; }
+  .empty-state { text-align: center; padding: 60px 24px; color: #333; font-size: 13px; letter-spacing: 2px; }
+  .progress-bar { height: 2px; background: #111; margin-top: 4px; }
+  .progress-fill { height: 2px; background: #fff; transition: width 0.3s; }
+</style>
+</head>
+<body>
+<div class="amb-container">
+  <div class="amb-header">
+    <div>
+      <div class="amb-title">AMBASSADOR OUTREACH</div>
+      <div class="amb-sub">PROJECT VOID — SOVEREIGN TRANSMISSION PROGRAM</div>
+    </div>
+    <a href="/admin/market" class="btn btn-sm">← ADMIN</a>
+  </div>
+
+  <div id="msg" class="msg"></div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">TOTAL</div>
+      <div class="stat-val">{{ stats.total }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">EMAILS SENT</div>
+      <div class="stat-val">{{ stats.sent }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">PENDING</div>
+      <div class="stat-val">{{ stats.total - stats.sent }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">REFERRALS</div>
+      <div class="stat-val">{{ stats.total_referrals }}</div>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button class="btn btn-primary" onclick="toggleAddForm()">+ ADD AMBASSADOR</button>
+    <button class="btn" onclick="sendAll()">SEND ALL PENDING</button>
+    <span id="send-all-status" style="font-size:11px;color:#555;letter-spacing:1px;"></span>
+  </div>
+
+  <div class="add-form" id="add-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label>FULL NAME *</label>
+        <input type="text" id="f-name" placeholder="e.g. Sarah Sharma">
+      </div>
+      <div class="form-group">
+        <label>EMAIL *</label>
+        <input type="email" id="f-email" placeholder="e.g. sarah@example.com">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>FIELD / DOMAIN</label>
+        <input type="text" id="f-field" placeholder="e.g. press freedom, bioacoustics, sovereign tech">
+      </div>
+      <div class="form-group">
+        <label>NOTES</label>
+        <textarea id="f-notes" placeholder="Why this person, context, connection..."></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <button class="btn btn-primary" onclick="addAmbassador()">ADD</button>
+      <button class="btn" onclick="toggleAddForm()">CANCEL</button>
+    </div>
+  </div>
+
+  {% if ambassadors %}
+  <table>
+    <thead>
+      <tr>
+        <th>NAME</th>
+        <th>EMAIL</th>
+        <th>FIELD</th>
+        <th>REF CODE</th>
+        <th>STATUS</th>
+        <th>REFERRALS</th>
+        <th>ACTIONS</th>
+      </tr>
+    </thead>
+    <tbody id="ambassador-table">
+      {% for a in ambassadors %}
+      <tr id="row-{{ a.id }}">
+        <td style="color:#fff;">{{ a.name }}</td>
+        <td>{{ a.email }}</td>
+        <td style="color:#666;">{{ a.field or '—' }}</td>
+        <td><span class="ref-code">{{ a.ref_code }}</span></td>
+        <td>
+          {% if a.email_sent %}
+          <span class="badge badge-sent">SENT</span>
+          {% else %}
+          <span class="badge badge-pending">PENDING</span>
+          {% endif %}
+        </td>
+        <td style="text-align:center;">{{ a.users_referred }}</td>
+        <td>
+          <div class="td-actions">
+            {% if not a.email_sent %}
+            <button class="btn btn-sm" onclick="sendOne({{ a.id }}, '{{ a.name }}')">SEND</button>
+            {% else %}
+            <button class="btn btn-sm" onclick="sendOne({{ a.id }}, '{{ a.name }}')" title="Resend email">RESEND</button>
+            {% endif %}
+            <button class="btn btn-sm btn-danger" onclick="deleteAmb({{ a.id }}, '{{ a.name }}')">✕</button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state" id="empty-state">
+    NO AMBASSADORS ADDED YET<br>
+    <span style="font-size:11px;color:#222;margin-top:8px;display:block;">Add contacts above to begin the outreach program</span>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function showMsg(text, type) {
+  const el = document.getElementById('msg');
+  el.textContent = text;
+  el.className = 'msg msg-' + type + ' visible';
+  setTimeout(() => el.classList.remove('visible'), 5000);
+}
+
+function toggleAddForm() {
+  document.getElementById('add-form').classList.toggle('visible');
+}
+
+async function addAmbassador() {
+  const name = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const field = document.getElementById('f-field').value.trim();
+  const notes = document.getElementById('f-notes').value.trim();
+  if (!name || !email) { showMsg('Name and email are required', 'error'); return; }
+  const res = await fetch('/api/ambassador/add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name, email, field, notes})
+  });
+  const data = await res.json();
+  if (data.success) {
+    showMsg(`Ambassador added — ref code: ${data.ref_code}`, 'success');
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-email').value = '';
+    document.getElementById('f-field').value = '';
+    document.getElementById('f-notes').value = '';
+    toggleAddForm();
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    showMsg(data.error || 'Failed to add ambassador', 'error');
+  }
+}
+
+async function sendOne(id, name) {
+  const btn = event.target;
+  btn.textContent = '...';
+  btn.disabled = true;
+  const res = await fetch(`/api/ambassador/send/${id}`, {method: 'POST'});
+  const data = await res.json();
+  if (data.success) {
+    showMsg(`Email sent to ${name}`, 'success');
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    showMsg(data.error || 'Send failed', 'error');
+    btn.textContent = 'SEND';
+    btn.disabled = false;
+  }
+}
+
+async function sendAll() {
+  const status = document.getElementById('send-all-status');
+  status.textContent = 'SENDING...';
+  const res = await fetch('/api/ambassador/send-all', {method: 'POST'});
+  const data = await res.json();
+  if (data.success) {
+    status.textContent = `SENT: ${data.sent} | FAILED: ${data.failed}`;
+    showMsg(`Bulk send complete — ${data.sent} sent, ${data.failed} failed`, 'success');
+    setTimeout(() => location.reload(), 2000);
+  } else {
+    status.textContent = 'FAILED';
+    showMsg(data.error || 'Send-all failed', 'error');
+  }
+}
+
+async function deleteAmb(id, name) {
+  if (!confirm(`Remove ${name} from ambassadors?`)) return;
+  const res = await fetch(`/api/ambassador/delete/${id}`, {method: 'DELETE'});
+  const data = await res.json();
+  if (data.success) {
+    const row = document.getElementById(`row-${id}`);
+    if (row) row.remove();
+    showMsg(`${name} removed`, 'success');
+  } else {
+    showMsg(data.error || 'Delete failed', 'error');
+  }
+}
+</script>
+</body>
+</html>
