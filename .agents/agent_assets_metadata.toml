@@ -6,3 +6,9 @@ id = "qt8WeM0GMEhbKqkbVqX4b"
 uri = "file://.local/research/project-void-landscape-research.md"
 type = "text"
 title = "PROJECT VOID — Deep Research Report (March 2026)"
+
+[[outputs]]
+id = "iMxoio8jlb0aaJkiNHRDe"
+uri = "file://exports/void_ambassador_prospects.csv"
+type = "table"
+title = "VOID Ambassador Prospect List — 35 Contacts"
