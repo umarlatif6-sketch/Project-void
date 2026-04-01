@@ -43,7 +43,7 @@ externalPort = 8099
 
 [userenv.shared]
 FOUNDER_USERNAME = "adriana"
-VOID_PUBLIC_URL = "https://0b349bdf-b2cd-40ea-b168-5d2f903ed8f9-00-z9zwbt68rt3g.worf.replit.dev"
+VOID_PUBLIC_URL = "https://void-stego-engine.replit.app"
 
 [deployment]
 deploymentTarget = "autoscale"
