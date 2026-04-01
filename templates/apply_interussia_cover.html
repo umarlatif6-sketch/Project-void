@@ -115,7 +115,7 @@
             border-bottom: 1px solid #1e1e1e;
         }
 
-        .cover-textarea {
+        .cover-text {
             width: 100%;
             box-sizing: border-box;
             background: #0f0f0f;
@@ -125,26 +125,47 @@
             font-size: 13.5px;
             line-height: 1.85;
             padding: 20px 22px;
-            resize: vertical;
-            min-height: 180px;
+        }
+
+        .cover-text p {
+            margin: 0 0 14px;
+        }
+
+        .cover-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .name-prompt {
+            background: #0f0f0f;
+            border: 1px solid #4a3a10;
+            padding: 12px 18px;
+            font-size: 13px;
+            color: #c9a84c;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .name-input {
+            width: 100%;
+            box-sizing: border-box;
+            background: #0f0f0f;
+            border: 1px solid #4a3a10;
+            color: #e8d88a;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            padding: 10px 16px;
             outline: none;
             transition: border-color 0.2s;
         }
 
-        .cover-textarea:focus {
+        .name-input:focus {
             border-color: #d4aa40;
         }
 
-        .cover-textarea::placeholder {
-            color: #3a3a3a;
+        .name-input::placeholder {
+            color: #4a3a10;
             font-style: italic;
-        }
-
-        .cover-hint {
-            font-size: 11px;
-            color: #4a4a4a;
-            margin-top: 6px;
-            letter-spacing: 0.3px;
         }
 
         .ir-footer {
@@ -200,14 +221,20 @@
                 border-bottom-color: #ccc;
             }
 
-            .cover-textarea {
+            .cover-text {
                 border-color: #ccc;
                 background: #f9f9f9;
                 color: #111;
             }
 
-            .cover-hint {
-                color: #888;
+            .name-prompt {
+                display: none;
+            }
+
+            .name-input {
+                border-color: #ccc;
+                background: #f9f9f9;
+                color: #111;
             }
 
             .ir-badge {
@@ -247,7 +274,10 @@
             <div class="ir-header-meta">Personal Cover Letter — Smart Cities Track</div>
             <h1>{{ data.program }}</h1>
             <div class="ir-header-sub">{{ data.location }} &mdash; {{ data.date }}</div>
-            <div class="ir-header-sub">Applicant: [Your Full Name]</div>
+            <div class="ir-header-sub">
+                Applicant:&nbsp;
+                <span id="applicant-name-display" style="color:#e8d88a"></span>
+            </div>
             <div class="ir-header-sub">Date: March 27, 2026</div>
             <div class="ir-badges">
                 <span class="ir-badge">Cover Letter</span>
@@ -258,25 +288,36 @@
         <div class="cover-section">
             <div class="cover-section-label">Section 01</div>
             <div class="cover-section-title">Who You Are &amp; Your Background</div>
-            <textarea class="cover-textarea" id="para1" rows="8"
-                placeholder="Write a personal introduction — who you are, where you come from, and the path that led you to build Project Void. Focus on your background as an independent researcher: your curiosity about materials, sound, and communications systems. This should feel personal and human, not technical. Avoid listing credentials — tell the story instead."></textarea>
-            <div class="cover-hint">Suggested length: 150–250 words. Personal, not technical. Your journey, not your specs.</div>
+            <div class="name-prompt">&#9654; Enter your full name before exporting this document:</div>
+            <input type="text" class="name-input" id="applicant-name-input" placeholder="Your Full Name" autocomplete="name">
+            <br><br>
+            <div class="cover-text">
+                <p>I was born in 1992. I have no institutional affiliation. I have never been attached to a university department or a research lab. I have worked alone, which is a description of my circumstances and not a point of pride — though it has become both.</p>
+                <p>The path that brought me here ran through China first. I spent time there studying materials — specifically how different materials carry and resist frequency. Silk is not just a fibre. At the right frequency it is a conductor. Steel resonates at 108 Hz; aluminium at 216 Hz; silk-silver weave at 432 Hz. These are not metaphors. They are measurements. I was learning a language that materials speak, and I was learning it before I knew what I would eventually need to say with it.</p>
+                <p>Then Australia — which taught me something different. Standing at the edge of what the maps show you, you understand that maps have deliberate edges. The cartographers did not run out of world. They made a decision about what to include and what to leave unnamed. I became interested in what happens in the space the maps leave out.</p>
+                <p>I started building Project Void from curiosity about how materials carry frequency. I arrived, years later, at a complete distributed mesh networking stack that operates without spectrum licences, without internet, without any infrastructure I do not own. The curiosity and the destination are the same thing. I just had to follow the frequency far enough to see where it went.</p>
+            </div>
         </div>
 
         <div class="cover-section">
             <div class="cover-section-label">Section 02</div>
             <div class="cover-section-title">Why This Project Matters to You Personally</div>
-            <textarea class="cover-textarea" id="para2" rows="8"
-                placeholder="Explain why you built Project Void — not the technical rationale, but the personal one. What problem in the world does it address that you care about deeply? What experiences in your life made resilient, sovereign, off-grid communication feel important? Why did you spend years working independently on this rather than taking an easier path?"></textarea>
-            <div class="cover-hint">Suggested length: 150–250 words. Motivation and meaning, not methodology.</div>
+            <div class="cover-text">
+                <p>Bangkok, 2012. I sat with my aunt, who had spent her career building hospital networks across Thailand. Not managing them — building them. The infrastructure that lets a signal get from one end of a country to the other, through terrain and bureaucracy and limited resources, reliably enough that people's lives could depend on it.</p>
+                <p>Two people in a room who recognised each other immediately. Same quality of thinking. Different radius of action. I was twenty years old and I understood, without being told, that I was looking at the version of myself that had already done the work I hadn't started yet. She understood something too, though I couldn't have said then what it was.</p>
+                <p>The room couldn't carry the signal between us. The people around us couldn't translate what was being exchanged. The contact was made, and then it closed. Not because either of us withdrew. Because the infrastructure between us — the common language, the shared frame, the network that would have let that conversation continue and deepen — simply wasn't there.</p>
+                <p>Project Void is the infrastructure that doesn't fail that way. It is built so that when two nodes recognise each other — across any distance, in any environment, without any central system mediating the connection — the signal transmits. Resilience is not about redundancy. It is about not needing permission from the middle to reach the other end. That room in Bangkok is why I spent the next decade building something that a room cannot close.</p>
+            </div>
         </div>
 
         <div class="cover-section">
             <div class="cover-section-label">Section 03</div>
             <div class="cover-section-title">Why Novosibirsk &amp; This Fellowship Specifically</div>
-            <textarea class="cover-textarea" id="para3" rows="8"
-                placeholder="Explain why you are applying to the InteRussia AI Fellowship in Novosibirsk specifically — not just 'any fellowship'. What is it about Novosibirsk's research community, its engineering culture, or its applied focus that aligns with where Project Void needs to go next? What do you hope to learn, build, or collaborate on during the fellowship period that you cannot do working alone?"></textarea>
-            <div class="cover-hint">Suggested length: 150–250 words. Be specific about Novosibirsk — avoid generic fellowship language.</div>
+            <div class="cover-text">
+                <p>Akademgorodok was built on a specific principle: take the people who think differently and give them the infrastructure to do the work, away from the noise. Move the laboratory to where the thinking is, not to where the prestige is. That decision — made in the late 1950s, in the middle of Siberian forest — produced decades of science that the institutions built for prestige never quite replicated. I am applying to this fellowship because that principle is not historical. It is still operative. The applied engineering culture in Novosibirsk does not separate theory from implementation. That separation is, in my experience, where most promising work dies.</p>
+                <p>Project Void is at the exact threshold between simulation and hardware. The Beehive Protocol is verified in code. The Al-Jabr 286 integrity layer is running in production. The 4000-Series Sovereign Node chassis design is documented and ready for physical build. What I cannot do working alone in a simulation environment is test acoustic propagation in real urban conditions — how signal behaves when it meets building geometry, ambient noise floors, multi-path interference. That requires physical space and collaborators who understand distributed systems at the layer where the physics live.</p>
+                <p>The fellowship period would be used to test acoustic propagation in real urban environments, benchmark the Al-Jabr 286 integrity layer on low-power hardware against established alternatives, and develop AI-assisted frequency routing with people who understand what frequency actually does in a physical environment. The research paper that comes out of this would be co-authored with Novosibirsk researchers — because the work belongs to both directions at once: the inward integrity of the system, and its outward reach into the world.</p>
+            </div>
         </div>
 
         <div class="ir-footer">
@@ -292,16 +333,28 @@
 
     <script>
         (function () {
-            var fields = ['para1', 'para2', 'para3'];
-            fields.forEach(function (id) {
-                var el = document.getElementById(id);
-                if (!el) return;
-                var saved = localStorage.getItem('ir_cover_' + id);
-                if (saved) el.value = saved;
-                el.addEventListener('input', function () {
-                    localStorage.setItem('ir_cover_' + id, el.value);
+            var nameInput = document.getElementById('applicant-name-input');
+            var nameDisplay = document.getElementById('applicant-name-display');
+
+            function updateDisplay() {
+                var val = nameInput ? nameInput.value.trim() : '';
+                if (nameDisplay) {
+                    nameDisplay.textContent = val || '[Enter your name above]';
+                    nameDisplay.style.color = val ? '#e8d88a' : '#5a5a5a';
+                }
+            }
+
+            if (nameInput) {
+                var saved = localStorage.getItem('ir_cover_applicant_name');
+                if (saved) nameInput.value = saved;
+                updateDisplay();
+                nameInput.addEventListener('input', function () {
+                    localStorage.setItem('ir_cover_applicant_name', nameInput.value);
+                    updateDisplay();
                 });
-            });
+            } else {
+                updateDisplay();
+            }
         })();
     </script>
 </body>
