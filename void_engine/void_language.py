@@ -103,6 +103,9 @@ def _get_openai_client():
     if not api_key:
         raise RuntimeError("OpenAI API key not available")
     from openai import OpenAI
+    base_url = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+    if base_url:
+        return OpenAI(api_key=api_key, base_url=base_url)
     return OpenAI(api_key=api_key)
 
 
