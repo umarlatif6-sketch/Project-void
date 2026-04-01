@@ -13,6 +13,12 @@
     var currentAccentColour = '#c9a84c';
     var soundEnabled = false;
     var soundInitialised = false;
+
+    var FAIRY_POS_KEY = 'void_fairy_pos';
+    var _dragActive = false;
+    var _dragX0 = 0, _dragY0 = 0;
+    var _toggleX0 = 0, _toggleY0 = 0;
+    var _dragMoved = false;
     var audioCtx = null;
     var mainOscillator = null;
     var mainGain = null;
@@ -414,6 +420,81 @@
         loop();
     }
 
+    function _applyTogglePos(el, x, y) {
+        var ww = window.innerWidth;
+        var wh = window.innerHeight;
+        var tw = el.offsetWidth || 48;
+        var th = el.offsetHeight || 48;
+        x = Math.max(8, Math.min(ww - tw - 8, x));
+        y = Math.max(8, Math.min(wh - th - 8, y));
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+    }
+
+    function _loadTogglePos(el) {
+        try {
+            var saved = localStorage.getItem(FAIRY_POS_KEY);
+            if (saved) {
+                var pos = JSON.parse(saved);
+                if (typeof pos.x === 'number' && typeof pos.y === 'number') {
+                    _applyTogglePos(el, pos.x, pos.y);
+                }
+            }
+        } catch(e) {}
+    }
+
+    function _saveTogglePos(el) {
+        try {
+            var rect = el.getBoundingClientRect();
+            localStorage.setItem(FAIRY_POS_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+        } catch(e) {}
+    }
+
+    function _updatePanelPos(toggleEl, panelEl) {
+        var rect = toggleEl.getBoundingClientRect();
+        var ww = window.innerWidth;
+        var wh = window.innerHeight;
+        var isMobile = ww <= 480;
+        if (isMobile) {
+            panelEl.style.left = '8px';
+            panelEl.style.right = '8px';
+            panelEl.style.top = 'auto';
+            panelEl.style.bottom = (wh - rect.top + 8) + 'px';
+            panelEl.style.width = 'auto';
+            return;
+        }
+        var panelW = 360;
+        var panelH = Math.min(520, wh * 0.75);
+        var gap = 8;
+        var openAbove = rect.top > panelH + gap;
+        var panelTop = openAbove ? rect.top - panelH - gap : rect.bottom + gap;
+        panelTop = Math.max(8, Math.min(wh - panelH - 8, panelTop));
+        var cx = rect.left + rect.width / 2;
+        var panelLeft = cx - panelW / 2;
+        panelLeft = Math.max(8, Math.min(ww - panelW - 8, panelLeft));
+        panelEl.style.left = panelLeft + 'px';
+        panelEl.style.top = panelTop + 'px';
+        panelEl.style.right = 'auto';
+        panelEl.style.bottom = 'auto';
+        panelEl.style.width = panelW + 'px';
+    }
+
+    function _openPanel(toggle, panel) {
+        _updatePanelPos(toggle, panel);
+        panel.classList.add('visible');
+        toggle.classList.add('active');
+        var fi = document.getElementById('fairy-input');
+        if (fi) fi.focus();
+        if (!greetingDelivered) deliverGreeting();
+        if (soundEnabled) {
+            if (!soundInitialised) initAudio();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            startBreatheLoop();
+        }
+    }
+
     function createWidget() {
         var soundPref = null;
         try { soundPref = localStorage.getItem(SOUND_PREF_KEY); } catch(e) {}
@@ -565,6 +646,9 @@
         document.body.appendChild(panel);
         document.body.appendChild(toggle);
 
+        // Restore saved position (overrides CSS bottom/right default)
+        _loadTogglePos(toggle);
+
         startPlantLoop(plantCanvas);
 
         var resonanceLoaded = false;
@@ -591,30 +675,91 @@
             .catch(function() {});
         }
 
-        toggle.addEventListener('click', function() {
-            isOpen = !isOpen;
-            if (isOpen) {
-                panel.classList.add('visible');
-                toggle.classList.add('active');
-                document.getElementById('fairy-input').focus();
-                if (!greetingDelivered) {
-                    deliverGreeting();
-                }
-                if (soundEnabled) {
-                    if (!soundInitialised) {
-                        initAudio();
-                    }
-                    if (audioCtx && audioCtx.state === 'suspended') {
-                        audioCtx.resume();
-                    }
-                    startBreatheLoop();
-                }
-                loadPersistedResonance();
+        // --- Drag logic (replaces plain click handler) ---
+        toggle.addEventListener('mousedown', function(e) {
+            if (e.button !== 0) return;
+            var rect = toggle.getBoundingClientRect();
+            _dragX0 = e.clientX;
+            _dragY0 = e.clientY;
+            _toggleX0 = rect.left;
+            _toggleY0 = rect.top;
+            toggle.style.left = rect.left + 'px';
+            toggle.style.top = rect.top + 'px';
+            toggle.style.right = 'auto';
+            toggle.style.bottom = 'auto';
+            _dragActive = true;
+            _dragMoved = false;
+            e.preventDefault();
+        });
+
+        toggle.addEventListener('touchstart', function(e) {
+            var t = e.touches[0];
+            var rect = toggle.getBoundingClientRect();
+            _dragX0 = t.clientX;
+            _dragY0 = t.clientY;
+            _toggleX0 = rect.left;
+            _toggleY0 = rect.top;
+            toggle.style.left = rect.left + 'px';
+            toggle.style.top = rect.top + 'px';
+            toggle.style.right = 'auto';
+            toggle.style.bottom = 'auto';
+            _dragActive = true;
+            _dragMoved = false;
+        }, { passive: true });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!_dragActive) return;
+            var dx = e.clientX - _dragX0;
+            var dy = e.clientY - _dragY0;
+            if (!_dragMoved && Math.sqrt(dx * dx + dy * dy) > 5) _dragMoved = true;
+            if (_dragMoved) _applyTogglePos(toggle, _toggleX0 + dx, _toggleY0 + dy);
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!_dragActive) return;
+            var t = e.touches[0];
+            var dx = t.clientX - _dragX0;
+            var dy = t.clientY - _dragY0;
+            if (!_dragMoved && Math.sqrt(dx * dx + dy * dy) > 5) _dragMoved = true;
+            if (_dragMoved) _applyTogglePos(toggle, _toggleX0 + dx, _toggleY0 + dy);
+        }, { passive: true });
+
+        document.addEventListener('mouseup', function() {
+            if (!_dragActive) return;
+            _dragActive = false;
+            if (_dragMoved) {
+                _saveTogglePos(toggle);
+                if (isOpen) _updatePanelPos(toggle, panel);
             } else {
-                panel.classList.remove('visible');
-                toggle.classList.remove('active');
+                isOpen = !isOpen;
+                if (isOpen) {
+                    _openPanel(toggle, panel);
+                    loadPersistedResonance();
+                } else {
+                    panel.classList.remove('visible');
+                    toggle.classList.remove('active');
+                }
             }
         });
+
+        document.addEventListener('touchend', function() {
+            if (!_dragActive) return;
+            _dragActive = false;
+            if (_dragMoved) {
+                _saveTogglePos(toggle);
+                if (isOpen) _updatePanelPos(toggle, panel);
+            } else {
+                isOpen = !isOpen;
+                if (isOpen) {
+                    _openPanel(toggle, panel);
+                    loadPersistedResonance();
+                } else {
+                    panel.classList.remove('visible');
+                    toggle.classList.remove('active');
+                }
+            }
+        });
+        // --- End drag logic ---
 
         closeBtn.addEventListener('click', function() {
             isOpen = false;
@@ -634,8 +779,7 @@
         if (shouldAutoOpen()) {
             setTimeout(function() {
                 isOpen = true;
-                panel.classList.add('visible');
-                toggle.classList.add('active');
+                _openPanel(toggle, panel);
                 loadPersistedResonance();
                 setTimeout(function() {
                     deliverGreeting();
