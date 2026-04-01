@@ -721,8 +721,11 @@
             var dx = t.clientX - _dragX0;
             var dy = t.clientY - _dragY0;
             if (!_dragMoved && Math.sqrt(dx * dx + dy * dy) > 5) _dragMoved = true;
-            if (_dragMoved) _applyTogglePos(toggle, _toggleX0 + dx, _toggleY0 + dy);
-        }, { passive: true });
+            if (_dragMoved) {
+                e.preventDefault();
+                _applyTogglePos(toggle, _toggleX0 + dx, _toggleY0 + dy);
+            }
+        }, { passive: false });
 
         document.addEventListener('mouseup', function() {
             if (!_dragActive) return;
@@ -749,6 +752,20 @@
                 _saveTogglePos(toggle);
                 if (isOpen) _updatePanelPos(toggle, panel);
             } else {
+                isOpen = !isOpen;
+                if (isOpen) {
+                    _openPanel(toggle, panel);
+                    loadPersistedResonance();
+                } else {
+                    panel.classList.remove('visible');
+                    toggle.classList.remove('active');
+                }
+            }
+        });
+        // Keyboard activation (Tab + Enter/Space) — mousedown/mouseup don't fire for keyboard
+        toggle.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
                 isOpen = !isOpen;
                 if (isOpen) {
                     _openPanel(toggle, panel);
