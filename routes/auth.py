@@ -717,6 +717,15 @@ def auth_register():
 
     _setup_session(user)
 
+    ref_code = session.get("ambassador_ref") or (data.get("ref") or "").strip().upper()
+    if ref_code:
+        try:
+            from routes.ambassador import record_referral_signup
+            record_referral_signup(ref_code, username)
+            session.pop("ambassador_ref", None)
+        except Exception:
+            pass
+
     return jsonify({"success": True, "user": user, "role": session.get("role", "user"), "tier": session.get("tier", "ghost")}), 201
 
 

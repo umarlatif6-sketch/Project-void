@@ -75,8 +75,13 @@
       <div class="stat-val">{{ stats.total - stats.sent }}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">REFERRALS</div>
+      <div class="stat-label">SIGNUPS REFERRED</div>
       <div class="stat-val">{{ stats.total_referrals }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">VTX EARNED</div>
+      <div class="stat-val" style="font-size:20px;">{{ "%.0f"|format(stats.total_vtx) }}</div>
+      <div style="font-size:10px;color:#333;margin-top:2px;">286 per 10 signups</div>
     </div>
   </div>
 
@@ -122,7 +127,8 @@
         <th>FIELD</th>
         <th>REF CODE</th>
         <th>STATUS</th>
-        <th>REFERRALS</th>
+        <th>SIGNUPS</th>
+        <th>VTX EARNED</th>
         <th>ACTIONS</th>
       </tr>
     </thead>
@@ -140,7 +146,22 @@
           <span class="badge badge-pending">PENDING</span>
           {% endif %}
         </td>
-        <td style="text-align:center;">{{ a.users_referred }}</td>
+        <td style="text-align:center;">
+          {{ a.users_referred }}
+          {% if a.users_referred > 0 %}
+          <div style="font-size:9px;color:#333;margin-top:2px;">next: {{ 10 - (a.users_referred % 10) if a.users_referred % 10 != 0 else 0 }} to go</div>
+          {% endif %}
+        </td>
+        <td style="text-align:center;">
+          {% if a.vtx_earned > 0 %}
+          <span style="color:#aaa;">{{ "%.0f"|format(a.vtx_earned) }} VTX</span>
+          {% if a.vtx_earned > a.vtx_claimed %}
+          <span class="badge badge-sent" style="display:block;margin-top:4px;font-size:9px;">CLAIMABLE</span>
+          {% endif %}
+          {% else %}
+          <span style="color:#222;">—</span>
+          {% endif %}
+        </td>
         <td>
           <div class="td-actions">
             {% if not a.email_sent %}

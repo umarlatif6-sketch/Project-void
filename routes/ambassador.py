@@ -17,6 +17,10 @@ def _get_db():
     return get_db()
 
 
+_VTX_PER_MILESTONE = 286
+_REFERRALS_PER_MILESTONE = 10
+
+
 def init_ambassador_tables():
     conn = _get_db()
     try:
@@ -32,7 +36,9 @@ def init_ambassador_tables():
                 email_sent BOOLEAN DEFAULT FALSE,
                 email_sent_at TIMESTAMPTZ,
                 users_referred INTEGER DEFAULT 0,
-                reward_triggered INTEGER DEFAULT 0,
+                milestones_earned INTEGER DEFAULT 0,
+                vtx_earned NUMERIC(18,6) DEFAULT 0,
+                vtx_claimed NUMERIC(18,6) DEFAULT 0,
                 created_at TIMESTAMPTZ DEFAULT NOW()
             )
         """)
@@ -41,7 +47,20 @@ def init_ambassador_tables():
                 id SERIAL PRIMARY KEY,
                 ref_code TEXT NOT NULL,
                 event TEXT NOT NULL,
+                meta TEXT,
                 created_at TIMESTAMPTZ DEFAULT NOW()
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS void_ambassador_rewards (
+                id SERIAL PRIMARY KEY,
+                ambassador_id INTEGER NOT NULL REFERENCES void_ambassadors(id),
+                ref_code TEXT NOT NULL,
+                milestone INTEGER NOT NULL,
+                vtx_amount NUMERIC(18,6) NOT NULL,
+                status TEXT DEFAULT 'earned',
+                earned_at TIMESTAMPTZ DEFAULT NOW(),
+                claimed_at TIMESTAMPTZ
             )
         """)
         conn.commit()
@@ -51,6 +70,34 @@ def init_ambassador_tables():
         logger.error("[Ambassador] Table init failed: %s", e)
     finally:
         cur.close()
+
+
+def _check_and_grant_reward(cur, ambassador_id: int, ref_code: str, users_referred: int, milestones_already_earned: int) -> int:
+    """Check if a new milestone has been crossed. If so, log earned VTX. Returns milestones newly granted."""
+    milestones_due = users_referred // _REFERRALS_PER_MILESTONE
+    new_milestones = milestones_due - milestones_already_earned
+    if new_milestones <= 0:
+        return 0
+    for i in range(new_milestones):
+        milestone_num = milestones_already_earned + i + 1
+        cur.execute(
+            """INSERT INTO void_ambassador_rewards (ambassador_id, ref_code, milestone, vtx_amount, status)
+               VALUES (%s, %s, %s, %s, 'earned')""",
+            (ambassador_id, ref_code, milestone_num, _VTX_PER_MILESTONE)
+        )
+    vtx_unlocked = new_milestones * _VTX_PER_MILESTONE
+    cur.execute(
+        """UPDATE void_ambassadors
+           SET milestones_earned = milestones_earned + %s,
+               vtx_earned = vtx_earned + %s
+           WHERE id = %s""",
+        (new_milestones, vtx_unlocked, ambassador_id)
+    )
+    logger.info(
+        "[Ambassador] %s crossed %s milestone(s) — %s VTX earned (ref: %s)",
+        ambassador_id, new_milestones, vtx_unlocked, ref_code
+    )
+    return new_milestones
 
 
 def _generate_ref_code(name: str) -> str:
@@ -154,7 +201,7 @@ def ambassador_panel():
         cur = conn.cursor()
         cur.execute("""
             SELECT id, name, email, field, ref_code, notes, email_sent, email_sent_at,
-                   users_referred, reward_triggered, created_at
+                   users_referred, milestones_earned, vtx_earned, vtx_claimed, created_at
             FROM void_ambassadors ORDER BY created_at DESC
         """)
         rows = cur.fetchall()
@@ -163,8 +210,9 @@ def ambassador_panel():
                 "id": r[0], "name": r[1], "email": r[2], "field": r[3],
                 "ref_code": r[4], "notes": r[5], "email_sent": r[6],
                 "email_sent_at": r[7].isoformat() if r[7] else None,
-                "users_referred": r[8], "reward_triggered": r[9],
-                "created_at": r[10].isoformat() if r[10] else None,
+                "users_referred": r[8], "milestones_earned": r[9],
+                "vtx_earned": float(r[10]), "vtx_claimed": float(r[11]),
+                "created_at": r[12].isoformat() if r[12] else None,
             }
             for r in rows
         ]
@@ -174,10 +222,12 @@ def ambassador_panel():
         sent = cur.fetchone()[0]
         cur.execute("SELECT COALESCE(SUM(users_referred), 0) FROM void_ambassadors")
         total_referrals = cur.fetchone()[0]
+        cur.execute("SELECT COALESCE(SUM(vtx_earned), 0) FROM void_ambassadors")
+        total_vtx = float(cur.fetchone()[0])
         return render_template(
             "ambassador_panel.html",
             ambassadors=ambassadors,
-            stats={"total": total, "sent": sent, "total_referrals": total_referrals},
+            stats={"total": total, "sent": sent, "total_referrals": int(total_referrals), "total_vtx": total_vtx},
         )
     except Exception as e:
         logger.error("[Ambassador] Panel load failed: %s", e)
@@ -316,20 +366,62 @@ def delete_ambassador(ambassador_id: int):
         cur.close()
 
 
+def record_referral_signup(ref_code: str, new_username: str = "") -> bool:
+    """Call this when a user registers via a referral link. Auto-grants VTX at every 10 signups."""
+    if not ref_code:
+        return False
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id, users_referred, milestones_earned FROM void_ambassadors WHERE ref_code = %s",
+            (ref_code,)
+        )
+        row = cur.fetchone()
+        if not row:
+            return False
+        amb_id, users_referred, milestones_earned = row
+        new_count = users_referred + 1
+        cur.execute(
+            "UPDATE void_ambassadors SET users_referred = %s WHERE id = %s",
+            (new_count, amb_id)
+        )
+        cur.execute(
+            "INSERT INTO void_ambassador_referrals (ref_code, event, meta) VALUES (%s, 'signup', %s)",
+            (ref_code, new_username or "anonymous")
+        )
+        new_milestones = _check_and_grant_reward(cur, amb_id, ref_code, new_count, milestones_earned)
+        conn.commit()
+        if new_milestones:
+            logger.info(
+                "[Ambassador] %s VTX earned by ambassador %s (ref: %s) after %s signups",
+                new_milestones * _VTX_PER_MILESTONE, amb_id, ref_code, new_count
+            )
+        return True
+    except Exception as e:
+        conn.rollback()
+        logger.error("[Ambassador] record_referral_signup failed: %s", e)
+        return False
+    finally:
+        cur.close()
+
+
 @ambassador_bp.route("/ref/<ref_code>")
 def ref_landing(ref_code: str):
+    """Store ref code in session and redirect to VoidEcho. Signup tracking happens at registration."""
     conn = _get_db()
     try:
         cur = conn.cursor()
         cur.execute("SELECT id FROM void_ambassadors WHERE ref_code = %s", (ref_code,))
         row = cur.fetchone()
         if row:
+            session["ambassador_ref"] = ref_code
             cur.execute(
                 "INSERT INTO void_ambassador_referrals (ref_code, event) VALUES (%s, 'visit')",
                 (ref_code,)
             )
             conn.commit()
-        from flask import redirect, url_for
+        from flask import redirect
         return redirect(f"/voidecho?ref={ref_code}")
     except Exception as e:
         logger.error("[Ambassador] Ref landing failed: %s", e)
