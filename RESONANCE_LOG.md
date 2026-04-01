@@ -732,3 +732,5 @@ Observations:
 | 2026-04-01 04:37:23 | SILK_SIGNAL | heartbeat_432Hz.wav | ...4fc9 | signal=HEARTBEAT |
 | 2026-04-01 05:07:24 | SILK_SIGNAL | heartbeat_432Hz.wav | ...fc18 | signal=HEARTBEAT |
 | 2026-04-01 15:59:18 | SILK_SIGNAL | heartbeat_432Hz.wav | ...d548 | signal=HEARTBEAT |
+| 2026-04-01 16:29:18 | SILK_SIGNAL | heartbeat_432Hz.wav | ...7ccb | signal=HEARTBEAT |
+| 2026-04-01 16:59:19 | SILK_SIGNAL | heartbeat_432Hz.wav | ...ad8e | signal=HEARTBEAT |
