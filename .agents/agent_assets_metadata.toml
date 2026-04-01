@@ -12,3 +12,9 @@ id = "iMxoio8jlb0aaJkiNHRDe"
 uri = "file://exports/void_ambassador_prospects.csv"
 type = "table"
 title = "VOID Ambassador Prospect List — 35 Contacts"
+
+[[outputs]]
+id = "VmCyvfzVVq-TiQOttnMVg"
+uri = "file://exports/void_ambassador_social_handles.csv"
+type = "table"
+title = "VOID Ambassador — Social Media Handles (91 contacts)"
