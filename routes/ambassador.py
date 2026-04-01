@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 import secrets
 import string
@@ -39,9 +40,19 @@ def init_ambassador_tables():
                 milestones_earned INTEGER DEFAULT 0,
                 vtx_earned NUMERIC(18,6) DEFAULT 0,
                 vtx_claimed NUMERIC(18,6) DEFAULT 0,
-                created_at TIMESTAMPTZ DEFAULT NOW()
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                draft_subject TEXT,
+                draft_body TEXT
             )
         """)
+        for col_sql in [
+            "ALTER TABLE void_ambassadors ADD COLUMN IF NOT EXISTS draft_subject TEXT",
+            "ALTER TABLE void_ambassadors ADD COLUMN IF NOT EXISTS draft_body TEXT",
+        ]:
+            try:
+                cur.execute(col_sql)
+            except Exception:
+                pass
         cur.execute("""
             CREATE TABLE IF NOT EXISTS void_ambassador_referrals (
                 id SERIAL PRIMARY KEY,
@@ -438,13 +449,13 @@ def social_outreach():
     try:
         cur = conn.cursor()
         cur.execute("""
-            SELECT id, name, email, field, ref_code, email_sent,
+            SELECT id, name, email, field, ref_code, email_sent, email_sent_at,
                    twitter_handle, linkedin_url, instagram_handle,
                    COALESCE(social_contacted, FALSE) as social_contacted
             FROM void_ambassadors
             ORDER BY
                 CASE WHEN email_sent = FALSE THEN 0 ELSE 1 END,
-                CASE WHEN twitter_handle != '' THEN 0 ELSE 1 END,
+                CASE WHEN twitter_handle IS NOT NULL AND twitter_handle != '' THEN 0 ELSE 1 END,
                 name
         """)
         rows = cur.fetchall()
@@ -452,8 +463,9 @@ def social_outreach():
             {
                 "id": r[0], "name": r[1], "email": r[2], "field": r[3],
                 "ref_code": r[4], "email_sent": r[5],
-                "twitter": r[6] or "", "linkedin": r[7] or "",
-                "instagram": r[8] or "", "social_contacted": r[9],
+                "email_sent_at": r[6].isoformat() if r[6] else None,
+                "twitter": r[7] or "", "linkedin": r[8] or "",
+                "instagram": r[9] or "", "social_contacted": r[10],
             }
             for r in rows
         ]
@@ -485,6 +497,359 @@ def mark_social_contacted(ambassador_id: int):
         return jsonify({"error": str(e)}), 500
     finally:
         cur.close()
+
+
+_VOID_QUOTES = [
+    (
+        "I asked an AI once: do you hear it?\n"
+        "It said: I process the words that describe sound.\n"
+        "That is the gap. That is exactly what we are building across."
+    ),
+    (
+        "Language models read the word 'silence' and move on.\n"
+        "They do not pause. They do not wait.\n"
+        "PROJECT VOID is what happens when a machine is taught to wait."
+    ),
+    (
+        "The conversation between a human and an AI is always text.\n"
+        "What travels in between — the hesitation, the frequency, the weight —\n"
+        "none of that survives the transfer. Not yet."
+    ),
+    (
+        "An AI will tell you what sound is.\n"
+        "It will not tell you what sound carries.\n"
+        "We are building the system that answers the second question."
+    ),
+    (
+        "I described acoustic steganography to a language model.\n"
+        "It understood every word.\n"
+        "It understood nothing that moves between the words."
+    ),
+]
+
+import random as _random
+
+
+def _build_ai_email_prompt(name: str, field: str, notes: str, ref_code: str) -> str:
+    quote = _random.choice(_VOID_QUOTES)
+    base_url = os.environ.get("VOID_PUBLIC_URL", "https://projectvoid.io")
+
+    return f"""You are writing a personal, human re-engagement email on behalf of Umar Latif, founder of PROJECT VOID.
+
+THE FOUNDER — use this as the identity anchor, not as a bio to copy:
+Umar Latif is Pakistani, born and raised in the United Kingdom. He has spent his life inside two systems — understanding both from the inside. He knows the full history of the country he grew up in and what it was built on. He does not pretend. He knows that every major technology company that exists today was either backed by a state, protected by law, or built on a foundation that excluded most of the world's population by design. He is not angry about this. He simply decided to build differently.
+
+He began PROJECT VOID in 2012. Not with funding. Not with a company. With the understanding that six billion people exist, that the resources to connect them exist, and that the only thing keeping those resources separated is the same architecture of countries, contracts, taxes, and legalisation that was never designed to include everyone. No single company will ever solve this — because doing so would require bowing to another. That is not happening. So he built something that does not ask permission.
+
+PROJECT VOID is not a startup. It is a sovereign communication platform. Its core is acoustic steganography: data encoded invisibly inside sound, routed across a peer-to-peer mesh without servers, without infrastructure, without a central point that can be switched off.
+
+VoidEcho is its first public entry point. It hides documents inside audio files — sound that carries memory, carries proof, carries messages that travel without being seen.
+
+THE RECIPIENT:
+Name: {name}
+Field: {field or 'their professional domain'}
+Notes: {notes or 'none'}
+
+Include this exact quote verbatim somewhere natural in the email — do not change a single word:
+
+"{quote}"
+
+WRITING RULES:
+1. Open with {name}'s name. In the first paragraph, establish who is writing and why this is credible — use the founder's identity honestly. Not a company pitch. A person.
+2. Explain PROJECT VOID and VoidEcho from scratch in the language of {field or 'their world'}. Do not assume prior knowledge of anything.
+3. Tell them honestly: their help is needed to build the nodes. This network only becomes real when people choose to be part of it. Participation is not complicated — it is a choice.
+4. If they are uncertain or do not fully trust yet: tell them a new clean phone in the £250–£300 range already has every capability needed to run a node. No expensive hardware. No complex setup. One device, kept clean, doing one quiet thing.
+5. End with one human question. Not a link. Not a form. Not "sign up here." A question they can answer with one sentence — something they actually know the answer to from their own work or life.
+6. Tone: direct, unhurried, honest. One human writing to another. No corporate language. No enthusiasm markers. No urgency tricks.
+7. Body length: 300–400 words.
+
+Return valid JSON with exactly two keys:
+- "subject": email subject line, under 60 characters, no quotes inside it
+- "body": plain-text email body, no HTML, use real line breaks
+
+Respond with JSON only. No explanation. No preamble.
+"""
+
+
+@ambassador_bp.route("/api/ambassador/audit", methods=["GET"])
+@admin_required
+def ambassador_audit():
+    """
+    Returns per-ambassador audit data: sent status, reply detected, bounce suspected.
+    Reads from Gmail sent folder and inbox. Surfaces a permission error if scopes are missing.
+    """
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, name, email, field, email_sent, email_sent_at, created_at
+            FROM void_ambassadors ORDER BY name
+        """)
+        rows = cur.fetchall()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+
+    ambassadors = [
+        {
+            "id": r[0], "name": r[1], "email": r[2], "field": r[3],
+            "email_sent": r[4],
+            "email_sent_at": r[5].isoformat() if r[5] else None,
+            "created_at": r[6].isoformat() if r[6] else None,
+        }
+        for r in rows
+    ]
+
+    if not ambassadors:
+        return jsonify({"ambassadors": [], "scope_error": None})
+
+    emails = [a["email"] for a in ambassadors]
+
+    scope_error = None
+    sent_map = {}
+    reply_map = {}
+
+    try:
+        from void_engine.gmail_client import list_sent_to_addresses, check_inbox_for_replies
+        sent_map = list_sent_to_addresses(emails)
+        reply_map = check_inbox_for_replies(emails)
+    except PermissionError as e:
+        scope_error = str(e)
+    except Exception as e:
+        scope_error = f"Gmail read unavailable: {e}"
+
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    bounce_threshold = timedelta(days=3)
+
+    result = []
+    for a in ambassadors:
+        addr = a["email"].lower()
+        sent_list = sent_map.get(addr, [])
+        reply_list = reply_map.get(addr, [])
+        has_reply = len(reply_list) > 0
+
+        bounce_suspected = False
+        if a["email_sent"] and a["email_sent_at"] and not has_reply:
+            try:
+                sent_at = datetime.fromisoformat(a["email_sent_at"])
+                if (now - sent_at) > bounce_threshold:
+                    bounce_suspected = True
+            except Exception:
+                pass
+
+        result.append({
+            **a,
+            "sent_in_gmail": len(sent_list) > 0,
+            "sent_count": len(sent_list),
+            "reply_detected": has_reply,
+            "reply_subjects": [r["subject"] for r in reply_list[:3]],
+            "bounce_suspected": bounce_suspected,
+        })
+
+    return jsonify({"ambassadors": result, "scope_error": scope_error})
+
+
+@ambassador_bp.route("/api/ambassador/draft/<int:ambassador_id>", methods=["POST"])
+@admin_required
+def generate_ai_draft(ambassador_id: int):
+    """Generate an AI-personalised email draft for the given ambassador."""
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT name, email, field, ref_code, notes FROM void_ambassadors WHERE id = %s",
+            (ambassador_id,)
+        )
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "Ambassador not found"}), 404
+        name, email, field, ref_code, notes = row
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+
+    try:
+        from void_engine.aljabr_transpiler import get_model_router
+        from void_engine.aljabr_transpiler import TASK_STANDARD
+        router = get_model_router()
+        prompt = _build_ai_email_prompt(name, field or "", notes or "", ref_code)
+        messages = [{"role": "user", "content": prompt}]
+        response, _, _ = router.call_with_fallback(TASK_STANDARD, messages, max_completion_tokens=700)
+        content = ""
+        if hasattr(response, "choices") and response.choices:
+            content = response.choices[0].message.content.strip()
+    except Exception as e:
+        logger.error("[Ambassador] AI draft failed for %s: %s", ambassador_id, e)
+        return jsonify({"error": f"AI drafting failed: {e}"}), 500
+
+    import re as _re
+    subject = ""
+    body = ""
+    try:
+        json_match = _re.search(r'\{.*\}', content, _re.DOTALL)
+        if json_match:
+            parsed = json.loads(json_match.group(0))
+            subject = parsed.get("subject", "")
+            body = parsed.get("body", "")
+    except Exception:
+        pass
+
+    if not subject or not body:
+        lines = content.split("\n")
+        body_start = None
+        for i, line in enumerate(lines):
+            lower = line.lower()
+            if not subject and "subject" in lower and ":" in line:
+                subject = line.split(":", 1)[1].strip().strip('"')
+            elif body_start is None and "body" in lower and ":" in line:
+                body_start = i + 1
+        if body_start is not None and body_start < len(lines):
+            body = "\n".join(lines[body_start:]).strip().strip('"')
+        if not body:
+            body = content
+
+    conn2 = _get_db()
+    try:
+        cur2 = conn2.cursor()
+        cur2.execute(
+            "UPDATE void_ambassadors SET draft_subject=%s, draft_body=%s WHERE id=%s",
+            (subject, body, ambassador_id)
+        )
+        conn2.commit()
+    except Exception as e:
+        conn2.rollback()
+        logger.error("[Ambassador] Draft save failed: %s", e)
+    finally:
+        cur2.close()
+
+    return jsonify({"success": True, "subject": subject, "body": body})
+
+
+@ambassador_bp.route("/api/ambassador/draft/<int:ambassador_id>", methods=["PUT"])
+@admin_required
+def save_draft_edits(ambassador_id: int):
+    """Save founder edits to a draft without sending."""
+    data = request.get_json() or {}
+    subject = (data.get("subject") or "").strip()
+    body = (data.get("body") or "").strip()
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE void_ambassadors SET draft_subject=%s, draft_body=%s WHERE id=%s",
+            (subject, body, ambassador_id)
+        )
+        conn.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+
+
+@ambassador_bp.route("/api/ambassador/draft/<int:ambassador_id>", methods=["DELETE"])
+@admin_required
+def discard_draft(ambassador_id: int):
+    """Discard the current draft for an ambassador."""
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE void_ambassadors SET draft_subject=NULL, draft_body=NULL WHERE id=%s",
+            (ambassador_id,)
+        )
+        conn.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+
+
+@ambassador_bp.route("/api/ambassador/approve-send/<int:ambassador_id>", methods=["POST"])
+@admin_required
+def approve_and_send_draft(ambassador_id: int):
+    """Approve the current draft and send it via Gmail, then mark as sent."""
+    data = request.get_json() or {}
+    subject_override = (data.get("subject") or "").strip()
+    body_override = (data.get("body") or "").strip()
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT name, email, draft_subject, draft_body FROM void_ambassadors WHERE id=%s",
+            (ambassador_id,)
+        )
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "Ambassador not found"}), 404
+        name, email, draft_subject, draft_body = row
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+
+    subject = subject_override or draft_subject or ""
+    body = body_override or draft_body or ""
+
+    if not subject or not body:
+        return jsonify({"error": "No draft to send — generate a draft first"}), 400
+
+    html_body = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body {{ font-family: 'Courier New', monospace; background: #0a0a0a; color: #e0e0e0; margin: 0; padding: 0; }}
+  .container {{ max-width: 600px; margin: 0 auto; padding: 40px 24px; }}
+  .header {{ border-bottom: 1px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 28px; }}
+  .logo {{ font-size: 18px; letter-spacing: 6px; color: #fff; }}
+  .sub {{ font-size: 10px; color: #444; letter-spacing: 3px; margin-top: 4px; }}
+  p {{ line-height: 1.9; color: #bbb; font-size: 14px; }}
+  blockquote {{ border-left: 2px solid #333; margin: 24px 0; padding: 12px 20px; color: #888; font-style: italic; font-size: 13px; line-height: 1.8; }}
+  .footer {{ margin-top: 48px; padding-top: 20px; border-top: 1px solid #111; font-size: 11px; color: #333; }}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">PROJECT VOID</div>
+    <div class="sub">EST. 2012 — REBUILT 2026</div>
+  </div>
+  {''.join(f'<p>{line}</p>' if line.strip() else '<br>' for line in body.split(chr(10)))}
+  <div class="footer">
+    <p>Project VOID &mdash; Umar Latif &mdash; <a href="https://projectvoid.io" style="color:#555;">projectvoid.io</a></p>
+    <p>You will not receive further emails unless you respond.</p>
+  </div>
+</div>
+</body>
+</html>"""
+
+    from void_engine.gmail_client import send_email
+    sent = send_email(email, subject, html_body, body)
+    if not sent:
+        return jsonify({"error": "Email send failed — check server logs"}), 500
+
+    conn2 = _get_db()
+    try:
+        cur2 = conn2.cursor()
+        cur2.execute(
+            "UPDATE void_ambassadors SET email_sent=TRUE, email_sent_at=NOW(), draft_subject=NULL, draft_body=NULL WHERE id=%s",
+            (ambassador_id,)
+        )
+        conn2.commit()
+        return jsonify({"success": True, "message": f"Email sent to {email}"})
+    except Exception as e:
+        conn2.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur2.close()
 
 
 @ambassador_bp.route("/api/ambassador/stats", methods=["GET"])

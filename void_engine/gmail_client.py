@@ -3,6 +3,7 @@ import logging
 import base64
 import json
 import time
+import urllib.error
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -63,6 +64,126 @@ def _get_access_token() -> str:
 
     _cached_settings = {"access_token": access_token}
     return access_token
+
+
+def _gmail_get(path: str, params=None) -> dict:
+    """
+    Make a GET request to the Gmail API. Raises on scope/auth errors.
+    params may be a dict or a list of (key, value) tuples to support repeated keys.
+    """
+    import urllib.request
+    import urllib.parse
+    access_token = _get_access_token()
+    url = f"https://gmail.googleapis.com/gmail/v1/{path}"
+    if params:
+        if isinstance(params, dict):
+            params = list(params.items())
+        url += "?" + urllib.parse.urlencode(params)
+    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {access_token}"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read().decode())
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        if e.code in (401, 403):
+            raise PermissionError(f"Gmail read access denied (HTTP {e.code}). Re-authorise Gmail with gmail.readonly scope. Detail: {body}") from e
+        raise RuntimeError(f"Gmail API error {e.code}: {body}") from e
+
+
+def _get_message_headers(msg_id: str) -> dict:
+    """Fetch subject, from, to, date headers for a single message."""
+    try:
+        params = [
+            ("format", "metadata"),
+            ("metadataHeaders", "Subject"),
+            ("metadataHeaders", "From"),
+            ("metadataHeaders", "To"),
+            ("metadataHeaders", "Date"),
+        ]
+        data = _gmail_get(f"users/me/messages/{msg_id}", params)
+        headers = {h["name"].lower(): h["value"] for h in data.get("payload", {}).get("headers", [])}
+        return {
+            "id": msg_id,
+            "subject": headers.get("subject", ""),
+            "from": headers.get("from", ""),
+            "to": headers.get("to", ""),
+            "date": headers.get("date", ""),
+        }
+    except Exception as e:
+        logger.warning("[Gmail] Could not fetch headers for message %s: %s", msg_id, e)
+        return {"id": msg_id, "subject": "", "from": "", "to": "", "date": ""}
+
+
+def list_sent_to_addresses(email_addresses: list, max_results: int = 200) -> dict:
+    """
+    Check the SENT folder for emails sent to any of the given addresses.
+    Returns a dict: {email_address: [{"subject": ..., "date": ...}, ...]}
+    Raises PermissionError if read scopes are missing.
+    """
+    sent_map = {addr.lower(): [] for addr in email_addresses}
+
+    try:
+        data = _gmail_get("users/me/messages", {
+            "labelIds": "SENT",
+            "maxResults": max_results,
+        })
+    except PermissionError:
+        raise
+    except Exception as e:
+        logger.error("[Gmail] list_sent_to_addresses failed: %s", e)
+        return sent_map
+
+    message_stubs = data.get("messages", [])
+    for stub in message_stubs:
+        try:
+            info = _get_message_headers(stub["id"])
+            to_raw = info.get("to", "").lower()
+            for addr in sent_map:
+                if addr in to_raw:
+                    sent_map[addr].append({
+                        "subject": info.get("subject", ""),
+                        "date": info.get("date", ""),
+                    })
+        except Exception:
+            continue
+
+    return sent_map
+
+
+def check_inbox_for_replies(email_addresses: list, max_results: int = 200) -> dict:
+    """
+    Check the INBOX for messages FROM any of the given addresses (i.e. replies received).
+    Returns a dict: {email_address: [{"subject": ..., "date": ...}, ...]}
+    Raises PermissionError if read scopes are missing.
+    """
+    reply_map = {addr.lower(): [] for addr in email_addresses}
+
+    try:
+        data = _gmail_get("users/me/messages", {
+            "labelIds": "INBOX",
+            "maxResults": max_results,
+        })
+    except PermissionError:
+        raise
+    except Exception as e:
+        logger.error("[Gmail] check_inbox_for_replies failed: %s", e)
+        return reply_map
+
+    message_stubs = data.get("messages", [])
+    for stub in message_stubs:
+        try:
+            info = _get_message_headers(stub["id"])
+            from_raw = info.get("from", "").lower()
+            for addr in reply_map:
+                if addr in from_raw:
+                    reply_map[addr].append({
+                        "subject": info.get("subject", ""),
+                        "date": info.get("date", ""),
+                    })
+        except Exception:
+            continue
+
+    return reply_map
 
 
 def send_email(to: str, subject: str, html_body: str, text_body: str = "") -> bool:

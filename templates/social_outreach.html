@@ -7,14 +7,26 @@
 <link rel="stylesheet" href="/static/style.css">
 <style>
   body { background: #0a0a0a; color: #e0e0e0; font-family: 'Courier New', monospace; margin: 0; padding: 0; }
-  .so-container { max-width: 900px; margin: 0 auto; padding: 32px 16px 80px; }
+  .so-container { max-width: 960px; margin: 0 auto; padding: 32px 16px 80px; }
 
-  .so-header { border-bottom: 1px solid #1e1e1e; padding-bottom: 20px; margin-bottom: 28px; }
+  .so-header { border-bottom: 1px solid #1e1e1e; padding-bottom: 20px; margin-bottom: 24px; }
   .so-title { font-size: 12px; letter-spacing: 6px; color: #fff; text-transform: uppercase; }
   .so-sub { font-size: 10px; color: #444; letter-spacing: 2px; margin-top: 4px; }
   .back-link { font-size: 11px; color: #555; text-decoration: none; letter-spacing: 2px; float: right; margin-top: 4px; }
   .back-link:hover { color: #c8a96e; }
 
+  /* TAB NAV */
+  .tab-nav { display: flex; gap: 0; margin-bottom: 28px; border-bottom: 1px solid #1e1e1e; }
+  .tab-btn { padding: 10px 24px; background: transparent; border: none; border-bottom: 2px solid transparent;
+    color: #444; font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 3px;
+    cursor: pointer; transition: all 0.2s; text-transform: uppercase; margin-bottom: -1px; }
+  .tab-btn:hover { color: #888; }
+  .tab-btn.active { color: #c8a96e; border-bottom-color: #c8a96e; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* SOCIAL TAB */
   .progress-bar-wrap { margin-bottom: 28px; }
   .progress-bar-label { font-size: 10px; letter-spacing: 2px; color: #555; margin-bottom: 8px; display: flex; justify-content: space-between; }
   .progress-bar-outer { background: #111; border: 1px solid #1e1e1e; height: 6px; }
@@ -72,13 +84,73 @@
   .done-btn.undone { border-color: #3a3a3a; color: #555; }
   .done-btn.undone:hover { border-color: #c8a96e; color: #c8a96e; }
   .ref-pill { font-size: 9px; color: #333; letter-spacing: 1.5px; padding: 4px 8px; border: 1px solid #1a1a1a; }
-
   .no-social { font-size: 10px; color: #333; letter-spacing: 1.5px; padding: 4px 0; }
 
+  /* AUDIT TAB */
+  .audit-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .audit-btn { padding: 8px 20px; border: 1px solid #2a2a2a; background: transparent; color: #888;
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+  .audit-btn:hover { border-color: #c8a96e; color: #c8a96e; }
+  .audit-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+  .audit-status { font-size: 10px; color: #555; letter-spacing: 1px; }
+
+  .scope-error-banner { background: #1a0a0a; border: 1px solid #5a1a1a; padding: 14px 16px;
+    margin-bottom: 20px; font-size: 11px; color: #c85a5a; line-height: 1.7; }
+  .scope-error-banner strong { color: #e07070; display: block; margin-bottom: 4px; letter-spacing: 1px; }
+
+  .audit-row { border: 1px solid #1a1a1a; background: #0d0d0d; margin-bottom: 8px; }
+  .audit-row.has-reply { border-color: #1a3a1a; }
+  .audit-row.bounce { border-color: #3a1a0a; }
+
+  .audit-main { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px 12px; flex-wrap: wrap; }
+  .audit-name { font-size: 12px; color: #e0e0e0; font-weight: bold; min-width: 160px; flex: 1; }
+  .audit-email { font-size: 10px; color: #444; letter-spacing: 0.5px; margin-top: 3px; }
+  .audit-field { font-size: 9px; color: #3a3a3a; letter-spacing: 1px; margin-top: 2px; }
+
+  .audit-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .abadge { font-size: 9px; letter-spacing: 1.5px; padding: 3px 8px; border: 1px solid; text-transform: uppercase; white-space: nowrap; }
+  .abadge-ok { color: #446644; border-color: #1a3a1a; }
+  .abadge-warn { color: #8a6a1a; border-color: #4a3a0a; }
+  .abadge-danger { color: #8a3a1a; border-color: #5a1a0a; }
+  .abadge-grey { color: #333; border-color: #1e1e1e; }
+  .abadge-reply { color: #2a7a4a; border-color: #0a3a1a; }
+
+  .audit-actions { padding: 0 16px 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .draft-btn { padding: 7px 16px; border: 1px solid #2a2a4a; background: transparent; color: #5a5aaa;
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+  .draft-btn:hover { border-color: #5a5aaa; color: #8a8aee; }
+  .draft-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
+  /* DRAFT PANEL */
+  .draft-panel { margin: 0 16px 16px; border: 1px solid #1e1e2e; background: #080810; padding: 16px; }
+  .draft-panel-label { font-size: 9px; color: #444; letter-spacing: 3px; margin-bottom: 12px; }
+  .draft-subject-input { width: 100%; background: #0a0a16; border: 1px solid #1e1e3a; color: #c8c8ee;
+    font-family: 'Courier New', monospace; font-size: 12px; padding: 8px 10px; margin-bottom: 10px;
+    letter-spacing: 0.5px; box-sizing: border-box; outline: none; }
+  .draft-subject-input:focus { border-color: #3a3a8a; }
+  .draft-body-input { width: 100%; background: #0a0a16; border: 1px solid #1e1e3a; color: #aaaacc;
+    font-family: 'Courier New', monospace; font-size: 11px; padding: 10px 12px; line-height: 1.8;
+    min-height: 240px; resize: vertical; box-sizing: border-box; outline: none; white-space: pre-wrap; }
+  .draft-body-input:focus { border-color: #3a3a8a; }
+  .draft-action-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+  .send-btn { padding: 8px 20px; border: 1px solid #1a4a1a; background: transparent; color: #446644;
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+  .send-btn:hover { border-color: #446644; color: #6ac06a; }
+  .send-btn:disabled { opacity: 0.3; cursor: default; }
+  .discard-btn { padding: 8px 16px; border: 1px solid #2a1a1a; background: transparent; color: #554444;
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+  .discard-btn:hover { border-color: #664444; color: #aa6666; }
+  .draft-note { font-size: 9px; color: #333; letter-spacing: 1px; margin-left: auto; }
+
+  .spinner { display: inline-block; width: 10px; height: 10px; border: 1px solid #444;
+    border-top-color: #c8a96e; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   @media (max-width: 600px) {
-    .card-header { gap: 8px; }
+    .card-header, .audit-main { gap: 8px; }
     .social-btn { font-size: 9px; padding: 6px 10px; }
     .so-container { padding: 20px 12px 60px; }
+    .tab-btn { padding: 8px 14px; font-size: 9px; }
   }
 </style>
 </head>
@@ -87,122 +159,182 @@
 
   <div class="so-header">
     <a href="/admin/ambassadors" class="back-link">← AMBASSADOR PANEL</a>
-    <div class="so-title">SOCIAL OUTREACH</div>
-    <div class="so-sub">DIRECT CONTACT CENTRE — {{ stats.total }} AMBASSADORS</div>
+    <div class="so-title">OUTREACH CENTRE</div>
+    <div class="so-sub">PROJECT VOID — {{ stats.total }} AMBASSADORS</div>
   </div>
 
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-label">
-      <span>CONTACTED VIA SOCIAL</span>
-      <span id="progress-label">{{ stats.contacted }} / {{ stats.total }}</span>
-    </div>
-    <div class="progress-bar-outer">
-      <div class="progress-bar-inner" id="progress-bar"
-           style="width: {{ ((stats.contacted / stats.total) * 100) | round(1) if stats.total else 0 }}%"></div>
-    </div>
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('social', this)">SOCIAL OUTREACH</button>
+    <button class="tab-btn" onclick="switchTab('audit', this)">EMAIL AUDIT + AI DRAFTS</button>
   </div>
 
-  <div class="filters">
-    <button class="filter-btn active" onclick="filter('all', this)">ALL ({{ stats.total }})</button>
-    <button class="filter-btn" onclick="filter('pending', this)">NOT YET CONTACTED</button>
-    <button class="filter-btn" onclick="filter('has-x', this)">HAS X HANDLE</button>
-    <button class="filter-btn" onclick="filter('has-li', this)">HAS LINKEDIN</button>
-    <button class="filter-btn" onclick="filter('no-email', this)">EMAIL UNCERTAIN</button>
-  </div>
+  <!-- ═══════════════════════════════════════════ SOCIAL TAB -->
+  <div class="tab-panel active" id="tab-social">
 
-  <div class="amb-count" id="visible-count">Showing {{ stats.total }} contacts</div>
-
-  <div id="cards-container">
-  {% for a in ambassadors %}
-  {% set has_x = a.twitter and a.twitter != '' %}
-  {% set has_li = a.linkedin and a.linkedin != '' %}
-  {% set has_ig = a.instagram and a.instagram != '' %}
-  {% set x_url = 'https://x.com/' + a.twitter.replace('@','') if has_x else '' %}
-  {% set li_url = 'https://' + a.linkedin if has_li else '' %}
-  {% set ig_url = 'https://instagram.com/' + a.instagram.replace('@','') if has_ig else '' %}
-
-  <div class="card {% if a.social_contacted %}contacted{% endif %}"
-       id="card-{{ a.id }}"
-       data-has-x="{{ '1' if has_x else '0' }}"
-       data-has-li="{{ '1' if has_li else '0' }}"
-       data-email-sent="{{ '1' if a.email_sent else '0' }}"
-       data-contacted="{{ '1' if a.social_contacted else '0' }}">
-
-    <div class="card-header">
-      <div>
-        <div class="card-name">{{ a.name }}</div>
-        <div class="card-field">{{ a.field }}</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-label">
+        <span>CONTACTED VIA SOCIAL</span>
+        <span id="progress-label">{{ stats.contacted }} / {{ stats.total }}</span>
       </div>
-      <span class="email-badge {% if a.email_sent %}badge-sent{% else %}badge-unsent{% endif %}">
-        {% if a.email_sent %}EMAIL SENT{% else %}EMAIL UNSENT{% endif %}
-      </span>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progress-bar"
+             style="width: {{ ((stats.contacted / stats.total) * 100) | round(1) if stats.total else 0 }}%"></div>
+      </div>
     </div>
 
-    <div class="card-body">
-      {% if has_x or has_li or has_ig %}
+    <div class="filters">
+      <button class="filter-btn active" onclick="filter('all', this)">ALL ({{ stats.total }})</button>
+      <button class="filter-btn" onclick="filter('pending', this)">NOT YET CONTACTED</button>
+      <button class="filter-btn" onclick="filter('has-x', this)">HAS X HANDLE</button>
+      <button class="filter-btn" onclick="filter('has-li', this)">HAS LINKEDIN</button>
+      <button class="filter-btn" onclick="filter('no-email', this)">EMAIL UNSENT</button>
+    </div>
 
-      <div class="social-row">
-        {% if has_x %}
-        <a class="social-btn x-btn" href="{{ x_url }}" target="_blank" rel="noopener">
-          ✕ {{ a.twitter }}
-        </a>
+    <div class="amb-count" id="visible-count">Showing {{ stats.total }} contacts</div>
+
+    <div id="cards-container">
+    {% for a in ambassadors %}
+    {% set has_x = a.twitter and a.twitter != '' %}
+    {% set has_li = a.linkedin and a.linkedin != '' %}
+    {% set has_ig = a.instagram and a.instagram != '' %}
+    {% set x_url = 'https://x.com/' + a.twitter.replace('@','') if has_x else '' %}
+    {% set li_url = 'https://' + a.linkedin if has_li else '' %}
+    {% set ig_url = 'https://instagram.com/' + a.instagram.replace('@','') if has_ig else '' %}
+
+    <div class="card {% if a.social_contacted %}contacted{% endif %}"
+         id="card-{{ a.id }}"
+         data-has-x="{{ '1' if has_x else '0' }}"
+         data-has-li="{{ '1' if has_li else '0' }}"
+         data-email-sent="{{ '1' if a.email_sent else '0' }}"
+         data-contacted="{{ '1' if a.social_contacted else '0' }}">
+
+      <div class="card-header">
+        <div>
+          <div class="card-name">{{ a.name }}</div>
+          <div class="card-field">{{ a.field }}</div>
+        </div>
+        <span class="email-badge {% if a.email_sent %}badge-sent{% else %}badge-unsent{% endif %}">
+          {% if a.email_sent %}EMAIL SENT{% else %}EMAIL UNSENT{% endif %}
+        </span>
+      </div>
+
+      <div class="card-body">
+        {% if has_x or has_li or has_ig %}
+        <div class="social-row">
+          {% if has_x %}
+          <a class="social-btn x-btn" href="{{ x_url }}" target="_blank" rel="noopener">
+            ✕ {{ a.twitter }}
+          </a>
+          {% else %}
+          <span class="social-btn none">✕ NO X HANDLE</span>
+          {% endif %}
+          {% if has_li %}
+          <a class="social-btn li-btn" href="{{ li_url }}" target="_blank" rel="noopener">
+            in LINKEDIN
+          </a>
+          {% endif %}
+          {% if has_ig %}
+          <a class="social-btn ig-btn" href="{{ ig_url }}" target="_blank" rel="noopener">
+            ◎ {{ a.instagram }}
+          </a>
+          {% endif %}
+        </div>
+
+        {% set x_msg = "I'm building Project VOID — a system that embeds data invisibly in sound and routes it across a mesh with no infrastructure. No servers. No central point. You were one of 91 people I thought should know it exists.\n\nYour referral link: https://void-stego-engine.replit.app/voidecho?ref=" + a.ref_code %}
+        {% set li_msg = a.name.split()[0] + " — I am building Project VOID: a sovereign distributed mesh networking system that uses acoustic steganography as its communication layer. Data encoded in sound, transmitted without infrastructure, verified by a purpose-built cryptographic integrity layer.\n\nYou are one of 91 people I identified as someone who should know this exists.\n\nYour personal access link: https://void-stego-engine.replit.app/voidecho?ref=" + a.ref_code + "\n\n— Umar Latif, Project VOID" %}
+
+        <div class="msg-box" id="msg-x-{{ a.id }}"
+             onclick="this.classList.toggle('expanded')"
+             title="Click to expand / collapse">{{ x_msg }}</div>
+
+        <div class="action-row">
+          {% if has_x %}
+          <button class="social-btn copy-btn" onclick="copyMsg('msg-x-{{ a.id }}', this)">
+            COPY X MESSAGE
+          </button>
+          {% endif %}
+          {% if has_li %}
+          <button class="social-btn copy-btn" onclick="copyCustom({{ a.id }}, 'li', this)">
+            COPY LINKEDIN MSG
+          </button>
+          {% endif %}
+          <button class="done-btn {% if a.social_contacted %}undone{% endif %}"
+                  id="done-{{ a.id }}"
+                  onclick="toggleContacted({{ a.id }}, this)">
+            {% if a.social_contacted %}MARK UNDONE{% else %}✓ MARK DONE{% endif %}
+          </button>
+          <span class="ref-pill">{{ a.ref_code }}</span>
+        </div>
+
         {% else %}
-        <span class="social-btn none">✕ NO X HANDLE</span>
-        {% endif %}
-
-        {% if has_li %}
-        <a class="social-btn li-btn" href="{{ li_url }}" target="_blank" rel="noopener">
-          in LINKEDIN
-        </a>
-        {% endif %}
-
-        {% if has_ig %}
-        <a class="social-btn ig-btn" href="{{ ig_url }}" target="_blank" rel="noopener">
-          ◎ {{ a.instagram }}
-        </a>
+        <div class="no-social">NO SOCIAL HANDLES — email-only contact</div>
+        <div class="action-row" style="margin-top:8px;">
+          <button class="done-btn {% if a.social_contacted %}undone{% endif %}"
+                  id="done-{{ a.id }}"
+                  onclick="toggleContacted({{ a.id }}, this)">
+            {% if a.social_contacted %}MARK UNDONE{% else %}✓ MARK DONE{% endif %}
+          </button>
+          <span class="ref-pill">{{ a.ref_code }}</span>
+        </div>
         {% endif %}
       </div>
-
-      {% set x_msg = "I'm building Project VOID — a system that embeds data invisibly in sound and routes it across a mesh with no infrastructure. No servers. No central point. You were one of 91 people I thought should know it exists.\n\nYour referral link: https://void-stego-engine.replit.app/voidecho?ref=" + a.ref_code %}
-      {% set li_msg = a.name.split()[0] + " — I am building Project VOID: a sovereign distributed mesh networking system that uses acoustic steganography as its communication layer. Data encoded in sound, transmitted without infrastructure, verified by a purpose-built cryptographic integrity layer.\n\nYou are one of 91 people I identified as someone who should know this exists.\n\nYour personal access link: https://void-stego-engine.replit.app/voidecho?ref=" + a.ref_code + "\n\n— Umar Latif, Project VOID" %}
-
-      <div class="msg-box" id="msg-x-{{ a.id }}"
-           onclick="this.classList.toggle('expanded')"
-           title="Click to expand / collapse">{{ x_msg }}</div>
-
-      <div class="action-row">
-        {% if has_x %}
-        <button class="social-btn copy-btn" onclick="copyMsg('msg-x-{{ a.id }}', this)">
-          COPY X MESSAGE
-        </button>
-        {% endif %}
-        {% if has_li %}
-        <button class="social-btn copy-btn" onclick="copyCustom({{ a.id }}, 'li', this)">
-          COPY LINKEDIN MSG
-        </button>
-        {% endif %}
-        <button class="done-btn {% if a.social_contacted %}undone{% endif %}"
-                id="done-{{ a.id }}"
-                onclick="toggleContacted({{ a.id }}, this)">
-          {% if a.social_contacted %}MARK UNDONE{% else %}✓ MARK DONE{% endif %}
-        </button>
-        <span class="ref-pill">{{ a.ref_code }}</span>
-      </div>
-
-      {% else %}
-      <div class="no-social">NO SOCIAL HANDLES — email-only contact</div>
-      <div class="action-row" style="margin-top:8px;">
-        <button class="done-btn {% if a.social_contacted %}undone{% endif %}"
-                id="done-{{ a.id }}"
-                onclick="toggleContacted({{ a.id }}, this)">
-          {% if a.social_contacted %}MARK UNDONE{% else %}✓ MARK DONE{% endif %}
-        </button>
-        <span class="ref-pill">{{ a.ref_code }}</span>
-      </div>
-      {% endif %}
+    </div>
+    {% endfor %}
     </div>
   </div>
-  {% endfor %}
+
+  <!-- ═══════════════════════════════════════════ AUDIT TAB -->
+  <div class="tab-panel" id="tab-audit">
+
+    <div class="audit-toolbar">
+      <button class="audit-btn" id="run-audit-btn" onclick="runAudit()">RUN INBOX AUDIT</button>
+      <span class="audit-status" id="audit-status">Click to check Gmail sent folder and inbox for replies.</span>
+    </div>
+
+    <div id="scope-error-wrap" style="display:none"></div>
+
+    <div id="audit-list">
+      {% for a in ambassadors %}
+      <div class="audit-row" id="audit-row-{{ a.id }}" data-id="{{ a.id }}">
+        <div class="audit-main">
+          <div style="flex:1; min-width:180px;">
+            <div class="audit-name">{{ a.name }}</div>
+            <div class="audit-email">{{ a.email }}</div>
+            <div class="audit-field">{{ a.field or '—' }}</div>
+          </div>
+          <div class="audit-badges" id="audit-badges-{{ a.id }}">
+            {% if a.email_sent %}
+            <span class="abadge abadge-ok">SENT {{ a.email_sent_at[:10] if a.email_sent_at else '' }}</span>
+            {% else %}
+            <span class="abadge abadge-grey">NOT SENT</span>
+            {% endif %}
+            <span class="abadge abadge-grey" id="reply-badge-{{ a.id }}">REPLY —</span>
+            <span class="abadge abadge-grey" id="bounce-badge-{{ a.id }}">BOUNCE —</span>
+          </div>
+        </div>
+        <div class="audit-actions" id="audit-actions-{{ a.id }}">
+          <button class="draft-btn" id="draft-btn-{{ a.id }}" onclick="generateDraft({{ a.id }})">
+            DRAFT EMAIL (AI)
+          </button>
+          {% if a.email_sent %}
+          <span class="abadge abadge-grey" style="font-size:9px;">ALREADY SENT — re-draft will create new version</span>
+          {% endif %}
+        </div>
+        <div class="draft-panel" id="draft-panel-{{ a.id }}" style="display:none;">
+          <div class="draft-panel-label">AI DRAFT — EDIT BEFORE SENDING</div>
+          <input class="draft-subject-input" id="draft-subject-{{ a.id }}" type="text" placeholder="Subject line…">
+          <textarea class="draft-body-input" id="draft-body-{{ a.id }}" placeholder="Email body…"></textarea>
+          <div class="draft-action-row">
+            <button class="send-btn" id="send-btn-{{ a.id }}" onclick="approveSend({{ a.id }})">
+              APPROVE &amp; SEND
+            </button>
+            <button class="discard-btn" onclick="discardDraft({{ a.id }})">DISCARD</button>
+            <span class="draft-note" id="draft-note-{{ a.id }}">Edits are saved automatically on send.</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
   </div>
 
 </div>
@@ -217,6 +349,15 @@ const LI_MSGS = {
 let contactedCount = {{ stats.contacted }};
 const total = {{ stats.total }};
 
+/* ── TAB SWITCHING ── */
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+/* ── SOCIAL TAB ── */
 function updateProgress() {
   const pct = total ? (contactedCount / total * 100).toFixed(1) : 0;
   document.getElementById('progress-bar').style.width = pct + '%';
@@ -246,7 +387,6 @@ function toggleContacted(ambId, btn) {
   const card = document.getElementById('card-' + ambId);
   const isContacted = card.dataset.contacted === '1';
   const newState = !isContacted;
-
   fetch('/api/ambassador/social-contacted/' + ambId, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -284,6 +424,176 @@ function filter(type, btn) {
 function recount() {
   const current = document.querySelector('.filter-btn.active');
   if (current) filter(current.onclick.toString().match(/'(\w[^']+)'/)?.[1] || 'all', current);
+}
+
+/* ── AUDIT TAB ── */
+function runAudit() {
+  const btn = document.getElementById('run-audit-btn');
+  const status = document.getElementById('audit-status');
+  btn.disabled = true;
+  status.innerHTML = '<span class="spinner"></span>Reading Gmail sent folder and inbox…';
+
+  document.querySelectorAll('.audit-row').forEach(row => {
+    row.classList.remove('has-reply', 'bounce');
+    const id = row.dataset.id;
+    const rb = document.getElementById('reply-badge-' + id);
+    const bb = document.getElementById('bounce-badge-' + id);
+    if (rb) { rb.textContent = 'REPLY —'; rb.className = 'abadge abadge-grey'; }
+    if (bb) { bb.textContent = 'BOUNCE —'; bb.className = 'abadge abadge-grey'; }
+  });
+
+  fetch('/api/ambassador/audit')
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false;
+
+      const errWrap = document.getElementById('scope-error-wrap');
+      if (data.scope_error) {
+        errWrap.style.display = 'block';
+        errWrap.innerHTML = `<div class="scope-error-banner">
+          <strong>GMAIL READ ACCESS REQUIRED</strong>
+          ${escHtml(data.scope_error)}<br><br>
+          Re-authorise the Gmail connection with <strong>gmail.readonly</strong> scope enabled, then run the audit again.
+        </div>`;
+        status.textContent = 'Gmail read permission missing — see banner above.';
+        if (!data.ambassadors || !data.ambassadors.length) return;
+      } else {
+        errWrap.style.display = 'none';
+      }
+
+      let replied = 0, bounced = 0;
+      (data.ambassadors || []).forEach(a => {
+        const row = document.getElementById('audit-row-' + a.id);
+        if (!row) return;
+
+        if (a.reply_detected) { row.classList.add('has-reply'); replied++; }
+        if (a.bounce_suspected) { row.classList.add('bounce'); bounced++; }
+
+        const rb = document.getElementById('reply-badge-' + a.id);
+        const bb = document.getElementById('bounce-badge-' + a.id);
+
+        if (rb) {
+          if (a.reply_detected) {
+            rb.textContent = 'REPLIED';
+            rb.className = 'abadge abadge-reply';
+          } else {
+            rb.textContent = 'NO REPLY';
+            rb.className = 'abadge abadge-grey';
+          }
+        }
+        if (bb) {
+          if (a.bounce_suspected) {
+            bb.textContent = 'BOUNCE SUSPECTED';
+            bb.className = 'abadge abadge-danger';
+          } else if (a.email_sent) {
+            bb.textContent = 'NO BOUNCE';
+            bb.className = 'abadge abadge-ok';
+          } else {
+            bb.textContent = '—';
+            bb.className = 'abadge abadge-grey';
+          }
+        }
+      });
+
+      const total_ambs = (data.ambassadors || []).length;
+      status.textContent = `Audit complete — ${total_ambs} contacts checked. ${replied} replied. ${bounced} bounce suspected.`;
+    })
+    .catch(err => {
+      btn.disabled = false;
+      status.textContent = 'Audit failed: ' + err;
+    });
+}
+
+/* ── AI DRAFT ── */
+function generateDraft(ambId) {
+  const btn = document.getElementById('draft-btn-' + ambId);
+  const panel = document.getElementById('draft-panel-' + ambId);
+  const note = document.getElementById('draft-note-' + ambId);
+  const origText = btn.textContent;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>GENERATING…';
+  panel.style.display = 'none';
+
+  fetch('/api/ambassador/draft/' + ambId, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false;
+      btn.textContent = 'RE-DRAFT (AI)';
+      if (data.error) {
+        note.textContent = 'Error: ' + data.error;
+        panel.style.display = 'block';
+        return;
+      }
+      document.getElementById('draft-subject-' + ambId).value = data.subject || '';
+      document.getElementById('draft-body-' + ambId).value = data.body || '';
+      note.textContent = 'Draft generated — review and edit before sending.';
+      panel.style.display = 'block';
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.textContent = origText;
+      alert('Draft generation failed: ' + err);
+    });
+}
+
+function approveSend(ambId) {
+  const subject = document.getElementById('draft-subject-' + ambId).value.trim();
+  const body = document.getElementById('draft-body-' + ambId).value.trim();
+  const sendBtn = document.getElementById('send-btn-' + ambId);
+  const note = document.getElementById('draft-note-' + ambId);
+
+  if (!subject || !body) { note.textContent = 'Subject and body cannot be empty.'; return; }
+  if (!confirm('Send this email now to this contact?')) return;
+
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'SENDING…';
+
+  fetch('/api/ambassador/approve-send/' + ambId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ subject, body })
+  })
+    .then(r => r.json())
+    .then(data => {
+      sendBtn.disabled = false;
+      if (data.success) {
+        sendBtn.textContent = '✓ SENT';
+        note.textContent = data.message || 'Email sent successfully.';
+        document.getElementById('draft-panel-' + ambId).style.display = 'none';
+        const row = document.getElementById('audit-row-' + ambId);
+        if (row) {
+          const badges = document.getElementById('audit-badges-' + ambId);
+          if (badges) {
+            const sentBadge = badges.querySelector('.abadge-grey, .abadge-warn, .abadge-ok');
+            if (sentBadge) { sentBadge.textContent = 'SENT'; sentBadge.className = 'abadge abadge-ok'; }
+          }
+        }
+      } else {
+        sendBtn.textContent = 'APPROVE & SEND';
+        note.textContent = 'Send failed: ' + (data.error || 'unknown error');
+      }
+    })
+    .catch(err => {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'APPROVE & SEND';
+      note.textContent = 'Send error: ' + err;
+    });
+}
+
+function discardDraft(ambId) {
+  fetch('/api/ambassador/draft/' + ambId, { method: 'DELETE' })
+    .then(() => {
+      document.getElementById('draft-panel-' + ambId).style.display = 'none';
+      document.getElementById('draft-subject-' + ambId).value = '';
+      document.getElementById('draft-body-' + ambId).value = '';
+      const btn = document.getElementById('draft-btn-' + ambId);
+      if (btn) btn.textContent = 'DRAFT EMAIL (AI)';
+    });
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>
