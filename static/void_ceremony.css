@@ -1,0 +1,152 @@
+.vc-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99997;
+    background: rgba(4, 4, 10, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+}
+.vc-overlay.vc-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+.vc-glyph-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+.vc-panel {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 580px;
+    padding: 48px 40px;
+    animation: vc-rise 0.8s ease forwards;
+}
+@keyframes vc-rise {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.vc-eyebrow {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin-bottom: 28px;
+    opacity: 0.8;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.vc-main-glyph {
+    font-size: 56px;
+    margin-bottom: 28px;
+    color: #c9a84c;
+    font-family: serif;
+    animation: vc-pulse 3s ease-in-out infinite;
+    text-shadow: 0 0 24px rgba(201, 168, 76, 0.4);
+}
+@keyframes vc-pulse {
+    0%, 100% { opacity: 0.5; text-shadow: 0 0 12px rgba(201, 168, 76, 0.2); }
+    50% { opacity: 0.95; text-shadow: 0 0 32px rgba(201, 168, 76, 0.6); }
+}
+.vc-text {
+    font-size: clamp(15px, 2vw, 21px);
+    font-weight: 400;
+    line-height: 1.8;
+    color: #d4d0c8;
+    font-style: italic;
+    opacity: 0.9;
+    margin-bottom: 32px;
+    max-width: 500px;
+    font-family: Georgia, 'Times New Roman', serif;
+}
+.vc-attribution {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 32px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.vc-code {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #c9a84c;
+    background: rgba(18, 18, 28, 0.9);
+    border: 1px solid rgba(201, 168, 76, 0.35);
+    border-radius: 10px;
+    padding: 14px 28px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 6px;
+    display: none;
+}
+.vc-code.vc-code-visible {
+    display: block;
+}
+.vc-code:hover {
+    border-color: rgba(201, 168, 76, 0.7);
+    box-shadow: 0 0 16px rgba(201, 168, 76, 0.15);
+}
+.vc-code-hint {
+    font-size: 11px;
+    color: #555;
+    margin-bottom: 28px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    display: none;
+}
+.vc-code-hint.vc-code-visible {
+    display: block;
+}
+.vc-close {
+    background: none;
+    border: 1px solid rgba(201, 168, 76, 0.2);
+    border-radius: 6px;
+    color: #666;
+    cursor: pointer;
+    font-size: 11px;
+    padding: 6px 18px;
+    letter-spacing: 1px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    text-transform: uppercase;
+    transition: color 0.2s, border-color 0.2s;
+}
+.vc-close:hover {
+    color: #c9a84c;
+    border-color: rgba(201, 168, 76, 0.5);
+}
+@media (max-width: 480px) {
+    .vc-panel {
+        padding: 32px 20px;
+    }
+    .vc-main-glyph {
+        font-size: 40px;
+    }
+    .vc-text {
+        font-size: 14px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .vc-main-glyph {
+        animation: none;
+        opacity: 0.8;
+    }
+    .vc-overlay {
+        transition: none;
+    }
+    .vc-panel {
+        animation: none;
+    }
+}
