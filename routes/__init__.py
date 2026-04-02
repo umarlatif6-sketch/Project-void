@@ -38,6 +38,7 @@ from routes.origin_map import origin_map_bp
 from routes.voidecho import voidecho_bp
 from routes.void_language import void_language_bp
 from routes.ambassador import ambassador_bp
+from routes.geography import geography_bp
 
 
 def register_blueprints(app):
@@ -81,3 +82,4 @@ def register_blueprints(app):
     app.register_blueprint(voidecho_bp)
     app.register_blueprint(void_language_bp)
     app.register_blueprint(ambassador_bp)
+    app.register_blueprint(geography_bp)

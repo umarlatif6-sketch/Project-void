@@ -57,6 +57,7 @@
         <a href="/hex-flower" class="engine-nav-link engine-nav-gold">Hex Flower</a>
         <a href="/origin-map" class="engine-nav-link engine-nav-gold">Origin Map</a>
         <a href="/plane" class="engine-nav-link engine-nav-gold">VOID Plane</a>
+        <a href="/geographies" class="engine-nav-link engine-nav-gold">Geographies</a>
         <a href="/pricing" class="engine-nav-link">Pricing</a>
         <span class="engine-nav-user">
             {% if user_tier == 'sovereign' %}<span class="tier-badge tier-sovereign">SOVEREIGN</span>
@@ -132,6 +133,7 @@
             <button class="tab" data-tab="files">Files</button>
             <button class="tab" data-tab="harness">Harness</button>
             <button class="tab" data-tab="vigilance">Vigilance</button>
+            <button class="tab" data-tab="geographies">Geographies</button>
         </div>
 
         <div id="encode" class="panel active">
@@ -1745,6 +1747,26 @@
                 </div>
             </div>
         </div>
+
+        <div id="geographies" class="panel">
+            <h2>Geographies &#9672; — Your Glyph Geography Collection</h2>
+            <p class="desc">Every operation you perform in VOID generates a unique glyph geography from its ledger hash. The same hash always produces the same geography. Claim any to seal it as yours &mdash; 5 VTX per seal.</p>
+            <div id="geo-panel-tabs" style="display:flex;gap:0;border-bottom:1px solid #1a1a2e;margin-bottom:20px;">
+                <button id="geo-ptab-unclaimed" onclick="geoPanelTab('unclaimed')" style="background:none;border:none;border-bottom:2px solid #c9a84c;color:#c9a84c;cursor:pointer;font-family:'SF Mono','Fira Code',monospace;font-size:0.75rem;letter-spacing:1.5px;padding:10px 18px;text-transform:uppercase;">Unclaimed</button>
+                <button id="geo-ptab-claimed" onclick="geoPanelTab('claimed')" style="background:none;border:none;border-bottom:2px solid transparent;color:#555;cursor:pointer;font-family:'SF Mono','Fira Code',monospace;font-size:0.75rem;letter-spacing:1.5px;padding:10px 18px;text-transform:uppercase;">Claimed &#9672;</button>
+            </div>
+            <div id="geo-panel-unclaimed">
+                <div id="geo-panel-unclaimed-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;">
+                    <div style="color:#555;font-size:0.8rem;padding:40px;text-align:center;" class="geo-pl">Loading&#8230;</div>
+                </div>
+            </div>
+            <div id="geo-panel-claimed" style="display:none;">
+                <div id="geo-panel-claimed-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;">
+                    <div style="color:#555;font-size:0.8rem;padding:40px;text-align:center;" class="geo-pl">Loading&#8230;</div>
+                </div>
+            </div>
+            <p style="text-align:center;margin-top:20px;"><a href="/geographies" style="color:#c9a84c;font-size:0.8rem;letter-spacing:1px;text-decoration:none;">View full collection &#8599;</a></p>
+        </div>
     </main>
 
     {% if demo_mode %}
@@ -1821,5 +1843,155 @@
     })();
     </script>
     <script src="/static/lang_switcher.js"></script>
+    <script>
+    (function() {
+        var _geoUnclaimedLoaded = false;
+        var _geoClaimedLoaded = false;
+
+        function _buildGeoCard(item, claimed) {
+            var card = document.createElement('div');
+            card.style.cssText = 'background:#0e0e18;border:1px solid #1a1a2e;border-radius:10px;padding:14px;transition:border-color 0.2s;';
+
+            var cv = document.createElement('canvas');
+            cv.style.cssText = 'display:block;width:100%;height:80px;border-radius:6px;background:rgba(10,10,20,0.8);border:1px solid #1a1a2e;margin-bottom:10px;';
+            card.appendChild(cv);
+
+            var src = document.createElement('div');
+            src.style.cssText = 'font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:3px;';
+            src.textContent = item.source_label || item.tx_type || 'VOID Operation';
+            card.appendChild(src);
+
+            var hashEl = document.createElement('div');
+            hashEl.style.cssText = 'font-size:10px;color:#333;margin-bottom:5px;word-break:break-all;';
+            hashEl.textContent = (item.ledger_hash || '').slice(0, 10) + '\u2026';
+            card.appendChild(hashEl);
+
+            var rarityEl = document.createElement('div');
+            rarityEl.style.cssText = 'font-size:11px;font-weight:700;margin-bottom:8px;';
+            rarityEl.textContent = 'Computing\u2026';
+            card.appendChild(rarityEl);
+
+            var btn = document.createElement('button');
+            if (claimed) {
+                btn.style.cssText = 'display:block;width:100%;background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.2);border-radius:5px;color:#2dd4bf;font-family:inherit;font-size:9px;letter-spacing:1px;padding:6px;text-transform:uppercase;cursor:default;';
+                btn.textContent = 'Claimed \u25c8';
+                btn.disabled = true;
+            } else {
+                btn.style.cssText = 'display:block;width:100%;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);border-radius:5px;color:#c9a84c;font-family:inherit;font-size:9px;letter-spacing:1px;padding:6px;text-transform:uppercase;cursor:pointer;';
+                btn.textContent = 'Claim \u25c8 (5 VTX)';
+                btn.addEventListener('click', function() {
+                    if (btn.disabled) return;
+                    btn.disabled = true;
+                    btn.textContent = 'Sealing\u2026';
+                    fetch('/api/geography/mint', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ledger_hash: item.ledger_hash, phase: item.phase}),
+                    }).then(function(r) { return r.json(); }).then(function(data) {
+                        if (data.error) {
+                            btn.textContent = data.error;
+                            btn.disabled = false;
+                        } else {
+                            btn.style.color = '#2dd4bf';
+                            btn.style.borderColor = 'rgba(45,212,191,0.2)';
+                            btn.textContent = 'Claimed \u25c8';
+                        }
+                    }).catch(function() {
+                        btn.textContent = 'Failed \u2014 retry';
+                        btn.disabled = false;
+                    });
+                });
+            }
+            card.appendChild(btn);
+
+            setTimeout(function() {
+                if (!window.VoidGeography) return;
+                cv.width = cv.offsetWidth || 160;
+                cv.height = 80;
+                var pts = VoidGeography.render(cv, item.ledger_hash, item.phase);
+                var info = VoidGeography.score(pts);
+                rarityEl.textContent = info.tier + ' \u00b7 ' + info.score;
+                rarityEl.style.color = info.tierColor;
+            }, 80);
+
+            return card;
+        }
+
+        var _geoPanelOffsets = {unclaimed: 0, claimed: 0};
+        var _geoPanelLoading = {unclaimed: false, claimed: false};
+
+        function _makeGeoPanelLoadMoreBtn(type) {
+            var btn = document.createElement('button');
+            btn.className = 'geo-panel-load-more';
+            btn.style.cssText = 'display:block;width:100%;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:6px;color:#c9a84c;cursor:pointer;font-family:inherit;font-size:0.7rem;letter-spacing:1.5px;margin-top:8px;padding:8px 16px;text-transform:uppercase;grid-column:1/-1;';
+            btn.textContent = 'Load More \u25bc';
+            btn.addEventListener('click', function() { _loadGeoPanel(type, true); });
+            return btn;
+        }
+
+        function _loadGeoPanel(type, append) {
+            if (_geoPanelLoading[type]) return;
+            _geoPanelLoading[type] = true;
+            var grid = document.getElementById('geo-panel-' + type + '-grid');
+            if (!grid) { _geoPanelLoading[type] = false; return; }
+            if (!append) { grid.innerHTML = ''; _geoPanelOffsets[type] = 0; }
+            var existing = grid.querySelector('.geo-panel-load-more');
+            if (existing) existing.remove();
+            var url = '/api/geography/' + type + '?offset=' + _geoPanelOffsets[type];
+            fetch(url, {credentials: 'same-origin'})
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                _geoPanelLoading[type] = false;
+                var items = data[type] || [];
+                if (!items.length && !append) {
+                    grid.innerHTML = '<div style="color:#444;font-size:0.8rem;padding:40px;text-align:center;grid-column:1/-1;">' + (type === 'claimed' ? 'No sealed geographies yet. Claim one from the Unclaimed tab.' : 'No unclaimed geographies. Perform VOID operations to generate geographies.') + '</div>';
+                    return;
+                }
+                items.forEach(function(item) {
+                    grid.appendChild(_buildGeoCard(item, type === 'claimed'));
+                });
+                _geoPanelOffsets[type] += items.length;
+                if (data.has_more) {
+                    grid.appendChild(_makeGeoPanelLoadMoreBtn(type));
+                }
+            })
+            .catch(function() {
+                _geoPanelLoading[type] = false;
+                if (!append) grid.innerHTML = '<div style="color:#444;font-size:0.8rem;padding:20px;text-align:center;grid-column:1/-1;">Failed to load.</div>';
+            });
+        }
+
+        window.geoPanelTab = function(type) {
+            var uTab = document.getElementById('geo-ptab-unclaimed');
+            var cTab = document.getElementById('geo-ptab-claimed');
+            var uPanel = document.getElementById('geo-panel-unclaimed');
+            var cPanel = document.getElementById('geo-panel-claimed');
+            if (uTab && cTab && uPanel && cPanel) {
+                var isU = type === 'unclaimed';
+                uTab.style.borderBottomColor = isU ? '#c9a84c' : 'transparent';
+                uTab.style.color = isU ? '#c9a84c' : '#555';
+                cTab.style.borderBottomColor = !isU ? '#c9a84c' : 'transparent';
+                cTab.style.color = !isU ? '#c9a84c' : '#555';
+                uPanel.style.display = isU ? '' : 'none';
+                cPanel.style.display = !isU ? '' : 'none';
+                if (!isU && !_geoClaimedLoaded) { _geoClaimedLoaded = true; _loadGeoPanel('claimed', false); }
+            }
+        };
+
+        var geoTabBtn = document.querySelector('[data-tab="geographies"]');
+        if (geoTabBtn) {
+            geoTabBtn.addEventListener('click', function() {
+                if (!_geoUnclaimedLoaded) {
+                    _geoUnclaimedLoaded = true;
+                    var s = document.createElement('script');
+                    s.src = '/static/void_geography.js';
+                    s.onload = function() { _loadGeoPanel('unclaimed', false); };
+                    document.head.appendChild(s);
+                }
+            });
+        }
+    })();
+    </script>
 </body>
 </html>

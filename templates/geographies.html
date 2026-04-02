@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — My Geographies</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .geo-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 32px;
+            border-bottom: 1px solid #1a1a2e;
+        }
+        .geo-nav-logo {
+            color: #c9a84c;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+        .geo-nav-links {
+            display: flex;
+            gap: 24px;
+        }
+        .geo-nav-links a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .geo-nav-links a:hover { color: #c9a84c; }
+        .geo-hero {
+            text-align: center;
+            padding: 72px 20px 40px;
+        }
+        .geo-badge {
+            display: inline-block;
+            background: rgba(201, 168, 76, 0.12);
+            color: #c9a84c;
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .geo-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 10px;
+        }
+        .geo-title span { color: #c9a84c; }
+        .geo-sub {
+            font-size: 0.9rem;
+            color: #666;
+            max-width: 560px;
+            margin: 0 auto 48px;
+            line-height: 1.7;
+        }
+
+        .geo-tabs {
+            display: flex;
+            gap: 0;
+            max-width: 900px;
+            margin: 0 auto 32px;
+            padding: 0 24px;
+            border-bottom: 1px solid #1a1a2e;
+        }
+        .geo-tab {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #555;
+            cursor: pointer;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.78rem;
+            letter-spacing: 1.5px;
+            padding: 12px 20px;
+            text-transform: uppercase;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .geo-tab.active {
+            color: #c9a84c;
+            border-bottom-color: #c9a84c;
+        }
+        .geo-tab:hover:not(.active) { color: #aaa; }
+
+        .geo-section {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px 60px;
+        }
+        .geo-section[hidden] { display: none; }
+
+        .geo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .geo-card {
+            background: #0e0e18;
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .geo-card:hover {
+            border-color: rgba(201, 168, 76, 0.3);
+            box-shadow: 0 0 20px rgba(201, 168, 76, 0.05);
+        }
+        .geo-card-canvas {
+            display: block;
+            width: 100%;
+            height: 100px;
+            border-radius: 8px;
+            background: rgba(10, 10, 20, 0.8);
+            border: 1px solid #1a1a2e;
+            margin-bottom: 12px;
+        }
+        .geo-card-source {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        .geo-card-hash {
+            font-size: 11px;
+            color: #444;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+        .geo-card-rarity {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .geo-card-time {
+            font-size: 9px;
+            color: #444;
+            margin-bottom: 12px;
+        }
+        .geo-card-btn {
+            display: block;
+            width: 100%;
+            background: rgba(201, 168, 76, 0.08);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 6px;
+            color: #c9a84c;
+            cursor: pointer;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+            padding: 7px;
+            text-transform: uppercase;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .geo-card-btn:hover:not(:disabled) {
+            background: rgba(201, 168, 76, 0.16);
+            border-color: rgba(201, 168, 76, 0.6);
+        }
+        .geo-card-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .geo-card-btn--claimed {
+            color: #2dd4bf;
+            border-color: rgba(45, 212, 191, 0.25);
+            background: rgba(45, 212, 191, 0.04);
+            cursor: default;
+        }
+        .geo-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #444;
+        }
+        .geo-empty-glyph {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+        .geo-empty-msg {
+            font-size: 0.85rem;
+            line-height: 1.7;
+        }
+        .geo-loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #555;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+        }
+        .geo-cost-note {
+            text-align: center;
+            color: #555;
+            font-size: 0.75rem;
+            margin-bottom: 28px;
+        }
+        .geo-cost-note span { color: #c9a84c; }
+    </style>
+</head>
+<body>
+    <nav class="geo-nav">
+        <a href="/" class="geo-nav-logo">PROJECT VOID</a>
+        <div class="geo-nav-links">
+            <a href="/">Engine</a>
+            <a href="/marketplace">Marketplace</a>
+            <a href="/geographies" style="color:#c9a84c">Geographies</a>
+        </div>
+    </nav>
+
+    <div class="geo-hero">
+        <div class="geo-badge">Glyph Geography Collection</div>
+        <h1 class="geo-title">My <span>Geographies</span></h1>
+        <p class="geo-sub">Every operation you have performed in VOID has generated a unique glyph geography. The same hash always produces the same geography. Claim it to seal it as yours.</p>
+    </div>
+
+    <div class="geo-tabs">
+        <button class="geo-tab active" id="tab-unclaimed" onclick="showTab('unclaimed')">Unclaimed</button>
+        <button class="geo-tab" id="tab-claimed" onclick="showTab('claimed')">Claimed &#9672;</button>
+    </div>
+
+    <section class="geo-section" id="section-unclaimed">
+        <p class="geo-cost-note">Claiming seals a geography permanently to your collection &mdash; <span>{{ mint_cost|int }} VTX</span> per seal.</p>
+        <div id="unclaimed-grid" class="geo-grid">
+            <div class="geo-loading">Loading geographies&#8230;</div>
+        </div>
+    </section>
+
+    <section class="geo-section" id="section-claimed" hidden>
+        <div id="claimed-grid" class="geo-grid">
+            <div class="geo-loading">Loading collection&#8230;</div>
+        </div>
+    </section>
+
+    <script src="/static/void_geography.js"></script>
+    <script>
+    (function() {
+        var mintCost = {{ mint_cost|int }};
+        var TIERS = { 'Singular': '#c9a84c', 'Legendary': '#e879f9', 'Rare': '#2dd4bf', 'Common': '#6b7280' };
+
+        function formatTime(iso) {
+            if (!iso) return '';
+            var d = new Date(iso);
+            return d.toLocaleDateString(undefined, {year:'numeric',month:'short',day:'numeric'});
+        }
+
+        function buildCard(item, claimed) {
+            var card = document.createElement('div');
+            card.className = 'geo-card';
+
+            var cv = document.createElement('canvas');
+            cv.className = 'geo-card-canvas';
+            card.appendChild(cv);
+
+            var src = document.createElement('div');
+            src.className = 'geo-card-source';
+            src.textContent = item.source_label || item.tx_type || 'VOID Operation';
+            card.appendChild(src);
+
+            var hashEl = document.createElement('div');
+            hashEl.className = 'geo-card-hash';
+            hashEl.textContent = (item.ledger_hash || '').slice(0, 12) + '\u2026';
+            card.appendChild(hashEl);
+
+            var rarityEl = document.createElement('div');
+            rarityEl.className = 'geo-card-rarity';
+            rarityEl.textContent = 'Computing\u2026';
+            card.appendChild(rarityEl);
+
+            var timeEl = document.createElement('div');
+            timeEl.className = 'geo-card-time';
+            timeEl.textContent = formatTime(item.timestamp || item.claimed_at);
+            card.appendChild(timeEl);
+
+            var btn = document.createElement('button');
+            btn.className = 'geo-card-btn';
+            if (claimed) {
+                btn.className += ' geo-card-btn--claimed';
+                btn.textContent = 'Claimed \u25c8';
+                btn.disabled = true;
+            } else {
+                btn.textContent = 'Claim \u25c8  (' + mintCost + ' VTX)';
+                btn.addEventListener('click', function() {
+                    if (btn.disabled) return;
+                    btn.disabled = true;
+                    btn.textContent = 'Sealing\u2026';
+                    fetch('/api/geography/mint', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ledger_hash: item.ledger_hash, phase: item.phase}),
+                    })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.error) {
+                            btn.textContent = data.error;
+                            btn.disabled = false;
+                        } else {
+                            btn.className = 'geo-card-btn geo-card-btn--claimed';
+                            btn.textContent = 'Claimed \u25c8';
+                        }
+                    })
+                    .catch(function() {
+                        btn.textContent = 'Failed \u2014 retry';
+                        btn.disabled = false;
+                    });
+                });
+            }
+            card.appendChild(btn);
+
+            setTimeout(function() {
+                cv.width = cv.offsetWidth || 168;
+                cv.height = cv.offsetHeight || 100;
+                var particles = VoidGeography.render(cv, item.ledger_hash, item.phase);
+                var info = VoidGeography.score(particles);
+                rarityEl.textContent = info.tier + ' \u00b7 ' + info.score;
+                rarityEl.style.color = info.tierColor;
+            }, 50);
+
+            return card;
+        }
+
+        var _unclaimedOffset = 0;
+        var _unclaimedLoading = false;
+        var _claimedOffset = 0;
+        var _claimedLoading = false;
+
+        function _makeLoadMoreBtn(onClick) {
+            var btn = document.createElement('button');
+            btn.style.cssText = 'display:block;margin:24px auto;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:6px;color:#c9a84c;cursor:pointer;font-family:inherit;font-size:0.75rem;letter-spacing:1.5px;padding:10px 28px;text-transform:uppercase;grid-column:1/-1;';
+            btn.textContent = 'Load More \u25bc';
+            btn.addEventListener('click', onClick);
+            return btn;
+        }
+
+        function loadUnclaimed(append) {
+            if (_unclaimedLoading) return;
+            _unclaimedLoading = true;
+            var grid = document.getElementById('unclaimed-grid');
+            if (!append) { grid.innerHTML = ''; _unclaimedOffset = 0; }
+            var existing = grid.querySelector('.geo-load-more-btn');
+            if (existing) existing.remove();
+            fetch('/api/geography/unclaimed?offset=' + _unclaimedOffset, {credentials:'same-origin'})
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                _unclaimedLoading = false;
+                var items = data.unclaimed || [];
+                if (!items.length && !append) {
+                    grid.innerHTML = '<div class="geo-empty"><div class="geo-empty-glyph">\u25c6</div><div class="geo-empty-msg">No unclaimed geographies yet.<br>Encode a document, mint VTX, or perform any VOID operation to generate one.</div></div>';
+                    return;
+                }
+                items.forEach(function(item) {
+                    grid.appendChild(buildCard(item, false));
+                });
+                _unclaimedOffset += items.length;
+                if (data.has_more) {
+                    var btn = _makeLoadMoreBtn(function() { loadUnclaimed(true); });
+                    btn.className = 'geo-load-more-btn';
+                    grid.appendChild(btn);
+                }
+            })
+            .catch(function() {
+                _unclaimedLoading = false;
+                if (!append) grid.innerHTML = '<div class="geo-empty"><div class="geo-empty-msg">Failed to load geographies.</div></div>';
+            });
+        }
+
+        function loadClaimed(append) {
+            if (_claimedLoading) return;
+            _claimedLoading = true;
+            var grid = document.getElementById('claimed-grid');
+            if (!append) { grid.innerHTML = ''; _claimedOffset = 0; }
+            var existing = grid.querySelector('.geo-load-more-btn');
+            if (existing) existing.remove();
+            fetch('/api/geography/claimed?offset=' + _claimedOffset, {credentials:'same-origin'})
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                _claimedLoading = false;
+                var items = data.claimed || [];
+                if (!items.length && !append) {
+                    grid.innerHTML = '<div class="geo-empty"><div class="geo-empty-glyph">\u25c8</div><div class="geo-empty-msg">No sealed geographies yet.<br>Claim one from the Unclaimed tab to start your collection.</div></div>';
+                    return;
+                }
+                items.forEach(function(item) {
+                    grid.appendChild(buildCard(item, true));
+                });
+                _claimedOffset += items.length;
+                if (data.has_more) {
+                    var btn = _makeLoadMoreBtn(function() { loadClaimed(true); });
+                    btn.className = 'geo-load-more-btn';
+                    grid.appendChild(btn);
+                }
+            })
+            .catch(function() {
+                _claimedLoading = false;
+                if (!append) grid.innerHTML = '<div class="geo-empty"><div class="geo-empty-msg">Failed to load collection.</div></div>';
+            });
+        }
+
+        window.showTab = function(tab) {
+            document.getElementById('tab-unclaimed').classList.toggle('active', tab === 'unclaimed');
+            document.getElementById('tab-claimed').classList.toggle('active', tab === 'claimed');
+            document.getElementById('section-unclaimed').hidden = (tab !== 'unclaimed');
+            document.getElementById('section-claimed').hidden = (tab !== 'claimed');
+            if (tab === 'claimed') loadClaimed(false);
+        };
+
+        loadUnclaimed(false);
+    })();
+    </script>
+</body>
+</html>

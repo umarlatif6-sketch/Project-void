@@ -9,6 +9,11 @@
     var _active = false;
     var _currentCode = null;
     var _onClose = null;
+    var _currentHash = null;
+    var _currentPhase = null;
+    var _claimPanel = null;
+    var _claimCanvas = null;
+    var _claimMinting = false;
 
     var GLYPHS = [
         {g:'\u03b1',f:432.0,c:'#c9a84c'},{g:'\u03b2',f:433.2,c:'#2dd4bf'},{g:'\u03b3',f:434.0,c:'#60a5fa'},
@@ -93,6 +98,102 @@
         _glyphCanvas.height = window.innerHeight;
     }
 
+    function _loadVoidGeography(cb) {
+        if (window.VoidGeography) { cb(); return; }
+        var s = document.createElement('script');
+        s.src = '/static/void_geography.js';
+        s.onload = cb;
+        s.onerror = function() { cb(); };
+        document.head.appendChild(s);
+    }
+
+    function _renderClaimPreview(hash, phase) {
+        if (!_claimCanvas || !window.VoidGeography) return null;
+        _claimCanvas.width = _claimCanvas.offsetWidth || 120;
+        _claimCanvas.height = _claimCanvas.offsetHeight || 80;
+        var particles = VoidGeography.render(_claimCanvas, hash, phase);
+        return particles;
+    }
+
+    function _buildClaimPanel(hash, phase, sourceLabel) {
+        var wrap = document.createElement('div');
+        wrap.className = 'vc-claim-wrap';
+        wrap.id = 'vc-claim-wrap';
+
+        var sep = document.createElement('div');
+        sep.className = 'vc-claim-sep';
+        wrap.appendChild(sep);
+
+        var preview = document.createElement('canvas');
+        preview.className = 'vc-claim-preview';
+        preview.width = 120;
+        preview.height = 80;
+        _claimCanvas = preview;
+        wrap.appendChild(preview);
+
+        var meta = document.createElement('div');
+        meta.className = 'vc-claim-meta';
+
+        var sourceEl = document.createElement('div');
+        sourceEl.className = 'vc-claim-source';
+        sourceEl.textContent = sourceLabel || 'VOID Operation';
+        meta.appendChild(sourceEl);
+
+        var rarityEl = document.createElement('div');
+        rarityEl.className = 'vc-claim-rarity';
+        rarityEl.textContent = 'Computing rarity\u2026';
+        rarityEl.id = 'vc-claim-rarity';
+        meta.appendChild(rarityEl);
+
+        var costEl = document.createElement('div');
+        costEl.className = 'vc-claim-cost';
+        costEl.textContent = '5 VTX to seal';
+        meta.appendChild(costEl);
+
+        wrap.appendChild(meta);
+
+        var claimBtn = document.createElement('button');
+        claimBtn.className = 'vc-claim-btn';
+        claimBtn.id = 'vc-claim-btn';
+        claimBtn.innerHTML = 'Claim this geography \u25c8';
+        claimBtn.addEventListener('click', function() {
+            if (_claimMinting) return;
+            _doMint(hash, phase, claimBtn, rarityEl);
+        });
+        wrap.appendChild(claimBtn);
+
+        return wrap;
+    }
+
+    function _doMint(hash, phase, btn, rarityEl) {
+        _claimMinting = true;
+        btn.disabled = true;
+        btn.textContent = 'Sealing\u2026';
+        fetch('/api/geography/mint', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'same-origin',
+            body: JSON.stringify({ledger_hash: hash, phase: phase}),
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                btn.textContent = data.error;
+                btn.disabled = false;
+                _claimMinting = false;
+            } else {
+                btn.textContent = 'Claimed \u25c8';
+                btn.classList.add('vc-claim-btn--done');
+                rarityEl.textContent = 'Sealed to your collection';
+            }
+        })
+        .catch(function() {
+            btn.textContent = 'Mint failed \u2014 try again';
+            btn.disabled = false;
+            _claimMinting = false;
+        });
+    }
+
     function _buildDOM() {
         if (_overlay) return;
 
@@ -160,6 +261,11 @@
         panel.appendChild(attr);
         panel.appendChild(code);
         panel.appendChild(codeHint);
+
+        _claimPanel = document.createElement('div');
+        _claimPanel.id = 'vc-claim-container';
+        panel.appendChild(_claimPanel);
+
         panel.appendChild(closeBtn);
         _overlay.appendChild(panel);
 
@@ -190,6 +296,28 @@
                 _currentCode = null;
                 codeEl.classList.remove('vc-code-visible');
                 hintEl.classList.remove('vc-code-visible');
+            }
+
+            _currentHash = opts.hash || null;
+            _currentPhase = opts.phase || null;
+            _claimMinting = false;
+
+            _claimPanel.innerHTML = '';
+            if (_currentHash && _currentHash.length >= 8) {
+                var sourceLabel = opts.sourceLabel || opts.eyebrow || 'VOID Operation';
+                var cpanel = _buildClaimPanel(_currentHash, _currentPhase, sourceLabel);
+                _claimPanel.appendChild(cpanel);
+                _loadVoidGeography(function() {
+                    setTimeout(function() {
+                        var particles = _renderClaimPreview(_currentHash, _currentPhase);
+                        var rarityEl = document.getElementById('vc-claim-rarity');
+                        if (particles && rarityEl && window.VoidGeography) {
+                            var info = VoidGeography.score(particles);
+                            rarityEl.textContent = info.tier + ' \u00b7 score ' + info.score;
+                            rarityEl.style.color = info.tierColor;
+                        }
+                    }, 100);
+                });
             }
 
             _onClose = opts.onClose || null;

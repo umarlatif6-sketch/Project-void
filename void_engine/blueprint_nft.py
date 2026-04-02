@@ -112,6 +112,54 @@ def mint_token(tier, title, description, edition, total_editions, price_gbp, pri
         conn.close()
 
 
+def mint_token_with_cursor(cur, tier, title, description, edition, total_editions,
+                           price_gbp, price_vtx, minted_by=None,
+                           extra_token_hash=None, collection=None, status='sold',
+                           extra_metadata=None, metadata_override=None):
+    """
+    Mint a blueprint token within an existing database transaction (cursor).
+    Does NOT commit — the caller controls the transaction lifecycle.
+    Returns token_id and token_hash on success, raises on failure.
+
+    metadata_override: if provided, replaces all default metadata fields entirely.
+    extra_metadata: if provided, merges into the default metadata dict.
+    """
+    if extra_token_hash:
+        token_hash = extra_token_hash
+    else:
+        token_hash = _generate_token_hash(tier, title, edition, total_editions)
+
+    if metadata_override is not None:
+        metadata = dict(metadata_override)
+    else:
+        metadata = {
+            "tier_config": TIER_CONFIG.get(tier, {}).get("label", tier.title()),
+            "minted_epoch": datetime.now(timezone.utc).isoformat(),
+            "edition": f"{edition}/{total_editions}",
+            "phase_sig": fatiha_286_truncated(token_hash.encode("utf-8"), 16),
+        }
+        if extra_metadata:
+            metadata.update(extra_metadata)
+
+    col_clause = ""
+    col_values = ()
+    if collection:
+        col_clause = ", collection"
+        col_values = (collection,)
+
+    cur.execute(
+        f"""INSERT INTO blueprint_tokens
+           (token_hash, tier, title, description, edition_number, total_editions,
+            price_gbp, price_vtx, metadata_json, minted_by, status{col_clause})
+           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s{', %s' if collection else ''})
+           RETURNING id""",
+        (token_hash, tier, title, description, edition, total_editions,
+         price_gbp, price_vtx, json.dumps(metadata), minted_by, status) + col_values,
+    )
+    token_id = cur.fetchone()[0]
+    return token_id, token_hash
+
+
 def _allocate_manufacturing_fund(cur, token_id, price_gbp, tier):
     cfg = TIER_CONFIG[tier]
     allocations = [

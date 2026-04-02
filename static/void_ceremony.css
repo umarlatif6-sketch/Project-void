@@ -33,6 +33,8 @@
     max-width: 580px;
     padding: 48px 40px;
     animation: vc-rise 0.8s ease forwards;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 @keyframes vc-rise {
     from { opacity: 0; transform: translateY(24px); }
@@ -127,6 +129,77 @@
     color: #c9a84c;
     border-color: rgba(201, 168, 76, 0.5);
 }
+
+.vc-claim-wrap {
+    width: 100%;
+    margin-bottom: 20px;
+}
+.vc-claim-sep {
+    width: 60px;
+    height: 1px;
+    background: rgba(201, 168, 76, 0.2);
+    margin: 0 auto 20px;
+}
+.vc-claim-preview {
+    display: block;
+    width: 120px;
+    height: 80px;
+    margin: 0 auto 12px;
+    border-radius: 8px;
+    background: rgba(10, 10, 20, 0.8);
+    border: 1px solid rgba(201, 168, 76, 0.15);
+}
+.vc-claim-meta {
+    margin-bottom: 14px;
+}
+.vc-claim-source {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #888;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    margin-bottom: 4px;
+}
+.vc-claim-rarity {
+    font-size: 12px;
+    font-weight: 700;
+    color: #2dd4bf;
+    letter-spacing: 1px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    margin-bottom: 4px;
+}
+.vc-claim-cost {
+    font-size: 10px;
+    color: #555;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.vc-claim-btn {
+    background: rgba(201, 168, 76, 0.1);
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    border-radius: 8px;
+    color: #c9a84c;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 8px 22px;
+    letter-spacing: 1.5px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    text-transform: uppercase;
+    transition: background 0.2s, border-color 0.2s;
+}
+.vc-claim-btn:hover:not(:disabled) {
+    background: rgba(201, 168, 76, 0.2);
+    border-color: rgba(201, 168, 76, 0.7);
+}
+.vc-claim-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.vc-claim-btn--done {
+    color: #2dd4bf;
+    border-color: rgba(45, 212, 191, 0.4);
+    background: rgba(45, 212, 191, 0.05);
+}
+
 @media (max-width: 480px) {
     .vc-panel {
         padding: 32px 20px;
