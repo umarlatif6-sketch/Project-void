@@ -141,9 +141,10 @@ def get_chronicle():
     conn = _get_db()
     try:
         cur = conn.cursor()
+        _ensure_seed_capture_columns(cur)
         cur.execute(
             """SELECT id, chapter_number, title, subtitle, glyph_sequence, body_text,
-                      posted_at, al_jabr_hash
+                      posted_at, al_jabr_hash, entry_type
                FROM chronicle_entries
                ORDER BY posted_at DESC"""
         )
@@ -162,6 +163,7 @@ def get_chronicle():
                 "english_text":    r[5],
                 "posted_at":       r[6].strftime("%Y-%m-%d") if r[6] else "",
                 "al_jabr_hash":    (r[7][:16] + "...") if r[7] else "",
+                "entry_type":      r[8] or "chronicle",
             })
         return entries
     finally:

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Mesa Sandbox</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background: #080810;
+            color: #d0d0d8;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+        .sb-wrap {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 100px 20px 80px;
+        }
+        .sb-badge {
+            display: inline-block;
+            background: rgba(244, 114, 182, 0.1);
+            color: #f472b6;
+            border: 1px solid rgba(244, 114, 182, 0.25);
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 10px;
+        }
+        h1 span { color: #f472b6; }
+        .sb-sub {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.7;
+            max-width: 640px;
+            margin-bottom: 40px;
+        }
+
+        .sb-grid {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 800px) {
+            .sb-grid { grid-template-columns: 1fr; }
+        }
+
+        .sb-panel {
+            background: #10101a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .sb-panel-title {
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #f472b6;
+            margin-bottom: 18px;
+        }
+
+        .sb-form-row {
+            margin-bottom: 14px;
+        }
+        .sb-form-row label {
+            display: block;
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+        .sb-form-row input, .sb-form-row select, .sb-form-row textarea {
+            width: 100%;
+            background: #08080f;
+            border: 1px solid #222;
+            border-radius: 6px;
+            color: #d0d0d8;
+            font-family: inherit;
+            font-size: 0.82rem;
+            padding: 9px 12px;
+            box-sizing: border-box;
+        }
+        .sb-form-row input:focus, .sb-form-row textarea:focus {
+            outline: none;
+            border-color: rgba(244, 114, 182, 0.4);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-pink {
+            background: rgba(244, 114, 182, 0.15);
+            border: 1px solid rgba(244, 114, 182, 0.35);
+            color: #f472b6;
+        }
+        .btn-pink:hover:not(:disabled) { background: rgba(244, 114, 182, 0.25); }
+        .btn-teal {
+            background: rgba(45, 212, 191, 0.12);
+            border: 1px solid rgba(45, 212, 191, 0.3);
+            color: #2dd4bf;
+        }
+        .btn-teal:hover:not(:disabled) { background: rgba(45, 212, 191, 0.22); }
+        .btn-red {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #ef4444;
+        }
+        .btn-red:hover:not(:disabled) { background: rgba(239, 68, 68, 0.18); }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.72rem;
+        }
+
+        .sb-stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .sb-stat {
+            background: #0d0d18;
+            border: 1px solid #1a1a2a;
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .sb-stat-label {
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        .sb-stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f472b6;
+        }
+
+        .sb-session-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .sb-session-card {
+            background: #0d0d18;
+            border: 1px solid #1a1a2a;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .sb-session-id {
+            font-size: 0.7rem;
+            color: #f472b6;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+        .sb-session-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.68rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .sb-session-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .sb-status-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .sb-status-complete { background: rgba(45, 212, 191, 0.1); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.2); }
+        .sb-status-running { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
+        .sb-status-merged { background: rgba(134, 239, 172, 0.1); color: #86efac; border: 1px solid rgba(134, 239, 172, 0.2); }
+        .sb-status-discarded { background: rgba(100, 100, 120, 0.1); color: #666; border: 1px solid #222; }
+
+        .sb-scar-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .sb-scar-card {
+            background: #0a0a14;
+            border: 1px solid #1a1a26;
+            border-left: 3px solid #f472b6;
+            border-radius: 6px;
+            padding: 12px 14px;
+        }
+        .sb-scar-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #d0d0d8;
+            margin-bottom: 4px;
+        }
+        .sb-scar-hex {
+            font-size: 0.6rem;
+            color: #444;
+            word-break: break-all;
+            margin-top: 4px;
+        }
+        .sb-scar-type {
+            display: inline-block;
+            font-size: 0.58rem;
+            padding: 1px 7px;
+            border-radius: 8px;
+            background: rgba(244, 114, 182, 0.08);
+            color: #f472b6;
+            border: 1px solid rgba(244, 114, 182, 0.18);
+            margin-bottom: 4px;
+        }
+
+        .sb-detail-box {
+            background: #08080f;
+            border: 1px solid #1a1a26;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 0.75rem;
+            color: #888;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .sb-section-label {
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #555;
+            margin: 18px 0 8px;
+        }
+
+        .sb-ghost-entry {
+            background: #0a0a14;
+            border: 1px solid #1c1c2e;
+            border-radius: 6px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+        .sb-ghost-glyph {
+            font-size: 0.72rem;
+            color: #f472b6;
+            margin-bottom: 5px;
+        }
+        .sb-ghost-text {
+            font-size: 0.78rem;
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        .sb-stress-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 80px;
+            gap: 8px;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #111;
+            font-size: 0.72rem;
+        }
+        .sb-stress-row:last-child { border-bottom: none; }
+        .sb-stress-rate { color: #f472b6; font-weight: 600; }
+        .sb-stress-bar-wrap {
+            height: 6px;
+            background: #111;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .sb-stress-bar {
+            height: 100%;
+            border-radius: 3px;
+        }
+        .sb-stress-bar-ok { background: #2dd4bf; }
+        .sb-stress-bar-fail { background: #ef4444; }
+        .sb-stress-ok { color: #2dd4bf; text-align: right; }
+        .sb-stress-fail { color: #ef4444; text-align: right; }
+
+        .sb-msg {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .sb-msg-ok { background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.25); color: #2dd4bf; }
+        .sb-msg-err { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); color: #ef4444; }
+
+        .sb-spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(244, 114, 182, 0.3);
+            border-top-color: #f472b6;
+            border-radius: 50%;
+            animation: sb-spin 0.7s linear infinite;
+        }
+        @keyframes sb-spin { to { transform: rotate(360deg); } }
+
+        #sbResultArea { display: none; }
+        .sb-live-scar-section { margin-top: 32px; }
+    </style>
+</head>
+<body>
+<nav class="landing-nav">
+    <div class="landing-nav-brand">
+        <span class="landing-nav-icon">&#9670;</span>
+        <span class="landing-nav-title">PROJECT VOID</span>
+    </div>
+    <div class="landing-nav-links">
+        <a href="/mesa-village" class="landing-nav-link">Mesa Village</a>
+        <a href="/chronicle" class="landing-nav-link">Chronicle</a>
+        <a href="/mesa/sandbox" class="landing-nav-link active" style="color:#f472b6">Sandbox</a>
+        <a href="/dashboard" class="landing-nav-link">Dashboard</a>
+    </div>
+</nav>
+
+<div class="sb-wrap">
+    <div class="sb-badge">Mesa Sandbox — Scar System</div>
+    <h1>MESA <span>SANDBOX</span></h1>
+    <p class="sb-sub">
+        Mirror world simulation: 50 agents run on a cloned VOID_CHRONICLE, fully isolated from live data.
+        Adriana generates Ghost Protocols autonomously. The Economy Stress Test finds the PEACE Token
+        inflation breaking point. All outputs are hex-encoded as Scar entries.
+    </p>
+
+    <div class="sb-grid">
+        <!-- Left: Controls -->
+        <div>
+            <div class="sb-panel">
+                <div class="sb-panel-title">Launch Sandbox Session</div>
+
+                <div id="sbMsg" class="sb-msg"></div>
+
+                <div class="sb-form-row">
+                    <label>Simulation Rounds (1–20)</label>
+                    <input type="number" id="sbRounds" value="5" min="1" max="20">
+                </div>
+                <div class="sb-form-row">
+                    <label>Seed Event (optional — leave blank for maximum silence)</label>
+                    <input type="text" id="sbSeedEvent" placeholder="e.g. PEACE_SURGE_DETECTED">
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <button class="btn btn-pink" id="sbRunBtn" onclick="runSandbox()">
+                        <span id="sbSpinner" class="sb-spinner"></span>
+                        &#9658; Run Sandbox
+                    </button>
+                </div>
+            </div>
+
+            <!-- Session list -->
+            <div class="sb-panel" style="margin-top:18px">
+                <div class="sb-panel-title">Active Sessions</div>
+                <div id="sbSessionList">
+                    {% if sessions %}
+                        {% for s in sessions %}
+                        <div class="sb-session-card" id="sess-{{ s.session_id }}">
+                            <div class="sb-session-id">{{ s.session_id }}</div>
+                            <div class="sb-session-meta">
+                                <span>{{ s.rounds }} rounds</span>
+                                <span>{{ s.agent_count }} agents</span>
+                                <span>{{ s.scar_count }} scars</span>
+                                <span class="sb-status-badge
+                                    {% if s.merged %}sb-status-merged
+                                    {% elif s.discarded %}sb-status-discarded
+                                    {% elif s.status == 'complete' %}sb-status-complete
+                                    {% else %}sb-status-running{% endif %}">
+                                    {{ 'merged' if s.merged else ('discarded' if s.discarded else s.status) }}
+                                </span>
+                            </div>
+                            <div class="sb-session-actions">
+                                {% if is_admin %}
+                                <button class="btn btn-sm btn-teal"
+                                    onclick="mergeScars('{{ s.session_id }}')"
+                                    {% if s.merged or s.discarded %}disabled{% endif %}>
+                                    &#10004; Merge Scars
+                                </button>
+                                <button class="btn btn-sm btn-red"
+                                    onclick="discardSession('{{ s.session_id }}')"
+                                    {% if s.merged or s.discarded %}disabled{% endif %}>
+                                    &#10005; Discard
+                                </button>
+                                {% endif %}
+                                <button class="btn btn-sm btn-pink"
+                                    onclick="viewSession('{{ s.session_id }}')">
+                                    &#128269; View
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="color:#444;font-size:0.78rem;text-align:center;padding:20px;">
+                            No active sessions. Run a sandbox above.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Live scar count -->
+            <div class="sb-panel" style="margin-top:18px">
+                <div class="sb-panel-title">Chronicle Scar Stats</div>
+                <div class="sb-stat-grid">
+                    <div class="sb-stat">
+                        <div class="sb-stat-label">Merged Scars</div>
+                        <div class="sb-stat-value" id="liveScarCount">{{ live_scars|length }}</div>
+                    </div>
+                    <div class="sb-stat">
+                        <div class="sb-stat-label">Active Sessions</div>
+                        <div class="sb-stat-value" id="activeSessionCount">{{ sessions|length }}</div>
+                    </div>
+                </div>
+                <a href="/chronicle" class="btn btn-teal btn-sm" style="text-decoration:none">
+                    &#8599; View Chronicle
+                </a>
+            </div>
+        </div>
+
+        <!-- Right: Results -->
+        <div>
+            <div class="sb-panel" id="sbResultArea">
+                <div class="sb-panel-title">Session Results — <span id="sbResultSessionId" style="color:#fff;font-size:0.8rem;"></span></div>
+
+                <div class="sb-stat-grid">
+                    <div class="sb-stat">
+                        <div class="sb-stat-label">Agents</div>
+                        <div class="sb-stat-value" id="resAgentCount">—</div>
+                    </div>
+                    <div class="sb-stat">
+                        <div class="sb-stat-label">Scars Generated</div>
+                        <div class="sb-stat-value" id="resScarCount">—</div>
+                    </div>
+                    <div class="sb-stat">
+                        <div class="sb-stat-label">Ghost Protocols</div>
+                        <div class="sb-stat-value" id="resGhostCount">—</div>
+                    </div>
+                    <div class="sb-stat">
+                        <div class="sb-stat-label">Break Rate</div>
+                        <div class="sb-stat-value" id="resBreakRate">—</div>
+                    </div>
+                </div>
+
+                <!-- Ghost Protocols -->
+                <div class="sb-section-label">Adriana Ghost Protocols</div>
+                <div id="resGhostList"></div>
+
+                <!-- Stress Test -->
+                <div class="sb-section-label">PEACE Economy Stress Test</div>
+                <div id="resStressSummary" style="font-size:0.8rem;color:#aaa;margin-bottom:8px;"></div>
+                <div id="resStressBars"></div>
+
+                <!-- Scar hex list -->
+                <div class="sb-section-label">Scar Entries (hex-encoded)</div>
+                <div class="sb-scar-list" id="resScarList"></div>
+            </div>
+
+            <!-- Fallback placeholder -->
+            <div class="sb-panel" id="sbPlaceholder">
+                <div class="sb-panel-title">Results</div>
+                <div style="color:#444;font-size:0.8rem;text-align:center;padding:40px 20px;">
+                    Run a sandbox session to see results here.
+                    <br><br>
+                    The sandbox runs 50 agents on a cloned VOID_CHRONICLE,
+                    generates Adriana Ghost Protocols, and stress-tests
+                    the PEACE Token economy up to 10x GriDul growth.
+                </div>
+            </div>
+
+            <!-- Live scar entries from chronicle -->
+            <div class="sb-panel sb-live-scar-section">
+                <div class="sb-panel-title">Merged Scars in Live Chronicle</div>
+                {% if live_scars %}
+                    <div class="sb-scar-list" id="liveScarList">
+                    {% for scar in live_scars %}
+                        <div class="sb-scar-card">
+                            <div class="sb-scar-type">SCAR</div>
+                            <div class="sb-scar-title">{{ scar.title }}</div>
+                            <div style="font-size:0.68rem;color:#666;">{{ scar.subtitle }} &bull; {{ scar.posted_at }}</div>
+                            <div class="sb-scar-hex">{{ scar.hex_digest }}</div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="color:#444;font-size:0.78rem;text-align:center;padding:20px;">
+                        No merged scars yet. Run a sandbox session and click "Merge Scars".
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="/static/void_fairy.css">
+<script src="/static/void_fairy.js"></script>
+<script>
+let currentSessionId = null;
+
+function showMsg(text, type) {
+    const el = document.getElementById('sbMsg');
+    el.className = 'sb-msg sb-msg-' + type;
+    el.textContent = text;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+async function runSandbox() {
+    const rounds = parseInt(document.getElementById('sbRounds').value) || 5;
+    const seedEvent = document.getElementById('sbSeedEvent').value.trim();
+    const btn = document.getElementById('sbRunBtn');
+    const spinner = document.getElementById('sbSpinner');
+
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+
+    try {
+        const res = await fetch('/api/mesa/sandbox/run', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({rounds, seed_event: seedEvent || null}),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+            showMsg('Error: ' + (data.error || 'Unknown error'), 'err');
+            return;
+        }
+        currentSessionId = data.session.session_id;
+        renderSession(data.session);
+        prependSessionCard(data.session);
+        showMsg('Sandbox session complete — ' + data.session.scar_count + ' scars generated.', 'ok');
+    } catch (e) {
+        showMsg('Request failed: ' + e.message, 'err');
+    } finally {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+    }
+}
+
+function renderSession(s) {
+    document.getElementById('sbPlaceholder').style.display = 'none';
+    document.getElementById('sbResultArea').style.display = 'block';
+
+    document.getElementById('sbResultSessionId').textContent = s.session_id;
+    document.getElementById('resAgentCount').textContent = s.agent_count;
+    document.getElementById('resScarCount').textContent = s.scar_count;
+    document.getElementById('resGhostCount').textContent = s.ghost_protocol_count;
+
+    const st = s.stress_test;
+    if (st) {
+        document.getElementById('resBreakRate').textContent =
+            st.breaking_rate ? st.breaking_rate + 'x' : 'None';
+        document.getElementById('resStressSummary').textContent = st.summary || '';
+        const barsEl = document.getElementById('resStressBars');
+        barsEl.innerHTML = '';
+        (st.results || []).forEach(r => {
+            const ok = r.inflation_adjustment_ok;
+            const vPct = Math.min(100, Math.abs(r.inflation_delta_pct));
+            barsEl.innerHTML += `
+                <div class="sb-stress-row">
+                    <span class="sb-stress-rate">${r.gridul_growth_rate}x</span>
+                    <div class="sb-stress-bar-wrap">
+                        <div class="sb-stress-bar ${ok ? 'sb-stress-bar-ok' : 'sb-stress-bar-fail'}"
+                             style="width:${Math.max(4, vPct)}%"></div>
+                    </div>
+                    <span class="${ok ? 'sb-stress-ok' : 'sb-stress-fail'}">${ok ? 'OK' : 'BREAK'}</span>
+                </div>`;
+        });
+    }
+
+    const ghostEl = document.getElementById('resGhostList');
+    ghostEl.innerHTML = '';
+    (s.ghost_protocols || []).forEach(gp => {
+        ghostEl.innerHTML += `
+            <div class="sb-ghost-entry">
+                <div class="sb-ghost-glyph">${escHtml(gp.glyph || '')} &nbsp;·&nbsp; rate ${gp.growth_rate}x</div>
+                <div class="sb-ghost-text">${escHtml(gp.text || '')}</div>
+            </div>`;
+    });
+
+    const scarEl = document.getElementById('resScarList');
+    scarEl.innerHTML = '';
+    (s.scars || []).forEach(sc => {
+        scarEl.innerHTML += `
+            <div class="sb-scar-card">
+                <div class="sb-scar-type">${escHtml(sc.scar_type || 'SCAR')}</div>
+                <div class="sb-scar-title">${escHtml(sc.title || '')}</div>
+                <div class="sb-scar-hex">${escHtml(sc.hex_digest || '')}</div>
+            </div>`;
+    });
+}
+
+const IS_ADMIN = {{ 'true' if is_admin else 'false' }};
+
+function prependSessionCard(s) {
+    const list = document.getElementById('sbSessionList');
+    const placeholder = list.querySelector('div[style*="No active"]');
+    if (placeholder) placeholder.remove();
+
+    const adminBtns = IS_ADMIN ? `
+        <button class="btn btn-sm btn-teal" onclick="mergeScars('${s.session_id}')">&#10004; Merge Scars</button>
+        <button class="btn btn-sm btn-red" onclick="discardSession('${s.session_id}')">&#10005; Discard</button>` : '';
+
+    const card = document.createElement('div');
+    card.className = 'sb-session-card';
+    card.id = 'sess-' + s.session_id;
+    card.innerHTML = `
+        <div class="sb-session-id">${escHtml(s.session_id)}</div>
+        <div class="sb-session-meta">
+            <span>${s.rounds} rounds</span>
+            <span>${s.agent_count} agents</span>
+            <span>${s.scar_count} scars</span>
+            <span class="sb-status-badge sb-status-complete">complete</span>
+        </div>
+        <div class="sb-session-actions">
+            ${adminBtns}
+            <button class="btn btn-sm btn-pink" onclick="viewSession('${s.session_id}')">&#128269; View</button>
+        </div>`;
+    list.prepend(card);
+    document.getElementById('activeSessionCount').textContent =
+        parseInt(document.getElementById('activeSessionCount').textContent || '0') + 1;
+}
+
+async function mergeScars(sessionId) {
+    if (!confirm('Merge all scars from this session into the live Chronicle?')) return;
+    try {
+        const res = await fetch('/api/mesa/sandbox/merge', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId}),
+        });
+        const data = await res.json();
+        if (data.success) {
+            showMsg('Merged ' + data.merged_count + ' scars into the live Chronicle.', 'ok');
+            updateCardStatus(sessionId, 'merged');
+            refreshLiveScars();
+        } else {
+            showMsg('Merge error: ' + (data.error || 'unknown'), 'err');
+        }
+    } catch (e) {
+        showMsg('Request failed: ' + e.message, 'err');
+    }
+}
+
+async function discardSession(sessionId) {
+    if (!confirm('Discard all scars from this session? They will not be recorded.')) return;
+    try {
+        const res = await fetch('/api/mesa/sandbox/discard', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId}),
+        });
+        const data = await res.json();
+        if (data.success) {
+            showMsg('Session discarded. No scars were recorded.', 'ok');
+            updateCardStatus(sessionId, 'discarded');
+        } else {
+            showMsg('Discard error: ' + (data.error || 'unknown'), 'err');
+        }
+    } catch (e) {
+        showMsg('Request failed: ' + e.message, 'err');
+    }
+}
+
+async function viewSession(sessionId) {
+    try {
+        const res = await fetch('/api/mesa/sandbox/session/' + sessionId);
+        const data = await res.json();
+        if (data.error) { showMsg(data.error, 'err'); return; }
+        renderSession(data);
+    } catch (e) {
+        showMsg('Failed to load session: ' + e.message, 'err');
+    }
+}
+
+async function refreshLiveScars() {
+    try {
+        const res = await fetch('/api/mesa/sandbox/live_scars');
+        const data = await res.json();
+        document.getElementById('liveScarCount').textContent = data.count || 0;
+        const listEl = document.getElementById('liveScarList') ||
+            document.querySelector('.sb-live-scar-section');
+        if (!listEl) return;
+        let html = '';
+        (data.scars || []).forEach(sc => {
+            html += `<div class="sb-scar-card">
+                <div class="sb-scar-type">SCAR</div>
+                <div class="sb-scar-title">${escHtml(sc.title)}</div>
+                <div style="font-size:0.68rem;color:#666;">${escHtml(sc.subtitle)} &bull; ${escHtml(sc.posted_at)}</div>
+                <div class="sb-scar-hex">${escHtml(sc.hex_digest)}</div>
+            </div>`;
+        });
+        const container = document.querySelector('.sb-live-scar-section .sb-scar-list') ||
+            (() => {
+                const d = document.createElement('div');
+                d.className = 'sb-scar-list';
+                document.querySelector('.sb-live-scar-section').appendChild(d);
+                return d;
+            })();
+        container.innerHTML = html;
+    } catch (_) {}
+}
+
+function updateCardStatus(sessionId, status) {
+    const card = document.getElementById('sess-' + sessionId);
+    if (!card) return;
+    const badge = card.querySelector('.sb-status-badge');
+    if (badge) {
+        badge.className = 'sb-status-badge sb-status-' + status;
+        badge.textContent = status;
+    }
+    card.querySelectorAll('.btn-teal, .btn-red').forEach(b => b.disabled = true);
+}
+
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>

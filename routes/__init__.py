@@ -44,6 +44,7 @@ from routes.speak import speak_bp
 from routes.quls import quls_bp
 from routes.figures import figures_bp
 from routes.al_jabr_verification import al_jabr_bp
+from routes.mesa_sandbox import mesa_sandbox_bp
 
 
 def register_blueprints(app):
@@ -93,3 +94,4 @@ def register_blueprints(app):
     app.register_blueprint(quls_bp)
     app.register_blueprint(figures_bp)
     app.register_blueprint(al_jabr_bp)
+    app.register_blueprint(mesa_sandbox_bp)

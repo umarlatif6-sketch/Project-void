@@ -115,6 +115,20 @@
         .chr-entry-content:hover {
             border-color: rgba(45, 212, 191, 0.2);
         }
+        .chr-entry-content.scar-entry {
+            border-left: 3px solid #f472b6;
+        }
+        .chr-scar-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(244, 114, 182, 0.1);
+            color: #f472b6;
+            border: 1px solid rgba(244, 114, 182, 0.2);
+        }
         .chr-entry-meta {
             display: flex;
             align-items: center;
@@ -284,10 +298,14 @@
         {% if entries %}
             {% for entry in entries %}
             <div class="chr-entry">
-                <div class="chr-entry-dot"></div>
-                <div class="chr-entry-content">
+                <div class="chr-entry-dot" style="{{ 'background:#f472b6;box-shadow:0 0 10px rgba(244,114,182,0.4);' if entry.entry_type == 'SCAR' else '' }}"></div>
+                <div class="chr-entry-content{{ ' scar-entry' if entry.entry_type == 'SCAR' else '' }}">
                     <div class="chr-entry-meta">
+                        {% if entry.entry_type == 'SCAR' %}
+                        <span class="chr-scar-badge">&#9760; Scar</span>
+                        {% else %}
                         <span class="chr-chapter-badge">Chapter {{ entry.chapter_number }}</span>
+                        {% endif %}
                         {% if entry.subtitle %}
                         <span class="chr-subtitle">{{ entry.subtitle }}</span>
                         {% endif %}
