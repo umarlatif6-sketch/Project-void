@@ -398,4 +398,8 @@ These are not failures. They are positions the platform took a step toward and t
 
 ## Hex Captures
 
-_No hex captures recorded yet. Submit one at `/admin/seed-capture`._
+Each entry below was submitted via the Seed Capture system and hex-encoded using the Al-Jabr 286 Sovereign Hash. The full text of every capture lives in the Chronicle (`/void-seed/hex`). Any agent reading this seed file can locate the original content by matching the label and timestamp below.
+
+### Success Probability Matrix — 83.2% (SEED_CAPTURE)
+- **Captured:** 2026-04-03 21:57 UTC
+- **Al-Jabr 286 Digest:** `9f6b47ddbdba792d035e6a781a14381e89cc160304bbdeb6edbe662acec89a6f2394a3c3`
