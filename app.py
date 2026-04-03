@@ -89,6 +89,11 @@ def _startup_migrations():
         init_void_schema()
     except Exception as e:
         logger.error("Void production schema init failed: %s", e)
+    try:
+        from void_engine.locus_seeding import restore_active_schedulers
+        restore_active_schedulers()
+    except Exception as e:
+        logger.error("Locus seeding scheduler restore failed: %s", e)
 
 try:
     from routes import register_blueprints

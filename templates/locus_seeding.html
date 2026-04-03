@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locus Seeding — Ghost Signal</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body { background: #07070e; color: #e0e0e0; font-family: 'SF Mono', 'Fira Code', monospace; }
+        .ls-wrap { max-width: 960px; margin: 0 auto; padding: 48px 20px 100px; }
+
+        .ls-header { margin-bottom: 40px; }
+        .ls-title { font-size: 1.9rem; font-weight: 700; color: #7c3aed; letter-spacing: -0.5px; }
+        .ls-subtitle { font-size: 0.75rem; color: #4a4a6a; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+        .ls-desc { font-size: 0.82rem; color: #666; line-height: 1.6; margin-top: 12px; max-width: 600px; }
+
+        .ls-alert { padding: 12px 18px; border-radius: 8px; font-size: 0.80rem; margin-bottom: 24px; }
+        .ls-alert.success { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.3); color: #a78bfa; }
+        .ls-alert.error { background: rgba(255,82,82,0.08); border: 1px solid rgba(255,82,82,0.25); color: #ff5252; }
+
+        .ls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+        @media (max-width: 700px) { .ls-grid { grid-template-columns: 1fr; } }
+
+        .ls-panel {
+            background: #0e0e1a;
+            border: 1px solid #1c1c30;
+            border-radius: 12px;
+            padding: 24px 28px;
+        }
+        .ls-panel-title {
+            font-size: 0.68rem; color: #7c3aed; letter-spacing: 2px;
+            text-transform: uppercase; margin-bottom: 16px; font-weight: 600;
+        }
+
+        .ls-status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .ls-status-dot {
+            width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+        }
+        .ls-status-dot.active { background: #7c3aed; box-shadow: 0 0 8px #7c3aed; animation: pulse-dot 2s infinite; }
+        .ls-status-dot.paused { background: #f59e0b; }
+        .ls-status-dot.arrived { background: #10b981; }
+        .ls-status-dot.none { background: #333; }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .ls-coord { font-size: 0.72rem; color: #555; font-family: monospace; }
+        .ls-stat-label { font-size: 0.65rem; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+        .ls-stat-value { font-size: 1.3rem; font-weight: 700; color: #a78bfa; margin-top: 2px; }
+
+        .ls-stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
+        .ls-stat-box { text-align: center; }
+
+        .ls-form-row { margin-bottom: 14px; }
+        .ls-label { display: block; font-size: 0.68rem; color: #666; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+        .ls-input {
+            width: 100%; box-sizing: border-box;
+            background: #09090f;
+            border: 1px solid #1e1e30;
+            border-radius: 6px;
+            padding: 9px 12px;
+            color: #e0e0e0;
+            font-family: inherit;
+            font-size: 0.82rem;
+        }
+        .ls-input:focus { outline: none; border-color: #7c3aed; }
+        .ls-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .ls-btn {
+            background: rgba(124,58,237,0.15);
+            border: 1px solid rgba(124,58,237,0.4);
+            color: #a78bfa;
+            padding: 9px 20px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .ls-btn:hover { background: rgba(124,58,237,0.28); }
+        .ls-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .ls-btn-pause {
+            background: rgba(245,158,11,0.1);
+            border-color: rgba(245,158,11,0.3);
+            color: #f59e0b;
+        }
+        .ls-btn-pause:hover { background: rgba(245,158,11,0.2); }
+
+        .ls-btn-resume {
+            background: rgba(16,185,129,0.1);
+            border-color: rgba(16,185,129,0.3);
+            color: #10b981;
+        }
+        .ls-btn-resume:hover { background: rgba(16,185,129,0.2); }
+
+        .ls-btn-wake {
+            background: rgba(239,68,68,0.1);
+            border-color: rgba(239,68,68,0.3);
+            color: #ef4444;
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            font-size: 0.82rem;
+        }
+        .ls-btn-wake:hover { background: rgba(239,68,68,0.2); }
+
+        .ls-btn-broadcast {
+            background: rgba(124,58,237,0.2);
+            border-color: rgba(124,58,237,0.5);
+            color: #c4b5fd;
+        }
+
+        .ls-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+        .ls-log-section { margin-top: 32px; }
+        .ls-log-title { font-size: 0.68rem; color: #7c3aed; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+        .ls-log-entry {
+            background: #0b0b16;
+            border: 1px solid #161624;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+        }
+        .ls-log-num { font-size: 0.62rem; color: #7c3aed; letter-spacing: 1px; margin-bottom: 5px; }
+        .ls-log-text { color: #ccc; line-height: 1.5; margin-bottom: 6px; }
+        .ls-log-hex {
+            font-size: 0.60rem; color: #2d2d50; font-family: monospace;
+            word-break: break-all; line-height: 1.4;
+        }
+        .ls-log-ts { font-size: 0.58rem; color: #333; margin-top: 5px; }
+
+        .ls-empty { font-size: 0.78rem; color: #333; font-style: italic; padding: 20px 0; text-align: center; }
+
+        .ls-session-list { margin-top: 32px; }
+        .ls-session-item {
+            display: flex; align-items: center; gap: 14px;
+            background: #0b0b16; border: 1px solid #161624;
+            border-radius: 8px; padding: 12px 16px;
+            margin-bottom: 8px; font-size: 0.76rem;
+        }
+        .ls-session-label { flex: 1; color: #ccc; font-weight: 600; }
+        .ls-session-coord { color: #444; font-size: 0.65rem; font-family: monospace; }
+        .ls-session-count { color: #7c3aed; font-size: 0.72rem; }
+        .ls-session-badge {
+            font-size: 0.58rem; letter-spacing: 1px; text-transform: uppercase;
+            padding: 3px 8px; border-radius: 3px;
+        }
+        .ls-session-badge.active { background: rgba(124,58,237,0.15); color: #a78bfa; }
+        .ls-session-badge.paused { background: rgba(245,158,11,0.1); color: #f59e0b; }
+        .ls-session-badge.arrived { background: rgba(16,185,129,0.1); color: #10b981; }
+        .ls-session-badge.inactive { background: rgba(80,80,80,0.1); color: #555; }
+
+        .ls-wake-ceremony {
+            background: #0a0a0f;
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-top: 24px;
+        }
+        .ls-wake-title { font-size: 0.68rem; color: #10b981; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+        .ls-wake-text { font-size: 0.82rem; color: #a3e8cf; line-height: 1.7; }
+
+        .ls-hz-badge {
+            display: inline-block; font-size: 0.60rem; color: #7c3aed;
+            border: 1px solid rgba(124,58,237,0.3); border-radius: 4px;
+            padding: 2px 7px; letter-spacing: 1px; margin-left: 8px;
+        }
+        .ls-loading { display: none; font-size: 0.72rem; color: #7c3aed; }
+    </style>
+</head>
+<body>
+<div class="ls-wrap">
+    <div class="ls-header">
+        <div class="ls-title">Locus Seeding <span class="ls-hz-badge">432 Hz</span></div>
+        <div class="ls-subtitle">Digital Haunting — Ghost Signal Engine</div>
+        <div class="ls-desc">
+            Pre-marinate a target location with VOID_CHRONICLE fragments encoded at 432 Hz.
+            When the MRB-4000 arrives, it wakes into a space that already knows its name.
+        </div>
+    </div>
+
+    {% set created = request.args.get('created') %}
+    {% set error = request.args.get('error') %}
+
+    {% if created %}
+    <div class="ls-alert success">
+        Locus session #{{ created }} created. Broadcasting has begun. The space is being seeded.
+    </div>
+    {% elif error %}
+    <div class="ls-alert error">
+        Error: {{ error | replace('_', ' ') }}. Please check your inputs and try again.
+    </div>
+    {% endif %}
+
+    <div class="ls-grid">
+        <!-- Active Session Status -->
+        <div class="ls-panel">
+            <div class="ls-panel-title">Active Ghost Signal</div>
+
+            {% if active_session %}
+                {% if active_session.mrb_arrived %}
+                    <div class="ls-status-row">
+                        <div class="ls-status-dot arrived"></div>
+                        <span style="color:#10b981;font-size:0.82rem;font-weight:600;">MRB-4000 Arrived — Wake Complete</span>
+                    </div>
+                {% elif active_session.is_active %}
+                    <div class="ls-status-row">
+                        <div class="ls-status-dot active"></div>
+                        <span style="color:#a78bfa;font-size:0.82rem;font-weight:600;">Broadcasting</span>
+                    </div>
+                {% else %}
+                    <div class="ls-status-row">
+                        <div class="ls-status-dot paused"></div>
+                        <span style="color:#f59e0b;font-size:0.82rem;font-weight:600;">Paused</span>
+                    </div>
+                {% endif %}
+
+                <div style="margin-top:12px;">
+                    <div style="font-size:0.92rem;font-weight:600;color:#fff;margin-bottom:4px;">
+                        {{ active_session.label }}
+                    </div>
+                    <div class="ls-coord">
+                        {{ "%.6f" | format(active_session.latitude) }}, {{ "%.6f" | format(active_session.longitude) }}
+                    </div>
+                </div>
+
+                <div class="ls-stats-row">
+                    <div class="ls-stat-box">
+                        <div class="ls-stat-label">Fragments Sent</div>
+                        <div class="ls-stat-value" id="fragments-count">{{ active_session.total_fragments_sent }}</div>
+                    </div>
+                    <div class="ls-stat-box">
+                        <div class="ls-stat-label">Interval</div>
+                        <div class="ls-stat-value">{{ active_session.interval_seconds }}s</div>
+                    </div>
+                    <div class="ls-stat-box">
+                        <div class="ls-stat-label">Session</div>
+                        <div class="ls-stat-value">#{{ active_session.id }}</div>
+                    </div>
+                </div>
+
+                {% if not active_session.mrb_arrived %}
+                <div class="ls-btn-row">
+                    {% if active_session.is_active %}
+                    <button class="ls-btn ls-btn-pause" onclick="pauseSession({{ active_session.id }})">
+                        ⏸ Pause
+                    </button>
+                    {% else %}
+                    <button class="ls-btn ls-btn-resume" onclick="resumeSession({{ active_session.id }})">
+                        ▶ Resume
+                    </button>
+                    {% endif %}
+                    <button class="ls-btn ls-btn-broadcast" onclick="manualBroadcast({{ active_session.id }})">
+                        ⚡ Broadcast Now
+                    </button>
+                </div>
+
+                <button class="ls-btn ls-btn-wake" onclick="triggerWakeCeremony({{ active_session.id }})">
+                    ☽ MRB-4000 Has Arrived — Trigger Wake Ceremony
+                </button>
+                {% endif %}
+
+                {% if active_session.wake_ceremony_text %}
+                <div class="ls-wake-ceremony">
+                    <div class="ls-wake-title">Wake Ceremony</div>
+                    <div class="ls-wake-text">{{ active_session.wake_ceremony_text }}</div>
+                </div>
+                {% endif %}
+
+            {% else %}
+                <div class="ls-status-row">
+                    <div class="ls-status-dot none"></div>
+                    <span style="color:#444;font-size:0.82rem;">No active session</span>
+                </div>
+                <div class="ls-empty">No locus is being seeded. Create a session to begin.</div>
+            {% endif %}
+        </div>
+
+        <!-- Create New Session -->
+        <div class="ls-panel">
+            <div class="ls-panel-title">Seed a New Locus</div>
+            <form method="POST" action="/locus-seeding/create">
+                <div class="ls-form-row">
+                    <label class="ls-label" for="label">Location Label</label>
+                    <input class="ls-input" type="text" id="label" name="label"
+                           placeholder="e.g. MRB-4000 Installation Room" required>
+                </div>
+                <div class="ls-form-grid">
+                    <div class="ls-form-row">
+                        <label class="ls-label" for="latitude">Latitude</label>
+                        <input class="ls-input" type="number" id="latitude" name="latitude"
+                               step="0.000001" placeholder="51.5074" required>
+                    </div>
+                    <div class="ls-form-row">
+                        <label class="ls-label" for="longitude">Longitude</label>
+                        <input class="ls-input" type="number" id="longitude" name="longitude"
+                               step="0.000001" placeholder="-0.1278" required>
+                    </div>
+                </div>
+                <div class="ls-form-row">
+                    <label class="ls-label" for="interval_seconds">Broadcast Interval (seconds)</label>
+                    <input class="ls-input" type="number" id="interval_seconds" name="interval_seconds"
+                           min="60" max="3600" value="300">
+                    <div style="font-size:0.62rem;color:#444;margin-top:4px;">Min 60s · Max 3600s · Default 300s (5 min)</div>
+                </div>
+                <button type="submit" class="ls-btn" style="margin-top:8px;width:100%;padding:11px;">
+                    ◆ Begin Seeding
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ghost Signal Broadcast Log -->
+    <div class="ls-log-section">
+        <div class="ls-log-title">Ghost Signal Hex Log</div>
+        <div id="broadcast-log">
+            {% if broadcasts %}
+                {% for b in broadcasts %}
+                <div class="ls-log-entry" id="broadcast-{{ b.id }}">
+                    <div class="ls-log-num">
+                        TRANSMISSION #{{ b.fragment_index + 1 }}
+                        &nbsp;·&nbsp;
+                        432 Hz VoidEcho Spectrogram
+                        {% if b.chronicle_entry_id %}
+                        &nbsp;·&nbsp;
+                        <span style="color:#2d2d50;">CHR:{{ b.chronicle_entry_id }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="ls-log-text">{{ b.fragment_text }}</div>
+                    <div class="ls-log-hex">HEX: {{ b.hex_encoded }}</div>
+                    <div class="ls-log-ts">
+                        {{ b.broadcast_at | int | string }}
+                        {% if b.audio_path %}
+                        &nbsp;·&nbsp; Audio encoded
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="ls-empty">No transmissions yet. Create a session to begin seeding.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- All Sessions -->
+    {% if sessions %}
+    <div class="ls-session-list">
+        <div class="ls-log-title">All Locus Sessions</div>
+        {% for s in sessions %}
+        <div class="ls-session-item">
+            <div class="ls-session-label">{{ s.label }}</div>
+            <div class="ls-session-coord">{{ "%.4f" | format(s.latitude) }}, {{ "%.4f" | format(s.longitude) }}</div>
+            <div class="ls-session-count">{{ s.total_fragments_sent }} signals</div>
+            {% if s.mrb_arrived %}
+            <span class="ls-session-badge arrived">Arrived</span>
+            {% elif s.is_active %}
+            <span class="ls-session-badge active">Active</span>
+            {% else %}
+            <span class="ls-session-badge paused">Paused</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    function pauseSession(sessionId) {
+        fetch('/locus-seeding/pause', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) location.reload();
+            else alert('Error: ' + (data.error || 'Unknown error'));
+        })
+        .catch(e => alert('Request failed: ' + e));
+    }
+
+    function resumeSession(sessionId) {
+        fetch('/locus-seeding/resume', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) location.reload();
+            else alert('Error: ' + (data.error || 'Unknown error'));
+        })
+        .catch(e => alert('Request failed: ' + e));
+    }
+
+    function manualBroadcast(sessionId) {
+        fetch('/locus-seeding/broadcast', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                prependBroadcast(data);
+                const el = document.getElementById('fragments-count');
+                if (el) el.textContent = parseInt(el.textContent || '0') + 1;
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(e => alert('Request failed: ' + e));
+    }
+
+    function prependBroadcast(data) {
+        const log = document.getElementById('broadcast-log');
+        if (!log) return;
+
+        const empty = log.querySelector('.ls-empty');
+        if (empty) empty.remove();
+
+        const ts = Math.floor(data.broadcast_at || Date.now() / 1000);
+        const div = document.createElement('div');
+        div.className = 'ls-log-entry';
+        div.innerHTML = `
+            <div class="ls-log-num">
+                TRANSMISSION #${(data.fragment_index || 0) + 1}
+                &nbsp;·&nbsp; 432 Hz VoidEcho Spectrogram
+                ${data.chronicle_entry_id ? '&nbsp;·&nbsp; <span style="color:#2d2d50;">CHR:' + data.chronicle_entry_id + '</span>' : ''}
+            </div>
+            <div class="ls-log-text">${escapeHtml(data.fragment || '')}</div>
+            <div class="ls-log-hex">HEX: ${escapeHtml(data.hex_encoded || '')}</div>
+            <div class="ls-log-ts">${ts}${data.audio_path ? ' &nbsp;·&nbsp; Audio encoded' : ''}</div>
+        `;
+        log.insertBefore(div, log.firstChild);
+    }
+
+    function triggerWakeCeremony(sessionId) {
+        if (!confirm('Trigger Wake Ceremony? This marks the MRB-4000 as arrived and ends broadcasting for this session.')) return;
+
+        fetch('/locus-seeding/wake-ceremony', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) location.reload();
+            else alert('Error: ' + (data.error || 'Unknown error'));
+        })
+        .catch(e => alert('Request failed: ' + e));
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
+    }
+
+    // Auto-refresh log every 30 seconds if session is active
+    {% if active_session and active_session.is_active and not active_session.mrb_arrived %}
+    setInterval(function() {
+        fetch('/api/locus-seeding/log?session_id={{ active_session.id }}&limit=1')
+        .then(r => r.json())
+        .then(data => {
+            if (data.broadcasts && data.broadcasts.length > 0) {
+                const latest = data.broadcasts[0];
+                if (!document.getElementById('broadcast-' + latest.id)) {
+                    prependBroadcast({
+                        fragment_index: latest.fragment_index,
+                        fragment: latest.fragment_text,
+                        hex_encoded: latest.hex_encoded,
+                        broadcast_at: latest.broadcast_at,
+                        audio_path: latest.audio_path,
+                        chronicle_entry_id: latest.chronicle_entry_id,
+                    });
+                    const el = document.getElementById('fragments-count');
+                    if (el) el.textContent = data.session ? data.session.total_fragments_sent : parseInt(el.textContent || '0') + 1;
+                }
+            }
+        })
+        .catch(() => {});
+    }, 30000);
+    {% endif %}
+</script>
+</body>
+</html>
