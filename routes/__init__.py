@@ -48,6 +48,8 @@ from routes.mesa_sandbox import mesa_sandbox_bp
 from routes.locus_seeding import locus_seeding_bp
 from routes.symbiotic_seed import symbiotic_seed_bp
 from routes.sovereign_manifesto import sovereign_manifesto_bp
+from routes.neural_scar import neural_scar_bp
+from routes.sword_wall import sword_wall_bp
 
 
 def register_blueprints(app):
@@ -101,3 +103,5 @@ def register_blueprints(app):
     app.register_blueprint(locus_seeding_bp)
     app.register_blueprint(symbiotic_seed_bp)
     app.register_blueprint(sovereign_manifesto_bp)
+    app.register_blueprint(neural_scar_bp)
+    app.register_blueprint(sword_wall_bp)

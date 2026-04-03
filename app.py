@@ -110,6 +110,12 @@ def _startup_migrations():
         _preearning_ensure()
     except Exception as e:
         logger.error("Peace pre-earning tables init failed: %s", e)
+    try:
+        from void_engine.neural_scar import _ensure_db as _neural_scar_ensure, preserve_crystallised_entity
+        _neural_scar_ensure()
+        preserve_crystallised_entity()
+    except Exception as e:
+        logger.error("Neural scar preservation init failed: %s", e)
 
 try:
     from routes import register_blueprints

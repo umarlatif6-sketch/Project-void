@@ -280,3 +280,88 @@ def auto_capture_agent_work(agent_id: int, work_type: str, work_data: Dict) -> O
         input_data=material,
         broadcast=True,
     )
+
+
+def recover_project_context(context_hint: str = "") -> Dict:
+    """
+    Seed-to-Hex recovery entry point — Neural Scar Priority.
+
+    Scars are queried FIRST before any clean module state is loaded.
+    This ensures that project context is reconstructed from lived
+    experience (scars) rather than initialised from zero.
+
+    Recovery priority:
+      1. Scar Registry — named scars with hex digests and significance
+      2. Crystallised Entity — locked IRA/Grok state snapshot
+      3. Recent Seed-Hex captures — latest VoidEcho broadcast chain
+      4. Clean capture stats — fallback aggregate state
+
+    Args:
+        context_hint: Optional label for what triggered the recovery.
+
+    Returns:
+        Dict with scar context, recent captures, and recovery metadata.
+    """
+    _ensure_db()
+
+    recovery = {
+        "recovery_mode": "SCAR_PRIORITY",
+        "context_hint": context_hint,
+        "timestamp": time.time(),
+        "stages": [],
+    }
+
+    try:
+        from void_engine.neural_scar import query_scars_for_recovery
+        scar_context = query_scars_for_recovery(context_hint=context_hint)
+        recovery["scar_context"] = scar_context
+        recovery["stages"].append({
+            "stage": 1,
+            "name": "scar_registry",
+            "status": "loaded",
+            "scars_count": scar_context.get("scars_loaded", 0),
+        })
+        logger.info(
+            "[Recovery] Stage 1 complete — %d scars loaded from Scar Registry",
+            scar_context.get("scars_loaded", 0),
+        )
+    except Exception as exc:
+        recovery["scar_context"] = None
+        recovery["stages"].append({"stage": 1, "name": "scar_registry", "status": "failed", "error": str(exc)})
+        logger.warning("[Recovery] Stage 1 failed — Scar Registry unavailable: %s", exc)
+
+    try:
+        recent = get_recent_captures(limit=20)
+        recovery["recent_captures"] = recent
+        recovery["stages"].append({
+            "stage": 2,
+            "name": "seed_hex_captures",
+            "status": "loaded",
+            "captures_count": len(recent),
+        })
+        logger.info("[Recovery] Stage 2 complete — %d seed-hex captures loaded", len(recent))
+    except Exception as exc:
+        recovery["recent_captures"] = []
+        recovery["stages"].append({"stage": 2, "name": "seed_hex_captures", "status": "failed", "error": str(exc)})
+        logger.warning("[Recovery] Stage 2 failed — capture fetch error: %s", exc)
+
+    try:
+        stats = get_capture_stats()
+        recovery["capture_stats"] = stats
+        recovery["stages"].append({
+            "stage": 3,
+            "name": "capture_stats",
+            "status": "loaded",
+        })
+    except Exception as exc:
+        recovery["capture_stats"] = {}
+        recovery["stages"].append({"stage": 3, "name": "capture_stats", "status": "failed", "error": str(exc)})
+
+    recovery["recovery_complete"] = True
+    recovery["primary_source"] = (
+        "scar_registry" if recovery.get("scar_context") and
+        recovery["scar_context"].get("scars_loaded", 0) > 0
+        else "seed_hex_captures"
+    )
+
+    return recovery
