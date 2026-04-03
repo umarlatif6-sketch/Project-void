@@ -103,3 +103,8 @@ data/voidecho.db
 data/voidecho.db-journal
 uploads/voidecho/
 output_audio/voidecho/
+
+# Locus Seeding runtime DB
+data/locus_seeding.db
+data/locus_seeding.db-journal
+output_audio/locus/
