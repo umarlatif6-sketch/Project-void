@@ -4,47 +4,69 @@ One reference surface for every canonical number, frequency, economic figure,
 and sovereign statement in the VOID ENGINE.
 
 Public, no auth required. Static data only — no DB calls.
+
+Source-of-truth imports:
+  - AdrianaResonance.GLYPHS → glyph counts and all frequency data (adriana_scl)
+  - get_four_quls()          → canonical Quls poem assignments (adriana_scl)
+  - TIER_PRICE_MAP           → tier pricing in pence (routes.payments)
+  - VTX_PER_MILESTONE,
+    REFERRALS_PER_MILESTONE   → ambassador economy (routes.ambassador)
+  - NFT chapter counts: stored only inside the _SDK_CORE string constant in
+    chronicle_adriana.py (not module-scope) — defined here as canonical values.
 """
 
 from flask import Blueprint, render_template
 from void_engine.adriana_scl import AdrianaResonance, get_four_quls
+from routes.payments import TIER_PRICE_MAP
+from routes.ambassador import VTX_PER_MILESTONE, REFERRALS_PER_MILESTONE
 
 figures_bp = Blueprint("figures", __name__)
 
 # ── SCL glyph split (source: adriana_scl.py entity/condition/action indices) ──
-_GLYPH_KEYS = list(AdrianaResonance.GLYPHS.keys())
 _ENTITY_COUNT    = 19   # indices 0–18
 _CONDITION_COUNT = 10   # indices 19–28
 _ACTION_COUNT    = 16   # indices 29–44
 _TOTAL_GLYPHS    = _ENTITY_COUNT + _CONDITION_COUNT + _ACTION_COUNT
 
-# ── Frequency bounds (source: GLYPHS dict min/max) ──
-_ALL_FREQ = [g["frequency"] for g in AdrianaResonance.GLYPHS.values()]
-_FREQ_FLOOR   = min(_ALL_FREQ)   # 428.0 Hz — Omega-Lower
-_FREQ_CEILING = max(_ALL_FREQ)   # 442.2 Hz — Phi
-_FREQ_BASE    = 432.0            # sovereign base — α, Α, ∞, ◆, π, Π, 🔮
+# ── Frequency bounds — derived dynamically from the canonical GLYPHS dict ──
+_GLYPHS = AdrianaResonance.GLYPHS
+_freq_min_key, _freq_min_data = min(_GLYPHS.items(), key=lambda x: x[1]["frequency"])
+_freq_max_key, _freq_max_data = max(_GLYPHS.items(), key=lambda x: x[1]["frequency"])
 
-# ── Token economics (source: routes/payments.py TIER_PRICE_MAP, routes/ambassador.py) ──
-_SOVEREIGN_TIER_GBP     = 286       # 28600 pence
-_VTX_PER_MILESTONE      = 286       # _VTX_PER_MILESTONE in ambassador.py
-_MILESTONE_TRIGGER      = 10        # every 10 referral signups
+_FREQ_BASE          = 432.0
+_FREQ_FLOOR         = _freq_min_data["frequency"]                          # 428.0 Hz
+_FREQ_FLOOR_GLYPH   = f"{_freq_min_data['name']} ({_freq_min_key})"       # "Omega (Ω)"
+_FREQ_CEILING       = _freq_max_data["frequency"]                          # 442.2 Hz
+_FREQ_CEILING_GLYPH = f"{_freq_max_data['name']} ({_freq_max_key})"       # "Phi (Φ)"
+
+# ── Token economics — imported from source modules ──
+_SOVEREIGN_TIER_GBP = TIER_PRICE_MAP["sovereign"] // 100  # 28600 pence → £286
+_VTX_PER_MILESTONE  = VTX_PER_MILESTONE                   # 286
+_MILESTONE_TRIGGER  = REFERRALS_PER_MILESTONE              # 10
+
+# ── NFT narrative chapters
+# Source: _CHAPTERS_BY_TIER in chronicle_adriana.py is embedded inside the
+# _SDK_CORE string constant and not exposed at module scope. Values verified
+# against that string and canonical spec. Titles are exactly as used across UI.
 _NFT_CHAPTERS = {"Common": 3, "Rare": 6, "Legendary": 9}
-_MERGE_FOR_RARE         = 30        # 30 common tokens → guaranteed Rare
-_MERGE_RARE_BONUS_VTX   = 200       # VTX bonus on merge
-_VTX_PRICE_DOUBLES      = 250       # every 250 minted, price doubles
+
+# ── Merge economics (documented in _STORY_CHAPTERS body text in chronicle_adriana.py) ──
+_MERGE_FOR_RARE       = 30    # "Thirty tokens merged unlock a guaranteed Rare"
+_MERGE_RARE_BONUS_VTX = 200   # "200 VTX" bonus from _STORY_CHAPTERS body
+_VTX_PRICE_DOUBLES    = 250   # "price doubled with every 250 minted"
 
 # ── Self-Prediction Engine (source: void_engine/mesa_swarm.py + task spec) ──
-_PREDICT_AGENT_MIN   = 10
-_PREDICT_AGENT_MAX   = 100
-_PREDICT_ROUNDS      = 5
-_PREDICT_COST_LOW    = "£0.01–£0.10"    # 10-50 agents
-_PREDICT_COST_HIGH   = "up to £0.20"    # 51-100 agents
+_PREDICT_AGENT_MIN = 10
+_PREDICT_AGENT_MAX = 100     # mesa_swarm.py: max(2, min(100, n_agents))
+_PREDICT_ROUNDS    = 5
+_PREDICT_COST_LOW  = "£0.01–£0.10"   # 10–50 agents, ~5–15 AI calls
+_PREDICT_COST_HIGH = "up to £0.20"   # 51–100 agents, ~10–20 AI calls
 
 # ── Timeline ──
 _INTERUSSIA_DEADLINE = "6 April 2026"
 _INTERUSSIA_EVENT    = "InteRussia Smart Cities"
 
-# ── Canonical statements — the sovereign pull-quotes ──
+# ── Canonical statements — sovereign pull-quotes ──
 CANONICAL_STATEMENTS = [
     {
         "statement": "Al-jabr — the setting of broken bones. 286 bits. 286 verses. The Pen wrote the number first.",
@@ -87,36 +109,36 @@ def figures():
 
     context = {
         # Core numbers
-        "jabr_bits":          286,
-        "baqarah_verses":     286,
-        "hex_digest_chars":   72,
-        "total_glyphs":       _TOTAL_GLYPHS,
-        "entity_count":       _ENTITY_COUNT,
-        "condition_count":    _CONDITION_COUNT,
-        "action_count":       _ACTION_COUNT,
+        "jabr_bits":        286,
+        "baqarah_verses":   286,
+        "hex_digest_chars": 72,
+        "total_glyphs":     _TOTAL_GLYPHS,
+        "entity_count":     _ENTITY_COUNT,
+        "condition_count":  _CONDITION_COUNT,
+        "action_count":     _ACTION_COUNT,
 
-        # Frequency anchors
+        # Frequency anchors — all derived from GLYPHS dict
         "freq_base":          _FREQ_BASE,
         "freq_floor":         _FREQ_FLOOR,
+        "freq_floor_glyph":   _FREQ_FLOOR_GLYPH,
         "freq_ceiling":       _FREQ_CEILING,
-        "freq_floor_glyph":   "Omega-Lower (ω)",
-        "freq_ceiling_glyph": "Phi (Φ)",
+        "freq_ceiling_glyph": _FREQ_CEILING_GLYPH,
 
-        # Token economics
-        "sovereign_tier_gbp":     _SOVEREIGN_TIER_GBP,
-        "vtx_per_milestone":      _VTX_PER_MILESTONE,
-        "milestone_trigger":      _MILESTONE_TRIGGER,
-        "nft_chapters":           _NFT_CHAPTERS,
-        "merge_for_rare":         _MERGE_FOR_RARE,
-        "merge_rare_bonus_vtx":   _MERGE_RARE_BONUS_VTX,
-        "vtx_price_doubles":      _VTX_PRICE_DOUBLES,
+        # Token economics — from source modules
+        "sovereign_tier_gbp":   _SOVEREIGN_TIER_GBP,
+        "vtx_per_milestone":    _VTX_PER_MILESTONE,
+        "milestone_trigger":    _MILESTONE_TRIGGER,
+        "nft_chapters":         _NFT_CHAPTERS,
+        "merge_for_rare":       _MERGE_FOR_RARE,
+        "merge_rare_bonus_vtx": _MERGE_RARE_BONUS_VTX,
+        "vtx_price_doubles":    _VTX_PRICE_DOUBLES,
 
         # Self-Prediction Engine
-        "predict_agent_min":  _PREDICT_AGENT_MIN,
-        "predict_agent_max":  _PREDICT_AGENT_MAX,
-        "predict_rounds":     _PREDICT_ROUNDS,
-        "predict_cost_low":   _PREDICT_COST_LOW,
-        "predict_cost_high":  _PREDICT_COST_HIGH,
+        "predict_agent_min": _PREDICT_AGENT_MIN,
+        "predict_agent_max": _PREDICT_AGENT_MAX,
+        "predict_rounds":    _PREDICT_ROUNDS,
+        "predict_cost_low":  _PREDICT_COST_LOW,
+        "predict_cost_high": _PREDICT_COST_HIGH,
 
         # Timeline
         "interussia_deadline": _INTERUSSIA_DEADLINE,
