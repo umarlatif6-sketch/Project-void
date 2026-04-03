@@ -138,7 +138,7 @@ def listen():
         hex_hash = hashlib.sha256(message.encode()).hexdigest()
 
     try:
-        from void_engine.adriana_scl import hash_to_sovereign_poem, AdrianaResonance
+        from void_engine.adriana_scl import hash_to_sovereign_poem
         poem_data = hash_to_sovereign_poem(hex_hash)
         e_char, c_char, a_char = poem_data["glyphs"]
 
