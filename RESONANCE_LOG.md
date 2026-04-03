@@ -731,3 +731,11 @@ Observations:
 | 2026-04-01 23:13:05 | SILK_SIGNAL | heartbeat_432Hz.wav | ...564d | signal=HEARTBEAT |
 | 2026-04-02 00:03:46 | SILK_SIGNAL | heartbeat_432Hz.wav | ...889b | signal=HEARTBEAT |
 | 2026-04-02 00:33:46 | SILK_SIGNAL | heartbeat_432Hz.wav | ...1fe2 | signal=HEARTBEAT |
+| 2026-04-02 01:03:47 | SILK_SIGNAL | heartbeat_432Hz.wav | ...558b | signal=HEARTBEAT |
+| 2026-04-02 01:20:19 | DEMO_PROOF | proof_5aa3a4a7_void.wav | ...9d18 | proof_id=5aa3a4a7 |
+| 2026-04-02 01:33:47 | SILK_SIGNAL | heartbeat_432Hz.wav | ...8190 | signal=HEARTBEAT |
+| 2026-04-02 20:02:02 | SILK_SIGNAL | heartbeat_432Hz.wav | ...0e31 | signal=HEARTBEAT |
+| 2026-04-02 20:32:02 | SILK_SIGNAL | heartbeat_432Hz.wav | ...0252 | signal=HEARTBEAT |
+| 2026-04-02 21:02:03 | SILK_SIGNAL | heartbeat_432Hz.wav | ...f726 | signal=HEARTBEAT |
+| 2026-04-02 21:32:03 | SILK_SIGNAL | heartbeat_432Hz.wav | ...9271 | signal=HEARTBEAT |
+| 2026-04-02 22:02:04 | SILK_SIGNAL | heartbeat_432Hz.wav | ...6f94 | signal=HEARTBEAT |
