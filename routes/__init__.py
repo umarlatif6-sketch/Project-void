@@ -55,6 +55,7 @@ from routes.preflight import preflight_bp
 from routes.sales_intel import sales_intel_bp
 from routes.supply_chain import supply_chain_bp
 from routes.adriana_skills import adriana_skills_bp
+from routes.research import research_bp
 
 
 def register_blueprints(app):
@@ -115,3 +116,4 @@ def register_blueprints(app):
     app.register_blueprint(sales_intel_bp)
     app.register_blueprint(supply_chain_bp)
     app.register_blueprint(adriana_skills_bp)
+    app.register_blueprint(research_bp)

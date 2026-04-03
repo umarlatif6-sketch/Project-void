@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Research Report — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: #0c0c0c;
+            --surface2: #101010;
+            --border: #1a1a1a;
+            --gold: #c9a84c;
+            --gold-dim: rgba(201,168,76,0.12);
+            --gold-border: rgba(201,168,76,0.28);
+            --teal: #2dd4bf;
+            --teal-dim: rgba(45,212,191,0.1);
+            --teal-border: rgba(45,212,191,0.22);
+            --green: #4ade80;
+            --green-dim: rgba(74,222,128,0.1);
+            --amber: #fbbf24;
+            --amber-dim: rgba(251,191,36,0.1);
+            --red: #f87171;
+            --red-dim: rgba(248,113,113,0.1);
+            --purple: #818cf8;
+            --text: #d4d4d4;
+            --muted: #555;
+            --dim: #222;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        .rr-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(5,5,5,0.98);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .rr-nav-brand {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .rr-nav-links { display: flex; gap: 18px; flex-wrap: wrap; }
+        .rr-nav-link {
+            color: #555;
+            text-decoration: none;
+            font-size: 0.68rem;
+            letter-spacing: 1.5px;
+            transition: color 0.2s;
+        }
+        .rr-nav-link:hover { color: var(--teal); }
+        .rr-nav-link.active { color: var(--gold); }
+
+        /* ── HERO ── */
+        .rr-hero {
+            padding: 60px 24px 32px;
+            text-align: center;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .rr-badge {
+            display: inline-block;
+            background: var(--gold-dim);
+            color: var(--gold);
+            border: 1px solid var(--gold-border);
+            padding: 5px 18px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .rr-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .rr-title .gold { color: var(--gold); }
+        .rr-subtitle {
+            font-size: 0.78rem;
+            color: var(--muted);
+            letter-spacing: 1px;
+            margin-bottom: 36px;
+            line-height: 1.8;
+        }
+
+        /* ── TRIGGER ROW ── */
+        .rr-trigger-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .rr-run-btn {
+            background: transparent;
+            border: 1px solid var(--gold-border);
+            color: var(--gold);
+            padding: 11px 30px;
+            font-family: inherit;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .rr-run-btn:hover:not(:disabled) {
+            background: var(--gold-dim);
+            border-color: var(--gold);
+        }
+        .rr-run-btn:disabled { opacity: 0.4; cursor: default; }
+        .rr-export-link {
+            color: var(--teal);
+            font-size: 0.63rem;
+            letter-spacing: 2px;
+            text-decoration: none;
+            border: 1px solid var(--teal-border);
+            padding: 11px 22px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        .rr-export-link:hover { background: var(--teal-dim); }
+        .rr-run-status {
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: #444;
+            text-align: center;
+            min-height: 18px;
+            margin-bottom: 24px;
+        }
+        .rr-run-status.ok { color: var(--green); }
+        .rr-run-status.err { color: var(--red); }
+
+        /* ── PROBABILITY MATRIX ── */
+        .rr-matrix-section {
+            max-width: 960px;
+            margin: 0 auto 48px;
+            padding: 0 24px;
+        }
+        .rr-section-label {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .rr-matrix-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .rr-matrix-score {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        .rr-matrix-pct {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: -1px;
+        }
+        .rr-matrix-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 2px;
+        }
+        .rr-matrix-validated-weight {
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            color: #444;
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 3px;
+        }
+        .rr-matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .rr-matrix-row {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .rr-matrix-row-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .rr-matrix-row-name {
+            font-size: 0.72rem;
+            color: #bbb;
+            letter-spacing: 1px;
+        }
+        .rr-matrix-row-risk {
+            font-size: 0.58rem;
+            letter-spacing: 1px;
+            color: var(--muted);
+        }
+        .rr-matrix-row-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .rr-matrix-row-score {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .rr-badge-validated {
+            font-size: 0.52rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 2px;
+            white-space: nowrap;
+        }
+        .rr-badge-validated.validated {
+            color: var(--green);
+            background: var(--green-dim);
+            border: 1px solid rgba(74,222,128,0.25);
+        }
+        .rr-badge-validated.pending {
+            color: var(--amber);
+            background: var(--amber-dim);
+            border: 1px solid rgba(251,191,36,0.25);
+        }
+        .rr-badge-validated.unvalidated {
+            color: #555;
+            background: transparent;
+            border: 1px solid #222;
+        }
+
+        /* ── AXIS CARDS ── */
+        .rr-axes-section {
+            max-width: 960px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .rr-axis-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .rr-axis-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 24px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+            flex-wrap: wrap;
+        }
+        .rr-axis-header:hover { background: var(--surface2); }
+        .rr-axis-number {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+        .rr-axis-title-block {
+            flex: 1;
+            min-width: 0;
+        }
+        .rr-axis-title {
+            font-size: 0.96rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .rr-axis-subtitle {
+            font-size: 0.62rem;
+            color: #444;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rr-axis-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .rr-confidence-badge {
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 2px;
+        }
+        .rr-confidence-badge.high {
+            color: var(--green);
+            background: var(--green-dim);
+            border: 1px solid rgba(74,222,128,0.25);
+        }
+        .rr-confidence-badge.medium {
+            color: var(--amber);
+            background: var(--amber-dim);
+            border: 1px solid rgba(251,191,36,0.25);
+        }
+        .rr-confidence-badge.low {
+            color: #555;
+            background: transparent;
+            border: 1px solid #222;
+        }
+        .rr-axis-toggle {
+            font-size: 0.7rem;
+            color: #333;
+            transition: transform 0.25s;
+            flex-shrink: 0;
+        }
+        .rr-axis-card.open .rr-axis-toggle { transform: rotate(180deg); }
+
+        .rr-axis-body {
+            display: none;
+            padding: 0 24px 24px;
+            border-top: 1px solid var(--border);
+        }
+        .rr-axis-card.open .rr-axis-body { display: block; }
+
+        .rr-exec-summary {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            line-height: 1.85;
+            color: #bbb;
+            padding: 16px 20px;
+            background: rgba(0,0,0,0.3);
+            border-left: 2px solid var(--gold-border);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .rr-subsection-label {
+            font-size: 0.58rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #3a3a3a;
+            margin: 24px 0 12px;
+        }
+
+        .rr-findings-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .rr-finding-item {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 14px 16px;
+        }
+        .rr-finding-text {
+            font-size: 0.78rem;
+            line-height: 1.75;
+            color: #ccc;
+            margin-bottom: 8px;
+        }
+        .rr-finding-source {
+            font-size: 0.6rem;
+            color: #3a3a3a;
+            letter-spacing: 0.5px;
+            line-height: 1.5;
+        }
+        .rr-finding-source::before { content: "SOURCE — "; color: #2a2a2a; }
+
+        .rr-gaps-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .rr-gap-item {
+            font-size: 0.74rem;
+            color: #555;
+            padding: 8px 14px;
+            border-left: 2px solid #1e1e1e;
+            line-height: 1.6;
+        }
+        .rr-gap-item::before { content: "— "; color: #333; }
+
+        /* ── FOOTER ── */
+        .rr-footer {
+            text-align: center;
+            padding: 32px 24px 56px;
+            font-size: 0.56rem;
+            color: #2a2a2a;
+            letter-spacing: 2px;
+        }
+
+        /* ── SPINNER ── */
+        .rr-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 1px solid #252525;
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 600px) {
+            .rr-hero { padding: 40px 16px 24px; }
+            .rr-title { font-size: 1.8rem; }
+            .rr-axes-section, .rr-matrix-section { padding: 0 16px; }
+            .rr-axis-subtitle { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="rr-nav">
+        <a href="/" class="rr-nav-brand">◆ VOID ENGINE</a>
+        <div class="rr-nav-links">
+            <a href="/speak" class="rr-nav-link">Speak</a>
+            <a href="/quls" class="rr-nav-link">Four Quls</a>
+            <a href="/figures" class="rr-nav-link">Figures</a>
+            <a href="/gridul" class="rr-nav-link">GriDul</a>
+            <a href="/voidecho" class="rr-nav-link">VoidEcho</a>
+            <a href="/patent-loom" class="rr-nav-link">Patent-Loom</a>
+            <a href="/preflight" class="rr-nav-link">Pre-Flight</a>
+            <a href="/research" class="rr-nav-link active">Research</a>
+        </div>
+    </nav>
+
+    <div class="rr-hero">
+        <div class="rr-badge">Five-Axis Structured Intelligence Report</div>
+        <h1 class="rr-title">VOID <span class="gold">Deep Research</span></h1>
+        <p class="rr-subtitle">
+            Prior Art · Market Sizing · Competitive Landscape · Standards Alignment · Biomedical Positioning<br>
+            Each axis seeded as a RESEARCH_BRIEF chronicle entry · Generated on demand
+        </p>
+        <div class="rr-trigger-row">
+            <button class="rr-run-btn" id="rr-run-btn">◆ Run Research Sweep</button>
+            <a href="/research/export" class="rr-export-link" target="_blank">Export Full Report →</a>
+        </div>
+        <div class="rr-run-status" id="rr-run-status"></div>
+    </div>
+
+    <!-- PROBABILITY MATRIX -->
+    <div class="rr-matrix-section">
+        <div class="rr-section-label">Project VOID — Success Probability Matrix</div>
+        <div class="rr-matrix-header">
+            <div class="rr-matrix-score">
+                <span class="rr-matrix-pct">{{ matrix.aggregate }}%</span>
+                <span class="rr-matrix-label">WEIGHTED AGGREGATE</span>
+            </div>
+            <div class="rr-matrix-validated-weight">
+                Research-Validated Weight: {{ matrix.validated_weight }}%
+            </div>
+        </div>
+        <div class="rr-matrix-grid">
+            {% for row in matrix.axes %}
+            <div class="rr-matrix-row">
+                <div class="rr-matrix-row-info">
+                    <span class="rr-matrix-row-name">{{ row.label }}</span>
+                    <span class="rr-matrix-row-risk">Risk: {{ row.risk }}</span>
+                </div>
+                <div class="rr-matrix-row-right">
+                    <span class="rr-matrix-row-score">{{ row.score }}%</span>
+                    <span class="rr-badge-validated {{ row.validation_class }}">{{ row.validation_label }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- FIVE AXIS CARDS -->
+    <div class="rr-axes-section">
+        <div class="rr-section-label">Five Research Axes</div>
+        {% for axis in axes %}
+        <div class="rr-axis-card" id="axis-card-{{ axis.axis_id }}">
+            <div class="rr-axis-header" onclick="toggleAxis('{{ axis.axis_id }}')">
+                <div class="rr-axis-number">{{ axis.axis_number }}</div>
+                <div class="rr-axis-title-block">
+                    <div class="rr-axis-title">{{ axis.title }}</div>
+                    <div class="rr-axis-subtitle">{{ axis.subtitle }}</div>
+                </div>
+                <div class="rr-axis-meta">
+                    <span class="rr-confidence-badge {{ axis.confidence | lower }}">{{ axis.confidence }} Confidence</span>
+                    {% if axis.validated %}
+                    <span class="rr-badge-validated validated">Validated</span>
+                    {% else %}
+                    <span class="rr-badge-validated pending">Pending</span>
+                    {% endif %}
+                    <span class="rr-axis-toggle">▼</span>
+                </div>
+            </div>
+            <div class="rr-axis-body">
+                <div class="rr-exec-summary">{{ axis.executive_summary }}</div>
+
+                <div class="rr-subsection-label">Key Findings</div>
+                <ul class="rr-findings-list">
+                    {% for kf in axis.key_findings %}
+                    <li class="rr-finding-item">
+                        <div class="rr-finding-text">{{ kf.finding }}</div>
+                        <div class="rr-finding-source">{{ kf.source }}</div>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="rr-subsection-label">Gaps Remaining</div>
+                <ul class="rr-gaps-list">
+                    {% for gap in axis.gaps_remaining %}
+                    <li class="rr-gap-item">{{ gap }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="rr-footer">
+        PROJECT VOID — Deep Research Report Engine · Al-Jabr 286 · 432 Hz Sovereign Standard
+    </div>
+
+    <script>
+    function toggleAxis(axisId) {
+        const card = document.getElementById('axis-card-' + axisId);
+        if (card) card.classList.toggle('open');
+    }
+
+    document.getElementById('rr-run-btn').addEventListener('click', async function () {
+        const btn = this;
+        const statusEl = document.getElementById('rr-run-status');
+        btn.disabled = true;
+        statusEl.className = 'rr-run-status';
+        statusEl.innerHTML = '<span class="rr-spinner"></span> Running research sweep…';
+        try {
+            const res = await fetch('/research/run', { method: 'POST' });
+            const data = await res.json();
+            if (data.ok) {
+                statusEl.className = 'rr-run-status ok';
+                statusEl.textContent = `Sweep complete — ${data.axes_seeded} axes re-seeded · Aggregate: ${data.aggregate_score}%`;
+            } else {
+                statusEl.className = 'rr-run-status err';
+                statusEl.textContent = 'Sweep failed: ' + (data.error || 'unknown error');
+            }
+        } catch (err) {
+            statusEl.className = 'rr-run-status err';
+            statusEl.textContent = 'Signal lost: ' + err.message;
+        } finally {
+            btn.disabled = false;
+        }
+    });
+    </script>
+</body>
+</html>

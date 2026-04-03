@@ -35,6 +35,11 @@ def _startup_migrations():
     except Exception as e:
         logger.error("Chronicle seeding failed: %s", e)
     try:
+        from void_engine.research_engine import seed_research_briefs
+        seed_research_briefs()
+    except Exception as e:
+        logger.error("Research brief seeding failed: %s", e)
+    try:
         from void_engine.vortex_wallet import ensure_game_inventory_table
         ensure_game_inventory_table()
     except Exception as e:
