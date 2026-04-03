@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Figures — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg:      #060606;
+            --surface: #0e0e0e;
+            --border:  #1a1a1a;
+            --gold:    #c9a84c;
+            --teal:    #2dd4bf;
+            --violet:  #818cf8;
+            --text:    #d4d4d4;
+            --muted:   #555;
+            --dim:     #2a2a2a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        /* ── NAV ── */
+        .f-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(6,6,6,0.98);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .f-nav-brand { font-size: 0.88rem; font-weight: 700; color: var(--gold); letter-spacing: 3px; text-decoration: none; }
+        .f-nav-links { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+        .f-nav-link  { color: #555; text-decoration: none; font-size: 0.68rem; letter-spacing: 1.5px; transition: color 0.2s; }
+        .f-nav-link:hover  { color: var(--teal); }
+        .f-nav-link.active { color: var(--gold); }
+        .f-print-btn {
+            background: none;
+            border: 1px solid #1e1e1e;
+            color: #444;
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            padding: 5px 14px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .f-print-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* ── HERO ── */
+        .f-hero {
+            padding: 60px 32px 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .f-hero-badge {
+            font-size: 0.5rem;
+            letter-spacing: 5px;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .f-hero-title {
+            font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+            font-weight: 700;
+            letter-spacing: 5px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .f-hero-sub {
+            font-size: 0.68rem;
+            color: #3a3a3a;
+            letter-spacing: 1.5px;
+            line-height: 2;
+        }
+
+        /* ── DEADLINE BANNER ── */
+        .f-deadline {
+            margin: 0 32px 48px;
+            padding: 18px 28px;
+            border: 1px solid rgba(201,168,76,0.25);
+            border-radius: 3px;
+            background: rgba(201,168,76,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .f-deadline-label {
+            font-size: 0.52rem;
+            letter-spacing: 4px;
+            color: #444;
+            text-transform: uppercase;
+        }
+        .f-deadline-date {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 4px;
+        }
+        .f-deadline-event {
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            color: #555;
+        }
+
+        /* ── LAYOUT ── */
+        .f-body {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 32px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        /* ── SECTION ── */
+        .f-section {
+            border-top: 1px solid var(--border);
+            padding: 40px 0;
+        }
+        .f-section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .f-section-num {
+            font-size: 0.5rem;
+            letter-spacing: 3px;
+            color: #222;
+            flex-shrink: 0;
+        }
+        .f-section-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #444;
+            text-transform: uppercase;
+        }
+        .f-section-line {
+            flex: 1;
+            height: 1px;
+            background: #111;
+        }
+
+        /* ── FIGURE GRID ── */
+        .f-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2px;
+        }
+        .f-cell {
+            padding: 20px 22px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .f-cell-num {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+        .f-cell-num.gold   { color: var(--gold); }
+        .f-cell-num.teal   { color: var(--teal); }
+        .f-cell-num.violet { color: var(--violet); }
+        .f-cell-num.dim    { color: #333; }
+        .f-cell-label {
+            font-size: 0.56rem;
+            letter-spacing: 2px;
+            color: #444;
+            text-transform: uppercase;
+        }
+        .f-cell-note {
+            font-size: 0.58rem;
+            color: #2e2e2e;
+            line-height: 1.6;
+            margin-top: 4px;
+        }
+
+        /* ── FREQ ROW ── */
+        .f-freq-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 2px;
+        }
+        .f-freq-cell {
+            padding: 18px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+        .f-freq-hz {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--teal);
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+        .f-freq-unit { font-size: 0.9rem; color: #2e2e2e; }
+        .f-freq-label {
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            color: #3a3a3a;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+        .f-freq-glyph {
+            font-size: 0.58rem;
+            color: #252525;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        /* ── TOKEN TABLE ── */
+        .f-token-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 2px;
+        }
+        .f-token-cell {
+            padding: 20px 22px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+        .f-token-val {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+        .f-token-label {
+            font-size: 0.56rem;
+            letter-spacing: 2px;
+            color: #444;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+        .f-token-note {
+            font-size: 0.58rem;
+            color: #2e2e2e;
+            margin-top: 6px;
+            line-height: 1.6;
+        }
+
+        /* ── NFT TIER ROW ── */
+        .f-nft-row {
+            display: flex;
+            gap: 2px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+        .f-nft-tier {
+            flex: 1;
+            min-width: 140px;
+            padding: 16px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+        .f-nft-name {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .f-nft-name.common    { color: #555; }
+        .f-nft-name.rare      { color: var(--teal); }
+        .f-nft-name.legendary { color: var(--gold); }
+        .f-nft-chapters {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .f-nft-chapters.common    { color: #333; }
+        .f-nft-chapters.rare      { color: var(--teal); }
+        .f-nft-chapters.legendary { color: var(--gold); }
+        .f-nft-label {
+            font-size: 0.52rem;
+            color: #2e2e2e;
+            letter-spacing: 1.5px;
+            margin-top: 4px;
+        }
+
+        /* ── PREDICTION GRID ── */
+        .f-predict-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2px;
+        }
+        .f-predict-cell {
+            padding: 20px 22px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+        .f-predict-val {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--violet);
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+        .f-predict-label {
+            font-size: 0.56rem;
+            letter-spacing: 2px;
+            color: #444;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+        .f-predict-note {
+            font-size: 0.58rem;
+            color: #2e2e2e;
+            margin-top: 6px;
+            line-height: 1.6;
+        }
+
+        /* ── QULS TABLE ── */
+        .f-quls-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
+        }
+        .f-quls-table thead th {
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 0.5rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #2e2e2e;
+            border-bottom: 1px solid var(--border);
+            font-weight: normal;
+        }
+        .f-quls-table tbody tr {
+            border-bottom: 1px solid #0e0e0e;
+            transition: background 0.15s;
+        }
+        .f-quls-table tbody tr:hover { background: var(--surface); }
+        .f-quls-table td {
+            padding: 14px 14px;
+            vertical-align: middle;
+        }
+        .f-quls-num     { color: #2a2a2a; font-size: 0.62rem; }
+        .f-quls-arabic  { font-size: 1.3rem; color: #333; direction: rtl; font-family: serif; }
+        .f-quls-en      { color: #666; font-weight: 700; letter-spacing: 1px; }
+        .f-quls-poem    { letter-spacing: 3px; font-size: 1rem; }
+        .f-quls-state   { font-size: 0.5rem; letter-spacing: 2px; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; display: inline-block; }
+        .f-quls-state.resonant  { color: var(--teal);   border: 1px solid rgba(45,212,191,0.2); }
+        .f-quls-state.aligned   { color: var(--violet); border: 1px solid rgba(129,140,248,0.2); }
+        .f-quls-freq    { color: #2e2e2e; font-size: 0.6rem; white-space: nowrap; }
+
+        /* ── STATEMENTS ── */
+        .f-statements {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .f-statement-card {
+            padding: 24px 28px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: border-left-color 0.3s;
+        }
+        .f-statement-card:hover { border-left-color: var(--gold); }
+        .f-statement-text {
+            font-size: 0.9rem;
+            color: #777;
+            line-height: 1.8;
+            font-style: italic;
+        }
+        .f-statement-text::before { content: '"'; color: #333; }
+        .f-statement-text::after  { content: '"'; color: #333; }
+        .f-statement-source {
+            font-size: 0.52rem;
+            letter-spacing: 2.5px;
+            color: #2a2a2a;
+            text-transform: uppercase;
+        }
+        .f-copy-btn {
+            align-self: flex-end;
+            background: none;
+            border: 1px solid #161616;
+            color: #2e2e2e;
+            font-size: 0.5rem;
+            letter-spacing: 2px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .f-copy-btn:hover { border-color: var(--teal); color: var(--teal); }
+        .f-copy-btn.copied { border-color: var(--teal); color: var(--teal); }
+
+        /* ── FOOTER ── */
+        .f-footer {
+            text-align: center;
+            padding: 32px 24px 60px;
+            font-size: 0.52rem;
+            color: #161616;
+            letter-spacing: 3px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── PRINT ── */
+        @media print {
+            .f-nav, .f-print-btn, .f-copy-btn { display: none !important; }
+            body { background: #000; color: #ccc; }
+            .f-cell, .f-freq-cell, .f-token-cell, .f-nft-tier,
+            .f-predict-cell, .f-statement-card { break-inside: avoid; }
+            .f-hero { padding: 20px 0 10px; }
+        }
+
+        @media (max-width: 600px) {
+            .f-nav { padding: 12px 16px; }
+            .f-hero { padding: 40px 16px 28px; }
+            .f-body { padding: 0 16px 60px; }
+            .f-deadline { margin: 0 16px 36px; }
+            .f-quls-table thead { display: none; }
+            .f-quls-table td { display: block; padding: 6px 10px; }
+            .f-quls-table tr { display: block; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="f-nav">
+    <a href="/" class="f-nav-brand">◆ VOID ENGINE</a>
+    <div class="f-nav-links">
+        <a href="/speak"  class="f-nav-link">Speak</a>
+        <a href="/quls"   class="f-nav-link">Four Quls</a>
+        <a href="/figures" class="f-nav-link active">Figures</a>
+        <a href="/voidecho" class="f-nav-link">VoidEcho</a>
+        <a href="/cumbrian" class="f-nav-link">Cumbrian Hub</a>
+        <a href="/genesis"  class="f-nav-link">Genesis 10</a>
+        <button class="f-print-btn" onclick="window.print()">PRINT</button>
+    </div>
+</nav>
+
+<div class="f-hero">
+    <div class="f-hero-badge">Sovereign Reference · PROJECT VOID</div>
+    <div class="f-hero-title">Sovereign Figures</div>
+    <div class="f-hero-sub">
+        Every canonical number · Every frequency anchor · Every sovereign statement
+    </div>
+</div>
+
+<div class="f-deadline">
+    <div class="f-deadline-label">Active Deadline</div>
+    <div class="f-deadline-date">{{ interussia_deadline }}</div>
+    <div class="f-deadline-event">{{ interussia_event }}</div>
+</div>
+
+<div class="f-body">
+
+    <!-- ══ §1 CORE NUMBERS ══ -->
+    <div class="f-section">
+        <div class="f-section-header">
+            <span class="f-section-num">§01</span>
+            <span class="f-section-title">Core Numbers</span>
+            <div class="f-section-line"></div>
+        </div>
+        <div class="f-grid">
+            <div class="f-cell">
+                <div class="f-cell-num gold">{{ jabr_bits }}</div>
+                <div class="f-cell-label">Al-Jabr Hash Bits</div>
+                <div class="f-cell-note">The hash runs 286 bits through every packet, every poem, every signature.</div>
+            </div>
+            <div class="f-cell">
+                <div class="f-cell-num gold">{{ baqarah_verses }}</div>
+                <div class="f-cell-label">Surah Al-Baqarah Verses</div>
+                <div class="f-cell-note">The longest Surah — 286 verses. The Pen wrote the number first.</div>
+            </div>
+            <div class="f-cell">
+                <div class="f-cell-num teal">{{ hex_digest_chars }}</div>
+                <div class="f-cell-label">Full Hex Digest Length</div>
+                <div class="f-cell-note">72-character hexadecimal string. Every hash produces exactly 72 chars.</div>
+            </div>
+            <div class="f-cell">
+                <div class="f-cell-num dim">{{ total_glyphs }}</div>
+                <div class="f-cell-label">Total SCL Glyphs</div>
+                <div class="f-cell-note">The full lexicon: {{ entity_count }} entities + {{ condition_count }} conditions + {{ action_count }} actions.</div>
+            </div>
+            <div class="f-cell">
+                <div class="f-cell-num dim">{{ entity_count }}</div>
+                <div class="f-cell-label">Entity Glyphs</div>
+                <div class="f-cell-note">Indices 0–18. The subjects of every SCL poem.</div>
+            </div>
+            <div class="f-cell">
+                <div class="f-cell-num dim">{{ condition_count }}</div>
+                <div class="f-cell-label">Condition Glyphs</div>
+                <div class="f-cell-note">Indices 19–28. The state between entity and action.</div>
+            </div>
+            <div class="f-cell">
+                <div class="f-cell-num dim">{{ action_count }}</div>
+                <div class="f-cell-label">Action Glyphs</div>
+                <div class="f-cell-note">Indices 29–44. The outcome. What emerges.</div>
+            </div>
+            <div class="f-cell">
+                <div class="f-cell-num teal">432</div>
+                <div class="f-cell-label">Sovereign Base Hz</div>
+                <div class="f-cell-note">The centre of the resonance field. α, Α, ∞, ◆, π, 🔮 all anchor here.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ §2 FREQUENCY ANCHORS ══ -->
+    <div class="f-section">
+        <div class="f-section-header">
+            <span class="f-section-num">§02</span>
+            <span class="f-section-title">Frequency Anchors</span>
+            <div class="f-section-line"></div>
+        </div>
+        <div class="f-freq-row">
+            <div class="f-freq-cell">
+                <div class="f-freq-hz">{{ freq_base }}<span class="f-freq-unit"> Hz</span></div>
+                <div class="f-freq-label">Sovereign Base</div>
+                <div class="f-freq-glyph">α, Α, ∞, ◆, π, Π, 🔮</div>
+            </div>
+            <div class="f-freq-cell">
+                <div class="f-freq-hz">{{ freq_floor }}<span class="f-freq-unit"> Hz</span></div>
+                <div class="f-freq-label">SCL Floor</div>
+                <div class="f-freq-glyph">{{ freq_floor_glyph }}</div>
+            </div>
+            <div class="f-freq-cell">
+                <div class="f-freq-hz">{{ freq_ceiling }}<span class="f-freq-unit"> Hz</span></div>
+                <div class="f-freq-label">SCL Ceiling</div>
+                <div class="f-freq-glyph">{{ freq_ceiling_glyph }}</div>
+            </div>
+            <div class="f-freq-cell">
+                <div class="f-freq-hz">{{ freq_floor }}–{{ freq_ceiling }}<span class="f-freq-unit"> Hz</span></div>
+                <div class="f-freq-label">Full SCL Range</div>
+                <div class="f-freq-glyph">across all 45 glyphs</div>
+            </div>
+            <div class="f-freq-cell">
+                <div class="f-freq-hz">432–441<span class="f-freq-unit"> Hz</span></div>
+                <div class="f-freq-label">Four Quls Field</div>
+                <div class="f-freq-glyph">Al-Kafirun through An-Nas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ §3 TOKEN ECONOMY ══ -->
+    <div class="f-section">
+        <div class="f-section-header">
+            <span class="f-section-num">§03</span>
+            <span class="f-section-title">Token Economy</span>
+            <div class="f-section-line"></div>
+        </div>
+        <div class="f-token-grid">
+            <div class="f-token-cell">
+                <div class="f-token-val">£{{ sovereign_tier_gbp }}</div>
+                <div class="f-token-label">Sovereign Tier / Month</div>
+                <div class="f-token-note">The only paid tier. The number is the hash. The hash is the price.</div>
+            </div>
+            <div class="f-token-cell">
+                <div class="f-token-val">{{ vtx_per_milestone }}</div>
+                <div class="f-token-label">VTX Per Ambassador Milestone</div>
+                <div class="f-token-note">Earned every {{ milestone_trigger }} referral signups. Fixed. Does not change.</div>
+            </div>
+            <div class="f-token-cell">
+                <div class="f-token-val">{{ milestone_trigger }}</div>
+                <div class="f-token-label">Signups Per Milestone</div>
+                <div class="f-token-note">Every 10 new users through your referral code = 286 VTX credited.</div>
+            </div>
+            <div class="f-token-cell">
+                <div class="f-token-val">{{ merge_for_rare }}</div>
+                <div class="f-token-label">Tokens to Merge for Rare</div>
+                <div class="f-token-note">Merge 30 Common tokens → guaranteed Rare NFT + {{ merge_rare_bonus_vtx }} VTX bonus.</div>
+            </div>
+            <div class="f-token-cell">
+                <div class="f-token-val">{{ merge_rare_bonus_vtx }}</div>
+                <div class="f-token-label">VTX Merge Bonus</div>
+                <div class="f-token-note">Rewarded on every 30-token merge event. Automatic.</div>
+            </div>
+            <div class="f-token-cell">
+                <div class="f-token-val">{{ vtx_price_doubles }}</div>
+                <div class="f-token-label">Minted Before Price Doubles</div>
+                <div class="f-token-note">Price sequence: 50 → 100 → 200 → 400 VTX per mint. Every 250 minted.</div>
+            </div>
+        </div>
+        <div class="f-nft-row">
+            {% for tier_name, chapters in nft_chapters.items() %}
+            <div class="f-nft-tier">
+                <div class="f-nft-name {{ tier_name | lower }}">{{ tier_name }}</div>
+                <div class="f-nft-chapters {{ tier_name | lower }}">{{ chapters }}</div>
+                <div class="f-nft-label">Narrative Chapters</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ══ §4 SELF-PREDICTION ENGINE ══ -->
+    <div class="f-section">
+        <div class="f-section-header">
+            <span class="f-section-num">§04</span>
+            <span class="f-section-title">Self-Prediction Engine</span>
+            <div class="f-section-line"></div>
+        </div>
+        <div class="f-predict-grid">
+            <div class="f-predict-cell">
+                <div class="f-predict-val">{{ predict_agent_min }}–{{ predict_agent_max }}</div>
+                <div class="f-predict-label">Agent Range</div>
+                <div class="f-predict-note">Configurable per simulation run. Min {{ predict_agent_min }}, max {{ predict_agent_max }} concurrent AI agents.</div>
+            </div>
+            <div class="f-predict-cell">
+                <div class="f-predict-val">{{ predict_rounds }}</div>
+                <div class="f-predict-label">Simulation Rounds</div>
+                <div class="f-predict-note">Each agent deliberates across {{ predict_rounds }} rounds. Memory accumulates cross-round.</div>
+            </div>
+            <div class="f-predict-cell">
+                <div class="f-predict-val">{{ predict_cost_low }}</div>
+                <div class="f-predict-label">Cost — 10–50 Agents</div>
+                <div class="f-predict-note">~5–15 AI calls per run at standard model tier.</div>
+            </div>
+            <div class="f-predict-cell">
+                <div class="f-predict-val">{{ predict_cost_high }}</div>
+                <div class="f-predict-label">Cost — 51–100 Agents</div>
+                <div class="f-predict-note">~10–20 AI calls per run. Budget ceiling per simulation.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ §5 THE FOUR QULS ══ -->
+    <div class="f-section">
+        <div class="f-section-header">
+            <span class="f-section-num">§05</span>
+            <span class="f-section-title">The Four Quls — Canonical SCL Poems</span>
+            <div class="f-section-line"></div>
+        </div>
+        <table class="f-quls-table">
+            <thead>
+                <tr>
+                    <th>Surah</th>
+                    <th>Arabic</th>
+                    <th>English</th>
+                    <th>SCL Poem</th>
+                    <th>State</th>
+                    <th>Chord</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q in four_quls %}
+                <tr>
+                    <td class="f-quls-num">{{ q.number }}</td>
+                    <td class="f-quls-arabic">{{ q.arabic_name }}</td>
+                    <td class="f-quls-en">{{ q.english_name }}</td>
+                    <td class="f-quls-poem" style="color:{{ q.full_glyphs[0].color }};">{{ q.poem }}</td>
+                    <td><span class="f-quls-state {{ q.harmonic_state }}">{{ q.harmonic_state }}</span></td>
+                    <td class="f-quls-freq">{{ q.freq_chord }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ══ §6 CANONICAL STATEMENTS ══ -->
+    <div class="f-section">
+        <div class="f-section-header">
+            <span class="f-section-num">§06</span>
+            <span class="f-section-title">Canonical Statements</span>
+            <div class="f-section-line"></div>
+        </div>
+        <div class="f-statements">
+            {% for s in statements %}
+            <div class="f-statement-card">
+                <div class="f-statement-text">{{ s.statement }}</div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                    <div class="f-statement-source">{{ s.source }}</div>
+                    <button class="f-copy-btn"
+                            onclick="copyStatement(this, '{{ s.statement | replace("'", "\\'") }}')"
+                            data-text="{{ s.statement | replace('"', '&quot;') }}">
+                        COPY
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<div class="f-footer">
+    project void · sovereign reference · {{ interussia_deadline }} · al-jabr 286
+</div>
+
+<script>
+function copyStatement(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'COPIED';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = orig;
+            btn.classList.remove('copied');
+        }, 2000);
+    }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.textContent = 'COPIED';
+        setTimeout(() => { btn.textContent = 'COPY'; }, 2000);
+    });
+}
+</script>
+
+</body>
+</html>
