@@ -22,11 +22,13 @@ from routes.ambassador import VTX_PER_MILESTONE, REFERRALS_PER_MILESTONE
 
 figures_bp = Blueprint("figures", __name__)
 
-# ── SCL glyph split (source: adriana_scl.py entity/condition/action indices) ──
-_ENTITY_COUNT    = 19   # indices 0–18
-_CONDITION_COUNT = 10   # indices 19–28
-_ACTION_COUNT    = 16   # indices 29–44
-_TOTAL_GLYPHS    = _ENTITY_COUNT + _CONDITION_COUNT + _ACTION_COUNT
+# ── SCL glyph split (source: adriana_scl.py) ──
+# Total derived from GLYPHS dict. Partition counts match the slice indices used in
+# _pick_entity_condition_action(): entities[:19], conditions[19:29], actions[29:45].
+_TOTAL_GLYPHS    = len(AdrianaResonance.GLYPHS)   # dynamic — reflects any lexicon changes
+_ENTITY_COUNT    = 19                               # adriana_scl.py slice [:19]
+_CONDITION_COUNT = 10                               # adriana_scl.py slice [19:29]
+_ACTION_COUNT    = _TOTAL_GLYPHS - _ENTITY_COUNT - _CONDITION_COUNT  # remainder (29:45)
 
 # ── Frequency bounds — derived dynamically from the canonical GLYPHS dict ──
 _GLYPHS = AdrianaResonance.GLYPHS
@@ -45,9 +47,11 @@ _VTX_PER_MILESTONE  = VTX_PER_MILESTONE                   # 286
 _MILESTONE_TRIGGER  = REFERRALS_PER_MILESTONE              # 10
 
 # ── NFT narrative chapters
-# Source: _CHAPTERS_BY_TIER in chronicle_adriana.py is embedded inside the
-# _SDK_CORE string constant and not exposed at module scope. Values verified
-# against that string and canonical spec. Titles are exactly as used across UI.
+# Source: _CHAPTERS_BY_TIER = {"common": 3, "rare": 6, "legendary": 9} is defined
+# inside the _SDK_CORE multiline string constant in void_engine/chronicle_adriana.py
+# (lines 480–660 of that file are embedded SDK source, not executable module code).
+# No importable module-scope constant exists. Values are verified against that
+# embedded source and against void_engine/chronicle_adriana.py::generate_token_story.
 _NFT_CHAPTERS = {"Common": 3, "Rare": 6, "Legendary": 9}
 
 # ── Merge economics (documented in _STORY_CHAPTERS body text in chronicle_adriana.py) ──
