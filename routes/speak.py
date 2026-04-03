@@ -87,7 +87,7 @@ def _harmonic_state(strength):
     return "dormant"
 
 
-def _log_interaction(message, adriana_response, poem_str):
+def _log_interaction(message, adriana_response, poem_str, frequency, domain, harmonic_state):
     """Log to adriana_interactions and glyph_events. Never raises."""
     try:
         from void_engine.db_pool import get_db
@@ -105,20 +105,12 @@ def _log_interaction(message, adriana_response, poem_str):
 
     try:
         from void_engine.db_pool import get_db
-        from void_engine.adriana_scl import AdrianaResonance
         conn = get_db()
         cur = conn.cursor()
-        e_glyph = poem_str.split(" — ")[0] if " — " in poem_str else poem_str
-        meta = AdrianaResonance.GLYPHS.get(e_glyph, {})
         cur.execute(
             """INSERT INTO glyph_events (glyph, frequency, domain, harmonic_state)
                VALUES (%s, %s, %s, %s)""",
-            (
-                poem_str[:200],
-                meta.get("frequency", 432.0),
-                meta.get("domain", "genesis"),
-                "aligned",
-            ),
+            (poem_str[:200], frequency, domain, harmonic_state),
         )
         conn.commit()
         cur.close()
@@ -253,7 +245,7 @@ def listen():
         label=route_label,
     )
 
-    _log_interaction(message, adriana_response, poem_str)
+    _log_interaction(message, adriana_response, poem_str, frequency, domain, harmonic_state)
 
     return jsonify({
         "response":         adriana_response,

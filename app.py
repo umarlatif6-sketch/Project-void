@@ -84,6 +84,11 @@ def _startup_migrations():
         init_ambassador_tables()
     except Exception as e:
         logger.error("Ambassador tables init failed: %s", e)
+    try:
+        from void_engine.void_schema import init_void_schema
+        init_void_schema()
+    except Exception as e:
+        logger.error("Void production schema init failed: %s", e)
 
 try:
     from routes import register_blueprints
