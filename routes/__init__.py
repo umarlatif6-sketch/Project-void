@@ -51,6 +51,7 @@ from routes.sovereign_manifesto import sovereign_manifesto_bp
 from routes.neural_scar import neural_scar_bp
 from routes.sword_wall import sword_wall_bp
 from routes.patent_loom import patent_loom_bp
+from routes.preflight import preflight_bp
 
 
 def register_blueprints(app):
@@ -107,3 +108,4 @@ def register_blueprints(app):
     app.register_blueprint(neural_scar_bp)
     app.register_blueprint(sword_wall_bp)
     app.register_blueprint(patent_loom_bp)
+    app.register_blueprint(preflight_bp)

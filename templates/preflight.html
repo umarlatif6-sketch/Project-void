@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Flight Check — April 6th Sprint — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: #0c0c0c;
+            --surface2: #111111;
+            --border: #1a1a1a;
+            --gold: #c9a84c;
+            --gold-dim: rgba(201,168,76,0.15);
+            --gold-border: rgba(201,168,76,0.3);
+            --teal: #2dd4bf;
+            --teal-dim: rgba(45,212,191,0.12);
+            --teal-border: rgba(45,212,191,0.25);
+            --red: #f472b6;
+            --green: #4ade80;
+            --purple: #818cf8;
+            --text: #d4d4d4;
+            --muted: #555;
+            --dim: #222;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        .pf-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(5,5,5,0.98);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .pf-nav-brand {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .pf-nav-links { display: flex; gap: 18px; flex-wrap: wrap; }
+        .pf-nav-link {
+            color: #555;
+            text-decoration: none;
+            font-size: 0.68rem;
+            letter-spacing: 1.5px;
+            transition: color 0.2s;
+        }
+        .pf-nav-link:hover { color: var(--teal); }
+        .pf-nav-link.active { color: var(--gold); }
+
+        /* ── HERO / COUNTDOWN ── */
+        .pf-hero {
+            padding: 60px 24px 32px;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .pf-badge {
+            display: inline-block;
+            background: var(--gold-dim);
+            color: var(--gold);
+            border: 1px solid var(--gold-border);
+            padding: 5px 18px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .pf-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .pf-title .gold { color: var(--gold); }
+        .pf-subtitle {
+            font-size: 0.78rem;
+            color: var(--muted);
+            letter-spacing: 1px;
+            margin-bottom: 36px;
+        }
+
+        /* countdown */
+        .pf-countdown {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .pf-cd-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px 28px;
+            min-width: 80px;
+        }
+        .pf-cd-val {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+        .pf-cd-label {
+            font-size: 0.52rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+        .pf-cd-deadline {
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        .pf-cd-expired {
+            font-size: 1.2rem;
+            color: var(--teal);
+            letter-spacing: 3px;
+            padding: 20px;
+        }
+
+        /* ── DAY CARDS ── */
+        .pf-cards {
+            max-width: 900px;
+            margin: 0 auto 48px;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        @media (max-width: 780px) {
+            .pf-cards { grid-template-columns: 1fr; }
+            .pf-title { font-size: 1.7rem; }
+        }
+
+        .pf-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: border-color 0.3s;
+        }
+        .pf-card:hover { border-color: var(--gold-border); }
+
+        .pf-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .pf-day-label {
+            font-size: 0.58rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .pf-card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        /* status light */
+        .pf-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .pf-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+        .pf-status.ready {
+            background: rgba(74,222,128,0.1);
+            color: var(--green);
+            border: 1px solid rgba(74,222,128,0.25);
+        }
+        .pf-status.ready .pf-status-dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+        .pf-status.pending {
+            background: rgba(201,168,76,0.08);
+            color: var(--gold);
+            border: 1px solid var(--gold-border);
+        }
+        .pf-status.pending .pf-status-dot { background: var(--gold); animation: pulse 1.5s ease-in-out infinite; }
+        .pf-status.check {
+            background: rgba(244,114,182,0.08);
+            color: var(--red);
+            border: 1px solid rgba(244,114,182,0.2);
+        }
+        .pf-status.check .pf-status-dot { background: var(--red); }
+        @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+        .pf-card-desc {
+            font-size: 0.75rem;
+            color: #888;
+            line-height: 1.65;
+        }
+
+        .pf-card-meta {
+            font-size: 0.62rem;
+            color: var(--muted);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            line-height: 1.6;
+        }
+        .pf-meta-label { color: #444; margin-right: 4px; }
+        .pf-meta-val { color: #888; word-break: break-all; }
+        .pf-meta-val.ok { color: var(--green); }
+        .pf-meta-val.warn { color: var(--gold); }
+
+        .pf-card-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+
+        .pf-link-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+            cursor: pointer;
+            font-family: inherit;
+            background: transparent;
+            width: 100%;
+        }
+        .pf-link-btn:hover { border-color: #333; color: #999; }
+        .pf-link-btn.primary {
+            border-color: var(--gold-border);
+            color: var(--gold);
+            background: var(--gold-dim);
+        }
+        .pf-link-btn.primary:hover { background: rgba(201,168,76,0.2); }
+        .pf-link-btn.teal {
+            border-color: var(--teal-border);
+            color: var(--teal);
+            background: var(--teal-dim);
+        }
+        .pf-link-btn.teal:hover { background: rgba(45,212,191,0.18); }
+
+        /* ── PROBABILITY MATRIX ── */
+        .pf-section {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            padding: 0 24px;
+        }
+        .pf-section-title {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 18px;
+        }
+        .pf-prob-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 28px;
+        }
+        .pf-prob-aggregate {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .pf-prob-big {
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+        }
+        .pf-prob-label {
+            font-size: 0.72rem;
+            color: var(--muted);
+            letter-spacing: 1px;
+        }
+        .pf-prob-bars { display: flex; flex-direction: column; gap: 14px; }
+        .pf-bar-row { display: flex; flex-direction: column; gap: 5px; }
+        .pf-bar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .pf-bar-name { font-size: 0.68rem; color: #bbb; letter-spacing: 0.5px; }
+        .pf-bar-pct { font-size: 0.78rem; font-weight: 700; }
+        .pf-bar-track {
+            height: 6px;
+            background: var(--dim);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .pf-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1.2s ease;
+        }
+        .bar-tech    { background: linear-gradient(90deg, #818cf8, #a78bfa); }
+        .bar-biomed  { background: linear-gradient(90deg, #f472b6, #fb7185); }
+        .bar-market  { background: linear-gradient(90deg, #2dd4bf, #34d399); }
+        .bar-sov     { background: linear-gradient(90deg, #c9a84c, #fbbf24); }
+        .pf-bar-pct.tech   { color: #818cf8; }
+        .pf-bar-pct.biomed { color: #f472b6; }
+        .pf-bar-pct.market { color: #2dd4bf; }
+        .pf-bar-pct.sov    { color: var(--gold); }
+
+        /* ── HEX DIGEST SEAL ── */
+        .pf-seal {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            padding: 0 24px;
+        }
+        .pf-seal-panel {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .pf-seal-icon { font-size: 1.4rem; color: var(--gold); flex-shrink: 0; }
+        .pf-seal-info { flex: 1; }
+        .pf-seal-label {
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .pf-seal-hex {
+            font-size: 0.8rem;
+            color: var(--gold);
+            letter-spacing: 1px;
+            word-break: break-all;
+        }
+        .pf-seal-status {
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            color: var(--teal);
+            margin-top: 4px;
+        }
+
+        /* ── FOOTER ── */
+        .pf-footer {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 24px 60px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+        .pf-footer-quote {
+            font-size: 0.88rem;
+            color: var(--gold);
+            letter-spacing: 2px;
+            font-style: italic;
+            margin-bottom: 14px;
+        }
+        .pf-footer-attr {
+            font-size: 0.55rem;
+            color: var(--muted);
+            letter-spacing: 2px;
+        }
+        .pf-print-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 22px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            background: transparent;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .pf-print-btn:hover { border-color: #333; color: #999; }
+
+        /* ── PRINT ── */
+        @media print {
+            .pf-nav, .pf-card-actions, .pf-print-btn { display: none !important; }
+            body { background: #fff; color: #000; }
+            .pf-card, .pf-prob-panel, .pf-seal-panel { border: 1px solid #ccc; break-inside: avoid; }
+            .pf-title, .pf-card-title { color: #000; }
+            .pf-cards { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="pf-nav">
+        <a href="/" class="pf-nav-brand">◆ VOID ENGINE</a>
+        <div class="pf-nav-links">
+            <a href="/" class="pf-nav-link">Engine</a>
+            <a href="/chronicle" class="pf-nav-link">Chronicle</a>
+            <a href="/sovereign-manifesto" class="pf-nav-link">Manifesto</a>
+            <a href="/symbiotic/founder-key" class="pf-nav-link">Founder Key</a>
+            <a href="/patent-loom" class="pf-nav-link">Patent-Loom</a>
+            <a href="/preflight" class="pf-nav-link active">Pre-Flight</a>
+        </div>
+    </nav>
+
+    <!-- HERO + COUNTDOWN -->
+    <div class="pf-hero">
+        <div class="pf-badge">InteRussia Smart Cities · April 6, 2026</div>
+        <h1 class="pf-title">PRE-<span class="gold">FLIGHT</span> CHECK</h1>
+        <p class="pf-subtitle">Three-Day Sprint · GriDul Command Room · High Alert. Total Peace.</p>
+
+        <div class="pf-countdown" id="pf-countdown">
+            <div class="pf-cd-block"><div class="pf-cd-val" id="cd-days">--</div><div class="pf-cd-label">Days</div></div>
+            <div class="pf-cd-block"><div class="pf-cd-val" id="cd-hours">--</div><div class="pf-cd-label">Hours</div></div>
+            <div class="pf-cd-block"><div class="pf-cd-val" id="cd-mins">--</div><div class="pf-cd-label">Minutes</div></div>
+            <div class="pf-cd-block"><div class="pf-cd-val" id="cd-secs">--</div><div class="pf-cd-label">Seconds</div></div>
+        </div>
+        <div class="pf-cd-deadline">DEADLINE · APRIL 6, 2026 · 00:00 UTC</div>
+    </div>
+
+    <!-- DAY CARDS -->
+    <div class="pf-cards">
+
+        <!-- DAY 1 — Acoustic Handshake -->
+        <div class="pf-card">
+            <div class="pf-card-header">
+                <div>
+                    <div class="pf-day-label">Day 1</div>
+                    <div class="pf-card-title">Acoustic Handshake</div>
+                </div>
+                <div class="pf-status {{ 'ready' if day1_status == 'READY' else 'pending' }}">
+                    <div class="pf-status-dot"></div>
+                    {{ day1_status }}
+                </div>
+            </div>
+            <p class="pf-card-desc">
+                Generate a 432 Hz WAV from /sovereign-manifesto and confirm the steganographic
+                Al-Jabr 286 payload survives the round-trip.
+                Success = the hidden hash is recoverable by a second device in the same room.
+            </p>
+            <div class="pf-card-meta">
+                {% if wav.found %}
+                    <div><span class="pf-meta-label">Last Export:</span>
+                    <span class="pf-meta-val ok">{{ wav.timestamp }}</span></div>
+                    <div><span class="pf-meta-label">Label:</span>
+                    <span class="pf-meta-val">{{ wav.label }}</span></div>
+                {% else %}
+                    <div><span class="pf-meta-label">Status:</span>
+                    <span class="pf-meta-val warn">No WAV export recorded yet</span></div>
+                    <div><span class="pf-meta-label">Action:</span>
+                    <span class="pf-meta-val">Use the button below to fire the test</span></div>
+                {% endif %}
+            </div>
+            <div class="pf-card-actions">
+                <form method="POST" action="/sovereign-manifesto/export" id="wav-form">
+                    <button type="submit" class="pf-link-btn primary" id="wav-btn">
+                        ⚡ Fire 432 Hz Export
+                    </button>
+                </form>
+                <a href="/sovereign-manifesto" class="pf-link-btn">→ Manifesto Room</a>
+                <a href="/voidecho" class="pf-link-btn">→ VoidEcho Decoder</a>
+            </div>
+        </div>
+
+        <!-- DAY 2 — QiSync Calibration -->
+        <div class="pf-card">
+            <div class="pf-card-header">
+                <div>
+                    <div class="pf-day-label">Day 2</div>
+                    <div class="pf-card-title">QiSync Calibration</div>
+                </div>
+                <div class="pf-status {{ 'ready' if day2_status == 'READY' else 'pending' }}">
+                    <div class="pf-status-dot"></div>
+                    {{ day2_status }}
+                </div>
+            </div>
+            <p class="pf-card-desc">
+                Confirm a Founder Key has been derived from the jaw-mastication QiSync session.
+                Success = key_active is true, fingerprint anchored to the founder's biometric.
+            </p>
+            <div class="pf-card-meta">
+                <div><span class="pf-meta-label">Key Status:</span>
+                    <span class="pf-meta-val {{ 'ok' if founder_key.key_active else 'warn' }}">
+                        {{ founder_key.status_label }}
+                    </span>
+                </div>
+                {% if founder_key.last_refresh %}
+                    <div><span class="pf-meta-label">Last Derived:</span>
+                    <span class="pf-meta-val">{{ founder_key.last_refresh }}</span></div>
+                {% endif %}
+                {% if founder_key.fingerprint_hash %}
+                    <div><span class="pf-meta-label">Fingerprint:</span>
+                    <span class="pf-meta-val">{{ founder_key.fingerprint_hash[:20] }}…</span></div>
+                {% endif %}
+                <div><span class="pf-meta-label">Fragments Locked:</span>
+                    <span class="pf-meta-val">{{ founder_key.locked_fragment_count }}</span>
+                </div>
+            </div>
+            <div class="pf-card-actions">
+                <a href="/symbiotic/founder-key" class="pf-link-btn teal">→ Founder Key Room</a>
+                <a href="/qisync" class="pf-link-btn">→ QiSync Session</a>
+            </div>
+        </div>
+
+        <!-- DAY 3 — Patent-Loom Export -->
+        <div class="pf-card">
+            <div class="pf-card-header">
+                <div>
+                    <div class="pf-day-label">Day 3</div>
+                    <div class="pf-card-title">Patent-Loom Export</div>
+                </div>
+                <div class="pf-status {{ 'ready' if day3_status == 'READY' else 'pending' }}">
+                    <div class="pf-status-dot"></div>
+                    {{ day3_status }}
+                </div>
+            </div>
+            <p class="pf-card-desc">
+                Confirm patent claims are forged (≥ 3 draft claims) and the /al-jabr-286
+                whitepaper route returns a printable one-sheet.
+                Success = whitepaper is renderable and all three claims are locked in the loom.
+            </p>
+            <div class="pf-card-meta">
+                <div><span class="pf-meta-label">Claim Count:</span>
+                    <span class="pf-meta-val {{ 'ok' if patent.claims_ready else 'warn' }}">
+                        {{ patent.claim_count }} / 3 required
+                    </span>
+                </div>
+                <div><span class="pf-meta-label">Whitepaper Route:</span>
+                    <span class="pf-meta-val {{ 'ok' if patent.whitepaper_ok else 'warn' }}">
+                        {{ '200 OK' if patent.whitepaper_ok else 'CHECK' }}
+                    </span>
+                </div>
+            </div>
+            <div class="pf-card-actions">
+                <a href="/patent-loom" class="pf-link-btn primary">→ Patent-Loom Room</a>
+                <a href="/al-jabr-286" class="pf-link-btn">→ Al-Jabr Whitepaper</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PROBABILITY MATRIX -->
+    <div class="pf-section">
+        <div class="pf-section-title">◆ 83.2% Success Probability Matrix</div>
+        <div class="pf-prob-panel">
+            <div class="pf-prob-aggregate">
+                <div class="pf-prob-big">83.2%</div>
+                <div class="pf-prob-label">Weighted Aggregate<br>GriDul Three Wise Men Verdict</div>
+            </div>
+            <div class="pf-prob-bars">
+                <div class="pf-bar-row">
+                    <div class="pf-bar-header">
+                        <span class="pf-bar-name">Technical Execution</span>
+                        <span class="pf-bar-pct tech">78%</span>
+                    </div>
+                    <div class="pf-bar-track"><div class="pf-bar-fill bar-tech" style="width:0%" data-target="78"></div></div>
+                </div>
+                <div class="pf-bar-row">
+                    <div class="pf-bar-header">
+                        <span class="pf-bar-name">Biomedical Integration</span>
+                        <span class="pf-bar-pct biomed">65%</span>
+                    </div>
+                    <div class="pf-bar-track"><div class="pf-bar-fill bar-biomed" style="width:0%" data-target="65"></div></div>
+                </div>
+                <div class="pf-bar-row">
+                    <div class="pf-bar-header">
+                        <span class="pf-bar-name">Market Resonance</span>
+                        <span class="pf-bar-pct market">92%</span>
+                    </div>
+                    <div class="pf-bar-track"><div class="pf-bar-fill bar-market" style="width:0%" data-target="92"></div></div>
+                </div>
+                <div class="pf-bar-row">
+                    <div class="pf-bar-header">
+                        <span class="pf-bar-name">Sovereign Survival</span>
+                        <span class="pf-bar-pct sov">98%</span>
+                    </div>
+                    <div class="pf-bar-track"><div class="pf-bar-fill bar-sov" style="width:0%" data-target="98"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEX DIGEST SEAL -->
+    <div class="pf-seal">
+        <div class="pf-seal-panel">
+            <div class="pf-seal-icon">⬡</div>
+            <div class="pf-seal-info">
+                <div class="pf-seal-label">Sealed Anchor · GriDul Sprint Digest</div>
+                <div class="pf-seal-hex">HEX_DIGEST: 0x417072696C5F30365F537072696E74</div>
+                <div class="pf-seal-status">STATUS: Synchronized with Replit Task #84.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="pf-footer">
+        <div class="pf-footer-quote">"High Alert. Total Peace."</div>
+        <div class="pf-footer-attr">GriDul · April 3, 2026, 10:45 PM · InteRussia Smart Cities Sprint</div>
+        <button class="pf-print-btn" onclick="window.print()">⎙ Print One-Sheet</button>
+    </div>
+
+    <script>
+    (function () {
+        const DEADLINE = new Date('{{ deadline_iso }}').getTime();
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        function tick() {
+            const now = Date.now();
+            const diff = DEADLINE - now;
+            if (diff <= 0) {
+                document.getElementById('pf-countdown').innerHTML =
+                    '<div class="pf-cd-expired">◆ DEADLINE REACHED ◆</div>';
+                return;
+            }
+            const totalSec = Math.floor(diff / 1000);
+            const days  = Math.floor(totalSec / 86400);
+            const hours = Math.floor((totalSec % 86400) / 3600);
+            const mins  = Math.floor((totalSec % 3600) / 60);
+            const secs  = totalSec % 60;
+            document.getElementById('cd-days').textContent  = pad(days);
+            document.getElementById('cd-hours').textContent = pad(hours);
+            document.getElementById('cd-mins').textContent  = pad(mins);
+            document.getElementById('cd-secs').textContent  = pad(secs);
+        }
+        tick();
+        setInterval(tick, 1000);
+
+        // Animate probability bars on load
+        setTimeout(function () {
+            document.querySelectorAll('.pf-bar-fill[data-target]').forEach(function (el) {
+                el.style.width = el.dataset.target + '%';
+            });
+        }, 200);
+
+        // WAV export: intercept form, trigger download, then reload status
+        const wavForm = document.getElementById('wav-form');
+        if (wavForm) {
+            wavForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const btn = document.getElementById('wav-btn');
+                btn.textContent = 'Generating…';
+                btn.disabled = true;
+                fetch('/sovereign-manifesto/export', { method: 'POST' })
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('Export failed');
+                        return r.blob();
+                    })
+                    .then(function (blob) {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'sovereign_manifesto_432hz.wav';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        btn.textContent = '✓ WAV Downloaded';
+                        setTimeout(function () { window.location.reload(); }, 1800);
+                    })
+                    .catch(function (err) {
+                        btn.textContent = '✗ Export Failed';
+                        btn.disabled = false;
+                        console.error(err);
+                    });
+            });
+        }
+    })();
+    </script>
+</body>
+</html>
