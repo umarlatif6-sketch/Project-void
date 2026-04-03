@@ -396,8 +396,4 @@ These are not failures. They are positions the platform took a step toward and t
 
 ## Hex Captures
 
-Each entry below was submitted via the Seed Capture system and hex-encoded using the Al-Jabr 286 Sovereign Hash. The full text of every capture lives in the Chronicle (`/void-seed/hex`). Any agent reading this seed file can locate the original content by matching the label and timestamp below.
-
-### April 2026 Fortification Session
-- **Captured:** 2026-04-03 04:39 UTC
-- **Al-Jabr 286 Digest:** `6ba18db217bfbd0e164bd6f1c07866dcc5363c4f443849550c869b293711b5b81d0abdeb`
+_No hex captures recorded yet. Submit one at `/admin/seed-capture`._
