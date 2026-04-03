@@ -423,11 +423,12 @@ _STORY_CHAPTERS = [
     },
 ]
 
-_CHAPTERS_BY_TIER = {
+CHAPTERS_BY_TIER = {
     "common": 3,
     "rare": 6,
     "legendary": 9,
 }
+_CHAPTERS_BY_TIER = CHAPTERS_BY_TIER
 
 
 def _chapter_translation(glyphs):

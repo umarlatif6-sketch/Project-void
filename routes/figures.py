@@ -6,17 +6,19 @@ and sovereign statement in the VOID ENGINE.
 Public, no auth required. Static data only — no DB calls.
 
 Source-of-truth imports:
-  - AdrianaResonance.GLYPHS → glyph counts and all frequency data (adriana_scl)
-  - get_four_quls()          → canonical Quls poem assignments (adriana_scl)
-  - TIER_PRICE_MAP           → tier pricing in pence (routes.payments)
+  - AdrianaResonance.GLYPHS        → glyph counts and all frequency data
+  - CHAPTERS_BY_TIER               → NFT tier chapter counts (adriana_scl)
+  - get_four_quls()                → canonical Quls poem assignments (adriana_scl)
+  - MERGE_TOKEN_THRESHOLD,
+    MERGE_VTX_BONUS                → merge mechanics (blueprint_nft)
+  - TIER_PRICE_MAP                 → tier pricing in pence (routes.payments)
   - VTX_PER_MILESTONE,
-    REFERRALS_PER_MILESTONE   → ambassador economy (routes.ambassador)
-  - NFT chapter counts: stored only inside the _SDK_CORE string constant in
-    chronicle_adriana.py (not module-scope) — defined here as canonical values.
+    REFERRALS_PER_MILESTONE        → ambassador economy (routes.ambassador)
 """
 
 from flask import Blueprint, render_template
-from void_engine.adriana_scl import AdrianaResonance, get_four_quls
+from void_engine.adriana_scl import AdrianaResonance, get_four_quls, CHAPTERS_BY_TIER
+from void_engine.blueprint_nft import MERGE_TOKEN_THRESHOLD, MERGE_VTX_BONUS
 from routes.payments import TIER_PRICE_MAP
 from routes.ambassador import VTX_PER_MILESTONE, REFERRALS_PER_MILESTONE
 
@@ -36,28 +38,28 @@ _freq_min_key, _freq_min_data = min(_GLYPHS.items(), key=lambda x: x[1]["frequen
 _freq_max_key, _freq_max_data = max(_GLYPHS.items(), key=lambda x: x[1]["frequency"])
 
 _FREQ_BASE          = 432.0
-_FREQ_FLOOR         = _freq_min_data["frequency"]                          # 428.0 Hz
-_FREQ_FLOOR_GLYPH   = f"{_freq_min_data['name']} ({_freq_min_key})"       # "Omega (Ω)"
-_FREQ_CEILING       = _freq_max_data["frequency"]                          # 442.2 Hz
-_FREQ_CEILING_GLYPH = f"{_freq_max_data['name']} ({_freq_max_key})"       # "Phi (Φ)"
+_FREQ_FLOOR         = _freq_min_data["frequency"]
+_FREQ_FLOOR_GLYPH   = f"{_freq_min_data['name']} ({_freq_min_key})"
+_FREQ_CEILING       = _freq_max_data["frequency"]
+_FREQ_CEILING_GLYPH = f"{_freq_max_data['name']} ({_freq_max_key})"
 
 # ── Token economics — imported from source modules ──
-_SOVEREIGN_TIER_GBP = TIER_PRICE_MAP["sovereign"] // 100  # 28600 pence → £286
-_VTX_PER_MILESTONE  = VTX_PER_MILESTONE                   # 286
-_MILESTONE_TRIGGER  = REFERRALS_PER_MILESTONE              # 10
+_SOVEREIGN_TIER_GBP = TIER_PRICE_MAP["sovereign"] // 100
+_VTX_PER_MILESTONE  = VTX_PER_MILESTONE
+_MILESTONE_TRIGGER  = REFERRALS_PER_MILESTONE
 
-# ── NFT narrative chapters
-# Source: _CHAPTERS_BY_TIER = {"common": 3, "rare": 6, "legendary": 9} is defined
-# inside the _SDK_CORE multiline string constant in void_engine/chronicle_adriana.py
-# (lines 480–660 of that file are embedded SDK source, not executable module code).
-# No importable module-scope constant exists. Values are verified against that
-# embedded source and against void_engine/chronicle_adriana.py::generate_token_story.
-_NFT_CHAPTERS = {"Common": 3, "Rare": 6, "Legendary": 9}
+# ── NFT chapters — imported from adriana_scl.CHAPTERS_BY_TIER ──
+_NFT_CHAPTERS = {k.capitalize(): v for k, v in CHAPTERS_BY_TIER.items()}
 
-# ── Merge economics (documented in _STORY_CHAPTERS body text in chronicle_adriana.py) ──
-_MERGE_FOR_RARE       = 30    # "Thirty tokens merged unlock a guaranteed Rare"
-_MERGE_RARE_BONUS_VTX = 200   # "200 VTX" bonus from _STORY_CHAPTERS body
-_VTX_PRICE_DOUBLES    = 250   # "price doubled with every 250 minted"
+# ── Merge economics — imported from blueprint_nft module constants ──
+_MERGE_FOR_RARE       = MERGE_TOKEN_THRESHOLD
+_MERGE_RARE_BONUS_VTX = MERGE_VTX_BONUS
+
+# ── Bonding curve: "price doubled with every 250 minted" ──
+# This figure appears in the NFT narrative spec (chronicle_adriana.py SDK text
+# and adriana_local.py briefing text) but is not enforced as a code constant —
+# the mystery collection price is set per-mint at the point of purchase.
+_VTX_PRICE_DOUBLES = 250
 
 # ── Self-Prediction Engine (source: void_engine/mesa_swarm.py + task spec) ──
 _PREDICT_AGENT_MIN = 10

@@ -9,6 +9,9 @@ from void_engine.adriana_scl import hash_to_sovereign_poem
 
 logger = logging.getLogger(__name__)
 
+MERGE_TOKEN_THRESHOLD = 30     # Common tokens required to trigger a merge → guaranteed Rare
+MERGE_VTX_BONUS       = 200    # VTX credited to the user on a successful merge
+
 TIER_CONFIG = {
     "common": {
         "label": "Common",
@@ -853,10 +856,10 @@ def merge_tokens(user_id):
             (user_id,),
         )
         eligible = [r[0] for r in cur.fetchall()]
-        if len(eligible) < 30:
-            return {"error": f"Need 30 eligible Common tokens to merge. You have {len(eligible)}."}
+        if len(eligible) < MERGE_TOKEN_THRESHOLD:
+            return {"error": f"Need {MERGE_TOKEN_THRESHOLD} eligible Common tokens to merge. You have {len(eligible)}."}
 
-        burn_ids = eligible[:30]
+        burn_ids = eligible[:MERGE_TOKEN_THRESHOLD]
         cur.execute(
             "UPDATE blueprint_tokens SET status = 'merged' WHERE id = ANY(%s)",
             (burn_ids,),
@@ -898,7 +901,7 @@ def merge_tokens(user_id):
             (new_token_id, user_id),
         )
 
-        bonus_vtx = Decimal("200")
+        bonus_vtx = Decimal(str(MERGE_VTX_BONUS))
         payload_hash = fatiha_286_hexdigest_from_str(f"merge_bonus|{user_id}|{new_token_id}|{now.isoformat()}")
         block = _create_block(cur, "merge_bonus", None, user_id, bonus_vtx, payload_hash)
         cur.execute(
@@ -909,7 +912,7 @@ def merge_tokens(user_id):
         conn.commit()
         return {
             "success": True,
-            "burned": 30,
+            "burned": MERGE_TOKEN_THRESHOLD,
             "new_token_id": new_token_id,
             "tier": "rare",
             "status": "sealed",
