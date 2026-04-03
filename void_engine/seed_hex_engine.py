@@ -47,9 +47,19 @@ def _init_db():
                 voidecho_broadcast INTEGER DEFAULT 0,
                 chronicle_logged INTEGER DEFAULT 0,
                 transmission_id TEXT,
-                created_at TEXT NOT NULL
+                created_at TEXT NOT NULL,
+                qisync_salt TEXT,
+                origin_verified INTEGER DEFAULT 0
             )
         """)
+        try:
+            conn.execute("ALTER TABLE seed_hex_captures ADD COLUMN qisync_salt TEXT")
+        except Exception:
+            pass
+        try:
+            conn.execute("ALTER TABLE seed_hex_captures ADD COLUMN origin_verified INTEGER DEFAULT 0")
+        except Exception:
+            pass
         conn.execute("""
             CREATE INDEX IF NOT EXISTS idx_shc_timestamp
             ON seed_hex_captures(timestamp)
@@ -81,6 +91,46 @@ def _ensure_db():
         _db_initialized = True
 
 
+def _generate_qisync_salt(timestamp: float, source: str) -> str:
+    """
+    Origin Anchor (Task #81): Generate a QiSync biometric timestamp salt.
+
+    The salt is derived from:
+      - The current Unix timestamp (millisecond precision)
+      - The source label
+      - A QiSync-specific prefix
+
+    On recovery queries, callers must present this salt to prove the entry
+    originated from a live system interaction rather than a simulated sandbox.
+    Entries lacking a valid salt are flagged as "Simulated / Unverified".
+    """
+    raw = f"QiSync:OriginAnchor:{timestamp:.6f}:{source}".encode("utf-8")
+    return fatiha_286_truncated(raw, 32)
+
+
+def verify_origin_anchor(capture_id: int, presented_salt: str) -> Dict:
+    """
+    Origin Anchor (Task #81): Verify that a hex entry's salt matches the
+    presented value.  Returns a dict with:
+      - verified: bool
+      - status: 'ANCHORED' | 'SIMULATED_UNVERIFIED' | 'NOT_FOUND'
+    """
+    _ensure_db()
+    with _get_conn() as conn:
+        row = conn.execute(
+            "SELECT qisync_salt, origin_verified FROM seed_hex_captures WHERE id = ?",
+            (capture_id,),
+        ).fetchone()
+
+    if not row:
+        return {"verified": False, "status": "NOT_FOUND", "capture_id": capture_id}
+
+    stored_salt = row["qisync_salt"] or ""
+    if stored_salt and presented_salt and presented_salt == stored_salt:
+        return {"verified": True, "status": "ANCHORED", "capture_id": capture_id}
+    return {"verified": False, "status": "SIMULATED_UNVERIFIED", "capture_id": capture_id}
+
+
 def capture_seed_hex(source: str, input_data: str,
                      broadcast: bool = True) -> Dict:
     """
@@ -101,13 +151,15 @@ def capture_seed_hex(source: str, input_data: str,
     now = time.time()
     created_at = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(now))
 
+    qisync_salt = _generate_qisync_salt(now, source)
+
     with _lock:
         with _get_conn() as conn:
             cursor = conn.execute("""
                 INSERT INTO seed_hex_captures
-                    (timestamp, source, input_data, hex_digest, created_at)
-                VALUES (?, ?, ?, ?, ?)
-            """, (now, source, input_data[:2000], hex_digest, created_at))
+                    (timestamp, source, input_data, hex_digest, created_at, qisync_salt, origin_verified)
+                VALUES (?, ?, ?, ?, ?, ?, 1)
+            """, (now, source, input_data[:2000], hex_digest, created_at, qisync_salt))
             capture_id = cursor.lastrowid
 
     result = {
@@ -118,6 +170,8 @@ def capture_seed_hex(source: str, input_data: str,
         "voidecho_broadcast": False,
         "voidecho_path": None,
         "transmission_id": None,
+        "qisync_salt": qisync_salt,
+        "origin_anchor": "ANCHORED",
     }
 
     if broadcast:
@@ -133,7 +187,26 @@ def capture_seed_hex(source: str, input_data: str,
 def _broadcast_as_voidecho(capture_id: int, hex_digest: str, source: str, timestamp: float) -> Dict:
     """
     Encode the hex digest into spectrogram audio and log as VoidEcho broadcast.
+
+    Lead Shield (Task #81): If the social resonance monitor reports that
+    broadcasting is paused (Gone Dark), skip the audio emission and return
+    a suppressed result.  The capture is still recorded; only the outgoing
+    signal is withheld.
     """
+    try:
+        from void_engine.lead_shield import is_broadcast_paused, feed_shield_from_engine
+        feed_shield_from_engine()
+        if is_broadcast_paused():
+            logger.info("[SeedHex] Lead Shield GONE_DARK — broadcast suppressed for capture %s", capture_id)
+            return {
+                "voidecho_broadcast": False,
+                "voidecho_path": None,
+                "transmission_id": None,
+                "lead_shield_suppressed": True,
+            }
+    except Exception:
+        pass
+
     transmission_id = fatiha_286_truncated(
         f"seedhex:{capture_id}:{hex_digest}".encode("utf-8"), 16
     )
@@ -167,6 +240,7 @@ def _broadcast_as_voidecho(capture_id: int, hex_digest: str, source: str, timest
         "voidecho_broadcast": True,
         "voidecho_path": voidecho_path,
         "transmission_id": transmission_id,
+        "lead_shield_suppressed": False,
     }
 
 

@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify, session, redirect, render_templat
 from routes.auth import login_required, admin_required
 from void_engine.chronicle_adriana import (
     get_chronicle,
+    get_absence_poetry,
     post_chronicle_entry,
     delete_chronicle_entry,
     generate_adriana_sdk_zip,
@@ -148,3 +149,96 @@ def void_seed_hex_page():
         logger.error("Failed to load seed captures: %s", e)
         captures = []
     return render_template("void_seed_hex.html", captures=captures)
+
+
+@chronicle_bp.route("/api/chronicle/absence-poetry")
+def api_absence_poetry():
+    """Return Adriana's gap-period Absence Poetry entries (filterable type)."""
+    try:
+        entries = get_absence_poetry()
+        return jsonify({"entries": entries, "count": len(entries), "entry_type": "ABSENCE"})
+    except Exception as e:
+        logger.error("Absence Poetry API error: %s", e)
+        return jsonify({"error": "Failed to load absence poetry"}), 500
+
+
+@chronicle_bp.route("/api/chronicle/filter")
+def api_chronicle_filter():
+    """Return Chronicle entries filtered by entry_type query param."""
+    entry_type = request.args.get("entry_type", "").strip() or None
+    try:
+        entries = get_chronicle(entry_type_filter=entry_type)
+        return jsonify({"entries": entries, "count": len(entries), "filter": entry_type})
+    except Exception as e:
+        logger.error("Chronicle filter API error: %s", e)
+        return jsonify({"error": "Failed to filter chronicle"}), 500
+
+
+@chronicle_bp.route("/api/buffer-spore/status")
+def api_buffer_spore_status():
+    """Return the Buffer Spore prediction cache state (Mycelium Lag monitor)."""
+    try:
+        from void_engine.mycelium_service import get_buffer_spore_state
+        return jsonify(get_buffer_spore_state())
+    except Exception as e:
+        logger.error("Buffer Spore API error: %s", e)
+        return jsonify({"error": "Failed to get buffer spore state"}), 500
+
+
+@chronicle_bp.route("/api/lead-shield/status")
+def api_lead_shield_status():
+    """Return the Lead Shield (social resonance monitor) current status."""
+    try:
+        from void_engine.lead_shield import get_shield_status
+        return jsonify(get_shield_status())
+    except Exception as e:
+        logger.error("Lead Shield API error: %s", e)
+        return jsonify({"error": "Failed to get lead shield status"}), 500
+
+
+@chronicle_bp.route("/api/lead-shield/thresholds", methods=["POST"])
+@admin_required
+def api_lead_shield_set_thresholds():
+    """Update Lead Shield volatility/recovery thresholds (admin)."""
+    try:
+        data = request.get_json() or {}
+        volatility = float(data.get("volatility_threshold", 0.35))
+        recovery = float(data.get("recovery_threshold", 0.20))
+        from void_engine.lead_shield import get_shield
+        result = get_shield().set_thresholds(volatility, recovery)
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Lead Shield threshold update error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@chronicle_bp.route("/api/lead-shield/force-clear", methods=["POST"])
+@admin_required
+def api_lead_shield_force_clear():
+    """Force-clear a Gone Dark state (admin override)."""
+    try:
+        from void_engine.lead_shield import get_shield
+        result = get_shield().force_clear()
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Lead Shield force-clear error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@chronicle_bp.route("/api/origin-anchor/verify", methods=["POST"])
+def api_origin_anchor_verify():
+    """
+    Origin Anchor verification endpoint.
+    POST body: { "capture_id": int, "qisync_salt": str }
+    Returns ANCHORED or SIMULATED_UNVERIFIED.
+    """
+    try:
+        data = request.get_json() or {}
+        capture_id = int(data.get("capture_id", 0))
+        presented_salt = str(data.get("qisync_salt", ""))
+        from void_engine.seed_hex_engine import verify_origin_anchor
+        result = verify_origin_anchor(capture_id, presented_salt)
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Origin Anchor verify error: %s", e)
+        return jsonify({"error": str(e)}), 500
