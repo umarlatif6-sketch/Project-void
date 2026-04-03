@@ -47,6 +47,7 @@ from routes.al_jabr_verification import al_jabr_bp
 from routes.mesa_sandbox import mesa_sandbox_bp
 from routes.locus_seeding import locus_seeding_bp
 from routes.symbiotic_seed import symbiotic_seed_bp
+from routes.sovereign_manifesto import sovereign_manifesto_bp
 
 
 def register_blueprints(app):
@@ -99,3 +100,4 @@ def register_blueprints(app):
     app.register_blueprint(mesa_sandbox_bp)
     app.register_blueprint(locus_seeding_bp)
     app.register_blueprint(symbiotic_seed_bp)
+    app.register_blueprint(sovereign_manifesto_bp)

@@ -144,7 +144,7 @@ def get_chronicle():
         _ensure_seed_capture_columns(cur)
         cur.execute(
             """SELECT id, chapter_number, title, subtitle, glyph_sequence, body_text,
-                      posted_at, al_jabr_hash, entry_type
+                      posted_at, al_jabr_hash, entry_type, is_shielded
                FROM chronicle_entries
                ORDER BY posted_at DESC"""
         )
@@ -152,6 +152,7 @@ def get_chronicle():
         entries = []
         for r in rows:
             glyphs = [g.strip() for g in r[4].split("-") if g.strip()]
+            is_shielded = bool(r[9]) if len(r) > 9 and r[9] is not None else False
             entries.append({
                 "id":              r[0],
                 "chapter_number":  r[1],
@@ -164,6 +165,7 @@ def get_chronicle():
                 "posted_at":       r[6].strftime("%Y-%m-%d") if r[6] else "",
                 "al_jabr_hash":    (r[7][:16] + "...") if r[7] else "",
                 "entry_type":      r[8] or "chronicle",
+                "is_shielded":     is_shielded,
             })
         return entries
     finally:
@@ -212,8 +214,10 @@ def delete_chronicle_entry(entry_id):
 
 def _ensure_seed_capture_columns(cur):
     for col, defn in [
-        ("entry_type", "VARCHAR(50) DEFAULT 'chronicle'"),
-        ("full_text",  "TEXT"),
+        ("entry_type",  "VARCHAR(50) DEFAULT 'chronicle'"),
+        ("full_text",   "TEXT"),
+        ("is_shielded", "SMALLINT DEFAULT 0"),
+        ("shield_ciphertext", "TEXT"),
     ]:
         cur.execute(
             "SELECT 1 FROM information_schema.columns WHERE table_name = %s AND column_name = %s",

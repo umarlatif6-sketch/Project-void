@@ -261,6 +261,91 @@
             .chr-timeline::before { left: 12px; }
             .chr-entry-dot { margin-left: 6px; }
         }
+
+        .chr-shield-bar {
+            max-width: 760px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+        .chr-shield-panel {
+            background: #0d0d15;
+            border: 1px solid rgba(45,212,191,0.15);
+            border-radius: 12px;
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .chr-shield-icon {
+            font-size: 1.8rem;
+            color: #2dd4bf;
+            flex-shrink: 0;
+        }
+        .chr-shield-info { flex: 1; }
+        .chr-shield-title {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #2dd4bf;
+            margin-bottom: 6px;
+        }
+        .chr-shield-counters {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .chr-shield-counter {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .chr-shield-counter-val {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+        .chr-shield-counter-val.locked { color: #f472b6; }
+        .chr-shield-counter-val.open { color: #4ade80; }
+        .chr-shield-counter-label {
+            font-size: 0.6rem;
+            color: #555;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        .chr-shield-link {
+            font-size: 0.72rem;
+            color: #2dd4bf;
+            text-decoration: none;
+            border: 1px solid rgba(45,212,191,0.25);
+            padding: 6px 14px;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+        .chr-shield-link:hover { background: rgba(45,212,191,0.08); }
+
+        .chr-shield-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .chr-shield-badge.locked {
+            background: rgba(244,114,182,0.1);
+            color: #f472b6;
+            border: 1px solid rgba(244,114,182,0.2);
+        }
+        .chr-shield-badge.open {
+            background: rgba(74,222,128,0.08);
+            color: #4ade80;
+            border: 1px solid rgba(74,222,128,0.15);
+        }
     </style>
 </head>
 <body class="chr-body">
@@ -288,11 +373,44 @@
             Every milestone in PROJECT VOID is anchored by an Adriana glyph poem and a 286-bit Al-Jabr hash.
             This is not a blog. It is a ledger of events — immutable, sovereign, and publicly verifiable.
         </p>
-        <a href="/download/adriana-sdk" class="chr-sdk-cta">
-            <span>&#8659;</span> Download Adriana SDK v1.0
-        </a>
+        <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;">
+            <a href="/download/adriana-sdk" class="chr-sdk-cta">
+                <span>&#8659;</span> Download Adriana SDK v1.0
+            </a>
+            <a href="/sovereign-manifesto" class="chr-sdk-cta" style="background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.3);color:#c9a84c;">
+                <span>&#9670;</span> Sovereign Manifesto
+            </a>
+        </div>
         <div class="chr-sdk-note">MIT for personal use &bull; VOID Blueprint Token required for commercial deployment</div>
     </section>
+
+    {% set total_entries = entries | length %}
+    {% set locked_entries = entries | selectattr("is_shielded") | list | length %}
+    {% set open_entries = total_entries - locked_entries %}
+
+    <div class="chr-shield-bar">
+        <div class="chr-shield-panel">
+            <div class="chr-shield-icon">&#9632;</div>
+            <div class="chr-shield-info">
+                <div class="chr-shield-title">Lead Shield Status</div>
+                <div class="chr-shield-counters">
+                    <div class="chr-shield-counter">
+                        <div class="chr-shield-counter-val open">{{ open_entries }}</div>
+                        <div class="chr-shield-counter-label">Public / Open</div>
+                    </div>
+                    <div class="chr-shield-counter">
+                        <div class="chr-shield-counter-val locked">{{ locked_entries }}</div>
+                        <div class="chr-shield-counter-label">Locked / Shielded</div>
+                    </div>
+                    <div class="chr-shield-counter">
+                        <div class="chr-shield-counter-val">{{ total_entries }}</div>
+                        <div class="chr-shield-counter-label">Total Entries</div>
+                    </div>
+                </div>
+            </div>
+            <a href="/sovereign-manifesto" class="chr-shield-link">18 Advantages &rarr;</a>
+        </div>
+    </div>
 
     <div class="chr-timeline">
         {% if entries %}
@@ -305,6 +423,11 @@
                         <span class="chr-scar-badge">&#9760; Scar</span>
                         {% else %}
                         <span class="chr-chapter-badge">Chapter {{ entry.chapter_number }}</span>
+                        {% endif %}
+                        {% if entry.is_shielded %}
+                        <span class="chr-shield-badge locked">&#9632; Lead Shield</span>
+                        {% else %}
+                        <span class="chr-shield-badge open">&#9633; Open</span>
                         {% endif %}
                         {% if entry.subtitle %}
                         <span class="chr-subtitle">{{ entry.subtitle }}</span>

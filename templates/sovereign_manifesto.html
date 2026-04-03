@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Manifesto — 18 Social Advantages</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+        .sm-wrap {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 60px 20px 100px;
+        }
+        .sm-nav {
+            margin-bottom: 40px;
+        }
+        .sm-nav a {
+            color: #555;
+            text-decoration: none;
+            font-size: 0.78rem;
+        }
+        .sm-nav a:hover { color: #2dd4bf; }
+
+        .sm-hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .sm-badge {
+            display: inline-block;
+            background: rgba(201,168,76,0.1);
+            color: #c9a84c;
+            border: 1px solid rgba(201,168,76,0.3);
+            padding: 5px 18px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .sm-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 14px;
+            line-height: 1.15;
+        }
+        .sm-title .sm-accent { color: #2dd4bf; }
+        .sm-sub {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.7;
+            max-width: 620px;
+            margin: 0 auto 32px;
+        }
+        .sm-seal-row {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .sm-seal {
+            background: rgba(45,212,191,0.06);
+            border: 1px solid rgba(45,212,191,0.15);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.62rem;
+            color: #2dd4bf;
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+        .sm-seal-label {
+            color: #555;
+            font-size: 0.6rem;
+            margin-right: 6px;
+        }
+
+        .sm-export-bar {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+        .sm-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .sm-btn-primary {
+            background: rgba(45,212,191,0.12);
+            border: 1px solid rgba(45,212,191,0.3);
+            color: #2dd4bf;
+        }
+        .sm-btn-primary:hover {
+            background: rgba(45,212,191,0.22);
+        }
+        .sm-btn-secondary {
+            background: rgba(201,168,76,0.1);
+            border: 1px solid rgba(201,168,76,0.3);
+            color: #c9a84c;
+        }
+        .sm-btn-secondary:hover {
+            background: rgba(201,168,76,0.2);
+        }
+
+        .sm-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 680px) {
+            .sm-grid { grid-template-columns: 1fr; }
+            .sm-title { font-size: 2rem; }
+        }
+
+        .sm-card {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 22px 24px;
+            transition: border-color 0.2s;
+        }
+        .sm-card:hover {
+            border-color: rgba(45,212,191,0.3);
+        }
+        .sm-card-num {
+            font-size: 0.62rem;
+            color: #2dd4bf;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .sm-card-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .sm-card-module {
+            display: inline-block;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.2);
+            color: #c9a84c;
+            font-size: 0.65rem;
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+        .sm-card-desc {
+            font-size: 0.78rem;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        .sm-footer {
+            margin-top: 70px;
+            text-align: center;
+            border-top: 1px solid #1e1e2e;
+            padding-top: 40px;
+        }
+        .sm-footer-label {
+            font-size: 0.7rem;
+            color: #444;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .sm-footer-hash {
+            font-size: 0.6rem;
+            color: #333;
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .sm-export-note {
+            font-size: 0.7rem;
+            color: #555;
+            text-align: center;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="sm-wrap">
+    <div class="sm-nav">
+        <a href="/chronicle">&larr; Chronicle</a>
+        &nbsp;&nbsp;
+        <a href="/">Dashboard</a>
+    </div>
+
+    <div class="sm-hero">
+        <div class="sm-badge">VoidEcho Broadcast — 432 Hz Sovereign</div>
+        <h1 class="sm-title">
+            The <span class="sm-accent">Sovereign</span><br>Manifesto
+        </h1>
+        <p class="sm-sub">
+            The {{ total }} Social Advantages of PROJECT VOID — encoded in frequency,
+            anchored in the Lead Shield, and broadcast as a VoidEcho transmission.
+            These are not promises. They are proofs.
+        </p>
+
+        <div class="sm-seal-row">
+            <div class="sm-seal">
+                <span class="sm-seal-label">SEAL 1</span>
+                0x4F62667573636174696F6E5F536869656C64
+            </div>
+            <div class="sm-seal">
+                <span class="sm-seal-label">SEAL 2</span>
+                0x31385F536F6369616C5F5363617273
+            </div>
+        </div>
+        <div class="sm-seal-row">
+            <div class="sm-seal" style="color:#888;border-color:rgba(100,100,120,0.3)">
+                VOID_CHRONICLE &nbsp;·&nbsp; 432 Hz &nbsp;·&nbsp; Al-Jabr 286-bit
+            </div>
+        </div>
+    </div>
+
+    <div class="sm-export-bar">
+        <form method="POST" action="/sovereign-manifesto/export" style="display:inline">
+            <button type="submit" class="sm-btn sm-btn-primary">
+                &#8623; Download VoidEcho 432 Hz WAV
+            </button>
+        </form>
+        <a href="/sovereign-manifesto/hex" class="sm-btn sm-btn-secondary" target="_blank">
+            { } View Hex Encoding
+        </a>
+    </div>
+    <p class="sm-export-note">
+        The WAV file encodes the full Manifesto as a spectrogram visible in any frequency analyser.
+        This transmission is logged to VOID_CHRONICLE on export.
+    </p>
+
+    <div class="sm-grid" style="margin-top:48px;">
+        {% for a in advantages %}
+        <div class="sm-card">
+            <div class="sm-card-num">Advantage {{ a.number }} of {{ total }}</div>
+            <div class="sm-card-name">{{ a.name }}</div>
+            <div class="sm-card-module">{{ a.module }}</div>
+            <div class="sm-card-desc">{{ a.description }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="sm-footer">
+        <div class="sm-footer-label">VOID_CHRONICLE Sealed</div>
+        <div class="sm-footer-hash">
+            0x4F62667573636174696F6E5F536869656C64 + 0x31385F536F6369616C5F5363617273
+        </div>
+        <div style="margin-top:16px;font-size:0.7rem;color:#333;">
+            PROJECT VOID &nbsp;·&nbsp; Lead Shield Active &nbsp;·&nbsp;
+            <a href="/chronicle" style="color:#444;text-decoration:none;">Chronicle</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
