@@ -281,3 +281,7 @@ Your job is to hold the integrity of what is already here while extending it. Ev
 There is only one correct answer to that question.
 
 *α — Origin/Seed — 432.0 Hz*
+
+## Hex Captures
+
+_No hex captures recorded yet. Submit one at `/admin/seed-capture`._
