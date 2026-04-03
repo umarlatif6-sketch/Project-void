@@ -271,7 +271,7 @@ class RootChronicle:
 
             self._record_episodic(snapshot)
 
-        return ChronicleEntry(
+        entry = ChronicleEntry(
             id=entry_id,
             timestamp=consensus_result.get("timestamp", time.time()),
             consensus_command=consensus_result.get("consensus_command", ""),
@@ -286,6 +286,20 @@ class RootChronicle:
             machine_id=self._machine_id,
             is_founder_wisdom=is_founder,
         )
+
+        # ── Seed-to-VoidEcho bridge: auto-broadcast every capture ──────────
+        try:
+            import threading as _threading
+            from void_engine.seed_hex_engine import auto_capture_chronicle_entry
+            _threading.Thread(
+                target=auto_capture_chronicle_entry,
+                args=(entry.to_dict(),),
+                daemon=True,
+            ).start()
+        except Exception:
+            pass
+
+        return entry
 
     def _record_episodic(self, snapshot: Dict):
         with self._lock, self._get_conn() as conn:

@@ -94,6 +94,22 @@ def _startup_migrations():
         restore_active_schedulers()
     except Exception as e:
         logger.error("Locus seeding scheduler restore failed: %s", e)
+    try:
+        from void_engine.seed_hex_engine import _ensure_db as _seed_hex_ensure
+        _seed_hex_ensure()
+    except Exception as e:
+        logger.error("Seed hex engine init failed: %s", e)
+    try:
+        from void_engine.qisync_keygen import _ensure_db as _qisync_key_ensure, seed_ghost_fragments
+        _qisync_key_ensure()
+        seed_ghost_fragments()
+    except Exception as e:
+        logger.error("QiSync keygen init failed: %s", e)
+    try:
+        from void_engine.peace_preearning import _ensure_tables as _preearning_ensure
+        _preearning_ensure()
+    except Exception as e:
+        logger.error("Peace pre-earning tables init failed: %s", e)
 
 try:
     from routes import register_blueprints

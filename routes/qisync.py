@@ -546,6 +546,29 @@ def qisync_session_end():
     logger.info("QiSync ended: user=%s sid=%s metabolism=%.3f elapsed=%.0fs vtx=%.4f",
                 user_id, session_id, metabolism, elapsed, reward.get("vtx_earned", 0))
 
+    # ── QiSync Founder Key derivation (non-blocking) ────────────────────────
+    founder_key_result = None
+    try:
+        from void_engine.qisync_keygen import derive_founder_key
+        chew_count = rec.get("chew_count", 0)
+        mastic_freq = chew_count / max(elapsed, 1.0)  # chews per second
+        jaw_pattern = f"{rec['stance']}-rhythm"
+        key_data = derive_founder_key(
+            mastication_frequency=round(mastic_freq, 4),
+            chew_count=chew_count,
+            jaw_pattern=jaw_pattern,
+            stance=rec["stance"],
+            metabolism_score=round(metabolism, 4),
+            session_id=session_id,
+        )
+        founder_key_result = {
+            "key_active": key_data["key_active"],
+            "fingerprint_hash": key_data["fingerprint_hash"],
+            "time_window": key_data["time_window"],
+        }
+    except Exception as exc:
+        logger.debug("QiSync founder key derivation failed (non-fatal): %s", exc)
+
     return jsonify({
         "ok": True,
         "rewarded": True,
@@ -557,6 +580,7 @@ def qisync_session_end():
         "elapsed_sec": round(elapsed, 1),
         "stance": rec["stance"],
         "reward": reward,
+        "founder_key": founder_key_result,
     })
 
 

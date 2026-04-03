@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genesis Hex — Master Origin Seal</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121c;
+      --surface2: #1a1a2e;
+      --border: #2a2a40;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --gold: #f59e0b;
+      --green: #10b981;
+      --red: #ef4444;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; min-height: 100vh; padding: 24px; }
+    h1 { font-size: 1.6rem; color: var(--gold); letter-spacing: 2px; margin-bottom: 4px; }
+    .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 32px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+    .card-title { font-size: 0.75rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+    .section-title { font-size: 0.9rem; color: var(--accent2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .genesis-display { background: var(--surface2); border: 2px solid var(--gold); border-radius: 10px; padding: 24px; text-align: center; margin-bottom: 24px; }
+    .genesis-label { font-size: 0.78rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+    .genesis-hex-value { font-size: 0.85rem; color: var(--gold); font-weight: bold; word-break: break-all; line-height: 1.8; letter-spacing: 1px; }
+    .genesis-hex-half { display: block; }
+    .genesis-timestamp { font-size: 0.75rem; color: var(--muted); margin-top: 12px; }
+    .genesis-empty { text-align: center; padding: 48px; color: var(--muted); }
+    .genesis-empty-icon { font-size: 3rem; margin-bottom: 16px; }
+    .genesis-empty-text { font-size: 1rem; margin-bottom: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .stat-value { font-size: 1.6rem; font-weight: bold; color: var(--accent2); }
+    .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+    .component-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(42,42,64,0.5); }
+    .component-row:last-child { border-bottom: none; }
+    .component-name { color: var(--text); font-size: 0.85rem; text-transform: capitalize; }
+    .component-digest { color: var(--accent2); font-size: 0.7rem; font-family: monospace; word-break: break-all; max-width: 55%; text-align: right; }
+    .protocol-badge { display: inline-block; padding: 4px 12px; background: rgba(124,58,237,0.15); border: 1px solid var(--accent); color: var(--accent); border-radius: 20px; font-size: 0.72rem; letter-spacing: 1px; margin-top: 8px; }
+    .btn { display: inline-block; padding: 10px 24px; border-radius: 6px; border: none; cursor: pointer; font-family: 'Courier New', monospace; font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; transition: all 0.2s; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #6d28d9; }
+    .btn-gold { background: var(--gold); color: #0a0a0f; }
+    .btn-gold:hover { background: #d97706; }
+    #gen-output { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 14px; margin-top: 14px; font-size: 0.8rem; display: none; }
+    .layer-chip { display: inline-block; background: rgba(6,182,212,0.1); border: 1px solid var(--accent2); color: var(--accent2); padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; margin: 2px; }
+  </style>
+</head>
+<body>
+  <h1>⬡ Genesis Hex — Master Origin Seal</h1>
+  <p class="subtitle">The canonical 286-bit Master Hex — combining 12-day chronicle, incubation logic, locus records, and pre-arrival balance into the project's permanent origin seal</p>
+
+  {% if genesis %}
+  <!-- Genesis hex display -->
+  <div class="genesis-display">
+    <div class="genesis-label">{{ genesis.genesis_label }}</div>
+    <div class="genesis-hex-value">
+      <span class="genesis-hex-half">{{ genesis.genesis_hex[:36] }}</span>
+      <span class="genesis-hex-half">{{ genesis.genesis_hex[36:72] }}</span>
+    </div>
+    <div class="genesis-timestamp">
+      Generated: {{ genesis.timestamp_iso }}
+    </div>
+    <div style="margin-top: 10px;">
+      <span class="protocol-badge">{{ genesis.protocol }}</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ genesis.components.chronicle_entries }}</div>
+      <div class="stat-label">Chronicle entries ({{ genesis.components.chronicle_window_days }}-day window)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ genesis.components.incubation_runs }}</div>
+      <div class="stat-label">Incubation runs (Mesa simulations)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ genesis.components.locus_records }}</div>
+      <div class="stat-label">Locus records anchored</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ "%.4f"|format(genesis.components.preearning_balance) }}</div>
+      <div class="stat-label">Pre-arrival PEACE balance</div>
+    </div>
+  </div>
+
+  <!-- Fatiha layers -->
+  <div class="card">
+    <div class="section-title">Al-Fatiha Layer Weights</div>
+    <div style="margin-bottom: 8px; color: var(--muted); font-size: 0.8rem;">
+      7 harmonic layers applied during component hash combination:
+    </div>
+    {% for w in genesis.fatiha_layers %}
+    <span class="layer-chip">Layer {{ loop.index }}: {{ w }}</span>
+    {% endfor %}
+  </div>
+
+  <!-- Component digests -->
+  {% if genesis.component_digests %}
+  <div class="card">
+    <div class="section-title">Component Digests</div>
+    {% for label, digest in genesis.component_digests.items() %}
+    <div class="component-row">
+      <div class="component-name">{{ label.replace('_', ' ').title() }}</div>
+      <div class="component-digest">{{ digest[:36] }}...</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Regenerate -->
+  <div class="card">
+    <div class="section-title">Regenerate</div>
+    <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 16px;">
+      Force a full regeneration of the Master Hex with the current chronicle, incubation, and locus state.
+      The previous genesis hex will be replaced.
+    </p>
+    <button class="btn btn-primary" onclick="generateHex(true)">Force Regenerate Master Hex</button>
+    <div id="gen-output"></div>
+  </div>
+
+  {% else %}
+  <!-- No genesis hex yet -->
+  <div class="genesis-display">
+    <div class="genesis-empty">
+      <div class="genesis-empty-icon">⬡</div>
+      <div class="genesis-empty-text">No Genesis Hex Generated Yet</div>
+      <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 20px;">
+        The Master Hex combines chronicle history, incubation logic, locus records,
+        and pre-arrival balances into a single canonical origin seal.
+      </p>
+      <button class="btn btn-gold" onclick="generateHex(false)">Generate Genesis Hex</button>
+    </div>
+  </div>
+  <div id="gen-output" style="margin-top: 16px;"></div>
+  {% endif %}
+
+  <script>
+    async function generateHex(force) {
+      const output = document.getElementById('gen-output');
+      output.style.display = 'block';
+      output.style.color = 'var(--accent2)';
+      output.textContent = 'Computing Master Hex... Collecting chronicle, incubation, locus, and pre-arrival data...';
+      try {
+        const res = await fetch('/api/symbiotic/genesis-hex/generate', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({force: force})
+        });
+        const data = await res.json();
+        if (data.ok) {
+          output.style.color = 'var(--green)';
+          output.textContent = '✅ Genesis Hex computed: ' + data.genesis_hex + '\n\nReloading...';
+          setTimeout(() => location.reload(), 2000);
+        } else if (data.regenerated === false) {
+          output.style.color = 'var(--gold)';
+          output.textContent = '⬡ Genesis Hex already exists. Use Force Regenerate to recompute.';
+        } else {
+          output.style.color = 'var(--red)';
+          output.textContent = 'Error: ' + (data.error || 'Unknown');
+        }
+      } catch(e) {
+        output.style.color = 'var(--red)';
+        output.textContent = 'Error: ' + e.message;
+      }
+    }
+  </script>
+</body>
+</html>

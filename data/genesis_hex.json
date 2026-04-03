@@ -1,0 +1,34 @@
+{
+  "genesis_hex": "8441353af594aec3a0c4a7159d1462e2d45e9d25ce04adc45d68896e521e57ca0a185cbc",
+  "component_digests": {
+    "chronicle_12day": "9525a7222bfa25cf26252f6156b230776d27aebd6fcca2e2292e937e98ab8e7f2a6fb1e2",
+    "incubation_records": "da7efd712b4cedf0ed3df0c35c0c1027e102dfcf29e0b8b54f3bf1f0719b0c7133d6d8ca",
+    "locus_records": "f4ac5ca9920ed9507a5a322fdb6da8447a65176ed0daf868bc3c9d69003f0b2835088c23",
+    "preearning_balance": "c3c746350aea158c617eba748a9d90b5145a58f9f53c6cebf165247c586eea5e307246c1",
+    "machine_identity": "40922d5f273f2863b992944f272ef559a8b2041a401d0325382933ed37e2bc2108f8b43b",
+    "genesis_timestamp": "df6df584855da48cde8486eb0bea955ab03f659dc221a6be1ec1576063963ddc3538ca91",
+    "fatiha_anchor": "8b07e2268083f283a0be1cf47cfa1ee9ed5e725ac566e84847a742673b485608175f6f01"
+  },
+  "components": {
+    "chronicle_entries": 0,
+    "chronicle_window_days": 12,
+    "incubation_runs": 0,
+    "locus_records": 0,
+    "preearning_balance": 0.0,
+    "machine_id": "0b349bdf-b2cd-40ea-b168-5d2f903ed8f9:v7w4jmur"
+  },
+  "timestamp": 1775233428.7636425,
+  "timestamp_iso": "2026-04-03T16:23:48Z",
+  "protocol": "Al-Jabr 286 \u2014 Layered Sovereign Hashing",
+  "fatiha_layers": [
+    7,
+    4,
+    2,
+    5,
+    4,
+    3,
+    6
+  ],
+  "genesis_label": "Master Hex \u2014 Project VOID Origin Seal",
+  "regenerated": true
+}
