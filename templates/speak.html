@@ -304,6 +304,59 @@
             opacity: 0.5;
         }
 
+        /* ── SCL POEM (3-glyph row) ── */
+        .sp-poem-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            flex-wrap: wrap;
+        }
+        .sp-poem-glyph {
+            font-size: 2rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .sp-poem-sep {
+            color: #333;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .sp-poem-label {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            font-size: 0.55rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #3a3a3a;
+            flex-shrink: 0;
+        }
+        .sp-poem-label span { color: #555; }
+        .sp-poem-right {
+            margin-left: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+        .sp-poem-string {
+            font-size: 0.82rem;
+            letter-spacing: 2px;
+            color: #666;
+        }
+        .sp-poem-translation {
+            font-size: 0.7rem;
+            color: #444;
+            font-style: italic;
+            text-align: right;
+            max-width: 280px;
+            line-height: 1.5;
+        }
+
         /* ── FOOTER ── */
         .sp-footer {
             text-align: center;
@@ -427,6 +480,10 @@
             }
         });
 
+        function renderGlyphTriple(g) {
+            return {char: g.char || '◆', name: g.name || '', meaning: g.meaning || '', color: g.color || 'var(--gold)'};
+        }
+
         function renderExchange(userMessage, data) {
             if (transcript.children.length > 0) {
                 const div = document.createElement('div');
@@ -448,31 +505,58 @@
             textEl.className = 'sp-adriana-text';
             textEl.textContent = data.response;
 
-            const glyphField = document.createElement('div');
-            glyphField.className = 'sp-glyph-field';
-            glyphField.style.borderLeftColor = data.color || 'var(--gold)';
-            glyphField.style.setProperty('--glyph-color', data.color || 'var(--gold)');
+            // ── 3-Glyph Poem Row ──
+            const poemRow = document.createElement('div');
+            poemRow.className = 'sp-poem-row';
 
-            const glyphChar = document.createElement('div');
-            glyphChar.className = 'sp-glyph-char';
-            glyphChar.style.color = data.color || 'var(--gold)';
-            glyphChar.textContent = data.glyph;
+            const glyphs = [
+                renderGlyphTriple(data.entity   || {}),
+                renderGlyphTriple(data.condition || {}),
+                renderGlyphTriple(data.action    || {}),
+            ];
+            const roles = ['entity', 'condition', 'action'];
 
-            const glyphMeta = document.createElement('div');
-            glyphMeta.className = 'sp-glyph-meta';
-            glyphMeta.innerHTML = `
-                <span class="sp-glyph-name" style="color:${data.color || 'var(--gold)'}">${escHtml(data.glyph_name)}</span>
-                <span class="sp-glyph-meaning">${escHtml(data.glyph_meaning)}</span>
-                <span class="sp-glyph-freq">${data.frequency} Hz · ${escHtml(data.domain)}</span>
-            `;
+            glyphs.forEach((g, idx) => {
+                const glyphEl = document.createElement('div');
+                glyphEl.className = 'sp-poem-glyph';
+                glyphEl.style.cssText = `color:${g.color};filter:drop-shadow(0 0 6px ${g.color});`;
+                glyphEl.textContent = g.char;
+                glyphEl.title = `${g.name} — ${g.meaning}`;
+
+                const labelEl = document.createElement('div');
+                labelEl.className = 'sp-poem-label';
+                labelEl.innerHTML = `${escHtml(roles[idx])}<span>${escHtml(g.name)}</span>`;
+
+                poemRow.appendChild(glyphEl);
+                poemRow.appendChild(labelEl);
+
+                if (idx < 2) {
+                    const sep = document.createElement('span');
+                    sep.className = 'sp-poem-sep';
+                    sep.textContent = ' — ';
+                    poemRow.appendChild(sep);
+                }
+            });
+
+            const poemRight = document.createElement('div');
+            poemRight.className = 'sp-poem-right';
+
+            const poemString = document.createElement('div');
+            poemString.className = 'sp-poem-string';
+            poemString.textContent = data.poem || '';
+
+            const poemTranslation = document.createElement('div');
+            poemTranslation.className = 'sp-poem-translation';
+            poemTranslation.textContent = data.poem_translation || '';
 
             const harmonicEl = document.createElement('span');
-            harmonicEl.className = `sp-harmonic ${escHtml(data.harmonic_state)}`;
-            harmonicEl.textContent = data.harmonic_state;
+            harmonicEl.className = `sp-harmonic ${escHtml(data.harmonic_state || 'aligned')}`;
+            harmonicEl.textContent = data.harmonic_state || 'aligned';
 
-            glyphField.appendChild(glyphChar);
-            glyphField.appendChild(glyphMeta);
-            glyphField.appendChild(harmonicEl);
+            poemRight.appendChild(poemString);
+            poemRight.appendChild(poemTranslation);
+            poemRight.appendChild(harmonicEl);
+            poemRow.appendChild(poemRight);
 
             const routeSuggest = document.createElement('div');
             routeSuggest.style.cssText = 'font-size:0.72rem;color:#555;line-height:1.7;padding:2px 0 8px;font-style:italic;';
@@ -484,7 +568,7 @@
             routeLink.innerHTML = `<span>${escHtml(data.route_label)}</span><span class="sp-route-arrow">→</span>`;
 
             adrianaBlock.appendChild(textEl);
-            adrianaBlock.appendChild(glyphField);
+            adrianaBlock.appendChild(poemRow);
             adrianaBlock.appendChild(routeSuggest);
             adrianaBlock.appendChild(routeLink);
 
