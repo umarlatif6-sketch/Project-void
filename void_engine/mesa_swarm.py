@@ -151,14 +151,26 @@ def _llm_generate_personas(
     n_agents: int,
     themes: List[str],
     entities: List[str],
+    restrict_archetypes: Optional[List[str]] = None,
 ) -> Optional[List[Dict]]:
     """
     Use the model router to generate agent personas from seed text.
     Returns a list of persona dicts or None if LLM call fails.
+
+    Args:
+        restrict_archetypes: If provided, only these archetype names will be used.
+                             Agents are distributed evenly across the restricted set.
     """
     try:
         from void_engine.aljabr_transpiler import get_model_router, TASK_BULK
         router = get_model_router()
+
+        if restrict_archetypes:
+            archetype_constraint = ", ".join(restrict_archetypes)
+            archetype_note = f"You MUST only use these archetypes: {archetype_constraint}. Distribute agents evenly across all {len(restrict_archetypes)} types."
+        else:
+            archetype_constraint = "activist, analyst, connector, skeptic, amplifier, conservator, visionary, chronicler"
+            archetype_note = f"Choose from: {archetype_constraint}"
 
         prompt = f"""You are a social simulation architect. Given the following seed text, generate {n_agents} distinct agent personas who would naturally care about this topic.
 
@@ -169,7 +181,7 @@ Key entities: {', '.join(entities) if entities else 'none detected'}
 
 Return a JSON array of {n_agents} objects. Each object must have exactly these keys:
 - "name": a plausible fictional name (no real people)
-- "archetype": one of: activist, analyst, connector, skeptic, amplifier, conservator, visionary, chronicler
+- "archetype": {archetype_note}
 - "viewpoint": a 1-sentence description of this agent's position on the seed topic
 - "motivation": what drives their interest (1 short phrase)
 - "topic_interests": array of 2-3 strings from the key themes above
@@ -204,7 +216,11 @@ Return only valid JSON. No explanation."""
         return None
 
 
-def seed_to_agents(text: str, n_agents: int = 10) -> List["SwarmAgent"]:
+def seed_to_agents(
+    text: str,
+    n_agents: int = 10,
+    restrict_archetypes: Optional[List[str]] = None,
+) -> List["SwarmAgent"]:
     """
     Parse a seed text (news article, PEACE token event log, GriDul Mesh post,
     or any arbitrary text) and generate N agent personas with:
@@ -213,14 +229,28 @@ def seed_to_agents(text: str, n_agents: int = 10) -> List["SwarmAgent"]:
       - relationship edges distributed by shared interest (GraphRAG)
       - temporal memory primed with seed context
 
+    Args:
+        restrict_archetypes: If provided, only agents of these archetype types
+                             will be created. Agents are distributed evenly across
+                             the restricted set, with LLM prompted to use only
+                             those archetypes. This is enforced BEFORE simulation.
+
     Returns a list of SwarmAgent instances ready for simulation.
     """
-    n_agents = max(2, min(50, n_agents))
+    n_agents = max(2, min(100, n_agents))
     themes = _extract_themes(text)
     entities = _extract_entities(text)
     tensions = _extract_tensions(text)
 
-    llm_personas = _llm_generate_personas(text, n_agents, themes, entities)
+    llm_personas = _llm_generate_personas(text, n_agents, themes, entities,
+                                          restrict_archetypes=restrict_archetypes)
+
+    allowed_archetypes = (
+        [a for a in PERSONALITY_ARCHETYPES if a["name"] in restrict_archetypes]
+        if restrict_archetypes else PERSONALITY_ARCHETYPES
+    )
+    if not allowed_archetypes:
+        allowed_archetypes = PERSONALITY_ARCHETYPES
 
     rng = random.Random(hashlib.sha256(text.encode()).digest()[0])
     agents: List[SwarmAgent] = []
@@ -229,9 +259,11 @@ def seed_to_agents(text: str, n_agents: int = 10) -> List["SwarmAgent"]:
         if llm_personas and i < len(llm_personas):
             p = llm_personas[i]
             archetype_name = p.get("archetype", "connector")
+            if restrict_archetypes and archetype_name not in restrict_archetypes:
+                archetype_name = restrict_archetypes[i % len(restrict_archetypes)]
             archetype = next(
                 (a for a in PERSONALITY_ARCHETYPES if a["name"] == archetype_name),
-                PERSONALITY_ARCHETYPES[i % len(PERSONALITY_ARCHETYPES)]
+                allowed_archetypes[i % len(allowed_archetypes)]
             )
             agent = SwarmAgent(
                 agent_id=i,
@@ -243,7 +275,7 @@ def seed_to_agents(text: str, n_agents: int = 10) -> List["SwarmAgent"]:
                 rng=rng,
             )
         else:
-            archetype = PERSONALITY_ARCHETYPES[i % len(PERSONALITY_ARCHETYPES)]
+            archetype = allowed_archetypes[i % len(allowed_archetypes)]
             agent_themes = [themes[i % len(themes)]] if themes else ["community"]
             if len(themes) > 1:
                 agent_themes.append(themes[(i + 1) % len(themes)])
@@ -608,17 +640,22 @@ def simulate_from_seed(
     seed_text: str,
     n_agents: int = 10,
     rounds: int = 3,
+    restrict_archetypes: Optional[List[str]] = None,
 ) -> Dict:
     """
     Full pipeline: seed text → agents → GraphRAG graph → simulation → plain-English summary.
     Returns a dict with: agents_snapshot, summary, metadata.
+
+    Args:
+        restrict_archetypes: If provided, only agents of these archetype types are created
+                             and used THROUGHOUT the simulation. Enforced before simulation starts.
     """
     started_at = datetime.now(timezone.utc)
     themes = _extract_themes(seed_text)
     entities = _extract_entities(seed_text)
     tensions = _extract_tensions(seed_text)
 
-    agents = seed_to_agents(seed_text, n_agents)
+    agents = seed_to_agents(seed_text, n_agents, restrict_archetypes=restrict_archetypes)
 
     _run_swarm_rounds(agents, rounds, seed_event=seed_text[:200])
 

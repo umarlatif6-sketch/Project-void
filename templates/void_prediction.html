@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID Self-Prediction Engine</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --void-bg: #05060a;
+            --void-gold: #c9a84c;
+            --void-teal: #2dd4bf;
+            --void-blue: #60a5fa;
+            --void-violet: #a78bfa;
+            --void-text: #d0d8e8;
+            --void-muted: #4a5060;
+            --void-border: #1a1e2a;
+            --void-card: #0a0c14;
+            --void-red: #f87171;
+            --void-green: #34d399;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+        a { color: var(--void-gold); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .vp-topbar {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 28px;
+            background: rgba(5,6,10,0.96);
+            border-bottom: 1px solid var(--void-border);
+        }
+        .vp-logo { display: flex; align-items: center; gap: 10px; color: var(--void-gold); font-size: 14px; font-weight: bold; letter-spacing: 0.08em; }
+        .vp-nav { display: flex; gap: 18px; font-size: 12px; }
+        .vp-nav a { color: var(--void-muted); letter-spacing: 0.05em; }
+        .vp-nav a:hover { color: var(--void-gold); }
+
+        .vp-hero {
+            text-align: center;
+            padding: 54px 24px 32px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(167,139,250,0.10) 0%, transparent 60%);
+        }
+        .vp-hero h1 { font-size: 26px; color: var(--void-violet); letter-spacing: 0.14em; margin-bottom: 10px; }
+        .vp-hero p { color: var(--void-muted); font-size: 13px; max-width: 640px; margin: 0 auto; line-height: 1.65; }
+
+        .vp-main { max-width: 960px; margin: 0 auto; padding: 32px 20px 64px; }
+
+        .vp-section-title {
+            font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--void-muted); margin-bottom: 16px;
+            border-left: 2px solid var(--void-violet); padding-left: 10px;
+        }
+
+        .vp-card {
+            background: var(--void-card);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .vp-banner {
+            border-radius: 5px; padding: 11px 16px;
+            font-size: 12px; margin-bottom: 20px;
+        }
+        .vp-banner.success { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.25); color: var(--void-green); }
+        .vp-banner.error   { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--void-red); }
+
+        .vp-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .vp-field { display: flex; flex-direction: column; gap: 6px; }
+        .vp-field label { font-size: 11px; color: var(--void-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+        .vp-field input, .vp-field textarea {
+            background: rgba(26,30,42,0.8); border: 1px solid var(--void-border);
+            color: var(--void-text); font-family: inherit; font-size: 13px;
+            padding: 8px 12px; border-radius: 4px; outline: none;
+            transition: border-color 0.2s;
+        }
+        .vp-field input:focus, .vp-field textarea:focus { border-color: rgba(167,139,250,0.4); }
+        .vp-field textarea { resize: vertical; min-height: 56px; }
+        .vp-field-full { grid-column: 1 / -1; }
+        .vp-hint { font-size: 11px; color: var(--void-muted); margin-top: 3px; }
+
+        .vp-cost-info {
+            background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.18);
+            border-radius: 5px; padding: 12px 16px; margin-bottom: 18px; font-size: 11px;
+            color: var(--void-muted); line-height: 1.6;
+        }
+        .vp-cost-info strong { color: var(--void-violet); }
+
+        .vp-btn {
+            background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.35);
+            color: var(--void-violet); font-family: inherit; font-size: 12px; font-weight: bold;
+            padding: 10px 26px; border-radius: 4px; cursor: pointer;
+            letter-spacing: 0.08em; text-transform: uppercase; transition: background 0.2s;
+        }
+        .vp-btn:hover { background: rgba(167,139,250,0.22); }
+        .vp-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .vp-meta-strip {
+            display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 22px;
+        }
+        .vp-meta-pill {
+            background: rgba(26,30,42,0.8); border: 1px solid var(--void-border);
+            border-radius: 12px; padding: 5px 14px; font-size: 11px; color: var(--void-muted);
+        }
+        .vp-meta-pill span { color: var(--void-text); }
+
+        .vp-adriana-block {
+            background: linear-gradient(135deg, rgba(167,139,250,0.07), rgba(45,212,191,0.04));
+            border: 1px solid rgba(167,139,250,0.25);
+            border-radius: 8px; padding: 22px; margin-bottom: 24px;
+        }
+        .vp-adriana-title { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--void-violet); margin-bottom: 14px; }
+        .vp-adriana-text { font-size: 13px; color: var(--void-text); line-height: 1.75; white-space: pre-wrap; }
+
+        .vp-predictions-grid { display: grid; gap: 10px; margin-bottom: 24px; }
+        .vp-pred {
+            background: rgba(26,30,42,0.7); border: 1px solid rgba(167,139,250,0.15);
+            border-radius: 6px; padding: 12px 16px;
+            display: flex; align-items: flex-start; gap: 14px;
+        }
+        .vp-pred-type { font-size: 10px; color: var(--void-violet); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; min-width: 120px; }
+        .vp-pred-desc { font-size: 12px; color: var(--void-text); line-height: 1.55; }
+        .vp-pred-conf { font-size: 10px; color: var(--void-muted); margin-left: auto; white-space: nowrap; }
+
+        .vp-agents-list { display: flex; flex-direction: column; gap: 8px; }
+        .vp-agent-row {
+            background: rgba(26,30,42,0.6); border: 1px solid var(--void-border);
+            border-radius: 5px; padding: 10px 14px;
+            display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap;
+        }
+        .vp-agent-name { color: var(--void-gold); font-size: 12px; min-width: 120px; }
+        .vp-agent-arch { font-size: 10px; color: var(--void-violet); text-transform: uppercase; letter-spacing: 0.08em; min-width: 80px; }
+        .vp-agent-view { font-size: 11px; color: var(--void-muted); flex: 1; line-height: 1.5; }
+        .vp-stance { font-size: 10px; padding: 2px 8px; border-radius: 9px; white-space: nowrap; }
+        .vp-stance.supportive { background: rgba(52,211,153,0.10); color: var(--void-green); border: 1px solid rgba(52,211,153,0.25); }
+        .vp-stance.opposed    { background: rgba(248,113,113,0.10); color: var(--void-red);   border: 1px solid rgba(248,113,113,0.25); }
+        .vp-stance.neutral    { background: rgba(74,80,96,0.20);    color: var(--void-muted); border: 1px solid rgba(74,80,96,0.30); }
+
+        .vp-confidence-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .vp-conf-cell {
+            background: rgba(26,30,42,0.7); border: 1px solid var(--void-border);
+            border-radius: 6px; padding: 12px; text-align: center;
+        }
+        .vp-conf-label { font-size: 10px; color: var(--void-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+        .vp-conf-val { font-size: 20px; color: var(--void-teal); font-weight: bold; }
+        .vp-conf-sub { font-size: 10px; color: var(--void-muted); margin-top: 3px; }
+
+        .vp-themes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .vp-theme-tag {
+            background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.2);
+            color: var(--void-blue); font-size: 11px; padding: 3px 10px; border-radius: 12px;
+        }
+
+        .vp-history-row {
+            display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap;
+            padding: 12px 0; border-bottom: 1px solid rgba(26,30,42,0.8);
+            font-size: 12px;
+        }
+        .vp-history-row:last-child { border-bottom: none; }
+        .vp-history-date { color: var(--void-muted); font-size: 11px; min-width: 100px; white-space: nowrap; }
+        .vp-history-title { color: var(--void-gold); flex: 1; }
+        .vp-history-sub { font-size: 11px; color: var(--void-muted); }
+        .vp-chronicle-link { font-size: 11px; color: var(--void-teal); }
+
+        @media (max-width: 600px) {
+            .vp-topbar { flex-direction: column; gap: 10px; }
+            .vp-hero h1 { font-size: 20px; }
+            .vp-form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="vp-topbar">
+    <div class="vp-logo">
+        <span>🔮</span>
+        <span>VOID SELF-PREDICTION ENGINE</span>
+    </div>
+    <nav class="vp-nav">
+        <a href="/admin/mesa">Mesa Admin</a>
+        <a href="/mesa-village">Mesa Village</a>
+        <a href="/chronicle">Chronicle</a>
+        <a href="/">Engine</a>
+    </nav>
+</div>
+
+<div class="vp-hero">
+    <h1>🔮 VOID PREDICTS VOID</h1>
+    <p>The Mesa swarm engine turns on PROJECT VOID itself. Analysts, activists, connectors, and skeptics — each representing a real-world force — simulate the project's own founding document and surface what is emerging, what is threatened, and where the trajectory leads.</p>
+</div>
+
+<div class="vp-main">
+
+    {% if run_error %}
+    <div class="vp-banner error">
+        {% if run_error == 'invalid_input' %}✗ Invalid input — please check your values and try again.
+        {% elif run_error == 'seed_unavailable' %}✗ VOID_SEED.md could not be loaded. Check the server environment.
+        {% elif run_error == 'simulation_failed' %}✗ Simulation failed. Check server logs.
+        {% else %}✗ An error occurred: {{ run_error }}{% endif %}
+    </div>
+    {% endif %}
+
+    {% if result and run_ok %}
+    <div class="vp-banner success">✓ Self-prediction complete.{% if result.chronicle_id %} Saved to Chronicle (entry #{{ result.chronicle_id }}).{% endif %}</div>
+    {% endif %}
+
+    <!-- Control Form -->
+    <div class="vp-section-title">Run Self-Prediction</div>
+    <div class="vp-card">
+        <div class="vp-cost-info">
+            <strong>Cost estimate</strong> — Approximately {{ cost_estimates.ai_calls_typical }} AI calls per run (the engine batches agent interactions).
+            Estimated cost per run: <strong>£{{ cost_estimates.per_run_min_gbp }}–£{{ cost_estimates.per_run_max_gbp }}</strong> depending on model.
+            {{ cost_estimates.cheapest_model }} is the lowest cost option. Maximum {{ cost_estimates.max_agents }} agents supported.
+        </div>
+
+        <form method="POST" action="/void-prediction" id="predForm">
+            <div class="vp-form-grid">
+                <div class="vp-field">
+                    <label>Agent Count</label>
+                    <input type="number" name="agent_count" value="20" min="10" max="100" required>
+                    <span class="vp-hint">10–100 agents (analyst, activist, connector, skeptic archetypes)</span>
+                </div>
+                <div class="vp-field">
+                    <label>Simulation Rounds</label>
+                    <input type="number" name="rounds" value="5" min="3" max="10" required>
+                    <span class="vp-hint">3–10 rounds per prediction</span>
+                </div>
+                <div class="vp-field vp-field-full">
+                    <label>Focus Question (optional)</label>
+                    <textarea name="focus_question" placeholder="e.g. What is the biggest threat to VOID in the next 6 months?  |  Where will community growth come from?"></textarea>
+                    <span class="vp-hint">A specific question to focus the simulation's interpretive lens. Leave blank for an open prediction.</span>
+                </div>
+            </div>
+            <button type="submit" class="vp-btn" id="predBtn">🔮 Run Self-Prediction</button>
+        </form>
+    </div>
+
+    {% if result %}
+    <!-- Results Panel -->
+    <div class="vp-section-title">Prediction Results</div>
+
+    <div class="vp-meta-strip">
+        <div class="vp-meta-pill">Seed: <span>{{ result.seed_digest }}</span></div>
+        <div class="vp-meta-pill">Agents: <span>{{ result.agent_count }}</span></div>
+        <div class="vp-meta-pill">Rounds: <span>{{ result.rounds }}</span></div>
+        <div class="vp-meta-pill">Duration: <span>{{ result.duration_s }}s</span></div>
+        {% if result.focus_question %}
+        <div class="vp-meta-pill">Focus: <span>{{ result.focus_question[:60] }}</span></div>
+        {% endif %}
+    </div>
+
+    <!-- Adriana's Interpretation -->
+    <div class="vp-adriana-block">
+        <div class="vp-adriana-title">Ψ Adriana's Interpretation</div>
+        <div class="vp-adriana-text">{{ result.adriana_summary or result.simulation.summary }}</div>
+    </div>
+
+    <!-- Confidence Signals -->
+    <div class="vp-section-title">Confidence Signals</div>
+    <div class="vp-confidence-grid">
+        <div class="vp-conf-cell">
+            <div class="vp-conf-label">Avg Stance</div>
+            <div class="vp-conf-val" style="color: {% if result.confidence_signals.avg_stance > 0.1 %}var(--void-green){% elif result.confidence_signals.avg_stance < -0.1 %}var(--void-red){% else %}var(--void-teal){% endif %};">
+                {{ "%+.2f"|format(result.confidence_signals.avg_stance) }}
+            </div>
+            <div class="vp-conf-sub">−1 opposed / +1 supportive</div>
+        </div>
+        <div class="vp-conf-cell">
+            <div class="vp-conf-label">Engagement</div>
+            <div class="vp-conf-val">{{ "%.0f"|format(result.confidence_signals.avg_activity * 100) }}%</div>
+            <div class="vp-conf-sub">avg agent activity</div>
+        </div>
+        <div class="vp-conf-cell">
+            <div class="vp-conf-label">Aligned</div>
+            <div class="vp-conf-val" style="color: var(--void-green);">{{ "%.0f"|format(result.confidence_signals.positive_pct) }}%</div>
+            <div class="vp-conf-sub">supportive forces</div>
+        </div>
+        <div class="vp-conf-cell">
+            <div class="vp-conf-label">Opposing</div>
+            <div class="vp-conf-val" style="color: var(--void-red);">{{ "%.0f"|format(result.confidence_signals.negative_pct) }}%</div>
+            <div class="vp-conf-sub">resistant forces</div>
+        </div>
+        <div class="vp-conf-cell">
+            <div class="vp-conf-label">Neutral</div>
+            <div class="vp-conf-val" style="color: var(--void-muted);">{{ "%.0f"|format(result.confidence_signals.neutral_pct) }}%</div>
+            <div class="vp-conf-sub">undecided forces</div>
+        </div>
+    </div>
+
+    {% if result.confidence_signals.themes %}
+    <div style="margin-bottom: 24px;">
+        <div class="vp-section-title">Active Themes</div>
+        <div class="vp-themes">
+            {% for theme in result.confidence_signals.themes %}
+            <span class="vp-theme-tag">{{ theme }}</span>
+            {% endfor %}
+        </div>
+        {% if result.confidence_signals.tensions %}
+        <div style="margin-top: 8px; font-size: 11px; color: var(--void-muted);">
+            Tensions detected: {% for t in result.confidence_signals.tensions %}<span style="color: var(--void-red);">{{ t }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Key Predictions -->
+    {% if result.key_predictions %}
+    <div class="vp-section-title">Key Predictions</div>
+    <div class="vp-predictions-grid" style="margin-bottom: 24px;">
+        {% for pred in result.key_predictions %}
+        <div class="vp-pred">
+            <span class="vp-pred-type">{{ pred.type.replace("_", " ") }}</span>
+            <span class="vp-pred-desc">{{ pred.description }}</span>
+            <span class="vp-pred-conf">conf: {{ "%.0f"|format(pred.confidence * 100) }}%</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Agent Dialogue Excerpts -->
+    {% if result.agent_excerpts %}
+    <div class="vp-section-title">Agent Dialogue Excerpts</div>
+    <div class="vp-card" style="padding: 16px;">
+        <div class="vp-agents-list">
+            {% for agent in result.agent_excerpts %}
+            <div class="vp-agent-row">
+                <span class="vp-agent-name">{{ agent.name }}</span>
+                <span class="vp-agent-arch">{{ agent.archetype }}</span>
+                <span class="vp-agent-view">{{ agent.viewpoint or "—" }}</span>
+                <span class="vp-stance {{ agent.stance_label }}">{{ agent.stance_label }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+    <!-- Prediction History -->
+    <div class="vp-section-title" style="margin-top: 32px;">Recent Predictions</div>
+    <div class="vp-card">
+        {% if recent_predictions %}
+        {% for entry in recent_predictions %}
+        <div class="vp-history-row">
+            <span class="vp-history-date">{{ entry.posted_at or "—" }}</span>
+            <div style="flex:1; min-width: 0;">
+                <div class="vp-history-title">{{ entry.title }}</div>
+                {% if entry.subtitle %}
+                <div class="vp-history-sub">{{ entry.subtitle }}</div>
+                {% endif %}
+            </div>
+            <a href="/chronicle" class="vp-chronicle-link">→ Chronicle</a>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="color: var(--void-muted); font-size: 12px; text-align: center; padding: 24px;">No predictions recorded yet. Run the first self-prediction above.</div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+document.getElementById('predForm').addEventListener('submit', function() {
+    const btn = document.getElementById('predBtn');
+    btn.disabled = true;
+    btn.textContent = '🔮 Simulating…';
+});
+</script>
+</body>
+</html>

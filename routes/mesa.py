@@ -1,5 +1,5 @@
 """
-Mesa Village routes — /mesa-village, /admin/mesa, /mesa/simulate
+Mesa Village routes — /mesa-village, /admin/mesa, /mesa/simulate, /void-prediction
 """
 
 import logging
@@ -432,3 +432,58 @@ def mesa_simulate():
         "stored": stored,
         **({"warning": "simulation result could not be persisted to the database"} if not stored else {}),
     }), 200
+
+
+@mesa_bp.route("/void-prediction", methods=["GET"])
+@admin_required
+def void_prediction_get():
+    from void_engine.self_prediction import get_recent_self_predictions, COST_ESTIMATES
+    recent = get_recent_self_predictions(5)
+    run_ok = request.args.get("run_ok")
+    run_error = request.args.get("run_error")
+    return render_template(
+        "void_prediction.html",
+        recent_predictions=recent,
+        cost_estimates=COST_ESTIMATES,
+        run_ok=run_ok,
+        run_error=run_error,
+        result=None,
+    )
+
+
+@mesa_bp.route("/void-prediction", methods=["POST"])
+@admin_required
+def void_prediction_post():
+    from void_engine.self_prediction import run_self_prediction, get_recent_self_predictions, COST_ESTIMATES
+
+    try:
+        focus_question = (request.form.get("focus_question") or "").strip() or None
+        agent_count = int(request.form.get("agent_count", 20))
+        agent_count = max(10, min(100, agent_count))
+        rounds = int(request.form.get("rounds", 5))
+        rounds = max(3, min(10, rounds))
+    except (ValueError, TypeError):
+        return redirect("/void-prediction?run_error=invalid_input")
+
+    try:
+        result = run_self_prediction(
+            focus_question=focus_question,
+            agent_count=agent_count,
+            rounds=rounds,
+        )
+    except Exception as e:
+        logger.error("VOID self-prediction failed: %s", e)
+        return redirect("/void-prediction?run_error=simulation_failed")
+
+    if "error" in result:
+        return redirect(f"/void-prediction?run_error=seed_unavailable")
+
+    recent = get_recent_self_predictions(5)
+    return render_template(
+        "void_prediction.html",
+        recent_predictions=recent,
+        cost_estimates=COST_ESTIMATES,
+        run_ok="1",
+        run_error=None,
+        result=result,
+    )
