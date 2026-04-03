@@ -211,6 +211,55 @@ class AdrianaTranspiler:
         self._transpile_count = 0
         self._total_compression_ratio = 0.0
         self._history: List[Dict] = []
+        self._load_skill_glyphs()
+
+    def _load_skill_glyphs(self) -> None:
+        """
+        Import all skill modules and inject their glyph entries into the lexicon.
+        Best-effort — never raises (skill loading must not break core transpiler).
+        """
+        try:
+            from void_engine.skill_modules import _auto_load, all_glyphs
+            _auto_load()
+            for ge in all_glyphs():
+                if ge.glyph not in self._lexicon._entries:
+                    entry = LexiconEntry(
+                        glyph=ge.glyph,
+                        category=ge.category,
+                        domain=ge.domain,
+                        key=ge.key,
+                        description=ge.description,
+                        python_equivalent=ge.python_equivalent,
+                    )
+                    self._lexicon._entries[entry.glyph] = entry
+                    if entry.category in self._lexicon._by_category:
+                        self._lexicon._by_category[entry.category].append(entry)
+                    self._lexicon._by_domain.setdefault(entry.domain, []).append(entry)
+        except Exception as exc:
+            import logging as _log
+            _log.getLogger(__name__).warning(
+                "[Transpiler] Skill glyph loading failed (non-fatal): %s", exc
+            )
+
+    def resolve_skill(self, intent: "ActionIntent") -> Optional[Dict]:
+        """
+        Attempt to resolve a skill invocation for the given intent.
+
+        Returns the SkillResult dict if a skill handles this intent,
+        or None if no skill matches (falls back to simulator command path).
+        """
+        try:
+            from void_engine.skill_modules.skill_router import invoke_skill
+            intent_dict = intent.to_dict()
+            result = invoke_skill(intent_dict)
+            if result.get("success"):
+                return result
+        except Exception as exc:
+            import logging as _log
+            _log.getLogger(__name__).debug(
+                "[Transpiler] Skill resolution skipped: %s", exc
+            )
+        return None
 
     def transpile(self, expression: str) -> TranspileResult:
         start = time.time()
@@ -270,6 +319,41 @@ class AdrianaTranspiler:
                 raw_expression=branch,
             )
             intents.append(intent)
+
+            # ── Skill dispatch for v1.1 skill-domain glyphs ───────────────
+            # If ANY action in this branch maps to a skill.* equivalent,
+            # attempt to dispatch the entire intent through the skill router
+            # before falling back to the simulator command path.
+            _has_skill_action = any(
+                a.entry.python_equivalent.startswith("skill.")
+                for a in actions
+            )
+            if _has_skill_action:
+                skill_result = self.resolve_skill(intent)
+                if skill_result is not None:
+                    # Attach the skill result payload to the intent for
+                    # downstream consumers (routes, narrators, etc.).
+                    intent.skill_result = skill_result  # type: ignore[attr-defined]
+                    # Manufacture a skill-dispatch command so callers receive
+                    # at least one command and TranspileResult.success is True.
+                    narrative = (
+                        skill_result.get("inner_voice")
+                        or f"Skill '{skill_result.get('skill_id', '?')}' executed."
+                    )
+                    cmd = SimulatorCommand(
+                        action_type="skill_dispatch",
+                        params={
+                            "skill_id": skill_result.get("skill_id"),
+                            "domain": skill_result.get("domain"),
+                            "success": skill_result.get("success"),
+                            "scl_poem": skill_result.get("scl_poem"),
+                            "output": skill_result.get("output"),
+                        },
+                        source_intent=intent,
+                        narrative=narrative,
+                    )
+                    commands.append(cmd)
+                    continue  # don't also run simulator path for this branch
 
             for action_glyph in actions:
                 equiv = action_glyph.entry.python_equivalent

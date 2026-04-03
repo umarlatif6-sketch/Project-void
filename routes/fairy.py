@@ -722,6 +722,34 @@ def fairy_ask():
             except Exception:
                 pass
 
+    # ── Adriana Skill Query Detection ────────────────────────────────────────
+    # Before hitting local KNN or OpenAI, attempt to dispatch to a real
+    # skill module when the message pattern matches a domain capability.
+    try:
+        from void_engine.adriana_local import handle_skill_query
+        skill_reply, skill_matched = handle_skill_query(message)
+        if skill_matched:
+            logger.info("SKILL_HIT skill_dispatch user_id=%s", user_id)
+            try:
+                _maybe_update_profile(user_id, tier, message, history, skill_reply)
+            except Exception:
+                pass
+            resp = {
+                "reply": skill_reply,
+                "tier": tier,
+                "is_founder": is_founder,
+                "emotion_state": emotion_state,
+                "theme_hint": theme_hint,
+                "tone_hint": tone_hint,
+                "resonance_log_seed": resonance_log_seed,
+                "skill_dispatched": True,
+            }
+            if hex_flowers:
+                resp["hex_flowers"] = hex_flowers
+            return jsonify(resp)
+    except Exception as _skill_exc:
+        logger.debug("Skill query dispatch skipped: %s", _skill_exc)
+
     local_response, local_confidence = get_engine().match(message)
     if local_confidence >= CONFIDENCE_THRESHOLD:
         logger.info("LOCAL_HIT intent_confidence=%.2f user_id=%s", local_confidence, user_id)

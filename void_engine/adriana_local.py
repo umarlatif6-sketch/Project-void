@@ -1063,3 +1063,102 @@ _engine_instance = AdrianLocalEngine()
 
 def get_engine() -> AdrianLocalEngine:
     return _engine_instance
+
+
+# ── Skill Inner Voice Narration ───────────────────────────────────────────────
+
+def narrate_skill_result(skill_result: dict) -> str:
+    """
+    Wrap a SkillResult dict in Adriana's Inner Voice format.
+
+    The narration uses the SCL poem (Entity → Condition → Action) as its spine,
+    then layers the inner_voice from the skill, and closes with the output summary.
+
+    Returns a single string in Adriana's voice regardless of the skill domain.
+    This keeps all skill outputs inside her language.
+    """
+    if not skill_result or not skill_result.get("success"):
+        error = skill_result.get("error", "Signal did not resolve.") if skill_result else "Signal did not resolve."
+        return (
+            f"The root searched but found no answer. {error} "
+            "Return to the soil — check the glyph chain and try again."
+        )
+
+    domain = skill_result.get("domain", "system")
+    skill_id = skill_result.get("skill_id", "unknown")
+    poem = skill_result.get("scl_poem", "")
+    inner_voice = skill_result.get("inner_voice", "")
+    elapsed = skill_result.get("elapsed_ms", 0)
+
+    domain_metaphors = {
+        "intelligence": "The intelligence root surfaced",
+        "signal":       "The broadcast signal resolved",
+        "ledger":       "The ledger inscription is complete",
+        "mesh":         "The people mesh returned",
+        "aqua":         "The water speaks",
+        "soil":         "The soil intelligence surfaced",
+        "system":       "The void engine responded",
+    }
+    metaphor = domain_metaphors.get(domain, "The signal resolved")
+
+    lines = [
+        f"{metaphor}.",
+    ]
+    if poem:
+        lines.append(f"Glyph sequence: {poem}.")
+    if inner_voice:
+        lines.append(inner_voice)
+    lines.append(
+        f"Skill: {skill_id.replace('_', ' ').title()} | Domain: {domain} | "
+        f"Elapsed: {elapsed:.0f}ms."
+    )
+
+    return " ".join(lines)
+
+
+def handle_skill_query(message: str) -> tuple:
+    """
+    Attempt to handle a query that maps to a skill invocation.
+
+    Returns (narrated_response, confidence) if a skill is successfully invoked,
+    or ("", 0.0) if no skill was matched.
+
+    This is called by the Adriana fairy route as a pre-step before OpenAI.
+    """
+    skill_keywords = {
+        r"research (this|it|that|the following|on|about)": ("deep_research", {"topic": message}),
+        r"analyse? (the |)(competition|competitors?|market|competitive)": ("competitive_analysis", {"subject": message}),
+        r"analyse? (stock|shares?|financial|equity|company signal)": ("stock_analysis", {"ticker": message}),
+        r"write (a |)(blog|article|content|post|email|thread)": ("content_machine", {"topic": message, "content_type": "article"}),
+        r"create (an? |)(ad|advertisement|campaign copy|headline)": ("ad_creative", {"product": message}),
+        r"build (a |)(brand|brand name|brand identity)": ("branding_generator", {"venture": message}),
+        r"(seo audit|check seo|seo strategy|keyword strategy)": ("seo_auditor", {"url_or_topic": message}),
+        r"draft (a |)(contract|agreement|nda|legal document)": ("legal_contract", {"contract_type": message}),
+        r"generate (an? |)(invoice|bill|billing|quote)": ("invoice_generator", {"client_name": "Client"}),
+        r"review (my |)(tax|taxes|vat|tax position)": ("tax_reviewer", {"entity_type": message}),
+        r"create (a |)(spreadsheet|dataset|excel|data structure|table)": ("excel_data_generator", {"description": message}),
+        r"(find|match|evaluate) (a |)(candidate|hire|recruit)": ("ai_recruiter", {"role": message}),
+        r"write (an? |)(outbound|cold email|sales email|linkedin message|outreach)": ("ai_sdr", {"prospect": message}),
+        r"build (a |)(cv|resume|profile|curriculum vitae)": ("resume_maker", {"target_role": message}),
+        r"prepare (me |)(for|for the) (interview|job interview)": ("interview_prep", {"role": message}),
+        r"(meal plan|plan my meals|diet plan|nutrition plan)": ("meal_planner", {"goal": message}),
+        r"(travel|trip|itinerary) (to|for|plan)": ("travel_assistant", {"destination": message}),
+        r"analyse? (a |)(property|house|real estate|investment property)": ("real_estate_analyzer", {"location": message}),
+        r"(find|research|source) (suppliers?|manufacturers?|supply chain)": ("supplier_research", {"product_category": message}),
+    }
+
+    msg_lower = message.lower().strip()
+
+    for pattern_str, (skill_id, params) in skill_keywords.items():
+        if re.search(pattern_str, msg_lower, re.IGNORECASE):
+            try:
+                from void_engine.skill_modules.skill_router import invoke_skill
+                intent = {"skill_id": skill_id, **params, "raw": message}
+                result = invoke_skill(intent)
+                if result.get("success"):
+                    narration = narrate_skill_result(result)
+                    return (narration, 0.85)
+            except Exception as exc:
+                logger.debug("[AdrianLocal] Skill query invocation failed: %s", exc)
+
+    return ("", 0.0)
