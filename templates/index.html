@@ -119,6 +119,21 @@
     </div>
 
     <main>
+        <div id="void-season-bar" style="display:none;background:#0d0d15;border-bottom:1px solid rgba(201,168,76,0.15);padding:10px 24px;align-items:center;gap:18px;flex-wrap:wrap;">
+            <span id="void-season-emoji" style="font-size:1.4rem;">🥚</span>
+            <div style="flex:1;">
+                <span id="void-season-label" style="font-size:0.72rem;font-weight:600;color:#c9a84c;text-transform:uppercase;letter-spacing:1px;">Season: Incubation</span>
+                <span id="void-season-desc" style="font-size:0.68rem;color:#555;margin-left:10px;"></span>
+            </div>
+            <div id="void-countdown-widget" style="font-size:0.72rem;color:#7c5cff;text-align:right;">
+                <span style="font-size:0.65rem;color:#444;text-transform:uppercase;letter-spacing:1px;">MRB-4000 Assembly</span>
+                <br>
+                <strong id="void-countdown-remaining" style="font-size:1.3rem;color:#7c5cff;">--</strong>
+                <span style="font-size:0.65rem;color:#555;"> days remaining</span>
+                <span id="void-countdown-elapsed" style="font-size:0.65rem;color:#444;margin-left:6px;"></span>
+            </div>
+            <a href="/patent-loom" style="font-size:0.7rem;color:#c9a84c;text-decoration:none;border:1px solid rgba(201,168,76,0.25);padding:4px 10px;border-radius:5px;">Patent-Loom &#8594;</a>
+        </div>
         <div class="tabs">
             <button class="tab active" data-tab="encode">Encode</button>
             <button class="tab" data-tab="decode">Decode</button>
@@ -1992,6 +2007,28 @@
                 }
             });
         }
+    })();
+    </script>
+    <script>
+    (function() {
+        var seasonColors = {FAST:'#7c5cff', FEAST:'#2dd4bf', INCUBATION:'#c9a84c'};
+        fetch('/api/season/status').then(function(r){return r.json();}).then(function(d){
+            var bar = document.getElementById('void-season-bar');
+            if (bar) bar.style.display = 'flex';
+            var emoji = document.getElementById('void-season-emoji');
+            if (emoji) emoji.textContent = d.emoji || '🥚';
+            var label = document.getElementById('void-season-label');
+            if (label) { label.textContent = 'Season: ' + (d.label || 'Incubation'); label.style.color = seasonColors[d.season] || '#c9a84c'; }
+            var desc = document.getElementById('void-season-desc');
+            if (desc) desc.textContent = d.description || '';
+            if (d.mrb4000) {
+                var m = d.mrb4000;
+                var rem = document.getElementById('void-countdown-remaining');
+                if (rem) rem.textContent = m.remaining_days;
+                var el = document.getElementById('void-countdown-elapsed');
+                if (el) el.textContent = '(' + m.elapsed_days + ' elapsed)';
+            }
+        }).catch(function(){});
     })();
     </script>
     {% include 'partials/myco_switch_indicator.html' %}

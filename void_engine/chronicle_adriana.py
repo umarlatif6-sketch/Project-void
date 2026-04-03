@@ -22,6 +22,15 @@ def _get_db():
     return get_db()
 
 
+def _get_current_season() -> str:
+    """Return the active season key, falling back to INCUBATION on any error."""
+    try:
+        from void_engine.lunar_season import get_current_season
+        return get_current_season()
+    except Exception:
+        return "INCUBATION"
+
+
 _SEED_ENTRIES = [
     {
         "chapter_number": 1,
@@ -168,16 +177,17 @@ def seed_chronicle():
             conn.commit()
             return
         from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
+        seed_season = _get_current_season()
         for entry in _SEED_ENTRIES:
             seed_str = f"chronicle|{entry['chapter_number']}|{entry['title']}"
             al_jabr_hash = fatiha_286_hexdigest_from_str(seed_str)
             entry_type = entry.get("entry_type", "chronicle")
             cur.execute(
                 """INSERT INTO chronicle_entries
-                   (chapter_number, title, subtitle, glyph_sequence, body_text, al_jabr_hash, entry_type)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                   (chapter_number, title, subtitle, glyph_sequence, body_text, al_jabr_hash, entry_type, season)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
                 (entry["chapter_number"], entry["title"], entry["subtitle"],
-                 entry["glyph_sequence"], entry["body_text"], al_jabr_hash, entry_type),
+                 entry["glyph_sequence"], entry["body_text"], al_jabr_hash, entry_type, seed_season),
             )
         _seed_quietness_entries(cur)
         conn.commit()
@@ -204,6 +214,7 @@ def _seed_quietness_entries(cur) -> None:
     if quietness_entry:
         all_special.append((quietness_entry, "QUIETNESS_AUDIT"))
     all_special += [(e, "ABSENCE") for e in _ABSENCE_POETRY_ENTRIES]
+    special_season = _get_current_season()
     for entry, expected_type in all_special:
         cur.execute(
             "SELECT id FROM chronicle_entries WHERE title = %s AND entry_type = %s LIMIT 1",
@@ -215,8 +226,8 @@ def _seed_quietness_entries(cur) -> None:
         al_jabr_hash = fatiha_286_hexdigest_from_str(seed_str)
         cur.execute(
             """INSERT INTO chronicle_entries
-               (chapter_number, title, subtitle, glyph_sequence, body_text, al_jabr_hash, entry_type)
-               VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+               (chapter_number, title, subtitle, glyph_sequence, body_text, al_jabr_hash, entry_type, season)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
             (
                 entry["chapter_number"],
                 entry["title"],
@@ -225,6 +236,7 @@ def _seed_quietness_entries(cur) -> None:
                 entry["body_text"],
                 al_jabr_hash,
                 expected_type,
+                special_season,
             ),
         )
         logger.info("Seeded special Chronicle entry: %s [%s]", entry["title"], expected_type)
@@ -238,7 +250,7 @@ def get_chronicle(entry_type_filter: str = None):
         if entry_type_filter:
             cur.execute(
                 """SELECT id, chapter_number, title, subtitle, glyph_sequence, body_text,
-                          posted_at, al_jabr_hash, entry_type, is_shielded
+                          posted_at, al_jabr_hash, entry_type, is_shielded, season
                    FROM chronicle_entries
                    WHERE entry_type = %s
                    ORDER BY posted_at DESC""",
@@ -247,7 +259,7 @@ def get_chronicle(entry_type_filter: str = None):
         else:
             cur.execute(
                 """SELECT id, chapter_number, title, subtitle, glyph_sequence, body_text,
-                          posted_at, al_jabr_hash, entry_type, is_shielded
+                          posted_at, al_jabr_hash, entry_type, is_shielded, season
                    FROM chronicle_entries
                    ORDER BY posted_at DESC"""
             )
@@ -256,6 +268,7 @@ def get_chronicle(entry_type_filter: str = None):
         for r in rows:
             glyphs = [g.strip() for g in r[4].split("-") if g.strip()]
             is_shielded = bool(r[9]) if len(r) > 9 and r[9] is not None else False
+            season = r[10] if len(r) > 10 and r[10] else "INCUBATION"
             entries.append({
                 "id":              r[0],
                 "chapter_number":  r[1],
@@ -269,6 +282,7 @@ def get_chronicle(entry_type_filter: str = None):
                 "al_jabr_hash":    (r[7][:16] + "...") if r[7] else "",
                 "entry_type":      r[8] or "chronicle",
                 "is_shielded":     is_shielded,
+                "season":          season,
             })
         return entries
     finally:
@@ -284,16 +298,18 @@ def post_chronicle_entry(chapter_number, title, subtitle, glyph_sequence, body_t
     conn = _get_db()
     try:
         cur = conn.cursor()
+        _ensure_seed_capture_columns(cur)
         from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
         al_jabr_hash = fatiha_286_hexdigest_from_str(
             f"chronicle|{chapter_number}|{title}|{datetime.now(timezone.utc).isoformat()}"
         )
+        current_season = _get_current_season()
         cur.execute(
             """INSERT INTO chronicle_entries
-               (chapter_number, title, subtitle, glyph_sequence, body_text, posted_by, al_jabr_hash)
-               VALUES (%s, %s, %s, %s, %s, %s, %s)
+               (chapter_number, title, subtitle, glyph_sequence, body_text, posted_by, al_jabr_hash, season)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                RETURNING id""",
-            (chapter_number, title, subtitle or "", glyph_sequence, body_text, admin_id, al_jabr_hash),
+            (chapter_number, title, subtitle or "", glyph_sequence, body_text, admin_id, al_jabr_hash, current_season),
         )
         entry_id = cur.fetchone()[0]
         conn.commit()
@@ -326,6 +342,7 @@ def _ensure_seed_capture_columns(cur):
         ("full_text",   "TEXT"),
         ("is_shielded", "SMALLINT DEFAULT 0"),
         ("shield_ciphertext", "TEXT"),
+        ("season",      "VARCHAR(20) DEFAULT 'INCUBATION'"),
     ]:
         cur.execute(
             "SELECT 1 FROM information_schema.columns WHERE table_name = %s AND column_name = %s",
@@ -340,6 +357,7 @@ def save_seed_capture(label: str, text: str, admin_id=None) -> dict:
     hex_digest = fatiha_286_hexdigest_from_str(text)
     short_sig = fatiha_286_truncated(text.encode("utf-8"), chars=16)
 
+    current_season = _get_current_season()
     conn = _get_db()
     try:
         cur = conn.cursor()
@@ -350,8 +368,8 @@ def save_seed_capture(label: str, text: str, admin_id=None) -> dict:
 
         cur.execute(
             """INSERT INTO chronicle_entries
-               (chapter_number, title, subtitle, glyph_sequence, body_text, full_text, entry_type, posted_by, al_jabr_hash)
-               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+               (chapter_number, title, subtitle, glyph_sequence, body_text, full_text, entry_type, posted_by, al_jabr_hash, season)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                RETURNING id""",
             (
                 0,
@@ -363,6 +381,7 @@ def save_seed_capture(label: str, text: str, admin_id=None) -> dict:
                 "SEED_CAPTURE",
                 admin_id,
                 hex_digest,
+                current_season,
             ),
         )
         entry_id = cur.fetchone()[0]

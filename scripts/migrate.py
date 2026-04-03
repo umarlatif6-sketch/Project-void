@@ -294,6 +294,7 @@ def run():
             ("token_rentals",     "access_tier",  "VARCHAR(20)"),
             ("chronicle_entries", "entry_type",   "VARCHAR(50) DEFAULT 'chronicle'"),
             ("chronicle_entries", "full_text",    "TEXT"),
+            ("chronicle_entries", "season",       "VARCHAR(20) DEFAULT 'INCUBATION'"),
         ]
         for (table, column, definition) in _optional_columns:
             cur.execute(

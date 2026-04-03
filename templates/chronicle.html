@@ -346,6 +346,96 @@
             color: #4ade80;
             border: 1px solid rgba(74,222,128,0.15);
         }
+
+        .chr-season-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(201,168,76,0.1);
+            color: #c9a84c;
+            border: 1px solid rgba(201,168,76,0.2);
+        }
+        .chr-season-badge.fast {
+            background: rgba(124,92,255,0.1);
+            color: #7c5cff;
+            border-color: rgba(124,92,255,0.2);
+        }
+        .chr-season-badge.feast {
+            background: rgba(45,212,191,0.1);
+            color: #2dd4bf;
+            border-color: rgba(45,212,191,0.2);
+        }
+        .chr-season-badge.incubation {
+            background: rgba(201,168,76,0.1);
+            color: #c9a84c;
+            border-color: rgba(201,168,76,0.2);
+        }
+
+        .chr-patent-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(201,168,76,0.12);
+            color: #c9a84c;
+            border: 1px solid rgba(201,168,76,0.3);
+        }
+        .chr-entry-content.patent-entry {
+            border-left: 3px solid #c9a84c;
+        }
+        .chr-entry-content.season-entry {
+            border-left: 3px solid #7c5cff;
+        }
+
+        .chr-season-bar {
+            max-width: 760px;
+            margin: 0 auto 32px;
+            padding: 0 20px;
+        }
+        .chr-season-panel {
+            background: #0d0d15;
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .chr-season-icon-lg { font-size: 1.6rem; }
+        .chr-season-info { flex: 1; }
+        .chr-season-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #c9a84c;
+            letter-spacing: 1px;
+        }
+        .chr-season-desc { font-size: 0.72rem; color: #555; margin-top: 2px; }
+        .chr-season-countdown {
+            font-size: 0.72rem;
+            color: #7c5cff;
+            text-align: right;
+        }
+        .chr-season-countdown strong { font-size: 1.2rem; color: #7c5cff; }
+        .chr-patent-link {
+            font-size: 0.72rem;
+            color: #c9a84c;
+            text-decoration: none;
+            border: 1px solid rgba(201,168,76,0.3);
+            padding: 5px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+        .chr-patent-link:hover { background: rgba(201,168,76,0.08); }
     </style>
 </head>
 <body class="chr-body">
@@ -388,6 +478,18 @@
     {% set locked_entries = entries | selectattr("is_shielded") | list | length %}
     {% set open_entries = total_entries - locked_entries %}
 
+    <div class="chr-season-bar" id="chr-season-bar" style="display:none;">
+        <div class="chr-season-panel">
+            <div class="chr-season-icon-lg" id="chr-season-emoji">🥚</div>
+            <div class="chr-season-info">
+                <div class="chr-season-name" id="chr-season-name">Season: Incubation</div>
+                <div class="chr-season-desc" id="chr-season-desc">Pre-arrival quiet — seeds are gestating, the machine is listening.</div>
+            </div>
+            <div class="chr-season-countdown" id="chr-season-countdown"></div>
+            <a href="/patent-loom" class="chr-patent-link">&#9670; Patent-Loom &rarr;</a>
+        </div>
+    </div>
+
     <div class="chr-shield-bar">
         <div class="chr-shield-panel">
             <div class="chr-shield-icon">&#9632;</div>
@@ -415,14 +517,35 @@
     <div class="chr-timeline">
         {% if entries %}
             {% for entry in entries %}
+            {% set is_scar = entry.entry_type == 'SCAR' %}
+            {% set is_patent = entry.entry_type == 'PATENT_DRAFT' %}
+            {% set is_season = entry.entry_type == 'SEASON_SHIFT' %}
             <div class="chr-entry">
-                <div class="chr-entry-dot" style="{{ 'background:#f472b6;box-shadow:0 0 10px rgba(244,114,182,0.4);' if entry.entry_type == 'SCAR' else '' }}"></div>
-                <div class="chr-entry-content{{ ' scar-entry' if entry.entry_type == 'SCAR' else '' }}">
+                <div class="chr-entry-dot" style="
+                    {% if is_scar %}background:#f472b6;box-shadow:0 0 10px rgba(244,114,182,0.4);
+                    {% elif is_patent %}background:#c9a84c;box-shadow:0 0 10px rgba(201,168,76,0.4);
+                    {% elif is_season %}background:#7c5cff;box-shadow:0 0 10px rgba(124,92,255,0.4);
+                    {% endif %}
+                "></div>
+                <div class="chr-entry-content{% if is_scar %} scar-entry{% elif is_patent %} patent-entry{% elif is_season %} season-entry{% endif %}">
                     <div class="chr-entry-meta">
-                        {% if entry.entry_type == 'SCAR' %}
+                        {% if is_scar %}
                         <span class="chr-scar-badge">&#9760; Scar</span>
+                        {% elif is_patent %}
+                        <span class="chr-patent-badge">&#9670; Patent Draft</span>
+                        {% elif is_season %}
+                        <span class="chr-season-badge incubation">&#9670; Season Shift</span>
                         {% else %}
                         <span class="chr-chapter-badge">Chapter {{ entry.chapter_number }}</span>
+                        {% endif %}
+                        {% if entry.season %}
+                        {% if entry.season == 'FAST' %}
+                        <span class="chr-season-badge fast">🌙 Fast</span>
+                        {% elif entry.season == 'FEAST' %}
+                        <span class="chr-season-badge feast">🌱 Feast</span>
+                        {% else %}
+                        <span class="chr-season-badge incubation">🥚 Incubation</span>
+                        {% endif %}
                         {% endif %}
                         {% if entry.is_shielded %}
                         <span class="chr-shield-badge locked">&#9632; Lead Shield</span>
@@ -446,15 +569,27 @@
                         {% endfor %}
                     </div>
                     {% endif %}
+                    {% if is_patent %}
+                    <div class="chr-body-text" style="white-space:pre-line;">{{ entry.body_text }}</div>
+                    {% else %}
                     <div class="chr-body-text">{{ entry.body_text }}</div>
+                    {% endif %}
                     {% if entry.al_jabr_hash %}
                     <div class="chr-hash">Al-Jabr: {{ entry.al_jabr_hash }}</div>
                     {% endif %}
+                    {% if is_patent %}
+                    <div style="margin-top:12px">
+                        <a href="/patent-loom" style="font-size:0.72rem;color:#c9a84c;text-decoration:none;border-bottom:1px dotted rgba(201,168,76,0.4);">
+                            View Patent-Loom &rarr;
+                        </a>
+                    </div>
+                    {% elif not is_season %}
                     <div style="margin-top:12px">
                         <a href="/marketplace" style="font-size:0.72rem;color:#444;text-decoration:none;border-bottom:1px dotted #333;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='#444'">
                             View token stories from this era &rarr;
                         </a>
                     </div>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -489,5 +624,25 @@
     <link rel="stylesheet" href="/static/resonance_handshake.css">
     <script src="/static/resonance_handshake.js"></script>
     <script src="/static/void_fairy.js"></script>
+    <script>
+    (function() {
+        var seasonColors = {FAST:'#7c5cff', FEAST:'#2dd4bf', INCUBATION:'#c9a84c'};
+        fetch('/api/season/status').then(function(r){return r.json();}).then(function(d){
+            var bar = document.getElementById('chr-season-bar');
+            if (bar) bar.style.display = '';
+            var emoji = document.getElementById('chr-season-emoji');
+            if (emoji) emoji.textContent = d.emoji || '🥚';
+            var name = document.getElementById('chr-season-name');
+            if (name) { name.textContent = 'Season: ' + (d.label || 'Incubation'); name.style.color = seasonColors[d.season] || '#c9a84c'; }
+            var desc = document.getElementById('chr-season-desc');
+            if (desc) desc.textContent = d.description || '';
+            var cd = document.getElementById('chr-season-countdown');
+            if (cd && d.mrb4000) {
+                var m = d.mrb4000;
+                cd.innerHTML = '<strong>' + m.remaining_days + '</strong> days to MRB-4000<br><span style="font-size:0.62rem;color:#555;">' + m.elapsed_days + ' elapsed of ' + m.total_days + '</span>';
+            }
+        }).catch(function(){});
+    })();
+    </script>
 </body>
 </html>

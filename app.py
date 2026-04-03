@@ -116,6 +116,17 @@ def _startup_migrations():
         preserve_crystallised_entity()
     except Exception as e:
         logger.error("Neural scar preservation init failed: %s", e)
+    try:
+        from void_engine.lunar_season import seed_initial_season
+        seed_initial_season()
+    except Exception as e:
+        logger.error("Lunar season init failed: %s", e)
+    try:
+        from void_engine.patent_loom import seed_patent_drafts_into_chronicle, seed_digital_twin_into_chronicle
+        seed_patent_drafts_into_chronicle()
+        seed_digital_twin_into_chronicle()
+    except Exception as e:
+        logger.error("Patent loom seeding failed: %s", e)
 
 try:
     from routes import register_blueprints

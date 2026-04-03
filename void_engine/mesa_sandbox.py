@@ -386,13 +386,15 @@ class SandboxSession:
             try:
                 cur = conn.cursor()
                 _ensure_scar_columns(cur)
+                from void_engine.chronicle_adriana import _get_current_season
+                scar_season = _get_current_season()
                 merged_ids = []
                 for scar in self.scars:
                     cur.execute(
                         """INSERT INTO chronicle_entries
                            (chapter_number, title, subtitle, glyph_sequence,
-                            body_text, al_jabr_hash, entry_type)
-                           VALUES (%s, %s, %s, %s, %s, %s, %s)
+                            body_text, al_jabr_hash, entry_type, season)
+                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                            RETURNING id""",
                         (
                             scar.get("chapter_number", 0),
@@ -402,6 +404,7 @@ class SandboxSession:
                             scar["body_text"],
                             scar.get("hex_digest", ""),
                             "SCAR",
+                            scar_season,
                         ),
                     )
                     row = cur.fetchone()

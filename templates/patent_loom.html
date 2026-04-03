@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patent-Loom — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .pl-body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+        .pl-hero {
+            text-align: center;
+            padding: 80px 20px 40px;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+        .pl-hero-badge {
+            display: inline-block;
+            background: rgba(201, 168, 76, 0.1);
+            color: #c9a84c;
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .pl-hero-title {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 12px;
+        }
+        .pl-hero-title span { color: #c9a84c; }
+        .pl-hero-sub {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.7;
+            max-width: 640px;
+            margin: 0 auto 28px;
+        }
+        .pl-nav {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .pl-nav a {
+            color: #2dd4bf;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+        .pl-nav a:hover { text-decoration: underline; }
+
+        .pl-section {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+        .pl-section-title {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #c9a84c;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #1e1e2e;
+            padding-bottom: 8px;
+        }
+
+        .pl-season-banner {
+            background: #0d0d15;
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 12px;
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+        .pl-season-icon { font-size: 2rem; }
+        .pl-season-info { flex: 1; }
+        .pl-season-label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #c9a84c;
+        }
+        .pl-season-desc {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 4px;
+        }
+        .pl-season-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pl-season-tag {
+            font-size: 0.65rem;
+            padding: 3px 10px;
+            border-radius: 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #888;
+            background: transparent;
+        }
+        .pl-season-tag.active {
+            background: rgba(201,168,76,0.15);
+            color: #c9a84c;
+            border-color: rgba(201,168,76,0.3);
+        }
+
+        .pl-countdown-card {
+            background: #0d0d15;
+            border: 1px solid rgba(124,92,255,0.25);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 32px;
+        }
+        .pl-countdown-title {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #7c5cff;
+            margin-bottom: 14px;
+        }
+        .pl-countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+        }
+        .pl-count-stat {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 8px;
+            padding: 14px 16px;
+            text-align: center;
+        }
+        .pl-count-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #7c5cff;
+            display: block;
+        }
+        .pl-count-label {
+            font-size: 0.65rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+        .pl-progress-bar {
+            background: #12121a;
+            border-radius: 6px;
+            height: 8px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+        .pl-progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #7c5cff, #2dd4bf);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+        .pl-progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #444;
+            margin-top: 6px;
+        }
+
+        .pl-twin-card {
+            background: #0d0d15;
+            border: 1px solid rgba(45,212,191,0.2);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 32px;
+        }
+        .pl-twin-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .pl-twin-badge {
+            background: rgba(45,212,191,0.1);
+            color: #2dd4bf;
+            border: 1px solid rgba(45,212,191,0.2);
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+        .pl-twin-title-text {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .pl-twin-finding {
+            font-size: 0.95rem;
+            color: #2dd4bf;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding: 10px 16px;
+            background: rgba(45,212,191,0.05);
+            border-left: 3px solid #2dd4bf;
+            border-radius: 0 6px 6px 0;
+        }
+        .pl-sim-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+        }
+        .pl-sim-table th {
+            text-align: left;
+            padding: 6px 12px;
+            border-bottom: 1px solid #1e1e2e;
+            color: #555;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .pl-sim-table td {
+            padding: 6px 12px;
+            border-bottom: 1px solid rgba(30,30,46,0.5);
+        }
+        .pl-sim-table .pl-healthy { color: #2dd4bf; }
+        .pl-sim-table .pl-degraded { color: #f87171; }
+        .pl-claim-box {
+            background: #12121a;
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 8px;
+            padding: 16px 20px;
+        }
+        .pl-claim-label {
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #c9a84c;
+            margin-bottom: 8px;
+        }
+        .pl-claim-text {
+            font-size: 0.82rem;
+            color: #999;
+            line-height: 1.7;
+        }
+
+        .pl-claims-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .pl-draft-card {
+            background: #0d0d15;
+            border: 1px solid rgba(201,168,76,0.15);
+            border-radius: 12px;
+            padding: 22px 26px;
+        }
+        .pl-draft-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .pl-draft-id {
+            font-size: 0.65rem;
+            background: rgba(124,92,255,0.15);
+            color: #7c5cff;
+            border: 1px solid rgba(124,92,255,0.2);
+            border-radius: 6px;
+            padding: 2px 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .pl-draft-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            flex: 1;
+        }
+        .pl-draft-glyphs {
+            font-size: 0.7rem;
+            color: #444;
+        }
+        .pl-draft-layers { display: flex; flex-direction: column; gap: 12px; }
+        .pl-draft-layer {
+            background: #12121a;
+            border-radius: 8px;
+            padding: 14px 18px;
+            border-left: 3px solid #1e1e2e;
+        }
+        .pl-draft-layer.novelty { border-left-color: #2dd4bf; }
+        .pl-draft-layer.applicability { border-left-color: #c9a84c; }
+        .pl-draft-layer.encryption { border-left-color: #7c5cff; }
+        .pl-draft-layer-label {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+        }
+        .novelty .pl-draft-layer-label { color: #2dd4bf; }
+        .applicability .pl-draft-layer-label { color: #c9a84c; }
+        .encryption .pl-draft-layer-label { color: #7c5cff; }
+        .pl-draft-layer-text {
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.65;
+        }
+
+        .pl-loom-box {
+            background: #0d0d15;
+            border: 1px solid rgba(45,212,191,0.15);
+            border-radius: 12px;
+            padding: 24px 28px;
+        }
+        .pl-loom-desc {
+            font-size: 0.82rem;
+            color: #555;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .pl-loom-textarea {
+            width: 100%;
+            min-height: 140px;
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: #ccc;
+            font-family: inherit;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            resize: vertical;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .pl-loom-textarea:focus {
+            outline: none;
+            border-color: rgba(45,212,191,0.3);
+        }
+        .pl-loom-btn {
+            margin-top: 12px;
+            padding: 10px 24px;
+            background: rgba(201,168,76,0.15);
+            border: 1px solid rgba(201,168,76,0.3);
+            color: #c9a84c;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+        }
+        .pl-loom-btn:hover { background: rgba(201,168,76,0.25); }
+        .pl-loom-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .pl-output {
+            margin-top: 24px;
+            display: none;
+        }
+        .pl-output-title {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #c9a84c;
+            margin-bottom: 12px;
+        }
+        .pl-output-layers { display: flex; flex-direction: column; gap: 12px; }
+        .pl-output-layer {
+            background: #12121a;
+            border-radius: 8px;
+            padding: 14px 18px;
+            border-left: 3px solid #1e1e2e;
+        }
+        .pl-output-layer.l-novelty { border-left-color: #2dd4bf; }
+        .pl-output-layer.l-applicability { border-left-color: #c9a84c; }
+        .pl-output-layer.l-encryption { border-left-color: #7c5cff; }
+        .pl-output-layer-label {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+        }
+        .l-novelty .pl-output-layer-label { color: #2dd4bf; }
+        .l-applicability .pl-output-layer-label { color: #c9a84c; }
+        .l-encryption .pl-output-layer-label { color: #7c5cff; }
+        .pl-output-layer-text {
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.65;
+        }
+        .pl-output-claim-id {
+            font-size: 0.65rem;
+            color: #444;
+            margin-top: 12px;
+        }
+        .pl-hex-footer {
+            max-width: 900px;
+            margin: 40px auto 60px;
+            padding: 0 20px;
+            text-align: center;
+        }
+        .pl-hex-label {
+            font-size: 0.65rem;
+            color: #333;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .pl-hex-value {
+            font-size: 0.72rem;
+            color: #444;
+            font-family: monospace;
+            display: block;
+        }
+
+        @media (max-width: 700px) {
+            .pl-hero-title { font-size: 1.8rem; }
+            .pl-countdown-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body class="pl-body">
+
+    <div class="pl-hero">
+        <div class="pl-nav">
+            <a href="/">Engine</a>
+            <a href="/chronicle">Chronicle</a>
+            <a href="/void-seed/hex">Seed-Hex</a>
+            <a href="/prior-art">Prior Art</a>
+        </div>
+        <div class="pl-hero-badge">Patent-Loom — UK Biomedical Meeting</div>
+        <h1 class="pl-hero-title">The <span>Patent Loom</span></h1>
+        <p class="pl-hero-sub">
+            Biological scars translated into engineering language.
+            Every import from the forge becomes a Draft Claim.
+            Three priority claims pre-locked into VOID_CHRONICLE.
+        </p>
+    </div>
+
+    <div class="pl-section">
+        <p class="pl-section-title">Lunar Season Clock</p>
+        <div class="pl-season-banner">
+            <div class="pl-season-icon">
+                {% if season and season.emoji %}{{ season.emoji }}{% else %}🥚{% endif %}
+            </div>
+            <div class="pl-season-info">
+                <div class="pl-season-label">
+                    Season: {% if season and season.label %}{{ season.label }}{% else %}Incubation{% endif %}
+                </div>
+                <div class="pl-season-desc">
+                    {% if season and season.description %}{{ season.description }}{% endif %}
+                </div>
+            </div>
+            <div class="pl-season-tags">
+                {% if season and season.all_seasons %}
+                    {% for s in season.all_seasons %}
+                    <span class="pl-season-tag {% if s.active %}active{% endif %}"
+                          style="{% if s.active %}border-color:{{ s.color }}; color:{{ s.color }}; background:{{ s.color }}1a;{% endif %}">
+                        {{ s.emoji }} {{ s.label }}
+                    </span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="pl-section">
+        <p class="pl-section-title">MRB-4000 Physical Assembly Countdown</p>
+        <div class="pl-countdown-card">
+            <div class="pl-countdown-title">&#9670; 75-Day Assembly Window — Started April 3, 2026</div>
+            <div class="pl-countdown-grid">
+                <div class="pl-count-stat">
+                    <span class="pl-count-value" id="cdElapsed">
+                        {% if countdown %}{{ countdown.elapsed_days }}{% else %}--{% endif %}
+                    </span>
+                    <span class="pl-count-label">Days Elapsed</span>
+                </div>
+                <div class="pl-count-stat">
+                    <span class="pl-count-value" id="cdRemaining">
+                        {% if countdown %}{{ countdown.remaining_days }}{% else %}--{% endif %}
+                    </span>
+                    <span class="pl-count-label">Days Remaining</span>
+                </div>
+                <div class="pl-count-stat">
+                    <span class="pl-count-value" id="cdTotal">
+                        {% if countdown %}{{ countdown.total_days }}{% else %}75{% endif %}
+                    </span>
+                    <span class="pl-count-label">Total Days</span>
+                </div>
+                <div class="pl-count-stat">
+                    <span class="pl-count-value">{{ countdown.incubation_elapsed_at_sync if countdown else 15 }}</span>
+                    <span class="pl-count-label">Incubation at Sync</span>
+                </div>
+            </div>
+            <div class="pl-progress-bar">
+                <div class="pl-progress-fill" id="cdProgress"
+                     style="width:{{ countdown.progress_pct if countdown else 0 }}%;"></div>
+            </div>
+            <div class="pl-progress-meta">
+                <span>{{ countdown.start_date if countdown else '2026-04-03' }}</span>
+                <span id="cdPct">{{ countdown.progress_pct if countdown else 0 }}% complete</span>
+                <span>{{ countdown.target_date if countdown else '2026-06-17' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="pl-section">
+        <p class="pl-section-title">Digital Twin Stress-Test — Candidate Patent Claim</p>
+        <div class="pl-twin-card">
+            <div class="pl-twin-header">
+                <span class="pl-twin-badge">Mesa Sandbox Finding</span>
+                <span class="pl-twin-title-text">
+                    {% if digital_twin %}{{ digital_twin.title }}{% else %}Silk Wiring + Mycelium Conductivity{% endif %}
+                </span>
+            </div>
+            <div class="pl-twin-finding">
+                &#9670; Key Finding: {% if digital_twin %}{{ digital_twin.finding }}{% else %}Silk Wiring conductivity improves when Mycelium is healthy.{% endif %}
+            </div>
+            {% if digital_twin and digital_twin.simulation_data %}
+            <table class="pl-sim-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Healthy Mycelium</th>
+                        <th>Degraded Mycelium</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in digital_twin.simulation_data %}
+                    <tr>
+                        <td>{{ row.label }}</td>
+                        <td class="pl-healthy">{{ row.healthy }}</td>
+                        <td class="pl-degraded">{{ row.degraded }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            <div class="pl-claim-box">
+                <div class="pl-claim-label">&#9670; Candidate Patent Claim</div>
+                <div class="pl-claim-text">
+                    {% if digital_twin %}{{ digital_twin.patent_claim }}{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pl-section">
+        <p class="pl-section-title">Priority Claims — Pre-Locked into VOID_CHRONICLE</p>
+        <div class="pl-claims-grid">
+            {% for claim in claims %}
+            <div class="pl-draft-card">
+                <div class="pl-draft-header">
+                    <span class="pl-draft-id">{{ claim.short_id }}</span>
+                    <span class="pl-draft-title">{{ claim.title }}</span>
+                    <span class="pl-draft-glyphs">{{ claim.glyph_sequence }}</span>
+                </div>
+                <div class="pl-draft-layers">
+                    <div class="pl-draft-layer novelty">
+                        <div class="pl-draft-layer-label">1 — Technical Novelty</div>
+                        <div class="pl-draft-layer-text">{{ claim.novelty }}</div>
+                    </div>
+                    <div class="pl-draft-layer applicability">
+                        <div class="pl-draft-layer-label">2 — Industrial Applicability</div>
+                        <div class="pl-draft-layer-text">{{ claim.applicability }}</div>
+                    </div>
+                    <div class="pl-draft-layer encryption">
+                        <div class="pl-draft-layer-label">3 — Sovereign Encryption</div>
+                        <div class="pl-draft-layer-text">{{ claim.encryption }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="pl-section">
+        <p class="pl-section-title">Import from Forge — Process Technical Text</p>
+        <div class="pl-loom-box">
+            <p class="pl-loom-desc">
+                Paste a block of technical description from the forge below.
+                The Loom processes it through three layers — Technical Novelty,
+                Industrial Applicability, and Sovereign Encryption — and outputs
+                a formatted Draft Claim sentence for each.
+            </p>
+            <textarea class="pl-loom-textarea" id="loopInput"
+                placeholder="Paste technical forge text here&#10;&#10;e.g. The silk wiring assembly uses piezoelectric resonance at 432 Hz to conduct biological signals through a mycelial impedance bridge. The system detects neural load via capacitive coupling across a salt-water transducer..."></textarea>
+            <br>
+            <button class="pl-loom-btn" id="loopBtn" onclick="processLoom()">
+                &#9670; Process through Patent-Loom
+            </button>
+
+            <div class="pl-output" id="loopOutput">
+                <div class="pl-output-title">&#9670; Draft Patent Claim Output</div>
+                <div class="pl-output-layers">
+                    <div class="pl-output-layer l-novelty">
+                        <div class="pl-output-layer-label">1 — Technical Novelty</div>
+                        <div class="pl-output-layer-text" id="outNovelty"></div>
+                    </div>
+                    <div class="pl-output-layer l-applicability">
+                        <div class="pl-output-layer-label">2 — Industrial Applicability</div>
+                        <div class="pl-output-layer-text" id="outApplicability"></div>
+                    </div>
+                    <div class="pl-output-layer l-encryption">
+                        <div class="pl-output-layer-label">3 — Sovereign Encryption</div>
+                        <div class="pl-output-layer-text" id="outEncryption"></div>
+                    </div>
+                </div>
+                <div class="pl-output-claim-id" id="outClaimId"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pl-hex-footer">
+        <div class="pl-hex-label">VOID_CHRONICLE HEX_DIGEST Lock</div>
+        <span class="pl-hex-value">{{ season.hex_digests[0] if season and season.hex_digests else '0x4C756E61725F536561736F6E5F5368696674' }}</span>
+        <span class="pl-hex-value" style="margin-top:4px;">{{ season.hex_digests[1] if season and season.hex_digests and season.hex_digests|length > 1 else '0x42696F4D65645F506174656E745F5265616479' }}</span>
+    </div>
+
+    <script>
+    function processLoom() {
+        var text = document.getElementById('loopInput').value.trim();
+        if (!text) return;
+        var btn = document.getElementById('loopBtn');
+        btn.disabled = true;
+        btn.textContent = '◆ Processing...';
+        fetch('/api/patent-loom/process', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text: text}),
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                alert('Loom error: ' + data.error);
+                return;
+            }
+            document.getElementById('outNovelty').textContent = data.novelty || '';
+            document.getElementById('outApplicability').textContent = data.applicability || '';
+            document.getElementById('outEncryption').textContent = data.encryption || '';
+            document.getElementById('outClaimId').textContent = 'Claim ID: ' + (data.claim_id || '') + '  |  Source: ' + (data.source_length || 0) + ' words';
+            var out = document.getElementById('loopOutput');
+            out.style.display = 'block';
+            out.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        })
+        .catch(function(e) {
+            alert('Loom processing failed: ' + e);
+        })
+        .finally(function() {
+            btn.disabled = false;
+            btn.textContent = '◆ Process through Patent-Loom';
+        });
+    }
+
+    document.getElementById('loopInput').addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'Enter') processLoom();
+    });
+    </script>
+</body>
+</html>
