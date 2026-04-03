@@ -147,6 +147,11 @@ def _startup_migrations():
         seed_radio_brief_into_chronicle()
     except Exception as e:
         logger.error("Radio brief chronicle seeding failed: %s", e)
+    try:
+        from void_engine.biomedical_brief import seed_biomedical_brief_into_chronicle
+        seed_biomedical_brief_into_chronicle()
+    except Exception as e:
+        logger.error("Biomedical brief chronicle seeding failed: %s", e)
 
 try:
     from routes import register_blueprints

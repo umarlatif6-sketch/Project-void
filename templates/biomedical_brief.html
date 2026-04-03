@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biomedical Brief — PROJECT VOID</title>
+    <style>
+        /* ── DESIGN TOKENS ── */
+        :root {
+            --bg:          #050505;
+            --surface:     #0c0c0c;
+            --surface2:    #111111;
+            --border:      #1a1a1a;
+            --border2:     #222222;
+            --gold:        #c9a84c;
+            --gold-dim:    rgba(201,168,76,0.12);
+            --gold-border: rgba(201,168,76,0.28);
+            --teal:        #2dd4bf;
+            --teal-dim:    rgba(45,212,191,0.10);
+            --teal-border: rgba(45,212,191,0.22);
+            --purple:      #818cf8;
+            --purple-dim:  rgba(129,140,248,0.10);
+            --green:       #4ade80;
+            --text:        #d4d4d4;
+            --muted:       #555;
+            --dim:         #1e1e1e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+
+        /* ── NAV ── */
+        .bb-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(5,5,5,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .bb-nav-brand {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .bb-nav-links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .bb-nav-link {
+            color: #555;
+            text-decoration: none;
+            font-size: 0.68rem;
+            letter-spacing: 1.5px;
+            transition: color 0.2s;
+        }
+        .bb-nav-link:hover { color: var(--teal); }
+        .bb-nav-link.active { color: var(--gold); }
+        .bb-print-btn {
+            background: var(--gold-dim);
+            border: 1px solid var(--gold-border);
+            color: var(--gold);
+            font-family: inherit;
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 7px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .bb-print-btn:hover { background: rgba(201,168,76,0.2); }
+
+        /* ── WRAPPER ── */
+        .bb-wrap {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        /* ── HERO ── */
+        .bb-hero {
+            padding: 60px 0 44px;
+            text-align: center;
+        }
+        .bb-badge {
+            display: inline-block;
+            background: var(--gold-dim);
+            color: var(--gold);
+            border: 1px solid var(--gold-border);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .bb-title {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .bb-title .gold { color: var(--gold); }
+        .bb-subtitle {
+            font-size: 0.8rem;
+            color: var(--muted);
+            letter-spacing: 1.5px;
+            margin-bottom: 24px;
+        }
+        .bb-meta-row {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: #3a3a3a;
+        }
+        .bb-meta-item { text-transform: uppercase; }
+        .bb-meta-item span { color: #555; }
+
+        /* ── SECTION WRAPPER ── */
+        .bb-section {
+            margin-bottom: 56px;
+        }
+        .bb-section-label {
+            font-size: 0.55rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+        .bb-section-label .num {
+            color: var(--gold);
+            margin-right: 8px;
+        }
+        .bb-section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 24px;
+            margin-top: 8px;
+        }
+
+        /* ── SECTION 0 — TOPOLOGY ── */
+        .bb-topology-intro {
+            font-size: 0.82rem;
+            color: #bbb;
+            line-height: 1.85;
+            margin-bottom: 28px;
+        }
+
+        /* SVG topology diagram */
+        .bb-topology-svg {
+            width: 100%;
+            max-width: 640px;
+            display: block;
+            margin: 0 auto 28px;
+        }
+
+        .bb-node-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        @media (max-width: 640px) {
+            .bb-node-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .bb-node-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 12px;
+            text-align: center;
+        }
+        .bb-node-count {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
+        .bb-node-label {
+            font-size: 0.62rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 6px;
+        }
+        .bb-node-role {
+            font-size: 0.6rem;
+            color: var(--teal);
+            letter-spacing: 1px;
+        }
+
+        .bb-convergence {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--gold);
+            border-radius: 6px;
+            padding: 20px 24px;
+            font-size: 0.82rem;
+            color: #ccc;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .bb-bridge {
+            background: rgba(45,212,191,0.05);
+            border: 1px solid var(--teal-border);
+            border-left: 3px solid var(--teal);
+            border-radius: 6px;
+            padding: 20px 24px;
+            font-size: 0.82rem;
+            color: #ccc;
+            line-height: 1.8;
+        }
+
+        /* ── SECTION 1 — PILLARS ── */
+        .bb-pillar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .bb-pillar-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface2);
+        }
+        .bb-pillar-num {
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            background: var(--gold-dim);
+            border: 1px solid var(--gold-border);
+            padding: 3px 10px;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+        .bb-pillar-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .bb-pillar-subtitle {
+            font-size: 0.68rem;
+            color: var(--muted);
+            letter-spacing: 1px;
+        }
+        .bb-pillar-glyph {
+            margin-left: auto;
+            font-size: 1.1rem;
+            color: var(--gold);
+            letter-spacing: 4px;
+            flex-shrink: 0;
+        }
+
+        .bb-pillar-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; }
+
+        .bb-pillar-row {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 12px;
+            align-items: start;
+        }
+        @media (max-width: 600px) {
+            .bb-pillar-row { grid-template-columns: 1fr; }
+        }
+        .bb-pillar-row-label {
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding-top: 2px;
+        }
+        .bb-pillar-row-text {
+            font-size: 0.78rem;
+            color: #c8c8c8;
+            line-height: 1.75;
+        }
+
+        .bb-vs-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.74rem;
+        }
+        .bb-vs-table th {
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            text-align: left;
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .bb-vs-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--dim);
+            color: #c0c0c0;
+            vertical-align: top;
+        }
+        .bb-vs-table td:first-child { color: var(--gold); font-weight: 600; }
+        .bb-vs-table tr:last-child td { border-bottom: none; }
+
+        .bb-pill-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .bb-pill {
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 4px;
+            padding: 3px 10px;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            color: var(--teal);
+        }
+
+        .bb-nhs-bar {
+            background: rgba(201,168,76,0.06);
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 0.75rem;
+            color: #ccc;
+            line-height: 1.7;
+        }
+        .bb-nhs-label {
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 6px;
+        }
+
+        /* ── SECTION 2 — CHRONOMETER ── */
+        .bb-chrono-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 600px) {
+            .bb-chrono-grid { grid-template-columns: 1fr; }
+        }
+        .bb-component-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px 18px;
+        }
+        .bb-comp-icon {
+            font-size: 1.4rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        .bb-comp-name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .bb-comp-full {
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            color: var(--teal);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .bb-comp-detail {
+            font-size: 0.73rem;
+            color: #999;
+            line-height: 1.7;
+        }
+
+        .bb-claims-panel {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 22px 24px;
+        }
+        .bb-claims-label {
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 14px;
+        }
+        .bb-claim-row {
+            display: grid;
+            grid-template-columns: 52px 1fr;
+            gap: 12px;
+            align-items: start;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--dim);
+        }
+        .bb-claim-row:last-child { border-bottom: none; }
+        .bb-claim-num {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .bb-claim-text {
+            font-size: 0.76rem;
+            color: #c0c0c0;
+            line-height: 1.65;
+        }
+
+        /* ── SECTION 3 — SUPPLY CHAIN ── */
+        .bb-supply-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.74rem;
+        }
+        .bb-supply-table th {
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            text-align: left;
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .bb-supply-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--dim);
+            color: #bbb;
+            vertical-align: top;
+        }
+        .bb-supply-table td.cat { color: var(--gold); font-weight: 600; }
+        .bb-supply-table td.sup { color: #fff; }
+        .bb-supply-table td.cert { font-size: 0.65rem; color: var(--teal); line-height: 1.6; }
+        .bb-supply-table tr:last-child td { border-bottom: none; }
+
+        /* ── SECTION 4 — Q&A ── */
+        .bb-qa-list { display: flex; flex-direction: column; gap: 0; }
+        .bb-qa-item {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .bb-qa-q {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 18px 20px;
+            background: var(--surface2);
+            cursor: pointer;
+            user-select: none;
+        }
+        .bb-qa-q-num {
+            font-size: 0.58rem;
+            letter-spacing: 2px;
+            color: var(--gold);
+            background: var(--gold-dim);
+            border: 1px solid var(--gold-border);
+            border-radius: 10px;
+            padding: 2px 8px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .bb-qa-q-text {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #e0e0e0;
+            flex: 1;
+            line-height: 1.5;
+        }
+        .bb-qa-toggle {
+            font-size: 0.9rem;
+            color: var(--muted);
+            flex-shrink: 0;
+            transition: transform 0.25s;
+        }
+        .bb-qa-item.open .bb-qa-toggle { transform: rotate(90deg); }
+        .bb-qa-a {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.25s;
+        }
+        .bb-qa-item.open .bb-qa-a {
+            max-height: 400px;
+            padding: 0 20px 18px;
+        }
+        .bb-qa-a-text {
+            font-size: 0.77rem;
+            color: #c0c0c0;
+            line-height: 1.8;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── SECTION 5 — INVITATION ── */
+        .bb-invitation {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 36px 36px;
+            text-align: center;
+        }
+        .bb-inv-glyph {
+            font-size: 2.4rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+            letter-spacing: 8px;
+        }
+        .bb-inv-body {
+            font-size: 0.88rem;
+            color: #ccc;
+            line-height: 1.9;
+            max-width: 620px;
+            margin: 0 auto 24px;
+        }
+        .bb-inv-rule {
+            width: 80px;
+            height: 1px;
+            background: var(--gold-border);
+            margin: 0 auto 24px;
+        }
+        .bb-inv-contact {
+            font-size: 0.75rem;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+        .bb-inv-closing {
+            font-size: 0.62rem;
+            color: var(--muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* ── HASH SEAL ── */
+        .bb-seal {
+            margin-top: 48px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 22px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .bb-seal-icon { font-size: 1.2rem; color: var(--gold); flex-shrink: 0; }
+        .bb-seal-info { flex: 1; }
+        .bb-seal-label {
+            font-size: 0.5rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .bb-seal-hex {
+            font-size: 0.7rem;
+            color: var(--gold);
+            letter-spacing: 1px;
+            word-break: break-all;
+        }
+
+        /* ── TOPOLOGY SVG ILLUSTRATION ── */
+        .bb-topo-container {
+            width: 100%;
+            margin: 28px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* ── PRINT STYLES ── */
+        @media print {
+            .bb-nav, .bb-print-btn-wrap, .bb-qa-toggle { display: none !important; }
+            body { background: #fff; color: #111; font-family: Georgia, serif; }
+            .bb-section { page-break-inside: avoid; }
+            .bb-hero { padding: 20px 0 24px; }
+            .bb-title { color: #111; font-size: 2rem; }
+            .bb-title .gold { color: #8a6f2e; }
+            .bb-section-title { color: #111; }
+            .bb-badge { background: #f5f0e0; color: #8a6f2e; border-color: #c9a84c; }
+            .bb-surface, .bb-surface2 { background: #fff; }
+            .bb-pillar, .bb-component-card, .bb-claims-panel,
+            .bb-invitation, .bb-seal, .bb-convergence, .bb-bridge,
+            .bb-node-card, .bb-nhs-bar, .bb-qa-item {
+                background: #fafafa;
+                border-color: #ccc;
+            }
+            .bb-node-count, .bb-pillar-num, .bb-claim-num, .bb-inv-contact,
+            .bb-qa-q-num, .bb-pillar-glyph { color: #8a6f2e; }
+            .bb-pillar-name, .bb-comp-name, .bb-qa-q-text,
+            .bb-section-title, .bb-inv-body { color: #111; }
+            .bb-pillar-subtitle, .bb-node-label, .bb-muted,
+            .bb-qa-a-text, .bb-comp-detail, .bb-pillar-row-text { color: #333; }
+            .bb-teal, .bb-comp-full, .bb-pill, .bb-node-role { color: #1a7a6e; }
+            .bb-supply-table td.cat, .bb-supply-table td.cert { color: #1a7a6e; }
+            .bb-supply-table td.sup { color: #111; }
+            .bb-inv-glyph { color: #8a6f2e; }
+            .bb-qa-a { max-height: none !important; padding: 0 20px 18px !important; }
+            .bb-qa-a-text { color: #333; border-top-color: #ccc; }
+            .bb-section-label { border-bottom-color: #ccc; }
+            .bb-seal-hex { color: #8a6f2e; }
+            .bb-vs-table td:first-child { color: #8a6f2e; }
+            a { color: inherit; text-decoration: none; }
+
+            /* A4 page setup */
+            @page {
+                size: A4;
+                margin: 20mm 18mm 20mm 18mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav class="bb-nav">
+        <a href="/" class="bb-nav-brand">◆ VOID ENGINE</a>
+        <div class="bb-nav-links">
+            <a href="/speak" class="bb-nav-link">Speak</a>
+            <a href="/patent-loom" class="bb-nav-link">Patent-Loom</a>
+            <a href="/supply-chain" class="bb-nav-link">Supply Chain</a>
+            <a href="/research" class="bb-nav-link">Research</a>
+            <a href="/preflight" class="bb-nav-link">Pre-Flight</a>
+            <a href="/biomedical-brief" class="bb-nav-link active">BioMed Brief</a>
+            <button class="bb-print-btn" onclick="window.print()">Print / Save PDF</button>
+        </div>
+    </nav>
+
+    <div class="bb-wrap">
+
+        <!-- HERO -->
+        <div class="bb-hero">
+            <div class="bb-badge">Confidential · 15-Minute Walkthrough · PROJECT VOID</div>
+            <h1 class="bb-title">BIOMEDICAL <span class="gold">BRIEF</span></h1>
+            <p class="bb-subtitle">Three Patent Pillars · A 100-Patent Engineer · One Meeting</p>
+            <div class="bb-meta-row">
+                <span class="bb-meta-item">Format: <span>Sequential narrative</span></span>
+                <span class="bb-meta-item">Duration: <span>15 minutes</span></span>
+                <span class="bb-meta-item">Contact: <span>Umar Latif — PROJECT VOID</span></span>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- SECTION 0 — THE OPENING CLAIM                          -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <div class="bb-section">
+            <div class="bb-section-label"><span class="num">§0</span>The Opening Claim</div>
+            <h2 class="bb-section-title">The Nervous System Topology Argument</h2>
+
+            <p class="bb-topology-intro">
+                The human body is the most sophisticated mesh network ever built.
+                Every node, every vessel, every pore leads — through capillaries, veins, arteries —
+                to a single convergence point. Before we discuss encryption or patents,
+                let us agree on the infrastructure we are reading.
+            </p>
+
+            <!-- SVG Topology Diagram -->
+            <div class="bb-topo-container">
+                <svg class="bb-topology-svg" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" aria-label="Body network topology diagram">
+                    <!-- Background -->
+                    <rect width="640" height="260" fill="#0c0c0c" rx="10"/>
+
+                    <!-- Outer node ring: pores -->
+                    <g opacity="0.55">
+                        <circle cx="80"  cy="60"  r="3" fill="#c9a84c"/>
+                        <circle cx="160" cy="30"  r="3" fill="#c9a84c"/>
+                        <circle cx="240" cy="50"  r="3" fill="#c9a84c"/>
+                        <circle cx="400" cy="30"  r="3" fill="#c9a84c"/>
+                        <circle cx="480" cy="60"  r="3" fill="#c9a84c"/>
+                        <circle cx="560" cy="40"  r="3" fill="#c9a84c"/>
+                        <circle cx="50"  cy="140" r="3" fill="#c9a84c"/>
+                        <circle cx="590" cy="140" r="3" fill="#c9a84c"/>
+                        <circle cx="80"  cy="220" r="3" fill="#c9a84c"/>
+                        <circle cx="200" cy="240" r="3" fill="#c9a84c"/>
+                        <circle cx="440" cy="240" r="3" fill="#c9a84c"/>
+                        <circle cx="560" cy="220" r="3" fill="#c9a84c"/>
+                    </g>
+
+                    <!-- Capillary mesh (fine lines) -->
+                    <g stroke="#1a4a44" stroke-width="0.8" opacity="0.6">
+                        <line x1="80"  y1="60"  x2="180" y2="100"/>
+                        <line x1="160" y1="30"  x2="180" y2="100"/>
+                        <line x1="240" y1="50"  x2="260" y2="110"/>
+                        <line x1="400" y1="30"  x2="380" y2="110"/>
+                        <line x1="480" y1="60"  x2="460" y2="110"/>
+                        <line x1="560" y1="40"  x2="460" y2="110"/>
+                        <line x1="50"  y1="140" x2="180" y2="140"/>
+                        <line x1="590" y1="140" x2="460" y2="140"/>
+                        <line x1="80"  y1="220" x2="180" y2="180"/>
+                        <line x1="200" y1="240" x2="260" y2="180"/>
+                        <line x1="440" y1="240" x2="380" y2="180"/>
+                        <line x1="560" y1="220" x2="460" y2="180"/>
+                        <line x1="180" y1="100" x2="260" y2="110"/>
+                        <line x1="460" y1="110" x2="380" y2="110"/>
+                        <line x1="180" y1="180" x2="260" y2="180"/>
+                        <line x1="460" y1="180" x2="380" y2="180"/>
+                    </g>
+
+                    <!-- Arteries (medium lines, teal) -->
+                    <g stroke="#2dd4bf" stroke-width="1.5" opacity="0.5">
+                        <line x1="180" y1="100" x2="320" y2="130"/>
+                        <line x1="260" y1="110" x2="320" y2="130"/>
+                        <line x1="380" y1="110" x2="320" y2="130"/>
+                        <line x1="460" y1="110" x2="320" y2="130"/>
+                        <line x1="180" y1="180" x2="320" y2="130"/>
+                        <line x1="260" y1="180" x2="320" y2="130"/>
+                        <line x1="380" y1="180" x2="320" y2="130"/>
+                        <line x1="460" y1="180" x2="320" y2="130"/>
+                        <line x1="180" y1="140" x2="320" y2="130"/>
+                        <line x1="460" y1="140" x2="320" y2="130"/>
+                    </g>
+
+                    <!-- Heart — convergence point -->
+                    <circle cx="320" cy="130" r="22" fill="#0c0c0c" stroke="#c9a84c" stroke-width="2"/>
+                    <circle cx="320" cy="130" r="14" fill="none" stroke="#c9a84c" stroke-width="1" stroke-dasharray="3 3" opacity="0.5">
+                        <animateTransform attributeName="transform" type="rotate" from="0 320 130" to="360 320 130" dur="12s" repeatCount="indefinite"/>
+                    </circle>
+                    <text x="320" y="125" text-anchor="middle" font-size="10" fill="#c9a84c" font-family="monospace" font-weight="700">♥</text>
+                    <text x="320" y="138" text-anchor="middle" font-size="6.5" fill="#c9a84c" font-family="monospace" letter-spacing="1">BLACK HOLE</text>
+
+                    <!-- Capillary node circles (mid-layer) -->
+                    <g fill="#0c0c0c" stroke="#2dd4bf" stroke-width="1">
+                        <circle cx="180" cy="100" r="5"/>
+                        <circle cx="260" cy="110" r="5"/>
+                        <circle cx="380" cy="110" r="5"/>
+                        <circle cx="460" cy="110" r="5"/>
+                        <circle cx="180" cy="180" r="5"/>
+                        <circle cx="260" cy="180" r="5"/>
+                        <circle cx="380" cy="180" r="5"/>
+                        <circle cx="460" cy="180" r="5"/>
+                        <circle cx="180" cy="140" r="5"/>
+                        <circle cx="460" cy="140" r="5"/>
+                    </g>
+
+                    <!-- Labels -->
+                    <text x="70"  y="50"  text-anchor="middle" font-size="7" fill="#c9a84c" font-family="monospace">PORE</text>
+                    <text x="570" y="30"  text-anchor="middle" font-size="7" fill="#c9a84c" font-family="monospace">PORE</text>
+                    <text x="40"  y="158" text-anchor="middle" font-size="7" fill="#c9a84c" font-family="monospace">PORE</text>
+                    <text x="180" y="88"  text-anchor="middle" font-size="7" fill="#2dd4bf" font-family="monospace">VEIN</text>
+                    <text x="460" y="98"  text-anchor="middle" font-size="7" fill="#2dd4bf" font-family="monospace">VEIN</text>
+                    <text x="320" y="255" text-anchor="middle" font-size="8.5" fill="#555" font-family="monospace" letter-spacing="2">EVERY NODE · ONE DESTINATION</text>
+                </svg>
+            </div>
+
+            <!-- Node count cards -->
+            <div class="bb-node-grid">
+                {% for node in nervous_system_nodes %}
+                <div class="bb-node-card">
+                    <div class="bb-node-count">{{ node.count }}</div>
+                    <div class="bb-node-label">{{ node.label }}</div>
+                    <div class="bb-node-role">{{ node.role }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="bb-convergence">{{ convergence_argument }}</div>
+
+            <div class="bb-bridge">
+                <strong style="color:var(--teal);">VOID's claim:</strong><br>
+                {{ qisync_bridge }}
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- SECTION 1 — THE THREE PATENT PILLARS                   -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <div class="bb-section">
+            <div class="bb-section-label"><span class="num">§1</span>Patent Pillars</div>
+            <h2 class="bb-section-title">Three Claims — Biomedical Perspective</h2>
+
+            {% for pillar in patent_pillars %}
+            <div class="bb-pillar">
+                <div class="bb-pillar-header">
+                    <span class="bb-pillar-num">Pillar {{ pillar.number }}</span>
+                    <div>
+                        <div class="bb-pillar-name">{{ pillar.name }}</div>
+                        <div class="bb-pillar-subtitle">{{ pillar.subtitle }}</div>
+                    </div>
+                    <span class="bb-pillar-glyph">{{ pillar.glyph }}</span>
+                </div>
+
+                <div class="bb-pillar-body">
+
+                    <div class="bb-pillar-row">
+                        <div class="bb-pillar-row-label">What it is</div>
+                        <div class="bb-pillar-row-text">{{ pillar.what_it_is }}</div>
+                    </div>
+
+                    <div class="bb-pillar-row">
+                        <div class="bb-pillar-row-label">Clinical gap</div>
+                        <div class="bb-pillar-row-text">{{ pillar.clinical_precedent_gap }}</div>
+                    </div>
+
+                    <div class="bb-pillar-row">
+                        <div class="bb-pillar-row-label">vs Competition</div>
+                        <div>
+                            <table class="bb-vs-table">
+                                <thead>
+                                    <tr>
+                                        <th>System</th>
+                                        <th>Why VOID is different</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in pillar.competitors %}
+                                    <tr>
+                                        <td>{{ c.name }}</td>
+                                        <td>{{ c.gap }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bb-nhs-bar">
+                        <div class="bb-nhs-label">NHS / Clinical Gap</div>
+                        {{ pillar.nhs_gap }}
+                    </div>
+
+                    <div class="bb-pillar-row">
+                        <div class="bb-pillar-row-label">Regulatory</div>
+                        <div class="bb-pillar-row-text">{{ pillar.regulatory_pathway }}</div>
+                    </div>
+
+                    <div class="bb-pillar-row">
+                        <div class="bb-pillar-row-label">Patent Classes</div>
+                        <div class="bb-pill-row">
+                            {% for cls in pillar.patent_classes %}
+                            <span class="bb-pill">{{ cls }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- SECTION 2 — THE VOID CHRONOMETER                       -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <div class="bb-section">
+            <div class="bb-section-label"><span class="num">§2</span>The Physical Device</div>
+            <h2 class="bb-section-title">{{ chronometer.name }}</h2>
+
+            <div class="bb-chrono-grid">
+                {% for comp in chronometer.components %}
+                <div class="bb-component-card">
+                    <div class="bb-comp-icon">{{ comp.icon }}</div>
+                    <div class="bb-comp-name">{{ comp.name }}</div>
+                    <div class="bb-comp-full">{{ comp.full_name }}</div>
+                    <div class="bb-comp-detail">{{ comp.detail }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="bb-claims-panel">
+                <div class="bb-claims-label">Filed Patent Claims</div>
+                {% for claim in chronometer.patent_claims %}
+                <div class="bb-claim-row">
+                    <div class="bb-claim-num">{{ claim.number }}</div>
+                    <div class="bb-claim-text">{{ claim.claim }}</div>
+                </div>
+                {% endfor %}
+                <div style="margin-top:14px;">
+                    <div class="bb-pill-row">
+                        {% for cls in chronometer.patent_classes %}
+                        <span class="bb-pill">{{ cls }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- SECTION 3 — SUPPLY CHAIN                               -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <div class="bb-section">
+            <div class="bb-section-label"><span class="num">§3</span>Supply Chain</div>
+            <h2 class="bb-section-title">Commercial Readiness — Confirmed Suppliers</h2>
+
+            <div style="overflow-x:auto;">
+                <table class="bb-supply-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Supplier</th>
+                            <th>Location</th>
+                            <th>Cost / Lead Time</th>
+                            <th>Certifications</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in supply_chain_summary %}
+                        <tr>
+                            <td class="cat">{{ s.category }}</td>
+                            <td class="sup">{{ s.supplier }}</td>
+                            <td>{{ s.location }}</td>
+                            <td style="font-size:0.68rem;">
+                                {{ s.cost_range }}<br>
+                                <span style="color:#555;">{{ s.lead_time }}</span>
+                            </td>
+                            <td class="cert">{{ s.certifications | join(' · ') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- SECTION 4 — QUESTIONS HE WILL ASK                      -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <div class="bb-section">
+            <div class="bb-section-label"><span class="num">§4</span>Pre-Answered Questions</div>
+            <h2 class="bb-section-title">Questions He Will Ask</h2>
+
+            <div class="bb-qa-list">
+                {% for qa in pre_answered_questions %}
+                <div class="bb-qa-item" id="qa-{{ loop.index }}">
+                    <div class="bb-qa-q" onclick="toggleQa('qa-{{ loop.index }}')">
+                        <span class="bb-qa-q-num">Q{{ loop.index }}</span>
+                        <span class="bb-qa-q-text">{{ qa.q }}</span>
+                        <span class="bb-qa-toggle">›</span>
+                    </div>
+                    <div class="bb-qa-a">
+                        <div class="bb-qa-a-text">{{ qa.a }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- SECTION 5 — THE INVITATION                             -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <div class="bb-section">
+            <div class="bb-section-label"><span class="num">§5</span>The Invitation</div>
+            <h2 class="bb-section-title">Not a Pitch. An Observation.</h2>
+
+            <div class="bb-invitation">
+                <div class="bb-inv-glyph">ψ · ◆ · α</div>
+                <p class="bb-inv-body">{{ invitation.body }}</p>
+                <div class="bb-inv-rule"></div>
+                <div class="bb-inv-contact">{{ invitation.contact }}</div>
+                <div class="bb-inv-closing">{{ invitation.closing }}</div>
+            </div>
+        </div>
+
+        <!-- HASH SEAL -->
+        <div class="bb-seal">
+            <div class="bb-seal-icon">◆</div>
+            <div class="bb-seal-info">
+                <div class="bb-seal-label">Al-Jabr 286 · Document Integrity Seal</div>
+                <div class="bb-seal-hex" id="bb-seal-hex">Computing sovereign hash…</div>
+            </div>
+        </div>
+
+    </div><!-- /.bb-wrap -->
+
+    <script>
+    (function () {
+        function toggleQa(id) {
+            const item = document.getElementById(id);
+            if (!item) return;
+            item.classList.toggle('open');
+        }
+        window.toggleQa = toggleQa;
+
+        /* Compute a lightweight local hash to display as the integrity seal.
+           This is a JS approximation — the real 286-bit hash lives server-side. */
+        function simpleHash(str) {
+            let h = 0x1F1F1F1F;
+            for (let i = 0; i < str.length; i++) {
+                h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+            }
+            const base = Math.abs(h).toString(16).padStart(8, '0');
+            const ext = (h ^ 0x432 ^ 0x11E).toString(16).padStart(8, '0');
+            return (base + ext + '286_BIOMEDICAL_BRIEF_' + base).substring(0, 72);
+        }
+
+        const seal = document.getElementById('bb-seal-hex');
+        if (seal) {
+            const content = document.querySelector('.bb-wrap') ? document.querySelector('.bb-wrap').innerText.slice(0, 512) : 'VOID';
+            seal.textContent = '0x' + simpleHash(content).toUpperCase();
+        }
+
+        /* Open all Q&A on print */
+        window.onbeforeprint = function () {
+            document.querySelectorAll('.bb-qa-item').forEach(function (el) {
+                el.classList.add('open');
+            });
+        };
+    })();
+    </script>
+
+</body>
+</html>
