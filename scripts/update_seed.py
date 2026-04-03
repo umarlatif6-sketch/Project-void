@@ -5,6 +5,10 @@ Uses git diff to find changed files, reads them, and asks OpenAI to summarise
 what was added. Appends/updates relevant sections in replit.md without
 removing existing content.
 
+Also appends/refreshes a '## Hex Captures' section in VOID_SEED.md with the
+latest SEED_CAPTURE Chronicle entries, so any agent reading the seed file can
+locate and decode past reviews immediately.
+
 Skips silently if the OpenAI API key is unavailable so it never blocks a merge.
 """
 
@@ -12,9 +16,11 @@ import os
 import subprocess
 
 SEED_FILE = "replit.md"
+VOID_SEED_FILE = "VOID_SEED.md"
 PROMPT_SEED_CHARS = 6000
 CHANGED_FILE_CHARS = 4000
 MAX_CHANGED_FILES = 12
+HEX_CAPTURES_LIMIT = int(os.environ.get("VOID_SEED_HEX_LIMIT", "20"))
 
 
 def get_changed_files() -> list[str]:
@@ -154,7 +160,87 @@ def apply_patch(seed_full: str, patch_text: str) -> str:
     return updated
 
 
+def load_seed_captures() -> list:
+    """
+    Load SEED_CAPTURE entries from the Chronicle DB.
+    Returns a list of dicts: {label, posted_at, hex_digest}.
+    Silently returns [] on any error so a missing DB never blocks the seed refresh.
+    """
+    try:
+        import sys
+        import os as _os
+        project_root = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+        if project_root not in sys.path:
+            sys.path.insert(0, project_root)
+        from void_engine.chronicle_adriana import get_seed_captures
+        return get_seed_captures(limit=HEX_CAPTURES_LIMIT)
+    except Exception:
+        return []
+
+
+def build_hex_captures_section(captures: list) -> str:
+    """
+    Build the markdown text for the ## Hex Captures section of VOID_SEED.md.
+    """
+    if not captures:
+        return (
+            "## Hex Captures\n\n"
+            "_No hex captures recorded yet. "
+            "Submit one at `/admin/seed-capture`._\n"
+        )
+
+    lines = [
+        "## Hex Captures\n",
+        "Each entry below was submitted via the Seed Capture system and hex-encoded "
+        "using the Al-Jabr 286 Sovereign Hash. The full text of every capture lives "
+        "in the Chronicle (`/void-seed/hex`). Any agent reading this seed file can "
+        "locate the original content by matching the label and timestamp below.\n",
+    ]
+    for c in captures:
+        label = c.get("label", "—")
+        ts = c.get("posted_at", "")
+        hx = c.get("hex_digest", "")
+        lines.append(f"### {label}")
+        if ts:
+            lines.append(f"- **Captured:** {ts}")
+        if hx:
+            lines.append(f"- **Al-Jabr 286 Digest:** `{hx}`")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def update_void_seed_hex_section(captures: list) -> None:
+    """
+    Read VOID_SEED.md, replace (or append) the ## Hex Captures section,
+    and write the file back. Safe to call even if VOID_SEED.md does not exist.
+    """
+    section_header = "## Hex Captures"
+    new_section = build_hex_captures_section(captures)
+
+    try:
+        with open(VOID_SEED_FILE, "r", encoding="utf-8") as fh:
+            content = fh.read()
+    except OSError:
+        content = ""
+
+    if section_header in content:
+        start = content.index(section_header)
+        end = content.find("\n## ", start + 4)
+        if end == -1:
+            content = content[:start].rstrip() + "\n\n" + new_section
+        else:
+            content = content[:start].rstrip() + "\n\n" + new_section + "\n" + content[end:]
+    else:
+        content = content.rstrip() + "\n\n" + new_section
+
+    with open(VOID_SEED_FILE, "w", encoding="utf-8") as fh:
+        fh.write(content)
+
+
 def main() -> None:
+    captures = load_seed_captures()
+    update_void_seed_hex_section(captures)
+
     changed_files = get_changed_files()
     if not changed_files:
         return

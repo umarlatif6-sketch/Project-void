@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Seed Capture</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body { background: #0a0a0f; color: #e0e0e0; font-family: 'SF Mono', monospace; }
+        .sc-wrap { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px; }
+        .sc-nav { margin-bottom: 30px; }
+        .sc-nav a { color: #555; text-decoration: none; font-size: 0.8rem; }
+        .sc-nav a:hover { color: #2dd4bf; }
+        .sc-title { font-size: 1.8rem; font-weight: 700; color: #2dd4bf; margin-bottom: 6px; padding-top: 20px; }
+        .sc-sub { font-size: 0.78rem; color: #555; margin-bottom: 36px; line-height: 1.5; }
+
+        .sc-alert { padding: 14px 18px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 28px; }
+        .sc-alert.success { background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.3); color: #4caf50; }
+        .sc-alert.error   { background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.3); color: #ff5252; }
+
+        .sc-form-box {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 12px;
+            padding: 28px 32px 32px;
+        }
+        .sc-form-title { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 22px; }
+        .sc-form-row { margin-bottom: 18px; }
+        .sc-label {
+            display: block;
+            font-size: 0.7rem;
+            color: #888;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+        .sc-input, .sc-textarea {
+            width: 100%;
+            box-sizing: border-box;
+            background: #0d0d15;
+            border: 1px solid #2a2a3a;
+            border-radius: 6px;
+            padding: 10px 14px;
+            color: #e0e0e0;
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+        .sc-input:focus, .sc-textarea:focus { outline: none; border-color: #2dd4bf; }
+        .sc-textarea { min-height: 200px; resize: vertical; line-height: 1.6; }
+        .sc-hint { font-size: 0.68rem; color: #444; margin-top: 5px; }
+
+        .sc-btn {
+            background: rgba(45,212,191,0.15);
+            border: 1px solid rgba(45,212,191,0.3);
+            color: #2dd4bf;
+            padding: 11px 28px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .sc-btn:hover { background: rgba(45,212,191,0.25); }
+
+        .sc-result-block {
+            background: #0d0d15;
+            border: 1px solid #1e1e2e;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-top: 20px;
+        }
+        .sc-result-label { font-size: 0.68rem; color: #2dd4bf; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+        .sc-result-hash { font-size: 0.78rem; color: #888; word-break: break-all; font-family: monospace; }
+
+        .sc-links { margin-top: 28px; display: flex; gap: 16px; }
+        .sc-link {
+            font-size: 0.78rem;
+            color: #555;
+            text-decoration: none;
+            border: 1px solid #222;
+            border-radius: 6px;
+            padding: 7px 16px;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .sc-link:hover { color: #2dd4bf; border-color: #2dd4bf; }
+    </style>
+</head>
+<body>
+<div class="sc-wrap">
+    <div class="sc-nav">
+        <a href="/admin/chronicle">&larr; Chronicle Admin</a>
+        &nbsp;&nbsp;
+        <a href="/void-seed/hex">View Hex Seeds &rarr;</a>
+    </div>
+
+    <div class="sc-title">Seed Capture</div>
+    <div class="sc-sub">
+        Submit any text — a review, a history summary, a planning note — to be hex-encoded using the Al-Jabr 286
+        Sovereign Hash and permanently stored as a <code>SEED_CAPTURE</code> Chronicle entry. Every capture is
+        listed on the Hex Seeds page and appended to VOID_SEED.md on the next seed refresh.
+    </div>
+
+    {% if updated %}
+    <div class="sc-alert success">
+        Capture stored in the Chronicle.
+        {% if result %}
+        <div class="sc-result-block" style="margin-top:10px;">
+            <div class="sc-result-label">Al-Jabr 286 Hex Digest (first 20 chars)</div>
+            <div class="sc-result-hash">{{ result }}…</div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% if error %}
+    <div class="sc-alert error">
+        {% if error == 'missing_fields' %}
+        Both a label and text are required.
+        {% elif error == 'db_error' %}
+        A database error occurred. Check the server logs.
+        {% else %}
+        Error: {{ error }}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="sc-form-box">
+        <div class="sc-form-title">New Hex Capture</div>
+        <form method="POST" action="/admin/seed-capture">
+            <div class="sc-form-row">
+                <label class="sc-label" for="label">Label</label>
+                <input
+                    class="sc-input"
+                    type="text"
+                    id="label"
+                    name="label"
+                    placeholder="e.g. Session Review — April 2026"
+                    maxlength="200"
+                    required
+                >
+                <div class="sc-hint">Short, human-readable name for this capture.</div>
+            </div>
+            <div class="sc-form-row">
+                <label class="sc-label" for="text">Content</label>
+                <textarea
+                    class="sc-textarea"
+                    id="text"
+                    name="text"
+                    placeholder="Paste the review, history summary, or planning note here…"
+                    required
+                ></textarea>
+                <div class="sc-hint">
+                    This full text will be stored in the Chronicle. The Al-Jabr 286 hex digest acts as an integrity fingerprint.
+                </div>
+            </div>
+            <button class="sc-btn" type="submit">Capture &amp; Encode</button>
+        </form>
+    </div>
+
+    <div class="sc-links">
+        <a class="sc-link" href="/void-seed/hex">View all hex seeds</a>
+        <a class="sc-link" href="/chronicle">Public Chronicle</a>
+    </div>
+</div>
+</body>
+</html>

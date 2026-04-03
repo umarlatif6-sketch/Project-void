@@ -7,6 +7,8 @@ from void_engine.chronicle_adriana import (
     post_chronicle_entry,
     delete_chronicle_entry,
     generate_adriana_sdk_zip,
+    save_seed_capture,
+    get_seed_captures,
 )
 
 logger = logging.getLogger(__name__)
@@ -103,3 +105,46 @@ def admin_chronicle_post():
     if "error" in result:
         return redirect(f"/admin/chronicle?error=db_error")
     return redirect("/admin/chronicle?updated=added")
+
+
+@chronicle_bp.route("/admin/seed-capture", methods=["GET"])
+@admin_required
+def admin_seed_capture_get():
+    updated = request.args.get("updated")
+    error = request.args.get("error")
+    result = request.args.get("result")
+    return render_template(
+        "admin_seed_capture.html",
+        updated=updated,
+        error=error,
+        result=result,
+    )
+
+
+@chronicle_bp.route("/admin/seed-capture", methods=["POST"])
+@admin_required
+def admin_seed_capture_post():
+    label = (request.form.get("label") or "").strip()
+    text = (request.form.get("text") or "").strip()
+
+    if not label or not text:
+        return redirect("/admin/seed-capture?error=missing_fields")
+
+    result = save_seed_capture(label, text, admin_id=session.get("user_id"))
+    if "error" in result:
+        logger.error("Seed capture error: %s", result["error"])
+        return redirect("/admin/seed-capture?error=db_error")
+
+    return redirect(
+        f"/admin/seed-capture?updated=captured&result={result['hex_digest'][:20]}"
+    )
+
+
+@chronicle_bp.route("/void-seed/hex")
+def void_seed_hex_page():
+    try:
+        captures = get_seed_captures(limit=100)
+    except Exception as e:
+        logger.error("Failed to load seed captures: %s", e)
+        captures = []
+    return render_template("void_seed_hex.html", captures=captures)

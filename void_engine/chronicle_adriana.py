@@ -208,6 +208,98 @@ def delete_chronicle_entry(entry_id):
         conn.close()
 
 
+def _ensure_seed_capture_columns(cur):
+    for col, defn in [
+        ("entry_type", "VARCHAR(50) DEFAULT 'chronicle'"),
+        ("full_text",  "TEXT"),
+    ]:
+        cur.execute(
+            "SELECT 1 FROM information_schema.columns WHERE table_name = %s AND column_name = %s",
+            ("chronicle_entries", col),
+        )
+        if not cur.fetchone():
+            cur.execute(f"ALTER TABLE chronicle_entries ADD COLUMN {col} {defn}")
+
+
+def save_seed_capture(label: str, text: str, admin_id=None) -> dict:
+    from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str, fatiha_286_truncated
+    hex_digest = fatiha_286_hexdigest_from_str(text)
+    short_sig = fatiha_286_truncated(text.encode("utf-8"), chars=16)
+
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        _ensure_seed_capture_columns(cur)
+
+        glyph_sequence = f"α-◆-{short_sig[:4]}"
+        subtitle = f"Hex Capture — {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+
+        cur.execute(
+            """INSERT INTO chronicle_entries
+               (chapter_number, title, subtitle, glyph_sequence, body_text, full_text, entry_type, posted_by, al_jabr_hash)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+               RETURNING id""",
+            (
+                0,
+                label,
+                subtitle,
+                glyph_sequence,
+                f"[SEED_CAPTURE] {hex_digest}",
+                text,
+                "SEED_CAPTURE",
+                admin_id,
+                hex_digest,
+            ),
+        )
+        entry_id = cur.fetchone()[0]
+        conn.commit()
+        return {
+            "success": True,
+            "id": entry_id,
+            "label": label,
+            "hex_digest": hex_digest,
+            "short_sig": short_sig,
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("Failed to save seed capture: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def get_seed_captures(limit: int = 50) -> list:
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        _ensure_seed_capture_columns(cur)
+        cur.execute(
+            """SELECT id, title, subtitle, al_jabr_hash, full_text, posted_at
+               FROM chronicle_entries
+               WHERE entry_type = %s
+               ORDER BY posted_at DESC
+               LIMIT %s""",
+            ("SEED_CAPTURE", limit),
+        )
+        rows = cur.fetchall()
+        result = []
+        for r in rows:
+            result.append({
+                "id":         r[0],
+                "label":      r[1],
+                "subtitle":   r[2] or "",
+                "hex_digest": r[3] or "",
+                "full_text":  r[4] or "",
+                "posted_at":  r[5].strftime("%Y-%m-%d %H:%M UTC") if r[5] else "",
+            })
+        return result
+    except Exception as e:
+        logger.error("Failed to load seed captures: %s", e)
+        return []
+    finally:
+        conn.close()
+
+
 _SDK_README = """\
 # Adriana Sovereign Coded Language — Open SDK v1.0
 

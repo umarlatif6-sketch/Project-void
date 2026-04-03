@@ -289,9 +289,11 @@ def run():
             ("messages", "silt_hash_key",          "TEXT"),
             ("messages", "silt_carrier_style",     "VARCHAR(50)"),
             ("messages", "vtx_earned",             "DECIMAL(18,4) DEFAULT 0"),
-            ("blueprint_tokens", "collection",     "VARCHAR(20) DEFAULT 'genesis'"),
-            ("blueprint_tokens", "revealed_at",    "TIMESTAMP"),
-            ("token_rentals",    "access_tier",    "VARCHAR(20)"),
+            ("blueprint_tokens",  "collection",   "VARCHAR(20) DEFAULT 'genesis'"),
+            ("blueprint_tokens",  "revealed_at",  "TIMESTAMP"),
+            ("token_rentals",     "access_tier",  "VARCHAR(20)"),
+            ("chronicle_entries", "entry_type",   "VARCHAR(50) DEFAULT 'chronicle'"),
+            ("chronicle_entries", "full_text",    "TEXT"),
         ]
         for (table, column, definition) in _optional_columns:
             cur.execute(
