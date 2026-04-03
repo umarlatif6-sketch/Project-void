@@ -7,6 +7,27 @@ logger = logging.getLogger(__name__)
 
 mycovoid_bp = Blueprint("mycovoid", __name__)
 
+
+@mycovoid_bp.route("/api/mycovoid/bio-state")
+@login_required
+def myco_bio_state():
+    """
+    Return the current Myco-Switch bio-state and active AI model tier.
+    Polls the CSI / simulated sensor (max once per 60 s) and returns:
+      - bio_state: humidity, vibration, energy, storm flag, source
+      - active_model: current model ID string
+      - model_tier: Ultra / Pro / Flash / Local
+      - seconds_since_switch: time since last model change
+      - storm_locked: whether Storm Mode is active
+    """
+    try:
+        from void_engine.myco_switch import get_bio_state_snapshot
+        snapshot = get_bio_state_snapshot()
+        return jsonify({"ok": True, "data": snapshot})
+    except Exception as exc:
+        logger.warning("myco_bio_state error: %s", exc)
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
 _GRIDUL_COLUMNS_READY: bool = False
 
 

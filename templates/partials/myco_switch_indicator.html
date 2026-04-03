@@ -1,0 +1,247 @@
+<div id="myco-switch-indicator" class="myco-switch-indicator" title="Myco-Switch: Biology as AI Load Balancer">
+    <div class="myco-switch-header">
+        <span class="myco-switch-icon">&#9744;</span>
+        <span class="myco-switch-label">Myco-Switch</span>
+        <span id="myco-storm-badge" class="myco-storm-badge" style="display:none;">&#9889; STORM</span>
+    </div>
+    <div class="myco-switch-body">
+        <div class="myco-switch-row">
+            <span class="myco-sw-key">Model</span>
+            <span id="myco-sw-model" class="myco-sw-val myco-sw-model-val">—</span>
+        </div>
+        <div class="myco-switch-row">
+            <span class="myco-sw-key">Humidity</span>
+            <div class="myco-sw-bar-wrap">
+                <div id="myco-bar-humidity" class="myco-sw-bar" style="width:0%;"></div>
+            </div>
+            <span id="myco-pct-humidity" class="myco-sw-pct">—</span>
+        </div>
+        <div class="myco-switch-row">
+            <span class="myco-sw-key">Vibration</span>
+            <div class="myco-sw-bar-wrap">
+                <div id="myco-bar-vibration" class="myco-sw-bar myco-bar-vib" style="width:0%;"></div>
+            </div>
+            <span id="myco-pct-vibration" class="myco-sw-pct">—</span>
+        </div>
+        <div class="myco-switch-row">
+            <span class="myco-sw-key">Energy</span>
+            <div class="myco-sw-bar-wrap">
+                <div id="myco-bar-energy" class="myco-sw-bar myco-bar-energy" style="width:0%;"></div>
+            </div>
+            <span id="myco-pct-energy" class="myco-sw-pct">—</span>
+        </div>
+        <div class="myco-switch-row myco-switch-footer-row">
+            <span id="myco-sw-source" class="myco-sw-source">—</span>
+            <span id="myco-sw-since" class="myco-sw-since">—</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.myco-switch-indicator {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    z-index: 900;
+    background: rgba(10,10,14,0.92);
+    border: 1px solid rgba(124,92,255,0.25);
+    border-radius: 7px;
+    padding: 8px 12px;
+    min-width: 190px;
+    font-size: 11px;
+    color: #aaa;
+    cursor: default;
+    user-select: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+}
+.myco-switch-indicator:hover {
+    border-color: rgba(124,92,255,0.5);
+}
+.myco-switch-indicator.myco-storm {
+    border-color: rgba(255,200,50,0.6);
+    background: rgba(30,20,5,0.92);
+}
+.myco-switch-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 6px;
+    color: #7c5cff;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+}
+.myco-switch-icon {
+    font-size: 12px;
+    color: #7c5cff;
+}
+.myco-storm-badge {
+    margin-left: auto;
+    color: #ffc832;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    animation: myco-storm-pulse 0.9s ease-in-out infinite alternate;
+}
+@keyframes myco-storm-pulse {
+    from { opacity: 1; }
+    to   { opacity: 0.4; }
+}
+.myco-switch-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.myco-switch-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.myco-sw-key {
+    width: 54px;
+    color: #666;
+    flex-shrink: 0;
+    font-size: 10px;
+}
+.myco-sw-val {
+    flex: 1;
+    color: #ccc;
+    font-size: 11px;
+    font-weight: 600;
+}
+.myco-sw-model-val {
+    font-size: 11px;
+    font-weight: 700;
+    color: #7c5cff;
+}
+.myco-sw-model-val.tier-ultra  { color: #e040fb; }
+.myco-sw-model-val.tier-pro    { color: #7c5cff; }
+.myco-sw-model-val.tier-flash  { color: #00bcd4; }
+.myco-sw-model-val.tier-local  { color: #69a86e; }
+.myco-sw-model-val.tier-storm  { color: #ffc832; }
+.myco-sw-bar-wrap {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.myco-sw-bar {
+    height: 100%;
+    background: #7c5cff;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+}
+.myco-bar-vib    { background: #00bcd4; }
+.myco-bar-energy { background: #69a86e; }
+.myco-sw-pct {
+    width: 30px;
+    text-align: right;
+    color: #666;
+    font-size: 9px;
+}
+.myco-switch-footer-row {
+    margin-top: 3px;
+    justify-content: space-between;
+}
+.myco-sw-source {
+    color: #444;
+    font-size: 9px;
+    font-style: italic;
+}
+.myco-sw-since {
+    color: #444;
+    font-size: 9px;
+}
+</style>
+
+<script>
+(function() {
+    var POLL_MS = 60000;
+    var _timer = null;
+
+    function _pct(v) { return Math.round((v || 0) * 100) + '%'; }
+
+    function _fmtSince(sec) {
+        if (sec < 60) return Math.round(sec) + 's ago';
+        if (sec < 3600) return Math.round(sec / 60) + 'm ago';
+        return Math.round(sec / 3600) + 'h ago';
+    }
+
+    function _tierClass(model) {
+        if (!model) return '';
+        var m = model.toLowerCase();
+        if (m.indexOf('ultra') !== -1)  return 'tier-ultra';
+        if (m.indexOf('pro') !== -1)    return 'tier-pro';
+        if (m.indexOf('flash') !== -1)  return 'tier-flash';
+        if (m.indexOf('local') !== -1)  return 'tier-local';
+        return '';
+    }
+
+    function _setBar(id, pctId, val) {
+        var bar = document.getElementById(id);
+        var pct = document.getElementById(pctId);
+        if (bar) bar.style.width = Math.round((val || 0) * 100) + '%';
+        if (pct) pct.textContent = _pct(val);
+    }
+
+    function _update(data) {
+        var bio   = data.bio_state || {};
+        var model = data.active_model || '—';
+        var tier  = data.model_tier  || '';
+        var storm = data.storm_locked || bio.storm || false;
+
+        var indicator = document.getElementById('myco-switch-indicator');
+        var modelEl   = document.getElementById('myco-sw-model');
+        var stormBadge= document.getElementById('myco-storm-badge');
+        var sourceEl  = document.getElementById('myco-sw-source');
+        var sinceEl   = document.getElementById('myco-sw-since');
+
+        if (indicator) {
+            indicator.classList.toggle('myco-storm', !!storm);
+        }
+        if (stormBadge) {
+            stormBadge.style.display = storm ? '' : 'none';
+        }
+        if (modelEl) {
+            modelEl.textContent = storm ? ('LOCAL (Storm)') : (tier || model);
+            modelEl.className   = 'myco-sw-val myco-sw-model-val ' + (storm ? 'tier-storm' : _tierClass(model));
+        }
+
+        _setBar('myco-bar-humidity',  'myco-pct-humidity',  bio.humidity);
+        _setBar('myco-bar-vibration', 'myco-pct-vibration', bio.vibration);
+        _setBar('myco-bar-energy',    'myco-pct-energy',    bio.energy);
+
+        if (sourceEl) {
+            sourceEl.textContent = bio.source === 'live' ? 'live sensor' : 'simulated';
+        }
+        if (sinceEl && data.seconds_since_switch != null) {
+            sinceEl.textContent = 'switched ' + _fmtSince(data.seconds_since_switch);
+        }
+    }
+
+    function _poll() {
+        fetch('/api/mycovoid/bio-state', {credentials: 'same-origin'})
+        .then(function(r) { return r.json(); })
+        .then(function(json) {
+            if (json.ok && json.data) _update(json.data);
+        })
+        .catch(function() {});
+    }
+
+    function _start() {
+        _poll();
+        if (_timer) clearInterval(_timer);
+        _timer = setInterval(_poll, POLL_MS);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', _start);
+    } else {
+        _start();
+    }
+})();
+</script>

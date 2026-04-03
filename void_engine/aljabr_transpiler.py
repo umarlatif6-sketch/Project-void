@@ -636,6 +636,7 @@ class ModelRouter:
         self._primary_api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
         self._primary_base_url = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
         self._gemini_api_key = os.environ.get("GEMINI_API_KEY")
+        self._myco_switch_enabled = os.environ.get("MYCO_SWITCH_ENABLED", "1").strip() in ("1", "true", "yes")
 
     @staticmethod
     def _is_gemini_model(model: str) -> bool:
@@ -745,6 +746,54 @@ class ModelRouter:
         client = OpenAI(api_key=self._primary_api_key, base_url=base_url)
         return client, model
 
+    def apply_myco_override(self, tier: str) -> Tuple[str, Optional[str]]:
+        """
+        Apply Myco-Switch bio-state override to the model selection.
+
+        Reads live bio-state at call time (not deferred to the 60-second poll)
+        so Storm Mode takes effect immediately.  Maps the MycoSwitch tier label
+        (Ultra/Pro/Flash/Local) to a *real configured model ID* from the router
+        config, ensuring provider calls work correctly.
+
+        Mapping:
+          - Local:  use local-adriana (zero external cost)
+          - Ultra:  use PRECISION tier configured model (highest capability)
+          - Pro:    use STANDARD tier configured model
+          - Flash:  use BULK tier configured model (cheapest)
+
+        Returns:
+            (model_id, override_reason) — override_reason is None when no override.
+        """
+        if not self._myco_switch_enabled:
+            return self._config.get(tier, self._config[TASK_PRECISION])["model"], None
+        try:
+            from void_engine.myco_switch import (
+                get_myco_switch, MODEL_LOCAL,
+                MODEL_GEMINI_ULTRA, MODEL_GEMINI_PRO, MODEL_GEMINI_FLASH,
+                _read_live_bio_state, _simulated_bio_state, _select_model,
+            )
+            ms = get_myco_switch()
+            live = _read_live_bio_state()
+            bio  = live if live is not None else _simulated_bio_state()
+            myco_tier_id, reason = _select_model(bio)
+
+            ms._update_from_call_time(bio, myco_tier_id, reason)
+
+            if myco_tier_id == MODEL_LOCAL:
+                return MODEL_LOCAL, f"myco:{reason}"
+
+            myco_to_configured_tier = {
+                MODEL_GEMINI_ULTRA: TASK_PRECISION,
+                MODEL_GEMINI_PRO:   TASK_STANDARD,
+                MODEL_GEMINI_FLASH: TASK_BULK,
+            }
+            resolved_tier = myco_to_configured_tier.get(myco_tier_id, tier)
+            real_model = self._config.get(resolved_tier, self._config[TASK_PRECISION])["model"]
+            return real_model, f"myco:{reason}"
+        except Exception as exc:
+            logger.debug("apply_myco_override failed (using tier default): %s", exc)
+            return self._config.get(tier, self._config[TASK_PRECISION])["model"], None
+
     def _get_fallback_client(self):
         from openai import OpenAI
         precision_cfg = self._config.get(TASK_PRECISION, _DEFAULT_MODEL_CONFIG[TASK_PRECISION])
@@ -822,14 +871,82 @@ class ModelRouter:
         except Exception as e:
             return False, str(e)[:200]
 
+    @staticmethod
+    def _local_adriana_response(messages: list) -> str:
+        """
+        Generate a local Adriana response using adriana_local's pattern engine.
+        Extracts the last user message from the messages list and runs it through
+        the local match engine.  Falls back to a dormancy notice if no match.
+        """
+        try:
+            from void_engine.adriana_local import get_engine
+            user_text = ""
+            for m in reversed(messages):
+                if m.get("role") == "user" and m.get("content"):
+                    user_text = m["content"].strip()
+                    break
+            if user_text:
+                response, confidence = get_engine().match(user_text)
+                if confidence > 0 and response:
+                    return response
+        except Exception:
+            pass
+        return (
+            "The mycelium is in a dormancy cycle — the Void is quiet, roots conserving energy. "
+            "I am operating in local mode. Ask me a foundational question and I will answer from pattern memory."
+        )
+
     def call_with_fallback(self, tier: str, messages: list, max_completion_tokens: int = 1024, task_label: str = "") -> Tuple[object, str, bool]:
         """
         Make a chat completion call for the given tier, falling back to the precision
         model if the tier-specific endpoint is unavailable or returns an error.
 
+        When MYCO_SWITCH_ENABLED=1 (default), the bio-state read from the mycelium
+        sensors is evaluated at call time and can override the tier's configured model:
+          - Storm Mode: immediately forces local-adriana regardless of tier
+          - High activity: routes to gemini-ultra / gemini-pro
+          - Dormancy: routes to local-adriana (zero external cost)
+
         Returns: (response, model_used, used_fallback)
         """
-        client, model = self.get_client_for_tier(tier)
+        myco_model, myco_reason = self.apply_myco_override(tier)
+        resolved_tier = tier
+        if myco_reason is not None:
+            from void_engine.myco_switch import (
+                MODEL_LOCAL, MODEL_GEMINI_ULTRA, MODEL_GEMINI_PRO, MODEL_GEMINI_FLASH
+            )
+            if myco_model == MODEL_LOCAL:
+                logger.info("ModelRouter[myco]: tier=%s → local-adriana (%s)", tier, myco_reason)
+                local_content = self._local_adriana_response(messages)
+
+                class _LocalResponse:
+                    pass
+
+                resp_obj = _LocalResponse()
+                msg_obj = type("_Msg", (), {"content": local_content})()
+                choice_obj = type("_Choice", (), {"message": msg_obj})()
+                usage_obj = type("_Usage", (), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0})()
+                resp_obj.choices = [choice_obj]
+                resp_obj.usage = usage_obj
+                return resp_obj, MODEL_LOCAL, False
+            _myco_to_tier = {
+                MODEL_GEMINI_ULTRA: TASK_PRECISION,
+                MODEL_GEMINI_PRO:   TASK_STANDARD,
+                MODEL_GEMINI_FLASH: TASK_BULK,
+            }
+            resolved_tier = _myco_to_tier.get(myco_model, tier)
+            model = myco_model
+        else:
+            _, model = self.get_client_for_tier(tier)
+
+        if self._is_gemini_model(model):
+            client = None
+        else:
+            from openai import OpenAI
+            cfg = self._config.get(resolved_tier, self._config[TASK_PRECISION])
+            base_url = cfg.get("base_url") or self._primary_base_url
+            client = OpenAI(api_key=self._primary_api_key, base_url=base_url)
+
         used_fallback = False
 
         try:
