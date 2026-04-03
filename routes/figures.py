@@ -20,7 +20,7 @@ Source-of-truth imports:
 import math
 from flask import Blueprint, render_template
 from void_engine.adriana_scl import AdrianaResonance, get_four_quls, CHAPTERS_BY_TIER
-from void_engine.blueprint_nft import MERGE_TOKEN_THRESHOLD, MERGE_VTX_BONUS
+from void_engine.blueprint_nft import MERGE_TOKEN_THRESHOLD, MERGE_VTX_BONUS, NFT_PRICE_DOUBLING_BATCH
 from void_engine.al_jabr_286 import SOVEREIGN_BIT_DEPTH
 from routes.payments import TIER_PRICE_MAP
 from routes.ambassador import VTX_PER_MILESTONE, REFERRALS_PER_MILESTONE
@@ -58,11 +58,8 @@ _NFT_CHAPTERS = {k.capitalize(): v for k, v in CHAPTERS_BY_TIER.items()}
 _MERGE_FOR_RARE       = MERGE_TOKEN_THRESHOLD
 _MERGE_RARE_BONUS_VTX = MERGE_VTX_BONUS
 
-# ── Bonding curve: "price doubled with every 250 minted" ──
-# This figure appears in the NFT narrative spec (chronicle_adriana.py SDK text
-# and adriana_local.py briefing text) but is not enforced as a code constant —
-# the mystery collection price is set per-mint at the point of purchase.
-_VTX_PRICE_DOUBLES = 250
+# ── Bonding curve — imported from blueprint_nft.NFT_PRICE_DOUBLING_BATCH ──
+_VTX_PRICE_DOUBLES = NFT_PRICE_DOUBLING_BATCH
 
 # ── Self-Prediction Engine (source: void_engine/mesa_swarm.py + task spec) ──
 _PREDICT_AGENT_MIN = 10

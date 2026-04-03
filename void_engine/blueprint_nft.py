@@ -9,8 +9,9 @@ from void_engine.adriana_scl import hash_to_sovereign_poem
 
 logger = logging.getLogger(__name__)
 
-MERGE_TOKEN_THRESHOLD = 30     # Common tokens required to trigger a merge → guaranteed Rare
-MERGE_VTX_BONUS       = 200    # VTX credited to the user on a successful merge
+MERGE_TOKEN_THRESHOLD    = 30    # Common tokens required to trigger a merge → guaranteed Rare
+MERGE_VTX_BONUS          = 200   # VTX credited to the user on a successful merge
+NFT_PRICE_DOUBLING_BATCH = 250   # Mystery collection: price doubles every 250 minted
 
 TIER_CONFIG = {
     "common": {
