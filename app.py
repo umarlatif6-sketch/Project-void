@@ -137,6 +137,11 @@ def _startup_migrations():
         seed_supply_brief_into_chronicle()
     except Exception as e:
         logger.error("Supply chain chronicle seeding failed: %s", e)
+    try:
+        from routes.academy import seed_academy_chronicle
+        seed_academy_chronicle()
+    except Exception as e:
+        logger.error("Academy chronicle seeding failed: %s", e)
 
 try:
     from routes import register_blueprints

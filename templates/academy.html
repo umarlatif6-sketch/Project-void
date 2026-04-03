@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID Academy — Flashcard Training</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg: #060606;
+            --surface: #0e0e0e;
+            --border: #1a1a1a;
+            --gold: #c9a84c;
+            --teal: #2dd4bf;
+            --purple: #818cf8;
+            --red: #f87171;
+            --green: #34d399;
+            --text: #d4d4d4;
+            --muted: #444;
+            --dim: #2a2a2a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NAV */
+        .ac-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 32px; border-bottom: 1px solid var(--border);
+            background: rgba(6,6,6,0.98); position: sticky; top: 0; z-index: 100;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .ac-nav-brand { font-size: 0.88rem; font-weight: 700; color: var(--gold);
+            letter-spacing: 3px; text-decoration: none; }
+        .ac-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .ac-nav-link { color: #555; text-decoration: none; font-size: 0.68rem;
+            letter-spacing: 1.5px; transition: color 0.2s; }
+        .ac-nav-link:hover { color: var(--teal); }
+        .ac-nav-link.active { color: var(--gold); }
+
+        /* LAYOUT */
+        .ac-main { flex: 1; max-width: 900px; margin: 0 auto; width: 100%; padding: 40px 24px 80px; }
+
+        /* HEADER */
+        .ac-header { text-align: center; margin-bottom: 40px; }
+        .ac-title { font-size: 1.6rem; color: var(--gold); letter-spacing: 4px; margin-bottom: 8px; }
+        .ac-subtitle { font-size: 0.65rem; color: #444; letter-spacing: 2px; text-transform: uppercase; }
+
+        /* SESSION STATS BAR */
+        .ac-stats-bar {
+            display: flex; gap: 24px; justify-content: center; margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        .ac-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .ac-stat-val { font-size: 1.6rem; color: var(--gold); font-weight: 700; }
+        .ac-stat-label { font-size: 0.55rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+
+        /* TABS */
+        .ac-tabs { display: flex; gap: 0; margin-bottom: 32px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+        .ac-tab {
+            flex: 1; padding: 12px 20px; text-align: center; cursor: pointer;
+            font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--muted); transition: background 0.2s, color 0.2s;
+            background: transparent; border: none; font-family: inherit;
+        }
+        .ac-tab:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+        .ac-tab.active { color: var(--gold); background: rgba(201,168,76,0.07); }
+
+        /* MODULE SELECTOR */
+        .ac-module-bar {
+            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; align-items: center;
+        }
+        .ac-module-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 2px;
+            text-transform: uppercase; margin-right: 4px; }
+        .ac-module-btn {
+            padding: 6px 14px; border: 1px solid var(--border); border-radius: 3px;
+            font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--muted); background: transparent; cursor: pointer;
+            font-family: inherit; transition: border-color 0.2s, color 0.2s;
+        }
+        .ac-module-btn:hover { border-color: #333; color: var(--text); }
+        .ac-module-btn.active { border-color: rgba(201,168,76,0.5); color: var(--gold); }
+
+        /* FLASHCARD */
+        .ac-card-wrap { perspective: 1200px; margin: 0 auto 32px; max-width: 680px; }
+        .ac-card {
+            position: relative; height: 280px; cursor: pointer;
+            transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+            border-radius: 6px;
+        }
+        .ac-card.flipped { transform: rotateY(180deg); }
+        .ac-card-face {
+            position: absolute; inset: 0; backface-visibility: hidden;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 6px; padding: 32px 36px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; gap: 16px;
+        }
+        .ac-card-back { transform: rotateY(180deg); }
+        .ac-card-face-label {
+            font-size: 0.52rem; letter-spacing: 3px; color: var(--muted);
+            text-transform: uppercase; position: absolute; top: 16px; left: 20px;
+        }
+        .ac-card-face-module {
+            font-size: 0.52rem; letter-spacing: 2px; color: #333;
+            text-transform: uppercase; position: absolute; top: 16px; right: 20px;
+        }
+        .ac-card-text { font-size: 0.95rem; line-height: 1.75; color: var(--text); }
+        .ac-card-back .ac-card-text { font-size: 0.88rem; color: #bbb; }
+        .ac-card-hint {
+            font-size: 0.55rem; color: #333; letter-spacing: 2px;
+            text-transform: uppercase; position: absolute; bottom: 16px;
+        }
+        .ac-card-tag {
+            display: inline-block; padding: 3px 8px; border: 1px solid var(--border);
+            border-radius: 2px; font-size: 0.52rem; color: #333; letter-spacing: 1px;
+        }
+
+        /* GRADE BUTTONS */
+        .ac-grade-row {
+            display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .ac-grade-btn {
+            padding: 10px 22px; border-radius: 3px; font-family: inherit;
+            font-size: 0.62rem; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+            border: 1px solid transparent;
+        }
+        .ac-grade-btn:active { transform: scale(0.97); }
+        .ac-grade-again { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.35); color: var(--red); }
+        .ac-grade-hard  { background: rgba(251,191,36,0.10); border-color: rgba(251,191,36,0.3); color: #fbbf24; }
+        .ac-grade-good  { background: rgba(52,211,153,0.10); border-color: rgba(52,211,153,0.3); color: var(--green); }
+        .ac-grade-easy  { background: rgba(45,212,191,0.10); border-color: rgba(45,212,191,0.3); color: var(--teal); }
+        .ac-grade-btn:disabled { opacity: 0.3; cursor: default; }
+
+        /* PROGRESS BAR */
+        .ac-progress-wrap { margin-bottom: 20px; }
+        .ac-progress-track {
+            height: 2px; background: var(--border); border-radius: 1px; overflow: hidden;
+        }
+        .ac-progress-fill { height: 100%; background: var(--gold); transition: width 0.4s ease; }
+        .ac-progress-label {
+            display: flex; justify-content: space-between;
+            font-size: 0.55rem; color: #333; margin-top: 6px; letter-spacing: 1px;
+        }
+
+        /* QUIZ */
+        .ac-quiz-wrap { max-width: 680px; margin: 0 auto; }
+        .ac-quiz-q {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 6px; padding: 28px 32px; margin-bottom: 16px;
+        }
+        .ac-quiz-qnum {
+            font-size: 0.52rem; letter-spacing: 3px; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 12px;
+        }
+        .ac-quiz-qtext { font-size: 0.9rem; line-height: 1.7; color: var(--text); margin-bottom: 20px; }
+        .ac-quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+        .ac-quiz-opt {
+            padding: 10px 16px; border: 1px solid var(--border); border-radius: 3px;
+            cursor: pointer; font-size: 0.8rem; line-height: 1.5; color: #aaa;
+            background: transparent; font-family: inherit; text-align: left;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .ac-quiz-opt:hover:not(:disabled) { border-color: #333; color: var(--text); }
+        .ac-quiz-opt.selected { border-color: rgba(201,168,76,0.5); color: var(--gold); }
+        .ac-quiz-opt.correct  { border-color: rgba(52,211,153,0.5); color: var(--green); background: rgba(52,211,153,0.06); }
+        .ac-quiz-opt.wrong    { border-color: rgba(248,113,113,0.4); color: var(--red); background: rgba(248,113,113,0.06); }
+        .ac-quiz-opt:disabled { cursor: default; }
+        .ac-quiz-explanation {
+            margin-top: 12px; padding: 12px 14px;
+            background: rgba(255,255,255,0.03); border-radius: 3px;
+            font-size: 0.75rem; color: #777; line-height: 1.6; display: none;
+        }
+        .ac-quiz-explanation.show { display: block; }
+
+        /* QUIZ CONTROLS */
+        .ac-quiz-controls { display: flex; gap: 12px; justify-content: center; margin: 24px 0; flex-wrap: wrap; }
+        .ac-btn {
+            padding: 10px 28px; background: transparent;
+            border: 1px solid rgba(201,168,76,0.35); color: var(--gold);
+            font-family: inherit; font-size: 0.65rem; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase; border-radius: 3px;
+            cursor: pointer; transition: background 0.2s, border-color 0.2s;
+        }
+        .ac-btn:hover:not(:disabled) {
+            background: rgba(201,168,76,0.07); border-color: var(--gold);
+        }
+        .ac-btn:disabled { opacity: 0.3; cursor: default; }
+        .ac-btn-secondary {
+            border-color: var(--border); color: var(--muted);
+        }
+        .ac-btn-secondary:hover:not(:disabled) { border-color: #333; color: var(--text); background: transparent; }
+
+        /* QUIZ SCORE */
+        .ac-score-card {
+            text-align: center; padding: 48px 32px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 6px;
+        }
+        .ac-score-num { font-size: 4rem; color: var(--gold); font-weight: 700; }
+        .ac-score-label { font-size: 0.65rem; letter-spacing: 3px; color: var(--muted);
+            text-transform: uppercase; margin-bottom: 32px; margin-top: 4px; }
+        .ac-score-bar-wrap { max-width: 400px; margin: 0 auto 32px; }
+        .ac-score-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+        .ac-score-bar-fill { height: 100%; border-radius: 2px; background: var(--gold); }
+
+        /* LOADING */
+        .ac-loading {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 80px 24px; gap: 20px;
+        }
+        .ac-spinner {
+            width: 24px; height: 24px; border: 1px solid #252525;
+            border-top-color: var(--gold); border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .ac-loading-text { font-size: 0.65rem; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+
+        /* EMPTY STATE */
+        .ac-empty {
+            text-align: center; padding: 60px 24px;
+            font-size: 0.7rem; color: #333; letter-spacing: 2px;
+        }
+
+        /* EXPORT SECTION */
+        .ac-export-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+        .ac-export-hint { text-align: center; font-size: 0.58rem; color: #333;
+            letter-spacing: 1px; margin-top: 8px; }
+
+        /* COMPLETION */
+        .ac-complete {
+            text-align: center; padding: 60px 24px;
+        }
+        .ac-complete-glyph { font-size: 3rem; color: var(--gold); margin-bottom: 16px;
+            animation: breathe 4s ease-in-out infinite; }
+        @keyframes breathe {
+            0%,100% { opacity: 0.6; transform: scale(0.95); }
+            50%      { opacity: 1;   transform: scale(1.05); }
+        }
+        .ac-complete-title { font-size: 1rem; color: var(--gold); letter-spacing: 4px; margin-bottom: 8px; }
+        .ac-complete-sub { font-size: 0.65rem; color: var(--muted); letter-spacing: 2px; }
+
+        @media (max-width: 600px) {
+            .ac-main { padding: 24px 16px 60px; }
+            .ac-card-face { padding: 24px 20px; }
+            .ac-card { height: 240px; }
+            .ac-quiz-q { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+<nav class="ac-nav">
+    <a href="/" class="ac-nav-brand">◆ VOID ENGINE</a>
+    <div class="ac-nav-links">
+        <a href="/speak" class="ac-nav-link">Speak</a>
+        <a href="/quls" class="ac-nav-link">Four Quls</a>
+        <a href="/figures" class="ac-nav-link">Figures</a>
+        <a href="/gridul" class="ac-nav-link">GriDul</a>
+        <a href="/gridul/rumble" class="ac-nav-link">Rumble</a>
+        <a href="/voidecho" class="ac-nav-link">VoidEcho</a>
+        <a href="/cumbrian" class="ac-nav-link">Cumbrian Hub</a>
+        <a href="/genesis" class="ac-nav-link">Genesis 10</a>
+        <a href="/messenger" class="ac-nav-link">Messenger</a>
+        <a href="/academy" class="ac-nav-link active">Academy</a>
+        <a href="/preflight" class="ac-nav-link">Pre-Flight</a>
+        <a href="/sales-intel" class="ac-nav-link">Sales Intel</a>
+        <a href="/supply-chain" class="ac-nav-link">Supply Chain</a>
+    </div>
+</nav>
+
+<div class="ac-main">
+    <div class="ac-header">
+        <div class="ac-title">◆ VOID ACADEMY</div>
+        <div class="ac-subtitle">Sovereign Knowledge — Spaced Repetition Training Layer</div>
+    </div>
+
+    <div class="ac-stats-bar">
+        <div class="ac-stat">
+            <div class="ac-stat-val" id="stat-reviewed">0</div>
+            <div class="ac-stat-label">Reviewed</div>
+        </div>
+        <div class="ac-stat">
+            <div class="ac-stat-val" id="stat-correct">0</div>
+            <div class="ac-stat-label">Correct</div>
+        </div>
+        <div class="ac-stat">
+            <div class="ac-stat-val" id="stat-due">0</div>
+            <div class="ac-stat-label">Due Today</div>
+        </div>
+        <div class="ac-stat">
+            <div class="ac-stat-val" id="stat-tomorrow">0</div>
+            <div class="ac-stat-label">Due Tomorrow</div>
+        </div>
+    </div>
+
+    <div class="ac-tabs">
+        <button class="ac-tab active" id="tab-review" onclick="switchTab('review')">Flashcard Review</button>
+        <button class="ac-tab" id="tab-quiz" onclick="switchTab('quiz')">Quiz Mode</button>
+    </div>
+
+    <!-- MODULE SELECTOR -->
+    <div class="ac-module-bar" id="module-bar">
+        <span class="ac-module-label">Deck:</span>
+        <button class="ac-module-btn active" data-module="" onclick="selectModule(this, '')">All Topics</button>
+        {% for mod_id, mod_name in module_names.items() %}
+        <button class="ac-module-btn" data-module="{{ mod_id }}" onclick="selectModule(this, '{{ mod_id }}')">{{ mod_name }}</button>
+        {% endfor %}
+    </div>
+
+    <!-- REVIEW PANEL -->
+    <div id="panel-review">
+        <div class="ac-progress-wrap" id="review-progress-wrap" style="display:none;">
+            <div class="ac-progress-track">
+                <div class="ac-progress-fill" id="review-progress-fill" style="width:0%"></div>
+            </div>
+            <div class="ac-progress-label">
+                <span id="review-progress-text">0 / 0</span>
+                <span id="review-progress-acc">—</span>
+            </div>
+        </div>
+
+        <div id="review-loading" class="ac-loading" style="display:none;">
+            <div class="ac-spinner"></div>
+            <div class="ac-loading-text">Loading deck…</div>
+        </div>
+
+        <div id="review-card-area">
+            <div class="ac-card-wrap">
+                <div class="ac-card" id="flashcard" onclick="flipCard()">
+                    <div class="ac-card-face ac-card-front">
+                        <div class="ac-card-face-label">Question</div>
+                        <div class="ac-card-face-module" id="card-module-label"></div>
+                        <div class="ac-card-text" id="card-front-text">Select a deck to begin</div>
+                        <div class="ac-card-hint">click or press space to reveal</div>
+                    </div>
+                    <div class="ac-card-face ac-card-back">
+                        <div class="ac-card-face-label">Answer</div>
+                        <div class="ac-card-face-module" id="card-module-label-back"></div>
+                        <div class="ac-card-text" id="card-back-text"></div>
+                        <div id="card-tags" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ac-grade-row" id="grade-row">
+                <button class="ac-grade-btn ac-grade-again" onclick="gradeCard(1)" disabled>Again</button>
+                <button class="ac-grade-btn ac-grade-hard"  onclick="gradeCard(2)" disabled>Hard</button>
+                <button class="ac-grade-btn ac-grade-good"  onclick="gradeCard(3)" disabled>Good</button>
+                <button class="ac-grade-btn ac-grade-easy"  onclick="gradeCard(4)" disabled>Easy</button>
+            </div>
+
+            <div style="display:flex;gap:12px;justify-content:center;margin-top:8px;">
+                <button class="ac-btn ac-btn-secondary" id="btn-start-review" onclick="startReview()">Start Review</button>
+                <button class="ac-btn ac-btn-secondary" id="btn-skip" onclick="skipCard()" style="display:none;">Skip</button>
+            </div>
+        </div>
+
+        <div id="review-complete" class="ac-complete" style="display:none;">
+            <div class="ac-complete-glyph">Ψ</div>
+            <div class="ac-complete-title">Session Complete</div>
+            <div class="ac-complete-sub" id="complete-summary"></div>
+            <div style="margin-top:28px;">
+                <button class="ac-btn" onclick="startReview()">Review Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUIZ PANEL -->
+    <div id="panel-quiz" style="display:none;">
+        <div class="ac-quiz-wrap">
+            <div id="quiz-idle">
+                <div style="text-align:center;padding:32px 0 20px;">
+                    <div style="font-size:0.7rem;color:var(--muted);letter-spacing:2px;margin-bottom:24px;">
+                        AI-generated 10-question quiz from the selected deck
+                    </div>
+                    <button class="ac-btn" id="btn-start-quiz" onclick="startQuiz()">Generate Quiz</button>
+                </div>
+            </div>
+            <div id="quiz-loading" class="ac-loading" style="display:none;">
+                <div class="ac-spinner"></div>
+                <div class="ac-loading-text">Generating quiz…</div>
+            </div>
+            <div id="quiz-questions" style="display:none;"></div>
+            <div id="quiz-score" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- EXPORT -->
+    <div style="margin-top:48px; border-top:1px solid var(--border); padding-top:32px;">
+        <div style="text-align:center;font-size:0.6rem;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;">
+            Export to Anki
+        </div>
+        <div class="ac-export-row">
+            <a class="ac-btn ac-btn-secondary" id="btn-export-all" href="/academy/export.apkg">Download Full Deck (.apkg)</a>
+            <a class="ac-btn ac-btn-secondary" id="btn-export-module" href="/academy/export.apkg" style="display:none;">Download Module Deck</a>
+        </div>
+        <div class="ac-export-hint">Open in Anki desktop or mobile for offline spaced-repetition study</div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const MODULE_LABELS = {
+        "": "All Topics",
+        {% for mod_id, mod_name in module_names.items() %}
+        "{{ mod_id }}": "{{ mod_name }}",
+        {% endfor %}
+    };
+
+    let currentModule = "";
+    let allCards = [];
+    let reviewQueue = [];
+    let reviewIndex = 0;
+    let sessionReviewed = 0;
+    let sessionCorrect = 0;
+    let isFlipped = false;
+    let reviewActive = false;
+
+    let quizQuestions = [];
+    let quizAnswers = {};
+    let quizSubmitted = {};
+
+    const SM2_KEY = "void_academy_sm2";
+
+    function getSm2Data() {
+        try { return JSON.parse(localStorage.getItem(SM2_KEY) || "{}"); } catch(e) { return {}; }
+    }
+    function saveSm2Data(d) {
+        try { localStorage.setItem(SM2_KEY, JSON.stringify(d)); } catch(e) {}
+    }
+
+    function sm2Update(cardId, grade) {
+        const d = getSm2Data();
+        const now = Date.now();
+        const card = d[cardId] || { ef: 2.5, interval: 1, reps: 0, nextReview: now };
+        let ef = card.ef;
+        let interval = card.interval;
+        let reps = card.reps;
+        if (grade < 2) {
+            reps = 0; interval = 1;
+        } else {
+            if (reps === 0) interval = 1;
+            else if (reps === 1) interval = 6;
+            else interval = Math.round(interval * ef);
+            reps++;
+        }
+        ef = Math.max(1.3, ef + 0.1 - (4 - grade) * (0.08 + (4 - grade) * 0.02));
+        d[cardId] = {
+            ef, interval, reps,
+            lastReview: now,
+            nextReview: now + interval * 86400000,
+        };
+        saveSm2Data(d);
+        return d[cardId];
+    }
+
+    function getDueCounts() {
+        const d = getSm2Data();
+        const now = Date.now();
+        const tomorrow = now + 86400000;
+        let dueToday = 0, dueTomorrow = 0;
+        allCards.forEach(c => {
+            const s = d[c.id];
+            if (!s) { dueToday++; return; }
+            if (s.nextReview <= now) dueToday++;
+            else if (s.nextReview <= tomorrow) dueTomorrow++;
+        });
+        return { dueToday, dueTomorrow };
+    }
+
+    function updateStats() {
+        document.getElementById("stat-reviewed").textContent = sessionReviewed;
+        document.getElementById("stat-correct").textContent = sessionCorrect;
+        const counts = getDueCounts();
+        document.getElementById("stat-due").textContent = counts.dueToday;
+        document.getElementById("stat-tomorrow").textContent = counts.dueTomorrow;
+    }
+
+    function buildReviewQueue() {
+        const d = getSm2Data();
+        const now = Date.now();
+        const due = allCards.filter(c => {
+            const s = d[c.id];
+            return !s || s.nextReview <= now;
+        });
+        if (due.length === 0) return allCards.slice();
+        return due;
+    }
+
+    window.selectModule = function(btn, modId) {
+        document.querySelectorAll(".ac-module-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentModule = modId;
+        const exportModule = document.getElementById("btn-export-module");
+        if (modId) {
+            exportModule.href = `/academy/export.apkg?module=${modId}`;
+            exportModule.textContent = `Download ${MODULE_LABELS[modId]} (.apkg)`;
+            exportModule.style.display = "";
+        } else {
+            exportModule.style.display = "none";
+        }
+        loadCards();
+    };
+
+    async function loadCards() {
+        const url = currentModule ? `/api/academy/cards?module=${currentModule}` : `/api/academy/cards`;
+        document.getElementById("review-loading").style.display = "flex";
+        document.getElementById("review-card-area").style.display = "none";
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            allCards = data.cards || [];
+        } catch(e) {
+            allCards = [];
+        }
+        document.getElementById("review-loading").style.display = "none";
+        document.getElementById("review-card-area").style.display = "";
+        resetReview();
+        updateStats();
+    }
+
+    function resetReview() {
+        reviewActive = false;
+        sessionReviewed = 0;
+        sessionCorrect = 0;
+        reviewIndex = 0;
+        isFlipped = false;
+        document.getElementById("flashcard").classList.remove("flipped");
+        document.getElementById("review-complete").style.display = "none";
+        document.getElementById("review-card-area").style.display = "";
+        document.getElementById("review-progress-wrap").style.display = "none";
+        document.getElementById("btn-start-review").style.display = "";
+        document.getElementById("btn-skip").style.display = "none";
+        setGradeButtons(false);
+        document.getElementById("card-front-text").textContent = allCards.length > 0
+            ? `${allCards.length} cards loaded — press Start Review`
+            : "No cards in this deck";
+        document.getElementById("card-back-text").textContent = "";
+        document.getElementById("card-module-label").textContent = currentModule
+            ? MODULE_LABELS[currentModule] || "" : "";
+        document.getElementById("card-module-label-back").textContent = "";
+        document.getElementById("card-tags").innerHTML = "";
+        updateProgress();
+    }
+
+    window.startReview = function() {
+        if (allCards.length === 0) return;
+        reviewQueue = buildReviewQueue();
+        shuffle(reviewQueue);
+        reviewIndex = 0;
+        sessionReviewed = 0;
+        sessionCorrect = 0;
+        reviewActive = true;
+        document.getElementById("review-complete").style.display = "none";
+        document.getElementById("review-card-area").style.display = "";
+        document.getElementById("review-progress-wrap").style.display = "";
+        document.getElementById("btn-start-review").style.display = "none";
+        document.getElementById("btn-skip").style.display = "";
+        showCard();
+        updateStats();
+    };
+
+    function showCard() {
+        if (reviewIndex >= reviewQueue.length) {
+            endReview();
+            return;
+        }
+        const card = reviewQueue[reviewIndex];
+        isFlipped = false;
+        document.getElementById("flashcard").classList.remove("flipped");
+        document.getElementById("card-front-text").textContent = card.front;
+        document.getElementById("card-back-text").textContent = card.back;
+        const modName = MODULE_LABELS[card.module] || card.module;
+        document.getElementById("card-module-label").textContent = modName;
+        document.getElementById("card-module-label-back").textContent = modName;
+        const tagsEl = document.getElementById("card-tags");
+        tagsEl.innerHTML = (card.tags || []).map(t =>
+            `<span class="ac-card-tag">${t}</span>`).join("");
+        setGradeButtons(false);
+        updateProgress();
+    }
+
+    function endReview() {
+        reviewActive = false;
+        document.getElementById("review-card-area").style.display = "none";
+        document.getElementById("review-complete").style.display = "";
+        const acc = sessionReviewed > 0 ? Math.round((sessionCorrect / sessionReviewed) * 100) : 0;
+        document.getElementById("complete-summary").textContent =
+            `${sessionReviewed} cards reviewed · ${acc}% accuracy`;
+        updateStats();
+    }
+
+    window.flipCard = function() {
+        if (!reviewActive) return;
+        isFlipped = !isFlipped;
+        document.getElementById("flashcard").classList.toggle("flipped", isFlipped);
+        if (isFlipped) setGradeButtons(true);
+    };
+
+    window.gradeCard = function(grade) {
+        if (!isFlipped || !reviewActive) return;
+        const card = reviewQueue[reviewIndex];
+        sm2Update(card.id, grade);
+        sessionReviewed++;
+        if (grade >= 3) sessionCorrect++;
+        reviewIndex++;
+        isFlipped = false;
+        setGradeButtons(false);
+        setTimeout(() => {
+            document.getElementById("flashcard").classList.remove("flipped");
+            setTimeout(showCard, 50);
+        }, 100);
+        updateStats();
+    };
+
+    window.skipCard = function() {
+        if (!reviewActive) return;
+        reviewIndex++;
+        isFlipped = false;
+        document.getElementById("flashcard").classList.remove("flipped");
+        setGradeButtons(false);
+        showCard();
+    };
+
+    function setGradeButtons(enabled) {
+        document.querySelectorAll(".ac-grade-btn").forEach(b => b.disabled = !enabled);
+    }
+
+    function updateProgress() {
+        const total = reviewQueue.length;
+        const done = reviewIndex;
+        const pct = total > 0 ? (done / total * 100) : 0;
+        document.getElementById("review-progress-fill").style.width = pct + "%";
+        document.getElementById("review-progress-text").textContent = `${done} / ${total}`;
+        const acc = sessionReviewed > 0 ? Math.round((sessionCorrect / sessionReviewed) * 100) + "%" : "—";
+        document.getElementById("review-progress-acc").textContent = "Accuracy: " + acc;
+    }
+
+    /* QUIZ */
+    window.switchTab = function(tab) {
+        document.getElementById("tab-review").classList.toggle("active", tab === "review");
+        document.getElementById("tab-quiz").classList.toggle("active", tab === "quiz");
+        document.getElementById("panel-review").style.display = tab === "review" ? "" : "none";
+        document.getElementById("panel-quiz").style.display = tab === "quiz" ? "" : "none";
+    };
+
+    window.startQuiz = async function() {
+        document.getElementById("quiz-idle").style.display = "none";
+        document.getElementById("quiz-loading").style.display = "flex";
+        document.getElementById("quiz-questions").style.display = "none";
+        document.getElementById("quiz-score").style.display = "none";
+        quizAnswers = {};
+        quizSubmitted = {};
+
+        try {
+            const res = await fetch("/api/academy/quiz", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ module: currentModule }),
+            });
+            const data = await res.json();
+            if (!res.ok || data.error) throw new Error(data.error || "Quiz generation failed");
+            quizQuestions = data.questions || [];
+            renderQuiz();
+        } catch(e) {
+            document.getElementById("quiz-loading").style.display = "none";
+            document.getElementById("quiz-idle").style.display = "";
+            alert("Quiz generation failed: " + e.message);
+        }
+    };
+
+    function renderQuiz() {
+        document.getElementById("quiz-loading").style.display = "none";
+        const container = document.getElementById("quiz-questions");
+        container.innerHTML = "";
+
+        quizQuestions.forEach((q, i) => {
+            const div = document.createElement("div");
+            div.className = "ac-quiz-q";
+            div.id = `quiz-q-${i}`;
+            const opts = Object.entries(q.options || {}).map(([k, v]) =>
+                `<button class="ac-quiz-opt" id="opt-${i}-${k}" onclick="selectOption(${i},'${k}')">`
+                + `<strong style="color:var(--gold);margin-right:8px;">${k}.</strong>${escHtml(v)}`
+                + `</button>`
+            ).join("");
+            div.innerHTML = `
+                <div class="ac-quiz-qnum">Question ${i+1} / ${quizQuestions.length}</div>
+                <div class="ac-quiz-qtext">${escHtml(q.question)}</div>
+                <div class="ac-quiz-opts">${opts}</div>
+                <div class="ac-quiz-explanation" id="expl-${i}">${escHtml(q.explanation || "")}</div>
+            `;
+            container.appendChild(div);
+        });
+
+        const controls = document.createElement("div");
+        controls.className = "ac-quiz-controls";
+        controls.innerHTML = `
+            <button class="ac-btn" onclick="submitQuiz()">Submit Quiz</button>
+            <button class="ac-btn ac-btn-secondary" onclick="resetQuiz()">Start New Quiz</button>
+        `;
+        container.appendChild(controls);
+        container.style.display = "";
+    }
+
+    window.selectOption = function(qIdx, label) {
+        if (quizSubmitted[qIdx]) return;
+        quizAnswers[qIdx] = label;
+        const q = quizQuestions[qIdx];
+        Object.keys(q.options || {}).forEach(k => {
+            const btn = document.getElementById(`opt-${qIdx}-${k}`);
+            if (btn) btn.classList.toggle("selected", k === label);
+        });
+    };
+
+    window.submitQuiz = function() {
+        let correct = 0;
+        quizQuestions.forEach((q, i) => {
+            const chosen = quizAnswers[i];
+            quizSubmitted[i] = true;
+            Object.keys(q.options || {}).forEach(k => {
+                const btn = document.getElementById(`opt-${i}-${k}`);
+                if (!btn) return;
+                btn.disabled = true;
+                btn.classList.remove("selected");
+                if (k === q.correct) btn.classList.add("correct");
+                else if (k === chosen && k !== q.correct) btn.classList.add("wrong");
+            });
+            const expl = document.getElementById(`expl-${i}`);
+            if (expl) expl.classList.add("show");
+            if (chosen === q.correct) correct++;
+        });
+        const pct = Math.round((correct / quizQuestions.length) * 100);
+        const scoreDiv = document.getElementById("quiz-score");
+        const barColor = pct >= 80 ? "var(--teal)" : pct >= 50 ? "var(--gold)" : "var(--red)";
+        scoreDiv.innerHTML = `
+            <div class="ac-score-card">
+                <div class="ac-score-num">${correct}/${quizQuestions.length}</div>
+                <div class="ac-score-label">${pct}% Accuracy</div>
+                <div class="ac-score-bar-wrap">
+                    <div class="ac-score-bar">
+                        <div class="ac-score-bar-fill" style="width:${pct}%;background:${barColor};"></div>
+                    </div>
+                </div>
+                <button class="ac-btn" onclick="resetQuiz()">New Quiz</button>
+            </div>
+        `;
+        scoreDiv.style.display = "";
+        scoreDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    };
+
+    window.resetQuiz = function() {
+        quizQuestions = []; quizAnswers = {}; quizSubmitted = {};
+        document.getElementById("quiz-questions").style.display = "none";
+        document.getElementById("quiz-score").style.display = "none";
+        document.getElementById("quiz-idle").style.display = "";
+    };
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+
+    function escHtml(s) {
+        return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;")
+            .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+    }
+
+    /* KEYBOARD */
+    document.addEventListener("keydown", e => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+        if (e.key === " " || e.key === "Enter") { e.preventDefault(); flipCard(); }
+        if (e.key === "1") gradeCard(1);
+        if (e.key === "2") gradeCard(2);
+        if (e.key === "3") gradeCard(3);
+        if (e.key === "4") gradeCard(4);
+    });
+
+    /* INIT */
+    loadCards();
+})();
+</script>
+</body>
+</html>
