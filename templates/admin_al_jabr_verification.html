@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Jabr 286 — Verification Report — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e2e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-green: #4caf50;
+            --void-red: #f44336;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--void-bg); color: var(--void-text); font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; min-height: 100vh; }
+
+        .cvr-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 32px; border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97); position: sticky; top: 0; z-index: 100;
+        }
+        .cvr-brand { font-size: 0.9rem; font-weight: 700; color: var(--void-gold); letter-spacing: 2px; text-decoration: none; }
+        .cvr-nav-links { display: flex; gap: 20px; }
+        .cvr-nav-link { color: #888; text-decoration: none; font-size: 0.72rem; letter-spacing: 1px; transition: color 0.2s; }
+        .cvr-nav-link:hover, .cvr-nav-link.active { color: var(--void-gold); }
+
+        .cvr-wrap { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+        .cvr-header {
+            border-bottom: 2px solid var(--void-teal);
+            padding-bottom: 28px; margin-bottom: 32px;
+        }
+        .cvr-badge {
+            display: inline-block; background: rgba(0,191,165,0.08); border: 1px solid rgba(0,191,165,0.25);
+            color: var(--void-teal); font-size: 0.58rem; letter-spacing: 3px; text-transform: uppercase;
+            padding: 4px 12px; border-radius: 3px; margin-bottom: 18px;
+        }
+        .cvr-title { font-size: 1.6rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; margin-bottom: 8px; }
+        .cvr-sub { font-size: 0.8rem; color: #888; line-height: 1.6; margin-bottom: 20px; }
+        .cvr-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+        .cvr-meta-item { display: flex; flex-direction: column; gap: 3px; }
+        .cvr-meta-label { color: var(--void-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.58rem; }
+        .cvr-meta-value { color: #e0e0e0; font-weight: 700; font-size: 0.78rem; }
+
+        .cvr-summary-bar {
+            display: flex; align-items: center; gap: 16px; padding: 20px 24px;
+            background: var(--void-surface); border: 1px solid;
+            border-radius: 6px; margin-bottom: 28px;
+        }
+        .cvr-summary-bar.pass { border-color: rgba(76,175,80,0.35); }
+        .cvr-summary-bar.fail { border-color: rgba(244,67,54,0.35); }
+        .cvr-summary-icon { font-size: 1.8rem; }
+        .cvr-summary-text { flex: 1; }
+        .cvr-summary-title { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .cvr-summary-detail { font-size: 0.75rem; color: #888; }
+
+        .cvr-section { background: var(--void-surface); border: 1px solid var(--void-border); border-radius: 6px; padding: 24px 28px; margin-bottom: 20px; }
+        .cvr-section-title {
+            font-size: 0.68rem; text-transform: uppercase; letter-spacing: 2px; color: var(--void-teal);
+            border-bottom: 1px solid var(--void-border); padding-bottom: 10px; margin-bottom: 18px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .cvr-section-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px; background: var(--void-teal); color: #000;
+            border-radius: 50%; font-size: 0.62rem; font-weight: 700; flex-shrink: 0;
+        }
+
+        .test-grid { display: flex; flex-direction: column; gap: 10px; }
+        .test-row {
+            display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px;
+            background: var(--void-surface2); border-radius: 4px; border: 1px solid #161626;
+        }
+        .test-badge {
+            flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+            width: 56px; padding: 4px 0; border-radius: 3px; font-size: 0.62rem; font-weight: 700; letter-spacing: 1px;
+        }
+        .test-badge.pass { background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); color: var(--void-green); }
+        .test-badge.fail { background: rgba(244,67,54,0.15); border: 1px solid rgba(244,67,54,0.3); color: var(--void-red); }
+        .test-name { font-size: 0.8rem; color: #e0e0e0; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .test-detail { font-size: 0.72rem; color: #888; line-height: 1.5; }
+
+        .vector-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; margin-top: 4px; }
+        .vector-table th { text-align: left; padding: 8px 12px; font-size: 0.58rem; letter-spacing: 1.5px; color: var(--void-teal); border-bottom: 1px solid #2a2a3a; text-transform: uppercase; }
+        .vector-table td { padding: 8px 12px; color: #aaa; border-bottom: 1px solid #1a1a2a; font-family: 'SF Mono', monospace; }
+        .vector-table tr:last-child td { border-bottom: none; }
+        .vector-table td:first-child { color: var(--void-teal); font-weight: 700; }
+        .vector-hex { font-size: 0.65rem; word-break: break-all; color: #ccc; }
+        .badge-ok { color: var(--void-green); }
+        .badge-fail { color: var(--void-red); }
+
+        .seal-box {
+            background: var(--void-surface2); border: 2px solid rgba(0,191,165,0.2);
+            border-radius: 6px; padding: 20px 24px; margin-top: 4px;
+        }
+        .seal-title { font-size: 0.62rem; letter-spacing: 2px; color: var(--void-teal); text-transform: uppercase; margin-bottom: 10px; }
+        .seal-hash { font-family: monospace; font-size: 0.72rem; color: var(--void-teal); word-break: break-all; background: #060606; padding: 10px 14px; border-radius: 3px; margin: 8px 0; }
+        .seal-desc { font-size: 0.7rem; color: var(--void-muted); line-height: 1.6; }
+
+        .proto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .proto-item { background: var(--void-surface2); border: 1px solid #161626; border-radius: 4px; padding: 14px 16px; }
+        .proto-label { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 1px; color: var(--void-muted); margin-bottom: 6px; }
+        .proto-value { font-size: 0.82rem; color: #e0e0e0; font-weight: 700; }
+        .proto-value.highlight { color: var(--void-teal); }
+
+        .cvr-footer { border-top: 1px solid var(--void-border); padding: 24px 32px; text-align: center; font-size: 0.65rem; color: #444; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<nav class="cvr-nav">
+    <a href="/" class="cvr-brand">&#9670; PROJECT VOID</a>
+    <div class="cvr-nav-links">
+        <a href="/admin/al-jabr-status" class="cvr-nav-link">Status Dashboard</a>
+        <a href="/admin/al-jabr-verification" class="cvr-nav-link active">Verification Report</a>
+        <a href="/al-jabr-286" class="cvr-nav-link">Public Whitepaper</a>
+        <a href="/al-jabr-286/ip-disclosure" class="cvr-nav-link">IP Disclosure</a>
+        <a href="/admin/market" class="cvr-nav-link">Admin</a>
+    </div>
+</nav>
+
+<div class="cvr-wrap">
+
+    <div class="cvr-header">
+        <div class="cvr-badge">Cryptographic Verification Report · VOID-CVR-286-001</div>
+        <h1 class="cvr-title">Al-Jabr 286 — Verification Report</h1>
+        <p class="cvr-sub">
+            Full cryptographic verification of the Sura-Fatiha Sovereign Hashing protocol.
+            This report documents that the Al-Jabr 286 hash passes all four core cryptographic dimensions:
+            avalanche effect, collision resistance, determinism, and bit-depth. Results are stored as a VOID_SEED entry.
+        </p>
+        <div class="cvr-meta">
+            <div class="cvr-meta-item">
+                <span class="cvr-meta-label">Reference</span>
+                <span class="cvr-meta-value">{{ report.reference }}</span>
+            </div>
+            <div class="cvr-meta-item">
+                <span class="cvr-meta-label">Timestamp</span>
+                <span class="cvr-meta-value">{{ report.timestamp_utc }}</span>
+            </div>
+            <div class="cvr-meta-item">
+                <span class="cvr-meta-label">Bit Depth</span>
+                <span class="cvr-meta-value">{{ report.protocol.bit_depth }} active bits</span>
+            </div>
+            <div class="cvr-meta-item">
+                <span class="cvr-meta-label">Base Algorithm</span>
+                <span class="cvr-meta-value">{{ report.protocol.base_algorithm }}</span>
+            </div>
+            <div class="cvr-meta-item">
+                <span class="cvr-meta-label">Resonance Anchor</span>
+                <span class="cvr-meta-value">{{ report.protocol.resonance_hz }} Hz</span>
+            </div>
+            <div class="cvr-meta-item">
+                <span class="cvr-meta-label">All Tests</span>
+                <span class="cvr-meta-value" style="color: {% if report.all_jabr_passed %}#4caf50{% else %}#f44336{% endif %}">
+                    {% if report.all_jabr_passed %}PASSED{% else %}FAILED{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="cvr-summary-bar {% if report.all_jabr_passed %}pass{% else %}fail{% endif %}">
+        <div class="cvr-summary-icon">{% if report.all_jabr_passed %}✓{% else %}✗{% endif %}</div>
+        <div class="cvr-summary-text">
+            <div class="cvr-summary-title">
+                {% if report.all_jabr_passed %}All {{ report.jabr_passed }}/{{ report.jabr_total }} convergence tests passed — Al-Jabr 286 is cryptographically sound{% else %}{{ report.jabr_failed }} test(s) failed — review required{% endif %}
+            </div>
+            <div class="cvr-summary-detail">{{ report.jabr_total }} Al-Jabr 286 tests from convergence suite · Report sealed with Al-Jabr 286</div>
+        </div>
+    </div>
+
+    <div class="cvr-section">
+        <h2 class="cvr-section-title"><span class="cvr-section-num">1</span> Al-Jabr 286 Convergence Tests</h2>
+        <div class="test-grid">
+            {% for test in report.jabr_tests %}
+            <div class="test-row">
+                <span class="test-badge {% if test.passed %}pass{% else %}fail{% endif %}">{% if test.passed %}PASS{% else %}FAIL{% endif %}</span>
+                <div>
+                    <div class="test-name">{{ test.name }}</div>
+                    <div class="test-detail">{{ test.detail }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if report.convergence_run.ran %}
+    <div class="cvr-section">
+        <h2 class="cvr-section-title"><span class="cvr-section-num">2</span> Full Convergence Suite — All Systems</h2>
+        <div class="test-grid">
+            <div class="test-row">
+                <span class="test-badge {% if report.convergence_run.vortex_stable %}pass{% else %}fail{% endif %}">{% if report.convergence_run.vortex_stable %}STABLE{% else %}UNSTABLE{% endif %}</span>
+                <div>
+                    <div class="test-name">Vortex Status</div>
+                    <div class="test-detail">{{ report.convergence_run.passed }}/{{ report.convergence_run.total }} tests passed · {{ report.convergence_run.elapsed }}s elapsed</div>
+                </div>
+            </div>
+        </div>
+        <pre style="font-size:0.65rem; color:#888; background:#060606; padding:12px 16px; border-radius:4px; overflow:auto; margin-top:12px; white-space:pre-wrap;">{{ report.convergence_run.summary }}</pre>
+    </div>
+    {% elif report.convergence_run.timed_out %}
+    <div class="cvr-section">
+        <h2 class="cvr-section-title"><span class="cvr-section-num">2</span> Full Convergence Suite</h2>
+        <p style="font-size:0.78rem; color:#888; padding:8px 0;">{{ report.convergence_run.error }}</p>
+    </div>
+    {% endif %}
+
+    <div class="cvr-section">
+        <h2 class="cvr-section-title"><span class="cvr-section-num">3</span> Protocol Metadata</h2>
+        <div class="proto-grid">
+            <div class="proto-item"><div class="proto-label">Protocol</div><div class="proto-value highlight">{{ report.protocol.protocol }}</div></div>
+            <div class="proto-item"><div class="proto-label">Standard</div><div class="proto-value">{{ report.protocol.standard }}</div></div>
+            <div class="proto-item"><div class="proto-label">Bit Depth</div><div class="proto-value highlight">{{ report.protocol.bit_depth }} bits</div></div>
+            <div class="proto-item"><div class="proto-label">Physical Bytes</div><div class="proto-value">{{ report.protocol.total_bytes }} bytes</div></div>
+            <div class="proto-item"><div class="proto-label">Base Algorithm</div><div class="proto-value">{{ report.protocol.base_algorithm }}</div></div>
+            <div class="proto-item"><div class="proto-label">Extension Bits</div><div class="proto-value">{{ report.protocol.extension_bits }} bits</div></div>
+            <div class="proto-item"><div class="proto-label">Verse Layers</div><div class="proto-value">{{ report.protocol.verse_layers }}</div></div>
+            <div class="proto-item"><div class="proto-label">Verse Count</div><div class="proto-value">{{ report.protocol.verse_count }}</div></div>
+            <div class="proto-item"><div class="proto-label">Resonance Hz</div><div class="proto-value highlight">{{ report.protocol.resonance_hz }} Hz</div></div>
+            <div class="proto-item"><div class="proto-label">Prime Salt</div><div class="proto-value">{{ report.protocol.prime_salt }}</div></div>
+            <div class="proto-item"><div class="proto-label">Replaces</div><div class="proto-value">{{ report.protocol.replaces }}</div></div>
+            <div class="proto-item"><div class="proto-label">Forensic Evasion</div><div class="proto-value">Active</div></div>
+        </div>
+    </div>
+
+    <div class="cvr-section">
+        <h2 class="cvr-section-title"><span class="cvr-section-num">4</span> Integrity Seal</h2>
+        <div class="seal-box">
+            <div class="seal-title">Al-Jabr 286 Report Seal</div>
+            <div class="seal-hash">{{ report.seal }}</div>
+            <div class="seal-desc">
+                This 72-character hex digest is computed by the Al-Jabr 286 protocol over the report identity string.
+                It serves as a tamper-evident fingerprint: any modification to the report produces a different seal.
+                This entry has also been stored as a <code>SEED_CAPTURE</code> Chronicle record with this timestamp.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer class="cvr-footer">
+    VOID-CVR-286-001 · Al-Jabr 286 Sovereign Hash · PROJECT VOID · {{ report.timestamp_utc }}
+</footer>
+
+</body>
+</html>

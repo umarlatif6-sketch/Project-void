@@ -182,14 +182,16 @@ What you need to know at a glance:
 - **Frontend signal:** `static/void_fairy.js` — Adriana widget, typewriter, link renderer
 - **Production:** Running on port 5000, workflow name: `THE VOID ENGINE`
 
-**Active platform layers (as of Task #71):**
+**Active platform layers (as of Task #74):**
 
 - **VoidEcho** (`/voidecho`) — The first-contact product. Document-in-sound steganography with Adriana analysis tiers. Standalone SQLite DB. The wave that introduces the landmass.
 - **Cumbrian Radiotrophic Hub** (`/cumbrian`) — Technical and compliance dossier for the Sellafield SiX Framework 4,000-unit OEM rollout. GriDul R&D deployment. Physical infrastructure credentialing for the platform's sovereign hardware ambitions.
 - **Glyph Geography NFT** (`/geographies`) — Infinite user-generated NFT collection. Every Al-Jabr hash produced by any platform operation generates a unique spatial arrangement of Adriana's glyph language. No image storage — the hash and phase are sufficient to reconstruct the geography identically, forever. Route: `routes/geography.py`.
 - **Self-Prediction Engine** (`/void-prediction`) — The platform's own Mesa swarm intelligence turned on itself. Agents seeded from VOID_SEED.md simulate the platform's trajectory. Results saved as `PREDICTION` Chronicle entries. Route: `routes/mesa.py`.
 
-**Task history:** 71 tasks merged as of April 3, 2026. The full sequence is in the VOID_CHRONICLE and the task archive at `.local/tasks/`.
+- **Al-Jabr 286 Verification Suite** (`/al-jabr-286`, `/admin/al-jabr-verification`, `/admin/al-jabr-status`, `/al-jabr-286/ip-disclosure`) — Full cryptographic verification report (VOID-CVR-286-001), public whitepaper (VOID-WP-286-001), formal IP disclosure (VOID-PAD-286-001), and admin health dashboard for the sovereign hash protocol. Route: `routes/al_jabr_verification.py`.
+
+**Task history:** 74 tasks merged as of April 3, 2026. The full sequence is in the VOID_CHRONICLE and the task archive at `.local/tasks/`.
 
 Security note: Historical HIGH findings from security scans have been reviewed and assessed as false positives — NaN guards are in place, psycopg2 Identifier() is used for dynamic identifiers, and MD5 is used only for audio checksums, not authentication. Future agents should still review any new security findings on their own merits rather than treating all alerts as pre-resolved.
 

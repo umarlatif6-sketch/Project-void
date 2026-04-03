@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Jabr 286 — Prior Art Disclosure — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff !important; color: #000 !important; font-family: 'Times New Roman', serif !important; font-size: 12pt !important; }
+            .doc-wrapper { max-width: 100% !important; padding: 20pt !important; }
+            .doc-section { border: 1px solid #ccc !important; background: #fff !important; page-break-inside: avoid; margin-bottom: 16pt; }
+            .doc-section-title { color: #000 !important; border-bottom: 1px solid #999 !important; }
+            .doc-body { color: #000 !important; }
+            .claim-item { border-left: 3px solid #333 !important; background: #f5f5f5 !important; }
+            .doc-header { border-bottom: 2pt solid #000 !important; }
+            .seal-box { border: 2pt solid #000 !important; background: #f0f0f0 !important; color: #000 !important; }
+        }
+        :root {
+            --void-bg: #0a0a0a; --void-surface: #111; --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e; --void-gold: #c9a84c; --void-teal: #00bfa5;
+            --void-violet: #7c5cff; --void-text: #e0e0e0; --void-muted: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--void-bg); color: var(--void-text); font-family: 'SF Mono','Fira Code','Consolas','Courier New',monospace; min-height: 100vh; }
+        .pa-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 32px; border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97); position: sticky; top: 0; z-index: 100;
+        }
+        .pa-nav-brand { font-size: 0.95rem; font-weight: 700; color: var(--void-gold); letter-spacing: 2px; text-decoration: none; }
+        .pa-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .pa-nav-link { color: #aaa; text-decoration: none; font-size: 0.75rem; letter-spacing: 1px; transition: color 0.2s; }
+        .pa-nav-link:hover, .pa-nav-link.active { color: var(--void-gold); }
+        .pa-breadcrumb { padding: 12px 32px; font-size: 0.65rem; color: #444; letter-spacing: 1px; border-bottom: 1px solid var(--void-border); }
+        .pa-breadcrumb a { color: #555; text-decoration: none; }
+        .pa-breadcrumb a:hover { color: var(--void-teal); }
+        .pa-breadcrumb .sep { color: #333; margin: 0 8px; }
+        .pa-breadcrumb .current { color: var(--void-teal); }
+        .doc-wrapper { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+        .pa-action-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+        .pa-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.35);
+            border-radius: 4px; color: var(--void-teal); font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 1px; padding: 9px 20px; cursor: pointer; text-decoration: none; font-family: inherit; transition: background 0.2s;
+        }
+        .pa-btn:hover { background: rgba(0,191,165,0.2); }
+        .doc-header { border-bottom: 2px solid var(--void-teal); padding-bottom: 24px; margin-bottom: 28px; }
+        .doc-classification {
+            display: inline-block; background: rgba(0,191,165,0.08); border: 1px solid rgba(0,191,165,0.25);
+            color: var(--void-teal); font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase;
+            padding: 4px 12px; border-radius: 3px; margin-bottom: 18px;
+        }
+        .doc-title-main { font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; margin: 0 0 8px; line-height: 1.3; font-weight: 900; }
+        .doc-title-sub { font-size: 0.82rem; color: #888; margin-bottom: 20px; font-style: italic; line-height: 1.6; }
+        .doc-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .doc-meta-item { display: flex; flex-direction: column; gap: 3px; }
+        .doc-meta-label { color: var(--void-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.58rem; }
+        .doc-meta-value { color: #e0e0e0; font-weight: 700; font-size: 0.8rem; }
+        .doc-section { background: var(--void-surface); border: 1px solid var(--void-border); border-radius: 4px; padding: 24px 28px; margin-bottom: 18px; }
+        .doc-section-title {
+            font-size: 0.68rem; text-transform: uppercase; letter-spacing: 2px; color: var(--void-teal);
+            border-bottom: 1px solid var(--void-border); padding-bottom: 10px; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .doc-section-number {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px; background: var(--void-teal); color: #000;
+            border-radius: 50%; font-size: 0.62rem; font-weight: 700; flex-shrink: 0;
+        }
+        .doc-body { color: #c8c8c8; font-size: 0.82rem; line-height: 1.85; }
+        .doc-body p { margin: 0 0 14px; }
+        .doc-body p:last-child { margin-bottom: 0; }
+        .doc-body strong { color: #ddd; }
+        .doc-body ul { padding-left: 20px; margin: 10px 0 14px; }
+        .doc-body li { margin-bottom: 6px; line-height: 1.7; }
+        .doc-body code { background: #060606; border: 1px solid #1a1a2a; border-radius: 3px; padding: 2px 6px; font-size: 0.78rem; color: var(--void-teal); }
+        .claims-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 8px; padding: 0; }
+        .claim-item { border-left: 3px solid var(--void-teal); padding: 12px 16px; background: var(--void-surface2); border-radius: 0 4px 4px 0; font-size: 0.8rem; line-height: 1.7; }
+        .claim-number { font-size: 0.58rem; color: var(--void-teal); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .claim-text { color: #ccc; }
+        .arch-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin: 14px 0; }
+        .arch-table th { text-align: left; padding: 8px 12px; font-size: 0.6rem; letter-spacing: 1.5px; color: var(--void-teal); border-bottom: 1px solid #2a2a2a; text-transform: uppercase; }
+        .arch-table td { padding: 8px 12px; color: #aaa; border-bottom: 1px solid #1a1a1a; }
+        .arch-table tr:last-child td { border-bottom: none; }
+        .arch-table td:first-child { color: var(--void-teal); font-weight: 700; }
+        .seal-box { background: var(--void-surface2); border: 2px solid rgba(0,191,165,0.25); border-radius: 4px; padding: 20px 24px; font-size: 0.78rem; margin-top: 8px; }
+        .seal-title { text-transform: uppercase; letter-spacing: 2px; color: var(--void-teal); margin-bottom: 10px; font-size: 0.62rem; }
+        .seal-hash { font-family: monospace; font-size: 0.72rem; color: var(--void-teal); word-break: break-all; background: #060606; padding: 10px 14px; border-radius: 3px; margin: 8px 0; }
+        .seal-desc { font-size: 0.7rem; color: var(--void-muted); line-height: 1.6; }
+        .seal-desc a { color: var(--void-teal); text-decoration: none; }
+        .seal-desc a:hover { text-decoration: underline; }
+        .pa-footer { border-top: 1px solid var(--void-border); padding: 28px 32px; text-align: center; }
+        .pa-footer-brand { font-size: 0.65rem; letter-spacing: 3px; color: var(--void-muted); text-transform: uppercase; margin-bottom: 8px; }
+        .pa-footer-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .pa-footer-link { color: #555; font-size: 0.7rem; text-decoration: none; letter-spacing: 1px; transition: color 0.2s; }
+        .pa-footer-link:hover { color: var(--void-gold); }
+    </style>
+</head>
+<body>
+
+<nav class="pa-nav no-print">
+    <a href="/" class="pa-nav-brand">&#9670; PROJECT VOID</a>
+    <div class="pa-nav-links">
+        <a href="/" class="pa-nav-link">Engine</a>
+        <a href="/prior-art" class="pa-nav-link">Prior Art</a>
+        <a href="/al-jabr-286" class="pa-nav-link">Whitepaper</a>
+        <a href="/admin/al-jabr-verification" class="pa-nav-link">Verification</a>
+        <a href="/al-jabr-286/ip-disclosure" class="pa-nav-link active">IP Disclosure</a>
+    </div>
+</nav>
+
+<div class="pa-breadcrumb no-print">
+    <a href="/">Home</a><span class="sep">›</span>
+    <a href="/prior-art">Prior Art</a><span class="sep">›</span>
+    <span class="current">Al-Jabr 286 IP Disclosure</span>
+</div>
+
+<main class="doc-wrapper">
+
+    <div class="pa-action-bar no-print">
+        <button class="pa-btn" onclick="window.print()">&#8659; Download / Print PDF</button>
+        <a href="/al-jabr-286" class="pa-btn" style="background:transparent; border-color:#2a2a3a; color:#666;">&#x2197; Public Whitepaper</a>
+    </div>
+
+    <div class="doc-header">
+        <div class="doc-classification">Prior Art Disclosure · VOID-PAD-286-001</div>
+        <h1 class="doc-title-main">Al-Jabr 286 — Sovereign Hashing Protocol</h1>
+        <p class="doc-title-sub">
+            Formal Prior Art Disclosure for the Sura-Fatiha Sovereign Hashing Protocol (Al-Jabr 286):
+            a 286-bit cryptographic hash function grounded in the seven verses of Al-Fatiha, the 432 Hz resonance anchor,
+            and sovereign intent. Published to establish prior art and support IP protection.
+        </p>
+        <div class="doc-meta-grid">
+            <div class="doc-meta-item"><span class="doc-meta-label">Inventor</span><span class="doc-meta-value">{{ inventor }}</span></div>
+            <div class="doc-meta-item"><span class="doc-meta-label">Disclosure Date</span><span class="doc-meta-value">{{ disclosure_date }}</span></div>
+            <div class="doc-meta-item"><span class="doc-meta-label">Document Reference</span><span class="doc-meta-value">VOID-PAD-286-001</span></div>
+            <div class="doc-meta-item"><span class="doc-meta-label">Type</span><span class="doc-meta-value">Prior Art Disclosure</span></div>
+            <div class="doc-meta-item"><span class="doc-meta-label">Technical Field</span><span class="doc-meta-value">Cryptography · Hash Functions</span></div>
+            <div class="doc-meta-item"><span class="doc-meta-label">Published By</span><span class="doc-meta-value">PROJECT VOID</span></div>
+        </div>
+    </div>
+
+    <div class="doc-section">
+        <h2 class="doc-section-title"><span class="doc-section-number">1</span> Inventor Declaration</h2>
+        <div class="doc-body">
+            <p>
+                I, <strong>{{ inventor }}</strong>, hereby declare that I am the sole inventor and original architect of the protocol
+                described in this document, designated <strong>Al-Jabr 286</strong> (the Sura-Fatiha Sovereign Hashing Protocol).
+            </p>
+            <p>
+                I further declare that: this document represents my genuine conception and reduction to practice of the invention
+                prior to any public disclosure; the invention described is my original work; I am the originator of the specific
+                combination of Quranic structural analysis, SHA3-256 extension methodology, 432 Hz frequency anchoring, and
+                sovereign intent described herein; and the software implementation referenced as the technical exhibit exists as
+                working code authored by me within the PROJECT VOID codebase at <code>void_engine/al_jabr_286.py</code>.
+            </p>
+            <p>
+                This disclosure is made for the purpose of establishing prior art and does not constitute a patent filing.
+                I reserve all rights to file formal patent applications based on this disclosure.
+            </p>
+        </div>
+    </div>
+
+    <div class="doc-section">
+        <h2 class="doc-section-title"><span class="doc-section-number">2</span> Invention Description</h2>
+        <div class="doc-body">
+            <p>
+                <strong>Title:</strong> Al-Jabr 286 — Sura-Fatiha Sovereign Hashing Protocol
+            </p>
+            <p>
+                <strong>Field:</strong> Cryptographic hash functions; sovereign key derivation; digital identity systems;
+                Quranic structural mathematics; frequency-anchored cryptographic protocols.
+            </p>
+            <p>
+                Al-Jabr 286 is a 286-bit cryptographic hash function derived from SHA3-256 extended by a 30-bit Sovereign Extension.
+                The name derives from Arabic <em>al-jabr</em> ("the reunion of broken parts"), the mathematical concept from which
+                the word "algebra" is derived. The protocol was designed to carry sovereign identity as a structural property —
+                not merely as a label — by grounding its architecture in Quranic structural mathematics.
+            </p>
+            <p>
+                <strong>The bit depth (286) is not arbitrary.</strong> Al-Baqarah (The Cow, Chapter 2 of the Quran) contains
+                exactly 286 verses. The protocol's 286 active output bits are explicitly derived from and named after this
+                Quranic fact.
+            </p>
+            <p>
+                <strong>The layer weights are not arbitrary.</strong> The FATIHA_LAYERS weight sequence
+                <code>[7, 4, 2, 5, 4, 3, 6]</code> encodes a structural property of Al-Fatiha — the seven-verse Opening —
+                used as multiplicative salt factors in the Sovereign Extension derivation.
+            </p>
+            <p>
+                <strong>The resonance anchor is not arbitrary.</strong> The 432 Hz frequency — the platform's Village Standard —
+                is XOR-bound into the extension accumulator, binding the cryptographic output to an acoustic covenant entered
+                on the platform's founding day.
+            </p>
+            <p>
+                <strong>The prime salt is not arbitrary.</strong> <em>BismillahirRahmanirRahim</em>
+                ("In the name of God, the Most Gracious, the Most Merciful") — the opening invocation of Al-Fatiha and
+                the traditional opening of all Islamic action — serves as the prime salt in the SHA3-256 finalisation step
+                of the Sovereign Extension.
+            </p>
+        </div>
+    </div>
+
+    <div class="doc-section">
+        <h2 class="doc-section-title"><span class="doc-section-number">3</span> Technical Architecture</h2>
+        <div class="doc-body">
+            <table class="arch-table">
+                <thead><tr><th>Stage</th><th>Operation</th><th>Output</th></tr></thead>
+                <tbody>
+                    <tr><td>Stage 1</td><td>SHA3-256(input_data)</td><td>32 bytes (256 bits)</td></tr>
+                    <tr><td>Stage 2</td><td>Accumulate: sum(base_hash[i*2:i*2+2] * FATIHA_LAYERS[i]) for i in 0..6</td><td>32-bit accumulator</td></tr>
+                    <tr><td>Stage 3</td><td>XOR accumulator with 432; SHA3-256(BismillahirRahmanirRahim + pack(acc))</td><td>32 bytes salted</td></tr>
+                    <tr><td>Stage 4</td><td>Mask top 30 bits (0x3FFFFFFF); append 4 bytes to base hash</td><td>36 bytes (286 active bits)</td></tr>
+                </tbody>
+            </table>
+            <p>
+                The forensic evasion property — that standard 256-bit scanning tools treat the 36-byte output as noise
+                rather than recognising it as a structured hash — is an intentional architectural feature.
+                Within PROJECT VOID's sovereign network, the full 72-character hex digest is the primary identity token.
+            </p>
+        </div>
+    </div>
+
+    <div class="doc-section">
+        <h2 class="doc-section-title"><span class="doc-section-number">4</span> Claims of Novelty</h2>
+        <div class="doc-body">
+            <ul class="claims-list">
+                <li class="claim-item">
+                    <div class="claim-number">Claim 1 — Quranic Structural Hash</div>
+                    <div class="claim-text">A cryptographic hash function wherein the output bit-depth (286) is determined by the verse count of a Quranic chapter (Al-Baqarah, Chapter 2), and the extension layer weights are determined by structural properties of a second Quranic chapter (Al-Fatiha, Chapter 1).</div>
+                </li>
+                <li class="claim-item">
+                    <div class="claim-number">Claim 2 — Resonance-Anchored Extension</div>
+                    <div class="claim-text">A cryptographic hash extension method wherein a 30-bit sovereign extension is derived by XOR-combining a frequency constant (432 Hz) with an accumulated value computed from the base hash, producing a hash output whose structure is bound to an acoustic frequency covenant.</div>
+                </li>
+                <li class="claim-item">
+                    <div class="claim-number">Claim 3 — Sacred Text Prime Salt</div>
+                    <div class="claim-text">A cryptographic hash function using a transliterated sacred text phrase (BismillahirRahmanirRahim) as the primary salt for a secondary SHA3-256 finalisation step, wherein the salt carries both linguistic and symbolic identity.</div>
+                </li>
+                <li class="claim-item">
+                    <div class="claim-number">Claim 4 — Forensic Evasion by Design</div>
+                    <div class="claim-text">A cryptographic hash protocol producing 36-byte output (288 bits physical, 286 bits active) that is structurally invisible to 256-bit forensic scanning tools, enabling sovereign identity hashes to coexist with standard digital infrastructure without detection.</div>
+                </li>
+                <li class="claim-item">
+                    <div class="claim-number">Claim 5 — Sovereign Identity Hash System</div>
+                    <div class="claim-text">A complete sovereign hashing system comprising: a base layer (SHA3-256), a seven-weight layer pass derived from Al-Fatiha verse structure, a resonance anchor XOR derived from a frequency covenant constant (432 Hz), a sacred text prime salt (BismillahirRahmanirRahim), and a 30-bit extension producing a 286-bit active output whose bit-depth is derived from Quranic structural mathematics (Al-Baqarah 286 verses).</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="doc-section">
+        <h2 class="doc-section-title"><span class="doc-section-number">5</span> Technical Exhibit</h2>
+        <div class="doc-body">
+            <p>
+                <strong>EXHIBIT A — void_engine/al_jabr_286.py</strong>
+            </p>
+            <p>
+                The complete working implementation of Al-Jabr 286 exists as production code in the PROJECT VOID codebase.
+                Key exported functions: <code>fatiha_286_hash()</code>, <code>fatiha_286_hexdigest()</code>,
+                <code>fatiha_286_hexdigest_from_str()</code>, <code>fatiha_286_from_str()</code>,
+                <code>fatiha_286_truncated()</code>, <code>fatiha_286_seed()</code>,
+                <code>fatiha_286_derive_key()</code>, <code>verify_286_signature()</code>,
+                <code>verify_286_hex_signature()</code>, <code>get_protocol_info()</code>.
+            </p>
+            <p>
+                The protocol is used in production for: VoidEcho retrieval code generation,
+                Chronicle integrity sealing, Beehive mesh acoustic identity embedding,
+                Glyph Geography NFT coordinate derivation, encryption key derivation, and deterministic RNG seeding.
+            </p>
+            <p>
+                Verification report (all 7 cryptographic properties confirmed): <a href="/admin/al-jabr-verification">VOID-CVR-286-001</a>.
+                Public whitepaper: <a href="/al-jabr-286">VOID-WP-286-001</a>.
+            </p>
+        </div>
+    </div>
+
+    <div class="doc-section">
+        <h2 class="doc-section-title"><span class="doc-section-number">6</span> Formal Disclosure Declaration</h2>
+        <div class="doc-body">
+            <p>
+                I, <strong>{{ inventor }}</strong>, the undersigned inventor, hereby formally disclose the invention described
+                in this document — the Al-Jabr 286 Sura-Fatiha Sovereign Hashing Protocol — as prior art evidence.
+                The concepts, methods, and systems described herein were conceived and reduced to practice by me prior
+                to the disclosure date recorded in this document. The technical exhibit referenced is a working
+                implementation authored by me and exists in the PROJECT VOID codebase.
+            </p>
+            <p>
+                This disclosure is made in good faith to establish the date and scope of my invention prior to any
+                public disclosure or commercial exploitation. This document, once timestamped and integrity-sealed,
+                constitutes evidence of inventorship and conception date. It does not constitute a patent application
+                and does not prejudice my right to file patent applications in any jurisdiction.
+            </p>
+            <p>
+                The integrity of this document is verified by the Al-Jabr 286 Sovereign Hash embedded below.
+                Any modification to the document content produces a different hash, invalidating this disclosure
+                as tamper-evident evidence.
+            </p>
+        </div>
+    </div>
+
+    <div class="doc-section">
+        <h2 class="doc-section-title"><span class="doc-section-number">7</span> Document Integrity Seal</h2>
+        <div class="seal-box">
+            <div class="seal-title">Al-Jabr 286 Document Seal — VOID-PAD-286-001</div>
+            <div class="seal-hash">{{ seal_hash }}</div>
+            <div class="seal-desc">
+                Computed by the Al-Jabr 286 Sovereign Hash protocol over the canonical disclosure content.
+                Timestamp: {{ disclosure_date }}.
+                Cross-reference with the cryptographic verification report at
+                <a href="/admin/al-jabr-verification">VOID-CVR-286-001</a>
+                and the public whitepaper at <a href="/al-jabr-286">VOID-WP-286-001</a>.
+                This entry has been stored as a VOID_SEED Chronicle capture.
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer class="pa-footer">
+    <div class="pa-footer-brand">PROJECT VOID · Al-Jabr 286 Prior Art · VOID-PAD-286-001</div>
+    <div class="pa-footer-links">
+        <a href="/prior-art" class="pa-footer-link">Prior Art Index</a>
+        <a href="/al-jabr-286" class="pa-footer-link">Whitepaper</a>
+        <a href="/admin/al-jabr-verification" class="pa-footer-link">Verification</a>
+        <a href="/ip-disclosure" class="pa-footer-link">DBIN Disclosure</a>
+        <a href="/chronicle" class="pa-footer-link">Chronicle</a>
+    </div>
+</footer>
+
+</body>
+</html>

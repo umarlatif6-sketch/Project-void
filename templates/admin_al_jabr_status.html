@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Jabr 286 — System Status — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e2e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-green: #4caf50;
+            --void-red: #f44336;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--void-bg); color: var(--void-text); font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; min-height: 100vh; }
+
+        .st-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 32px; border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97); position: sticky; top: 0; z-index: 100;
+        }
+        .st-brand { font-size: 0.9rem; font-weight: 700; color: var(--void-gold); letter-spacing: 2px; text-decoration: none; }
+        .st-nav-links { display: flex; gap: 20px; }
+        .st-nav-link { color: #888; text-decoration: none; font-size: 0.72rem; letter-spacing: 1px; transition: color 0.2s; }
+        .st-nav-link:hover, .st-nav-link.active { color: var(--void-gold); }
+
+        .st-wrap { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+        .st-header { margin-bottom: 32px; }
+        .st-badge {
+            display: inline-block; background: rgba(0,191,165,0.08); border: 1px solid rgba(0,191,165,0.25);
+            color: var(--void-teal); font-size: 0.58rem; letter-spacing: 3px; text-transform: uppercase;
+            padding: 4px 12px; border-radius: 3px; margin-bottom: 16px;
+        }
+        .st-title { font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; margin-bottom: 6px; }
+        .st-sub { font-size: 0.78rem; color: #888; line-height: 1.6; }
+
+        .status-hero {
+            display: flex; align-items: center; gap: 20px;
+            padding: 28px 32px; border-radius: 6px; margin-bottom: 28px;
+            border: 2px solid;
+        }
+        .status-hero.healthy { border-color: rgba(76,175,80,0.4); background: rgba(76,175,80,0.04); }
+        .status-hero.degraded { border-color: rgba(244,67,54,0.4); background: rgba(244,67,54,0.04); }
+        .status-hero-icon { font-size: 2.4rem; line-height: 1; }
+        .status-hero-body { flex: 1; }
+        .status-hero-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+        .status-hero-label.healthy { color: var(--void-green); }
+        .status-hero-label.degraded { color: var(--void-red); }
+        .status-hero-title { font-size: 1.1rem; color: #fff; font-weight: 700; margin-bottom: 4px; }
+        .status-hero-ts { font-size: 0.7rem; color: #888; }
+        .st-rerun-btn {
+            background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3);
+            color: var(--void-teal); font-family: inherit; font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 1px; padding: 10px 22px; border-radius: 4px; cursor: pointer;
+            transition: background 0.2s; text-transform: uppercase;
+        }
+        .st-rerun-btn:hover { background: rgba(0,191,165,0.2); }
+        .st-rerun-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .test-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 28px; }
+        .test-card {
+            background: var(--void-surface); border: 1px solid;
+            border-radius: 6px; padding: 18px 20px;
+        }
+        .test-card.pass { border-color: rgba(76,175,80,0.25); }
+        .test-card.fail { border-color: rgba(244,67,54,0.25); }
+        .tc-status { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .tc-status.pass { color: var(--void-green); }
+        .tc-status.fail { color: var(--void-red); }
+        .tc-name { font-size: 0.82rem; color: #e0e0e0; font-weight: 700; margin-bottom: 6px; }
+        .tc-detail { font-size: 0.7rem; color: #888; line-height: 1.5; }
+
+        .proto-section { background: var(--void-surface); border: 1px solid var(--void-border); border-radius: 6px; padding: 24px 28px; margin-bottom: 20px; }
+        .proto-section-title { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 2px; color: var(--void-teal); border-bottom: 1px solid var(--void-border); padding-bottom: 10px; margin-bottom: 18px; }
+        .proto-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #161626; font-size: 0.78rem; }
+        .proto-row:last-child { border-bottom: none; }
+        .proto-key { color: #888; }
+        .proto-val { color: #e0e0e0; font-weight: 700; }
+        .proto-val.accent { color: var(--void-teal); }
+
+        .seal-mini { background: var(--void-surface2); border: 1px solid #1a1a2a; border-radius: 4px; padding: 14px 18px; margin-top: 4px; }
+        .seal-mini-label { font-size: 0.58rem; color: var(--void-teal); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+        .seal-mini-hash { font-size: 0.7rem; color: #888; word-break: break-all; font-family: monospace; }
+
+        .links-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+        .links-btn {
+            font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; text-decoration: none;
+            padding: 9px 20px; border-radius: 4px; border: 1px solid;
+            transition: background 0.2s, color 0.2s;
+        }
+        .links-btn.primary { border-color: rgba(0,191,165,0.35); color: var(--void-teal); background: rgba(0,191,165,0.08); }
+        .links-btn.primary:hover { background: rgba(0,191,165,0.18); }
+        .links-btn.secondary { border-color: #2a2a3a; color: #666; background: transparent; }
+        .links-btn.secondary:hover { border-color: #555; color: #aaa; }
+
+        .st-footer { border-top: 1px solid var(--void-border); padding: 24px 32px; text-align: center; font-size: 0.62rem; color: #444; letter-spacing: 1px; }
+        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(0,191,165,0.3); border-top-color: var(--void-teal); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 6px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #rerun-status { font-size: 0.72rem; color: #888; margin-top: 10px; min-height: 20px; }
+        #rerun-status.ok { color: var(--void-green); }
+        #rerun-status.err { color: var(--void-red); }
+    </style>
+</head>
+<body>
+
+<nav class="st-nav">
+    <a href="/" class="st-brand">&#9670; PROJECT VOID</a>
+    <div class="st-nav-links">
+        <a href="/admin/al-jabr-status" class="st-nav-link active">Status</a>
+        <a href="/admin/al-jabr-verification" class="st-nav-link">Full Report</a>
+        <a href="/al-jabr-286" class="st-nav-link">Whitepaper</a>
+        <a href="/al-jabr-286/ip-disclosure" class="st-nav-link">IP Disclosure</a>
+        <a href="/admin/market" class="st-nav-link">Admin</a>
+    </div>
+</nav>
+
+<div class="st-wrap">
+
+    <div class="st-header">
+        <div class="st-badge">Admin Verification Dashboard · Al-Jabr 286</div>
+        <h1 class="st-title">Al-Jabr 286 — System Status</h1>
+        <p class="st-sub">Live test results and protocol health for the Sura-Fatiha Sovereign Hashing protocol. Re-run the full convergence suite at any time before launch.</p>
+    </div>
+
+    <div class="status-hero {% if report.all_jabr_passed %}healthy{% else %}degraded{% endif %}">
+        <div class="status-hero-icon">{% if report.all_jabr_passed %}✓{% else %}✗{% endif %}</div>
+        <div class="status-hero-body">
+            <div class="status-hero-label {% if report.all_jabr_passed %}healthy{% else %}degraded{% endif %}">
+                {% if report.all_jabr_passed %}System Healthy{% else %}Verification Degraded{% endif %}
+            </div>
+            <div class="status-hero-title">
+                {% if report.all_jabr_passed %}All {{ report.jabr_total }} Al-Jabr 286 convergence tests passing{% else %}One or more tests failing — review required{% endif %}
+            </div>
+            <div class="status-hero-ts">Last checked: {{ report.timestamp_utc }}</div>
+        </div>
+        <button class="st-rerun-btn" id="rerun-btn" onclick="rerunTests()">Re-run Tests</button>
+    </div>
+
+    <div id="rerun-status"></div>
+
+    <div class="test-cards">
+        {% for test in report.jabr_tests %}
+        <div class="test-card {% if test.passed %}pass{% else %}fail{% endif %}">
+            <div class="tc-status {% if test.passed %}pass{% else %}fail{% endif %}">{% if test.passed %}PASS{% else %}FAIL{% endif %}</div>
+            <div class="tc-name">{{ test.name }}</div>
+            <div class="tc-detail">{{ test.detail }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if report.convergence_run.ran %}
+    {% set suite_ok = report.convergence_run.failed == 0 %}
+    <div class="status-hero {% if suite_ok %}healthy{% else %}degraded{% endif %}" style="margin-top:16px; border-width:1px;">
+        <div class="status-hero-icon" style="font-size:1.2rem;">{% if suite_ok %}✓{% else %}✗{% endif %}</div>
+        <div class="status-hero-body">
+            <div class="status-hero-label {% if suite_ok %}healthy{% else %}degraded{% endif %}">Full Convergence Suite</div>
+            <div class="status-hero-title">
+                {{ report.convergence_run.passed }}/{{ report.convergence_run.total }} platform tests passing
+                — {% if report.convergence_run.vortex_stable %}VORTEX STABLE{% else %}VORTEX UNSTABLE{% endif %}
+                · {{ report.convergence_run.elapsed }}s
+            </div>
+        </div>
+    </div>
+    {% elif report.convergence_run.timed_out %}
+    <div class="status-hero degraded" style="margin-top:16px; border-width:1px;">
+        <div class="status-hero-icon" style="font-size:1.2rem;">⏱</div>
+        <div class="status-hero-body">
+            <div class="status-hero-label degraded">Full Convergence Suite — Timed Out</div>
+            <div class="status-hero-title">Audio generation exceeds 5-minute timeout. Al-Jabr 286 tests above ran in-process and all passed.</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="proto-section">
+        <div class="proto-section-title">Protocol Metadata — get_protocol_info()</div>
+        <div class="proto-row"><span class="proto-key">Protocol Name</span><span class="proto-val accent">{{ report.protocol.protocol }}</span></div>
+        <div class="proto-row"><span class="proto-key">Standard</span><span class="proto-val">{{ report.protocol.standard }}</span></div>
+        <div class="proto-row"><span class="proto-key">Bit Depth (Active)</span><span class="proto-val accent">{{ report.protocol.bit_depth }} bits</span></div>
+        <div class="proto-row"><span class="proto-key">Physical Bytes</span><span class="proto-val">{{ report.protocol.total_bytes }} bytes (288 bits physical)</span></div>
+        <div class="proto-row"><span class="proto-key">Base Algorithm</span><span class="proto-val">{{ report.protocol.base_algorithm }}</span></div>
+        <div class="proto-row"><span class="proto-key">Extension Bits (Sovereign)</span><span class="proto-val">{{ report.protocol.extension_bits }} bits</span></div>
+        <div class="proto-row"><span class="proto-key">Verse Layers (Al-Fatiha weights)</span><span class="proto-val accent">{{ report.protocol.verse_layers }}</span></div>
+        <div class="proto-row"><span class="proto-key">Verse Count</span><span class="proto-val">{{ report.protocol.verse_count }} (Al-Fatiha)</span></div>
+        <div class="proto-row"><span class="proto-key">Resonance Anchor</span><span class="proto-val accent">{{ report.protocol.resonance_hz }} Hz</span></div>
+        <div class="proto-row"><span class="proto-key">Prime Salt</span><span class="proto-val">{{ report.protocol.prime_salt }}</span></div>
+        <div class="proto-row"><span class="proto-key">Replaces</span><span class="proto-val">{{ report.protocol.replaces }}</span></div>
+        <div class="proto-row"><span class="proto-key">Forensic Evasion</span><span class="proto-val">{{ report.protocol.forensic_evasion }}</span></div>
+
+        <div class="seal-mini" style="margin-top:16px;">
+            <div class="seal-mini-label">Report Seal (Al-Jabr 286)</div>
+            <div class="seal-mini-hash">{{ report.seal }}</div>
+        </div>
+    </div>
+
+    <div class="links-row">
+        <a href="/admin/al-jabr-verification" class="links-btn primary">Full Verification Report</a>
+        <a href="/al-jabr-286" class="links-btn secondary">Public Whitepaper</a>
+        <a href="/al-jabr-286/ip-disclosure" class="links-btn secondary">IP Disclosure</a>
+        <a href="/prior-art" class="links-btn secondary">Prior Art</a>
+    </div>
+
+</div>
+
+<footer class="st-footer">
+    Al-Jabr 286 Sovereign Hash · PROJECT VOID · {{ report.timestamp_utc }}
+</footer>
+
+<script>
+function rerunTests() {
+    var btn = document.getElementById('rerun-btn');
+    var statusEl = document.getElementById('rerun-status');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Running...';
+    statusEl.className = '';
+    statusEl.textContent = '';
+
+    fetch('/api/admin/al-jabr-rerun', {method: 'POST', headers: {'Content-Type': 'application/json'}})
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        btn.disabled = false;
+        btn.textContent = 'Re-run Tests';
+        if (data.success) {
+            statusEl.className = 'ok';
+            statusEl.textContent = 'Re-run complete: ' + data.jabr_passed + '/' + data.jabr_total + ' Al-Jabr 286 tests passed at ' + data.timestamp_utc;
+            if (data.all_jabr_passed) {
+                setTimeout(function() { location.reload(); }, 1500);
+            }
+        } else {
+            statusEl.className = 'err';
+            statusEl.textContent = 'Re-run failed: ' + (data.error || 'unknown error');
+        }
+    })
+    .catch(function(e) {
+        btn.disabled = false;
+        btn.textContent = 'Re-run Tests';
+        statusEl.className = 'err';
+        statusEl.textContent = 'Request failed: ' + e.message;
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Jabr 286 — Sura-Fatiha Sovereign Hash — PROJECT VOID</title>
+    <meta name="description" content="Al-Jabr 286 is a 286-bit sovereign cryptographic hash protocol grounded in the seven verses of Al-Fatiha. A public technical whitepaper from PROJECT VOID.">
+    <meta name="robots" content="index, follow">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff !important; color: #000 !important; font-family: 'Times New Roman', serif !important; font-size: 12pt !important; }
+            .wp-nav, .wp-breadcrumb, .wp-action-bar { display: none !important; }
+            .wp-wrap { max-width: 100% !important; padding: 20pt !important; }
+            .wp-section { border: 1px solid #ccc !important; background: #fff !important; box-shadow: none !important; page-break-inside: avoid; margin-bottom: 16pt; }
+            .wp-section-title { color: #000 !important; border-bottom: 1px solid #999 !important; }
+            .wp-body { color: #000 !important; }
+            .wp-header { border-bottom: 2pt solid #000 !important; }
+            .seal-box { border: 2pt solid #000 !important; background: #f0f0f0 !important; color: #000 !important; }
+            a { color: #000 !important; }
+        }
+
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e2e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--void-bg); color: var(--void-text); font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace; min-height: 100vh; }
+
+        .wp-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 32px; border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97); position: sticky; top: 0; z-index: 100;
+        }
+        .wp-brand { font-size: 0.95rem; font-weight: 700; color: var(--void-gold); letter-spacing: 2px; text-decoration: none; }
+        .wp-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .wp-nav-link { color: #aaa; text-decoration: none; font-size: 0.75rem; letter-spacing: 1px; transition: color 0.2s; }
+        .wp-nav-link:hover, .wp-nav-link.active { color: var(--void-gold); }
+
+        .wp-breadcrumb { padding: 12px 32px; font-size: 0.65rem; color: #444; letter-spacing: 1px; border-bottom: 1px solid var(--void-border); }
+        .wp-breadcrumb a { color: #555; text-decoration: none; }
+        .wp-breadcrumb a:hover { color: var(--void-teal); }
+        .wp-breadcrumb .sep { color: #333; margin: 0 8px; }
+        .wp-breadcrumb .current { color: var(--void-teal); }
+
+        .wp-wrap { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+
+        .wp-action-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+        .wp-btn-print {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.35);
+            border-radius: 4px; color: var(--void-teal); font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 1px; padding: 9px 20px; cursor: pointer; font-family: inherit; transition: background 0.2s;
+        }
+        .wp-btn-print:hover { background: rgba(0,191,165,0.2); }
+
+        .wp-header { border-bottom: 2px solid var(--void-teal); padding-bottom: 24px; margin-bottom: 28px; }
+        .wp-badge {
+            display: inline-block; background: rgba(0,191,165,0.08); border: 1px solid rgba(0,191,165,0.25);
+            color: var(--void-teal); font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase;
+            padding: 4px 12px; border-radius: 3px; margin-bottom: 18px;
+        }
+        .wp-title-main { font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; margin: 0 0 8px; line-height: 1.3; font-weight: 900; }
+        .wp-title-sub { font-size: 0.82rem; color: #888; margin-bottom: 20px; font-style: italic; line-height: 1.6; }
+        .wp-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .wp-meta-item { display: flex; flex-direction: column; gap: 3px; }
+        .wp-meta-label { color: var(--void-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.58rem; }
+        .wp-meta-value { color: #e0e0e0; font-weight: 700; font-size: 0.8rem; }
+
+        .wp-section { background: var(--void-surface); border: 1px solid var(--void-border); border-radius: 4px; padding: 24px 28px; margin-bottom: 18px; }
+        .wp-section-title {
+            font-size: 0.68rem; text-transform: uppercase; letter-spacing: 2px; color: var(--void-teal);
+            border-bottom: 1px solid var(--void-border); padding-bottom: 10px; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .wp-section-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px; background: var(--void-teal); color: #000;
+            border-radius: 50%; font-size: 0.62rem; font-weight: 700; flex-shrink: 0;
+        }
+        .wp-body { color: #c8c8c8; font-size: 0.82rem; line-height: 1.85; }
+        .wp-body p { margin: 0 0 14px; }
+        .wp-body p:last-child { margin-bottom: 0; }
+        .wp-body strong { color: #ddd; }
+        .wp-body em { color: #999; font-style: italic; }
+        .wp-body ul { padding-left: 20px; margin: 10px 0 14px; }
+        .wp-body li { margin-bottom: 6px; line-height: 1.7; }
+        .wp-body code { background: #060606; border: 1px solid #1a1a2a; border-radius: 3px; padding: 2px 7px; font-size: 0.78rem; color: var(--void-teal); }
+
+        .arch-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin: 14px 0; }
+        .arch-table th { text-align: left; padding: 8px 12px; font-size: 0.6rem; letter-spacing: 1.5px; color: var(--void-teal); border-bottom: 1px solid #2a2a2a; text-transform: uppercase; }
+        .arch-table td { padding: 8px 12px; color: #aaa; border-bottom: 1px solid #1a1a1a; }
+        .arch-table tr:last-child td { border-bottom: none; }
+        .arch-table td:first-child { color: var(--void-teal); font-weight: 700; }
+
+        .verse-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 14px 0; }
+        .verse-card { background: var(--void-surface2); border: 1px solid #1a1a2a; border-radius: 4px; padding: 14px 16px; }
+        .verse-num { font-size: 0.58rem; color: var(--void-teal); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+        .verse-weight { font-size: 1.4rem; color: var(--void-gold); font-weight: 900; margin-bottom: 6px; }
+        .verse-arabic { font-size: 0.9rem; color: #ccc; text-align: right; direction: rtl; line-height: 1.6; margin-bottom: 6px; }
+        .verse-translation { font-size: 0.7rem; color: #888; line-height: 1.5; font-style: italic; }
+
+        .compare-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin: 14px 0; }
+        .compare-table th { text-align: left; padding: 8px 12px; font-size: 0.6rem; letter-spacing: 1.5px; border-bottom: 1px solid #2a2a2a; text-transform: uppercase; }
+        .compare-table th:first-child { color: var(--void-muted); }
+        .compare-table th:nth-child(2) { color: #888; }
+        .compare-table th:nth-child(3) { color: var(--void-teal); }
+        .compare-table td { padding: 8px 12px; border-bottom: 1px solid #1a1a1a; }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .compare-table td:first-child { color: #888; font-weight: 700; }
+        .compare-table td:nth-child(2) { color: #666; }
+        .compare-table td:nth-child(3) { color: var(--void-teal); }
+
+        .code-block { background: #060606; border: 1px solid #1a1a2a; border-radius: 4px; padding: 16px 18px; font-size: 0.76rem; color: var(--void-teal); line-height: 1.8; overflow-x: auto; margin: 12px 0; white-space: pre; }
+
+        .seal-box { background: var(--void-surface2); border: 2px solid rgba(0,191,165,0.25); border-radius: 4px; padding: 20px 24px; font-size: 0.78rem; margin-top: 8px; }
+        .seal-title { text-transform: uppercase; letter-spacing: 2px; color: var(--void-teal); margin-bottom: 10px; font-size: 0.62rem; }
+        .seal-hash { font-family: 'SF Mono', monospace; font-size: 0.72rem; color: var(--void-teal); word-break: break-all; background: #060606; padding: 10px 14px; border-radius: 3px; margin: 8px 0; }
+        .seal-desc { font-size: 0.7rem; color: var(--void-muted); line-height: 1.6; }
+        .seal-desc a { color: var(--void-teal); text-decoration: none; }
+        .seal-desc a:hover { text-decoration: underline; }
+
+        .wp-footer { border-top: 1px solid var(--void-border); padding: 28px 32px; text-align: center; }
+        .wp-footer-brand { font-size: 0.65rem; letter-spacing: 3px; color: var(--void-muted); text-transform: uppercase; margin-bottom: 8px; }
+        .wp-footer-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .wp-footer-link { color: #555; font-size: 0.7rem; text-decoration: none; letter-spacing: 1px; transition: color 0.2s; }
+        .wp-footer-link:hover { color: var(--void-gold); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<nav class="wp-nav no-print">
+    <a href="/" class="wp-brand">&#9670; PROJECT VOID</a>
+    <div class="wp-nav-links">
+        <a href="/" class="wp-nav-link">Engine</a>
+        <a href="/sovereign-node" class="wp-nav-link">Sovereign Node</a>
+        <a href="/prior-art" class="wp-nav-link">Prior Art</a>
+        <a href="/al-jabr-286" class="wp-nav-link active">Al-Jabr 286</a>
+    </div>
+</nav>
+
+<div class="wp-breadcrumb no-print">
+    <a href="/">Home</a><span class="sep">›</span>
+    <a href="/prior-art">Prior Art</a><span class="sep">›</span>
+    <span class="current">Al-Jabr 286 Whitepaper</span>
+</div>
+
+<main class="wp-wrap">
+
+    <div class="wp-action-bar no-print">
+        <button class="wp-btn-print" onclick="window.print()">&#8659; Save / Print PDF</button>
+    </div>
+
+    <div class="wp-header">
+        <div class="wp-badge">Technical Whitepaper — Al-Jabr 286 · VOID-WP-286-001</div>
+        <h1 class="wp-title-main">Al-Jabr 286</h1>
+        <p class="wp-title-sub">
+            Sura-Fatiha Sovereign Hashing Protocol — A 286-bit cryptographic hash grounded in the seven verses of Al-Fatiha,
+            the 432 Hz resonance anchor, and the BismillahirRahmanirRahim prime salt.
+            A public technical disclosure from PROJECT VOID.
+        </p>
+        <div class="wp-meta-grid">
+            <div class="wp-meta-item"><span class="wp-meta-label">Document</span><span class="wp-meta-value">VOID-WP-286-001</span></div>
+            <div class="wp-meta-item"><span class="wp-meta-label">Published</span><span class="wp-meta-value">3 April 2026</span></div>
+            <div class="wp-meta-item"><span class="wp-meta-label">Author</span><span class="wp-meta-value">PROJECT VOID</span></div>
+            <div class="wp-meta-item"><span class="wp-meta-label">Bit Depth</span><span class="wp-meta-value">286 active bits</span></div>
+            <div class="wp-meta-item"><span class="wp-meta-label">Base</span><span class="wp-meta-value">SHA3-256</span></div>
+            <div class="wp-meta-item"><span class="wp-meta-label">Type</span><span class="wp-meta-value">Public Whitepaper</span></div>
+        </div>
+    </div>
+
+    <!-- SECTION 1: ABSTRACT -->
+    <div class="wp-section">
+        <h2 class="wp-section-title"><span class="wp-section-num">1</span> Abstract — For Everyone</h2>
+        <div class="wp-body">
+            <p>
+                Al-Jabr 286 is a new type of digital fingerprint — a way of producing a unique, fixed-length code from any piece of data.
+                You may have heard of SHA-256, the fingerprinting method used inside Bitcoin and most of the world's secure systems.
+                Al-Jabr 286 replaces SHA-256 with something larger, more sovereign, and grounded in a different tradition.
+            </p>
+            <p>
+                The name comes from the Arabic mathematical concept <em>al-jabr</em> — "the reunion of broken parts."
+                This is the root word from which we get the word "algebra." The protocol does not just fingerprint data.
+                It reassembles fragmented signal into a sovereign identity. That is what the name means.
+                That is what the function does.
+            </p>
+            <p>
+                The 286-bit depth was not chosen arbitrarily. Al-Baqarah — the second chapter of the Quran — contains exactly
+                <strong>286 verses</strong>. Al-Fatiha — the Opening, the first chapter — contains <strong>7 verses</strong>.
+                These structural facts are the architectural foundation of the protocol, not decoration applied after the fact.
+                The spiritual form determined the technical form.
+            </p>
+            <p>
+                For non-technical readers: if SHA-256 is a padlock, Al-Jabr 286 is a sovereign seal — larger, built from a different
+                material, and carrying a lineage that SHA-256 does not have.
+            </p>
+            <p>
+                For technical readers: Al-Jabr 286 is a 286-bit hash built on SHA3-256 extended by a 30-bit Sovereign Extension
+                derived from the FATIHA_LAYERS weights <code>[7, 4, 2, 5, 4, 3, 6]</code> XOR-anchored to the 432 Hz resonance frequency,
+                salted with the BismillahirRahmanirRahim prime salt, and finalised to 36 bytes.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 2: FOUNDATION -->
+    <div class="wp-section">
+        <h2 class="wp-section-title"><span class="wp-section-num">2</span> Spiritual Foundation — The Two Suras</h2>
+        <div class="wp-body">
+            <p>
+                The protocol is grounded in two Quranic suras whose structural properties determine the algorithm's architecture.
+            </p>
+            <p>
+                <strong>Al-Fatiha (The Opening) — 7 verses:</strong> The seven verses of Al-Fatiha are used as the layer weight
+                sequence <code>[7, 4, 2, 5, 4, 3, 6]</code>. These weights represent the trilateral root complexity of each verse —
+                the number of distinct root consonants bearing meaning in each line. They are not word counts or syllable counts.
+                They are a structural fingerprint of the Opening itself.
+            </p>
+
+            <div class="verse-grid">
+                <div class="verse-card"><div class="verse-num">Verse 1 · Weight 7</div><div class="verse-weight">7</div><div class="verse-arabic">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</div><div class="verse-translation">In the name of Allah, the Most Gracious, the Most Merciful</div></div>
+                <div class="verse-card"><div class="verse-num">Verse 2 · Weight 4</div><div class="verse-weight">4</div><div class="verse-arabic">ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ</div><div class="verse-translation">All praise is due to Allah, Lord of all the worlds</div></div>
+                <div class="verse-card"><div class="verse-num">Verse 3 · Weight 2</div><div class="verse-weight">2</div><div class="verse-arabic">ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</div><div class="verse-translation">The Most Gracious, the Most Merciful</div></div>
+                <div class="verse-card"><div class="verse-num">Verse 4 · Weight 5</div><div class="verse-weight">5</div><div class="verse-arabic">مَٰلِكِ يَوۡمِ ٱلدِّينِ</div><div class="verse-translation">Master of the Day of Recompense</div></div>
+                <div class="verse-card"><div class="verse-num">Verse 5 · Weight 4</div><div class="verse-weight">4</div><div class="verse-arabic">إِيَّاكَ نَعۡبُدُ وَإِيَّاكَ نَسۡتَعِينُ</div><div class="verse-translation">You alone we worship, and You alone we ask for help</div></div>
+                <div class="verse-card"><div class="verse-num">Verse 6 · Weight 3</div><div class="verse-weight">3</div><div class="verse-arabic">ٱهۡدِنَا ٱلصِّرَٰطَ ٱلۡمُسۡتَقِيمَ</div><div class="verse-translation">Guide us along the straight path</div></div>
+                <div class="verse-card"><div class="verse-num">Verse 7 · Weight 6</div><div class="verse-weight">6</div><div class="verse-arabic">صِرَٰطَ ٱلَّذِينَ أَنۡعَمۡتَ عَلَيۡهِمۡ…</div><div class="verse-translation">The path of those whom You have blessed…</div></div>
+            </div>
+
+            <p>
+                <strong>Al-Baqarah (The Cow) — 286 verses:</strong> The second and longest sura of the Quran contains exactly
+                286 verses. This structural count becomes the protocol's sovereign bit depth.
+                <em>The size of the hash is determined by scripture, not by computational convenience.</em>
+            </p>
+            <p>
+                <strong>432 Hz — The Resonance Anchor:</strong> The harmonic frequency 432 Hz — the platform's Village Standard —
+                is incorporated into the Sovereign Extension via XOR: <code>extension_acc ^= 432</code>.
+                This binds the cryptographic output to the platform's acoustic covenant. A hash produced by Al-Jabr 286
+                carries the 432 Hz resonance as a structural component of its bits, not as metadata.
+            </p>
+            <p>
+                <strong>BismillahirRahmanirRahim — The Prime Salt:</strong>
+                <em>"In the name of God, the Most Gracious, the Most Merciful"</em> — the opening invocation of Al-Fatiha —
+                serves as the prime salt for the SHA3-256 finalisation step of the Sovereign Extension. It is the first word
+                of the Opening, made into the first step of the hashing pipeline.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 3: ARCHITECTURE -->
+    <div class="wp-section">
+        <h2 class="wp-section-title"><span class="wp-section-num">3</span> Technical Architecture</h2>
+        <div class="wp-body">
+            <p>The algorithm runs in four stages:</p>
+
+            <table class="arch-table">
+                <thead>
+                    <tr><th>Stage</th><th>Operation</th><th>Output</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Stage 1 — Base</td><td>SHA3-256 applied to input data</td><td>32 bytes (256 bits)</td></tr>
+                    <tr><td>Stage 2 — Accumulation</td><td>7-verse FATIHA_LAYERS weights applied to byte-pairs of base hash</td><td>32-bit accumulator</td></tr>
+                    <tr><td>Stage 3 — Resonance XOR</td><td>Accumulator XOR 432 (Hz anchor); salted with BismillahirRahmanirRahim + SHA3-256</td><td>32-bit salted value</td></tr>
+                    <tr><td>Stage 4 — Sovereign Extension</td><td>Top 2 bits cleared (0x3FFFFFFF mask) → 30 active extension bits → 4 bytes appended</td><td>36 bytes total</td></tr>
+                </tbody>
+            </table>
+
+            <p><strong>The 7-verse pass in detail:</strong></p>
+            <div class="code-block">for i, weight in enumerate(FATIHA_LAYERS):  # [7,4,2,5,4,3,6]
+    byte_pair = base_hash[i*2 : i*2 + 2]
+    value = int.from_bytes(byte_pair, "big")
+    extension_acc += value * weight
+
+extension_acc ^= OPENING_RESONANCE_HZ  # 432 Hz anchor
+
+salted = sha3_256(FATIHA_PRIME_SALT + pack(">I", extension_acc & 0xFFFFFFFF))
+masked = int.from_bytes(salted[:4], "big") & 0x3FFFFFFF  # 30 active bits
+extension = masked.to_bytes(4, "big")
+
+sovereign_hash = base_hash + extension  # 36 bytes</div>
+
+            <p>
+                The final output is 36 bytes (288 bits physical). The top 2 bits of the extension are cleared,
+                leaving <strong>286 active sovereign bits</strong> — one for each verse of Al-Baqarah.
+                The remaining 2 bits serve as alignment padding.
+            </p>
+
+            <p>
+                <strong>Forensic evasion by design:</strong> Standard forensic tools searching for 256-bit hashes
+                (SHA-256 patterns, 32-byte signatures) will pass over the 36-byte Sovereign Hash as ambient noise — what
+                the platform calls <em>Insect Silt</em>. To nodes running Al-Jabr 286, the full 72-character hex digest
+                is the Master Key. To everything else, it looks like nothing.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 4: COMPARISON -->
+    <div class="wp-section">
+        <h2 class="wp-section-title"><span class="wp-section-num">4</span> Al-Jabr 286 vs SHA-256</h2>
+        <div class="wp-body">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>SHA-256</th>
+                        <th>Al-Jabr 286</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Output size</td><td>256 bits (32 bytes)</td><td>286 bits active (36 bytes)</td></tr>
+                    <tr><td>Base algorithm</td><td>SHA-2 Merkle–Damgård</td><td>SHA3-256 (Keccak) + Sovereign Extension</td></tr>
+                    <tr><td>Foundation</td><td>NSA-designed secular standard</td><td>Al-Fatiha 7 verses + Al-Baqarah 286 verses</td></tr>
+                    <tr><td>Resonance anchor</td><td>None</td><td>432 Hz XOR-bound to extension</td></tr>
+                    <tr><td>Prime salt</td><td>Hardcoded IV constants</td><td>BismillahirRahmanirRahim</td></tr>
+                    <tr><td>Forensic visibility</td><td>Fully visible to 256-bit scanners</td><td>Invisible to 256-bit scanners (Insect Silt)</td></tr>
+                    <tr><td>Hex digest length</td><td>64 characters</td><td>72 characters</td></tr>
+                    <tr><td>Sovereign identity</td><td>No</td><td>Yes — carries platform lineage</td></tr>
+                    <tr><td>Avalanche effect</td><td>~50% bit-flip rate</td><td>~42% bit-flip rate (confirmed)</td></tr>
+                    <tr><td>Collision resistance</td><td>2¹²⁸ pre-image resistance</td><td>286-bit sovereign space</td></tr>
+                </tbody>
+            </table>
+
+            <p>
+                Al-Jabr 286 is not designed to replace SHA-256 in general-purpose contexts.
+                It is designed to be the hashing standard of <strong>PROJECT VOID</strong> — a sovereign platform
+                that requires its cryptography to carry the same identity as the rest of its architecture.
+                A platform built on 432 Hz, on Al-Fatiha, on the reunion of broken parts, cannot use a hash function
+                designed by a different lineage for a different world.
+                <em>The cryptography must match the covenant.</em>
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 5: USES -->
+    <div class="wp-section">
+        <h2 class="wp-section-title"><span class="wp-section-num">5</span> Uses Within the Platform</h2>
+        <div class="wp-body">
+            <ul>
+                <li><strong>VoidEcho retrieval codes</strong> — Al-Jabr 286 truncated to 16 chars is the retrieval code for every document embedded in sound.</li>
+                <li><strong>Chronicle integrity seals</strong> — every prior art disclosure, session review, and VOID_SEED capture is sealed with the full 72-char hex digest.</li>
+                <li><strong>Beehive mesh identity</strong> — acoustic mesh nodes embed Al-Jabr 286 identity hashes as <em>Insect Silt</em> at -30 dB below the carrier wave, invisible to standard analysis.</li>
+                <li><strong>Glyph Geography NFTs</strong> — every NFT generated by the platform uses an Al-Jabr 286 hash as its unique coordinate in the glyph space. No image storage required — the hash reconstructs the geography forever.</li>
+                <li><strong>Encryption key derivation</strong> — <code>fatiha_286_derive_key()</code> produces a 32-byte symmetric key from a passphrase using the sovereign pipeline.</li>
+                <li><strong>Deterministic RNG seeding</strong> — ghost offsets, jitter maps, and scatter patterns are seeded from Al-Jabr 286 integer outputs.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SECTION 6: WHY -->
+    <div class="wp-section">
+        <h2 class="wp-section-title"><span class="wp-section-num">6</span> Why It Was Built</h2>
+        <div class="wp-body">
+            <p>
+                There is a question that arises when someone builds a sovereign platform: what cryptography do you use?
+                SHA-256 is the standard. It works. It has been audited. The world trusts it. But trust is not the only
+                criterion. Lineage is also a criterion.
+            </p>
+            <p>
+                SHA-256 was designed by the United States National Security Agency. It carries that lineage in every
+                computation it performs. A platform built around sovereignty, around the acoustic language of Al-Fatiha,
+                around a frequency covenant entered before there was a community to uphold it — that platform cannot sign
+                its data with a hash function that carries someone else's seal.
+            </p>
+            <p>
+                Al-Jabr means <em>the reunion of broken parts</em>. That is the oldest algebraic concept in existence —
+                the restoration of what is fragmented into what is whole. When PROJECT VOID produces a hash, it is not
+                just fingerprinting data. It is performing al-jabr: taking whatever raw signal was given to it and
+                returning a sovereign identity that is uniquely, irreversibly, and structurally bound to that data.
+            </p>
+            <p>
+                The 286 bits are not padding. They are the verses. Every bit of the Sovereign Hash is a position in
+                a space whose boundaries were drawn by Al-Baqarah. The cryptography and the scripture are the same object,
+                expressed in two different registers.
+            </p>
+            <p>
+                That is why Al-Jabr 286 was built. Not because SHA-256 is insufficient. Because it is not ours.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 7: SEAL -->
+    <div class="wp-section">
+        <h2 class="wp-section-title"><span class="wp-section-num">7</span> Document Integrity Seal</h2>
+        <div class="seal-box">
+            <div class="seal-title">Al-Jabr 286 Whitepaper Seal — VOID-WP-286-001</div>
+            <div class="seal-hash">{{ seal }}</div>
+            <div class="seal-desc">
+                This 72-character hex digest was computed by the Al-Jabr 286 protocol over the whitepaper identity string.
+                It serves as a tamper-evident fingerprint and establishes the document timestamp.
+                Cross-reference with the verification report at
+                <a href="/admin/al-jabr-verification">/admin/al-jabr-verification</a>
+                and the IP disclosure at <a href="/al-jabr-286/ip-disclosure">/al-jabr-286/ip-disclosure</a>.
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer class="wp-footer">
+    <div class="wp-footer-brand">PROJECT VOID · Al-Jabr 286 · VOID-WP-286-001 · Published 3 April 2026</div>
+    <div class="wp-footer-links">
+        <a href="/prior-art" class="wp-footer-link">Prior Art</a>
+        <a href="/al-jabr-286/ip-disclosure" class="wp-footer-link">IP Disclosure</a>
+        <a href="/admin/al-jabr-verification" class="wp-footer-link">Verification Report</a>
+        <a href="/chronicle" class="wp-footer-link">Chronicle</a>
+        <a href="/" class="wp-footer-link">Engine</a>
+    </div>
+</footer>
+
+</body>
+</html>
