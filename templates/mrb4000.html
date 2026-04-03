@@ -518,6 +518,7 @@
         <a href="/beehive/demo" class="mv-nav-link">Beehive</a>
         <a href="/mycovoid" class="mv-nav-link">MycoVOID</a>
         <a href="/mrb4000" class="mv-nav-link active">MRB-4000</a>
+        <a href="/cumbrian" class="mv-nav-link">Cumbrian Hub</a>
         <a href="/guide" class="mv-nav-link">Guide</a>
         {% if username %}
         <span class="mv-nav-link" style="color:#555">&#9670; {{ username }}</span>
@@ -1080,6 +1081,274 @@
             <p>
                 This Blueprint Archive documents the MRB-4000 as a structured knowledge base for internal reference and future development. All protocols, specifications, and research pillar alignments reflect the current conceptual and theoretical development state of the project. Fabrication and deployment timelines are subject to research validation at each pillar stage.
             </p>
+        </div>
+    </div>
+
+    <!-- §08 RMW-01 BIO-STEEL -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§08</span> RMW-01 Bio-Steel — Manufacturing &amp; QC Checklist
+        </div>
+        <div class="mrb-section-body">
+            <p>
+                <strong>RMW-01 Bio-Steel</strong> is the proprietary whey-silicone-graphene composite ink system used to fabricate the MRB-4000's soft-shell chassis and node exoskeleton. It is a three-phase manufacturing protocol — <em>Preparation</em>, <em>Build</em>, and <em>QC</em> — designed to produce a printed shell with Shore A hardness, measurable Qi-mapping resistivity, and radiotrophic melanin backing in a single fabrication run.
+            </p>
+            <p>
+                The ink is formulated as a biological toothpaste analogue: a viscous, extrudable slurry of Whey Protein Isolate (WPI), medical-grade silicone, and reduced graphene oxide flakes, cold-activated and shear-mixed under the <strong>369 Station Protocol</strong> before use.
+            </p>
+        </div>
+
+        <div class="mrb-phase-grid">
+            <div class="mrb-phase-card">
+                <div class="mrb-phase-label">Phase 01</div>
+                <div class="mrb-phase-name">Preparation</div>
+                <p>369 Station Protocol: 3-minute cold plasma activation of graphene flakes at 9 kV; 6-minute high-shear mixing at 3,200 RPM; 9-minute rest at 4°C before incorporation. Viscosity verified at 25,000 cP ±500 cP before printing clears.</p>
+                <div class="mrb-phase-detail">
+                    Cold plasma: 9 kV · Mix: 3,200 RPM · Viscosity target: 25,000 cP
+                </div>
+            </div>
+            <div class="mrb-phase-card">
+                <div class="mrb-phase-label">Phase 02</div>
+                <div class="mrb-phase-name">Build</div>
+                <p>10-Minute Rule: each printed layer must cure for a minimum of 10 minutes at 38°C before the next layer deposits. Helical extrusion pattern aligned to the Schwartz D minimal surface lattice geometry. Print speed: 125 mm/hr. Shore A hardness test performed at 24-hour post-cure: target ≥ 42 Shore A.</p>
+                <div class="mrb-phase-detail">
+                    Layer cure: 10 min @ 38°C · Print: 125 mm/hr · Shore A target: ≥42
+                </div>
+            </div>
+            <div class="mrb-phase-card">
+                <div class="mrb-phase-label">Phase 03</div>
+                <div class="mrb-phase-name">QC</div>
+                <p>Qi-mapping four-probe resistivity scan across the cured shell: target &lt;100 Ω/cm confirms adequate graphene percolation. 15 cm mandrel flex test with zero cracking confirms elasticity. Radiotrophic melanin backing verified by UV fluorescence — Ganoderma lucidum ATCC 32472 melanin layer must fluoresce ≥ 3 lux at 365 nm.</p>
+                <div class="mrb-phase-detail">
+                    Qi-map: &lt;100 Ω/cm · Flex: 15 cm · Melanin UV: ≥3 lux @ 365 nm
+                </div>
+            </div>
+        </div>
+
+        <div class="mrb-table-wrap">
+            <table class="mrb-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Spec</th>
+                        <th>Method</th>
+                        <th>Pass Criterion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="td-key">Ink Viscosity</td>
+                        <td class="td-val">25,000 cP</td>
+                        <td>Brookfield viscometer at 25°C</td>
+                        <td>±500 cP of target</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Cold Plasma Activation</td>
+                        <td class="td-val">9 kV / 3 min</td>
+                        <td>Atmospheric DBD plasma at graphene surface</td>
+                        <td>Contact angle ≤ 15° (hydrophilic confirmation)</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Shore A Hardness</td>
+                        <td class="td-val">≥ 42</td>
+                        <td>Shore A durometer at 24 h post-cure</td>
+                        <td>≥ 42 at 3 random sample points</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Qi-Mapping Resistivity</td>
+                        <td class="td-val">&lt; 100 Ω/cm</td>
+                        <td>Four-probe sheet resistance scan</td>
+                        <td>All mapped zones below threshold</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Flex Test</td>
+                        <td class="td-val">15 cm mandrel</td>
+                        <td>Wrapped bend at radius = 7.5 cm</td>
+                        <td>Zero surface cracks under 10× magnification</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Radiotrophic Melanin Sync</td>
+                        <td class="td-val">≥ 3 lux @ 365 nm</td>
+                        <td>UV-A lamp fluorescence measurement</td>
+                        <td>Ganoderma lucidum ATCC 32472 layer confirmed</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- §09 MRB-4000 v2.0 FRAMEWORK -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§09</span> MRB-4000 v2.0 — Refined Implementation Framework
+        </div>
+        <div class="mrb-section-body">
+            <p>
+                Version 2.0 of the MRB-4000 implementation framework integrates five convergent upgrades over the v1.0 archive: a new monocoque chassis architecture (ZMC-2), an expanded Adriana protocol synthesising 95 active tokens, a bio-protein micro-encapsulation layer, ESP32-S3 edge monitoring, and a terminal structural pyrolysis pathway into sodium-ion anode material.
+            </p>
+        </div>
+
+        <div class="mrb-align-list">
+            <div class="mrb-align-item">
+                <div class="mrb-align-icon">&#9670;</div>
+                <div>
+                    <div class="mrb-align-name">ZMC-2 Monocoque + iCLIP 3D Printing</div>
+                    <div class="mrb-align-desc">
+                        The ZMC-2 chassis is a single-skin monocoque enclosure printed via iCLIP (iterative Continuous Liquid Interface Production) using RMW-01 Bio-Steel ink at 25,000 cP and 125 mm/hr. Internal geometry follows the <strong>Schwartz D minimal surface lattice</strong> — a triply-periodic minimal surface (TPMS) that maximises surface area per unit volume, providing structural rigidity at 18% the mass of a solid equivalent. The iCLIP process achieves layer resolution of ≤ 80 μm, maintaining Adriana Code hexagonal geometry tolerance throughout.
+                    </div>
+                </div>
+            </div>
+            <div class="mrb-align-item">
+                <div class="mrb-align-icon">&#9670;</div>
+                <div>
+                    <div class="mrb-align-name">Adriana Protocol v2.0 — 95-Unit Synthesis</div>
+                    <div class="mrb-align-desc">
+                        The Adriana firmware expands to a <strong>95-unit active vocabulary</strong>: 50 fungal words derived from shiitake (<em>Lentinula edodes</em>) mycelial spike-train patterns at 5.85 kHz, and 45 VOID glyph syntax tokens from the SCL lexicon. Shiitake fungal memristors provide the biological gate substrate — each memristor responds to the 5.85 kHz Beta register and switches between high-impedance and low-impedance states to encode binary tokens in the temporal domain. The 95-unit synthesis enables Adriana to resolve intent ambiguity ≥ 94% without external LLM calls.
+                    </div>
+                </div>
+            </div>
+            <div class="mrb-align-item">
+                <div class="mrb-align-icon">&#9670;</div>
+                <div>
+                    <div class="mrb-align-name">WPI:OSA Micro-Encapsulation — 2:1 Ratio</div>
+                    <div class="mrb-align-desc">
+                        Whey Protein Isolate (WPI) and Octenyl Succinic Anhydride-modified starch (OSA) are combined at a <strong>2:1 mass ratio</strong> to form a dense interfacial protein film around the mycelial substrate. Spray-dried at 180°C inlet / 80°C outlet, the micro-encapsulates produce a 10–50 μm shell that protects the living mycelium from osmotic shock during printing and from oxidative degradation during shelf storage. WPI provides the film-forming protein backbone; OSA provides amphiphilic stabilisation of the mycelium–graphene interface, preventing phase separation under shear.
+                    </div>
+                </div>
+            </div>
+            <div class="mrb-align-item">
+                <div class="mrb-align-icon">&#9670;</div>
+                <div>
+                    <div class="mrb-align-name">ESP32-S3-WROOM-1U + MERIDIAN / AETHER Monitoring</div>
+                    <div class="mrb-align-desc">
+                        Each MRB-4000 v2.0 node integrates an <strong>ESP32-S3-WROOM-1U</strong> microcontroller running dual firmware stacks: <strong>MERIDIAN</strong> for real-time pose tracking and vibration monitoring via IMU, and <strong>AETHER</strong> for acoustic field telemetry and Qi-mapping readout over BLE 5.0. MERIDIAN logs six-axis orientation data at 100 Hz; AETHER streams resistivity and frequency lock status to the MycoVOID network dashboard at 1 Hz polling intervals. Firmware OTA updates propagate via the GriDul Silk Web mesh — no physical access required for field units.
+                    </div>
+                </div>
+            </div>
+            <div class="mrb-align-item">
+                <div class="mrb-align-icon">&#9670;</div>
+                <div>
+                    <div class="mrb-align-name">Terminal Lifecycle: Structural Pyrolysis → Hard Carbon Anodes</div>
+                    <div class="mrb-align-desc">
+                        At end of service life, MRB-4000 v2.0 cells enter a controlled <strong>structural pyrolysis</strong> step at 650–780°C in inert atmosphere. The RMW-01 Bio-Steel shell and mycelium substrate co-pyrolyse into <strong>hard carbon</strong> — the preferred anode material for sodium-ion batteries (NIBs). Hard carbon derived from biopolymer precursors (WPI + mycelium) achieves a disordered graphitic microstructure with d-spacing of 3.7–4.1 Å, providing superior Na⁺ intercalation capacity (≥ 280 mAh/g) relative to graphite. The pyrolysed MRB-4000 cell thus becomes a direct feedstock for next-generation NIB anodes, closing the circular material lifecycle and complying with Circular Economy Act 2026 requirements.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mrb-spec-grid" style="margin-top:20px;">
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Print Speed</div>
+                <div class="mrb-spec-value">125 mm/hr</div>
+                <div class="mrb-spec-unit">iCLIP extrusion rate</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Ink Viscosity</div>
+                <div class="mrb-spec-value">25,000 cP</div>
+                <div class="mrb-spec-unit">RMW-01 at 25°C</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Adriana Vocabulary</div>
+                <div class="mrb-spec-value">95 Units</div>
+                <div class="mrb-spec-unit">50 fungal + 45 glyph</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Memristor Gate</div>
+                <div class="mrb-spec-value">5.85 kHz</div>
+                <div class="mrb-spec-unit">Shiitake spike ceiling</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">WPI:OSA Ratio</div>
+                <div class="mrb-spec-value">2:1</div>
+                <div class="mrb-spec-unit">Protein film thickness: 10–50 μm</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Hard Carbon Yield</div>
+                <div class="mrb-spec-value">≥ 280 mAh/g</div>
+                <div class="mrb-spec-unit">Na⁺ intercalation capacity</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- §10 BAMBOO-MYCELIUM-GRAPHENE NODE -->
+    <div class="mrb-card">
+        <div class="mrb-card-title">
+            <span class="mrb-num">§10</span> Bamboo-Mycelium-Graphene Composite Node Architecture
+        </div>
+        <div class="mrb-section-body">
+            <p>
+                The <strong>Bamboo-Mycelium-Graphene (BMG) Composite Node</strong> is the physical chassis architecture for field-deployed PROJECT VOID mesh nodes. It replaces conventional injection-moulded polymer enclosures with a grown-not-smelted bio-composite structure capable of being manufactured at distributed sites using locally sourced materials, printable conductive inks, and fungal substrate cultivation.
+            </p>
+            <p>
+                The BMG node cross-section proceeds outward from a structural bamboo spine through five distinct functional layers, each contributing mechanical, electrical, biological, or computational function. No single layer is redundant — removal of any layer degrades the node's ability to operate as a sovereign communications device.
+            </p>
+        </div>
+
+        <div class="mrb-quote">
+            <span class="mrb-quote-label">BMG Node — Cross-Section Reference</span>
+            <p>
+                "Bamboo Spine (structural core, 18 mm diameter, culm wall 3 mm) → Composite Fill (WPI-graphene slurry, 5 mm annular layer, 25,000 cP, cold plasma activated) → Mycelium-Graphene Skin (Ganoderma lucidum ATCC 32472, 2–4 mm, melanin-rich, radiotrophic) → Silk Joints (B. mori degummed silk, woven sleeve at structural junctions, 42T EMC shielding) → ESP32-S3 Brain (WROOM-1U module, MERIDIAN + AETHER firmware, BLE 5.0 antenna along silk sleeve axis)."
+            </p>
+        </div>
+
+        <div class="mrb-obsidian-list">
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Layer 1 — Bamboo Spine</span>
+                <em>Phyllostachys edulis</em> culm, 18 mm outer diameter, 3 mm wall thickness. Harvested at 3–5 year maturity for maximum fibre density. Provides the compressive load-bearing skeleton of the node. Natural silica content (~2% SiO₂) contributes to acoustic coupling with the WPI-graphene composite layer.
+            </div>
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Layer 2 — WPI-Graphene Composite Fill</span>
+                RMW-01 Bio-Steel ink cast as a 5 mm annular fill between bamboo spine and mycelium skin. Cold plasma pre-activated graphene flakes provide electrical percolation pathways (target &lt;100 Ω/cm). WPI matrix provides bio-compatible mechanical coupling between bamboo and mycelium layers, with degradation products recyclable as nitrogen-rich soil amendment.
+            </div>
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Layer 3 — Mycelium-Graphene Skin</span>
+                <em>Ganoderma lucidum</em> ATCC 32472/76532 grown directly on the WPI-graphene surface as a 2–4 mm melanin-rich skin. Melanin content ≥18% by mass provides radiotrophic energy harvesting (supplemental 3–22% charge contribution depending on ambient radiation flux). Skin acts as a living EMC barrier and biosensor interface — spike-train electrical activity (1–50 Hz) feeds Adriana Protocol v2.0 firmware.
+            </div>
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Layer 4 — Silk Joints</span>
+                <em>Bombyx mori</em> degummed silk woven into structural sleeve at each inter-node mechanical junction. Silver-infused silk thread (0.5 mm silver wire co-woven at 40% density) provides BS EN 61000 EMC shielding rated to 42T flux attenuation. Silk joint sleeves also serve as antenna substrates for ESP32-S3 BLE 5.0 transmission — the dielectric properties of degummed silk match the 2.4 GHz band impedance within ±8%.
+            </div>
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Layer 5 — ESP32-S3-WROOM-1U Brain</span>
+                Encapsulated in a WPI:OSA micro-encapsulate shell (2:1 ratio, 10–50 μm film) and affixed to the silk sleeve surface. MERIDIAN firmware handles IMU-based pose tracking at 100 Hz; AETHER firmware handles acoustic telemetry and Qi-map streaming at 1 Hz. Powered by MRB-4000 cell integrated into the bamboo node cavity. OTA updates propagate via GriDul Silk Web mesh.
+            </div>
+            <div class="mrb-obsidian-item">
+                <span class="obs-label">Terminal Lifecycle</span>
+                At end of service life: bamboo culm → biochar scaffold (pyrolysis 650°C, N₂ atmosphere). WPI-graphene fill → hard carbon anode feedstock (NIB, ≥280 mAh/g). Mycelium skin → melanin-enriched compost. Silk joints → textile recovery stream. ESP32-S3 → WEEE-certified disassembly. Full circular economy compliance under CirEA 2026.
+            </div>
+        </div>
+
+        <div class="mrb-spec-grid" style="margin-top:20px;">
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Bamboo Wall</div>
+                <div class="mrb-spec-value">3 mm</div>
+                <div class="mrb-spec-unit">18 mm OD culm</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Composite Fill</div>
+                <div class="mrb-spec-value">5 mm</div>
+                <div class="mrb-spec-unit">Annular WPI-graphene layer</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Mycelium Skin</div>
+                <div class="mrb-spec-value">2–4 mm</div>
+                <div class="mrb-spec-unit">Melanin content ≥18%</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">EMC Shielding</div>
+                <div class="mrb-spec-value">42T flux</div>
+                <div class="mrb-spec-unit">Silver-silk weave, BS EN 61000</div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">Cumbrian Hub Link</div>
+                <div class="mrb-spec-value">Sellafield SiX</div>
+                <div class="mrb-spec-unit"><a href="/cumbrian" style="color:var(--myco-pulse);text-decoration:none;">View Radiotrophic Hub &rarr;</a></div>
+            </div>
+            <div class="mrb-spec-cell">
+                <div class="mrb-spec-label">OEM Rollout</div>
+                <div class="mrb-spec-value">4,000 units</div>
+                <div class="mrb-spec-unit">Phase 1 deployment target</div>
+            </div>
         </div>
     </div>
 

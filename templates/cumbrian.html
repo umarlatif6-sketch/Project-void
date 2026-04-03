@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cumbrian Radiotrophic Hub — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --void-bg: #0a0a0a;
+            --void-surface: #111;
+            --void-surface2: #0d0d0d;
+            --void-border: #1e1e1e;
+            --void-gold: #c9a84c;
+            --void-teal: #00bfa5;
+            --void-violet: #7c5cff;
+            --void-red: #ff5252;
+            --void-green: #4caf50;
+            --void-text: #e0e0e0;
+            --void-muted: #666;
+            --myco-spore: #7aff7a;
+            --myco-pulse: #00e5cc;
+            --myco-warn: #ffb347;
+            --mrb-amber: #e8a020;
+            --crb-blue: #4fc3f7;
+            --crb-green: #81c784;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--void-bg);
+            color: var(--void-text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .mv-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--void-border);
+            background: rgba(10,10,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .mv-nav-brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--void-gold);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .mv-nav-links { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+        .mv-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .mv-nav-link:hover { color: var(--void-gold); }
+        .mv-nav-link.active { color: var(--crb-blue); }
+
+        .crb-hero {
+            text-align: center;
+            padding: 52px 32px 36px;
+            background: radial-gradient(ellipse at 50% 0%, #001820 0%, var(--void-bg) 72%);
+            border-bottom: 1px solid var(--void-border);
+            position: relative;
+        }
+        .crb-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--crb-blue), transparent);
+        }
+        .crb-hero-badge {
+            display: inline-block;
+            background: var(--crb-blue);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 18px;
+        }
+        .crb-hero-title {
+            font-size: 2.1rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #fff;
+            margin: 0 0 10px;
+        }
+        .crb-hero-title span { color: var(--crb-blue); }
+        .crb-hero-sub {
+            color: #666;
+            font-size: 0.78rem;
+            max-width: 680px;
+            margin: 0 auto;
+            line-height: 1.7;
+            letter-spacing: 0.5px;
+        }
+        .crb-hero-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .crb-meta-item {
+            font-size: 0.62rem;
+            color: #555;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .crb-meta-item span { color: #888; }
+
+        .crb-main {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 36px 24px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .crb-card {
+            background: var(--void-surface);
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 24px 28px;
+            position: relative;
+        }
+        .crb-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(79,195,247,0.3), transparent);
+        }
+        .crb-card-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--crb-blue);
+            text-transform: uppercase;
+            margin: 0 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .crb-card-title .crb-num { color: #444; font-weight: 400; }
+        .crb-section-body {
+            font-size: 0.82rem;
+            line-height: 1.85;
+            color: #b0b0b0;
+        }
+        .crb-section-body p { margin: 0 0 14px; }
+        .crb-section-body p:last-child { margin-bottom: 0; }
+        .crb-section-body strong { color: #d0d0d0; font-weight: 600; }
+        .crb-section-body em { color: #999; font-style: italic; }
+
+        .crb-quote {
+            border-left: 3px solid var(--crb-blue);
+            padding: 16px 22px;
+            margin: 20px 0;
+            background: rgba(79,195,247,0.04);
+            border-radius: 0 4px 4px 0;
+        }
+        .crb-quote p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #6ab0d0;
+            font-style: italic;
+            line-height: 1.8;
+        }
+        .crb-quote .crb-quote-label {
+            display: block;
+            font-size: 0.58rem;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-style: normal;
+        }
+
+        .crb-spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .crb-spec-cell {
+            border: 1px solid #1e1e1e;
+            border-radius: 3px;
+            padding: 14px 16px;
+            background: var(--void-surface2);
+        }
+        .crb-spec-label {
+            font-size: 0.58rem;
+            color: #555;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .crb-spec-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--crb-blue);
+            letter-spacing: 1px;
+        }
+        .crb-spec-unit {
+            font-size: 0.62rem;
+            color: #555;
+            margin-top: 3px;
+        }
+
+        .crb-table-wrap { overflow-x: auto; margin: 16px 0; }
+        .crb-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        .crb-table th {
+            background: #0d0d0d;
+            color: var(--crb-blue);
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            padding: 10px 16px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a2a;
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .crb-table td {
+            padding: 9px 16px;
+            color: #a0a0a0;
+            border-bottom: 1px solid #191919;
+            vertical-align: top;
+        }
+        .crb-table tr:last-child td { border-bottom: none; }
+        .crb-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .crb-table td.td-key { color: #5a9fc0; font-weight: 600; white-space: nowrap; }
+        .crb-table td.td-val { color: var(--crb-blue); font-weight: 700; }
+        .crb-table td.td-pass { color: var(--crb-green); font-weight: 600; }
+
+        .crb-align-list { display: flex; flex-direction: column; gap: 10px; }
+        .crb-align-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: 12px 14px;
+            border-radius: 3px;
+            border: 1px solid #1a1a1a;
+            background: var(--void-surface2);
+        }
+        .crb-align-icon {
+            font-size: 1rem;
+            color: var(--crb-blue);
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+        .crb-align-name {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #d0d0d0;
+            margin-bottom: 4px;
+        }
+        .crb-align-desc {
+            font-size: 0.7rem;
+            color: #777;
+            line-height: 1.6;
+        }
+
+        .crb-phase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+        .crb-phase-card {
+            border: 1px solid #1e1e1e;
+            border-radius: 4px;
+            padding: 16px 18px;
+            background: var(--void-surface2);
+        }
+        .crb-phase-label {
+            font-size: 0.58rem;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .crb-phase-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--crb-blue);
+            margin-bottom: 8px;
+        }
+        .crb-phase-card p {
+            font-size: 0.72rem;
+            color: #888;
+            line-height: 1.7;
+            margin: 0;
+        }
+        .crb-phase-detail {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #1a1a1a;
+            font-size: 0.68rem;
+            color: var(--myco-pulse);
+        }
+
+        .crb-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0 0;
+            font-size: 0.62rem;
+            color: #444;
+            letter-spacing: 1px;
+        }
+        .crb-breadcrumb a { color: #555; text-decoration: none; }
+        .crb-breadcrumb a:hover { color: var(--crb-blue); }
+        .crb-breadcrumb .sep { color: #333; }
+        .crb-breadcrumb .current { color: var(--crb-blue); }
+
+        .crb-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .crb-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 14px;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            border: 1px solid rgba(79,195,247,0.25);
+            background: rgba(79,195,247,0.06);
+            color: var(--crb-blue);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<nav class="mv-nav">
+    <a href="/" class="mv-nav-brand">&#9670; PROJECT VOID</a>
+    <div class="mv-nav-links">
+        <a href="/" class="mv-nav-link">Engine</a>
+        <a href="/mycovoid" class="mv-nav-link">MycoVOID</a>
+        <a href="/mrb4000" class="mv-nav-link">MRB-4000</a>
+        <a href="/cumbrian" class="mv-nav-link active">Cumbrian Hub</a>
+        <a href="/sovereign" class="mv-nav-link">Hardware</a>
+        <a href="/guide" class="mv-nav-link">Guide</a>
+        {% if username %}
+        <span class="mv-nav-link" style="color:#555">&#9670; {{ username }}</span>
+        <a href="/api/auth/logout" class="mv-nav-link">Logout</a>
+        {% else %}
+        <a href="/login" class="mv-nav-link">Login</a>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="crb-hero">
+    <div class="crb-hero-badge">GRIDUL R&amp;D — SELLAFIELD SiX FRAMEWORK</div>
+    <h1 class="crb-hero-title">Cumbrian <span>Radiotrophic</span> Hub</h1>
+    <p class="crb-hero-sub">
+        Nuclear-Grade Grown Infrastructure · Sellafield SiX Compliance Dossier<br>
+        4,000-Unit OEM Rollout · Ganoderma lucidum ATCC 32472/76532 · BS EN 61000 EMC
+    </p>
+    <div class="crb-status-row">
+        <div class="crb-status-pill">&#9670; Sellafield SiX Framework</div>
+        <div class="crb-status-pill" style="border-color:rgba(129,199,132,0.25);background:rgba(129,199,132,0.06);color:var(--crb-green);">&#9670; 4,000-Unit OEM Pathway</div>
+        <div class="crb-status-pill" style="border-color:rgba(232,160,32,0.25);background:rgba(232,160,32,0.06);color:var(--mrb-amber);">&#9670; ISO 1940-1 · BS EN 61000</div>
+    </div>
+    <div class="crb-hero-meta">
+        <div class="crb-meta-item"><span>Deployment:</span> Cumbria, England</div>
+        <div class="crb-meta-item"><span>Framework:</span> Sellafield SiX</div>
+        <div class="crb-meta-item"><span>Classification:</span> GriDul R&amp;D Dossier</div>
+        <div class="crb-meta-item"><span>Status:</span> OEM Pathway Active</div>
+    </div>
+</div>
+
+<div class="crb-main">
+
+    <div class="crb-breadcrumb">
+        <a href="/mycovoid">MycoVOID</a>
+        <span class="sep">›</span>
+        <a href="/mrb4000">MRB-4000</a>
+        <span class="sep">›</span>
+        <span class="current">Cumbrian Radiotrophic Hub</span>
+    </div>
+
+    <!-- EXECUTIVE SUMMARY -->
+    <div class="crb-card">
+        <div class="crb-card-title">
+            <span class="crb-num">§01</span> Executive Summary — Grown Not Smelted
+        </div>
+        <div class="crb-section-body">
+            <p>
+                The <strong>Cumbrian Radiotrophic Hub</strong> is PROJECT VOID's GriDul research and deployment site, sited within the Sellafield SiX Framework zone in Cumbria, England. It represents the convergence of three sovereign infrastructure principles: <em>Grown-not-Smelted</em> hardware fabrication using the RMW-01 Bio-Steel protocol; <em>Radiotrophic Energy Harvesting</em> using melanin-rich Ganoderma lucidum mycelium in proximity to licensed low-level radiation environments; and <em>Net-Zero Sovereignty</em> via hemp hurd substrate and closed-loop fungal cultivation.
+            </p>
+            <p>
+                The Sellafield SiX Framework provides the regulatory and physical co-location environment: SiX sites are licensed for novel technology deployment adjacent to nuclear facilities, with specific provisions for biological and advanced materials research. The Cumbrian Hub operates under SiX as a non-power, non-safety-critical research installation — enabling radiotrophic activation experiments under licensed supervision without requiring a nuclear site licence.
+            </p>
+            <p>
+                The commercial pathway targets a <strong>4,000-unit OEM rollout</strong> of BMG Composite Nodes manufactured at the Cumbrian Hub, leveraging the site's access to controlled radiation flux for melanin pre-activation, Ganoderma substrate cultivation, and full RMW-01 QC validation. The Hub functions simultaneously as production facility, research site, and GriDul mesh anchor node.
+            </p>
+        </div>
+
+        <div class="crb-quote">
+            <span class="crb-quote-label">Paradigm Statement</span>
+            <p>
+                "Conventional infrastructure is smelted — extracted from ore, refined at high energy cost, shaped by industrial machinery. The Cumbrian Hub infrastructure is grown — cultivated from bamboo, mycelium, and protein, activated by acoustic resonance and ambient radiation, and assembled by hand. The factory is the fungus. The energy source is the environment. The yield is sovereignty."
+            </p>
+        </div>
+
+        <div class="crb-spec-grid">
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Site Framework</div>
+                <div class="crb-spec-value">Sellafield SiX</div>
+                <div class="crb-spec-unit">Non-safety-critical R&amp;D</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">OEM Target</div>
+                <div class="crb-spec-value">4,000 Units</div>
+                <div class="crb-spec-unit">Phase 1 BMG Node rollout</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Fungal Strain</div>
+                <div class="crb-spec-value">ATCC 32472/76532</div>
+                <div class="crb-spec-unit">Ganoderma lucidum</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Hemp Substrate</div>
+                <div class="crb-spec-value">1,000 kg</div>
+                <div class="crb-spec-unit">Hurd per cultivation cycle</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MECHANICAL STABILITY -->
+    <div class="crb-card">
+        <div class="crb-card-title">
+            <span class="crb-num">§02</span> Mechanical Stability — ISO 1940-1 Compliance
+        </div>
+        <div class="crb-section-body">
+            <p>
+                All rotating components in the Cumbrian Hub installation — specifically the kinetic flywheel and tungsten WHA (Wolfram Heavy Alloy) rotors used in the mechanical proof-of-work layer — must comply with <strong>ISO 1940-1</strong>, the international standard for mechanical balance quality requirements for rotors in constant (rigid) and flexible rotor state.
+            </p>
+            <p>
+                The hub operates rotors at sustained speeds above <strong>10,000 RPM</strong> for kinetic energy storage and Qi-mapping calibration. At these speeds, ISO 1940-1 Grade G2.5 balance quality is required — the tightest grade specified for precision machinery. Tungsten WHA (95% W, 3.5% Ni, 1.5% Fe) is the approved rotor material: its density (18.5 g/cm³) and thermal stability minimise dynamic imbalance across the full operating temperature range (−20°C to +85°C ambient).
+            </p>
+            <p>
+                Mycelium-silk passive dampening mounts are fitted at each rotor bearing point. These are composite pads of compressed <em>Ganoderma lucidum</em> mycelium mat and degummed <em>Bombyx mori</em> silk, which exhibit visco-elastic damping coefficients (loss factor η = 0.15–0.28) suitable for attenuating the 10,000+ RPM rotor's primary imbalance harmonics without steel spring mounts. This eliminates metallic resonance contamination of the acoustic measurement environment.
+            </p>
+        </div>
+
+        <div class="crb-spec-grid">
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Rotor Speed</div>
+                <div class="crb-spec-value">&gt;10,000 RPM</div>
+                <div class="crb-spec-unit">Kinetic storage / Qi-cal</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">ISO Standard</div>
+                <div class="crb-spec-value">ISO 1940-1</div>
+                <div class="crb-spec-unit">Grade G2.5 balance quality</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Rotor Material</div>
+                <div class="crb-spec-value">WHA 95/3.5/1.5</div>
+                <div class="crb-spec-unit">W / Ni / Fe — 18.5 g/cm³</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Damping Factor</div>
+                <div class="crb-spec-value">η = 0.15–0.28</div>
+                <div class="crb-spec-unit">Mycelium-silk passive mount</div>
+            </div>
+        </div>
+
+        <div class="crb-table-wrap">
+            <table class="crb-table">
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Specification</th>
+                        <th>Standard</th>
+                        <th>Pass Criterion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="td-key">Tungsten WHA Rotor</td>
+                        <td>95% W, 3.5% Ni, 1.5% Fe · 18.5 g/cm³</td>
+                        <td class="td-val">ISO 1940-1</td>
+                        <td class="td-pass">G2.5 balance grade at 10,000+ RPM</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Mycelium-Silk Dampener</td>
+                        <td><em>G. lucidum</em> mat + <em>B. mori</em> silk pad</td>
+                        <td class="td-val">ISO 1940-1 §5.4</td>
+                        <td class="td-pass">η ≥ 0.15 at primary rotor harmonic</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Thermal Operating Range</td>
+                        <td>−20°C to +85°C ambient</td>
+                        <td class="td-val">ISO 1940-1 Annex A</td>
+                        <td class="td-pass">Dynamic imbalance &lt; G2.5 across full range</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Bearing Housing</td>
+                        <td>316L stainless steel — non-magnetic</td>
+                        <td>Internal spec</td>
+                        <td class="td-pass">Zero ferromagnetic field contamination of Qi-map</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- EMC SHIELDING -->
+    <div class="crb-card">
+        <div class="crb-card-title">
+            <span class="crb-num">§03</span> EMC Shielding — BS EN 61000 / 42T Flux
+        </div>
+        <div class="crb-section-body">
+            <p>
+                The Cumbrian Hub's electromagnetic compatibility (EMC) shielding architecture is designed to meet <strong>BS EN 61000</strong> (the British adaptation of IEC 61000), specifically Parts 4-3 (radiated immunity) and 4-8 (power frequency magnetic field immunity), while also providing a shielded measurement environment for the radiotrophic mycelium research programme.
+            </p>
+            <p>
+                The primary shielding layer is a <strong>silver-silk weave composite</strong>: degummed <em>Bombyx mori</em> silk woven with 0.5 mm silver wire at 40% co-weave density, forming a flexible, biocompatible Faraday-analogous barrier rated to <strong>42T flux attenuation</strong> across the 10 MHz to 6 GHz frequency range. Unlike conventional copper mesh, the silver-silk weave maintains its shielding effectiveness under the mechanical flexing inherent to the Hub's grown-material construction.
+            </p>
+            <p>
+                A secondary layer of <strong>0.5 mm solid silver EMF mesh</strong> (silver content ≥99.9%) is bonded to the interior surface of the Hub's outer wall at critical measurement zones. This provides additional magnetic field attenuation at low frequencies (50 Hz to 1 MHz), where the silver-silk weave alone is insufficient due to skin depth limitations.
+            </p>
+        </div>
+
+        <div class="crb-spec-grid">
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">EMC Standard</div>
+                <div class="crb-spec-value">BS EN 61000</div>
+                <div class="crb-spec-unit">Parts 4-3 + 4-8</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Flux Attenuation</div>
+                <div class="crb-spec-value">42T</div>
+                <div class="crb-spec-unit">10 MHz – 6 GHz range</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Weave Composition</div>
+                <div class="crb-spec-value">40% Ag / 60% silk</div>
+                <div class="crb-spec-unit"><em>B. mori</em> degummed + 0.5 mm Ag wire</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Inner Mesh</div>
+                <div class="crb-spec-value">0.5 mm Ag</div>
+                <div class="crb-spec-unit">≥99.9% Ag · low-freq attenuation</div>
+            </div>
+        </div>
+
+        <div class="crb-table-wrap">
+            <table class="crb-table">
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Material</th>
+                        <th>Frequency Range</th>
+                        <th>Attenuation</th>
+                        <th>BS EN 61000 Ref</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="td-key">Outer Weave</td>
+                        <td>Silver-silk composite (40% Ag)</td>
+                        <td>10 MHz – 6 GHz</td>
+                        <td class="td-val">42T flux</td>
+                        <td class="td-pass">Part 4-3 radiated immunity</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Inner Mesh</td>
+                        <td>0.5 mm solid silver (99.9%)</td>
+                        <td>50 Hz – 1 MHz</td>
+                        <td class="td-val">&gt;60 dB</td>
+                        <td class="td-pass">Part 4-8 magnetic field</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">BMG Node Silk Joints</td>
+                        <td>Silver-infused silk sleeve (40% Ag)</td>
+                        <td>2.4 GHz BLE band</td>
+                        <td class="td-val">±8% impedance match</td>
+                        <td class="td-pass">Antenna substrate compatibility</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- NET-ZERO SOVEREIGNTY -->
+    <div class="crb-card">
+        <div class="crb-card-title">
+            <span class="crb-num">§04</span> Net-Zero Sovereignty — Hemp Hurd &amp; Ganoderma Cultivation
+        </div>
+        <div class="crb-section-body">
+            <p>
+                The Cumbrian Hub operates on a net-zero biological materials budget. All fungal substrate is grown on-site from <strong>hemp hurd</strong> (<em>Cannabis sativa</em> L. industrial variety), the woody core fibre separated from the bast during hemp processing. Hemp hurd is the optimal substrate for <em>Ganoderma lucidum</em> cultivation: its lignin-to-cellulose ratio (45:35) matches the enzymatic specialisation of Ganoderma's ligninolytic enzyme suite, supporting maximum mycelial colonisation density and melanin content per kilogram of substrate.
+            </p>
+            <p>
+                Each cultivation cycle consumes <strong>1,000 kg of hemp hurd</strong>, producing approximately 180 kg of melanin-rich <em>Ganoderma lucidum</em> mycelium mass (ATCC 32472/76532) suitable for MRB-4000 substrate incorporation and BMG Node skin fabrication. The spent hemp hurd substrate post-cultivation is enriched with fungal biomass residues and is composted on-site as a carbon-sequestering amendment, completing the circular materials loop.
+            </p>
+            <p>
+                Net-zero energy is maintained through the kinetic flywheel PEACE system — the same kinetic proof-of-work architecture deployed in the Sovereign Node, scaled to Hub level — and radiotrophic supplemental charging via the melanin-rich mycelium skin of the building shell itself, which faces the site's licensed low-level radiation gradient.
+            </p>
+        </div>
+
+        <div class="crb-spec-grid">
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Substrate Material</div>
+                <div class="crb-spec-value">Hemp Hurd</div>
+                <div class="crb-spec-unit"><em>C. sativa</em> · 45% lignin / 35% cellulose</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Cultivation Input</div>
+                <div class="crb-spec-value">1,000 kg</div>
+                <div class="crb-spec-unit">Hemp hurd per cycle</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Mycelium Yield</div>
+                <div class="crb-spec-value">~180 kg</div>
+                <div class="crb-spec-unit"><em>G. lucidum</em> mass per cycle</div>
+            </div>
+            <div class="crb-spec-cell">
+                <div class="crb-spec-label">Strains</div>
+                <div class="crb-spec-value">ATCC 32472/76532</div>
+                <div class="crb-spec-unit">Melanin ≥18% by mass target</div>
+            </div>
+        </div>
+
+        <div class="crb-align-list">
+            <div class="crb-align-item">
+                <div class="crb-align-icon">&#9670;</div>
+                <div>
+                    <div class="crb-align-name">Radiotrophic Activation — Sellafield Adjacent Gradient</div>
+                    <div class="crb-align-desc">
+                        The Hub's position within the Sellafield SiX zone provides access to a controlled ambient radiation gradient — low-level, licensed, and monitored by the site operator. <em>Ganoderma lucidum</em> ATCC 32472/76532 mycelium, pre-cultivated on hemp hurd, is exposed to this gradient during a 72-hour radiotrophic activation phase before incorporation into MRB-4000 cells or BMG Node skin layers. Activated mycelium exhibits 15–30% higher melanin content than substrate-only controls and contributes 3–7% supplemental charge capacity per cell in standard deployment; up to 22% in elevated-flux environments.
+                    </div>
+                </div>
+            </div>
+            <div class="crb-align-item">
+                <div class="crb-align-icon">&#9670;</div>
+                <div>
+                    <div class="crb-align-name">Carbon Sequestration — Spent Substrate Compost</div>
+                    <div class="crb-align-desc">
+                        Spent hemp hurd substrate, post-cultivation, retains approximately 35% of its original carbon content as fungal-derived biomass amendments (glucans, melanin fragments, chitin). On-site composting at ambient temperature (20–28°C) converts this to stable humic material within 8–12 weeks, sequestering approximately 120 kg CO₂-equivalent per cultivation cycle. Net carbon balance for the Hub across a 12-month manufacturing year: negative (carbon sink), factoring in solar-supplemented heating of cultivation chambers and PEACE kinetic power for processing equipment.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MANUFACTURING & SOURCING ROADMAP -->
+    <div class="crb-card">
+        <div class="crb-card-title">
+            <span class="crb-num">§05</span> Manufacturing &amp; Sourcing Roadmap — 4,000-Unit OEM Pathway
+        </div>
+        <div class="crb-section-body">
+            <p>
+                The 4,000-unit OEM pathway for BMG Composite Node production is structured across three deployment phases, each contingent on the previous phase's QC sign-off and SiX Framework compliance audit. Sourcing for all bio-materials is either UK domestic (bamboo, hemp hurd, silk) or EU-certified (Ganoderma strains, silver mesh). No critical material dependency exists outside the UK/EU supply chain.
+            </p>
+        </div>
+
+        <div class="crb-phase-grid">
+            <div class="crb-phase-card">
+                <div class="crb-phase-label">Phase 01 — Pilot</div>
+                <div class="crb-phase-name">50 Units</div>
+                <p>Fabrication and QC validation of the first 50 BMG Composite Nodes at the Cumbrian Hub. Full RMW-01 Bio-Steel QC checklist executed per unit. Sellafield SiX Framework compliance audit completed. Radiotrophic activation protocol validated against ATCC strain performance data.</p>
+                <div class="crb-phase-detail">
+                    Timeline: 0–6 months · QC: 100% per-unit · SiX audit: complete
+                </div>
+            </div>
+            <div class="crb-phase-card">
+                <div class="crb-phase-label">Phase 02 — Scale</div>
+                <div class="crb-phase-name">500 Units</div>
+                <p>Scale production to 500 units using iCLIP multi-head printing array (4 parallel heads per station, 3 stations). Introduce statistical process control (SPC) on viscosity, Shore A, and Qi-map parameters. OEM partner qualification commences — minimum 3 qualified partners for geographic distribution.</p>
+                <div class="crb-phase-detail">
+                    Timeline: 6–18 months · SPC: ±2σ control · OEM partners: ≥3
+                </div>
+            </div>
+            <div class="crb-phase-card">
+                <div class="crb-phase-label">Phase 03 — Rollout</div>
+                <div class="crb-phase-name">4,000 Units</div>
+                <p>Full OEM rollout to 4,000 units across UK, EU, and MENA distribution channels. Cumbrian Hub maintains master QC certification; OEM partners manufacture under licence using RMW-01 Bio-Steel ink supplied from Hub. Each unit ships with a digital GriDul node certificate anchored to the Silk Web ledger.</p>
+                <div class="crb-phase-detail">
+                    Timeline: 18–36 months · Channels: UK / EU / MENA · Cert: GriDul ledger
+                </div>
+            </div>
+        </div>
+
+        <div class="crb-table-wrap">
+            <table class="crb-table">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Source</th>
+                        <th>Specification</th>
+                        <th>Supply Chain</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="td-key">Bamboo Culm</td>
+                        <td><em>Phyllostachys edulis</em></td>
+                        <td>18 mm OD · 3 mm wall · 3–5 yr maturity</td>
+                        <td class="td-pass">UK domestic growers (Kent, Somerset)</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Hemp Hurd</td>
+                        <td><em>Cannabis sativa</em> industrial</td>
+                        <td>1,000 kg/cycle · ≤12% moisture</td>
+                        <td class="td-pass">UK domestic (Norfolk, Yorkshire)</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Ganoderma Strains</td>
+                        <td>ATCC 32472 / 76532</td>
+                        <td>Melanin ≥18% by mass · viability ≥94%</td>
+                        <td class="td-pass">ATCC certified EU supply chain</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Degummed Silk</td>
+                        <td><em>Bombyx mori</em></td>
+                        <td>Sericin-free · for co-weave with Ag wire</td>
+                        <td class="td-pass">EU certified (Italy / Poland)</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Silver Wire</td>
+                        <td>99.9% Ag, 0.5 mm</td>
+                        <td>EMC weave + EMF mesh inner layer</td>
+                        <td class="td-pass">UK refinery (Johnson Matthey)</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">Graphene Oxide</td>
+                        <td>Reduced rGO flakes</td>
+                        <td>&lt;10 nm thickness · ≥95% reduction</td>
+                        <td class="td-pass">EU certified (Manchester supply chain)</td>
+                    </tr>
+                    <tr>
+                        <td class="td-key">ESP32-S3-WROOM-1U</td>
+                        <td>Espressif Systems</td>
+                        <td>MERIDIAN + AETHER firmware OTA</td>
+                        <td class="td-pass">EU authorised distributor</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="crb-quote" style="margin-top:20px;">
+            <span class="crb-quote-label">Sovereignty Assurance</span>
+            <p>
+                "No critical material in the Cumbrian Hub supply chain originates outside the UK/EU. No single supplier holds exclusivity. Every biological input can be cultivated domestically. This is not an industrial supply chain — it is a sovereign materials ecosystem. When the global market tightens, we grow our own."
+            </p>
+        </div>
+    </div>
+
+    <!-- COMPLIANCE SUMMARY -->
+    <div class="crb-card">
+        <div class="crb-card-title">
+            <span class="crb-num">§06</span> Compliance Summary
+        </div>
+        <div class="crb-align-list">
+            <div class="crb-align-item">
+                <div class="crb-align-icon">&#9670;</div>
+                <div>
+                    <div class="crb-align-name">Sellafield SiX Framework — Non-Power R&amp;D Co-Location</div>
+                    <div class="crb-align-desc">Cumbrian Hub operates as a non-safety-critical research installation under the SiX Framework. No nuclear material is handled or processed on-site. Radiation exposure for mycelium activation is from licensed ambient gradient only, monitored by NDA-authorised dosimetry. Formal SiX application under preparation for submission before Q4 2026.</div>
+                </div>
+            </div>
+            <div class="crb-align-item">
+                <div class="crb-align-icon">&#9670;</div>
+                <div>
+                    <div class="crb-align-name">ISO 1940-1 — Balance Quality Grade G2.5</div>
+                    <div class="crb-align-desc">All rotating equipment operating above 3,000 RPM is balanced to ISO 1940-1 Grade G2.5 or better. Tungsten WHA rotors in the kinetic proof-of-work layer undergo dynamic balance certification before installation. Mycelium-silk passive dampening mounts are independently verified for loss factor compliance.</div>
+                </div>
+            </div>
+            <div class="crb-align-item">
+                <div class="crb-align-icon">&#9670;</div>
+                <div>
+                    <div class="crb-align-name">BS EN 61000 — EMC Emissions &amp; Immunity</div>
+                    <div class="crb-align-desc">Silver-silk weave outer shielding and 0.5 mm Ag inner mesh provide BS EN 61000 Parts 4-3 and 4-8 compliance. ESP32-S3 BLE 5.0 radio transmissions comply with UK OFCOM short-range device (SRD) licence-exemption regulations. CE / UKCA marking pathway for BMG Nodes includes EMC conformity assessment under BS EN 61000-4-3.</div>
+                </div>
+            </div>
+            <div class="crb-align-item">
+                <div class="crb-align-icon">&#9670;</div>
+                <div>
+                    <div class="crb-align-name">Circular Economy Act 2026 — Terminal Lifecycle Compliance</div>
+                    <div class="crb-align-desc">All MRB-4000 cells and BMG Composite Nodes entering end-of-life at the Cumbrian Hub are processed through the structural pyrolysis pathway, producing hard carbon anode feedstock (≥280 mAh/g Na⁺ capacity). Tungsten WHA rotor material re-enters certified critical mineral recovery streams. Spent hemp hurd substrate is composted on-site. CirEA 2026 extended producer responsibility (EPR) registration is in preparation.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LINKS -->
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top: 4px;">
+        <a href="/mrb4000" style="display:inline-block; padding:9px 18px; background:rgba(232,160,32,0.07); border:1px solid rgba(232,160,32,0.22); border-radius:3px; color:#e8a020; font-size:0.7rem; font-weight:700; letter-spacing:1px; text-decoration:none; text-transform:uppercase;">&#9670; MRB-4000 Blueprint Archive &rarr;</a>
+        <a href="/mycovoid" style="display:inline-block; padding:9px 18px; background:rgba(122,255,122,0.06); border:1px solid rgba(122,255,122,0.2); border-radius:3px; color:#7aff7a; font-size:0.7rem; font-weight:700; letter-spacing:1px; text-decoration:none; text-transform:uppercase;">&#9670; MycoVOID Network &rarr;</a>
+        <a href="/sovereign" style="display:inline-block; padding:9px 18px; background:rgba(79,195,247,0.06); border:1px solid rgba(79,195,247,0.2); border-radius:3px; color:#4fc3f7; font-size:0.7rem; font-weight:700; letter-spacing:1px; text-decoration:none; text-transform:uppercase;">&#9670; Sovereign Node &rarr;</a>
+    </div>
+
+</div>
+
+<footer style="border-top:1px solid #1a1a1a; padding:20px 32px; text-align:center; margin-top:8px;">
+    <div style="font-size:0.6rem; letter-spacing:3px; color:#333; text-transform:uppercase; margin-bottom:10px;">
+        PROJECT VOID · CUMBRIAN RADIOTROPHIC HUB · GRIDUL R&amp;D
+    </div>
+    <div style="font-size:0.65rem; color:#444; letter-spacing:1px;">
+        <a href="/mrb4000" style="color:#555; text-decoration:none;">&#9670; MRB-4000</a>
+        &nbsp;|&nbsp;
+        <a href="/mycovoid" style="color:#555; text-decoration:none;">MycoVOID</a>
+        &nbsp;|&nbsp;
+        <a href="/sovereign" style="color:#555; text-decoration:none;">Sovereign Node</a>
+        &nbsp;|&nbsp;
+        <a href="/apply/interussia" style="color:#555; text-decoration:none;">InteRussia Application</a>
+    </div>
+</footer>
+
+</body>
+</html>
