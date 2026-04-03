@@ -41,6 +41,7 @@ from routes.ambassador import ambassador_bp
 from routes.geography import geography_bp
 from routes.cumbrian import cumbrian_bp
 from routes.speak import speak_bp
+from routes.quls import quls_bp
 
 
 def register_blueprints(app):
@@ -87,3 +88,4 @@ def register_blueprints(app):
     app.register_blueprint(geography_bp)
     app.register_blueprint(cumbrian_bp)
     app.register_blueprint(speak_bp)
+    app.register_blueprint(quls_bp)
