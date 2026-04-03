@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID Radio — Broadcast Room — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg: #060606;
+            --surface: #0e0e0e;
+            --surface2: #111;
+            --border: #1a1a1a;
+            --gold: #c9a84c;
+            --teal: #2dd4bf;
+            --red: #e84040;
+            --text: #d4d4d4;
+            --muted: #444;
+            --dim: #2a2a2a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── NAV ── */
+        .rd-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(6,6,6,0.98);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .rd-nav-brand {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .rd-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .rd-nav-link {
+            color: #555;
+            text-decoration: none;
+            font-size: 0.68rem;
+            letter-spacing: 1.5px;
+            transition: color 0.2s;
+        }
+        .rd-nav-link:hover { color: var(--teal); }
+        .rd-nav-link.active { color: var(--gold); }
+
+        /* ── BROADCAST ROOM HEADER ── */
+        .rd-header {
+            padding: 56px 32px 32px;
+            max-width: 860px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .rd-on-air {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            color: var(--red);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .rd-on-air-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--red);
+            animation: blink 1.2s ease-in-out infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.15; }
+        }
+        .rd-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        .rd-subtitle {
+            font-size: 0.72rem;
+            color: #555;
+            letter-spacing: 2px;
+            line-height: 1.8;
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .rd-main {
+            flex: 1;
+            max-width: 860px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 32px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        /* ── SECTION LABEL ── */
+        .rd-section-label {
+            font-size: 0.56rem;
+            letter-spacing: 4px;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        /* ── EPISODE SELECTOR ── */
+        .rd-selector-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 24px;
+        }
+        .rd-form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .rd-select {
+            background: #080808;
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.75rem;
+            padding: 10px 14px;
+            border-radius: 3px;
+            outline: none;
+            flex: 1;
+            min-width: 200px;
+            cursor: pointer;
+        }
+        .rd-select:focus { border-color: rgba(201,168,76,0.4); }
+
+        .rd-input {
+            background: #080808;
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.75rem;
+            padding: 10px 14px;
+            border-radius: 3px;
+            outline: none;
+            flex: 2;
+            min-width: 240px;
+        }
+        .rd-input:focus { border-color: rgba(201,168,76,0.4); }
+        .rd-input::placeholder { color: #252525; }
+
+        .rd-btn {
+            background: transparent;
+            border: 1px solid rgba(201,168,76,0.35);
+            color: var(--gold);
+            padding: 10px 24px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            white-space: nowrap;
+        }
+        .rd-btn:hover:not(:disabled) {
+            background: rgba(201,168,76,0.07);
+            border-color: var(--gold);
+        }
+        .rd-btn:disabled { opacity: 0.3; cursor: default; }
+
+        .rd-btn-teal {
+            border-color: rgba(45,212,191,0.35);
+            color: var(--teal);
+        }
+        .rd-btn-teal:hover:not(:disabled) {
+            background: rgba(45,212,191,0.06);
+            border-color: var(--teal);
+        }
+
+        .rd-btn-red {
+            border-color: rgba(232,64,64,0.35);
+            color: var(--red);
+        }
+        .rd-btn-red:hover:not(:disabled) {
+            background: rgba(232,64,64,0.06);
+            border-color: var(--red);
+        }
+
+        /* ── STATUS LOG ── */
+        .rd-status-log {
+            background: #050505;
+            border: 1px solid #131313;
+            border-radius: 3px;
+            padding: 14px 16px;
+            font-size: 0.7rem;
+            color: #555;
+            min-height: 48px;
+            line-height: 1.8;
+            display: none;
+        }
+        .rd-status-log.visible { display: block; }
+        .rd-status-line { margin: 0; }
+        .rd-status-line.info  { color: #555; }
+        .rd-status-line.ok    { color: var(--teal); }
+        .rd-status-line.warn  { color: var(--gold); }
+        .rd-status-line.error { color: var(--red); }
+
+        /* ── PLAYER ── */
+        .rd-player-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 24px;
+            display: none;
+        }
+        .rd-player-card.visible { display: block; }
+
+        .rd-player-title {
+            font-size: 0.78rem;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .rd-audio-wrap {
+            margin-bottom: 18px;
+        }
+        .rd-audio {
+            width: 100%;
+            height: 40px;
+            outline: none;
+            border-radius: 3px;
+            background: #080808;
+        }
+        audio::-webkit-media-controls-panel { background: #0e0e0e; }
+
+        .rd-player-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .rd-script-hash {
+            font-size: 0.6rem;
+            color: #2a2a2a;
+            letter-spacing: 1px;
+            word-break: break-all;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .rd-script-hash span { color: #3a3a3a; }
+
+        /* ── SCRIPT VIEWER ── */
+        .rd-script-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 24px;
+            display: none;
+        }
+        .rd-script-card.visible { display: block; }
+
+        .rd-script-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .rd-script-line {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 0.76rem;
+            line-height: 1.7;
+        }
+        .rd-host-label {
+            flex-shrink: 0;
+            font-size: 0.56rem;
+            letter-spacing: 2px;
+            padding: 3px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+        .rd-host-a {
+            background: rgba(201,168,76,0.08);
+            color: var(--gold);
+            border: 1px solid rgba(201,168,76,0.2);
+        }
+        .rd-host-b {
+            background: rgba(45,212,191,0.06);
+            color: var(--teal);
+            border: 1px solid rgba(45,212,191,0.15);
+        }
+        .rd-line-text { color: #aaa; flex: 1; }
+
+        /* ── ARCHIVE ── */
+        .rd-archive-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .rd-archive-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+        .rd-archive-list { list-style: none; }
+        .rd-archive-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 24px;
+            border-bottom: 1px solid #0f0f0f;
+            flex-wrap: wrap;
+        }
+        .rd-archive-item:last-child { border-bottom: none; }
+        .rd-archive-title {
+            flex: 1;
+            font-size: 0.76rem;
+            color: #aaa;
+            min-width: 200px;
+        }
+        .rd-archive-play {
+            font-size: 0.6rem;
+            letter-spacing: 1.5px;
+            color: var(--teal);
+            text-decoration: none;
+            border: 1px solid rgba(45,212,191,0.2);
+            padding: 5px 12px;
+            border-radius: 2px;
+            cursor: pointer;
+            background: none;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        .rd-archive-play:hover {
+            background: rgba(45,212,191,0.06);
+        }
+        .rd-archive-dl {
+            font-size: 0.6rem;
+            letter-spacing: 1.5px;
+            color: #555;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .rd-archive-dl:hover { color: var(--gold); }
+        .rd-archive-stega {
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+            color: #2a2a2a;
+            padding: 4px 8px;
+            border: 1px solid #1a1a1a;
+            border-radius: 2px;
+            cursor: pointer;
+            background: none;
+            font-family: inherit;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .rd-archive-stega:hover { color: var(--gold); border-color: rgba(201,168,76,0.3); }
+        .rd-archive-empty {
+            padding: 24px;
+            color: #2a2a2a;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        /* ── FOOTER ── */
+        .rd-footer {
+            text-align: center;
+            padding: 40px 24px 60px;
+            font-size: 0.55rem;
+            color: #1e1e1e;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .rd-header { padding: 32px 16px 24px; }
+            .rd-main { padding: 0 16px 60px; }
+            .rd-form-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="rd-nav">
+        <a href="/" class="rd-nav-brand">◆ VOID ENGINE</a>
+        <div class="rd-nav-links">
+            <a href="/speak" class="rd-nav-link">Speak</a>
+            <a href="/radio" class="rd-nav-link active">VOID Radio</a>
+            <a href="/voidecho" class="rd-nav-link">VoidEcho</a>
+            <a href="/gridul" class="rd-nav-link">GriDul</a>
+            <a href="/genesis" class="rd-nav-link">Genesis 10</a>
+            <a href="/messenger" class="rd-nav-link">Messenger</a>
+            <a href="/preflight" class="rd-nav-link">Pre-Flight</a>
+        </div>
+    </nav>
+
+    <div class="rd-header">
+        <div class="rd-on-air">
+            <div class="rd-on-air-dot"></div>
+            VOID Radio · 432 Hz Broadcast
+        </div>
+        <div class="rd-title">VOID RADIO</div>
+        <div class="rd-subtitle">
+            Two-host podcast from the VOID Chronicle · Voices encoded as VoidEcho 432 Hz steganographic broadcast
+            <br>
+            Host A: George (Explainer) · Host B: Rachel (Questioner)
+        </div>
+    </div>
+
+    <div class="rd-main">
+
+        <!-- EPISODE GENERATOR -->
+        <div>
+            <div class="rd-section-label">Generate Episode</div>
+            <div class="rd-selector-card">
+                <div class="rd-form-row">
+                    <select id="rd-chapter-select" class="rd-select">
+                        <option value="all">Full Archive (all 27 chapters)</option>
+                        {% for ch in chapters %}
+                        <option value="{{ ch.chapter_number }}">
+                            Ch.{{ ch.chapter_number }} — {{ ch.title[:55] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <input
+                        type="text"
+                        id="rd-title-input"
+                        class="rd-input"
+                        placeholder="Episode title (auto-generated if blank)"
+                        maxlength="120"
+                    />
+                </div>
+                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                    <button id="rd-generate-btn" class="rd-btn">▶ Generate Episode</button>
+                    <span id="rd-spinner" style="display:none;font-size:0.65rem;color:#444;letter-spacing:2px;">
+                        Generating audio… this may take 1–3 minutes
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATUS LOG -->
+        <div id="rd-status-log" class="rd-status-log"></div>
+
+        <!-- PLAYER -->
+        <div>
+            <div class="rd-section-label" id="rd-player-label" style="display:none;">Now Playing</div>
+            <div id="rd-player-card" class="rd-player-card">
+                <div class="rd-player-title" id="rd-player-title">—</div>
+                <div class="rd-audio-wrap">
+                    <audio id="rd-audio" class="rd-audio" controls preload="none">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+                <div class="rd-player-actions">
+                    <a id="rd-download-mp3" href="#" class="rd-btn" download>⬇ Download MP3</a>
+                    <button id="rd-encode-stega-btn" class="rd-btn-teal rd-btn">Encode into VoidEcho</button>
+                    <a id="rd-download-wav" href="#" class="rd-btn rd-btn-red" download style="display:none;">⬇ Download VoidEcho WAV</a>
+                </div>
+                <div class="rd-script-hash" id="rd-script-hash" style="display:none;">
+                    AL-JABR 286 SCRIPT HASH:<br>
+                    <span id="rd-hash-value"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCRIPT VIEWER -->
+        <div id="rd-script-section" style="display:none;">
+            <div class="rd-section-label">Episode Script</div>
+            <div id="rd-script-card" class="rd-script-card">
+                <div class="rd-script-lines" id="rd-script-lines"></div>
+            </div>
+        </div>
+
+        <!-- EPISODE ARCHIVE -->
+        <div>
+            <div class="rd-section-label">Episode Archive</div>
+            <div class="rd-archive-card">
+                <div class="rd-archive-header">Previously Generated</div>
+                <ul class="rd-archive-list" id="rd-archive-list">
+                    {% if episodes %}
+                        {% for ep in episodes %}
+                        <li class="rd-archive-item" data-slug="{{ ep.slug }}">
+                            <div class="rd-archive-title">{{ ep.title }}</div>
+                            <button class="rd-archive-play" onclick="loadEpisode('{{ ep.slug }}', '{{ ep.title|replace("'", "\\'") }}', '{{ ep.mp3_url }}', '{{ ep.wav_url or "" }}')">
+                                ▶ Play
+                            </button>
+                            <a class="rd-archive-dl" href="{{ ep.mp3_url }}" download>MP3</a>
+                            {% if ep.has_stega %}
+                            <a class="rd-archive-dl" href="{{ ep.wav_url }}" download>VoidEcho WAV</a>
+                            {% else %}
+                            <button class="rd-archive-stega" onclick="encodeStegaForSlug('{{ ep.slug }}')">
+                                + VoidEcho
+                            </button>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="rd-archive-empty">No episodes generated yet. Use the generator above.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="rd-footer">
+        VOID RADIO · 432 Hz Spectrogram Broadcast · Al-Jabr 286 Sovereign Hash · No login required
+    </div>
+
+    <script>
+    (function() {
+        const generateBtn = document.getElementById('rd-generate-btn');
+        const spinner     = document.getElementById('rd-spinner');
+        const statusLog   = document.getElementById('rd-status-log');
+        const playerCard  = document.getElementById('rd-player-card');
+        const playerLabel = document.getElementById('rd-player-label');
+        const playerTitle = document.getElementById('rd-player-title');
+        const audio       = document.getElementById('rd-audio');
+        const dlMp3       = document.getElementById('rd-download-mp3');
+        const encodeStega = document.getElementById('rd-encode-stega-btn');
+        const dlWav       = document.getElementById('rd-download-wav');
+        const scriptHash  = document.getElementById('rd-script-hash');
+        const hashValue   = document.getElementById('rd-hash-value');
+        const scriptSec   = document.getElementById('rd-script-section');
+        const scriptCard  = document.getElementById('rd-script-card');
+        const scriptLines = document.getElementById('rd-script-lines');
+        const archiveList = document.getElementById('rd-archive-list');
+
+        let currentSlug = null;
+
+        function log(msg, level='info') {
+            statusLog.classList.add('visible');
+            const p = document.createElement('p');
+            p.className = 'rd-status-line ' + level;
+            p.textContent = '› ' + msg;
+            statusLog.appendChild(p);
+            statusLog.scrollTop = statusLog.scrollHeight;
+        }
+
+        function clearLog() {
+            statusLog.innerHTML = '';
+            statusLog.classList.remove('visible');
+        }
+
+        generateBtn.addEventListener('click', async () => {
+            const chapterFilter = document.getElementById('rd-chapter-select').value;
+            const titleInput    = document.getElementById('rd-title-input').value.trim();
+
+            clearLog();
+            generateBtn.disabled = true;
+            spinner.style.display = 'inline';
+            log('Connecting to VOID Chronicle…');
+
+            try {
+                log('Generating two-host script via OpenAI…');
+                const res = await fetch('/radio/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chapter_filter: chapterFilter, title: titleInput }),
+                });
+                const data = await res.json();
+                if (!res.ok || data.error) throw new Error(data.detail || data.error || 'Generation failed');
+
+                log(`Script complete — ${data.lines} lines`, 'ok');
+                log('Rendering audio via ElevenLabs multilingual_v2…');
+                log('Normalising to -16 LUFS via ffmpeg…');
+                log(`Episode ready: ${data.title}`, 'ok');
+
+                currentSlug = data.slug;
+                showPlayer(data.title, data.mp3_url, null, data.script_hash);
+                showScript(data.script);
+                addToArchive(data.slug, data.title, data.mp3_url);
+
+            } catch (err) {
+                log('Error: ' + (err.message || 'Unknown error'), 'error');
+            } finally {
+                generateBtn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+
+        encodeStega.addEventListener('click', async () => {
+            if (!currentSlug) return;
+            encodeStega.disabled = true;
+            log('Encoding Al-Jabr 286 hash into VoidEcho spectrogram…', 'info');
+
+            try {
+                const res = await fetch('/radio/encode-stega', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug: currentSlug }),
+                });
+                const data = await res.json();
+                if (!res.ok || data.error) throw new Error(data.detail || data.error || 'Encode failed');
+
+                log('VoidEcho WAV ready — 286-bit hash hidden in spectrogram carrier', 'ok');
+                dlWav.href = data.wav_url;
+                dlWav.style.display = 'inline-flex';
+                hashValue.textContent = data.script_hash;
+                scriptHash.style.display = 'block';
+
+            } catch (err) {
+                log('Stega encode error: ' + (err.message || 'Unknown'), 'error');
+            } finally {
+                encodeStega.disabled = false;
+            }
+        });
+
+        function showPlayer(title, mp3Url, wavUrl, hash) {
+            playerTitle.textContent = title;
+            audio.src = mp3Url + '?t=' + Date.now();
+            dlMp3.href = mp3Url;
+            playerCard.classList.add('visible');
+            playerLabel.style.display = 'block';
+            dlWav.style.display = 'none';
+            scriptHash.style.display = 'none';
+            encodeStega.disabled = false;
+
+            if (wavUrl) {
+                dlWav.href = wavUrl;
+                dlWav.style.display = 'inline-flex';
+            }
+            if (hash) {
+                hashValue.textContent = hash;
+            }
+        }
+
+        function showScript(script) {
+            scriptLines.innerHTML = '';
+            script.forEach(line => {
+                const div = document.createElement('div');
+                div.className = 'rd-script-line';
+                const label = document.createElement('span');
+                label.className = 'rd-host-label rd-host-' + (line.host || 'A').toLowerCase();
+                label.textContent = 'Host ' + (line.host || 'A');
+                const text = document.createElement('span');
+                text.className = 'rd-line-text';
+                text.textContent = line.text || '';
+                div.appendChild(label);
+                div.appendChild(text);
+                scriptLines.appendChild(div);
+            });
+            scriptCard.classList.add('visible');
+            scriptSec.style.display = 'block';
+        }
+
+        function addToArchive(slug, title, mp3Url) {
+            const emptyLi = archiveList.querySelector('.rd-archive-empty');
+            if (emptyLi) emptyLi.remove();
+
+            const li = document.createElement('li');
+            li.className = 'rd-archive-item';
+            li.dataset.slug = slug;
+            li.innerHTML = `
+                <div class="rd-archive-title">${escHtml(title)}</div>
+                <button class="rd-archive-play" onclick="loadEpisode('${escHtml(slug)}', '${escHtml(title)}', '${escHtml(mp3Url)}', '')">▶ Play</button>
+                <a class="rd-archive-dl" href="${escHtml(mp3Url)}" download>MP3</a>
+                <button class="rd-archive-stega" onclick="encodeStegaForSlug('${escHtml(slug)}')">+ VoidEcho</button>
+            `;
+            archiveList.insertBefore(li, archiveList.firstChild);
+        }
+
+        function escHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
+        window.loadEpisode = function(slug, title, mp3Url, wavUrl) {
+            currentSlug = slug;
+            showPlayer(title, mp3Url, wavUrl || null, null);
+            scriptCard.classList.remove('visible');
+            scriptSec.style.display = 'none';
+            scriptLines.innerHTML = '';
+            clearLog();
+            log(`Loading: ${title}`, 'ok');
+        };
+
+        window.encodeStegaForSlug = async function(slug) {
+            currentSlug = slug;
+            clearLog();
+            log('Encoding Al-Jabr 286 hash into VoidEcho spectrogram…');
+            try {
+                const res = await fetch('/radio/encode-stega', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug }),
+                });
+                const data = await res.json();
+                if (!res.ok || data.error) throw new Error(data.detail || data.error);
+
+                log('VoidEcho WAV ready — 286-bit hash hidden in spectrogram', 'ok');
+
+                const li = archiveList.querySelector(`[data-slug="${slug}"]`);
+                if (li) {
+                    const stegaBtn = li.querySelector('.rd-archive-stega');
+                    if (stegaBtn) {
+                        const a = document.createElement('a');
+                        a.className = 'rd-archive-dl';
+                        a.href = data.wav_url;
+                        a.download = '';
+                        a.textContent = 'VoidEcho WAV';
+                        stegaBtn.replaceWith(a);
+                    }
+                }
+
+                dlWav.href = data.wav_url;
+                dlWav.style.display = 'inline-flex';
+                hashValue.textContent = data.script_hash;
+                scriptHash.style.display = 'block';
+
+            } catch (err) {
+                log('Stega encode error: ' + err.message, 'error');
+            }
+        };
+    })();
+    </script>
+</body>
+</html>
