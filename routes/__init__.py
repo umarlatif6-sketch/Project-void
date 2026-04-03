@@ -53,6 +53,7 @@ from routes.sword_wall import sword_wall_bp
 from routes.patent_loom import patent_loom_bp
 from routes.preflight import preflight_bp
 from routes.sales_intel import sales_intel_bp
+from routes.supply_chain import supply_chain_bp
 
 
 def register_blueprints(app):
@@ -111,3 +112,4 @@ def register_blueprints(app):
     app.register_blueprint(patent_loom_bp)
     app.register_blueprint(preflight_bp)
     app.register_blueprint(sales_intel_bp)
+    app.register_blueprint(supply_chain_bp)

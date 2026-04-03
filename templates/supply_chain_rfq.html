@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFQ Template{% if single %} — {{ cat_name }}{% endif %} — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg: #050508;
+            --surface: #0c0c12;
+            --border: #1a1a28;
+            --gold: #c9a84c;
+            --teal: #2dd4bf;
+            --text: #d4d4d4;
+            --muted: #555;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+
+        /* NAV */
+        .rfq-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(5,5,8,0.98);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .rfq-nav-brand {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .rfq-nav-links { display: flex; gap: 18px; flex-wrap: wrap; }
+        .rfq-nav-link {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.68rem;
+            letter-spacing: 1.5px;
+            transition: color 0.2s;
+        }
+        .rfq-nav-link:hover { color: var(--teal); }
+        .rfq-nav-link.active { color: var(--gold); }
+
+        /* HEADER */
+        .rfq-header {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 60px 24px 32px;
+            text-align: center;
+        }
+        .rfq-badge {
+            display: inline-block;
+            background: rgba(201,168,76,0.08);
+            color: var(--gold);
+            border: 1px solid rgba(201,168,76,0.2);
+            padding: 5px 18px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .rfq-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        .rfq-subtitle {
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.7;
+            max-width: 620px;
+            margin: 0 auto 28px;
+        }
+
+        /* CATEGORY SELECTOR */
+        .rfq-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        .rfq-sel-btn {
+            display: inline-block;
+            padding: 8px 18px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--muted);
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .rfq-sel-btn:hover { border-color: #333; color: var(--text); }
+        .rfq-sel-btn.active { border-color: rgba(201,168,76,0.4); color: var(--gold); }
+
+        .rfq-print-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 20px;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 4px;
+            color: var(--gold);
+            font-family: inherit;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .rfq-print-btn:hover { background: rgba(201,168,76,0.14); }
+
+        /* RFQ DOCUMENT */
+        .rfq-doc-wrap {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        .rfq-doc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 48px;
+            margin-bottom: 32px;
+        }
+
+        .rfq-doc-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 28px;
+            margin-bottom: 32px;
+        }
+        .rfq-doc-stamp {
+            font-size: 0.58rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 12px;
+        }
+        .rfq-doc-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .rfq-doc-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+        .rfq-doc-meta-item {
+            font-size: 0.7rem;
+            color: #555;
+        }
+        .rfq-doc-meta-item strong { color: #888; }
+
+        .rfq-section {
+            margin-bottom: 28px;
+        }
+        .rfq-section-label {
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #151520;
+        }
+        .rfq-section-text {
+            font-size: 0.82rem;
+            line-height: 1.85;
+            color: #888;
+            white-space: pre-line;
+        }
+        .rfq-section-text p {
+            margin-bottom: 8px;
+        }
+
+        .rfq-separator {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 36px 0;
+        }
+
+        .rfq-footer-block {
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+            margin-top: 24px;
+            font-size: 0.7rem;
+            color: #444;
+            line-height: 1.7;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body { background: #fff; color: #000; }
+            .rfq-nav, .rfq-header, .rfq-selector, .rfq-print-btn { display: none !important; }
+            .rfq-doc { background: #fff; border: 1px solid #ccc; border-radius: 0; color: #000; padding: 20px; }
+            .rfq-doc-stamp { color: #333; }
+            .rfq-doc-title { color: #000; }
+            .rfq-section-label { color: #333; }
+            .rfq-section-text { color: #222; }
+            .rfq-doc-meta-item { color: #333; }
+            .rfq-doc-meta-item strong { color: #000; }
+            .rfq-footer-block { color: #555; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="rfq-nav">
+        <a href="/" class="rfq-nav-brand">◆ VOID ENGINE</a>
+        <div class="rfq-nav-links">
+            <a href="/supply-chain" class="rfq-nav-link">← Supply Chain</a>
+            <a href="/patent-loom" class="rfq-nav-link">Patent Loom</a>
+            <a href="/supply-chain/export.csv" class="rfq-nav-link">Export CSV</a>
+        </div>
+    </nav>
+
+    <div class="rfq-header">
+        <div class="rfq-badge">Request for Quotation — VOID Chronometer</div>
+        <h1 class="rfq-title">RFQ Templates</h1>
+        <p class="rfq-subtitle">
+            Pre-filled Request for Quotation documents for each material category.
+            Suitable for sending to any shortlisted vendor — print or download as needed.
+        </p>
+
+        <div class="rfq-selector">
+            <a href="/supply-chain/rfq.html" class="rfq-sel-btn {% if not single %}active{% endif %}">All Categories</a>
+            {% for cat in categories %}
+            <a href="/supply-chain/rfq.html?category={{ cat.id }}"
+               class="rfq-sel-btn {% if single and selected_id == cat.id %}active{% endif %}">
+                {{ cat.glyph }} {{ cat.name }}
+            </a>
+            {% endfor %}
+            <button class="rfq-print-btn" onclick="window.print()">⎙ Print / Save PDF</button>
+        </div>
+    </div>
+
+    <div class="rfq-doc-wrap">
+        {% for cat_id, tmpl in templates.items() %}
+        <div class="rfq-doc" id="rfq-{{ cat_id }}">
+
+            <div class="rfq-doc-header">
+                <div class="rfq-doc-stamp">PROJECT VOID · REQUEST FOR QUOTATION</div>
+                <div class="rfq-doc-title">{{ tmpl.category_name }}</div>
+                <div class="rfq-doc-meta">
+                    <div class="rfq-doc-meta-item"><strong>Issuing entity:</strong> PROJECT VOID (UK)</div>
+                    <div class="rfq-doc-meta-item"><strong>Document reference:</strong> VOID-RFQ-{{ cat_id.upper() }}-2026</div>
+                    <div class="rfq-doc-meta-item"><strong>Confidentiality:</strong> Commercial-in-Confidence</div>
+                </div>
+            </div>
+
+            <div class="rfq-section">
+                <div class="rfq-section-label">1. Project Background</div>
+                <div class="rfq-section-text">{{ tmpl.project_background }}</div>
+            </div>
+
+            <div class="rfq-section">
+                <div class="rfq-section-label">2. Material Specification</div>
+                <div class="rfq-section-text">{{ tmpl.material_specification }}</div>
+            </div>
+
+            <div class="rfq-section">
+                <div class="rfq-section-label">3. Volume &amp; Timeline</div>
+                <div class="rfq-section-text">{{ tmpl.volume_and_timeline }}</div>
+            </div>
+
+            <div class="rfq-section">
+                <div class="rfq-section-label">4. Quality &amp; Compliance Requirements</div>
+                <div class="rfq-section-text">{{ tmpl.quality_and_compliance }}</div>
+            </div>
+
+            <div class="rfq-section">
+                <div class="rfq-section-label">5. Pricing Format Required</div>
+                <div class="rfq-section-text">{{ tmpl.pricing_format }}</div>
+            </div>
+
+            <div class="rfq-section">
+                <div class="rfq-section-label">6. References &amp; Samples</div>
+                <div class="rfq-section-text">{{ tmpl.reference_request }}</div>
+            </div>
+
+            <div class="rfq-section">
+                <div class="rfq-section-label">7. Evaluation Timeline</div>
+                <div class="rfq-section-text">{{ tmpl.evaluation_timeline }}</div>
+            </div>
+
+            <div class="rfq-footer-block">
+                <strong>Submission instructions:</strong> Responses should be submitted by email with subject line
+                "VOID-RFQ-{{ cat_id.upper() }}-2026 / [Your Company Name]". All documents should be provided in
+                PDF or XLSX format. Technical queries are welcome prior to the deadline.<br><br>
+                This RFQ does not constitute a commitment to purchase. PROJECT VOID reserves the right to
+                accept or reject any quotation without obligation. All information shared under this RFQ
+                is subject to the mutual NDA in force between the parties, or should be treated as
+                Commercial-in-Confidence until an NDA is executed.<br><br>
+                Patent claims #101, #102, #103 are pending. All specification details shared herein are
+                confidential trade information. Unauthorised disclosure constitutes a breach of confidence.
+            </div>
+
+        </div>
+        {% if not loop.last %}<hr class="rfq-separator">{% endif %}
+        {% endfor %}
+    </div>
+</body>
+</html>
