@@ -307,6 +307,7 @@ def get_network_status(run_steps: int = 1) -> Dict:
       - uptime_sec: float
       - node_breakdown: dict
       - buffer_spore: Buffer Spore prediction cache state (Task #81)
+      - apex_predator: dict  (dual-tone Apex Predator status)
     """
     global _LAST_STEP_TIME
     network = _get_network()
@@ -321,7 +322,83 @@ def get_network_status(run_steps: int = 1) -> Dict:
 
     status = network.get_status()
     status["buffer_spore"] = get_buffer_spore_state()
+
+    # Attach Apex Predator dual-tone status for dashboard display
+    try:
+        from void_engine.audio_stega import get_apex_predator_status
+        status["apex_predator"] = get_apex_predator_status()
+    except Exception:
+        status["apex_predator"] = {
+            "apex_predator": False,
+            "pheromonal_intent": "PEACE",
+            "carrier_hz": 432,
+            "dual_tone_active": False,
+            "sensor_sensitivity": "STANDARD",
+            "storm_override": False,
+        }
+
     return status
+
+
+def activate_apex_predator_mode() -> Dict:
+    """
+    Activate Apex Predator dual-tone mode on the Forest Nervous System.
+
+    Both tones are simultaneously active:
+      - ALERT pheromonal tag: sharpens sensor sensitivity to maximum
+      - 432 Hz Vortex carrier: remains the broadcast frequency (PEACE stability)
+
+    Storm Mode override remains intact: ALERT + PEACE → STORM collapses both
+    to Protective/Local instantly if triggered.
+
+    Returns a dashboard-ready status dict.
+    """
+    from void_engine.audio_stega import activate_apex_predator
+    apex_status = activate_apex_predator()
+    logger.info(
+        "[VOID-APEX] Apex Predator activated on Forest Nervous System. "
+        "ALERT sensitivity: MAXIMUM | 432 Hz carrier: ACTIVE"
+    )
+    return {
+        "activated": True,
+        "apex_predator": apex_status,
+        "mode": "APEX_PREDATOR",
+        "alert_tag": apex_status.get("alert_hex"),
+        "peace_carrier_hz": 432,
+        "dual_tone_active": True,
+        "sensor_sensitivity": "MAXIMUM",
+        "message": "Apex Predator: perceives everything, fears nothing.",
+    }
+
+
+def deactivate_apex_predator_mode() -> Dict:
+    """Deactivate Apex Predator mode and return to PEACE stability."""
+    from void_engine.audio_stega import deactivate_apex_predator
+    apex_status = deactivate_apex_predator()
+    logger.info("[VOID-APEX] Apex Predator deactivated — returning to PEACE stability")
+    return {
+        "activated": False,
+        "apex_predator": apex_status,
+        "mode": "PEACE",
+        "message": "Returned to 432 Hz PEACE stability.",
+    }
+
+
+def activate_storm_mode() -> Dict:
+    """
+    Storm Mode override: ALERT + PEACE → collapses both to Protective/Local instantly.
+    This overrides Apex Predator mode.
+    """
+    from void_engine.audio_stega import activate_storm_override
+    storm_status = activate_storm_override()
+    logger.info("[VOID-STORM] Storm Mode override activated — Protective/Local collapse")
+    return {
+        "storm_active": True,
+        "mode": "STORM",
+        "storm_status": storm_status,
+        "apex_predator_overridden": True,
+        "message": "Storm Mode: ALERT+PEACE collapsed to Protective/Local.",
+    }
 
 
 def _get_bio_inputs() -> List[float]:

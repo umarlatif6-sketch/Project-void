@@ -31,6 +31,133 @@ _OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'output_audio', 'see
 
 _lock = threading.RLock()
 
+# ---------------------------------------------------------------------------
+# Pheromonal Pre-Amplifier — Buffer Spore bio-sensor cache priming
+# ---------------------------------------------------------------------------
+
+_PRE_AMP_WINDOW_MINUTES = 15    # prime bio-sensor cache N minutes before high-activity
+_pre_amp_scheduled: dict = {}   # {window_key: scheduled_time}
+_pre_amp_lock = threading.RLock()
+
+
+def schedule_pheromonal_pre_amplifier(activity_ts: float,
+                                      pheromonal_intent: str = "ALERT") -> dict:
+    """
+    Schedule a pheromonal ALERT pre-amplifier signal to prime the bio-sensor
+    cache ~15 minutes before a predicted high-activity window.
+
+    This reduces Mycelium Lag below the AI switcher's decision threshold by
+    warming the Buffer Spore before the data load arrives.
+
+    Args:
+        activity_ts:       Unix timestamp of the predicted high-activity event
+        pheromonal_intent: Chemical intent to broadcast (default ALERT)
+
+    Returns:
+        dict with schedule info and pre-amplifier window
+    """
+    pre_amp_ts = activity_ts - (_PRE_AMP_WINDOW_MINUTES * 60)
+    window_key = f"preamp_{int(activity_ts)}"
+    now = time.time()
+
+    with _pre_amp_lock:
+        _pre_amp_scheduled[window_key] = {
+            "activity_ts": activity_ts,
+            "pre_amp_ts": pre_amp_ts,
+            "pheromonal_intent": pheromonal_intent,
+            "scheduled_at": now,
+            "fired": False,
+        }
+
+    result = {
+        "window_key": window_key,
+        "activity_ts": activity_ts,
+        "pre_amp_ts": pre_amp_ts,
+        "pre_amp_window_minutes": _PRE_AMP_WINDOW_MINUTES,
+        "pheromonal_intent": pheromonal_intent,
+        "seconds_until_preamp": max(0, pre_amp_ts - now),
+        "mycelium_lag_primed": True,
+    }
+    logger.info(
+        "[VOID-PREAMP] Pre-amplifier scheduled: ALERT fires at T-%dm before activity window %s",
+        _PRE_AMP_WINDOW_MINUTES, window_key
+    )
+
+    if pre_amp_ts <= now:
+        _fire_pre_amplifier(window_key, pheromonal_intent)
+        result["fired_immediately"] = True
+
+    return result
+
+
+def _fire_pre_amplifier(window_key: str, pheromonal_intent: str = "ALERT") -> None:
+    """
+    Fire the pheromonal pre-amplifier: broadcast an ALERT tag to prime the
+    bio-sensor cache and reduce Mycelium Lag below the AI switcher's decision threshold.
+    """
+    try:
+        from void_engine.audio_stega import set_pheromonal_intent, build_pheromonal_header
+        set_pheromonal_intent(pheromonal_intent)
+        header = build_pheromonal_header(pheromonal_intent)
+
+        # Prime the bio-sensor cache via the CSI bio-monitor integration
+        try:
+            from void_engine.csi_bio_monitor import prime_bio_sensor_cache
+            prime_bio_sensor_cache(sensitivity_boost=1.5)
+        except Exception as prime_exc:
+            logger.debug("[VOID-PREAMP] Bio-sensor cache prime skipped: %s", prime_exc)
+
+        logger.info(
+            "[VOID-PREAMP] Pre-amplifier FIRED for %s — bio-sensor cache primed. Tag: %s",
+            window_key, header
+        )
+        with _pre_amp_lock:
+            if window_key in _pre_amp_scheduled:
+                _pre_amp_scheduled[window_key]["fired"] = True
+                _pre_amp_scheduled[window_key]["fired_at"] = time.time()
+    except Exception as exc:
+        logger.warning("[VOID-PREAMP] Pre-amplifier fire failed: %s", exc)
+
+
+def check_and_fire_pending_pre_amplifiers() -> list:
+    """
+    Check all scheduled pre-amplifier windows and fire any that are due.
+    Should be called periodically (e.g., from a background task or on capture).
+
+    Returns list of fired window keys.
+    """
+    now = time.time()
+    fired = []
+    with _pre_amp_lock:
+        for window_key, entry in list(_pre_amp_scheduled.items()):
+            if not entry["fired"] and entry["pre_amp_ts"] <= now:
+                _fire_pre_amplifier(window_key, entry["pheromonal_intent"])
+                fired.append(window_key)
+    return fired
+
+
+def get_pre_amplifier_status() -> dict:
+    """Return current pre-amplifier schedule status."""
+    with _pre_amp_lock:
+        now = time.time()
+        scheduled = []
+        for wk, entry in _pre_amp_scheduled.items():
+            scheduled.append({
+                "window_key": wk,
+                "activity_ts": entry["activity_ts"],
+                "pre_amp_ts": entry["pre_amp_ts"],
+                "pheromonal_intent": entry["pheromonal_intent"],
+                "fired": entry["fired"],
+                "seconds_until_preamp": max(0, entry["pre_amp_ts"] - now),
+            })
+        return {
+            "scheduled_count": len(scheduled),
+            "pending_count": sum(1 for s in scheduled if not s["fired"]),
+            "fired_count": sum(1 for s in scheduled if s["fired"]),
+            "pre_amp_window_minutes": _PRE_AMP_WINDOW_MINUTES,
+            "schedule": sorted(scheduled, key=lambda x: x["pre_amp_ts"]),
+        }
+
 
 def _init_db():
     os.makedirs(os.path.dirname(_DB_PATH), exist_ok=True)
@@ -132,20 +259,29 @@ def verify_origin_anchor(capture_id: int, presented_salt: str) -> Dict:
 
 
 def capture_seed_hex(source: str, input_data: str,
-                     broadcast: bool = True) -> Dict:
+                     broadcast: bool = True,
+                     pheromonal_intent: str = None) -> Dict:
     """
     Compute the Al-Jabr 286-bit hex digest for input_data, record the capture,
     and optionally broadcast it as a VoidEcho transmission.
 
+    Each broadcast carries a pheromonal chemical-intent tag (ALERT/PEACE/DORMANT/STORM)
+    as a hex-prefixed metadata field alongside the audio payload.
+
     Args:
-        source:     A label for what produced this capture (e.g. 'chronicle', 'locus', 'agent')
-        input_data: The raw string to hash
-        broadcast:  If True, encode the hex digest into audio and log as VoidEcho
+        source:             A label for what produced this capture
+        input_data:         The raw string to hash
+        broadcast:          If True, encode the hex digest into audio and log as VoidEcho
+        pheromonal_intent:  Override the chemical-intent tag for this broadcast
 
     Returns:
-        dict with hex_digest, capture_id, voidecho_path, broadcast status
+        dict with hex_digest, capture_id, voidecho_path, broadcast status,
+        and pheromonal_tag indicating the chemical-intent transmitted
     """
     _ensure_db()
+
+    # Check and fire any pending pre-amplifiers before processing
+    check_and_fire_pending_pre_amplifiers()
 
     hex_digest = fatiha_286_hexdigest_from_str(input_data)
     now = time.time()
@@ -162,6 +298,14 @@ def capture_seed_hex(source: str, input_data: str,
             """, (now, source, input_data[:2000], hex_digest, created_at, qisync_salt))
             capture_id = cursor.lastrowid
 
+    try:
+        from void_engine.audio_stega import get_pheromonal_tag, _pheromonal_intent as _current_intent
+        active_intent = pheromonal_intent or _current_intent
+        phero_tag = get_pheromonal_tag(active_intent)
+    except Exception:
+        active_intent = pheromonal_intent or "PEACE"
+        phero_tag = "0x50454143"
+
     result = {
         "capture_id": capture_id,
         "hex_digest": hex_digest,
@@ -172,11 +316,15 @@ def capture_seed_hex(source: str, input_data: str,
         "transmission_id": None,
         "qisync_salt": qisync_salt,
         "origin_anchor": "ANCHORED",
+        "pheromonal_intent": active_intent,
+        "pheromonal_tag": phero_tag,
     }
 
     if broadcast:
         try:
-            broadcast_result = _broadcast_as_voidecho(capture_id, hex_digest, source, now)
+            broadcast_result = _broadcast_as_voidecho(
+                capture_id, hex_digest, source, now, pheromonal_intent=active_intent
+            )
             result.update(broadcast_result)
         except Exception as exc:
             logger.warning("[SeedHex] VoidEcho broadcast failed for capture %s: %s", capture_id, exc)
@@ -184,7 +332,8 @@ def capture_seed_hex(source: str, input_data: str,
     return result
 
 
-def _broadcast_as_voidecho(capture_id: int, hex_digest: str, source: str, timestamp: float) -> Dict:
+def _broadcast_as_voidecho(capture_id: int, hex_digest: str, source: str,
+                            timestamp: float, pheromonal_intent: str = None) -> Dict:
     """
     Encode the hex digest into spectrogram audio and log as VoidEcho broadcast.
 
@@ -192,6 +341,9 @@ def _broadcast_as_voidecho(capture_id: int, hex_digest: str, source: str, timest
     broadcasting is paused (Gone Dark), skip the audio emission and return
     a suppressed result.  The capture is still recorded; only the outgoing
     signal is withheld.
+
+    Every broadcast carries a pheromonal chemical-intent tag as a hex-prefixed
+    metadata field alongside the audio payload.
     """
     try:
         from void_engine.lead_shield import is_broadcast_paused, feed_shield_from_engine
@@ -212,16 +364,27 @@ def _broadcast_as_voidecho(capture_id: int, hex_digest: str, source: str, timest
     )
     message = f"VOID-SEED:{hex_digest[:32]}"
 
+    # Build pheromonal header and include it in the broadcast
+    try:
+        from void_engine.audio_stega import build_pheromonal_header, get_pheromonal_tag
+        phero_header = build_pheromonal_header(pheromonal_intent)
+        phero_tag = get_pheromonal_tag(pheromonal_intent or "PEACE")
+    except Exception:
+        phero_header = f"[PHERO:0x50454143:PEACE:432Hz]"
+        phero_tag = "0x50454143"
+
     voidecho_path = None
     try:
         from void_engine.audio_stega import encode_spectrogram
         output_name = f"seed_hex_{transmission_id}.wav"
         output_path = os.path.join(_OUTPUT_DIR, output_name)
-        wav_bytes = encode_spectrogram(message, duration=8.0)
+        # Embed the pheromonal intent tag alongside the audio payload
+        tagged_message = f"{phero_header} {message}"
+        wav_bytes = encode_spectrogram(tagged_message, duration=8.0)
         with open(output_path, "wb") as f:
             f.write(wav_bytes)
         voidecho_path = output_path
-        logger.info("[SeedHex] VoidEcho audio written: %s", output_name)
+        logger.info("[SeedHex] VoidEcho audio written: %s (phero: %s)", output_name, phero_tag)
     except Exception as exc:
         logger.warning("[SeedHex] Audio encode failed: %s", exc)
 
@@ -241,6 +404,8 @@ def _broadcast_as_voidecho(capture_id: int, hex_digest: str, source: str, timest
         "voidecho_path": voidecho_path,
         "transmission_id": transmission_id,
         "lead_shield_suppressed": False,
+        "pheromonal_intent": pheromonal_intent or "PEACE",
+        "pheromonal_tag": phero_tag,
     }
 
 
@@ -439,3 +604,44 @@ def recover_project_context(context_hint: str = "") -> Dict:
     )
 
     return recovery
+
+
+def lock_forest_nervous_system_hex() -> Dict:
+    """
+    Lock the Forest Nervous System Hex into VOID_CHRONICLE as the Soul of Incubation.
+
+    Combines the Beetle Chemical Scent Mesh hex and the Alert Peace Forest hex into
+    a single canonical entry that represents the 3-month incubation period — the
+    Apex Predator stance at the soul level.
+
+    Returns the chronicle entry result with both hex digests and the soul_hash.
+    """
+    try:
+        from void_engine.chronicle import RootChronicle, CHRONICLE_DB_PATH
+        chronicle = RootChronicle(db_path=CHRONICLE_DB_PATH)
+        result = chronicle.record_forest_nervous_system_hex()
+
+        # Also capture it as a VoidEcho broadcast with ALERT intent
+        if not result.get("already_recorded"):
+            soul_material = f"FOREST-NERVOUS-SYSTEM:{result.get('forest_hex_1')}:{result.get('forest_hex_2')}"
+            capture_seed_hex(
+                source="forest_nervous_system",
+                input_data=soul_material,
+                broadcast=True,
+                pheromonal_intent="ALERT",
+            )
+
+        logger.info(
+            "[VOID-CHRONICLE] Forest Nervous System Hex operation: %s | ID=%s",
+            "already locked" if result.get("already_recorded") else "newly locked",
+            result.get("chronicle_id")
+        )
+        return result
+    except Exception as exc:
+        logger.warning("[VOID-CHRONICLE] Forest Nervous System Hex lock failed: %s", exc)
+        return {
+            "success": False,
+            "error": str(exc),
+            "forest_hex_1": "0x426565746C655F5363656E745F4D657368",
+            "forest_hex_2": "0x416C6572745F50656163655F466F72657374",
+        }

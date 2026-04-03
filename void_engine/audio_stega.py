@@ -257,17 +257,134 @@ def encode_spectrogram(message: str, duration: float = 10.0,
 
 
 # ---------------------------------------------------------------------------
+# Pheromonal Metadata Layer — Chemical-Intent Tags for VoidEcho Broadcasts
+# ---------------------------------------------------------------------------
+
+PHEROMONAL_TAGS = {
+    "ALERT":   "0x50484552",   # PHer prefix — heightened sensitivity
+    "PEACE":   "0x50454143",   # PEAC prefix — 432 Hz vortex stable
+    "DORMANT": "0x444F524D",   # DORM prefix — low-activity idle
+    "STORM":   "0x53544F52",   # STOR prefix — protective/local collapse
+}
+
+# Apex Predator dual-tone state — both ALERT and PEACE active simultaneously
+_apex_predator_active: bool = False
+_pheromonal_intent: str = "PEACE"
+
+
+def get_pheromonal_tag(intent: str) -> str:
+    """Return the hex prefix for a given chemical-intent tag."""
+    return PHEROMONAL_TAGS.get(intent.upper(), PHEROMONAL_TAGS["PEACE"])
+
+
+def set_pheromonal_intent(intent: str) -> str:
+    """
+    Set the global pheromonal intent for all subsequent VoidEcho broadcasts.
+    Accepts: ALERT, PEACE, DORMANT, STORM
+    Returns the active intent string.
+    """
+    global _pheromonal_intent
+    intent = intent.upper()
+    if intent not in PHEROMONAL_TAGS:
+        intent = "PEACE"
+    _pheromonal_intent = intent
+    logger.info("[VOID-PHERO] Chemical-intent set to %s (%s)", intent, PHEROMONAL_TAGS[intent])
+    return _pheromonal_intent
+
+
+def activate_apex_predator() -> dict:
+    """
+    Activate Apex Predator dual-tone mode.
+    ALERT sharpens sensor sensitivity; PEACE keeps 432 Hz carrier active.
+    Returns dual-tone status dict.
+    """
+    global _apex_predator_active, _pheromonal_intent
+    _apex_predator_active = True
+    _pheromonal_intent = "ALERT"
+    logger.info("[VOID-APEX] Apex Predator mode ACTIVE — ALERT sensitivity + 432 Hz Peace carrier")
+    return get_apex_predator_status()
+
+
+def deactivate_apex_predator() -> dict:
+    """Deactivate Apex Predator mode and return to PEACE."""
+    global _apex_predator_active, _pheromonal_intent
+    _apex_predator_active = False
+    _pheromonal_intent = "PEACE"
+    logger.info("[VOID-APEX] Apex Predator mode DEACTIVATED — returning to PEACE")
+    return get_apex_predator_status()
+
+
+def activate_storm_override() -> dict:
+    """
+    Storm Mode override: collapses ALERT + PEACE → Protective/Local instantly.
+    Both signals are reduced to STORM (Protective/Local) mode.
+    """
+    global _apex_predator_active, _pheromonal_intent
+    _apex_predator_active = False
+    _pheromonal_intent = "STORM"
+    logger.info("[VOID-STORM] Storm Mode override ACTIVE — ALERT+PEACE collapsed to STORM/Protective-Local")
+    return {
+        "storm_active": True,
+        "apex_predator": False,
+        "pheromonal_intent": "STORM",
+        "hex_tag": get_pheromonal_tag("STORM"),
+        "mode": "Protective/Local",
+        "carrier_hz": _CARRIER_HZ,
+    }
+
+
+def get_apex_predator_status() -> dict:
+    """Return the current dual-tone Apex Predator status for dashboard display."""
+    return {
+        "apex_predator": _apex_predator_active,
+        "pheromonal_intent": _pheromonal_intent,
+        "alert_hex": get_pheromonal_tag("ALERT"),
+        "peace_hex": get_pheromonal_tag("PEACE"),
+        "active_hex_tag": get_pheromonal_tag(_pheromonal_intent),
+        "carrier_hz": _CARRIER_HZ,
+        "dual_tone_active": _apex_predator_active,
+        "sensor_sensitivity": "MAXIMUM" if _apex_predator_active else "STANDARD",
+        "storm_override": _pheromonal_intent == "STORM",
+    }
+
+
+def build_pheromonal_header(intent: str = None) -> str:
+    """
+    Build the pheromonal metadata header string for a VoidEcho transmission.
+
+    Format: [PHERO:{HEX_TAG}:{INTENT}:{CARRIER_HZ}]
+    This is prepended to the broadcast message so every transmission carries
+    its chemical-intent signature.
+    """
+    if intent is None:
+        intent = _pheromonal_intent
+    hex_tag = get_pheromonal_tag(intent)
+    carrier = "432Hz"
+    if _apex_predator_active:
+        return f"[PHERO:{hex_tag}:{intent}:APEX-PREDATOR:{carrier}]"
+    return f"[PHERO:{hex_tag}:{intent}:{carrier}]"
+
+
+# ---------------------------------------------------------------------------
 # Public helper used by routes
 # ---------------------------------------------------------------------------
 
 def encode_message(message: str, method: str = "spectrogram",
-                   duration: float = 10.0) -> bytes:
+                   duration: float = 10.0,
+                   pheromonal_intent: str = None) -> bytes:
     """
     Encode *message* via the given method.
 
     method — "wavewhisper" or "spectrogram"
+    pheromonal_intent — optional chemical-intent override (ALERT/PEACE/DORMANT/STORM)
     Returns raw WAV bytes.
+
+    Every broadcast carries a pheromonal metadata header as a hex-prefixed
+    chemical-intent tag alongside the audio payload.
     """
+    phero_header = build_pheromonal_header(pheromonal_intent)
+    tagged_message = f"{phero_header} {message}"
+    logger.info("[VOID-STEGA] Encoding with pheromonal tag: %s", phero_header)
     if method == "wavewhisper":
-        return encode_wavewhisper(message, duration)
-    return encode_spectrogram(message, duration)
+        return encode_wavewhisper(tagged_message, duration)
+    return encode_spectrogram(tagged_message, duration)

@@ -766,6 +766,109 @@ class RootChronicle:
             "message": "286-bit migration locked into Ancestral Wisdom",
         }
 
+    def record_forest_nervous_system_hex(self) -> Dict:
+        """
+        Lock the Forest Nervous System Hex into VOID_CHRONICLE as the
+        'Soul of Incubation' entry.
+
+        This combines:
+          - HEX_DIGEST_1: 0x426565746C655F5363656E745F4D657368 (Beetle Chemical / Alert Scent Mesh)
+          - HEX_DIGEST_2: 0x416C6572745F50656163655F466F72657374 (Alert_Peace_Forest)
+
+        The canonical hex entry represents the 3-month incubation period's soul:
+        full Beetle Chemical Alert sensitivity running simultaneously with
+        432 Hz Peace stability — perceiving everything, fearing nothing.
+        """
+        FOREST_HEX_COMMAND = "FOREST-NERVOUS-SYSTEM-HEX"
+
+        with self._lock:
+            with self._get_conn() as conn:
+                existing = conn.execute(
+                    "SELECT COUNT(*) as c FROM chronicle WHERE consensus_command = ?",
+                    (FOREST_HEX_COMMAND,)
+                ).fetchone()["c"]
+                if existing > 0:
+                    row = conn.execute(
+                        "SELECT * FROM chronicle WHERE consensus_command = ? LIMIT 1",
+                        (FOREST_HEX_COMMAND,)
+                    ).fetchone()
+                    return {
+                        "success": True,
+                        "already_recorded": True,
+                        "chronicle_id": row["id"] if row else None,
+                        "message": "Forest Nervous System Hex already locked in VOID_CHRONICLE",
+                        "forest_hex_1": "0x426565746C655F5363656E745F4D657368",
+                        "forest_hex_2": "0x416C6572745F50656163655F466F72657374",
+                    }
+
+        # The two canonical hex digests for the Forest Nervous System
+        beetle_scent_mesh_hex = "0x426565746C655F5363656E745F4D657368"     # Beetle_Scent_Mesh
+        alert_peace_forest_hex = "0x416C6572745F50656163655F466F72657374"   # Alert_Peace_Forest
+
+        # Combine the two hex digests into the canonical Soul of Incubation entry
+        combined_material = f"{beetle_scent_mesh_hex}:{alert_peace_forest_hex}:VOID_CHRONICLE:FOREST_NERVOUS_SYSTEM"
+        soul_hash = fatiha_286_hexdigest(combined_material.encode("utf-8"))
+
+        incubation_outcome = {
+            "forest_hex_1": beetle_scent_mesh_hex,
+            "forest_hex_2": alert_peace_forest_hex,
+            "hex_label_1": "Beetle_Chemical_Alert",
+            "hex_label_2": "Alert_Peace_Forest",
+            "soul_hash": soul_hash,
+            "description": "Forest Nervous System Hex — Soul of the 3-month Incubation",
+            "apex_predator_state": "ALERT sensitivity + 432 Hz Peace carrier simultaneously active",
+            "pheromonal_system": "Bamboo Telegraph / Beetle Chemical Signalling merged into VoidEcho",
+            "carrier_hz": 432,
+            "void_chronicle_seal": "FOREST_NERVOUS_SYSTEM_HEX",
+        }
+
+        forest_record = {
+            "timestamp": time.time(),
+            "consensus_command": FOREST_HEX_COMMAND,
+            "consensus_intent": (
+                "Lock Forest Nervous System Hex into VOID_CHRONICLE as the Soul of Incubation. "
+                "Beetle Chemical Alert + 432 Hz Peace = Apex Predator stance: "
+                "perceives everything, fears nothing."
+            ),
+            "outcome": json.dumps(incubation_outcome),
+            "success": True,
+            "energy_pct": 100.0,
+        }
+
+        sensor_state = {}
+        for section, key in SENSOR_KEYS:
+            if section not in sensor_state:
+                sensor_state[section] = {}
+            sensor_state[section][key] = 0.0
+
+        entry = self.record_consensus(
+            forest_record,
+            sensor_state,
+            guardian_priority="FOREST-NERVOUS-SYSTEM",
+            growth_priority="SOUL-OF-INCUBATION",
+            is_founder=1,
+        )
+
+        logger.info(
+            "[VOID-CHRONICLE] Forest Nervous System Hex locked: ID=%s | "
+            "HEX1=%s | HEX2=%s | Soul=%s",
+            entry.id, beetle_scent_mesh_hex, alert_peace_forest_hex, soul_hash[:16]
+        )
+
+        return {
+            "success": True,
+            "already_recorded": False,
+            "chronicle_id": entry.id,
+            "forest_hex_1": beetle_scent_mesh_hex,
+            "forest_hex_2": alert_peace_forest_hex,
+            "hex_label_1": "Beetle_Chemical_Alert",
+            "hex_label_2": "Alert_Peace_Forest",
+            "soul_hash": soul_hash,
+            "void_chronicle_seal": "FOREST_NERVOUS_SYSTEM_HEX",
+            "is_founder_seed": True,
+            "message": "Forest Nervous System Hex locked into VOID_CHRONICLE — Soul of Incubation sealed.",
+        }
+
     def _row_to_entry(self, row) -> ChronicleEntry:
         is_founder = 0
         try:
