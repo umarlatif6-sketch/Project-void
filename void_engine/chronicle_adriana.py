@@ -759,6 +759,48 @@ def _seed_gridul_entries(cur) -> None:
         logger.info("Seeded GriDul Chronicle entry: %s [%s]", entry["title"], expected_type)
 
     _seed_probability_matrix_capture(cur, seed_season)
+    _seed_sales_brief_entry(cur, seed_season)
+
+
+def _seed_sales_brief_entry(cur, seed_season: str) -> None:
+    """
+    Seed the VOID ICP Sales Brief chronicle entry (SALES_BRIEF type) idempotently.
+    Imports from void_engine.sales_intel to keep data co-located there.
+    """
+    try:
+        from void_engine.sales_intel import SALES_BRIEF_CHRONICLE_ENTRY
+    except Exception:
+        logger.warning("Could not import SALES_BRIEF_CHRONICLE_ENTRY — skipping seed")
+        return
+
+    entry = SALES_BRIEF_CHRONICLE_ENTRY
+    cur.execute(
+        "SELECT id FROM chronicle_entries WHERE title = %s LIMIT 1",
+        (entry["title"],),
+    )
+    if cur.fetchone():
+        return
+
+    from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
+
+    seed_str = f"chronicle|{entry['chapter_number']}|{entry['title']}"
+    al_jabr_hash = fatiha_286_hexdigest_from_str(seed_str)
+    cur.execute(
+        """INSERT INTO chronicle_entries
+           (chapter_number, title, subtitle, glyph_sequence, body_text, al_jabr_hash, entry_type, season)
+           VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+        (
+            entry["chapter_number"],
+            entry["title"],
+            entry["subtitle"],
+            entry["glyph_sequence"],
+            entry["body_text"],
+            al_jabr_hash,
+            entry["entry_type"],
+            seed_season,
+        ),
+    )
+    logger.info("Seeded SALES_BRIEF Chronicle entry: %s", entry["title"])
 
 
 def _seed_probability_matrix_capture(cur, seed_season: str) -> None:
