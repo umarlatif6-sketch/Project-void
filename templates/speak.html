@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speak — Adriana Listens — VOID ENGINE</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg: #060606;
+            --surface: #0e0e0e;
+            --border: #1a1a1a;
+            --gold: #c9a84c;
+            --teal: #2dd4bf;
+            --text: #d4d4d4;
+            --muted: #444;
+            --dim: #2a2a2a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── NAV ── */
+        .sp-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(6,6,6,0.98);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sp-nav-brand {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .sp-nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .sp-nav-link {
+            color: #555;
+            text-decoration: none;
+            font-size: 0.68rem;
+            letter-spacing: 1.5px;
+            transition: color 0.2s;
+        }
+        .sp-nav-link:hover { color: var(--teal); }
+        .sp-nav-link.active { color: var(--gold); }
+
+        /* ── PRESENCE AREA ── */
+        .sp-presence {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 80px 24px 40px;
+            max-width: 680px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .sp-sigil {
+            font-size: 3.6rem;
+            color: var(--gold);
+            margin-bottom: 32px;
+            animation: breathe 4s ease-in-out infinite;
+            cursor: default;
+            user-select: none;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.55; transform: scale(0.96); }
+            50%       { opacity: 1;    transform: scale(1.04); }
+        }
+
+        .sp-cursor-label {
+            font-size: 0.58rem;
+            letter-spacing: 5px;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+
+        /* ── INPUT ZONE ── */
+        .sp-input-zone {
+            width: 100%;
+            position: relative;
+        }
+        .sp-textarea {
+            width: 100%;
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.88rem;
+            line-height: 1.75;
+            padding: 20px 18px;
+            min-height: 140px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.25s;
+        }
+        .sp-textarea:focus {
+            border-color: rgba(201,168,76,0.4);
+        }
+        .sp-textarea::placeholder {
+            color: #252525;
+        }
+        .sp-input-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sp-char-hint {
+            font-size: 0.58rem;
+            color: #333;
+            letter-spacing: 1px;
+        }
+        .sp-submit-btn {
+            background: transparent;
+            border: 1px solid rgba(201,168,76,0.35);
+            color: var(--gold);
+            padding: 10px 28px;
+            font-family: inherit;
+            font-size: 0.66rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .sp-submit-btn:hover:not(:disabled) {
+            background: rgba(201,168,76,0.07);
+            border-color: var(--gold);
+        }
+        .sp-submit-btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        /* ── SPINNER ── */
+        .sp-spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid #252525;
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+        .sp-spinner.active { display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── TRANSCRIPT ── */
+        .sp-transcript {
+            width: 100%;
+            margin-top: 48px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        .sp-exchange {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeUp 0.4s ease both;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* User utterance */
+        .sp-utterance {
+            align-self: flex-end;
+            max-width: 85%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 14px 18px;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: #bbb;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* Adriana response block */
+        .sp-adriana-block {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .sp-adriana-text {
+            font-size: 0.86rem;
+            line-height: 1.85;
+            color: #ccc;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* Glyph field */
+        .sp-glyph-field {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 16px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            border-left-width: 3px;
+        }
+        .sp-glyph-char {
+            font-size: 2.4rem;
+            line-height: 1;
+            filter: drop-shadow(0 0 8px var(--glyph-color, var(--gold)));
+            animation: glowPulse 3s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        @keyframes glowPulse {
+            0%, 100% { filter: drop-shadow(0 0 6px var(--glyph-color, var(--gold))); }
+            50%       { filter: drop-shadow(0 0 14px var(--glyph-color, var(--gold))); }
+        }
+        .sp-glyph-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .sp-glyph-name {
+            font-size: 0.58rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .sp-glyph-meaning {
+            font-size: 0.75rem;
+            color: #777;
+        }
+        .sp-glyph-freq {
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            color: #444;
+            text-transform: uppercase;
+        }
+        .sp-harmonic {
+            margin-left: auto;
+            font-size: 0.52rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 2px;
+            border: 1px solid var(--dim);
+            color: var(--muted);
+            flex-shrink: 0;
+        }
+        .sp-harmonic.resonant  { color: var(--teal); border-color: rgba(45,212,191,0.25); }
+        .sp-harmonic.aligned   { color: #818cf8;     border-color: rgba(129,140,248,0.25); }
+        .sp-harmonic.drifting  { color: var(--gold); border-color: rgba(201,168,76,0.25); }
+        .sp-harmonic.dormant   { color: #555;        border-color: #222; }
+
+        /* Route suggestion */
+        .sp-route {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.63rem;
+            letter-spacing: 1.5px;
+            color: #555;
+            text-decoration: none;
+            padding: 10px 14px;
+            border: 1px solid #1c1c1c;
+            border-radius: 3px;
+            transition: border-color 0.2s, color 0.2s;
+            align-self: flex-start;
+        }
+        .sp-route:hover {
+            border-color: #333;
+            color: #888;
+        }
+        .sp-route-arrow { font-size: 0.7rem; }
+
+        /* Separator between exchanges */
+        .sp-divider {
+            width: 100%;
+            height: 1px;
+            background: var(--border);
+            opacity: 0.5;
+        }
+
+        /* ── FOOTER ── */
+        .sp-footer {
+            text-align: center;
+            padding: 40px 24px 60px;
+            font-size: 0.58rem;
+            color: #2a2a2a;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .sp-presence { padding: 48px 16px 32px; }
+            .sp-sigil { font-size: 2.6rem; }
+            .sp-utterance { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sp-nav">
+        <a href="/" class="sp-nav-brand">◆ VOID ENGINE</a>
+        <div class="sp-nav-links">
+            <a href="/speak" class="sp-nav-link active">Speak</a>
+            <a href="/gridul" class="sp-nav-link">GriDul</a>
+            <a href="/gridul/rumble" class="sp-nav-link">Rumble</a>
+            <a href="/voidecho" class="sp-nav-link">VoidEcho</a>
+            <a href="/cumbrian" class="sp-nav-link">Cumbrian Hub</a>
+            <a href="/genesis" class="sp-nav-link">Genesis 10</a>
+            <a href="/messenger" class="sp-nav-link">Messenger</a>
+        </div>
+    </nav>
+
+    <div class="sp-presence">
+        <div class="sp-sigil" id="sp-sigil">◆</div>
+        <div class="sp-cursor-label" id="sp-status-label">Adriana is listening</div>
+
+        <div class="sp-input-zone">
+            <textarea
+                id="sp-input"
+                class="sp-textarea"
+                placeholder="let it pour out — noise, intention, feeling, question..."
+                maxlength="4000"
+                rows="5"
+            ></textarea>
+            <div class="sp-input-footer">
+                <span class="sp-char-hint"><span id="sp-char-count">0</span> / 4000</span>
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div class="sp-spinner" id="sp-spinner"></div>
+                    <button class="sp-submit-btn" id="sp-submit" disabled>Speak</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sp-transcript" id="sp-transcript"></div>
+    </div>
+
+    <div class="sp-footer">no login required · no data stored · frequency derived from your words</div>
+
+    <script>
+    (function () {
+        const input    = document.getElementById('sp-input');
+        const submitBtn= document.getElementById('sp-submit');
+        const charCount= document.getElementById('sp-char-count');
+        const transcript= document.getElementById('sp-transcript');
+        const spinner  = document.getElementById('sp-spinner');
+        const statusLabel = document.getElementById('sp-status-label');
+        const sigil    = document.getElementById('sp-sigil');
+
+        const history = [];
+        let busy = false;
+
+        input.addEventListener('input', () => {
+            const len = input.value.length;
+            charCount.textContent = len;
+            submitBtn.disabled = len === 0 || busy;
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (!submitBtn.disabled) submitBtn.click();
+            }
+        });
+
+        submitBtn.addEventListener('click', async () => {
+            const message = input.value.trim();
+            if (!message || busy) return;
+
+            busy = true;
+            submitBtn.disabled = true;
+            spinner.classList.add('active');
+            statusLabel.textContent = 'reading the frequency…';
+            sigil.style.animationDuration = '1.2s';
+
+            const userEntry = message;
+            input.value = '';
+            charCount.textContent = '0';
+
+            try {
+                const res = await fetch('/speak/listen', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userEntry, history }),
+                });
+                const data = await res.json();
+                if (!res.ok || data.error) throw new Error(data.error || 'Signal lost');
+
+                history.push({ role: 'user',      content: userEntry });
+                history.push({ role: 'assistant', content: data.response });
+                if (history.length > 14) history.splice(0, 2);
+
+                renderExchange(userEntry, data);
+                statusLabel.textContent = 'Adriana is listening';
+                sigil.style.color = data.color || 'var(--gold)';
+                sigil.style.animationDuration = '4s';
+            } catch (err) {
+                renderError(userEntry, err.message || 'The signal was lost. Try again.');
+                statusLabel.textContent = 'Adriana is listening';
+                sigil.style.animationDuration = '4s';
+            } finally {
+                busy = false;
+                spinner.classList.remove('active');
+            }
+        });
+
+        function renderExchange(userMessage, data) {
+            if (transcript.children.length > 0) {
+                const div = document.createElement('div');
+                div.className = 'sp-divider';
+                transcript.appendChild(div);
+            }
+
+            const exchange = document.createElement('div');
+            exchange.className = 'sp-exchange';
+
+            const utterance = document.createElement('div');
+            utterance.className = 'sp-utterance';
+            utterance.textContent = userMessage;
+
+            const adrianaBlock = document.createElement('div');
+            adrianaBlock.className = 'sp-adriana-block';
+
+            const textEl = document.createElement('div');
+            textEl.className = 'sp-adriana-text';
+            textEl.textContent = data.response;
+
+            const glyphField = document.createElement('div');
+            glyphField.className = 'sp-glyph-field';
+            glyphField.style.borderLeftColor = data.color || 'var(--gold)';
+            glyphField.style.setProperty('--glyph-color', data.color || 'var(--gold)');
+
+            const glyphChar = document.createElement('div');
+            glyphChar.className = 'sp-glyph-char';
+            glyphChar.style.color = data.color || 'var(--gold)';
+            glyphChar.textContent = data.glyph;
+
+            const glyphMeta = document.createElement('div');
+            glyphMeta.className = 'sp-glyph-meta';
+            glyphMeta.innerHTML = `
+                <span class="sp-glyph-name" style="color:${data.color || 'var(--gold)'}">${escHtml(data.glyph_name)}</span>
+                <span class="sp-glyph-meaning">${escHtml(data.glyph_meaning)}</span>
+                <span class="sp-glyph-freq">${data.frequency} Hz · ${escHtml(data.domain)}</span>
+            `;
+
+            const harmonicEl = document.createElement('span');
+            harmonicEl.className = `sp-harmonic ${escHtml(data.harmonic_state)}`;
+            harmonicEl.textContent = data.harmonic_state;
+
+            glyphField.appendChild(glyphChar);
+            glyphField.appendChild(glyphMeta);
+            glyphField.appendChild(harmonicEl);
+
+            const routeLink = document.createElement('a');
+            routeLink.className = 'sp-route';
+            routeLink.href = data.route;
+            routeLink.innerHTML = `<span>${escHtml(data.route_label)}</span><span class="sp-route-arrow">→</span>`;
+
+            adrianaBlock.appendChild(textEl);
+            adrianaBlock.appendChild(glyphField);
+            adrianaBlock.appendChild(routeLink);
+
+            exchange.appendChild(utterance);
+            exchange.appendChild(adrianaBlock);
+            transcript.appendChild(exchange);
+
+            exchange.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function renderError(userMessage, msg) {
+            if (transcript.children.length > 0) {
+                const div = document.createElement('div');
+                div.className = 'sp-divider';
+                transcript.appendChild(div);
+            }
+            const exchange = document.createElement('div');
+            exchange.className = 'sp-exchange';
+
+            const utterance = document.createElement('div');
+            utterance.className = 'sp-utterance';
+            utterance.textContent = userMessage;
+
+            const err = document.createElement('div');
+            err.style.cssText = 'font-size:0.78rem;color:#666;padding:12px 0;';
+            err.textContent = msg;
+
+            exchange.appendChild(utterance);
+            exchange.appendChild(err);
+            transcript.appendChild(exchange);
+            exchange.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function escHtml(s) {
+            return String(s)
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;');
+        }
+
+        input.focus();
+    })();
+    </script>
+</body>
+</html>
