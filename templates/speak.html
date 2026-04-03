@@ -474,6 +474,10 @@
             glyphField.appendChild(glyphMeta);
             glyphField.appendChild(harmonicEl);
 
+            const routeSuggest = document.createElement('div');
+            routeSuggest.style.cssText = 'font-size:0.72rem;color:#555;line-height:1.7;padding:2px 0 8px;font-style:italic;';
+            routeSuggest.textContent = data.route_suggestion || '';
+
             const routeLink = document.createElement('a');
             routeLink.className = 'sp-route';
             routeLink.href = data.route;
@@ -481,6 +485,7 @@
 
             adrianaBlock.appendChild(textEl);
             adrianaBlock.appendChild(glyphField);
+            adrianaBlock.appendChild(routeSuggest);
             adrianaBlock.appendChild(routeLink);
 
             exchange.appendChild(utterance);

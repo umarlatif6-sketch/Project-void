@@ -156,6 +156,16 @@ def listen():
                 domain, "The frequency is registered. Speak more and the pattern deepens."
             )
 
+    if not adriana_response:
+        adriana_response = _DOMAIN_FALLBACKS.get(
+            domain, "The frequency is registered. Speak more and the pattern deepens."
+        )
+
+    route_suggestion = "Your words carry the resonance of {domain}. Follow this signal: {label}.".format(
+        domain=domain,
+        label=route_label,
+    )
+
     return jsonify({
         "response": adriana_response,
         "glyph": glyph,
@@ -166,6 +176,7 @@ def listen():
         "color": domain_color,
         "route": route_dest,
         "route_label": route_label,
+        "route_suggestion": route_suggestion,
         "field_strength": field_strength,
         "harmonic_state": harmonic_state,
     })
