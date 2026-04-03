@@ -6,7 +6,8 @@ and sovereign statement in the VOID ENGINE.
 Public, no auth required. Static data only — no DB calls.
 
 Source-of-truth imports:
-  - AdrianaResonance.GLYPHS        → glyph counts and all frequency data
+  - SOVEREIGN_BIT_DEPTH            → 286 hash bits (al_jabr_286)
+  - AdrianaResonance.GLYPHS        → glyph counts and all frequency data (adriana_scl)
   - CHAPTERS_BY_TIER               → NFT tier chapter counts (adriana_scl)
   - get_four_quls()                → canonical Quls poem assignments (adriana_scl)
   - MERGE_TOKEN_THRESHOLD,
@@ -16,9 +17,11 @@ Source-of-truth imports:
     REFERRALS_PER_MILESTONE        → ambassador economy (routes.ambassador)
 """
 
+import math
 from flask import Blueprint, render_template
 from void_engine.adriana_scl import AdrianaResonance, get_four_quls, CHAPTERS_BY_TIER
 from void_engine.blueprint_nft import MERGE_TOKEN_THRESHOLD, MERGE_VTX_BONUS
+from void_engine.al_jabr_286 import SOVEREIGN_BIT_DEPTH
 from routes.payments import TIER_PRICE_MAP
 from routes.ambassador import VTX_PER_MILESTONE, REFERRALS_PER_MILESTONE
 
@@ -114,10 +117,10 @@ def figures():
     four_quls = get_four_quls()
 
     context = {
-        # Core numbers
-        "jabr_bits":        286,
-        "baqarah_verses":   286,
-        "hex_digest_chars": 72,
+        # Core numbers — jabr_bits and hex_digest_chars derived from SOVEREIGN_BIT_DEPTH
+        "jabr_bits":        SOVEREIGN_BIT_DEPTH,
+        "baqarah_verses":   SOVEREIGN_BIT_DEPTH,
+        "hex_digest_chars": math.ceil(SOVEREIGN_BIT_DEPTH / 4),
         "total_glyphs":     _TOTAL_GLYPHS,
         "entity_count":     _ENTITY_COUNT,
         "condition_count":  _CONDITION_COUNT,
