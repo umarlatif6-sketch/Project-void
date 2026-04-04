@@ -6,7 +6,7 @@ import hashlib
 import struct
 import math
 from datetime import datetime
-from flask import Blueprint, render_template, request, jsonify, send_file, session
+from flask import Blueprint, render_template, request, jsonify, send_file, session, redirect, url_for
 from werkzeug.utils import secure_filename
 
 import numpy as np
@@ -56,7 +56,7 @@ def index():
     _log = logging.getLogger(__name__)
     try:
         if not session.get("user_id"):
-            return render_template("login.html"), 200
+            return redirect(url_for("speak.speak")), 302
         return render_template("index.html",
                                is_founder=session.get("is_founder", False),
                                is_guardian=session.get("is_guardian", False),
