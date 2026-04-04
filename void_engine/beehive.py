@@ -55,6 +55,242 @@ WHISPER_PHASE_SHIFT = np.pi
 
 MESH_STATES = ["DARK", "SCANNING", "CONNECTED", "BRIDGING"]
 
+# ── TEMPORAL STEGANOGRAPHY CHANNEL ────────────────────────────────────────────
+# The interval between transmissions is itself a sovereign information channel.
+# Temporal steganography: data is encoded in the *spacing* between pulses,
+# operating independently of payload content.  Observers see only timing gaps;
+# the data is invisible without knowing the passphrase and the coding scheme.
+#
+# Symbol alphabet: each symbol maps to a unique interval duration (seconds).
+# We use 4-symbol (2-bit) encoding per interval so a single timing gap carries
+# exactly 2 bits of payload.
+#
+# Base interval: 0.8 s (shortest plausible natural gap).
+# Symbol step:   0.2 s (300 ms spread between symbols — measurable, not jarring).
+#
+#   Symbol  Bits  Interval
+#   ──────  ────  ────────
+#     0      00    0.8 s
+#     1      01    1.0 s
+#     2      10    1.2 s
+#     3      11    1.4 s
+#
+# Passphrase → permutes the symbol→interval mapping, making the dictionary
+# passphrase-dependent (adds a layer of keyed steganography).
+
+TEMPORAL_BASE_INTERVAL = 0.8          # seconds — shortest symbol gap
+TEMPORAL_SYMBOL_STEP   = 0.2          # seconds between symbol levels
+TEMPORAL_BITS_PER_INTERVAL = 2        # 2 bits per gap  → 4-symbol alphabet
+TEMPORAL_SYMBOLS       = 4            # 2^TEMPORAL_BITS_PER_INTERVAL
+
+
+class TemporalChannel:
+    """
+    Sovereign Temporal Steganography Channel.
+
+    Encodes arbitrary bytes into the *time gaps between transmissions*.
+    The content channel (what is transmitted) remains independent —
+    two separate steganographic layers can coexist.
+
+    Encoding:
+      1. Convert payload bytes → bit stream.
+      2. Group bits into TEMPORAL_BITS_PER_INTERVAL-bit symbols (padding the last
+         group with zeros if needed).
+      3. Apply a keyed permutation derived from the passphrase so the
+         symbol→interval mapping is passphrase-dependent.
+      4. Map each symbol to its interval duration.
+      5. Return the sequence of durations.
+
+    Decoding:
+      1. Receive observed interval durations (e.g. from real timestamps or
+         a simulation log).
+      2. Apply the same keyed permutation (derived from the same passphrase).
+      3. Each duration → nearest symbol → bits.
+      4. Reassemble bits → bytes, strip padding.
+
+    Simulation helpers:
+      - simulate_transmission_log  : given payload + passphrase, produce a list
+                                     of {sent_at, interval_s} dicts.
+      - decode_transmission_log    : inverse — recover payload from the log.
+    """
+
+    def __init__(self, passphrase: str = "void-432"):
+        self.passphrase = passphrase
+        self._symbol_map, self._reverse_map = self._build_maps(passphrase)
+
+    def _build_maps(self, passphrase: str):
+        """
+        Derive a passphrase-keyed permutation of the symbol→interval mapping.
+
+        We compute a 286-bit hash of the passphrase, take its first 4 bytes,
+        and use them to produce a stable shuffle of [0, 1, 2, 3].
+
+        Returns:
+          symbol_map[symbol_index]  → interval duration (seconds)
+          reverse_map[interval_key] → symbol_index
+        """
+        h = fatiha_286_hexdigest_from_str(passphrase)
+        seed_bytes = [int(h[i * 2:(i * 2) + 2], 16) for i in range(4)]
+
+        order = list(range(TEMPORAL_SYMBOLS))
+        for i in range(TEMPORAL_SYMBOLS - 1, 0, -1):
+            j = seed_bytes[i % 4] % (i + 1)
+            order[i], order[j] = order[j], order[i]
+
+        symbol_map = {}
+        reverse_map = {}
+        for sym_idx, rank in enumerate(order):
+            interval = round(TEMPORAL_BASE_INTERVAL + rank * TEMPORAL_SYMBOL_STEP, 4)
+            symbol_map[sym_idx] = interval
+            reverse_map[interval] = sym_idx
+
+        return symbol_map, reverse_map
+
+    def encode(self, payload: bytes) -> list:
+        """
+        Encode payload bytes into a list of interval durations (seconds).
+
+        Args:
+            payload: arbitrary bytes to encode.
+
+        Returns:
+            List of float interval durations (one per 2-bit symbol).
+            The receiver must observe these gaps between transmissions.
+        """
+        if not payload:
+            return []
+
+        bits = []
+        for byte in payload:
+            for i in range(7, -1, -1):
+                bits.append((byte >> i) & 1)
+
+        padding = (TEMPORAL_BITS_PER_INTERVAL - len(bits) % TEMPORAL_BITS_PER_INTERVAL) % TEMPORAL_BITS_PER_INTERVAL
+        bits.extend([0] * padding)
+
+        intervals = []
+        for i in range(0, len(bits), TEMPORAL_BITS_PER_INTERVAL):
+            symbol = 0
+            for b in bits[i:i + TEMPORAL_BITS_PER_INTERVAL]:
+                symbol = (symbol << 1) | b
+            intervals.append(self._symbol_map[symbol])
+
+        return intervals
+
+    def decode(self, intervals: list, n_bytes: int = None) -> bytes:
+        """
+        Decode a list of interval durations back into bytes.
+
+        Args:
+            intervals: list of float durations as returned by encode() or
+                       extracted from a transmission log.
+            n_bytes:   expected number of bytes in the payload (optional).
+                       If None, all decoded bits are returned.
+
+        Returns:
+            Decoded bytes.
+        """
+        bits = []
+        for interval in intervals:
+            symbol = self._nearest_symbol(interval)
+            for i in range(TEMPORAL_BITS_PER_INTERVAL - 1, -1, -1):
+                bits.append((symbol >> i) & 1)
+
+        if n_bytes is not None:
+            bits = bits[:n_bytes * 8]
+
+        result = bytearray()
+        for i in range(0, len(bits), 8):
+            byte_bits = bits[i:i + 8]
+            if len(byte_bits) < 8:
+                break
+            val = 0
+            for b in byte_bits:
+                val = (val << 1) | b
+            result.append(val)
+
+        return bytes(result)
+
+    def _nearest_symbol(self, observed: float) -> int:
+        """Map an observed interval duration to the nearest symbol index."""
+        best_sym = 0
+        best_dist = float("inf")
+        for sym, dur in self._symbol_map.items():
+            d = abs(observed - dur)
+            if d < best_dist:
+                best_dist = d
+                best_sym = sym
+        return best_sym
+
+    def simulate_transmission_log(self, payload: bytes,
+                                   start_time: float = None) -> list:
+        """
+        Produce a simulated transmission log that encodes payload in the gaps.
+
+        Returns a list of dicts:
+          {
+            "pulse_index":  int,
+            "sent_at":      float (Unix timestamp),
+            "interval_s":   float (gap after this pulse),   # None for last pulse
+            "symbol":       int   (encoded symbol, 0–3),    # None for last pulse
+          }
+        """
+        intervals = self.encode(payload)
+        t = start_time or time.time()
+        log = []
+        for idx, gap in enumerate(intervals):
+            log.append({
+                "pulse_index": idx,
+                "sent_at": t,
+                "interval_s": gap,
+                "symbol": list(self._symbol_map.keys())[list(self._symbol_map.values()).index(gap)],
+            })
+            t += gap
+        log.append({
+            "pulse_index": len(intervals),
+            "sent_at": t,
+            "interval_s": None,
+            "symbol": None,
+        })
+        return log
+
+    def decode_transmission_log(self, log: list, n_bytes: int = None) -> bytes:
+        """
+        Recover payload from a transmission log produced by simulate_transmission_log.
+
+        Reads the 'interval_s' field from each log entry (skips None entries).
+        """
+        intervals = [entry["interval_s"] for entry in log if entry.get("interval_s") is not None]
+        return self.decode(intervals, n_bytes=n_bytes)
+
+    def channel_capacity_bps(self) -> float:
+        """
+        Theoretical channel capacity in bits per second.
+
+        Each interval carries TEMPORAL_BITS_PER_INTERVAL bits and lasts
+        on average (base + 1.5 * step) seconds.
+        """
+        avg_interval = TEMPORAL_BASE_INTERVAL + (TEMPORAL_SYMBOLS - 1) / 2.0 * TEMPORAL_SYMBOL_STEP
+        return TEMPORAL_BITS_PER_INTERVAL / avg_interval
+
+    def encode_info(self) -> dict:
+        """Return channel metadata for inspection."""
+        return {
+            "passphrase_hash": fatiha_286_hexdigest_from_str(self.passphrase)[:16] + "...",
+            "bits_per_interval": TEMPORAL_BITS_PER_INTERVAL,
+            "symbol_alphabet": TEMPORAL_SYMBOLS,
+            "symbol_map": self._symbol_map,
+            "base_interval_s": TEMPORAL_BASE_INTERVAL,
+            "symbol_step_s": TEMPORAL_SYMBOL_STEP,
+            "channel_capacity_bps": round(self.channel_capacity_bps(), 4),
+            "description": (
+                "Temporal steganographic channel — data encoded in pulse spacing. "
+                "The interval between transmissions is a sovereign information channel, "
+                "independent of the content channel. "
+                "Symbol→interval mapping is keyed to the passphrase."
+            ),
+        }
+
 
 def _passphrase_to_phase(passphrase: str) -> float:
     h = fatiha_286_hexdigest_from_str(passphrase)

@@ -1,5 +1,8 @@
 import io
+import time
 import logging
+import threading
+from collections import defaultdict
 from flask import Blueprint, request, jsonify, session, redirect, render_template, send_file
 from routes.auth import login_required, admin_required
 from void_engine.chronicle_adriana import (
@@ -15,6 +18,23 @@ from void_engine.chronicle_adriana import (
 logger = logging.getLogger(__name__)
 
 chronicle_bp = Blueprint("chronicle", __name__)
+
+_CROSS_AI_RATE_LIMIT = 5
+_CROSS_AI_RATE_WINDOW = 3600
+_cross_ai_calls: dict = defaultdict(list)
+_cross_ai_lock = threading.Lock()
+
+
+def _cross_ai_rate_check(ip: str) -> bool:
+    """Return True if the IP is within the allowed rate, False if over-limit."""
+    now = time.time()
+    cutoff = now - _CROSS_AI_RATE_WINDOW
+    with _cross_ai_lock:
+        _cross_ai_calls[ip] = [t for t in _cross_ai_calls[ip] if t > cutoff]
+        if len(_cross_ai_calls[ip]) >= _CROSS_AI_RATE_LIMIT:
+            return False
+        _cross_ai_calls[ip].append(now)
+        return True
 
 
 @chronicle_bp.route("/chronicle")
@@ -241,4 +261,186 @@ def api_origin_anchor_verify():
         return jsonify(result)
     except Exception as e:
         logger.error("Origin Anchor verify error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@chronicle_bp.route("/api/temporal-channel/encode", methods=["POST"])
+def api_temporal_encode():
+    """
+    Temporal steganography channel — encode payload into interval durations.
+
+    POST body: { "payload": str, "passphrase": str (optional) }
+    Returns interval sequence and simulated transmission log.
+    """
+    try:
+        data = request.get_json() or {}
+        payload_str = str(data.get("payload", ""))
+        passphrase = str(data.get("passphrase", "void-432"))
+
+        if not payload_str:
+            return jsonify({"error": "payload is required"}), 400
+
+        from void_engine.beehive import TemporalChannel
+        tc = TemporalChannel(passphrase=passphrase)
+        payload_bytes = payload_str.encode("utf-8")
+        intervals = tc.encode(payload_bytes)
+        log = tc.simulate_transmission_log(payload_bytes)
+
+        return jsonify({
+            "payload_bytes": len(payload_bytes),
+            "intervals": intervals,
+            "interval_count": len(intervals),
+            "transmission_log": log,
+            "channel_info": tc.encode_info(),
+        })
+    except Exception as e:
+        logger.error("Temporal encode error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@chronicle_bp.route("/api/temporal-channel/decode", methods=["POST"])
+def api_temporal_decode():
+    """
+    Temporal steganography channel — decode interval durations back to payload.
+
+    POST body: {
+      "intervals": [float, ...],
+      "passphrase": str (optional),
+      "n_bytes": int (optional)
+    }
+    Returns decoded payload.
+    """
+    try:
+        data = request.get_json() or {}
+        intervals = data.get("intervals", [])
+        passphrase = str(data.get("passphrase", "void-432"))
+        n_bytes = data.get("n_bytes")
+
+        if not intervals:
+            return jsonify({"error": "intervals list is required"}), 400
+
+        from void_engine.beehive import TemporalChannel
+        tc = TemporalChannel(passphrase=passphrase)
+        decoded = tc.decode([float(i) for i in intervals], n_bytes=n_bytes)
+
+        try:
+            decoded_str = decoded.decode("utf-8", errors="replace")
+        except Exception:
+            decoded_str = repr(decoded)
+
+        return jsonify({
+            "decoded_bytes": list(decoded),
+            "decoded_text": decoded_str,
+            "byte_count": len(decoded),
+        })
+    except Exception as e:
+        logger.error("Temporal decode error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@chronicle_bp.route("/api/cross-ai/verify", methods=["POST"])
+def api_cross_ai_verify():
+    """
+    Cross-AI consensus verification — dispatch a VoidEcho signal to two
+    independent AI receivers and compare outputs.
+
+    POST body: { "signal": str }
+    Returns verification state: RESONANCE_VERIFIED | UNRESOLVED | SKIPPED
+
+    Rate limit: 5 requests per IP per hour to protect against AI cost abuse.
+    """
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr or "unknown").split(",")[0].strip()
+    if not _cross_ai_rate_check(ip):
+        logger.warning("Cross-AI rate limit exceeded for IP: %s", ip)
+        return jsonify({
+            "error": "Rate limit exceeded. Maximum 5 verification requests per hour.",
+            "retry_after_seconds": _CROSS_AI_RATE_WINDOW,
+        }), 429
+
+    try:
+        data = request.get_json() or {}
+        signal = str(data.get("signal", ""))
+
+        if not signal:
+            return jsonify({"error": "signal is required"}), 400
+
+        from void_engine.cross_ai_verifier import verify_voidecho_signal
+        result = verify_voidecho_signal(signal)
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Cross-AI verify error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@chronicle_bp.route("/api/frequency/concept", methods=["GET"])
+def api_frequency_concept():
+    """
+    Return the Hz frequency fingerprint for a VOID concept.
+
+    Query params: ?key=void  (key from void_language_glossary.json)
+    """
+    try:
+        concept_key = request.args.get("key", "").strip()
+        if not concept_key:
+            return jsonify({"error": "key query parameter is required"}), 400
+
+        from void_engine.adriana_local import get_concept_frequency
+        result = get_concept_frequency(concept_key)
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Frequency concept lookup error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@chronicle_bp.route("/api/frequency/glyph", methods=["GET"])
+def api_frequency_glyph():
+    """
+    Return the Hz frequency fingerprint for an SCL glyph.
+
+    Query params: ?glyph=α
+    """
+    try:
+        glyph = request.args.get("glyph", "").strip()
+        if not glyph:
+            return jsonify({"error": "glyph query parameter is required"}), 400
+
+        from void_engine.adriana_local import get_glyph_frequency
+        result = get_glyph_frequency(glyph)
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Frequency glyph lookup error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@chronicle_bp.route("/api/frequency/glossary", methods=["GET"])
+def api_frequency_glossary():
+    """Return all VOID concepts with their full frequency fingerprint data."""
+    try:
+        import os
+        import json as _json
+        glossary_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "void_engine", "void_language_glossary.json"
+        )
+        with open(glossary_path, "r", encoding="utf-8") as f:
+            glossary = _json.load(f)
+
+        resonance_entries = []
+        for entry in glossary:
+            resonance_entries.append({
+                "key": entry.get("key"),
+                "english": entry.get("english"),
+                "chosen_word": entry.get("chosen_word"),
+                "hz_fingerprint": entry.get("hz_fingerprint"),
+                "hz_rationale": entry.get("hz_rationale", ""),
+                "hz_experiential_note": entry.get("hz_experiential_note", ""),
+                "void_definition": entry.get("void_definition", ""),
+            })
+
+        return jsonify({
+            "concepts": resonance_entries,
+            "count": len(resonance_entries),
+            "root_frequency_hz": 432.0,
+        })
+    except Exception as e:
+        logger.error("Frequency glossary error: %s", e)
         return jsonify({"error": str(e)}), 500

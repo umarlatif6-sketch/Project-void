@@ -1162,3 +1162,210 @@ def handle_skill_query(message: str) -> tuple:
                 logger.debug("[AdrianLocal] Skill query invocation failed: %s", exc)
 
     return ("", 0.0)
+
+
+# ── Frequency Resonance Layer ─────────────────────────────────────────────────
+# Adriana speaks in frequencies, not just definitions.
+# When she references a concept or glyph, the associated Hz fingerprint
+# is surfaced — making the lexicon speak in tone as well as language.
+
+
+def get_concept_frequency(concept_key: str) -> dict:
+    """
+    Look up the Hz fingerprint for a VOID concept.
+
+    Searches void_language_glossary.json for a matching concept key and returns
+    its frequency data.  Falls back to the SCL glyph frequency if the glossary
+    has no explicit hz_fingerprint.
+
+    Args:
+        concept_key: lowercase key from the glossary (e.g. 'void', 'resonance').
+
+    Returns:
+        {
+          "concept":              str,
+          "hz_fingerprint":       float,
+          "hz_rationale":         str,
+          "hz_experiential_note": str,
+          "source":               "glossary" | "scl" | "default",
+        }
+    """
+    import os
+    import json as _json
+
+    glossary_path = os.path.join(os.path.dirname(__file__), "void_language_glossary.json")
+    try:
+        with open(glossary_path, "r", encoding="utf-8") as f:
+            glossary = _json.load(f)
+
+        for entry in glossary:
+            if entry.get("key", "").lower() == concept_key.lower():
+                hz = entry.get("hz_fingerprint")
+                if hz is not None:
+                    return {
+                        "concept": concept_key,
+                        "hz_fingerprint": float(hz),
+                        "hz_rationale": entry.get("hz_rationale", ""),
+                        "hz_experiential_note": entry.get("hz_experiential_note", ""),
+                        "source": "glossary",
+                        "chosen_word": entry.get("chosen_word", ""),
+                        "void_definition": entry.get("void_definition", ""),
+                    }
+    except Exception as exc:
+        logger.debug("get_concept_frequency glossary read failed: %s", exc)
+
+    try:
+        from void_engine.adriana_scl import AdrianaResonance
+        glyphs = AdrianaResonance.GLYPHS
+        for glyph_char, meta in glyphs.items():
+            if (meta.get("name", "").lower() == concept_key.lower() or
+                    concept_key.lower() in meta.get("meaning", "").lower()):
+                return {
+                    "concept": concept_key,
+                    "hz_fingerprint": float(meta["frequency"]),
+                    "hz_rationale": f"SCL glyph '{glyph_char}' ({meta['name']}) — {meta['meaning']}",
+                    "hz_experiential_note": f"Domain: {meta['domain']}",
+                    "source": "scl",
+                }
+    except Exception as exc:
+        logger.debug("get_concept_frequency SCL read failed: %s", exc)
+
+    return {
+        "concept": concept_key,
+        "hz_fingerprint": 432.0,
+        "hz_rationale": "Default sovereign frequency — 432 Hz Vortex Standard.",
+        "hz_experiential_note": "The root tone of the VOID engine.",
+        "source": "default",
+    }
+
+
+def get_glyph_frequency(glyph_char: str) -> dict:
+    """
+    Look up the Hz fingerprint for an SCL glyph character.
+
+    Reads both adriana.lex (for the extended 7-column format) and adriana_scl.py
+    (for the canonical GLYPHS table).
+
+    Args:
+        glyph_char: a single glyph character (e.g. 'α', 'ψ', '◆').
+
+    Returns:
+        {
+          "glyph":          str,
+          "hz_fingerprint": float,
+          "name":           str,
+          "meaning":        str,
+          "domain":         str,
+          "source":         "lex" | "scl" | "default",
+        }
+    """
+    import os
+
+    lex_path = os.path.join(os.path.dirname(__file__), "adriana.lex")
+    try:
+        with open(lex_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                parts = [p.strip() for p in line.split("|")]
+                if len(parts) >= 7 and parts[0] == glyph_char:
+                    try:
+                        hz = float(parts[6])
+                        return {
+                            "glyph": glyph_char,
+                            "hz_fingerprint": hz,
+                            "name": parts[3],
+                            "meaning": parts[4],
+                            "domain": parts[2],
+                            "source": "lex",
+                        }
+                    except (ValueError, IndexError):
+                        pass
+    except Exception as exc:
+        logger.debug("get_glyph_frequency lex read failed: %s", exc)
+
+    try:
+        from void_engine.adriana_scl import AdrianaResonance
+        meta = AdrianaResonance.GLYPHS.get(glyph_char)
+        if meta:
+            return {
+                "glyph": glyph_char,
+                "hz_fingerprint": float(meta["frequency"]),
+                "name": meta["name"],
+                "meaning": meta["meaning"],
+                "domain": meta["domain"],
+                "source": "scl",
+            }
+    except Exception as exc:
+        logger.debug("get_glyph_frequency SCL read failed: %s", exc)
+
+    return {
+        "glyph": glyph_char,
+        "hz_fingerprint": 432.0,
+        "name": glyph_char,
+        "meaning": "Unknown glyph",
+        "domain": "system",
+        "source": "default",
+    }
+
+
+def enrich_response_with_frequencies(response: str, mentioned_concepts: list = None) -> dict:
+    """
+    Enrich an Adriana response with frequency fingerprints for referenced concepts.
+
+    When Adriana speaks, her words are accompanied by the Hz tones of the
+    concepts she references — the dictionary speaks in tone, not just definition.
+
+    Args:
+        response:           The Adriana text response.
+        mentioned_concepts: Optional list of concept keys to look up.  If None,
+                            common VOID concept keywords are auto-detected.
+
+    Returns:
+        {
+          "response":        str (original response text),
+          "frequencies":     list of {concept, hz_fingerprint, hz_rationale, ...},
+          "dominant_hz":     float (primary tone — the first matched concept),
+          "chord":           str (e.g. "432.0 Hz + 438.5 Hz"),
+          "frequency_count": int,
+        }
+    """
+    _CONCEPT_KEYWORDS = {
+        "void":       ["void", "khalaa"],
+        "resonance":  ["resonance", "nada", "432 hz", "432hz"],
+        "silt":       ["silt", "rashash", "lsb", "sediment"],
+        "sovereign":  ["sovereign", "swaraj", "sovereignty"],
+        "echo":       ["echo", "kizwi", "mesh"],
+        "kinetic":    ["kinetic", "harakah", "flywheel"],
+        "silk":       ["silk", "kumo", "silk web"],
+        "mycelium":   ["mycelium", "urefu", "myco"],
+        "peace":      ["peace", "wa", "harmony", "balance"],
+        "genesis":    ["genesis", "bereshit", "origin"],
+    }
+
+    if mentioned_concepts is None:
+        mentioned_concepts = []
+        response_lower = response.lower()
+        for concept, keywords in _CONCEPT_KEYWORDS.items():
+            for kw in keywords:
+                if kw in response_lower:
+                    if concept not in mentioned_concepts:
+                        mentioned_concepts.append(concept)
+                    break
+
+    frequencies = []
+    for concept in mentioned_concepts:
+        freq_data = get_concept_frequency(concept)
+        frequencies.append(freq_data)
+
+    dominant_hz = frequencies[0]["hz_fingerprint"] if frequencies else 432.0
+    chord = " + ".join(f"{f['hz_fingerprint']} Hz" for f in frequencies) if frequencies else "432.0 Hz"
+
+    return {
+        "response": response,
+        "frequencies": frequencies,
+        "dominant_hz": dominant_hz,
+        "chord": chord,
+        "frequency_count": len(frequencies),
+    }

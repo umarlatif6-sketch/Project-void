@@ -247,22 +247,31 @@ def listen():
 
     _log_interaction(message, adriana_response, poem_str, frequency, domain, harmonic_state)
 
+    resonance_meta = {}
+    try:
+        from void_engine.adriana_local import enrich_response_with_frequencies
+        resonance_meta = enrich_response_with_frequencies(adriana_response)
+    except Exception as exc:
+        logger.debug("[Speak] Frequency enrichment failed: %s", exc)
+
     return jsonify({
-        "response":         adriana_response,
-        "poem":             poem_str,
-        "poem_translation": poem_translation,
-        "entity":           entity,
-        "condition":        condition,
-        "action":           action,
-        "glyph":            glyph,
-        "glyph_name":       glyph_name,
-        "glyph_meaning":    glyph_meaning,
-        "frequency":        frequency,
-        "domain":           domain,
-        "color":            domain_color,
-        "route":            route_dest,
-        "route_label":      route_label,
-        "route_suggestion": route_suggestion,
-        "field_strength":   field_strength,
-        "harmonic_state":   harmonic_state,
+        "response":             adriana_response,
+        "poem":                 poem_str,
+        "poem_translation":     poem_translation,
+        "entity":               entity,
+        "condition":            condition,
+        "action":               action,
+        "glyph":                glyph,
+        "glyph_name":           glyph_name,
+        "glyph_meaning":        glyph_meaning,
+        "frequency":            frequency,
+        "domain":               domain,
+        "color":                domain_color,
+        "route":                route_dest,
+        "route_label":          route_label,
+        "route_suggestion":     route_suggestion,
+        "field_strength":       field_strength,
+        "harmonic_state":       harmonic_state,
+        "resonance_chord":      resonance_meta.get("chord"),
+        "concept_frequencies":  resonance_meta.get("frequencies", []),
     })

@@ -861,10 +861,15 @@ def get_chronicle(entry_type_filter: str = None):
     try:
         cur = conn.cursor()
         _ensure_seed_capture_columns(cur)
+
+        from void_engine.cross_ai_verifier import ensure_verification_columns
+        ensure_verification_columns(cur)
+
         if entry_type_filter:
             cur.execute(
                 """SELECT id, chapter_number, title, subtitle, glyph_sequence, body_text,
-                          posted_at, al_jabr_hash, entry_type, is_shielded, season
+                          posted_at, al_jabr_hash, entry_type, is_shielded, season,
+                          verification_state, verification_data, verified_at
                    FROM chronicle_entries
                    WHERE entry_type = %s
                    ORDER BY posted_at DESC""",
@@ -873,7 +878,8 @@ def get_chronicle(entry_type_filter: str = None):
         else:
             cur.execute(
                 """SELECT id, chapter_number, title, subtitle, glyph_sequence, body_text,
-                          posted_at, al_jabr_hash, entry_type, is_shielded, season
+                          posted_at, al_jabr_hash, entry_type, is_shielded, season,
+                          verification_state, verification_data, verified_at
                    FROM chronicle_entries
                    ORDER BY posted_at DESC"""
             )
@@ -883,20 +889,26 @@ def get_chronicle(entry_type_filter: str = None):
             glyphs = [g.strip() for g in r[4].split("-") if g.strip()]
             is_shielded = bool(r[9]) if len(r) > 9 and r[9] is not None else False
             season = r[10] if len(r) > 10 and r[10] else "INCUBATION"
+            ver_state = r[11] if len(r) > 11 else None
+            ver_data = r[12] if len(r) > 12 else None
+            ver_at = r[13] if len(r) > 13 else None
             entries.append({
-                "id":              r[0],
-                "chapter_number":  r[1],
-                "title":           r[2],
-                "subtitle":        r[3] or "",
-                "glyph_sequence":  r[4],
-                "glyphs":          glyphs,
-                "body_text":       r[5],
-                "english_text":    r[5],
-                "posted_at":       r[6].strftime("%Y-%m-%d") if r[6] else "",
-                "al_jabr_hash":    (r[7][:16] + "...") if r[7] else "",
-                "entry_type":      r[8] or "chronicle",
-                "is_shielded":     is_shielded,
-                "season":          season,
+                "id":                 r[0],
+                "chapter_number":     r[1],
+                "title":              r[2],
+                "subtitle":           r[3] or "",
+                "glyph_sequence":     r[4],
+                "glyphs":             glyphs,
+                "body_text":          r[5],
+                "english_text":       r[5],
+                "posted_at":          r[6].strftime("%Y-%m-%d") if r[6] else "",
+                "al_jabr_hash":       (r[7][:16] + "...") if r[7] else "",
+                "entry_type":         r[8] or "chronicle",
+                "is_shielded":        is_shielded,
+                "season":             season,
+                "verification_state": ver_state,
+                "verification_data":  ver_data,
+                "verified_at":        ver_at.isoformat() if ver_at else None,
             })
         return entries
     finally:
@@ -913,21 +925,42 @@ def post_chronicle_entry(chapter_number, title, subtitle, glyph_sequence, body_t
     try:
         cur = conn.cursor()
         _ensure_seed_capture_columns(cur)
+
         from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
         al_jabr_hash = fatiha_286_hexdigest_from_str(
             f"chronicle|{chapter_number}|{title}|{datetime.now(timezone.utc).isoformat()}"
         )
         current_season = _get_current_season()
+
+        from void_engine.cross_ai_verifier import verify_voidecho_signal, ensure_verification_columns
+        ensure_verification_columns(cur)
+
+        signal_for_verification = f"{title}\n{subtitle or ''}\n{body_text}"
+        verification = verify_voidecho_signal(signal_for_verification)
+
+        import json as _json
+        ver_state = verification.get("verification_state")
+        ver_data_json = _json.dumps(verification)
+        ver_at = verification.get("verified_at")
+
         cur.execute(
             """INSERT INTO chronicle_entries
-               (chapter_number, title, subtitle, glyph_sequence, body_text, posted_by, al_jabr_hash, season)
-               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+               (chapter_number, title, subtitle, glyph_sequence, body_text, posted_by,
+                al_jabr_hash, season, verification_state, verification_data, verified_at)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s)
                RETURNING id""",
-            (chapter_number, title, subtitle or "", glyph_sequence, body_text, admin_id, al_jabr_hash, current_season),
+            (chapter_number, title, subtitle or "", glyph_sequence, body_text, admin_id,
+             al_jabr_hash, current_season, ver_state, ver_data_json, ver_at),
         )
         entry_id = cur.fetchone()[0]
         conn.commit()
-        return {"success": True, "id": entry_id, "al_jabr_hash": al_jabr_hash}
+        return {
+            "success": True,
+            "id": entry_id,
+            "al_jabr_hash": al_jabr_hash,
+            "verification_state": ver_state,
+            "receivers_agreed": verification.get("receivers_agreed"),
+        }
     except Exception as e:
         conn.rollback()
         logger.error("Failed to post chronicle entry: %s", e)
