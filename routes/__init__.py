@@ -60,6 +60,7 @@ from routes.academy import academy_bp
 from routes.radio import radio_bp
 from routes.biomedical_brief import biomedical_brief_bp
 from routes.outreach import outreach_bp
+from routes.bw19_p286 import bw19_p286_bp
 
 
 def register_blueprints(app):
@@ -125,3 +126,4 @@ def register_blueprints(app):
     app.register_blueprint(radio_bp)
     app.register_blueprint(biomedical_brief_bp)
     app.register_blueprint(outreach_bp)
+    app.register_blueprint(bw19_p286_bp)

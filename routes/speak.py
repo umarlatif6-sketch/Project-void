@@ -254,6 +254,19 @@ def listen():
     except Exception as exc:
         logger.debug("[Speak] Frequency enrichment failed: %s", exc)
 
+    pairing_proof = {}
+    try:
+        from void_engine.pairing_bw19_286 import compute_sovereign_pairing_proof
+        full_proof = compute_sovereign_pairing_proof(message)
+        pairing_proof = {
+            "al_jabr_hash_hex": full_proof["al_jabr_hash_hex"],
+            "curve_point_P":    full_proof["curve_point_P"],
+            "glyph_poem":       full_proof["glyph_poem"],
+            "bw19_p286_active": full_proof["bw19_p286_active"],
+        }
+    except Exception as exc:
+        logger.debug("[Speak] BW19-P286 pairing proof failed: %s", exc)
+
     return jsonify({
         "response":             adriana_response,
         "poem":                 poem_str,
@@ -274,4 +287,5 @@ def listen():
         "harmonic_state":       harmonic_state,
         "resonance_chord":      resonance_meta.get("chord"),
         "concept_frequencies":  resonance_meta.get("frequencies", []),
+        "pairing_proof":        pairing_proof,
     })

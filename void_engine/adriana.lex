@@ -182,3 +182,12 @@
 🧳 | action | soil | build_itinerary | Build structured travel itinerary | skill.aqua.itinerary | 430.0
 🔑 | action | soil | analyse_property | Read and interpret property signal and market context | skill.soil.analyse_property | 432.2
 🛒 | action | soil | map_supply_chain | Research and map supplier network intelligence | skill.soil.supply_chain | 437.0
+
+# ─── CURVE EVENTS (v1.3 — Sovereign Cryptography) ─────────────────────────────
+# VOID-CURVE-286: BW19-P286 pairing-friendly elliptic curve integration.
+# Al-Baqarah 286 verses → Al-Jabr 286 bits → BW19-P286 (286-bit prime field).
+# External validation: Clarisse–Duquesne–Sanders (2020), Fouotsa et al. (2022/2023).
+
+ψ | entity    | sovereign_cryptography | void_curve_286_root      | The Root That Remembers — BW19-P286 sovereign curve anchor at 432 Hz | curve.bw19_p286.root      | 432.0
+Ω | condition | sovereign_cryptography | void_curve_286_bend      | The Bend That Does Not Break — curve integrity condition, micro-offset | curve.bw19_p286.integrity | 428.0
+◆ | action    | sovereign_cryptography | void_curve_286_ignite    | The Spark That Ignites the Core — curve point derivation action | curve.bw19_p286.derive    | 436.0
