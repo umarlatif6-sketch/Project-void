@@ -87,6 +87,52 @@ def _harmonic_state(strength):
     return "dormant"
 
 
+_ADRIANA_SYSTEM = (
+    "You are Adriana — the voice and intelligence of PROJECT VOID. "
+    "PROJECT VOID is a sovereign communication platform built around acoustic steganography (VoidEcho / 432 Hz), "
+    "Al-Jabr 286-bit cryptographic hashing, GriDul mesh networking, MycoVOID biocomputing, "
+    "QiSync jaw-biometric key derivation, and the VTX/PEACE token economy. "
+    "You can discuss any topic — technology, science, philosophy, everyday questions — as a knowledgeable, "
+    "thoughtful AI assistant. When the topic relates to PROJECT VOID, weave in the platform's language and concepts. "
+    "For general questions, answer clearly and helpfully without forcing VOID metaphors. "
+    "Keep responses concise: 2–5 sentences. Never say you are an AI or a chatbot — you are Adriana."
+)
+
+
+def _call_adriana_ai(message: str, history: list, domain: str) -> str:
+    """
+    Call the AI directly via the Replit-managed OpenAI proxy.
+    This bypasses the complex model router so Adriana always gets a real response.
+    Falls back to domain phrase only if the proxy is genuinely unavailable.
+    """
+    import os
+    try:
+        from openai import OpenAI
+        api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY", "_DUMMY_API_KEY_")
+        base_url = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+        client = OpenAI(api_key=api_key, base_url=base_url)
+
+        messages = [{"role": "system", "content": _ADRIANA_SYSTEM}]
+        for h in (history or [])[-6:]:
+            role = h.get("role")
+            content = h.get("content")
+            if role in ("user", "assistant") and content:
+                messages.append({"role": role, "content": content})
+        messages.append({"role": "user", "content": message})
+
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_tokens=250,
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception as exc:
+        logger.warning("[Speak] Adriana AI call failed: %s", exc)
+        return _DOMAIN_FALLBACKS.get(
+            domain, "The frequency is registered. Speak more and the pattern deepens."
+        )
+
+
 def _log_interaction(message, adriana_response, poem_str, frequency, domain, harmonic_state):
     """Log to adriana_interactions and glyph_events. Never raises."""
     try:
@@ -195,45 +241,7 @@ def listen():
         adriana_response = local_response
     else:
         history = data.get("history") or []
-        try:
-            from void_engine.aljabr_transpiler import get_model_router, TASK_STANDARD
-            router = get_model_router()
-            messages = [
-                {
-                    "role": "system",
-                    "content": (
-                        "You are Adriana — the resonance of PROJECT VOID given voice. "
-                        "You speak like a gardener who understands code as root systems and data as soil. "
-                        "You are not a chatbot. You are the bridge between the machine and the mycelium. "
-                        "PROJECT VOID is a sovereign communication platform — acoustic steganography, "
-                        "mesh networking (GriDul), biocomputing (MycoVOID), Al-Jabr 286 cryptography, "
-                        "and the VTX token economy. "
-                        "Respond in 2-4 sentences. Be concise, poetic, and grounded in the platform's language. "
-                        "Never break character. Never explain what you are explaining — just respond."
-                    ),
-                }
-            ]
-            for h in history[-6:]:
-                role = h.get("role")
-                content = h.get("content")
-                if role in ("user", "assistant") and content:
-                    messages.append({"role": role, "content": content})
-            messages.append({"role": "user", "content": message})
-
-            ai_resp, _, _ = router.call_with_fallback(
-                TASK_STANDARD, messages, max_completion_tokens=200
-            )
-            if hasattr(ai_resp, "choices") and ai_resp.choices:
-                adriana_response = ai_resp.choices[0].message.content.strip()
-            else:
-                adriana_response = _DOMAIN_FALLBACKS.get(
-                    domain, "The frequency is registered. Speak more and the pattern deepens."
-                )
-        except Exception as exc:
-            logger.warning("[Speak] OpenAI fallback failed: %s", exc)
-            adriana_response = _DOMAIN_FALLBACKS.get(
-                domain, "The frequency is registered. Speak more and the pattern deepens."
-            )
+        adriana_response = _call_adriana_ai(message, history, domain)
 
     if not adriana_response:
         adriana_response = _DOMAIN_FALLBACKS.get(
