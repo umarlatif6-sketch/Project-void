@@ -51,11 +51,22 @@ def init_ambassador_tables():
         for col_sql in [
             "ALTER TABLE void_ambassadors ADD COLUMN IF NOT EXISTS draft_subject TEXT",
             "ALTER TABLE void_ambassadors ADD COLUMN IF NOT EXISTS draft_body TEXT",
+            "ALTER TABLE void_ambassadors ADD COLUMN IF NOT EXISTS outreach_stage INTEGER DEFAULT 0",
+            "ALTER TABLE void_ambassadors ADD COLUMN IF NOT EXISTS stage_1_sent_at TIMESTAMPTZ",
+            "ALTER TABLE void_ambassadors ADD COLUMN IF NOT EXISTS stage_2_sent_at TIMESTAMPTZ",
         ]:
             try:
                 cur.execute(col_sql)
             except Exception:
                 pass
+        cur.execute("""
+            UPDATE void_ambassadors
+            SET outreach_stage = CASE
+                WHEN email_sent = TRUE AND outreach_stage = 0 THEN 1
+                ELSE outreach_stage
+            END
+            WHERE email_sent = TRUE AND outreach_stage = 0
+        """)
         cur.execute("""
             CREATE TABLE IF NOT EXISTS void_ambassador_referrals (
                 id SERIAL PRIMARY KEY,
@@ -207,6 +218,181 @@ Project VOID — Est. 2012 — Rebuilt 2026
 """
 
 
+def _build_stage1_email_html(name: str, field: str) -> str:
+    field_ref = field or "your field"
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body {{ font-family: 'Courier New', monospace; background: #0a0a0a; color: #e0e0e0; margin: 0; padding: 0; }}
+  .container {{ max-width: 600px; margin: 0 auto; padding: 40px 24px; }}
+  .header {{ border-bottom: 1px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 32px; }}
+  .logo {{ font-size: 18px; letter-spacing: 6px; color: #fff; }}
+  .sub {{ font-size: 10px; color: #444; letter-spacing: 3px; margin-top: 4px; }}
+  p {{ line-height: 1.9; color: #bbb; font-size: 14px; margin-bottom: 18px; }}
+  .footer {{ margin-top: 48px; padding-top: 20px; border-top: 1px solid #111; font-size: 11px; color: #333; }}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">PROJECT VOID</div>
+    <div class="sub">EST. 2012 — REBUILT 2026</div>
+  </div>
+  <p>Hello {name},</p>
+  <p>
+    My name is Umar Lateef. I am the founder of Project VOID — a sovereign communication platform I began building in 2012,
+    not as a startup, not with funding, but as a response to the question of why six billion people share a planet and most
+    of them still cannot communicate privately, securely, or freely.
+  </p>
+  <p>
+    I am writing to you specifically because of your work in {field_ref}. This is not a mass email.
+    I reached out to you by name because the problem we are solving is one that people in {field_ref} understand
+    better than most.
+  </p>
+  <p>
+    Project VOID hides documents inside sound — a technique called acoustic steganography. A music file carries a
+    document invisibly inside it. No login. No server. No central point that can be monitored or switched off.
+    This is our first public entry point: VoidEcho.
+  </p>
+  <p>
+    I am not asking you to do anything right now. I am simply introducing myself and the project, and giving you
+    the chance to ask questions or tell me what you think — if you are curious.
+  </p>
+  <p>
+    If you have thirty seconds: what is one thing in {field_ref} that you think should be able to move
+    without being seen?
+  </p>
+  <div class="footer">
+    <p>Umar Lateef — Project VOID — Est. 2012</p>
+    <p>You will not receive further emails unless you respond.</p>
+  </div>
+</div>
+</body>
+</html>"""
+
+
+def _build_stage1_email_text(name: str, field: str) -> str:
+    field_ref = field or "your field"
+    return f"""Hello {name},
+
+My name is Umar Lateef. I am the founder of Project VOID — a sovereign communication platform I began building in 2012, not as a startup, not with funding, but as a response to the question of why six billion people share a planet and most of them still cannot communicate privately, securely, or freely.
+
+I am writing to you specifically because of your work in {field_ref}. This is not a mass email. I reached out to you by name because the problem we are solving is one that people in {field_ref} understand better than most.
+
+Project VOID hides documents inside sound — a technique called acoustic steganography. A music file carries a document invisibly inside it. No login. No server. No central point that can be monitored or switched off. This is our first public entry point: VoidEcho.
+
+I am not asking you to do anything right now. I am simply introducing myself and the project, and giving you the chance to ask questions or tell me what you think — if you are curious.
+
+If you have thirty seconds: what is one thing in {field_ref} that you think should be able to move without being seen?
+
+Umar Lateef
+Project VOID — Est. 2012 — Rebuilt 2026
+
+You will not receive further emails unless you respond.
+"""
+
+
+def _build_stage2_email_html(name: str, ref_code: str, field: str) -> str:
+    base_url = os.environ.get("VOID_PUBLIC_URL", "https://projectvoid.io")
+    signup_url = f"{base_url}/voidecho?ref={ref_code}"
+    field_ref = field or "your field"
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body {{ font-family: 'Courier New', monospace; background: #0a0a0a; color: #e0e0e0; margin: 0; padding: 0; }}
+  .container {{ max-width: 600px; margin: 0 auto; padding: 40px 24px; }}
+  .header {{ border-bottom: 1px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 32px; }}
+  .logo {{ font-size: 18px; letter-spacing: 6px; color: #fff; }}
+  .sub {{ font-size: 10px; color: #444; letter-spacing: 3px; margin-top: 4px; }}
+  p {{ line-height: 1.9; color: #bbb; font-size: 14px; margin-bottom: 18px; }}
+  .ref-block {{ background: #111; border: 1px solid #222; padding: 20px 24px; margin: 28px 0; border-radius: 2px; }}
+  .ref-label {{ font-size: 10px; color: #555; letter-spacing: 2px; margin-bottom: 8px; }}
+  .ref-code {{ font-size: 20px; letter-spacing: 4px; color: #fff; }}
+  .link-block {{ margin: 20px 0; }}
+  .link-label {{ font-size: 10px; color: #555; letter-spacing: 2px; margin-bottom: 6px; }}
+  .link-url {{ font-size: 13px; color: #888; word-break: break-all; }}
+  .footer {{ margin-top: 48px; padding-top: 20px; border-top: 1px solid #111; font-size: 11px; color: #333; }}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">PROJECT VOID</div>
+    <div class="sub">EST. 2012 — REBUILT 2026</div>
+  </div>
+  <p>Hello {name},</p>
+  <p>
+    Following my earlier introduction — I wanted to follow up with something concrete.
+  </p>
+  <p>
+    VoidEcho is a free tool that hides any document inside a music file. No login. No account.
+    You upload a file and a piece of audio, and the document is encoded invisibly inside the sound.
+    The resulting audio file sounds normal. The document travels with it, unseen.
+  </p>
+  <p>
+    The link below takes you directly to VoidEcho on projectvoid.io. When you open it, you will see
+    a clean interface with two inputs: a file to hide and an audio file to carry it. That is the
+    whole thing. You can try it immediately without creating anything.
+  </p>
+  <div class="link-block">
+    <div class="link-label">YOUR LINK TO VOIDECHO</div>
+    <div class="link-url"><a href="{signup_url}" style="color:#888;">{signup_url}</a></div>
+  </div>
+  <p>
+    This link is tied to your name. If you share it with anyone in {field_ref} and they use VoidEcho,
+    you will be recorded as the person who brought them in. Every ten people you bring in earns
+    286 VTX — the internal currency of the VOID network — added to your ledger.
+  </p>
+  <div class="ref-block">
+    <div class="ref-label">YOUR AMBASSADOR CODE</div>
+    <div class="ref-code">{ref_code}</div>
+  </div>
+  <p>
+    You do not need to do anything with that code right now. It is yours. If you share the link above,
+    it is already embedded. The code is there if you ever want to reference it directly.
+  </p>
+  <div class="footer">
+    <p>Umar Lateef — Project VOID — <a href="https://projectvoid.io" style="color:#555;">projectvoid.io</a></p>
+    <p>You will not receive further emails unless you respond.</p>
+  </div>
+</div>
+</body>
+</html>"""
+
+
+def _build_stage2_email_text(name: str, ref_code: str, field: str) -> str:
+    base_url = os.environ.get("VOID_PUBLIC_URL", "https://projectvoid.io")
+    signup_url = f"{base_url}/voidecho?ref={ref_code}"
+    field_ref = field or "your field"
+    return f"""Hello {name},
+
+Following my earlier introduction — I wanted to follow up with something concrete.
+
+VoidEcho is a free tool that hides any document inside a music file. No login. No account. You upload a file and a piece of audio, and the document is encoded invisibly inside the sound. The resulting audio file sounds normal. The document travels with it, unseen.
+
+The link below takes you directly to VoidEcho on projectvoid.io. When you open it, you will see a clean interface with two inputs: a file to hide and an audio file to carry it. That is the whole thing. You can try it immediately without creating anything.
+
+YOUR LINK TO VOIDECHO:
+{signup_url}
+
+This link is tied to your name. If you share it with anyone in {field_ref} and they use VoidEcho, you will be recorded as the person who brought them in. Every ten people you bring in earns 286 VTX — the internal currency of the VOID network — added to your ledger.
+
+YOUR AMBASSADOR CODE: {ref_code}
+
+You do not need to do anything with that code right now. It is yours. If you share the link above, it is already embedded. The code is there if you ever want to reference it directly.
+
+Umar Lateef
+Project VOID — Est. 2012 — Rebuilt 2026
+projectvoid.io
+
+You will not receive further emails unless you respond.
+"""
+
+
 @ambassador_bp.route("/admin/ambassadors", methods=["GET"])
 @admin_required
 def ambassador_panel():
@@ -215,7 +401,9 @@ def ambassador_panel():
         cur = conn.cursor()
         cur.execute("""
             SELECT id, name, email, field, ref_code, notes, email_sent, email_sent_at,
-                   users_referred, milestones_earned, vtx_earned, vtx_claimed, created_at
+                   users_referred, milestones_earned, vtx_earned, vtx_claimed, created_at,
+                   COALESCE(outreach_stage, 0) as outreach_stage,
+                   stage_1_sent_at, stage_2_sent_at
             FROM void_ambassadors ORDER BY created_at DESC
         """)
         rows = cur.fetchall()
@@ -227,6 +415,9 @@ def ambassador_panel():
                 "users_referred": r[8], "milestones_earned": r[9],
                 "vtx_earned": float(r[10]), "vtx_claimed": float(r[11]),
                 "created_at": r[12].isoformat() if r[12] else None,
+                "outreach_stage": r[13],
+                "stage_1_sent_at": r[14].isoformat() if r[14] else None,
+                "stage_2_sent_at": r[15].isoformat() if r[15] else None,
             }
             for r in rows
         ]
@@ -234,6 +425,10 @@ def ambassador_panel():
         total = cur.fetchone()[0]
         cur.execute("SELECT COUNT(*) FROM void_ambassadors WHERE email_sent = TRUE")
         sent = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM void_ambassadors WHERE COALESCE(outreach_stage, 0) = 1")
+        introduced = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM void_ambassadors WHERE COALESCE(outreach_stage, 0) = 2")
+        link_sent = cur.fetchone()[0]
         cur.execute("SELECT COALESCE(SUM(users_referred), 0) FROM void_ambassadors")
         total_referrals = cur.fetchone()[0]
         cur.execute("SELECT COALESCE(SUM(vtx_earned), 0) FROM void_ambassadors")
@@ -241,7 +436,11 @@ def ambassador_panel():
         return render_template(
             "ambassador_panel.html",
             ambassadors=ambassadors,
-            stats={"total": total, "sent": sent, "total_referrals": int(total_referrals), "total_vtx": total_vtx},
+            stats={
+                "total": total, "sent": sent,
+                "introduced": introduced, "link_sent": link_sent,
+                "total_referrals": int(total_referrals), "total_vtx": total_vtx
+            },
         )
     except Exception as e:
         logger.error("[Ambassador] Panel load failed: %s", e)
@@ -287,51 +486,238 @@ def add_ambassador():
 @ambassador_bp.route("/api/ambassador/send/<int:ambassador_id>", methods=["POST"])
 @admin_required
 def send_ambassador_email(ambassador_id: int):
+    """Legacy route — routes to stage-aware send logic."""
     conn = _get_db()
     try:
         cur = conn.cursor()
         cur.execute(
-            "SELECT name, email, field, ref_code, email_sent FROM void_ambassadors WHERE id = %s",
+            "SELECT name, email, field, ref_code, COALESCE(outreach_stage, 0) FROM void_ambassadors WHERE id = %s",
             (ambassador_id,)
         )
         row = cur.fetchone()
         if not row:
             return jsonify({"error": "Ambassador not found"}), 404
-
-        name, email, field, ref_code, already_sent = row
-
-        from void_engine.gmail_client import send_email
-        html = _build_ambassador_email_html(name, ref_code, field)
-        text = _build_ambassador_email_text(name, ref_code, field)
-        sent = send_email(email, "An Invitation into Project VOID", html, text)
-
-        if sent:
-            cur.execute(
-                "UPDATE void_ambassadors SET email_sent = TRUE, email_sent_at = NOW() WHERE id = %s",
-                (ambassador_id,)
-            )
-            conn.commit()
-            return jsonify({"success": True, "message": f"Email sent to {email}"})
-        else:
-            return jsonify({"error": "Email failed to send — check logs"}), 500
-
+        name, email, field, ref_code, outreach_stage = row
     except Exception as e:
-        conn.rollback()
-        logger.error("[Ambassador] Send failed: %s", e)
         return jsonify({"error": str(e)}), 500
     finally:
         cur.close()
+
+    if outreach_stage >= 1:
+        return jsonify({"error": "Introduction already sent — use SEND LINK to proceed to Stage 2"}), 400
+
+    from void_engine.gmail_client import send_email as _send_email
+    html = _build_stage1_email_html(name, field)
+    text = _build_stage1_email_text(name, field)
+    sent = _send_email(email, "An introduction — Project VOID", html, text)
+
+    if sent:
+        conn2 = _get_db()
+        try:
+            cur2 = conn2.cursor()
+            cur2.execute(
+                """UPDATE void_ambassadors
+                   SET email_sent = TRUE, email_sent_at = NOW(),
+                       outreach_stage = 1, stage_1_sent_at = NOW()
+                   WHERE id = %s""",
+                (ambassador_id,)
+            )
+            conn2.commit()
+        finally:
+            cur2.close()
+        return jsonify({"success": True, "message": f"Introduction sent to {email}"})
+    else:
+        return jsonify({"error": "Email failed to send — check logs"}), 500
 
 
 @ambassador_bp.route("/api/ambassador/send-all", methods=["POST"])
 @admin_required
 def send_all_ambassador_emails():
+    """Legacy bulk route — now routes to stage 1 introductions for all not-yet-contacted."""
     conn = _get_db()
     results = {"sent": 0, "failed": 0, "skipped": 0}
     try:
         cur = conn.cursor()
         cur.execute(
-            "SELECT id, name, email, field, ref_code FROM void_ambassadors WHERE email_sent = FALSE"
+            "SELECT id, name, email, field FROM void_ambassadors WHERE COALESCE(outreach_stage, 0) = 0"
+        )
+        rows = cur.fetchall()
+
+        from void_engine.gmail_client import send_email as _send_email
+
+        for row in rows:
+            amb_id, name, email, field = row
+            try:
+                html = _build_stage1_email_html(name, field)
+                text = _build_stage1_email_text(name, field)
+                sent = _send_email(email, "An introduction — Project VOID", html, text)
+                if sent:
+                    cur.execute(
+                        """UPDATE void_ambassadors
+                           SET email_sent = TRUE, email_sent_at = NOW(),
+                               outreach_stage = 1, stage_1_sent_at = NOW()
+                           WHERE id = %s""",
+                        (amb_id,)
+                    )
+                    conn.commit()
+                    results["sent"] += 1
+                else:
+                    results["failed"] += 1
+            except Exception as e:
+                logger.error("[Ambassador] Legacy bulk send failed for %s: %s", email, e)
+                results["failed"] += 1
+
+        return jsonify({"success": True, **results})
+    except Exception as e:
+        logger.error("[Ambassador] send-all failed: %s", e)
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+
+
+@ambassador_bp.route("/api/ambassador/send-stage1/<int:ambassador_id>", methods=["POST"])
+@admin_required
+def send_stage1_email(ambassador_id: int):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT name, email, field, outreach_stage FROM void_ambassadors WHERE id = %s",
+            (ambassador_id,)
+        )
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "Ambassador not found"}), 404
+        name, email, field, outreach_stage = row
+
+        if outreach_stage >= 1:
+            return jsonify({"error": "Introduction already sent — proceed to Stage 2 (Send Link)"}), 400
+
+        from void_engine.gmail_client import send_email
+        html = _build_stage1_email_html(name, field)
+        text = _build_stage1_email_text(name, field)
+        sent = send_email(email, "An introduction — Project VOID", html, text)
+
+        if sent:
+            cur.execute(
+                """UPDATE void_ambassadors
+                   SET email_sent = TRUE, email_sent_at = NOW(),
+                       outreach_stage = 1, stage_1_sent_at = NOW()
+                   WHERE id = %s""",
+                (ambassador_id,)
+            )
+            conn.commit()
+            return jsonify({"success": True, "message": f"Stage 1 introduction sent to {email}"})
+        else:
+            return jsonify({"error": "Email failed to send — check logs"}), 500
+
+    except Exception as e:
+        conn.rollback()
+        logger.error("[Ambassador] Stage 1 send failed: %s", e)
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+
+
+@ambassador_bp.route("/api/ambassador/send-stage2/<int:ambassador_id>", methods=["POST"])
+@admin_required
+def send_stage2_email(ambassador_id: int):
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT name, email, field, ref_code, outreach_stage FROM void_ambassadors WHERE id = %s",
+            (ambassador_id,)
+        )
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "Ambassador not found"}), 404
+        name, email, field, ref_code, outreach_stage = row
+
+        if outreach_stage < 1:
+            return jsonify({"error": "Stage 1 introduction must be sent before Stage 2"}), 400
+
+        if outreach_stage >= 2:
+            return jsonify({"error": "Link already sent to this contact (Stage 2 complete)"}), 400
+
+        from void_engine.gmail_client import send_email
+        html = _build_stage2_email_html(name, ref_code, field)
+        text = _build_stage2_email_text(name, ref_code, field)
+        sent = send_email(email, "VoidEcho — your link and ambassador code", html, text)
+
+        if sent:
+            cur.execute(
+                """UPDATE void_ambassadors
+                   SET outreach_stage = 2, stage_2_sent_at = NOW()
+                   WHERE id = %s""",
+                (ambassador_id,)
+            )
+            conn.commit()
+            return jsonify({"success": True, "message": f"Stage 2 link email sent to {email}"})
+        else:
+            return jsonify({"error": "Email failed to send — check logs"}), 500
+
+    except Exception as e:
+        conn.rollback()
+        logger.error("[Ambassador] Stage 2 send failed: %s", e)
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+
+
+@ambassador_bp.route("/api/ambassador/send-all-stage1", methods=["POST"])
+@admin_required
+def send_all_stage1():
+    conn = _get_db()
+    results = {"sent": 0, "failed": 0, "skipped": 0}
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id, name, email, field FROM void_ambassadors WHERE COALESCE(outreach_stage, 0) = 0"
+        )
+        rows = cur.fetchall()
+
+        from void_engine.gmail_client import send_email
+
+        for row in rows:
+            amb_id, name, email, field = row
+            try:
+                html = _build_stage1_email_html(name, field)
+                text = _build_stage1_email_text(name, field)
+                sent = send_email(email, "An introduction — Project VOID", html, text)
+                if sent:
+                    cur.execute(
+                        """UPDATE void_ambassadors
+                           SET email_sent = TRUE, email_sent_at = NOW(),
+                               outreach_stage = 1, stage_1_sent_at = NOW()
+                           WHERE id = %s""",
+                        (amb_id,)
+                    )
+                    conn.commit()
+                    results["sent"] += 1
+                else:
+                    results["failed"] += 1
+            except Exception as e:
+                logger.error("[Ambassador] Bulk Stage 1 send failed for %s: %s", email, e)
+                results["failed"] += 1
+
+        return jsonify({"success": True, **results})
+    except Exception as e:
+        logger.error("[Ambassador] send-all-stage1 failed: %s", e)
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+
+
+@ambassador_bp.route("/api/ambassador/send-all-stage2", methods=["POST"])
+@admin_required
+def send_all_stage2():
+    conn = _get_db()
+    results = {"sent": 0, "failed": 0, "skipped": 0}
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id, name, email, field, ref_code FROM void_ambassadors WHERE COALESCE(outreach_stage, 0) = 1"
         )
         rows = cur.fetchall()
 
@@ -340,12 +726,14 @@ def send_all_ambassador_emails():
         for row in rows:
             amb_id, name, email, field, ref_code = row
             try:
-                html = _build_ambassador_email_html(name, ref_code, field)
-                text = _build_ambassador_email_text(name, ref_code, field)
-                sent = send_email(email, "An Invitation into Project VOID", html, text)
+                html = _build_stage2_email_html(name, ref_code, field)
+                text = _build_stage2_email_text(name, ref_code, field)
+                sent = send_email(email, "VoidEcho — your link and ambassador code", html, text)
                 if sent:
                     cur.execute(
-                        "UPDATE void_ambassadors SET email_sent = TRUE, email_sent_at = NOW() WHERE id = %s",
+                        """UPDATE void_ambassadors
+                           SET outreach_stage = 2, stage_2_sent_at = NOW()
+                           WHERE id = %s""",
                         (amb_id,)
                     )
                     conn.commit()
@@ -353,12 +741,12 @@ def send_all_ambassador_emails():
                 else:
                     results["failed"] += 1
             except Exception as e:
-                logger.error("[Ambassador] Bulk send failed for %s: %s", email, e)
+                logger.error("[Ambassador] Bulk Stage 2 send failed for %s: %s", email, e)
                 results["failed"] += 1
 
         return jsonify({"success": True, **results})
     except Exception as e:
-        logger.error("[Ambassador] Send-all failed: %s", e)
+        logger.error("[Ambassador] send-all-stage2 failed: %s", e)
         return jsonify({"error": str(e)}), 500
     finally:
         cur.close()

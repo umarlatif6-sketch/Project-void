@@ -7,22 +7,27 @@
 <link rel="stylesheet" href="/static/style.css">
 <style>
   body { background: #0a0a0a; color: #e0e0e0; font-family: 'Courier New', monospace; margin: 0; padding: 0; }
-  .amb-container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+  .amb-container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
   .amb-header { border-bottom: 1px solid #222; padding-bottom: 24px; margin-bottom: 36px; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
   .amb-title { font-size: 14px; letter-spacing: 6px; color: #fff; }
   .amb-sub { font-size: 11px; color: #444; letter-spacing: 2px; margin-top: 4px; }
-  .stats-row { display: flex; gap: 24px; margin-bottom: 36px; flex-wrap: wrap; }
-  .stat-card { background: #111; border: 1px solid #222; padding: 16px 24px; flex: 1; min-width: 120px; }
+  .stats-row { display: flex; gap: 16px; margin-bottom: 36px; flex-wrap: wrap; }
+  .stat-card { background: #111; border: 1px solid #222; padding: 16px 20px; flex: 1; min-width: 110px; }
   .stat-label { font-size: 10px; letter-spacing: 2px; color: #555; margin-bottom: 6px; }
-  .stat-val { font-size: 26px; color: #fff; }
+  .stat-val { font-size: 24px; color: #fff; }
   .actions-row { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; align-items: center; }
-  .btn { padding: 10px 20px; border: 1px solid #444; background: transparent; color: #ccc; font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
-  .btn:hover { border-color: #fff; color: #fff; }
+  .btn { padding: 10px 18px; border: 1px solid #444; background: transparent; color: #ccc; font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+  .btn:hover:not(:disabled) { border-color: #fff; color: #fff; }
+  .btn:disabled { opacity: 0.35; cursor: default; }
   .btn-primary { background: #fff; color: #0a0a0a; border-color: #fff; }
-  .btn-primary:hover { background: #ddd; }
+  .btn-primary:hover:not(:disabled) { background: #ddd; }
+  .btn-stage1 { border-color: #555; color: #999; }
+  .btn-stage1:hover:not(:disabled) { border-color: #aaa; color: #fff; }
+  .btn-stage2 { border-color: #2a4a2a; color: #4a8; }
+  .btn-stage2:hover:not(:disabled) { background: #0a2a0a; border-color: #4a8; color: #6fa; }
   .btn-danger { border-color: #c00; color: #c00; }
-  .btn-danger:hover { background: #c00; color: #fff; }
-  .btn-sm { padding: 6px 12px; font-size: 11px; }
+  .btn-danger:hover:not(:disabled) { background: #c00; color: #fff; }
+  .btn-sm { padding: 5px 10px; font-size: 10px; }
   .add-form { background: #0e0e0e; border: 1px solid #222; padding: 24px; margin-bottom: 32px; display: none; }
   .add-form.visible { display: block; }
   .form-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -34,19 +39,22 @@
   thead th { font-size: 10px; letter-spacing: 2px; color: #555; padding: 10px 12px; text-align: left; border-bottom: 1px solid #1a1a1a; }
   tbody tr { border-bottom: 1px solid #111; transition: background 0.15s; }
   tbody tr:hover { background: #0e0e0e; }
-  td { padding: 12px; font-size: 12px; color: #bbb; vertical-align: middle; }
+  td { padding: 10px 12px; font-size: 12px; color: #bbb; vertical-align: middle; }
   .ref-code { letter-spacing: 2px; color: #fff; font-size: 11px; }
-  .badge { display: inline-block; padding: 2px 8px; font-size: 10px; letter-spacing: 1px; border-radius: 2px; }
-  .badge-sent { background: #0a2a0a; color: #4a4; border: 1px solid #2a4a2a; }
-  .badge-pending { background: #1a1a0a; color: #aa8; border: 1px solid #3a3a1a; }
-  .td-actions { display: flex; gap: 8px; align-items: center; }
+  .badge { display: inline-block; padding: 3px 8px; font-size: 10px; letter-spacing: 1px; border-radius: 2px; white-space: nowrap; }
+  .badge-stage0 { background: #111; color: #555; border: 1px solid #222; }
+  .badge-stage1 { background: #1a1a0a; color: #aa8; border: 1px solid #3a3a1a; }
+  .badge-stage2 { background: #0a2a0a; color: #4a8; border: 1px solid #2a4a2a; }
+  .td-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .msg { padding: 12px 16px; margin-bottom: 20px; border-radius: 2px; font-size: 12px; display: none; }
   .msg-success { background: #0a2a0a; border: 1px solid #2a4a2a; color: #4a4; }
   .msg-error { background: #2a0a0a; border: 1px solid #4a2a2a; color: #c66; }
   .msg.visible { display: block; }
   .empty-state { text-align: center; padding: 60px 24px; color: #333; font-size: 13px; letter-spacing: 2px; }
-  .progress-bar { height: 2px; background: #111; margin-top: 4px; }
-  .progress-fill { height: 2px; background: #fff; transition: width 0.3s; }
+  .bulk-section { background: #0e0e0e; border: 1px solid #1a1a1a; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .bulk-label { font-size: 10px; letter-spacing: 2px; color: #444; }
+  .bulk-sep { width: 1px; height: 24px; background: #222; }
+  .stage-note { font-size: 10px; color: #333; letter-spacing: 1px; margin-top: 3px; }
 </style>
 </head>
 <body>
@@ -54,7 +62,7 @@
   <div class="amb-header">
     <div>
       <div class="amb-title">AMBASSADOR OUTREACH</div>
-      <div class="amb-sub">PROJECT VOID — SOVEREIGN TRANSMISSION PROGRAM</div>
+      <div class="amb-sub">PROJECT VOID — TWO-STAGE TRANSMISSION PROTOCOL</div>
     </div>
     <a href="/admin/market" class="btn btn-sm">← ADMIN</a>
   </div>
@@ -67,12 +75,18 @@
       <div class="stat-val">{{ stats.total }}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">EMAILS SENT</div>
-      <div class="stat-val">{{ stats.sent }}</div>
+      <div class="stat-label">NOT CONTACTED</div>
+      <div class="stat-val">{{ stats.total - stats.introduced - stats.link_sent }}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">PENDING</div>
-      <div class="stat-val">{{ stats.total - stats.sent }}</div>
+      <div class="stat-label">INTRODUCED</div>
+      <div class="stat-val">{{ stats.introduced }}</div>
+      <div class="stage-note">STAGE 1 SENT</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">LINK SENT</div>
+      <div class="stat-val">{{ stats.link_sent }}</div>
+      <div class="stage-note">STAGE 2 SENT</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">SIGNUPS REFERRED</div>
@@ -81,14 +95,22 @@
     <div class="stat-card">
       <div class="stat-label">VTX EARNED</div>
       <div class="stat-val" style="font-size:20px;">{{ "%.0f"|format(stats.total_vtx) }}</div>
-      <div style="font-size:10px;color:#333;margin-top:2px;">286 per 10 signups</div>
+      <div class="stage-note">286 PER 10 SIGNUPS</div>
     </div>
   </div>
 
   <div class="actions-row">
-    <button class="btn btn-primary" onclick="toggleAddForm()">+ ADD AMBASSADOR</button>
-    <button class="btn" onclick="sendAll()">SEND ALL PENDING</button>
-    <span id="send-all-status" style="font-size:11px;color:#555;letter-spacing:1px;"></span>
+    <button class="btn btn-primary" onclick="toggleAddForm()">+ ADD CONTACT</button>
+  </div>
+
+  <div class="bulk-section">
+    <span class="bulk-label">BULK ACTIONS</span>
+    <div class="bulk-sep"></div>
+    <button class="btn btn-stage1" onclick="sendAllStage1()">SEND ALL INTRODUCTIONS</button>
+    <span id="stage1-all-status" style="font-size:11px;color:#555;letter-spacing:1px;"></span>
+    <div class="bulk-sep"></div>
+    <button class="btn btn-stage2" onclick="sendAllStage2()">SEND ALL LINKS</button>
+    <span id="stage2-all-status" style="font-size:11px;color:#555;letter-spacing:1px;"></span>
   </div>
 
   <div class="add-form" id="add-form">
@@ -126,9 +148,9 @@
         <th>EMAIL</th>
         <th>FIELD</th>
         <th>REF CODE</th>
-        <th>STATUS</th>
+        <th>STAGE</th>
         <th>SIGNUPS</th>
-        <th>VTX EARNED</th>
+        <th>VTX</th>
         <th>ACTIONS</th>
       </tr>
     </thead>
@@ -136,27 +158,29 @@
       {% for a in ambassadors %}
       <tr id="row-{{ a.id }}">
         <td style="color:#fff;">{{ a.name }}</td>
-        <td>{{ a.email }}</td>
-        <td style="color:#666;">{{ a.field or '—' }}</td>
+        <td style="font-size:11px;">{{ a.email }}</td>
+        <td style="color:#666;font-size:11px;">{{ a.field or '—' }}</td>
         <td><span class="ref-code">{{ a.ref_code }}</span></td>
         <td>
-          {% if a.email_sent %}
-          <span class="badge badge-sent">SENT</span>
+          {% if a.outreach_stage == 2 %}
+          <span class="badge badge-stage2">LINK SENT</span>
+          {% elif a.outreach_stage == 1 %}
+          <span class="badge badge-stage1">INTRODUCED</span>
           {% else %}
-          <span class="badge badge-pending">PENDING</span>
+          <span class="badge badge-stage0">NOT CONTACTED</span>
           {% endif %}
         </td>
         <td style="text-align:center;">
           {{ a.users_referred }}
           {% if a.users_referred > 0 %}
-          <div style="font-size:9px;color:#333;margin-top:2px;">next: {{ 10 - (a.users_referred % 10) if a.users_referred % 10 != 0 else 0 }} to go</div>
+          <div style="font-size:9px;color:#333;margin-top:2px;">{{ 10 - (a.users_referred % 10) if a.users_referred % 10 != 0 else 0 }} to next</div>
           {% endif %}
         </td>
         <td style="text-align:center;">
           {% if a.vtx_earned > 0 %}
-          <span style="color:#aaa;">{{ "%.0f"|format(a.vtx_earned) }} VTX</span>
+          <span style="color:#aaa;">{{ "%.0f"|format(a.vtx_earned) }}</span>
           {% if a.vtx_earned > a.vtx_claimed %}
-          <span class="badge badge-sent" style="display:block;margin-top:4px;font-size:9px;">CLAIMABLE</span>
+          <span class="badge badge-stage2" style="display:block;margin-top:3px;font-size:9px;">CLAIMABLE</span>
           {% endif %}
           {% else %}
           <span style="color:#222;">—</span>
@@ -164,12 +188,18 @@
         </td>
         <td>
           <div class="td-actions">
-            {% if not a.email_sent %}
-            <button class="btn btn-sm" onclick="sendOne({{ a.id }}, '{{ a.name }}')">SEND</button>
-            {% else %}
-            <button class="btn btn-sm" onclick="sendOne({{ a.id }}, '{{ a.name }}')" title="Resend email">RESEND</button>
-            {% endif %}
-            <button class="btn btn-sm btn-danger" onclick="deleteAmb({{ a.id }}, '{{ a.name }}')">✕</button>
+            <button class="btn btn-sm btn-stage1"
+              onclick="sendStage1({{ a.id }}, '{{ a.name|replace("'", "\\'") }}')"
+              {% if a.outreach_stage >= 1 %}disabled title="Introduction already sent"{% endif %}>
+              INTRODUCE
+            </button>
+            <button class="btn btn-sm btn-stage2"
+              onclick="sendStage2({{ a.id }}, '{{ a.name|replace("'", "\\'") }}')"
+              {% if a.outreach_stage < 1 %}disabled title="Send introduction first"{% endif %}
+              {% if a.outreach_stage >= 2 %}disabled title="Link already sent"{% endif %}>
+              SEND LINK
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteAmb({{ a.id }}, '{{ a.name|replace("'", "\\'") }}')">✕</button>
           </div>
         </td>
       </tr>
@@ -178,7 +208,7 @@
   </table>
   {% else %}
   <div class="empty-state" id="empty-state">
-    NO AMBASSADORS ADDED YET<br>
+    NO CONTACTS ADDED YET<br>
     <span style="font-size:11px;color:#222;margin-top:8px;display:block;">Add contacts above to begin the outreach program</span>
   </div>
   {% endif %}
@@ -189,7 +219,7 @@ function showMsg(text, type) {
   const el = document.getElementById('msg');
   el.textContent = text;
   el.className = 'msg msg-' + type + ' visible';
-  setTimeout(() => el.classList.remove('visible'), 5000);
+  setTimeout(() => el.classList.remove('visible'), 6000);
 }
 
 function toggleAddForm() {
@@ -209,7 +239,7 @@ async function addAmbassador() {
   });
   const data = await res.json();
   if (data.success) {
-    showMsg(`Ambassador added — ref code: ${data.ref_code}`, 'success');
+    showMsg(`Contact added — ref code: ${data.ref_code}`, 'success');
     document.getElementById('f-name').value = '';
     document.getElementById('f-email').value = '';
     document.getElementById('f-field').value = '';
@@ -217,43 +247,74 @@ async function addAmbassador() {
     toggleAddForm();
     setTimeout(() => location.reload(), 1200);
   } else {
-    showMsg(data.error || 'Failed to add ambassador', 'error');
+    showMsg(data.error || 'Failed to add contact', 'error');
   }
 }
 
-async function sendOne(id, name) {
+async function sendStage1(id, name) {
   const btn = event.target;
   btn.textContent = '...';
   btn.disabled = true;
-  const res = await fetch(`/api/ambassador/send/${id}`, {method: 'POST'});
+  const res = await fetch(`/api/ambassador/send-stage1/${id}`, {method: 'POST'});
   const data = await res.json();
   if (data.success) {
-    showMsg(`Email sent to ${name}`, 'success');
+    showMsg(`Introduction sent to ${name}`, 'success');
     setTimeout(() => location.reload(), 1200);
   } else {
     showMsg(data.error || 'Send failed', 'error');
-    btn.textContent = 'SEND';
+    btn.textContent = 'INTRODUCE';
     btn.disabled = false;
   }
 }
 
-async function sendAll() {
-  const status = document.getElementById('send-all-status');
+async function sendStage2(id, name) {
+  const btn = event.target;
+  btn.textContent = '...';
+  btn.disabled = true;
+  const res = await fetch(`/api/ambassador/send-stage2/${id}`, {method: 'POST'});
+  const data = await res.json();
+  if (data.success) {
+    showMsg(`Link sent to ${name}`, 'success');
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    showMsg(data.error || 'Send failed', 'error');
+    btn.textContent = 'SEND LINK';
+    btn.disabled = false;
+  }
+}
+
+async function sendAllStage1() {
+  const status = document.getElementById('stage1-all-status');
   status.textContent = 'SENDING...';
-  const res = await fetch('/api/ambassador/send-all', {method: 'POST'});
+  const res = await fetch('/api/ambassador/send-all-stage1', {method: 'POST'});
   const data = await res.json();
   if (data.success) {
     status.textContent = `SENT: ${data.sent} | FAILED: ${data.failed}`;
-    showMsg(`Bulk send complete — ${data.sent} sent, ${data.failed} failed`, 'success');
-    setTimeout(() => location.reload(), 2000);
+    showMsg(`Stage 1 bulk send complete — ${data.sent} sent, ${data.failed} failed`, 'success');
+    setTimeout(() => location.reload(), 2500);
   } else {
     status.textContent = 'FAILED';
-    showMsg(data.error || 'Send-all failed', 'error');
+    showMsg(data.error || 'Bulk send failed', 'error');
+  }
+}
+
+async function sendAllStage2() {
+  const status = document.getElementById('stage2-all-status');
+  status.textContent = 'SENDING...';
+  const res = await fetch('/api/ambassador/send-all-stage2', {method: 'POST'});
+  const data = await res.json();
+  if (data.success) {
+    status.textContent = `SENT: ${data.sent} | FAILED: ${data.failed}`;
+    showMsg(`Stage 2 bulk send complete — ${data.sent} sent, ${data.failed} failed`, 'success');
+    setTimeout(() => location.reload(), 2500);
+  } else {
+    status.textContent = 'FAILED';
+    showMsg(data.error || 'Bulk send failed', 'error');
   }
 }
 
 async function deleteAmb(id, name) {
-  if (!confirm(`Remove ${name} from ambassadors?`)) return;
+  if (!confirm(`Remove ${name} from contacts?`)) return;
   const res = await fetch(`/api/ambassador/delete/${id}`, {method: 'DELETE'});
   const data = await res.json();
   if (data.success) {
