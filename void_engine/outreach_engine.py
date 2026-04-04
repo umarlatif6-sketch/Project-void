@@ -130,6 +130,8 @@ We are not asking for funding. We are not requesting a procurement process. We a
 
 If this is not the right moment, that is understood. If the alignment is as clear to you as it appears to us, the /speak page is open.
 
+For reference: a Non-Disclosure Agreement covering all PROJECT VOID inventions is available at void-stego-engine.replit.app/nda — governed by English law.
+
 With quiet confidence,
 
 Umar Lateef

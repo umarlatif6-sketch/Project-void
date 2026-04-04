@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non-Disclosure Agreement — PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --gold: #c9a84c;
+            --teal: #2dd4bf;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #fff;
+            color: #111;
+            font-family: 'Georgia', 'Times New Roman', Times, serif;
+            font-size: 11pt;
+            line-height: 1.7;
+        }
+
+        /* ── SCREEN-ONLY NAV ── */
+        .nda-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 40px;
+            background: #060606;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .nda-nav-brand {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .nda-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .nda-nav-link {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            color: #555;
+            text-decoration: none;
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            transition: color 0.2s;
+        }
+        .nda-nav-link:hover { color: var(--teal); }
+        .nda-nav-link.active { color: var(--gold); }
+
+        .print-btn {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            background: transparent;
+            border: 1px solid rgba(201,168,76,0.5);
+            color: var(--gold);
+            padding: 8px 22px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .print-btn:hover {
+            background: rgba(201,168,76,0.08);
+            border-color: var(--gold);
+        }
+
+        /* ── DOCUMENT WRAPPER ── */
+        .nda-wrapper {
+            max-width: 780px;
+            margin: 48px auto 80px;
+            padding: 0 40px;
+        }
+
+        /* ── DISCLAIMER BANNER ── */
+        .nda-disclaimer {
+            background: #fefce8;
+            border: 1px solid #fde047;
+            border-left: 4px solid #eab308;
+            border-radius: 3px;
+            padding: 12px 18px;
+            margin-bottom: 36px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.68rem;
+            color: #713f12;
+            letter-spacing: 0.5px;
+            line-height: 1.6;
+        }
+
+        /* ── HEADER ── */
+        .nda-header {
+            text-align: center;
+            margin-bottom: 36px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #111;
+        }
+        .nda-header h1 {
+            font-size: 16pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 6px;
+        }
+        .nda-header .nda-subtitle {
+            font-size: 10pt;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .nda-header .nda-type {
+            font-size: 9pt;
+            color: #888;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* ── PARTIES BLOCK ── */
+        .nda-parties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .nda-party-block {
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 18px 20px;
+        }
+        .nda-party-label {
+            font-size: 8pt;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 10px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+        .nda-party-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .nda-party-field {
+            font-size: 10pt;
+            line-height: 1.5;
+        }
+        .nda-party-field strong {
+            color: #333;
+            font-size: 9pt;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .nda-party-blank {
+            display: inline-block;
+            border-bottom: 1px solid #999;
+            min-width: 160px;
+            color: #aaa;
+            font-style: italic;
+            font-size: 9.5pt;
+        }
+
+        /* ── INTRO PARAGRAPH ── */
+        .nda-intro {
+            margin-bottom: 28px;
+            text-align: justify;
+        }
+
+        /* ── SECTION HEADINGS ── */
+        .nda-section {
+            margin-bottom: 28px;
+        }
+        .nda-section-title {
+            font-size: 10.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #ddd;
+        }
+        .nda-section-num {
+            color: #888;
+            margin-right: 8px;
+        }
+
+        /* ── CLAUSE TEXT ── */
+        .nda-clause {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+        .nda-clause-num {
+            font-weight: 600;
+            color: #333;
+            margin-right: 6px;
+        }
+
+        /* ── INVENTION LIST ── */
+        .nda-inventions {
+            margin: 14px 0 14px 24px;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .nda-inventions li {
+            display: flex;
+            gap: 12px;
+            text-align: justify;
+        }
+        .nda-inv-num {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 9pt;
+            color: #888;
+            min-width: 32px;
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+
+        /* ── PLAIN LIST (exclusions etc.) ── */
+        .nda-list {
+            margin: 10px 0 10px 28px;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .nda-list li {
+            display: flex;
+            gap: 10px;
+            text-align: justify;
+        }
+        .nda-list-marker {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 9pt;
+            color: #888;
+            min-width: 22px;
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+
+        /* ── SIGNATURE BLOCKS ── */
+        .nda-signatures {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-top: 20px;
+        }
+        .nda-sig-block {
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 20px 20px 16px;
+        }
+        .nda-sig-party {
+            font-size: 8pt;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 18px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+        .nda-sig-line {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .nda-sig-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .nda-sig-label {
+            font-size: 8pt;
+            color: #aaa;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+        .nda-sig-value {
+            font-size: 10pt;
+            color: #333;
+        }
+        .nda-sig-underline {
+            border-bottom: 1px solid #999;
+            min-height: 22px;
+            width: 100%;
+        }
+
+        /* ── FOOTER ── */
+        .nda-footer {
+            margin-top: 48px;
+            padding-top: 18px;
+            border-top: 1px solid #ddd;
+            font-size: 8pt;
+            color: #aaa;
+            text-align: center;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* ── PRINT STYLES ── */
+        @media print {
+            .nda-nav { display: none !important; }
+            .nda-disclaimer { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .nda-wrapper { margin: 20px auto 20px; padding: 0 20px; }
+            body { font-size: 10pt; }
+            .nda-parties { page-break-inside: avoid; }
+            .nda-signatures { page-break-inside: avoid; }
+            @page {
+                margin: 2.5cm 2cm;
+                size: A4;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .nda-wrapper { padding: 0 20px; margin: 28px auto 60px; }
+            .nda-parties { grid-template-columns: 1fr; }
+            .nda-signatures { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nda-nav">
+        <a href="/" class="nda-nav-brand">◆ VOID ENGINE</a>
+        <div class="nda-nav-links">
+            <a href="/speak" class="nda-nav-link">Speak</a>
+            <a href="/nda/text" class="nda-nav-link" title="Plain-text version">Plain Text</a>
+            <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+        </div>
+    </nav>
+
+    <div class="nda-wrapper">
+
+        <div class="nda-disclaimer">
+            DISCLAIMER — This document is a template. Consult a qualified solicitor for
+            jurisdiction-specific legal advice before relying on this agreement.
+        </div>
+
+        <div class="nda-header">
+            <h1>Non-Disclosure Agreement</h1>
+            <div class="nda-subtitle">PROJECT VOID</div>
+            <div class="nda-type">Unilateral &nbsp;·&nbsp; Governed by English Law</div>
+        </div>
+
+        <div class="nda-intro">
+            This Non-Disclosure Agreement (<strong>"Agreement"</strong>) is entered into as of the
+            date last signed below (<strong>"Effective Date"</strong>) between the parties identified
+            below. By signing this Agreement, both parties agree to be bound by its terms.
+        </div>
+
+        <div class="nda-parties">
+            <div class="nda-party-block">
+                <div class="nda-party-label">Disclosing Party</div>
+                <div class="nda-party-row">
+                    <div class="nda-party-field"><strong>Name:</strong> Umar Latif</div>
+                    <div class="nda-party-field"><strong>Project:</strong> PROJECT VOID</div>
+                    <div class="nda-party-field"><strong>Address:</strong> <span class="nda-party-blank">&nbsp;</span></div>
+                    <div class="nda-party-field"><strong>Email:</strong> <span class="nda-party-blank">&nbsp;</span></div>
+                </div>
+            </div>
+            <div class="nda-party-block">
+                <div class="nda-party-label">Receiving Party</div>
+                <div class="nda-party-row">
+                    <div class="nda-party-field"><strong>Name:</strong> <span class="nda-party-blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+                    <div class="nda-party-field"><strong>Organisation:</strong> <span class="nda-party-blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+                    <div class="nda-party-field"><strong>Address:</strong> <span class="nda-party-blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+                    <div class="nda-party-field"><strong>Email:</strong> <span class="nda-party-blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nda-section">
+            <div class="nda-section-title"><span class="nda-section-num">1.</span> Definitions</div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">1.1</span>
+                <strong>"Confidential Information"</strong> means all non-public information disclosed
+                by the Disclosing Party to the Receiving Party, whether disclosed orally, in writing,
+                electronically, or by any other means, that is designated as confidential or that
+                reasonably should be understood to be confidential given the nature of the information
+                and the circumstances of disclosure.
+            </div>
+
+            <div class="nda-clause">
+                Without limiting the foregoing, Confidential Information expressly includes the
+                following inventions, systems, and intellectual property of PROJECT VOID:
+            </div>
+
+            <ul class="nda-inventions">
+                <li>
+                    <span class="nda-inv-num">(i)</span>
+                    <span><strong>Al-Jabr 286-bit cryptographic hashing algorithm</strong> and its
+                    implementation details, constants, and source code;</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(ii)</span>
+                    <span><strong>BW19-P286 elliptic curve sovereign pairing proof</strong>, including
+                    the generator point, scalar multiplication via Montgomery Ladder, and all
+                    associated mathematical constructions;</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(iii)</span>
+                    <span><strong>VoidEcho acoustic steganography protocol</strong> operating at 432 Hz,
+                    comprising a 3-layer architecture (LSB embedding, hash embedding, and frequency
+                    anchoring), and all related encoding and decoding processes;</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(iv)</span>
+                    <span><strong>QiSync jaw-biometric key derivation protocol</strong>, including the
+                    method of deriving encryption keys from jaw-closing frequency and pressure
+                    biometric signals;</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(v)</span>
+                    <span><strong>MycoVOID biocomputing architecture</strong> and the MycoSwitch bio-state
+                    model routing system, including all biological computation models and node
+                    configurations;</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(vi)</span>
+                    <span><strong>GriDul mesh networking topology</strong>, including the Grow, Move, Mesh,
+                    and Rumble sub-node architecture and all zone configuration parameters;</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(vii)</span>
+                    <span><strong>VTX and PEACE token economy</strong> design, mechanics, pre-earning model,
+                    and all related economic architecture and incentive structures;</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(viii)</span>
+                    <span><strong>Adriana SCL glyph system</strong> (ψ — Ω — ◆) and its frequency-domain
+                    mapping, including all glyph definitions, resonance tables, and algorithmic
+                    derivations;</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(ix)</span>
+                    <span><strong>VOID Chronicle sovereign record architecture</strong> and its chapter
+                    taxonomy, including all data structures, schemas, and record classification
+                    systems;</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(x)</span>
+                    <span><strong>The sovereign number 286</strong> as a unifying architectural principle
+                    across cryptographic, economic, scriptural, and mechanical layers of
+                    PROJECT VOID;</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(xi)</span>
+                    <span><strong>4000 Machine / mrb4000 hardware specifications</strong> and sovereign
+                    node architecture, including all circuit designs, firmware, and physical
+                    configuration details; and</span>
+                </li>
+                <li>
+                    <span class="nda-inv-num">(xii)</span>
+                    <span><strong>All source code, database schemas, prospect lists, business plans,
+                    pricing strategies, financial projections, marketing materials, and technical
+                    documentation</strong> related to PROJECT VOID.</span>
+                </li>
+            </ul>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">1.2</span>
+                <strong>"Purpose"</strong> means the evaluation of a potential business relationship
+                or collaboration between the parties with respect to PROJECT VOID.
+            </div>
+        </div>
+
+        <div class="nda-section">
+            <div class="nda-section-title"><span class="nda-section-num">2.</span> Obligations of the Receiving Party</div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">2.1</span> The Receiving Party agrees to:
+            </div>
+
+            <ul class="nda-list">
+                <li>
+                    <span class="nda-list-marker">(a)</span>
+                    <span>hold all Confidential Information in strict confidence and protect it with
+                    at least the same degree of care it uses to protect its own confidential
+                    information, but no less than reasonable care;</span>
+                </li>
+                <li>
+                    <span class="nda-list-marker">(b)</span>
+                    <span>use the Confidential Information solely for the Purpose and for no other
+                    purpose whatsoever;</span>
+                </li>
+                <li>
+                    <span class="nda-list-marker">(c)</span>
+                    <span>not disclose any Confidential Information to any third party without the
+                    prior written consent of the Disclosing Party;</span>
+                </li>
+                <li>
+                    <span class="nda-list-marker">(d)</span>
+                    <span>limit access to the Confidential Information to those employees, agents,
+                    or advisors who need to know such information solely for the Purpose and who
+                    are bound by confidentiality obligations no less protective than those in this
+                    Agreement; and</span>
+                </li>
+                <li>
+                    <span class="nda-list-marker">(e)</span>
+                    <span>promptly notify the Disclosing Party upon becoming aware of any actual or
+                    suspected unauthorised disclosure or use of the Confidential Information.</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nda-section">
+            <div class="nda-section-title"><span class="nda-section-num">3.</span> Exclusions from Confidentiality</div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">3.1</span> The obligations in clause 2 shall not apply
+                to information that:
+            </div>
+
+            <ul class="nda-list">
+                <li>
+                    <span class="nda-list-marker">(a)</span>
+                    <span>is or becomes publicly known through no breach of this Agreement by the
+                    Receiving Party;</span>
+                </li>
+                <li>
+                    <span class="nda-list-marker">(b)</span>
+                    <span>was rightfully known to the Receiving Party before disclosure by the
+                    Disclosing Party, as evidenced by written records predating such disclosure;</span>
+                </li>
+                <li>
+                    <span class="nda-list-marker">(c)</span>
+                    <span>is independently developed by the Receiving Party without use of or
+                    reference to the Confidential Information;</span>
+                </li>
+                <li>
+                    <span class="nda-list-marker">(d)</span>
+                    <span>is received from a third party who is not under any obligation of
+                    confidentiality with respect to such information; or</span>
+                </li>
+                <li>
+                    <span class="nda-list-marker">(e)</span>
+                    <span>is required to be disclosed by applicable law, court order, or regulatory
+                    authority, provided that the Receiving Party gives the Disclosing Party prompt
+                    prior written notice (where legally permissible) and cooperates with the
+                    Disclosing Party in seeking a protective order or other appropriate relief.</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nda-section">
+            <div class="nda-section-title"><span class="nda-section-num">4.</span> No Licence</div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">4.1</span> Nothing in this Agreement grants the Receiving
+                Party any right, title, interest, or licence in or to any Confidential Information,
+                intellectual property, patent, copyright, trade mark, trade secret, or any other
+                proprietary right of the Disclosing Party, whether by implication, estoppel,
+                or otherwise.
+            </div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">4.2</span> All Confidential Information remains the sole
+                and exclusive property of the Disclosing Party.
+            </div>
+        </div>
+
+        <div class="nda-section">
+            <div class="nda-section-title"><span class="nda-section-num">5.</span> Return and Destruction</div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">5.1</span> Upon written request by the Disclosing Party,
+                or upon termination of discussions between the parties, the Receiving Party shall
+                promptly:
+            </div>
+
+            <ul class="nda-list">
+                <li>
+                    <span class="nda-list-marker">(a)</span>
+                    <span>return to the Disclosing Party all tangible materials containing or embodying
+                    Confidential Information; and</span>
+                </li>
+                <li>
+                    <span class="nda-list-marker">(b)</span>
+                    <span>permanently destroy all electronic copies and derivatives of the Confidential
+                    Information and, upon request, certify in writing that such destruction has been
+                    completed.</span>
+                </li>
+            </ul>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">5.2</span> The Receiving Party may retain one archival
+                copy solely to the extent required by applicable law or regulation, subject to the
+                continuing confidentiality obligations of this Agreement.
+            </div>
+        </div>
+
+        <div class="nda-section">
+            <div class="nda-section-title"><span class="nda-section-num">6.</span> Term</div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">6.1</span> This Agreement shall commence on the Effective
+                Date and continue for a period of <strong>three (3) years</strong>, unless earlier
+                terminated by mutual written agreement of the parties.
+            </div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">6.2</span> The confidentiality obligations in clause 2
+                shall survive the expiry or termination of this Agreement with respect to any
+                Confidential Information disclosed during its term.
+            </div>
+        </div>
+
+        <div class="nda-section">
+            <div class="nda-section-title"><span class="nda-section-num">7.</span> Remedies</div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">7.1</span> The Receiving Party acknowledges that any
+                breach or threatened breach of this Agreement may cause the Disclosing Party
+                irreparable harm for which monetary damages would be an inadequate remedy.
+            </div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">7.2</span> Accordingly, in addition to any other remedies
+                available at law or in equity, the Disclosing Party shall be entitled to seek
+                <strong>injunctive relief</strong>, specific performance, or any other equitable
+                remedy in any court of competent jurisdiction without the need to post a bond or
+                prove actual damage.
+            </div>
+        </div>
+
+        <div class="nda-section">
+            <div class="nda-section-title"><span class="nda-section-num">8.</span> Governing Law and Jurisdiction</div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">8.1</span> This Agreement and any dispute or claim arising
+                out of or in connection with it or its subject matter or formation (including
+                non-contractual disputes or claims) shall be governed by and construed in accordance
+                with the <strong>law of England and Wales</strong>.
+            </div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">8.2</span> Each party irrevocably agrees that the
+                <strong>courts of England and Wales</strong> shall have exclusive jurisdiction to
+                settle any dispute or claim arising out of or in connection with this Agreement.
+            </div>
+        </div>
+
+        <div class="nda-section">
+            <div class="nda-section-title"><span class="nda-section-num">9.</span> General</div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">9.1</span> <strong>Entire Agreement.</strong> This
+                Agreement constitutes the entire agreement between the parties with respect to its
+                subject matter and supersedes all prior agreements, representations, and
+                understandings.
+            </div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">9.2</span> <strong>Amendments.</strong> This Agreement
+                may only be amended by a written instrument signed by authorised representatives
+                of both parties.
+            </div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">9.3</span> <strong>Waiver.</strong> No failure or delay
+                in exercising any right under this Agreement shall operate as a waiver of such right.
+            </div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">9.4</span> <strong>Severability.</strong> If any provision
+                of this Agreement is held to be invalid or unenforceable, it shall be modified to the
+                minimum extent necessary to make it valid and enforceable, and the remaining provisions
+                shall continue in full force and effect.
+            </div>
+
+            <div class="nda-clause">
+                <span class="nda-clause-num">9.5</span> <strong>No Assignment.</strong> The Receiving
+                Party may not assign or transfer any rights or obligations under this Agreement without
+                the prior written consent of the Disclosing Party.
+            </div>
+        </div>
+
+        <div class="nda-section">
+            <div class="nda-section-title"><span class="nda-section-num">10.</span> Signature Blocks</div>
+
+            <div class="nda-clause">
+                IN WITNESS WHEREOF, the parties have executed this Agreement as of the Effective Date.
+            </div>
+
+            <div class="nda-signatures">
+                <div class="nda-sig-block">
+                    <div class="nda-sig-party">Disclosing Party</div>
+                    <div class="nda-sig-line">
+                        <div class="nda-sig-field">
+                            <div class="nda-sig-label">Signature</div>
+                            <div class="nda-sig-underline"></div>
+                        </div>
+                        <div class="nda-sig-field">
+                            <div class="nda-sig-label">Name</div>
+                            <div class="nda-sig-value">Umar Latif</div>
+                        </div>
+                        <div class="nda-sig-field">
+                            <div class="nda-sig-label">Title</div>
+                            <div class="nda-sig-value">Founder, PROJECT VOID</div>
+                        </div>
+                        <div class="nda-sig-field">
+                            <div class="nda-sig-label">Date</div>
+                            <div class="nda-sig-underline"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nda-sig-block">
+                    <div class="nda-sig-party">Receiving Party</div>
+                    <div class="nda-sig-line">
+                        <div class="nda-sig-field">
+                            <div class="nda-sig-label">Signature</div>
+                            <div class="nda-sig-underline"></div>
+                        </div>
+                        <div class="nda-sig-field">
+                            <div class="nda-sig-label">Name</div>
+                            <div class="nda-sig-underline"></div>
+                        </div>
+                        <div class="nda-sig-field">
+                            <div class="nda-sig-label">Title</div>
+                            <div class="nda-sig-underline"></div>
+                        </div>
+                        <div class="nda-sig-field">
+                            <div class="nda-sig-label">Date</div>
+                            <div class="nda-sig-underline"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nda-footer">
+            PROJECT VOID &nbsp;·&nbsp; Non-Disclosure Agreement &nbsp;·&nbsp;
+            Governed by the Law of England and Wales &nbsp;·&nbsp;
+            This document is a template — seek qualified legal advice before use.
+        </div>
+
+    </div>
+
+</body>
+</html>
