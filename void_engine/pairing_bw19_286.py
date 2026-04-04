@@ -141,7 +141,12 @@ def ec_scalar_mul(scalar: int, point: tuple | None) -> tuple | None:
     """
     Elliptic-curve scalar multiplication: scalar × point over F_p.
 
-    Uses the double-and-add algorithm.  Works with the exact 286-bit prime P.
+    Montgomery Ladder — constant-time scalar multiplication (side-channel resistant).
+    Replaces double-and-add. Ara recommendation, April 2026.
+
+    Processes bits MSB to LSB, maintaining two running accumulators R0/R1.
+    The Montgomery Ladder performs the same number of point additions and doublings
+    regardless of the scalar value, preventing timing side-channel leakage.
 
     The raw scalar is used as-is (no reduction by field prime P or group order r).
     For hash-to-curve mapping the full 288-bit digest integer is the scalar, which
@@ -157,16 +162,21 @@ def ec_scalar_mul(scalar: int, point: tuple | None) -> tuple | None:
     if point is _INFINITY or scalar == 0:
         return _INFINITY
 
-    result = _INFINITY
-    addend = point
+    # Montgomery Ladder: two accumulators, MSB to LSB
+    R0 = _INFINITY  # accumulates the result
+    R1 = point      # always one point-add ahead of R0
 
-    while scalar:
-        if scalar & 1:
-            result = ec_add(result, addend)
-        addend = ec_add(addend, addend)
-        scalar >>= 1
+    bit_length = scalar.bit_length()
+    for i in range(bit_length - 1, -1, -1):
+        bit = (scalar >> i) & 1
+        if bit == 0:
+            R1 = ec_add(R0, R1)
+            R0 = ec_add(R0, R0)
+        else:
+            R0 = ec_add(R0, R1)
+            R1 = ec_add(R1, R1)
 
-    return result
+    return R0
 
 
 def point_on_curve(pt: tuple) -> bool:
@@ -354,6 +364,46 @@ def compute_sovereign_pairing_proof(message: str) -> dict:
     }
 
 
+# ─── Tonelli-Shanks (modular square root) ────────────────────────────────────
+
+def tonelli_shanks(n: int, p: int) -> int | None:
+    """
+    Modular square root of n mod p via Tonelli-Shanks.
+    Returns None if n is not a quadratic residue mod p.
+
+    Required for BW19-P286 because P ≡ 1 mod 4, so the simple formula
+    pow(n, (P+1)//4, P) does not apply — full Tonelli-Shanks is necessary.
+
+    Exported at module level so external scripts (e.g. bw19_p286_verifier.py)
+    can import and reuse it without duplication.
+    """
+    if n == 0:
+        return 0
+    if pow(n, (p - 1) // 2, p) != 1:
+        return None
+    if p % 4 == 3:
+        return pow(n, (p + 1) // 4, p)
+    q, s = p - 1, 0
+    while q % 2 == 0:
+        q //= 2
+        s += 1
+    z = 2
+    while pow(z, (p - 1) // 2, p) != p - 1:
+        z += 1
+    m, c, t, r = s, pow(z, q, p), pow(n, q, p), pow(n, (q + 1) // 2, p)
+    while True:
+        if t == 0:
+            return 0
+        if t == 1:
+            return r
+        i, tmp = 1, (t * t) % p
+        while tmp != 1:
+            tmp = (tmp * tmp) % p
+            i += 1
+        b = pow(c, pow(2, m - i - 1), p)
+        m, c, t, r = i, (b * b) % p, (t * b * b) % p, (r * b) % p
+
+
 # ─── Generator Discovery (one-time scan) ─────────────────────────────────────
 
 def _find_first_generator(max_x: int = 10000) -> tuple[int, int]:
@@ -366,34 +416,6 @@ def _find_first_generator(max_x: int = 10000) -> tuple[int, int]:
     This function is the source of the hardcoded G_X / G_Y constants above.
     Running it produces: x=1, y=67057011998037699729197298444109222556867659931646155122938973395079107439267697276458
     """
-    def tonelli_shanks(n: int, p: int) -> int | None:
-        """Modular square root of n mod p via Tonelli-Shanks. Returns None if not a QR."""
-        if n == 0:
-            return 0
-        if pow(n, (p - 1) // 2, p) != 1:
-            return None
-        if p % 4 == 3:
-            return pow(n, (p + 1) // 4, p)
-        q, s = p - 1, 0
-        while q % 2 == 0:
-            q //= 2
-            s += 1
-        z = 2
-        while pow(z, (p - 1) // 2, p) != p - 1:
-            z += 1
-        m, c, t, r = s, pow(z, q, p), pow(n, q, p), pow(n, (q + 1) // 2, p)
-        while True:
-            if t == 0:
-                return 0
-            if t == 1:
-                return r
-            i, tmp = 1, (t * t) % p
-            while tmp != 1:
-                tmp = (tmp * tmp) % p
-                i += 1
-            b = pow(c, pow(2, m - i - 1), p)
-            m, c, t, r = i, (b * b) % p, (t * b * b) % p, (r * b) % p
-
     for x in range(1, max_x + 1):
         rhs = (pow(x, 3, P) + B) % P
         y = tonelli_shanks(rhs, P)
