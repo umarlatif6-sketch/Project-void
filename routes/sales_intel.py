@@ -23,13 +23,27 @@ def _get_data():
     return ICP_TIERS, PROSPECTS
 
 
+def _enrich_prospects(prospects: dict) -> dict:
+    """Add org_key to each prospect dict for outreach link generation."""
+    from void_engine.outreach_engine import _make_org_key
+    enriched = {}
+    for tier_id, tier_prospects in prospects.items():
+        enriched[tier_id] = []
+        for p in tier_prospects:
+            enriched_p = dict(p)
+            enriched_p["org_key"] = _make_org_key(p["org"])
+            enriched[tier_id].append(enriched_p)
+    return enriched
+
+
 @sales_intel_bp.route("/sales-intel")
 def sales_intel_page():
     icp_tiers, prospects = _get_data()
+    enriched = _enrich_prospects(prospects)
     return render_template(
         "sales_intel.html",
         icp_tiers=icp_tiers,
-        prospects=prospects,
+        prospects=enriched,
         deadline_iso=DEADLINE_ISO,
     )
 
