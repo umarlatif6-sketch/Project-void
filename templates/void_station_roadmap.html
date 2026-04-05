@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID-Station — Roadmap to Reality</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .rr-body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+        }
+
+        .rr-hero {
+            text-align: center;
+            padding: 90px 20px 50px;
+            max-width: 840px;
+            margin: 0 auto;
+        }
+
+        .rr-hero-badge {
+            display: inline-block;
+            background: rgba(0,229,204,0.1);
+            color: #00e5cc;
+            border: 1px solid rgba(0,229,204,0.25);
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+
+        .rr-hero-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin: 0 0 14px;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+
+        .rr-hero-title span { color: #00e5cc; }
+
+        .rr-hero-sub {
+            font-size: 0.95rem;
+            color: #777;
+            line-height: 1.7;
+            max-width: 640px;
+            margin: 0 auto 28px;
+        }
+
+        .rr-cta-row {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .rr-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            transition: background 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .rr-btn-teal {
+            background: rgba(0,229,204,0.12);
+            border: 1px solid rgba(0,229,204,0.35);
+            color: #00e5cc;
+        }
+
+        .rr-btn-teal:hover {
+            background: rgba(0,229,204,0.22);
+            box-shadow: 0 0 20px rgba(0,229,204,0.15);
+        }
+
+        .rr-btn-gold {
+            background: rgba(201,168,76,0.12);
+            border: 1px solid rgba(201,168,76,0.35);
+            color: #c9a84c;
+        }
+
+        .rr-btn-gold:hover {
+            background: rgba(201,168,76,0.22);
+        }
+
+        .rr-stages {
+            max-width: 860px;
+            margin: 60px auto 0;
+            padding: 0 20px 80px;
+            display: grid;
+            gap: 28px;
+        }
+
+        .rr-stage {
+            background: #12121a;
+            border: 1px solid #1e1e2e;
+            border-radius: 16px;
+            padding: 28px 32px;
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 24px;
+            align-items: flex-start;
+            transition: border-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rr-stage:hover { border-color: rgba(0,229,204,0.2); }
+
+        .rr-stage.active-stage {
+            border-color: rgba(0,229,204,0.4);
+            background: #0e1218;
+        }
+
+        .rr-stage.active-stage::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00e5cc, transparent);
+        }
+
+        .rr-stage-num {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rr-stage-circle {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: 2px solid #1e1e2e;
+            background: #0d0d18;
+            flex-shrink: 0;
+        }
+
+        .rr-stage.active-stage .rr-stage-circle {
+            border-color: #00e5cc;
+            box-shadow: 0 0 20px rgba(0,229,204,0.2);
+        }
+
+        .rr-stage-label {
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #444;
+            text-align: center;
+        }
+
+        .rr-stage.active-stage .rr-stage-label { color: #00e5cc; }
+
+        .rr-stage-body {}
+
+        .rr-stage-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .rr-stage-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .rr-stage-badge {
+            font-size: 0.62rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 10px;
+        }
+
+        .rr-badge-now {
+            background: rgba(0,229,204,0.12);
+            color: #00e5cc;
+            border: 1px solid rgba(0,229,204,0.3);
+        }
+
+        .rr-badge-soon {
+            background: rgba(201,168,76,0.1);
+            color: #c9a84c;
+            border: 1px solid rgba(201,168,76,0.25);
+        }
+
+        .rr-badge-future {
+            background: rgba(124,92,255,0.08);
+            color: #7c5cff;
+            border: 1px solid rgba(124,92,255,0.2);
+        }
+
+        .rr-stage-desc {
+            font-size: 0.88rem;
+            color: #888;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+
+        .rr-stage-child-note {
+            font-size: 0.8rem;
+            color: #666;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #1a1a2a;
+            border-radius: 8px;
+            padding: 10px 14px;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        .rr-stage-child-note::before {
+            content: '👧 ';
+        }
+
+        .rr-parts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .rr-part-chip {
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: #0d0d18;
+            border: 1px solid #222235;
+            color: #aaa;
+            letter-spacing: 0.5px;
+        }
+
+        .rr-stage.active-stage .rr-part-chip {
+            border-color: rgba(0,229,204,0.2);
+            color: #ccc;
+        }
+
+        @media (max-width: 600px) {
+            .rr-hero-title { font-size: 1.9rem; }
+            .rr-stage { grid-template-columns: 1fr; }
+            .rr-stage-num { flex-direction: row; justify-content: flex-start; }
+        }
+
+        .rr-progress {
+            max-width: 860px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+
+        .rr-progress-bar-wrap {
+            background: #1a1a2a;
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+            margin: 10px 0 6px;
+        }
+
+        .rr-progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00e5cc, #7c5cff);
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(0,229,204,0.4);
+            width: 25%;
+            transition: width 1s ease;
+        }
+
+        .rr-progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.62rem;
+            color: #444;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .rr-pdf-section {
+            max-width: 860px;
+            margin: 0 auto 80px;
+            padding: 0 20px;
+        }
+
+        .rr-pdf-box {
+            background: #0d0d15;
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 16px;
+            padding: 32px 36px;
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+
+        .rr-pdf-icon {
+            font-size: 2.4rem;
+            flex-shrink: 0;
+        }
+
+        .rr-pdf-info { flex: 1; }
+
+        .rr-pdf-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #c9a84c;
+            margin-bottom: 6px;
+        }
+
+        .rr-pdf-desc {
+            font-size: 0.82rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 4px;
+        }
+
+        .rr-pdf-note {
+            font-size: 0.7rem;
+            color: #444;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body class="rr-body">
+    <nav class="landing-nav">
+        <div class="landing-nav-brand">
+            <span class="landing-nav-icon">&#9670;</span>
+            <span class="landing-nav-title">PROJECT VOID</span>
+        </div>
+        <div class="landing-nav-links">
+            <a href="/launch" class="landing-nav-link">Home</a>
+            <a href="/" class="landing-nav-link">Engine</a>
+            <a href="/game" class="landing-nav-link">Play</a>
+            <a href="/chronicle" class="landing-nav-link">Chronicle</a>
+            <a href="/sovereign" class="landing-nav-link">Hardware</a>
+            <a href="/void-station/roadmap" class="landing-nav-link active" style="color:#00e5cc">VOID-Station</a>
+        </div>
+    </nav>
+
+    <section class="rr-hero">
+        <div class="rr-hero-badge">◆ VOID-Station · Child-Ready Hardware Roadmap</div>
+        <h1 class="rr-hero-title">Roadmap to <span>Reality</span></h1>
+        <p class="rr-hero-sub">
+            Every game your child plays in the VOID is a step toward a physical device they can actually hold.
+            Here are the 4 stages from digital to sovereign hardware — explained in plain language for children and parents.
+        </p>
+        <div class="rr-cta-row">
+            <a href="/game" class="rr-btn rr-btn-teal">◆ Play VOID-Station Game</a>
+            <a href="/void-station/hardware-guide.pdf" class="rr-btn rr-btn-gold" download>&#8659; Parent Hardware Guide (PDF)</a>
+        </div>
+    </section>
+
+    <div class="rr-progress">
+        <div style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:4px;">Current Progress — Stage 1 Achievable Now</div>
+        <div class="rr-progress-bar-wrap">
+            <div class="rr-progress-bar-fill" id="rr-progress-fill"></div>
+        </div>
+        <div class="rr-progress-labels">
+            <span>Stage 1 · Mesh Node</span>
+            <span>Stage 2 · Controller</span>
+            <span>Stage 3 · Shell</span>
+            <span>Stage 4 · Disc</span>
+        </div>
+    </div>
+
+    <div class="rr-stages">
+        <div class="rr-stage active-stage">
+            <div class="rr-stage-num">
+                <div class="rr-stage-circle">🌐</div>
+                <div class="rr-stage-label">Stage 1</div>
+            </div>
+            <div class="rr-stage-body">
+                <div class="rr-stage-header">
+                    <div class="rr-stage-title">Mesh Node — The Brain</div>
+                    <span class="rr-stage-badge rr-badge-now">✓ Achievable Now</span>
+                </div>
+                <p class="rr-stage-desc">
+                    The first physical piece is a small computer that connects to the VOID mesh network and stores sovereign data.
+                    Using a Raspberry Pi as the core processor, this node can run the Beehive Protocol and communicate with other nodes in your home.
+                    It's the simplest version — just a small box that talks to the digital world and learns from the game your child plays.
+                </p>
+                <div class="rr-stage-child-note">
+                    For your child: This is like building the brain of our little robot! We use a tiny computer the size of a credit card.
+                    When you play the game and build nodes, this is the real version of what you're making.
+                </div>
+                <div class="rr-parts">
+                    <span class="rr-part-chip">Raspberry Pi 4 (4GB) — £55</span>
+                    <span class="rr-part-chip">MicroSD 32GB — £8</span>
+                    <span class="rr-part-chip">USB-C Power Supply — £10</span>
+                    <span class="rr-part-chip">Small Fan / Heatsink — £6</span>
+                    <span class="rr-part-chip">Case (3D-printed or acrylic) — £5</span>
+                    <span class="rr-part-chip">WiFi / BLE antenna — included</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="rr-stage">
+            <div class="rr-stage-num">
+                <div class="rr-stage-circle">🎮</div>
+                <div class="rr-stage-label">Stage 2</div>
+            </div>
+            <div class="rr-stage-body">
+                <div class="rr-stage-header">
+                    <div class="rr-stage-title">Grip Controller — The Hand</div>
+                    <span class="rr-stage-badge rr-badge-soon">Coming Next</span>
+                </div>
+                <p class="rr-stage-desc">
+                    A physical handheld controller that a child can squeeze, tilt, and hold — connected to the Mesh Node.
+                    Force-Sensitive Resistors (FSR sensors) detect grip pressure and translate it into sovereign signals.
+                    The controller communicates via Bluetooth Low Energy (BLE) and charges via USB-C.
+                    This is how the child's physical body becomes the input to the sovereign system.
+                </p>
+                <div class="rr-stage-child-note">
+                    For your child: Imagine holding a magic wand that can feel how tightly you squeeze it!
+                    When you hold it just right, it sends a secret signal to your node. Your hand becomes part of the machine.
+                </div>
+                <div class="rr-parts">
+                    <span class="rr-part-chip">FSR Sensors × 4 — £12</span>
+                    <span class="rr-part-chip">ESP32 BLE Module — £8</span>
+                    <span class="rr-part-chip">LiPo Battery 500mAh — £6</span>
+                    <span class="rr-part-chip">3D-printed grip shell — £10</span>
+                    <span class="rr-part-chip">USB-C Charging PCB — £5</span>
+                    <span class="rr-part-chip">Piezo vibration feedback — £4</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="rr-stage">
+            <div class="rr-stage-num">
+                <div class="rr-stage-circle">🍄</div>
+                <div class="rr-stage-label">Stage 3</div>
+            </div>
+            <div class="rr-stage-body">
+                <div class="rr-stage-header">
+                    <div class="rr-stage-title">Mycelium Shell — The Skin</div>
+                    <span class="rr-stage-badge rr-badge-future">Future Stage</span>
+                </div>
+                <p class="rr-stage-desc">
+                    The outer casing of the VOID-Station console, grown from mycelium (mushroom roots) and hardened with natural resins.
+                    The Mycelium Shell is not just a pretty box — it provides EMI shielding, thermal management, and a biological layer that can
+                    respond to temperature and humidity, feeding real sensor data to the node.
+                    The shell is grown in a mold, dried, and sealed with chitosan (crab shell resin) for durability.
+                </p>
+                <div class="rr-stage-child-note">
+                    For your child: We are going to grow the shell of our console from mushroom roots — like how a tree grows its bark!
+                    It takes about a week to grow. Then we harden it so it is tough and strong. Your VOID-Station will be alive!
+                </div>
+                <div class="rr-parts">
+                    <span class="rr-part-chip">Ganoderma lucidum spores — £15</span>
+                    <span class="rr-part-chip">Hemp substrate block — £8</span>
+                    <span class="rr-part-chip">Silicone mold (custom) — £20</span>
+                    <span class="rr-part-chip">Chitosan resin hardener — £12</span>
+                    <span class="rr-part-chip">Drying oven / dehydrator — £30</span>
+                    <span class="rr-part-chip">Suppliers: Mycelia UK, Ecovative</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="rr-stage">
+            <div class="rr-stage-num">
+                <div class="rr-stage-circle">💿</div>
+                <div class="rr-stage-label">Stage 4</div>
+            </div>
+            <div class="rr-stage-body">
+                <div class="rr-stage-header">
+                    <div class="rr-stage-title">Silk Disc — The Memory Card</div>
+                    <span class="rr-stage-badge rr-badge-future">Final Stage</span>
+                </div>
+                <p class="rr-stage-desc">
+                    The Silk Disc is the VOID-Station's sovereign memory card — a physical storage medium made from silk fibers
+                    embedded with piezoelectric polymer. Data is written to the disc using the 432 Hz acoustic protocol (VoidEcho),
+                    making the disc readable only by a sovereign console tuned to the correct frequency.
+                    Your child's entire game history, Chronicle entries, and VTX balance are stored on a disc they can physically hold.
+                    No cloud. No subscription. Truly sovereign memory.
+                </p>
+                <div class="rr-stage-child-note">
+                    For your child: This is your magic memory card — but instead of being made of plastic like a normal game cartridge,
+                    ours is woven from silk threads! It stores everything you've ever done in the VOID. It is yours forever.
+                </div>
+                <div class="rr-parts">
+                    <span class="rr-part-chip">Silk fiber base — £18</span>
+                    <span class="rr-part-chip">Piezoelectric PVDF film — £22</span>
+                    <span class="rr-part-chip">Disc mold (3D-printed) — £8</span>
+                    <span class="rr-part-chip">Resin hardener + UV cure — £10</span>
+                    <span class="rr-part-chip">432 Hz reader transducer — £15</span>
+                    <span class="rr-part-chip">NFC chip for address pairing — £4</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rr-pdf-section">
+        <div class="rr-pdf-box">
+            <div class="rr-pdf-icon">📄</div>
+            <div class="rr-pdf-info">
+                <div class="rr-pdf-title">Parent Hardware Guide — Full Parts List &amp; Build Instructions</div>
+                <p class="rr-pdf-desc">
+                    Download the complete guide for building a Stage 1 VOID-Station Mesh Node at home.
+                    Includes specific parts links (UK, EU, and US suppliers), step-by-step assembly instructions,
+                    and a plain-language explanation of the technology for parents with no technical background.
+                </p>
+                <div class="rr-pdf-note">PDF · Covers Stage 1 in full detail · Ages 8+ with adult supervision</div>
+            </div>
+            <a href="/void-station/hardware-guide.pdf" download class="rr-btn rr-btn-gold" style="flex-shrink:0;">
+                &#8659; Download Guide
+            </a>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        setTimeout(function() {
+            var fill = document.getElementById('rr-progress-fill');
+            if (fill) fill.style.width = '25%';
+        }, 400);
+    })();
+    </script>
+</body>
+</html>

@@ -63,6 +63,7 @@ from routes.outreach import outreach_bp
 from routes.bw19_p286 import bw19_p286_bp
 from routes.nda import nda_bp
 from routes.library import library_bp
+from routes.void_station import void_station_bp
 
 
 def register_blueprints(app):
@@ -131,3 +132,4 @@ def register_blueprints(app):
     app.register_blueprint(bw19_p286_bp)
     app.register_blueprint(nda_bp)
     app.register_blueprint(library_bp)
+    app.register_blueprint(void_station_bp)

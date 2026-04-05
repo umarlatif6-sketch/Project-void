@@ -14,3 +14,4 @@ mesa>=3.3.1
 huggingface-hub
 google-generativeai
 genanki
+reportlab

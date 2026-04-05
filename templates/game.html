@@ -7,6 +7,169 @@
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/style.css">
     <style>
+        /* ═══════════════════════════════════════════
+           VOID-STATION BOOT SCREEN
+        ═══════════════════════════════════════════ */
+        #void-boot-screen {
+            position: fixed;
+            inset: 0;
+            background: #1a1a1a;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            overflow: hidden;
+        }
+        #void-boot-screen.booting-out {
+            animation: bootFadeOut 0.8s ease forwards;
+        }
+        @keyframes bootFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; pointer-events: none; }
+        }
+        .boot-glyph-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .boot-center {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+        .boot-scl-glyph {
+            font-size: 80px;
+            color: #00e5cc;
+            text-shadow: 0 0 40px rgba(0,229,204,0.6), 0 0 80px rgba(0,229,204,0.25);
+            animation: sclPulse 1.6s ease-in-out infinite;
+        }
+        @keyframes sclPulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+        .boot-title {
+            font-size: 28px;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: #ffffff;
+            font-weight: 700;
+        }
+        .boot-subtitle {
+            font-size: 13px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #00e5cc;
+        }
+        .boot-hz {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: #555;
+            text-transform: uppercase;
+        }
+        .boot-bar-wrap {
+            width: 220px;
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .boot-bar-fill {
+            height: 100%;
+            background: #00e5cc;
+            border-radius: 2px;
+            box-shadow: 0 0 8px rgba(0,229,204,0.6);
+            animation: bootLoad 3.0s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        @keyframes bootLoad {
+            0% { width: 0%; }
+            60% { width: 70%; }
+            85% { width: 90%; }
+            100% { width: 100%; }
+        }
+        .boot-status {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #444;
+            text-transform: uppercase;
+            min-height: 16px;
+        }
+
+        /* ═══════════════════════════════════════════
+           YOUNG SOVEREIGN MILESTONE BADGE
+        ═══════════════════════════════════════════ */
+        .ys-milestone-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 60;
+            pointer-events: none;
+        }
+        .ys-milestone-overlay.active {
+            display: flex;
+            pointer-events: all;
+        }
+        .ys-milestone-card {
+            background: rgba(6,6,14,0.97);
+            border: 2px solid #c9a84c;
+            border-radius: 20px;
+            padding: 40px 48px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(201,168,76,0.3);
+            max-width: 380px;
+            animation: milestoneIn 0.5s cubic-bezier(0.22,1,0.36,1);
+        }
+        @keyframes milestoneIn {
+            from { opacity: 0; transform: scale(0.7); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .ys-milestone-star {
+            font-size: 60px;
+            margin-bottom: 12px;
+            animation: starSpin 0.6s ease;
+        }
+        @keyframes starSpin {
+            from { transform: rotate(-30deg) scale(0.5); }
+            to { transform: rotate(0deg) scale(1); }
+        }
+        .ys-milestone-title {
+            font-size: 15px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #c9a84c;
+            margin-bottom: 8px;
+        }
+        .ys-milestone-body {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .ys-milestone-close {
+            padding: 10px 28px;
+            background: rgba(201,168,76,0.15);
+            border: 1px solid #c9a84c;
+            border-radius: 8px;
+            color: #c9a84c;
+            font-family: inherit;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .ys-milestone-close:hover { background: rgba(201,168,76,0.28); }
+    </style>
+    <style>
         :root {
             --game-teal: #00e5cc;
             --game-gold: #c9a84c;
@@ -475,6 +638,29 @@
 </head>
 <body class="game-body">
 
+<!-- VOID-STATION BOOT SCREEN -->
+<div id="void-boot-screen">
+    <canvas class="boot-glyph-canvas" id="boot-glyph-canvas"></canvas>
+    <div class="boot-center">
+        <div class="boot-scl-glyph">◆</div>
+        <div class="boot-title">VOID-Station</div>
+        <div class="boot-subtitle">Sovereign Console — 432 Hz</div>
+        <div class="boot-bar-wrap"><div class="boot-bar-fill"></div></div>
+        <div class="boot-status" id="boot-status">Initializing...</div>
+        <div class="boot-hz">Al-Jabr 286 · SCL Protocol · Beehive Mesh</div>
+    </div>
+</div>
+
+<!-- YOUNG SOVEREIGN MILESTONE OVERLAY -->
+<div class="ys-milestone-overlay" id="ys-milestone-overlay">
+    <div class="ys-milestone-card">
+        <div class="ys-milestone-star" id="ys-milestone-star">⭐</div>
+        <div class="ys-milestone-title" id="ys-milestone-title">Achievement Unlocked!</div>
+        <div class="ys-milestone-body" id="ys-milestone-body"></div>
+        <button class="ys-milestone-close" onclick="closeMilestone()">Continue Exploring</button>
+    </div>
+</div>
+
 <!-- TOP BAR -->
 <div class="game-topbar">
     <div class="game-topbar-left">
@@ -483,6 +669,7 @@
             <button class="game-mode-tab active" data-mode="exploration" onclick="switchMode('exploration')">Exploration</button>
             <button class="game-mode-tab" data-mode="nodebuilder" onclick="switchMode('nodebuilder')">Node Builder</button>
             <button class="game-mode-tab" data-mode="adriana" onclick="switchMode('adriana')">Adriana Cipher</button>
+            <button class="game-mode-tab" data-mode="young-sovereign" onclick="switchMode('young-sovereign')" style="border-color:#c9a84c;color:#c9a84c;">⭐ Young Sovereign</button>
         </div>
     </div>
     <div class="game-topbar-right">
@@ -595,6 +782,8 @@
         balance: {{ stats.vortex_balance or 0 }},
         sessionVtx: 0,
         capReached: false,
+        ysVaultsCollected: 0,
+        ysMilestonesHit: {},
     };
 
     /* ── THREE.JS SETUP ── */
@@ -764,6 +953,77 @@
     scene.add(adrianaGroup);
     adrianaGroup.visible = false;
 
+    /* ════════════════════════════════════════
+       YOUNG SOVEREIGN MODE — Big Friendly Vaults
+    ════════════════════════════════════════ */
+    const youngSovereignGroup = new THREE.Group();
+    scene.add(youngSovereignGroup);
+    youngSovereignGroup.visible = false;
+
+    const ysVaultObjects = [];
+
+    function buildYSVaults() {
+        const colors = [0xffd700, 0xff69b4, 0x00e5cc, 0x7c5cff, 0xff8c00, 0x4ade80];
+        for (let i = 0; i < 20; i++) {
+            const geo = new THREE.SphereGeometry(randRange(1.5, 2.8), 12, 12);
+            const mat = new THREE.MeshPhongMaterial({
+                color: colors[i % colors.length],
+                emissive: colors[i % colors.length],
+                emissiveIntensity: 0.35,
+                transparent: true,
+                opacity: 0.92,
+            });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(
+                randRange(-40, 40),
+                randRange(-15, 15),
+                randRange(-60, 5)
+            );
+            mesh.userData.type = 'ys_vault';
+            mesh.userData.discovered = false;
+            mesh.userData.colorIdx = i % colors.length;
+            youngSovereignGroup.add(mesh);
+            ysVaultObjects.push(mesh);
+
+            const glowGeo = new THREE.SphereGeometry(randRange(2.2, 3.5), 8, 8);
+            const glowMat = new THREE.MeshBasicMaterial({ color: colors[i % colors.length], transparent: true, opacity: 0.06, side: THREE.BackSide });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            glow.position.copy(mesh.position);
+            youngSovereignGroup.add(glow);
+        }
+    }
+
+    buildYSVaults();
+
+    const ysGlyphObjects = [];
+    function buildYSGlyphs() {
+        const glyphSymbols = ['◆','α','σ','φ','λ','⬡'];
+        const glyphColors = [0x00e5cc, 0xc9a84c, 0xff69b4, 0x7c5cff, 0x4ade80, 0xffd700];
+        for (let i = 0; i < 6; i++) {
+            const geo = new THREE.OctahedronGeometry(1.1, 0);
+            const mat = new THREE.MeshPhongMaterial({
+                color: glyphColors[i],
+                emissive: glyphColors[i],
+                emissiveIntensity: 0.7,
+                transparent: true,
+                opacity: 0.85,
+                wireframe: false,
+            });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(
+                randRange(-35, 35),
+                randRange(-8, 12),
+                randRange(-55, 0)
+            );
+            mesh.userData.type = 'ys_glyph';
+            mesh.userData.touched = false;
+            mesh.userData.symbol = glyphSymbols[i % glyphSymbols.length];
+            youngSovereignGroup.add(mesh);
+            ysGlyphObjects.push(mesh);
+        }
+    }
+    buildYSGlyphs();
+
     const GLYPHS = ['α','β','γ','δ','ε','ζ','η','θ','κ','λ','ν','ξ','σ','τ','φ','ψ','ω','◆','⬡','Ψ','Σ','Φ','∞','⚡'];
     const CIPHER_SOLUTIONS = [
         { challenge: 'Complete the resonance: α → ? → σ', answer: ['α','λ','σ'], reward_glyphs: ['α','λ','σ','τ','∞'] },
@@ -838,7 +1098,7 @@
     canvas.addEventListener('contextmenu', e => e.preventDefault());
 
     function updateCamera(dt) {
-        const speed = 8 * dt;
+        const speed = (state.mode === 'young-sovereign' ? 4 : 8) * dt;
         const fwd = new THREE.Vector3(Math.sin(camYaw), 0, -Math.cos(camYaw));
         const right = new THREE.Vector3(Math.cos(camYaw), 0, Math.sin(camYaw));
 
@@ -878,6 +1138,34 @@
                     vault.material.emissiveIntensity = 1.0;
                     vault.material.wireframe = false;
                     triggerReward('vault_discovered');
+                }
+            }
+        }
+
+        if (state.mode === 'young-sovereign') {
+            const hits = raycaster.intersectObjects(ysVaultObjects.filter(v => v.userData.type === 'ys_vault'));
+            if (hits.length > 0) {
+                const vault = hits[0].object;
+                if (!vault.userData.discovered) {
+                    vault.userData.discovered = true;
+                    vault.material.emissive = new THREE.Color(0xffffff);
+                    vault.material.emissiveIntensity = 1.2;
+                    ysCollectVault(vault);
+                }
+            }
+            const glyphHits = raycaster.intersectObjects(ysGlyphObjects.filter(g => !g.userData.touched));
+            if (glyphHits.length > 0) {
+                const glyph = glyphHits[0].object;
+                if (!glyph.userData.touched) {
+                    glyph.userData.touched = true;
+                    glyph.material.emissiveIntensity = 2.5;
+                    glyph.material.opacity = 0.4;
+                    addLog('✨ Glyph ' + glyph.userData.symbol + ' resonated!', 'gold');
+                    showToast('✨ Glyph Touched!', 0.5, false);
+                    if (!state.ysMilestonesHit['first_glyph']) {
+                        state.ysMilestonesHit['first_glyph'] = true;
+                        reportYsMilestone('first_glyph', YS_SPECIAL_MILESTONES.first_glyph);
+                    }
                 }
             }
         }
@@ -1001,6 +1289,104 @@
         if (container.children.length > 20) container.removeChild(container.lastChild);
     }
 
+    /* ════════════════════════════════════════
+       YOUNG SOVEREIGN LOGIC
+    ════════════════════════════════════════ */
+    const YS_MILESTONES = [
+        { count: 1,  key: 'first_vault',  star: '⭐', title: 'First Vault!', body: 'You found your first Vault! The Sovereign ledger has recorded this moment. Keep exploring — there are more hidden in the void!', api_milestone: 'first_vault' },
+        { count: 5,  key: 'five_vaults',  star: '🌟', title: '5 Vaults Found!', body: 'Amazing! You have discovered 5 Sovereign Vaults. You are becoming a true Young Sovereign explorer!', api_milestone: 'five_vaults' },
+        { count: 10, key: 'ten_vaults',   star: '💎', title: '10 Vaults! Legend!', body: 'You found 10 Vaults! The Chronicle will remember your name. You are a sovereign explorer of the VOID!', api_milestone: 'ten_vaults' },
+    ];
+
+    const YS_SPECIAL_MILESTONES = {
+        first_glyph: { star: '✨', title: 'First Glyph!', body: 'You touched your first Glyph! The Adriana Protocol registered your resonance. A sovereign symbol glowed for you!' },
+        first_save: { star: '📖', title: 'Chronicle Updated!', body: 'Your achievement was saved to the living Chronicle! Your name is now written in the sovereign ledger forever.' },
+    };
+
+    function ysPlayCollectSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(528, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(864, ctx.currentTime + 0.18);
+            gain.gain.setValueAtTime(0.22, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.5);
+        } catch(e) {}
+    }
+
+    function ysCollectVault(vault) {
+        state.ysVaultsCollected++;
+        ysPlayCollectSound();
+        addLog('⭐ Vault collected! (' + state.ysVaultsCollected + ' total)', 'gold');
+        showToast('⭐ Vault Collected!', 0.5, false);
+        triggerReward('vault_discovered');
+
+        for (const ms of YS_MILESTONES) {
+            if (state.ysVaultsCollected === ms.count && !state.ysMilestonesHit[ms.key]) {
+                state.ysMilestonesHit[ms.key] = true;
+                setTimeout(() => showMilestone(ms), 400);
+                reportYsMilestone(ms.api_milestone);
+            }
+        }
+
+    }
+
+    function showMilestone(ms) {
+        document.getElementById('ys-milestone-star').textContent = ms.star;
+        document.getElementById('ys-milestone-title').textContent = ms.title;
+        document.getElementById('ys-milestone-body').textContent = ms.body;
+        document.getElementById('ys-milestone-overlay').classList.add('active');
+    }
+
+    function closeMilestone() {
+        document.getElementById('ys-milestone-overlay').classList.remove('active');
+    }
+
+    function reportYsMilestone(milestoneKey, badgeOverride) {
+        fetch('/api/game/young-sovereign/milestone', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ milestone: milestoneKey })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.chronicle_entry) {
+                addLog('Chronicle updated: ' + data.chronicle_entry, 'success');
+                if (!state.ysMilestonesHit['first_save']) {
+                    state.ysMilestonesHit['first_save'] = true;
+                    const sm = YS_SPECIAL_MILESTONES.first_save;
+                    setTimeout(() => showMilestone(sm), 600);
+                    reportFirstSaveToChronicle();
+                }
+            }
+            if (badgeOverride) {
+                setTimeout(() => showMilestone(badgeOverride), 200);
+            }
+        })
+        .catch(() => {});
+    }
+
+    function reportFirstSaveToChronicle() {
+        fetch('/api/game/young-sovereign/milestone', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ milestone: 'first_save' })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.chronicle_entry) {
+                addLog('First save recorded in Chronicle!', 'gold');
+            }
+        })
+        .catch(() => {});
+    }
+
     /* ── MODE SWITCHER ── */
     const HINTS = {
         exploration: {
@@ -1015,6 +1401,10 @@
             title: 'Adriana Cipher Mode',
             text: 'Select glyphs in the correct sequence to form a valid Adriana resonance expression.<br><br>Reward: <strong style="color:#c9a84c">1.0 VTX</strong> per solution'
         },
+        'young-sovereign': {
+            title: '⭐ Young Sovereign Mode',
+            text: '<span class="game-hint-key">WASD</span> or <span class="game-hint-key">Arrows</span> to fly<br><span class="game-hint-key">Click</span> a glowing orb to collect it<br><br>Collect vaults, earn stars, and write your name in the Chronicle!'
+        },
     };
 
     function switchMode(mode) {
@@ -1025,8 +1415,9 @@
         explorationGroup.visible = mode === 'exploration';
         nodeBuilderGroup.visible = mode === 'nodebuilder';
         adrianaGroup.visible = mode === 'adriana';
+        youngSovereignGroup.visible = mode === 'young-sovereign';
 
-        const hint = HINTS[mode];
+        const hint = HINTS[mode] || HINTS['exploration'];
         document.getElementById('hint-mode-title').textContent = hint.title;
         document.getElementById('hint-mode-text').innerHTML = hint.text;
 
@@ -1040,6 +1431,9 @@
             camera.position.set(0, 0, 5);
             camYaw = 0; camPitch = 0;
             openCipher();
+        } else if (mode === 'young-sovereign') {
+            camera.position.set(0, 0, 20);
+            camYaw = 0; camPitch = 0;
         }
 
         addLog('Switched to ' + hint.title, '');
@@ -1179,6 +1573,24 @@
             });
         }
 
+        if (state.mode === 'young-sovereign') {
+            ysVaultObjects.forEach((v, i) => {
+                if (!v.userData.discovered && v.userData.type === 'ys_vault') {
+                    v.rotation.y += 0.012;
+                    v.position.y += Math.sin(t * 1.2 + i * 0.7) * 0.005;
+                    v.material.emissiveIntensity = 0.3 + 0.25 * Math.sin(t * 2 + i * 0.9);
+                }
+            });
+            ysGlyphObjects.forEach((g, i) => {
+                if (!g.userData.touched) {
+                    g.rotation.x += 0.018;
+                    g.rotation.y += 0.022;
+                    g.position.y += Math.sin(t * 1.8 + i * 1.1) * 0.004;
+                    g.material.emissiveIntensity = 0.5 + 0.4 * Math.sin(t * 3 + i);
+                }
+            });
+        }
+
         renderer.render(scene, camera);
     }
 
@@ -1225,10 +1637,146 @@
                 }
             } else if (state.mode === 'adriana') {
                 openCipher();
+            } else if (state.mode === 'young-sovereign') {
+                const hits = raycaster.intersectObjects(ysVaultObjects.filter(v => v.userData.type === 'ys_vault'));
+                if (hits.length > 0 && !hits[0].object.userData.discovered) {
+                    hits[0].object.userData.discovered = true;
+                    hits[0].object.material.emissive = new THREE.Color(0xffffff);
+                    hits[0].object.material.emissiveIntensity = 1.2;
+                    ysCollectVault(hits[0].object);
+                }
+                const glyphHits = raycaster.intersectObjects(ysGlyphObjects.filter(g => !g.userData.touched));
+                if (glyphHits.length > 0) {
+                    const g = glyphHits[0].object;
+                    g.userData.touched = true;
+                    g.material.emissiveIntensity = 2.5;
+                    g.material.opacity = 0.4;
+                    addLog('✨ Glyph ' + g.userData.symbol + ' resonated!', 'gold');
+                    showToast('✨ Glyph Touched!', 0.5, false);
+                    if (!state.ysMilestonesHit['first_glyph']) {
+                        state.ysMilestonesHit['first_glyph'] = true;
+                        reportYsMilestone('first_glyph', YS_SPECIAL_MILESTONES.first_glyph);
+                    }
+                }
             }
         }
         touchStart = null;
     }, { passive: true });
+
+    window.closeMilestone = closeMilestone;
+
+    /* ════════════════════════════════════════
+       VOID-STATION BOOT SEQUENCE
+    ════════════════════════════════════════ */
+    (function initBootScreen() {
+        const bootScreen = document.getElementById('void-boot-screen');
+        const bootStatus = document.getElementById('boot-status');
+        const bootCanvas = document.getElementById('boot-glyph-canvas');
+        const bootCtx = bootCanvas ? bootCanvas.getContext('2d') : null;
+
+        if (!bootScreen) return;
+
+        bootCanvas.width = window.innerWidth;
+        bootCanvas.height = window.innerHeight;
+
+        const bootGlyphs = ['◆','α','β','γ','σ','φ','∞','⬡','Ψ','⚡','λ','τ','Ω'];
+        const bootParticles = [];
+
+        function spawnBootGlyphs(n) {
+            for (let i = 0; i < n; i++) {
+                bootParticles.push({
+                    x: Math.random() * bootCanvas.width,
+                    y: Math.random() * bootCanvas.height,
+                    vx: (Math.random() - 0.5) * 0.6,
+                    vy: (Math.random() - 0.5) * 0.6 - 0.3,
+                    glyph: bootGlyphs[Math.floor(Math.random() * bootGlyphs.length)],
+                    size: 14 + Math.random() * 18,
+                    alpha: 0.12 + Math.random() * 0.2,
+                    life: 180 + Math.floor(Math.random() * 120),
+                });
+            }
+        }
+
+        function animateBoot() {
+            if (!bootCtx) return;
+            bootCtx.clearRect(0, 0, bootCanvas.width, bootCanvas.height);
+            const alive = [];
+            for (const p of bootParticles) {
+                p.x += p.vx; p.y += p.vy; p.life--;
+                if (p.life <= 0) continue;
+                const a = p.alpha * Math.min(1, p.life / 40);
+                bootCtx.save();
+                bootCtx.globalAlpha = a;
+                bootCtx.font = p.size + 'px sans-serif';
+                bootCtx.fillStyle = '#00e5cc';
+                bootCtx.shadowColor = '#00e5cc';
+                bootCtx.shadowBlur = 8;
+                bootCtx.textAlign = 'center';
+                bootCtx.fillText(p.glyph, p.x, p.y);
+                bootCtx.restore();
+                alive.push(p);
+            }
+            bootParticles.length = 0;
+            bootParticles.push(...alive);
+            if (bootScreen.parentNode) requestAnimationFrame(animateBoot);
+        }
+
+        spawnBootGlyphs(30);
+        animateBoot();
+
+        const glyphInterval = setInterval(() => spawnBootGlyphs(6), 600);
+
+        const BOOT_MESSAGES = [
+            [300,  'Loading 432 Hz Frequency Standard...'],
+            [900,  'Initializing SCL Glyph Protocol...'],
+            [1600, 'Beehive Mesh: Nodes locating...'],
+            [2200, 'Al-Jabr 286 Hash Engine: Ready'],
+            [2700, 'VOID-Station: Boot Complete ◆'],
+        ];
+
+        BOOT_MESSAGES.forEach(([delay, msg]) => {
+            setTimeout(() => { if (bootStatus) bootStatus.textContent = msg; }, delay);
+        });
+
+        function play432HzTone() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const startTone = () => {
+                    if (ctx.state === 'suspended') ctx.resume();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(432, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.0, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.4);
+                    gain.gain.linearRampToValueAtTime(0.10, ctx.currentTime + 1.8);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.2);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 3.5);
+                };
+                if (ctx.state === 'running') {
+                    startTone();
+                } else {
+                    const unblock = () => { startTone(); document.removeEventListener('click', unblock); document.removeEventListener('keydown', unblock); };
+                    document.addEventListener('click', unblock, { once: true });
+                    document.addEventListener('keydown', unblock, { once: true });
+                    ctx.resume().then(startTone).catch(() => {});
+                }
+            } catch(e) {}
+        }
+
+        setTimeout(play432HzTone, 200);
+
+        setTimeout(() => {
+            clearInterval(glyphInterval);
+            bootScreen.classList.add('booting-out');
+            setTimeout(() => {
+                if (bootScreen.parentNode) bootScreen.parentNode.removeChild(bootScreen);
+            }, 900);
+        }, 3300);
+    })();
 
 })();
 </script>
