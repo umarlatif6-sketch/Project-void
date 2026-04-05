@@ -71,7 +71,7 @@ def get_statement_of_intent() -> str:
         "no SIM card, and no internet connection. Nodes discover one another via "
         "phase-shifted handshakes, authenticate using cryptographic frequency keys, "
         f"and relay data across a mesh of up to {MAX_HOPS} hops (Seven Seas Limit), "
-        f"with a documented coastal range of approximately {COASTAL_RANGE_MILES} miles. "
+        "with demonstrated long-range capability in controlled coastal simulations. "
         "This makes it directly applicable to distributed urban sensor deployment in "
         "areas where conventional infrastructure is unavailable, unaffordable, or "
         "politically compromised.\n\n"
@@ -94,7 +94,12 @@ def get_statement_of_intent() -> str:
         "layer of the Beehive Protocol, develop AI-assisted frequency routing for "
         "urban acoustic environments, and establish a research collaboration with "
         "Novosibirsk's applied engineering community on frequency-domain distributed "
-        "systems architecture."
+        "systems architecture.\n\n"
+        "Live demonstration of the system is available at:\n"
+        "• VoidEcho acoustic steganography: https://void-stego-engine.replit.app\n"
+        "• Full Speak interface and node navigation: "
+        "https://0b349bdf-b2cd-40ea-b168-5d2f903ed8f9-00-z9zwbt68rt3g.worf.replit.dev/speak\n"
+        "Private GitHub repository available under NDA."
     )
 
 
