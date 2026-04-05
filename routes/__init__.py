@@ -64,6 +64,7 @@ from routes.bw19_p286 import bw19_p286_bp
 from routes.nda import nda_bp
 from routes.library import library_bp
 from routes.void_station import void_station_bp
+from routes.competitive_intel import competitive_intel_bp
 
 
 def register_blueprints(app):
@@ -133,3 +134,4 @@ def register_blueprints(app):
     app.register_blueprint(nda_bp)
     app.register_blueprint(library_bp)
     app.register_blueprint(void_station_bp)
+    app.register_blueprint(competitive_intel_bp)
