@@ -12,6 +12,7 @@ from void_engine.library_data import (
     get_book_4_pages,
     get_collection_meta, get_book_meta,
 )
+from void_engine.void_script import CANONICAL_GLYPHS, DOMAIN_COLORS, get_glyphs_by_role
 
 library_bp = Blueprint("library", __name__)
 
@@ -85,3 +86,28 @@ def library_book(coll_num, book_num):
 def library_book_legacy(book_num):
     from flask import redirect, url_for
     return redirect(url_for("library.library_book", coll_num=1, book_num=book_num))
+
+
+@library_bp.route("/script")
+def void_script_reference():
+    roles = [
+        ("entity",    "Entities",    "Subjects — sensors, subsystems, and agents that carry state."),
+        ("condition", "Conditions",  "Qualifiers — thresholds, checks, and modes that govern transitions."),
+        ("action",    "Actions",     "Operations — commands that fire, loop, spark, or seal a state."),
+    ]
+    glyphs_by_role = {}
+    for role, _, _ in roles:
+        glyphs_with_color = []
+        for char, meta in CANONICAL_GLYPHS.items():
+            if meta["role"] == role:
+                glyphs_with_color.append((char, {
+                    **meta,
+                    "color": DOMAIN_COLORS.get(meta["domain"], "#c9a84c"),
+                }))
+        glyphs_by_role[role] = glyphs_with_color
+    return render_template(
+        "void_script.html",
+        roles=roles,
+        glyphs_by_role=glyphs_by_role,
+        total_glyphs=len(CANONICAL_GLYPHS),
+    )

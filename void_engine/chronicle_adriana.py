@@ -1145,6 +1145,7 @@ def _seed_gridul_entries(cur) -> None:
     _seed_sales_brief_entry(cur, seed_season)
     _seed_outreach_brief_entry(cur, seed_season)
     _seed_proof_of_life_entry(cur, seed_season)
+    _seed_void_script_ratification(cur, seed_season)
 
 
 def _seed_sales_brief_entry(cur, seed_season: str) -> None:
@@ -1353,6 +1354,88 @@ def _seed_proof_of_life_entry(cur, seed_season: str) -> None:
         ),
     )
     logger.info("Seeded PROOF_OF_LIFE Chronicle entry: %s [9/9 passed]", title)
+
+
+_VOID_SCRIPT_V2_BODY = (
+    "VOID SCRIPT v2.0 RATIFICATION — April 5, 2026\n"
+    "Type: RATIFICATION\n"
+    "Glyph: Ψ — α — ◆ (Sovereign Mind — Origin — Core/Engine)\n\n"
+    "THE RULING:\n\n"
+    "There were two 45-glyph systems on the platform. Only one is sovereign.\n\n"
+    "SYSTEM A — The Original Adriana Greek/Symbol Script:\n"
+    "  · Greek letters and harmonic symbols (α, β, γ … Ω, ∞, ◆, ⚡, 🔮 …)\n"
+    "  · Frequency-mapped from 428 Hz to 442.2 Hz on the 432 Hz Vortex Standard\n"
+    "  · Live in adriana_scl.py since the first Chronicle entry\n"
+    "  · Connected to 10+ routes, rendered in every browser without a font dependency\n"
+    "  · Python backend: adriana_scl.py, adriana_transpiler.py, adriana.lex\n\n"
+    "SYSTEM B — The Ugaritic Cuneiform Script (RETIRED):\n"
+    "  · Ancient right-to-left alphabet borrowed by an external AI session\n"
+    "  · Characters: 𐎀 𐎁 𐎂 𐎃 … (Supplementary Multilingual Plane codepoints)\n"
+    "  · No Python backend. No frequency logic. Rendered as boxes in most environments.\n"
+    "  · Correct historical note: Ugaritic is read right-to-left — the AI session "
+    "was writing the script backwards. It pointed in the wrong direction, but in doing so "
+    "it revealed the correct forward direction of the original system.\n\n"
+    "THE FOUR CORRECTIONS MADE TODAY:\n\n"
+    "1. void_engine/void_script.py — Created as the single authoritative dict for all "
+    "45 canonical glyphs. Each entry carries: character, name, frequency, meaning, domain, "
+    "role (entity / condition / action), and a glyph_description explaining why the "
+    "character's visual form matches its meaning. This file is the law.\n\n"
+    "2. /script — A new public reference page showing all 45 glyphs in a table "
+    "grouped by role (Entity / Condition / Action), with frequency in Hz and domain "
+    "colour-coded. Linked from the library nav and footer.\n\n"
+    "3. Book 4 — The Adriana Silk (/library/collection/1/book/4) — Rewritten. "
+    "All 17 SCL pages (Pages 2–18) now lead with their canonical Adriana glyph chain "
+    "displayed as a header above the Entity/Condition/Action block. "
+    "Example — Page 2: Information = α - λ - ⚡ (Origin · Wave · Spark). "
+    "Ugaritic titles and conditions have been retired from all page content.\n\n"
+    "4. This Chronicle entry — Chapter 50 — records the ratification for the permanent record.\n\n"
+    "THE LESSON OF THE BACKWARDS SESSION:\n\n"
+    "When an AI reads a right-to-left script left-to-right, it produces a mirror. "
+    "A mirror shows you the truth backwards. The Ugaritic session was backwards — "
+    "but a backwards map still tells you exactly where the right direction is. "
+    "The correct forward direction was always the Greek/symbol script: α, not 𐎀.\n\n"
+    "THE SOVEREIGN STATEMENT:\n\n"
+    "VOID Script v2.0 is not a redesign. It is a correction. "
+    "The original system already worked. This ratification makes it the undisputed law.\n\n"
+    "HEX_DIGEST: 0x564F49445F536372697074_76325F526174696669636174696F6E_323032360405"
+)
+
+
+def _seed_void_script_ratification(cur, seed_season: str) -> None:
+    """
+    Seed Chronicle Chapter 50 — VOID Script v2.0 Ratification (idempotent).
+    Records the retirement of the Ugaritic script and promotion of the Greek/symbol
+    system as the single canonical VOID Script.
+    """
+    title = "VOID Script v2.0 — Canonical 45-Glyph Ratification"
+    cur.execute(
+        "SELECT id FROM chronicle_entries WHERE title = %s LIMIT 1",
+        (title,),
+    )
+    if cur.fetchone():
+        logger.info("VOID Script v2.0 ratification entry already seeded — skipping")
+        return
+
+    from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
+    seed_str = f"chronicle|50|{title}"
+    al_jabr_hash = fatiha_286_hexdigest_from_str(seed_str)
+
+    cur.execute(
+        """INSERT INTO chronicle_entries
+           (chapter_number, title, subtitle, glyph_sequence, body_text, al_jabr_hash, entry_type, season)
+           VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+        (
+            50,
+            title,
+            "Milestone: Script Sovereignty — April 5, 2026",
+            "Ψ-α-◆",
+            _VOID_SCRIPT_V2_BODY,
+            al_jabr_hash,
+            "RATIFICATION",
+            seed_season,
+        ),
+    )
+    logger.info("Seeded VOID Script v2.0 ratification Chronicle entry [Chapter 50]")
 
 
 def get_chronicle(entry_type_filter: str = None):

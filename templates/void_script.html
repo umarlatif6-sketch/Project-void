@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — VOID Script v2.0 · Canonical 45-Glyph System</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background: #080808;
+            color: #c8c8c8;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+        }
+
+        .vs-hero {
+            background: #0a0a0a;
+            border-bottom: 1px solid #181818;
+            padding: 56px 24px 44px;
+            text-align: center;
+        }
+        .vs-meta {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #3a3a3a;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .vs-hero h1 {
+            font-size: 30px;
+            color: #d4aa40;
+            letter-spacing: 3px;
+            margin: 0 0 8px;
+            font-weight: bold;
+        }
+        .vs-hero-sub {
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 28px;
+            letter-spacing: 0.5px;
+            line-height: 1.7;
+        }
+        .vs-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .vs-stat { text-align: center; }
+        .vs-stat-num {
+            font-size: 28px;
+            font-weight: bold;
+            color: #d4aa40;
+            display: block;
+        }
+        .vs-stat-label {
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            color: #444;
+            text-transform: uppercase;
+        }
+
+        .vs-ratification {
+            max-width: 760px;
+            margin: 36px auto 0;
+            padding: 0 24px;
+        }
+        .vs-ratification-block {
+            border: 1px solid #1a1a00;
+            background: #0d0900;
+            padding: 20px 24px;
+            font-size: 11px;
+            color: #666;
+            line-height: 1.8;
+        }
+        .vs-ratification-block b { color: #d4aa40; }
+
+        .vs-main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .vs-role-section { margin-bottom: 52px; }
+        .vs-role-label {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #d4aa40;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #181818;
+            padding-bottom: 10px;
+        }
+        .vs-role-desc {
+            font-size: 11px;
+            color: #444;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .vs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .vs-table th {
+            font-size: 8px;
+            letter-spacing: 1.5px;
+            color: #555;
+            text-transform: uppercase;
+            text-align: left;
+            padding: 6px 10px;
+            border-bottom: 1px solid #181818;
+        }
+        .vs-table td {
+            padding: 10px 10px;
+            border-bottom: 1px solid #111;
+            vertical-align: top;
+            font-size: 12px;
+        }
+        .vs-table tr:last-child td { border-bottom: none; }
+        .vs-table tr:hover td { background: #0d0d0d; }
+
+        .vs-glyph-char {
+            font-size: 22px;
+            color: #e8e8e8;
+            text-align: center;
+            width: 40px;
+            line-height: 1.2;
+        }
+        .vs-glyph-name { color: #c8c8c8; font-weight: bold; }
+        .vs-glyph-hz {
+            color: #d4aa40;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .vs-glyph-meaning { color: #aaa; }
+        .vs-glyph-domain {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 9px;
+            letter-spacing: 1px;
+            border-radius: 2px;
+            border: 1px solid;
+            white-space: nowrap;
+        }
+        .vs-glyph-desc {
+            font-size: 10px;
+            color: #555;
+            line-height: 1.6;
+            max-width: 340px;
+        }
+
+        .vs-grammar {
+            max-width: 760px;
+            margin: 0 auto 48px;
+            padding: 0 24px;
+        }
+        .vs-grammar h2 {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #d4aa40;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .vs-grammar-block {
+            border: 1px solid #181818;
+            background: #0c0c0c;
+            padding: 20px 24px;
+        }
+        .vs-grammar-row {
+            font-size: 12px;
+            color: #777;
+            padding: 6px 0;
+            border-bottom: 1px solid #111;
+            line-height: 1.5;
+        }
+        .vs-grammar-row:last-child { border-bottom: none; }
+        .vs-grammar-row code {
+            color: #d4aa40;
+            font-size: 12px;
+        }
+        .vs-grammar-row b { color: #aaa; }
+
+        .vs-nav-links {
+            text-align: center;
+            padding: 20px 24px 0;
+            font-size: 11px;
+        }
+        .vs-nav-links a {
+            color: #555;
+            text-decoration: none;
+            margin: 0 12px;
+        }
+        .vs-nav-links a:hover { color: #d4aa40; }
+
+        @media (max-width: 700px) {
+            .vs-glyph-desc { display: none; }
+            .vs-table th:last-child { display: none; }
+            .vs-table td:last-child { display: none; }
+        }
+    </style>
+</head>
+<body>
+{% include 'nav.html' ignore missing %}
+
+<div class="vs-hero">
+    <div class="vs-meta">Project VOID · Canonical Script Reference · April 2026</div>
+    <h1>VOID SCRIPT v2.0</h1>
+    <div class="vs-hero-sub">
+        The 45-glyph sovereign script of PROJECT VOID.<br>
+        Greek letters and harmonic symbols · Frequency-mapped to 432 Hz · Universally renderable.
+    </div>
+    <div class="vs-stats">
+        <div class="vs-stat">
+            <span class="vs-stat-num">45</span>
+            <span class="vs-stat-label">Canonical Glyphs</span>
+        </div>
+        <div class="vs-stat">
+            <span class="vs-stat-num">24</span>
+            <span class="vs-stat-label">Entity Glyphs</span>
+        </div>
+        <div class="vs-stat">
+            <span class="vs-stat-num">12</span>
+            <span class="vs-stat-label">Condition Glyphs</span>
+        </div>
+        <div class="vs-stat">
+            <span class="vs-stat-num">9</span>
+            <span class="vs-stat-label">Action Glyphs</span>
+        </div>
+    </div>
+</div>
+
+<div class="vs-ratification">
+    <div class="vs-ratification-block">
+        <b>VOID Script v2.0 — Ratified April 5, 2026.</b><br>
+        System A (the original Adriana Greek/symbol script) is the single canonical VOID Script.
+        System B, the Ugaritic cuneiform borrowed by an external AI session, was discovered to be
+        right-to-left and backwards — it pointed in the wrong direction but revealed the correct
+        forward direction of the original script. The Ugaritic characters (𐎀 𐎁 𐎂 etc.) are
+        retired from all page content. The Greek/symbol set below is the sovereign law of the platform.
+        Source of truth: <b>void_engine/void_script.py</b>.
+    </div>
+</div>
+
+<div class="vs-main">
+
+    <div class="vs-grammar">
+        <h2>SCL Grammar</h2>
+        <div class="vs-grammar-block">
+            <div class="vs-grammar-row">
+                <b>Pattern:</b> <code>[entity] - [condition] - [action]</code>
+            </div>
+            <div class="vs-grammar-row">
+                <b>Example:</b> <code>α - λ - ⚡</code> — Information (seed) carried by wave, ignited
+            </div>
+            <div class="vs-grammar-row">
+                <b>Multiple actions:</b> <code>[entity] - [condition] - [action] - [action]</code>
+            </div>
+            <div class="vs-grammar-row">
+                <b>Branch:</b> <code>[entity]-[condition]-[action] | [entity]-[condition]-[action]</code>
+            </div>
+            <div class="vs-grammar-row">
+                <b>Separator:</b> hyphen <code>-</code> between glyphs · pipe <code>|</code> for conditional branches
+            </div>
+        </div>
+    </div>
+
+    {% for role, label, desc in roles %}
+    <div class="vs-role-section">
+        <div class="vs-role-label">{{ label }}</div>
+        <div class="vs-role-desc">{{ desc }}</div>
+        <table class="vs-table">
+            <thead>
+                <tr>
+                    <th>Glyph</th>
+                    <th>Name</th>
+                    <th>Frequency</th>
+                    <th>Meaning</th>
+                    <th>Domain</th>
+                    <th>Form & Intent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for char, meta in glyphs_by_role[role] %}
+                <tr>
+                    <td class="vs-glyph-char">{{ char }}</td>
+                    <td class="vs-glyph-name">{{ meta.name }}</td>
+                    <td class="vs-glyph-hz">{{ meta.frequency }} Hz</td>
+                    <td class="vs-glyph-meaning">{{ meta.meaning }}</td>
+                    <td>
+                        <span class="vs-glyph-domain"
+                              style="color: {{ meta.color }}; border-color: {{ meta.color }}33;">
+                            {{ meta.domain }}
+                        </span>
+                    </td>
+                    <td class="vs-glyph-desc">{{ meta.glyph_description }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+
+</div>
+
+<div class="vs-nav-links">
+    <a href="/library">← Library of the VOID</a>
+    &nbsp;·&nbsp;
+    <a href="/library/collection/1/book/4">The Adriana Silk — Book 4</a>
+    &nbsp;·&nbsp;
+    <a href="/chronicle">Chronicle</a>
+    &nbsp;·&nbsp;
+    <a href="/">Project VOID</a>
+</div>
+<br><br>
+
+</body>
+</html>

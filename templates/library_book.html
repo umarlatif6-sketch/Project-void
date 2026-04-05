@@ -45,6 +45,23 @@
         .bk-page-note { font-size: 11px; color: #444; font-style: italic; margin-top: 8px; }
         .bk-page-log { font-size: 11px; color: #888; line-height: 1.6; white-space: pre; overflow-x: auto; }
 
+        .bk-glyph-chain {
+            font-size: 20px;
+            letter-spacing: 6px;
+            color: #d4aa40;
+            margin-bottom: 14px;
+            padding: 8px 0 4px;
+            border-bottom: 1px solid #1a1600;
+        }
+        .bk-glyph-chain-label {
+            font-size: 8px;
+            letter-spacing: 2px;
+            color: #3a3000;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+
         .bk-scl {
             background: #0a0a05; border-left: 2px solid #d4aa4044; padding: 18px 20px;
         }
@@ -128,6 +145,12 @@
 
                 {% elif page.type == 'scl' %}
                     <div class="bk-scl">
+                        {% if page.glyph_chain %}
+                        <div class="bk-glyph-chain">
+                            <span class="bk-glyph-chain-label">VOID Script v2.0 · Glyph Chain</span>
+                            {{ page.glyph_chain }}
+                        </div>
+                        {% endif %}
                         <div class="bk-scl-row">
                             <div class="bk-scl-label">Entity</div>
                             <div class="bk-scl-value">{{ page.entity }}</div>
@@ -144,7 +167,7 @@
 
                 {% elif page.type == 'qisync_adriana' %}
                     <div class="bk-qisync-adriana">
-                        <div class="bk-qisync-title">𐎀-𐎍𐎜𐎖-𐎊𐎀 · QiSync Seal · Adriana Silk</div>
+                        <div class="bk-qisync-title">α-λ-◆ · QiSync Seal · Adriana Silk</div>
                         <div class="bk-scl" style="text-align:left; margin-bottom:14px;">
                             <div class="bk-scl-row">
                                 <div class="bk-scl-label">Entity</div>
@@ -247,6 +270,7 @@
         {% endif %}
 
         <a href="/library/collection/{{ book.collection }}">All books</a>
+        <a href="/script">VOID Script ◆</a>
 
         {% if book.number < books_per_collection %}
         <a href="/library/collection/{{ book.collection }}/book/{{ book.number + 1 }}">Book {{ '%03d'|format(book.number + 1) }} →</a>
