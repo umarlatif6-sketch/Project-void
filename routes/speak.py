@@ -696,7 +696,9 @@ def enter_interest():
 
     ip = request.remote_addr or "unknown"
     if not _interest_rate_ok(ip):
-        logger.warning("[EnterFunnel] Interest rate limit hit: ip=%s", ip)
+        _ip_parts = ip.split(".")
+        _masked_ip = _ip_parts[0] + ".*.*.*" if len(_ip_parts) == 4 else ip[:4] + "****"
+        logger.warning("[EnterFunnel] Interest rate limit hit: ip=%s", _masked_ip)
         return jsonify({
             "success": False,
             "error": "Too many submissions. Please wait before trying again.",

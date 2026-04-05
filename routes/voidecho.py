@@ -295,7 +295,7 @@ p {{ line-height: 1.8; color: #bbb; font-size: 14px; }}
         from void_engine.gmail_client import send_email as gmail_send
         sent = gmail_send(recipient_email, "Your VoidEcho Retrieval Code", html_body, text_body)
         if sent:
-            logger.info("[VoidEcho] Retrieval email sent via Gmail to %s", recipient_email)
+            logger.info("[VoidEcho] Retrieval email sent via Gmail")
             return True
     except Exception as e:
         logger.warning("[VoidEcho] Gmail send failed, trying SendGrid: %s", e)
@@ -317,12 +317,12 @@ p {{ line-height: 1.8; color: #bbb; font-size: 14px; }}
                 method="POST"
             )
             urllib.request.urlopen(req, timeout=10)
-            logger.info("[VoidEcho] Retrieval email sent via SendGrid to %s", recipient_email)
+            logger.info("[VoidEcho] Retrieval email sent via SendGrid")
             return True
     except Exception as e:
         logger.warning("[VoidEcho] SendGrid send also failed: %s", e)
 
-    logger.info("[VoidEcho] Retrieval code %s for %s (email not sent)", retrieval_code, recipient_email)
+    logger.info("[VoidEcho] Retrieval code generated (email not sent)")
     return False
 
 
@@ -1187,7 +1187,7 @@ VoidEcho | A void has no echo — we created one.
         from void_engine.gmail_client import send_email as gmail_send
         sent = gmail_send(recipient_email, f"Your Adriana Analysis Report — {filename}", html_body, text_body)
         if sent:
-            logger.info("[VoidEcho] Adriana report emailed via Gmail to %s", recipient_email)
+            logger.info("[VoidEcho] Adriana report emailed via Gmail")
             return True
     except Exception as e:
         logger.warning("[VoidEcho] Gmail send for Adriana report failed: %s", e)
@@ -1209,7 +1209,7 @@ VoidEcho | A void has no echo — we created one.
                 method="POST"
             )
             urllib.request.urlopen(req, timeout=10)
-            logger.info("[VoidEcho] Adriana report emailed via SendGrid to %s", recipient_email)
+            logger.info("[VoidEcho] Adriana report emailed via SendGrid")
             return True
     except Exception as e:
         logger.warning("[VoidEcho] Adriana report email failed: %s", e)

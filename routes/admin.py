@@ -87,22 +87,28 @@ def admin_market_get():
     )
 
 
+def _safe_float(raw, default=None):
+    """Parse a float, rejecting NaN/Infinity strings before conversion."""
+    s = str(raw).strip().lower()
+    if s in ("nan", "inf", "-inf", "+inf", "infinity", "-infinity"):
+        return default
+    try:
+        val = float(s)
+        if not math.isfinite(val):
+            return default
+        return val
+    except (ValueError, TypeError):
+        return default
+
+
 @admin_bp.route("/admin/market", methods=["POST"])
 @admin_required
 def admin_market_post():
     item_key = (request.form.get("item_key") or "").strip()
-    try:
-        gbp_pounds = float(request.form.get("gbp_pounds", 0))
-        gbp_pence = None if math.isnan(gbp_pounds) else round(gbp_pounds * 100)
-    except (ValueError, TypeError):
-        gbp_pence = None
+    gbp_pounds = _safe_float(request.form.get("gbp_pounds", "0"))
+    gbp_pence = None if gbp_pounds is None else round(gbp_pounds * 100)
 
-    try:
-        vtx_cost = float(request.form.get("vtx_cost", 0))
-        if math.isnan(vtx_cost):
-            vtx_cost = None
-    except (ValueError, TypeError):
-        vtx_cost = None
+    vtx_cost = _safe_float(request.form.get("vtx_cost", "0"))
 
     is_active = request.form.get("is_active") == "1"
 
@@ -138,11 +144,8 @@ def admin_model_router_post():
     model = (request.form.get("model") or "").strip()
     base_url = (request.form.get("base_url") or "").strip() or None
 
-    try:
-        cost_per_1k = float(request.form.get("cost_per_1k_tokens", 0.0003))
-        if math.isnan(cost_per_1k) or cost_per_1k < 0:
-            cost_per_1k = 0.0003
-    except (ValueError, TypeError):
+    cost_per_1k = _safe_float(request.form.get("cost_per_1k_tokens", "0.0003"), default=0.0003)
+    if cost_per_1k < 0:
         cost_per_1k = 0.0003
 
     if tier not in (TASK_PRECISION, TASK_STANDARD, TASK_BULK) or not model:
@@ -171,14 +174,12 @@ def admin_test_gemini():
 def admin_post_yield():
     from void_engine.blueprint_nft import post_yield_event
     try:
-        amount_vtx = float(request.form.get("amount_vtx", 0))
-        if math.isnan(amount_vtx):
-            raise ValueError("NaN not allowed")
+        amount_vtx = _safe_float(request.form.get("amount_vtx", "0"))
+        if amount_vtx is None:
+            raise ValueError("NaN/Infinity not allowed")
         amount_gbp_str = request.form.get("amount_gbp", "0").replace(",", "").replace("£", "").strip()
-        try:
-            amount_gbp = round(float(amount_gbp_str) * 100)
-        except (ValueError, TypeError):
-            amount_gbp = 0
+        amount_gbp_f = _safe_float(amount_gbp_str, default=0.0)
+        amount_gbp = round(amount_gbp_f * 100)
         notes = (request.form.get("notes") or "").strip()
         idempotency_key = (request.form.get("idempotency_key") or "").strip() or None
     except (ValueError, TypeError):

@@ -361,20 +361,14 @@ def _ensure_columns():
         """)
         cur.execute("CREATE INDEX IF NOT EXISTS idx_chronicle_chapter ON chronicle_entries(chapter_number)")
 
-        table_map = {
-            "chk_bt_tier": "blueprint_tokens",
-            "chk_bt_status": "blueprint_tokens",
-            "chk_to_type": "token_ownership",
-            "chk_mf_purpose": "manufacturing_fund",
-            "chk_mf_status": "manufacturing_fund",
+        _CONSTRAINT_DEFINITIONS = {
+            "chk_bt_tier":   ("blueprint_tokens",   "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_tier CHECK (tier IN ('common','rare','legendary','mystery'))"),
+            "chk_bt_status": ("blueprint_tokens",   "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_status CHECK (status IN ('available','reserved','sold','sealed','revealed','merged'))"),
+            "chk_to_type":   ("token_ownership",    "ALTER TABLE token_ownership ADD CONSTRAINT chk_to_type CHECK (purchase_type IN ('vtx','stripe','free','merge'))"),
+            "chk_mf_purpose":("manufacturing_fund", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_purpose CHECK (purpose IN ('capex','materials','assembly'))"),
+            "chk_mf_status": ("manufacturing_fund", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_status CHECK (status IN ('pledged','spent'))"),
         }
-        for chk_name, chk_sql in [
-            ("chk_bt_tier", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_tier CHECK (tier IN ('common','rare','legendary','mystery'))"),
-            ("chk_bt_status", "ALTER TABLE blueprint_tokens ADD CONSTRAINT chk_bt_status CHECK (status IN ('available','reserved','sold','sealed','revealed','merged'))"),
-            ("chk_to_type", "ALTER TABLE token_ownership ADD CONSTRAINT chk_to_type CHECK (purchase_type IN ('vtx','stripe','free','merge'))"),
-            ("chk_mf_purpose", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_purpose CHECK (purpose IN ('capex','materials','assembly'))"),
-            ("chk_mf_status", "ALTER TABLE manufacturing_fund ADD CONSTRAINT chk_mf_status CHECK (status IN ('pledged','spent'))"),
-        ]:
+        for chk_name, (tbl, chk_sql) in _CONSTRAINT_DEFINITIONS.items():
             cur.execute("SAVEPOINT chk_savepoint")
             try:
                 cur.execute(chk_sql)
@@ -382,21 +376,19 @@ def _ensure_columns():
             except Exception:
                 cur.execute("ROLLBACK TO SAVEPOINT chk_savepoint")
                 cur.execute("RELEASE SAVEPOINT chk_savepoint")
-                tbl = table_map.get(chk_name)
-                if tbl:
-                    cur.execute("SAVEPOINT chk_drop_savepoint")
-                    try:
-                        cur.execute(
-                            pgsql.SQL("ALTER TABLE {} DROP CONSTRAINT IF EXISTS {}").format(
-                                pgsql.Identifier(tbl),
-                                pgsql.Identifier(chk_name),
-                            )
+                cur.execute("SAVEPOINT chk_drop_savepoint")
+                try:
+                    cur.execute(
+                        pgsql.SQL("ALTER TABLE {} DROP CONSTRAINT IF EXISTS {}").format(
+                            pgsql.Identifier(tbl),
+                            pgsql.Identifier(chk_name),
                         )
-                        cur.execute(chk_sql)
-                        cur.execute("RELEASE SAVEPOINT chk_drop_savepoint")
-                    except Exception:
-                        cur.execute("ROLLBACK TO SAVEPOINT chk_drop_savepoint")
-                        cur.execute("RELEASE SAVEPOINT chk_drop_savepoint")
+                    )
+                    cur.execute(chk_sql)
+                    cur.execute("RELEASE SAVEPOINT chk_drop_savepoint")
+                except Exception:
+                    cur.execute("ROLLBACK TO SAVEPOINT chk_drop_savepoint")
+                    cur.execute("RELEASE SAVEPOINT chk_drop_savepoint")
 
         conn.commit()
 

@@ -351,7 +351,9 @@ def api_cross_ai_verify():
     """
     ip = request.headers.get("X-Forwarded-For", request.remote_addr or "unknown").split(",")[0].strip()
     if not _cross_ai_rate_check(ip):
-        logger.warning("Cross-AI rate limit exceeded for IP: %s", ip)
+        _ip_parts = ip.split(".")
+        _masked_ip = _ip_parts[0] + ".*.*.*" if len(_ip_parts) == 4 else ip[:4] + "****"
+        logger.warning("Cross-AI rate limit exceeded for IP: %s", _masked_ip)
         return jsonify({
             "error": "Rate limit exceeded. Maximum 5 verification requests per hour.",
             "retry_after_seconds": _CROSS_AI_RATE_WINDOW,

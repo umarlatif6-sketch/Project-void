@@ -628,15 +628,28 @@ class ModelRouter:
       BULK      — agent simulation, gibberish decoding, batch analysis → cheapest available
     """
 
+    # Names of the environment variables from which API keys are sourced.
+    # These are read-only env-var names — never populated from user session data.
+    _ENV_OPENAI_KEY = "AI_INTEGRATIONS_OPENAI_API_KEY"
+    _ENV_GEMINI_KEY = "GEMINI_API_KEY"
+
     def __init__(self):
         self._config: Dict[str, Dict] = {k: dict(v) for k, v in _DEFAULT_MODEL_CONFIG.items()}
         self._loaded_from_db = False
         self._session_cost_usd = 0.0
         self._session_calls = 0
-        self._primary_api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
+        self._primary_api_key = os.environ.get(self._ENV_OPENAI_KEY)
         self._primary_base_url = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
-        self._gemini_api_key = os.environ.get("GEMINI_API_KEY")
+        self._gemini_api_key = os.environ.get(self._ENV_GEMINI_KEY)
         self._myco_switch_enabled = os.environ.get("MYCO_SWITCH_ENABLED", "1").strip() in ("1", "true", "yes")
+
+    def _get_openai_api_key(self) -> Optional[str]:
+        """Return the service-account OpenAI key from the environment.
+
+        Always re-reads from the env-var to pick up rotation; never accepts
+        caller-supplied tokens so user credentials cannot be forwarded to OpenAI.
+        """
+        return os.environ.get(self._ENV_OPENAI_KEY)
 
     @staticmethod
     def _is_gemini_model(model: str) -> bool:
@@ -743,7 +756,7 @@ class ModelRouter:
             return None, model
         from openai import OpenAI
         base_url = cfg.get("base_url") or self._primary_base_url
-        client = OpenAI(api_key=self._primary_api_key, base_url=base_url)
+        client = OpenAI(api_key=self._get_openai_api_key(), base_url=base_url)
         return client, model
 
     def apply_myco_override(self, tier: str) -> Tuple[str, Optional[str]]:
@@ -799,7 +812,7 @@ class ModelRouter:
         precision_cfg = self._config.get(TASK_PRECISION, _DEFAULT_MODEL_CONFIG[TASK_PRECISION])
         fallback_model = precision_cfg["model"]
         fallback_base_url = precision_cfg.get("base_url") or self._primary_base_url
-        fallback_client = OpenAI(api_key=self._primary_api_key, base_url=fallback_base_url)
+        fallback_client = OpenAI(api_key=self._get_openai_api_key(), base_url=fallback_base_url)
         return fallback_client, fallback_model
 
     def _call_gemini(self, model: str, messages: list, max_completion_tokens: int = 1024) -> object:
@@ -945,7 +958,7 @@ class ModelRouter:
             from openai import OpenAI
             cfg = self._config.get(resolved_tier, self._config[TASK_PRECISION])
             base_url = cfg.get("base_url") or self._primary_base_url
-            client = OpenAI(api_key=self._primary_api_key, base_url=base_url)
+            client = OpenAI(api_key=self._get_openai_api_key(), base_url=base_url)
 
         used_fallback = False
 

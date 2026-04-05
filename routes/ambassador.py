@@ -6,6 +6,7 @@ import string
 from datetime import datetime, timezone
 
 from flask import Blueprint, request, jsonify, render_template, session
+from markupsafe import escape as _html_escape
 from routes.auth import admin_required, login_required
 from void_engine.db_pool import get_db
 
@@ -564,7 +565,7 @@ def send_all_ambassador_emails():
                 else:
                     results["failed"] += 1
             except Exception as e:
-                logger.error("[Ambassador] Legacy bulk send failed for %s: %s", email, e)
+                logger.error("[Ambassador] Legacy bulk send failed for amb_id=%s: %s", amb_id, e)
                 results["failed"] += 1
 
         return jsonify({"success": True, **results})
@@ -698,7 +699,7 @@ def send_all_stage1():
                 else:
                     results["failed"] += 1
             except Exception as e:
-                logger.error("[Ambassador] Bulk Stage 1 send failed for %s: %s", email, e)
+                logger.error("[Ambassador] Bulk Stage 1 send failed for amb_id=%s: %s", amb_id, e)
                 results["failed"] += 1
 
         return jsonify({"success": True, **results})
@@ -741,7 +742,7 @@ def send_all_stage2():
                 else:
                     results["failed"] += 1
             except Exception as e:
-                logger.error("[Ambassador] Bulk Stage 2 send failed for %s: %s", email, e)
+                logger.error("[Ambassador] Bulk Stage 2 send failed for amb_id=%s: %s", amb_id, e)
                 results["failed"] += 1
 
         return jsonify({"success": True, **results})
@@ -1213,7 +1214,7 @@ def approve_and_send_draft(ambassador_id: int):
     <div class="logo">PROJECT VOID</div>
     <div class="sub">EST. 2012 — REBUILT 2026</div>
   </div>
-  {''.join(f'<p>{line}</p>' if line.strip() else '<br>' for line in body.split(chr(10)))}
+  {''.join(f'<p>{_html_escape(line)}</p>' if line.strip() else '<br>' for line in body.split(chr(10)))}
   <div class="footer">
     <p>Project VOID &mdash; Umar Latif &mdash; <a href="https://projectvoid.io" style="color:#555;">projectvoid.io</a></p>
     <p>You will not receive further emails unless you respond.</p>

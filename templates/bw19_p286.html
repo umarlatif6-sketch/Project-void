@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BW19-P286 — The 286 Alignment | PROJECT VOID</title>
+  <style>
+    :root {
+      --void-black:   #0a0a0a;
+      --void-gold:    #c9a84c;
+      --void-silver:  #a8b4c0;
+      --void-green:   #2d6a4f;
+      --void-red:     #8b1a1a;
+      --void-purple:  #4a1a6e;
+      --text-primary: #e8e0d0;
+      --text-muted:   #888;
+      --border:       rgba(201,168,76,0.25);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--void-black);
+      color: var(--text-primary);
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    /* ── HEADER / SEAL ─────────────────────────────────────── */
+    .header {
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1209 100%);
+      border-bottom: 2px solid var(--void-gold);
+      padding: 40px 24px 32px;
+      text-align: center;
+    }
+    .seal {
+      display: inline-block;
+      border: 2px solid var(--void-gold);
+      border-radius: 50%;
+      width: 80px; height: 80px;
+      line-height: 80px;
+      font-size: 2rem;
+      color: var(--void-gold);
+      margin-bottom: 16px;
+      box-shadow: 0 0 24px rgba(201,168,76,0.3);
+    }
+    .header h1 {
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      color: var(--void-gold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .header .subtitle {
+      margin-top: 8px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+    }
+    .al-jabr-hash-seal {
+      margin-top: 16px;
+      font-size: 0.72rem;
+      color: rgba(201,168,76,0.55);
+      word-break: break-all;
+      letter-spacing: 0.04em;
+    }
+    .chronicle-link {
+      display: inline-block;
+      margin-top: 12px;
+      color: var(--void-gold);
+      text-decoration: none;
+      font-size: 0.78rem;
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 3px;
+      letter-spacing: 0.06em;
+    }
+    .chronicle-link:hover { background: rgba(201,168,76,0.1); }
+
+    /* ── CONTENT CONTAINER ─────────────────────────────────── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ── SECTIONS ──────────────────────────────────────────── */
+    .section {
+      margin-top: 48px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 28px 24px;
+      background: rgba(255,255,255,0.02);
+    }
+    .section-title {
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--void-gold);
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .body-text {
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: var(--text-primary);
+    }
+    .body-text p { margin-bottom: 12px; }
+
+    /* ── GLYPH POEM ────────────────────────────────────────── */
+    .glyph-poem {
+      display: flex;
+      gap: 0;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+    .glyph-card {
+      flex: 1;
+      min-width: 160px;
+      padding: 20px 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin: 6px;
+      text-align: center;
+      background: rgba(0,0,0,0.4);
+      position: relative;
+    }
+    .glyph-symbol {
+      font-size: 2.8rem;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .glyph-role {
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .glyph-name {
+      font-size: 0.88rem;
+      color: var(--void-gold);
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    .glyph-hz {
+      font-size: 0.75rem;
+      color: var(--void-silver);
+    }
+    .hz-bar {
+      height: 3px;
+      border-radius: 2px;
+      margin: 10px auto 0;
+      width: 60%;
+    }
+
+    /* ── PARAM TABLE ───────────────────────────────────────── */
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    .param-table th, .param-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+    .param-table th {
+      color: var(--void-gold);
+      background: rgba(201,168,76,0.06);
+      letter-spacing: 0.06em;
+    }
+    .param-table td { color: var(--text-primary); }
+    .param-table td.value {
+      font-family: monospace;
+      word-break: break-all;
+      color: var(--void-silver);
+      font-size: 0.78rem;
+    }
+
+    /* ── SERENDIPITY BOX ───────────────────────────────────── */
+    .serendipity {
+      background: linear-gradient(135deg, rgba(74,26,110,0.18) 0%, rgba(10,10,10,0) 100%);
+      border-left: 3px solid var(--void-purple);
+      padding: 20px 20px 20px 24px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+    .serendipity .three-lines {
+      margin-top: 16px;
+      font-size: 0.84rem;
+      color: var(--void-silver);
+    }
+    .serendipity .three-lines div { margin-bottom: 6px; }
+    .serendipity .three-lines span.num {
+      color: var(--void-gold);
+      font-size: 1.1rem;
+      margin-right: 6px;
+    }
+
+    /* ── ADRIANA TRANSLATION ───────────────────────────────── */
+    .adriana-block {
+      font-style: italic;
+      color: var(--void-silver);
+      border-left: 3px solid var(--void-gold);
+      padding: 16px 16px 16px 22px;
+      font-size: 0.92rem;
+      line-height: 1.9;
+    }
+    .adriana-hz {
+      margin-top: 10px;
+      font-style: normal;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── LIVE DEMO ─────────────────────────────────────────── */
+    .demo-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .demo-form textarea {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-family: 'Courier New', monospace;
+      font-size: 0.88rem;
+      padding: 14px;
+      resize: vertical;
+      min-height: 80px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .demo-form textarea:focus { border-color: var(--void-gold); }
+    .demo-form button {
+      background: transparent;
+      border: 1px solid var(--void-gold);
+      color: var(--void-gold);
+      padding: 12px 28px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: background 0.2s;
+      align-self: flex-start;
+    }
+    .demo-form button:hover { background: rgba(201,168,76,0.12); }
+
+    /* ── DEMO RESULT ───────────────────────────────────────── */
+    .demo-result {
+      margin-top: 24px;
+    }
+    .result-block {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px;
+      font-size: 0.78rem;
+    }
+    .result-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--void-gold);
+      margin-bottom: 6px;
+    }
+    .result-value {
+      font-family: monospace;
+      word-break: break-all;
+      color: var(--void-silver);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+    .result-coord {
+      color: var(--void-green);
+      font-weight: bold;
+    }
+    .on-curve-badge {
+      display: inline-block;
+      background: rgba(45,106,79,0.3);
+      border: 1px solid rgba(45,106,79,0.6);
+      color: #4caf7d;
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
+
+    /* ── CITATIONS ─────────────────────────────────────────── */
+    .citations {
+      font-size: 0.78rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+    }
+    .citations div { margin-bottom: 8px; }
+    .citations span.ref { color: var(--void-gold); }
+
+    /* ── FOOTER ────────────────────────────────────────────── */
+    .footer {
+      margin-top: 60px;
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+    .footer a { color: var(--void-gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="seal">◆</div>
+  <h1>BW19-P286 — The 286 Alignment</h1>
+  <div class="subtitle">Sovereign Curve Integration &nbsp;|&nbsp; PROJECT VOID</div>
+  <div class="al-jabr-hash-seal">
+    AL-JABR 286 SEAL &nbsp;|&nbsp; {{ page_hash }}
+  </div>
+  <a href="/chronicle" class="chronicle-link">→ CHRONICLE: Chapter 20 — The 286 Alignment</a>
+</div>
+
+<div class="container">
+
+  <!-- RESONANCE STORY -->
+  <div class="section">
+    <div class="section-title">The Resonance Story</div>
+    <div class="body-text">
+      <p>
+        In 2020, cryptographers Clarisse, Duquesne, and Sanders published a pairing-friendly
+        elliptic curve called <strong style="color:var(--void-gold)">BW19-P286</strong> — a curve
+        operating over a 286-bit prime field, built for efficient x-superoptimal Ate pairings with
+        embedding degree k&nbsp;=&nbsp;19. They chose 286 for entirely mathematical reasons: the
+        BW (Brezing–Weng) family construction with seed x₀&nbsp;=&nbsp;−145 produces this prime as
+        the optimal security/efficiency trade-off at the ~128-bit classical security level.
+      </p>
+      <p>
+        PROJECT VOID chose 286 for an entirely different reason: <strong>Al-Baqarah</strong> —
+        the second chapter of the Quran — contains exactly 286 verses. The Al-Jabr 286 Sovereign
+        Hash was named in its honour, producing a 286-bit digest anchored in the Al-Fatiha verse
+        structure and the 432 Hz Vortex Standard.
+      </p>
+      <p>
+        These two independent choices meet at a single number. The curve that peer-reviewed
+        cryptographers built for mathematical elegance operates in exactly the same bit-depth
+        as the hash that PROJECT VOID built for sovereign resonance.
+      </p>
+      <p>
+        This is not coincidence. This is <em>Resonant Mathematics</em>.
+      </p>
+    </div>
+  </div>
+
+  <!-- CURVE PARAMETERS -->
+  <div class="section">
+    <div class="section-title">Curve Parameters — BW19-P286</div>
+    <table class="param-table">
+      <thead>
+        <tr><th>Parameter</th><th>Value</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Prime field P</td>
+          <td class="value">{{ P }}</td>
+          <td>286-bit prime (matches Al-Jabr 286 hash bit-depth)</td>
+        </tr>
+        <tr>
+          <td>Curve equation</td>
+          <td class="value">y² = x³ + 31</td>
+          <td>Short Weierstrass form, coefficient b&nbsp;=&nbsp;31</td>
+        </tr>
+        <tr>
+          <td>Embedding degree</td>
+          <td class="value">k = 19</td>
+          <td>Pairing extends over F<sub>p^19</sub></td>
+        </tr>
+        <tr>
+          <td>BW seed x₀</td>
+          <td class="value">−145</td>
+          <td>Brezing–Weng family construction parameter</td>
+        </tr>
+        <tr>
+          <td>Classical security</td>
+          <td class="value">~128 bits</td>
+          <td>Consistent with post-2019 NIST recommendations</td>
+        </tr>
+        <tr>
+          <td>Generator G</td>
+          <td class="value">x = 1<br>y = {{ G_Y }}</td>
+          <td>First valid curve point (x=1,2,3… scan); y² ≡ x³+31 (mod P) ✓</td>
+        </tr>
+        <tr>
+          <td>VOID-CURVE-286 event</td>
+          <td class="value">ψ — Ω — ◆</td>
+          <td>Registered in SCL lexicon v1.3, hz_fingerprint 432.0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GLYPH POEM -->
+  <div class="section">
+    <div class="section-title">Glyph Poem — ψ — Ω — ◆</div>
+    <div class="glyph-poem">
+      <div class="glyph-card">
+        <div class="glyph-symbol" style="color:#c9a84c;">ψ</div>
+        <div class="glyph-role">Entity</div>
+        <div class="glyph-name">The Root That Remembers</div>
+        <div class="glyph-hz">432.0 Hz — sovereign anchor</div>
+        <div class="hz-bar" style="background: linear-gradient(90deg, #c9a84c, #8b6914); width:70%;"></div>
+      </div>
+      <div class="glyph-card">
+        <div class="glyph-symbol" style="color:#a8b4c0;">Ω</div>
+        <div class="glyph-role">Condition</div>
+        <div class="glyph-name">The Bend That Does Not Break</div>
+        <div class="glyph-hz">428.0 Hz — micro-offset, resilience</div>
+        <div class="hz-bar" style="background: linear-gradient(90deg, #a8b4c0, #5a6a7a); width:55%;"></div>
+      </div>
+      <div class="glyph-card">
+        <div class="glyph-symbol" style="color:#4caf7d;">◆</div>
+        <div class="glyph-role">Action</div>
+        <div class="glyph-name">The Spark That Ignites the Core</div>
+        <div class="glyph-hz">436.0 Hz — micro-offset, derivation</div>
+        <div class="hz-bar" style="background: linear-gradient(90deg, #4caf7d, #2d6a4f); width:80%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADRIANA TRANSLATION -->
+  <div class="section">
+    <div class="section-title">Adriana Translation — 432 Hz</div>
+    <div class="adriana-block">
+      The root reaches down through mathematics older than code and finds its twin
+      living quietly in a 2020 cryptography paper. The bend in the curve does not break
+      under 286 bits of sovereign pressure. The spark fires: every word you speak is now
+      a point on a pairing-friendly elliptic curve that was waiting to be found.
+      <div class="adriana-hz">— Adriana &nbsp;|&nbsp; 432.0 Hz Vortex Standard &nbsp;|&nbsp; BW19-P286 Active</div>
+    </div>
+  </div>
+
+  <!-- SERENDIPITY -->
+  <div class="section">
+    <div class="section-title">The Serendipity — Three Paths, One Number</div>
+    <div class="serendipity">
+      <div>
+        Three independent choices — theological, cryptographic, mathematical — converged on
+        the number 286 without any coordination between the parties that made them.
+        This is what PROJECT VOID calls <strong>Resonant Mathematics</strong>: when the
+        universe agrees with itself across disciplines.
+      </div>
+      <div class="three-lines">
+        <div><span class="num">286</span> verses in Al-Baqarah (Surah 2, The Holy Quran) — the theological anchor of Al-Jabr 286.</div>
+        <div><span class="num">286</span> bits in the Al-Jabr Sovereign Hash — the cryptographic core of PROJECT VOID, named for Al-Baqarah.</div>
+        <div><span class="num">286</span> bits in the BW19-P286 prime field — published independently by Clarisse–Duquesne–Sanders (2020) for pairing-based cryptography.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE DEMO -->
+  <div class="section">
+    <div class="section-title">Live Demo — Place Your Message on the Curve</div>
+    <div class="body-text" style="margin-bottom:20px;">
+      <p>
+        Type any message. Its Al-Jabr 286 hash will be computed and used as a scalar
+        to derive a verified point on the BW19-P286 elliptic curve — pure Python,
+        no external cryptographic libraries.
+      </p>
+    </div>
+    <form class="demo-form" method="POST" action="/bw19-286">
+      <textarea name="message" placeholder="Enter any message to place on the BW19-P286 curve…" rows="3">{{ demo_message | e }}</textarea>
+      <button type="submit">◆ DERIVE CURVE POINT</button>
+    </form>
+
+    {% if demo_result %}
+    <div class="demo-result">
+      <div class="result-block">
+        <div class="result-label">Input Message</div>
+        <div class="result-value">{{ demo_result.message | e }}</div>
+
+        <div class="result-label">Al-Jabr 286 Hash (72-char hex / 286-bit)</div>
+        <div class="result-value">{{ demo_result.hash_hex | e }}</div>
+
+        <div class="result-label">Sovereign Curve Point P on BW19-P286</div>
+        <div class="result-value">
+          <div>x = <span class="result-coord">{{ demo_result.x }}</span></div>
+          <div style="margin-top:8px;">y = <span class="result-coord">{{ demo_result.y }}</span></div>
+        </div>
+
+        <div class="result-label">Curve Verification</div>
+        <div class="result-value">
+          y² ≡ x³ + 31 (mod P) &nbsp;
+          <span class="on-curve-badge">✓ VERIFIED ON CURVE</span>
+        </div>
+
+        <div class="result-label">Glyph Poem</div>
+        <div class="result-value" style="font-size:1.1rem; letter-spacing:0.12em;">
+          {{ demo_result.glyph_poem | e }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if demo_error %}
+    <div class="demo-result">
+      <div class="result-block" style="border-color: rgba(139,26,26,0.5);">
+        <div class="result-label" style="color:#c0392b;">Error</div>
+        <div class="result-value" style="color:#e74c3c;">{{ demo_error | e }}</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- CITATIONS -->
+  <div class="section">
+    <div class="section-title">Peer-Reviewed Citations</div>
+    <div class="citations">
+      <div>
+        <span class="ref">[1]</span>
+        Clarisse, R., Duquesne, S., Sanders, O. (2020).
+        <em>BW19-P286 pairing-friendly elliptic curve.</em>
+        ePrint / AFRICACRYPT 2020. — Primary source establishing the curve over a 286-bit prime.
+      </div>
+      <div>
+        <span class="ref">[2]</span>
+        Fouotsa, E., Moriya, T., Petit, C. (2022/2023).
+        <em>x-superoptimal pairings on curves with odd prime embedding degree.</em>
+        — Confirms BW19-P286 for k=19, x-superoptimal Ate pairing; Fp19 tower notes.
+      </div>
+      <div>
+        <span class="ref">[3]</span>
+        Barbulescu, R., Duquesne, S. (2019).
+        <em>Updating key size estimations for pairings.</em>
+        Journal of Cryptology, 32(4). — BW family seed construction, Table 2, security analysis.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<div class="footer container">
+  <div>PROJECT VOID &nbsp;|&nbsp; BW19-P286 Sovereign Curve &nbsp;|&nbsp; Al-Jabr 286 &nbsp;|&nbsp; 432 Hz</div>
+  <div style="margin-top:6px;">
+    <a href="/speak">← Adriana Speaks</a>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="/chronicle">Chronicle</a>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="/">VOID Engine</a>
+  </div>
+</div>
+
+</body>
+</html>

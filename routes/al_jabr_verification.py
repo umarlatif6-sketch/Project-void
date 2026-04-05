@@ -218,6 +218,7 @@ def _run_full_convergence_suite_subprocess(timeout=300):
             capture_output=True,
             text=True,
             timeout=timeout,
+            shell=False,
             cwd=os.path.dirname(os.path.dirname(__file__)),
         )
         elapsed = round(_time.time() - start, 1)

@@ -28,7 +28,7 @@ def _startup_migrations():
         from void_engine.blueprint_nft import seed_initial_collection
         seed_initial_collection()
     except Exception as e:
-        logger.error("Blueprint token seeding failed: %s", e)
+        logger.error("Blueprint token seeding failed: %s", type(e).__name__)
     try:
         from void_engine.chronicle_adriana import seed_chronicle
         seed_chronicle()
@@ -63,7 +63,7 @@ def _startup_migrations():
         from void_engine.blueprint_nft import seed_genesis_10
         seed_genesis_10()
     except Exception as e:
-        logger.error("Genesis 10 token seeding failed: %s", e)
+        logger.error("Genesis 10 token seeding failed: %s", type(e).__name__)
     try:
         from void_engine.aljabr_transpiler import get_model_router
         get_model_router()
