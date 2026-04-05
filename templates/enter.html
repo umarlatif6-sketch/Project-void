@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Meet Adriana</title>
+    <meta name="description" content="Adriana is listening. Tell her what you build, protect, or transmit.">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <!-- lang-switcher and lang_switcher.js suppressed: ad surface requires no additional interactive elements -->
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: #0a0a0a;
+            --border: #161616;
+            --gold: #c9a84c;
+            --teal: #2dd4bf;
+            --purple: #7c5cff;
+            --text: #d4d4d4;
+            --muted: #444;
+            --dim: #222;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── BRAND-ONLY HEADER (no links) ── */
+        .en-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 22px 40px;
+            border-bottom: 1px solid var(--border);
+        }
+        .en-brand {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #2a2a2a;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            user-select: none;
+        }
+        .en-brand-diamond {
+            color: var(--gold);
+            margin-right: 8px;
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .en-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 72px 24px 80px;
+            max-width: 620px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ── ADRIANA SIGIL ── */
+        .en-sigil {
+            font-size: 3.2rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+            animation: breathe 4s ease-in-out infinite;
+            cursor: default;
+            user-select: none;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.45; transform: scale(0.94); }
+            50%       { opacity: 1;   transform: scale(1.04); }
+        }
+
+        .en-status {
+            font-size: 0.52rem;
+            letter-spacing: 5px;
+            color: #333;
+            text-transform: uppercase;
+            margin-bottom: 52px;
+        }
+
+        /* ── INTRO COPY ── */
+        .en-intro-headline {
+            font-size: 1.0rem;
+            font-weight: 600;
+            color: #bbb;
+            line-height: 1.65;
+            margin-bottom: 16px;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+        .en-intro-sub {
+            font-size: 0.72rem;
+            color: #484848;
+            line-height: 1.95;
+            text-align: center;
+            max-width: 480px;
+            margin-bottom: 48px;
+        }
+
+        /* ── INPUT ZONE ── */
+        .en-input-zone {
+            width: 100%;
+            position: relative;
+        }
+        .en-textarea {
+            width: 100%;
+            background: #070707;
+            border: 1px solid #181818;
+            border-radius: 4px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.84rem;
+            line-height: 1.8;
+            padding: 20px 18px;
+            min-height: 130px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.25s;
+        }
+        .en-textarea:focus {
+            border-color: rgba(201,168,76,0.3);
+        }
+        .en-textarea::placeholder {
+            color: #1c1c1c;
+        }
+        .en-input-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+        }
+        .en-char-hint {
+            font-size: 0.52rem;
+            color: #252525;
+            letter-spacing: 1px;
+        }
+        .en-submit-btn {
+            background: transparent;
+            border: 1px solid rgba(201,168,76,0.3);
+            color: var(--gold);
+            padding: 10px 30px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .en-submit-btn:hover:not(:disabled) {
+            background: rgba(201,168,76,0.06);
+            border-color: var(--gold);
+        }
+        .en-submit-btn:disabled {
+            opacity: 0.2;
+            cursor: default;
+        }
+
+        /* ── SPINNER ── */
+        .en-spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #1e1e1e;
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+        .en-spinner.active { display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── CONVERSATION AREA ── */
+        .en-transcript {
+            width: 100%;
+            margin-top: 52px;
+            display: flex;
+            flex-direction: column;
+            gap: 44px;
+        }
+        .en-exchange {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeUp 0.4s ease both;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* User bubble */
+        .en-utterance {
+            align-self: flex-end;
+            max-width: 88%;
+            background: #0c0c0c;
+            border: 1px solid #1c1c1c;
+            border-radius: 4px;
+            padding: 14px 18px;
+            font-size: 0.79rem;
+            line-height: 1.75;
+            color: #888;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* Adriana block */
+        .en-adriana-block {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .en-adriana-text {
+            font-size: 0.84rem;
+            line-height: 1.9;
+            color: #bbb;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* Glyph field */
+        .en-glyph-field {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            background: #080808;
+            border: 1px solid #181818;
+            border-radius: 4px;
+            border-left-width: 3px;
+        }
+        .en-glyph-char {
+            font-size: 1.8rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .en-glyph-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .en-glyph-name {
+            font-size: 0.52rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .en-glyph-freq {
+            font-size: 0.5rem;
+            letter-spacing: 2px;
+            color: #2e2e2e;
+            text-transform: uppercase;
+        }
+        .en-harmonic {
+            margin-left: auto;
+            font-size: 0.48rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 2px;
+            border: 1px solid #1a1a1a;
+            color: #333;
+            flex-shrink: 0;
+        }
+        .en-harmonic.resonant  { color: var(--teal);  border-color: rgba(45,212,191,0.18); }
+        .en-harmonic.aligned   { color: #818cf8;       border-color: rgba(129,140,248,0.18); }
+        .en-harmonic.drifting  { color: var(--gold);   border-color: rgba(201,168,76,0.18); }
+        .en-harmonic.dormant   { color: #3a3a3a;       border-color: #1a1a1a; }
+
+        /* Persona badge (subtle) */
+        .en-persona-badge {
+            display: none;
+            font-size: 0.48rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #2e2e2e;
+            padding: 4px 10px;
+            border: 1px solid #191919;
+            border-radius: 2px;
+            align-self: flex-start;
+        }
+        .en-persona-badge.visible { display: inline-block; }
+
+        /* GitHub invitation reveal */
+        .en-github-invite {
+            padding: 20px 20px;
+            background: #080808;
+            border: 1px solid rgba(124,92,255,0.2);
+            border-left: 3px solid var(--purple);
+            border-radius: 4px;
+            animation: fadeUp 0.5s ease both;
+        }
+        .en-github-invite-label {
+            font-size: 0.48rem;
+            letter-spacing: 4px;
+            color: var(--purple);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .en-github-invite-text {
+            font-size: 0.76rem;
+            color: #777;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        .en-interest-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+        .en-interest-input {
+            flex: 1;
+            min-width: 200px;
+            background: #070707;
+            border: 1px solid #1e1e1e;
+            border-radius: 3px;
+            color: #aaa;
+            font-family: inherit;
+            font-size: 0.72rem;
+            padding: 9px 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .en-interest-input:focus {
+            border-color: rgba(124,92,255,0.35);
+        }
+        .en-interest-input::placeholder {
+            color: #252525;
+        }
+        .en-github-btn {
+            background: transparent;
+            border: 1px solid rgba(124,92,255,0.35);
+            color: var(--purple);
+            font-family: inherit;
+            font-size: 0.58rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 10px 22px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            white-space: nowrap;
+        }
+        .en-github-btn:hover:not(:disabled) {
+            background: rgba(124,92,255,0.07);
+            border-color: var(--purple);
+        }
+        .en-github-btn:disabled { opacity: 0.3; cursor: default; }
+        .en-interest-feedback {
+            width: 100%;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            color: #444;
+            margin-top: 6px;
+        }
+        .en-interest-feedback.ok { color: var(--teal); }
+        .en-interest-feedback.err { color: #f87171; }
+
+        /* Divider between exchanges */
+        .en-divider {
+            width: 100%;
+            height: 1px;
+            background: #0e0e0e;
+        }
+
+        /* ── FOOTER ── */
+        .en-footer {
+            text-align: center;
+            padding: 52px 24px 64px;
+            font-size: 0.5rem;
+            color: #1a1a1a;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .en-main { padding: 48px 16px 60px; }
+            .en-sigil { font-size: 2.4rem; }
+            .en-utterance { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="en-header">
+        <span class="en-brand"><span class="en-brand-diamond">◆</span>PROJECT VOID</span>
+    </header>
+
+    <main class="en-main">
+
+        <div class="en-sigil" id="en-sigil">◆</div>
+        <div class="en-status" id="en-status">Adriana is listening</div>
+
+        <div class="en-intro-headline">
+            Tell me what you build, protect, or transmit.
+        </div>
+        <div class="en-intro-sub">
+            I am Adriana — the intelligence at the entrance of PROJECT VOID. Whether you are a lawyer protecting sources, a developer building systems, a journalist transmitting documents, or a researcher handling sensitive data — I will meet you where your signal is strongest. No login required.
+        </div>
+
+        <div class="en-input-zone">
+            <textarea
+                id="en-input"
+                class="en-textarea"
+                placeholder="what are you trying to protect, transmit, or build..."
+                maxlength="4000"
+                rows="5"
+            ></textarea>
+            <div class="en-input-footer">
+                <span class="en-char-hint"><span id="en-char-count">0</span> / 4000</span>
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div class="en-spinner" id="en-spinner"></div>
+                    <button class="en-submit-btn" id="en-submit" disabled>Speak</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="en-transcript" id="en-transcript"></div>
+
+    </main>
+
+    <div class="en-footer">no login required &nbsp;·&nbsp; 432 hz acoustic steganography &nbsp;·&nbsp; projectvoid.io</div>
+
+    <script>
+    (function () {
+        const input      = document.getElementById('en-input');
+        const submitBtn  = document.getElementById('en-submit');
+        const charCount  = document.getElementById('en-char-count');
+        const transcript = document.getElementById('en-transcript');
+        const spinner    = document.getElementById('en-spinner');
+        const status     = document.getElementById('en-status');
+        const sigil      = document.getElementById('en-sigil');
+
+        let busy = false;
+
+        input.addEventListener('input', () => {
+            const len = input.value.length;
+            charCount.textContent = len;
+            submitBtn.disabled = len === 0 || busy;
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (!submitBtn.disabled) submitBtn.click();
+            }
+        });
+
+        submitBtn.addEventListener('click', async () => {
+            const message = input.value.trim();
+            if (!message || busy) return;
+
+            busy = true;
+            submitBtn.disabled = true;
+            spinner.classList.add('active');
+            status.textContent = 'reading your frequency…';
+            sigil.style.animationDuration = '1.1s';
+
+            const userEntry = message;
+            input.value = '';
+            charCount.textContent = '0';
+
+            try {
+                const res = await fetch('/enter/listen', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userEntry }),
+                });
+                const data = await res.json();
+                if (!res.ok || data.error) throw new Error(data.error || 'Signal lost');
+
+                renderExchange(userEntry, data);
+
+                sigil.style.color = data.color || 'var(--gold)';
+                sigil.style.animationDuration = '4s';
+                status.textContent = 'Adriana is listening';
+            } catch (err) {
+                renderError(userEntry, err.message || 'The signal was lost. Try again.');
+                sigil.style.animationDuration = '4s';
+                status.textContent = 'Adriana is listening';
+            } finally {
+                busy = false;
+                spinner.classList.remove('active');
+                submitBtn.disabled = false;
+            }
+        });
+
+        function renderExchange(userMessage, data) {
+            if (transcript.children.length > 0) {
+                const div = document.createElement('div');
+                div.className = 'en-divider';
+                transcript.appendChild(div);
+            }
+
+            const exchange = document.createElement('div');
+            exchange.className = 'en-exchange';
+
+            const utterance = document.createElement('div');
+            utterance.className = 'en-utterance';
+            utterance.textContent = userMessage;
+
+            const adrianaBlock = document.createElement('div');
+            adrianaBlock.className = 'en-adriana-block';
+
+            const entity = data.entity || {};
+            const glyphColor = entity.color || 'var(--gold)';
+
+            const glyphField = document.createElement('div');
+            glyphField.className = 'en-glyph-field';
+            glyphField.style.borderLeftColor = glyphColor;
+
+            const glyphChar = document.createElement('div');
+            glyphChar.className = 'en-glyph-char';
+            glyphChar.style.cssText = `color:${glyphColor};filter:drop-shadow(0 0 7px ${glyphColor});`;
+            glyphChar.textContent = entity.char || '◆';
+
+            const glyphMeta = document.createElement('div');
+            glyphMeta.className = 'en-glyph-meta';
+
+            const glyphName = document.createElement('div');
+            glyphName.className = 'en-glyph-name';
+            glyphName.style.color = glyphColor;
+            glyphName.textContent = (entity.name || 'Core') + ' — ' + (entity.meaning || '');
+
+            const glyphFreq = document.createElement('div');
+            glyphFreq.className = 'en-glyph-freq';
+            glyphFreq.textContent = ((entity.frequency || 432.0)).toFixed(1) + ' Hz';
+
+            glyphMeta.appendChild(glyphName);
+            glyphMeta.appendChild(glyphFreq);
+
+            const harmonicEl = document.createElement('div');
+            harmonicEl.className = 'en-harmonic ' + escHtml(data.harmonic_state || 'aligned');
+            harmonicEl.textContent = data.harmonic_state || 'aligned';
+
+            glyphField.appendChild(glyphChar);
+            glyphField.appendChild(glyphMeta);
+            glyphField.appendChild(harmonicEl);
+
+            const textEl = document.createElement('div');
+            textEl.className = 'en-adriana-text';
+            textEl.textContent = data.response;
+
+            adrianaBlock.appendChild(glyphField);
+            adrianaBlock.appendChild(textEl);
+
+            if (data.persona_id && data.persona_id !== 'general' && data.persona_label) {
+                const badge = document.createElement('div');
+                badge.className = 'en-persona-badge visible';
+                badge.textContent = data.persona_label;
+                adrianaBlock.appendChild(badge);
+            }
+
+            if ((data.github_invite_shown || data.github_invite_available) && !document.getElementById('en-invite-box')) {
+                const inviteBox = document.createElement('div');
+                inviteBox.id = 'en-invite-box';
+                inviteBox.className = 'en-github-invite';
+
+                const inviteLabel = document.createElement('div');
+                inviteLabel.className = 'en-github-invite-label';
+                inviteLabel.textContent = 'Private Collaboration';
+
+                const inviteText = document.createElement('div');
+                inviteText.className = 'en-github-invite-text';
+                inviteText.textContent = 'If you would like to explore the engine at the source level, signal your interest. The door is not offered to everyone.';
+
+                const form = document.createElement('div');
+                form.className = 'en-interest-form';
+
+                const emailInput = document.createElement('input');
+                emailInput.type = 'email';
+                emailInput.className = 'en-interest-input';
+                emailInput.placeholder = 'your@signal.here';
+                emailInput.autocomplete = 'email';
+
+                const submitBtn = document.createElement('button');
+                submitBtn.className = 'en-github-btn';
+                submitBtn.textContent = 'Signal Your Interest →';
+                submitBtn.type = 'button';
+
+                const feedback = document.createElement('div');
+                feedback.className = 'en-interest-feedback';
+
+                submitBtn.addEventListener('click', async () => {
+                    const email = emailInput.value.trim();
+                    if (!email || !email.includes('@')) {
+                        feedback.className = 'en-interest-feedback err';
+                        feedback.textContent = 'Enter a valid email first.';
+                        return;
+                    }
+                    submitBtn.disabled = true;
+                    feedback.className = 'en-interest-feedback';
+                    feedback.textContent = 'Transmitting...';
+                    try {
+                        const res = await fetch('/enter/interest', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email }),
+                        });
+                        const json = await res.json();
+                        if (json.success) {
+                            feedback.className = 'en-interest-feedback ok';
+                            feedback.textContent = json.message;
+                            emailInput.disabled = true;
+                        } else {
+                            feedback.className = 'en-interest-feedback err';
+                            feedback.textContent = json.error || 'Something went wrong.';
+                            submitBtn.disabled = false;
+                        }
+                    } catch (_) {
+                        feedback.className = 'en-interest-feedback err';
+                        feedback.textContent = 'Transmission failed. Try again.';
+                        submitBtn.disabled = false;
+                    }
+                });
+
+                form.appendChild(emailInput);
+                form.appendChild(submitBtn);
+                form.appendChild(feedback);
+
+                inviteBox.appendChild(inviteLabel);
+                inviteBox.appendChild(inviteText);
+                inviteBox.appendChild(form);
+                adrianaBlock.appendChild(inviteBox);
+            }
+
+            exchange.appendChild(utterance);
+            exchange.appendChild(adrianaBlock);
+            transcript.appendChild(exchange);
+            exchange.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function renderError(userMessage, msg) {
+            if (transcript.children.length > 0) {
+                const div = document.createElement('div');
+                div.className = 'en-divider';
+                transcript.appendChild(div);
+            }
+            const exchange = document.createElement('div');
+            exchange.className = 'en-exchange';
+
+            const utterance = document.createElement('div');
+            utterance.className = 'en-utterance';
+            utterance.textContent = userMessage;
+
+            const err = document.createElement('div');
+            err.style.cssText = 'font-size:0.74rem;color:#383838;padding:10px 0;';
+            err.textContent = msg;
+
+            exchange.appendChild(utterance);
+            exchange.appendChild(err);
+            transcript.appendChild(exchange);
+            exchange.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function escHtml(s) {
+            return String(s)
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;');
+        }
+
+        input.focus();
+    })();
+    </script>
+</body>
+</html>

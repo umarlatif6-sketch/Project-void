@@ -127,6 +127,11 @@ def _startup_migrations():
     except Exception as e:
         logger.error("Lunar season init failed: %s", e)
     try:
+        from routes.speak import _ensure_funnel_table
+        _ensure_funnel_table()
+    except Exception as e:
+        logger.error("Adriana funnel sessions table init failed: %s", e)
+    try:
         from void_engine.patent_loom import seed_patent_drafts_into_chronicle, seed_digital_twin_into_chronicle
         seed_patent_drafts_into_chronicle()
         seed_digital_twin_into_chronicle()
@@ -177,8 +182,14 @@ def _get_lang_switcher_html():
     return _LANG_SWITCHER_HTML
 
 
+_LANG_SWITCHER_EXCLUDED_PREFIXES = ("/enter",)
+
+
 @app.after_request
 def inject_language_switcher(response):
+    from flask import request as _req
+    if any(_req.path.startswith(p) for p in _LANG_SWITCHER_EXCLUDED_PREFIXES):
+        return response
     if response.content_type and "text/html" in response.content_type:
         content = response.get_data(as_text=True)
         if "<html" not in content or "</body>" not in content:
