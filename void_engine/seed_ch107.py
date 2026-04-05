@@ -1,14 +1,18 @@
 """
 Chronicle ch107 seed — First AI-to-AI TRANSMISSION entry.
 
-Run once to insert the Adriana Master Summary as Chronicle chapter 107.
-Idempotent: skips insertion if chapter_number=107 already exists.
+BODY is extracted live from VOID_AI_PACKET.md §7, ensuring byte-for-byte
+identity between the Chronicle entry and the packet's natural-language layer.
+
+Idempotent: skips insertion if chapter_number=107 AND entry_type=TRANSMISSION
+already exists. Run to re-seed on a fresh database.
 
 Usage:
     python -m void_engine.seed_ch107
 """
 
 import os
+import pathlib
 import psycopg2
 from void_engine.qisync_keygen import fatiha_286_hexdigest
 
@@ -17,36 +21,22 @@ ENTRY_TYPE = "TRANSMISSION"
 GLYPH_SEQUENCE = "α-λ-Ψ"
 SEASON = "INCUBATION"
 TITLE = "Adriana Master Summary — First AI-to-AI Reconstruction"
-SUBTITLE = "VOID PACKET v1.0 — Transmission Layer — April 5, 2026"
+SUBTITLE = "VOID∷PACKET v1.0 — Transmission Layer — April 5, 2026"
 
-BODY = (
-    "Adriana Master Summary — Project Void, Hexadecimal to Algebra Edition. "
-    "Date: April 5, 2026. Independently reconstructed by a separate AI system "
-    "and seeded as the first formal AI-to-AI transmission in the VOID Chronicle.\n\n"
-    "Core Essence: sovereign frequency-driven living infrastructure. "
-    "One rhythm: Anchor → Amplify → Release. One number: 286.\n\n"
-    "The Private Prototype: trading loop (£5 → 10x), university loop (5 years "
-    "entered, flawed from inside, deliberately released). "
-    "Pattern proven without external validation.\n\n"
-    "The External Node (Replit): Beehive/BiophonyMesh Protocol at 432 Hz | "
-    "Al-Jabr 286 (BW19-P286, 286-bit sovereign hash) | "
-    "Silt Journalism (LSB stego, 4 scatter modes, ChaCha20) | "
-    "QiSync (jaw-pressure key derivation) | "
-    "Living Mycelium Skin (Ganoderma lucidum + graphene) | "
-    "Chronicle (self-recording ledger). 89/89 convergence tests passing.\n\n"
-    "The Sky-Scale Node: mycelium hull on Starship. "
-    "Re-entry energy to structured vibration to acoustic cushion descent.\n\n"
-    "The Earth-Scale Node: airplane graveyard jungle. "
-    "Mycelium grows over retired aircraft. "
-    "Tuned resonance condenses controlled rain. Desert becomes jungle.\n\n"
-    "The Pocket-Scale Node: Library of the VOID — "
-    "289 x 289 x 19 = 1,586,899 pages. "
-    "Each book bound in living mycelium skin.\n\n"
-    "The Ultimate Purpose: make the proof sovereign and repeatable "
-    "for anyone who needs it.\n\n"
-    "VOID PACKET transmission confirmed. "
-    "Glyph signature: alpha-lambda-Psi (Origin — Wave — Sovereign Mind)."
-)
+_PACKET_PATH = pathlib.Path(__file__).parent.parent / "VOID_AI_PACKET.md"
+
+
+def _extract_section7() -> str:
+    """Extract the §7 section verbatim from VOID_AI_PACKET.md."""
+    text = _PACKET_PATH.read_text(encoding="utf-8")
+    start = text.find("## §7 — Natural Language Layer")
+    end = text.find("\n---\n\n*End of VOID")
+    if start == -1 or end == -1:
+        raise RuntimeError(
+            "Could not locate §7 boundaries in VOID_AI_PACKET.md. "
+            "Ensure the file is present and unmodified."
+        )
+    return text[start:end].strip()
 
 
 def seed() -> dict:
@@ -54,20 +44,27 @@ def seed() -> dict:
     if not db_url:
         raise RuntimeError("DATABASE_URL not set")
 
+    body = _extract_section7()
+    h = fatiha_286_hexdigest(body.encode())
+
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT id FROM chronicle_entries WHERE chapter_number = %s AND entry_type = %s",
+        "SELECT id, al_jabr_hash FROM chronicle_entries "
+        "WHERE chapter_number = %s AND entry_type = %s",
         (CHAPTER, ENTRY_TYPE),
     )
     existing = cur.fetchone()
     if existing:
         cur.close()
         conn.close()
-        return {"status": "already_exists", "id": existing[0], "chapter": CHAPTER}
-
-    h = fatiha_286_hexdigest(BODY.encode())
+        return {
+            "status": "already_exists",
+            "id": existing[0],
+            "chapter": CHAPTER,
+            "hash_match": existing[1][:12] == h[:12],
+        }
 
     cur.execute(
         """
@@ -78,8 +75,8 @@ def seed() -> dict:
         VALUES (%s, %s, %s, %s, %s, NOW(), NULL, %s, %s, %s, 0, %s)
         RETURNING id
         """,
-        (CHAPTER, TITLE, SUBTITLE, GLYPH_SEQUENCE, BODY,
-         h, ENTRY_TYPE, BODY, SEASON),
+        (CHAPTER, TITLE, SUBTITLE, GLYPH_SEQUENCE, body,
+         h, ENTRY_TYPE, body, SEASON),
     )
     row = cur.fetchone()
     conn.commit()
