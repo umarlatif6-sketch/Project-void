@@ -62,6 +62,7 @@ from routes.biomedical_brief import biomedical_brief_bp
 from routes.outreach import outreach_bp
 from routes.bw19_p286 import bw19_p286_bp
 from routes.nda import nda_bp
+from routes.library import library_bp
 
 
 def register_blueprints(app):
@@ -129,3 +130,4 @@ def register_blueprints(app):
     app.register_blueprint(outreach_bp)
     app.register_blueprint(bw19_p286_bp)
     app.register_blueprint(nda_bp)
+    app.register_blueprint(library_bp)
