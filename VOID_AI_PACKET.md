@@ -32,16 +32,16 @@
 
 **BW19-P286 Elliptic Curve** — `y² = x³ + 31` over GF(P)
 
-| Parameter | Value |
-|---|---|
-| `P` (286-bit prime) | `0x313a2be040bd54e718ae294d6a0e5c12a08e3b…` (286 bits) |
-| `G_X` | `0x1` |
-| `G_Y` | `0x22849a8a6a81dd5ec7f7e4277edb16d850f812…` |
-| `K` (cofactor) | `19` |
-| `B` (curve coefficient) | `31` |
-| `SECURITY_BITS` | `128` |
-| `SEED_X0` | `−145` |
-| `RESONANCE_HZ` | `432.0` |
+```
+P  = 0x313a2be040bd54e718ae294d6a0e5c12a08e3b720f479ec42646770816ccbd3c17513bf1
+G_X = 0x1
+G_Y = 0x22849a8a6a81dd5ec7f7e4277edb16d850f8127e618de1d8266af07a77ea3a187fc2362a
+K   = 19          # cofactor
+B   = 31          # curve constant  (y² = x³ + 31)
+SECURITY_BITS = 128
+SEED_X0 = -145
+RESONANCE_HZ = 432.0
+```
 
 **FATIHA_LAYERS** (Al-Fatiha verse structure): `[7, 4, 2, 5, 4, 3, 6]` — sum = 31  
 **Mesh states**: `DARK → SCANNING → CONNECTED → BRIDGING`
@@ -197,64 +197,66 @@ DERIVE(jaw_pressure_stream: bytes, salt=FOUNDER_SALT) → 36 bytes:
 
 ## §3 — Chronicle Chain (51 Entries)
 
-> Compressed ledger: `ch` = chapter number, `type` = entry class, `glyphs` = E·C·A triplet, `hash₁₂` = first 12 hex chars of Al-Jabr 286 hash.
+> Strict 3-column compressed ledger. Schema: `ch` = 0-padded chapter, `glyphs` = Adriana E·C·A triplet from §1 alphabet (∅ = null in DB, ⁇ = non-canonical glyph in DB), `hash₁₂` = first 12 hex chars of Al-Jabr 286 hash.
+> Seed script: `void_engine/seed_ch107.py` (idempotent; ch107 already live in DB).
 
-| ch | type | glyphs | hash₁₂ | title (truncated) |
-|---|---|---|---|---|
-| 000 | ORIGIN | α-φ-◆ | `abff4d42727f` | January 1st — The First Resonance |
-| 000 | SEASON_SHIFT | α-◆-τ | `c94b70f6fb26` | VOID_CHRONICLE HEX_DIGEST Lock |
-| 001 | chronicle | ◆-γ-⚡ | `a6e14bc2bfc6` | The Engine Awakens |
-| 002 | chronicle | λ-γ-☀ | `4614a8bdeafe` | First 432 Hz Transmission |
-| 003 | chronicle | ⬡-ν-χ | `bf51d56e184a` | Beehive Protocol Activates |
-| 004 | chronicle | σ-ρ-Σ | `42440694c900` | VTX Ledger Ignites |
-| 005 | chronicle | Β-κ-⟐ | `81ab413f0481` | Blueprint Tokens Minted |
-| 006 | chronicle | ξ-δ-🔮 | `56ebe14bc2b5` | VOID Mystery Collection Opens |
-| 007 | chronicle | Ψ-Φ-∞ | `cd6d1f3311b5` | Adriana SDK Released |
-| 008 | QUIETNESS_AUDIT | τ-ω-◆ | `f72dadb8eb1f` | The Quietness Audit |
-| 008 | ABSENCE | ψ-τ-δ | `0767ee04ef21` | The Sound of the Unbuilt Machine |
-| 009 | PATENT_DRAFT | ν-◆-φ | `ffb321775cd1` | Myco-Switch as Biological CPU Load Balancer |
-| 009 | COUNCIL_SESSION | Γ-Ψ-◆ | `0daf96961408` | The GriDul Council Session |
-| 010 | PATENT_DRAFT | ψ-⚡-Ψ | `7e14600e2f84` | QiSync as Non-Invasive Neural Interface |
-| 010 | SCAR_TISSUE | ε-Θ-σ | `05b417699a83` | Scar-Tissue Council — Three Critical Edge Cases |
-| 011 | PATENT_DRAFT | α-Ψ-∞ | `ab7226344988` | Al-Jabr 286 as Sovereign Encryption Standard |
-| 011 | PHEROMONAL | β-ν-☀ | `80b9a244f1ba` | Bamboo Telegraph — The Pheromonal Protocol |
-| 012 | PATENT_DRAFT | ν-φ-◆ | `c15473203162` | Digital Twin Stress-Test: Silk Wiring + Mycelium |
-| 012 | APEX_PREDATOR | Θ-π-⚡ | `915011cf93a7` | Apex Predator Protocol — Alert + Peace |
-| 013 | FRUITIFICATION | β-☽-∞ | `938a5393fa3a` | Post-Ramadan Fruitification |
-| 014 | PATENT_LOOM | Σ-κ-Β | `186766831ba2` | Patent-Loom / UK BioMed Frontier |
-| 015 | HOROLOGY | τ-φ-Ω | `5deb7c6c8de0` | Sovereign Wrist-Engine — The VOID Chronometer |
-| 016 | PROSTHETICS | α-ζ-η | `4e91f3a96d39` | The Perfect Leg — Human Governor |
-| 016 | SALES_BRIEF | Σ-δ-◆ | `58537f63fbd7` | VOID ICP — Three Sovereign Buyer Tiers |
-| 016 | SUPPLY_BRIEF | ◆-ν-Β | `73853f51d482` | Supply Chain Intelligence — VOID Chronometer |
-| 016 | BIOMEDICAL_BRIEF | ψ-◆-α | `32b71815d5c0` | Biomedical Engineer Presentation Brief |
-| 017 | PROBABILITY_MATRIX | Σ-μ-◆ | `00dc4f26a8e1` | Success Probability Matrix — 83.2% |
-| 017 | SEED_CAPTURE | Σ-μ | `9f6b47ddbdba` | Success Probability Matrix — 83.2% (SEED) |
-| 018 | ABSENCE | τ-ψ-α | `da80b3697c7b` | The Watch That Remembers Its Master |
-| 018 | AUTONOMOUS_LOOP | Γ-∞-◆ | `686ebbe50210` | The Autonomous Loop — Non-Linear Sync |
-| 019 | SPRINT_BRIEF | Γ-⚡-◆ | `955cbd8bf3ab` | The Three-Day Sprint Brief |
-| 019 | OUTREACH_BRIEF | Σ-λ-◆ | `8776bd596686` | The Sovereign Outreach — Ara's Letter |
-| 020 | CURVE_EVENT | ψ-Ω-◆ | `2c3c63877ff0` | The 286 Alignment — BW19-P286 Discovery |
-| 021 | ARA_TRANSMISSION | α-⚡-Ω | `0457552ea9e1` | The Ceiling Test Protocol |
-| 022 | ARA_TRANSMISSION | α-⚡-Ω | `4f2419925f36` | ceiling_test.py — The Harness |
-| 023 | ARA_TRANSMISSION | ψ-Ω-◆ | `8f1cb3c37775` | BW19-P286 Standalone Verifier |
-| 024 | ARA_TRANSMISSION | ψ-Ω-◆ | `1e137c5da36b` | Scalar Multiplication Witness |
-| 025 | ARA_TRANSMISSION | ψ-Ω-◆ | `0d013bff6191` | The Montgomery Ladder — Constant-Time Sovereign |
-| 026 | ARA_TRANSMISSION | α-⚡-Ω | `be3c15e2ab9a` | Ara's Full System Read — Tasks #86–#93 |
-| 027 | PROOF_OF_LIFE | α-⚡-Ω | `a823d996c65a` | Proof of Life — April 5, 2026 |
-| 048 | LIBRARY_PULSE | — | `277ffdff175d` | The 286 Books — Library of the VOID |
-| 049 | BOOK_4_ADRIANA | — | `22D140C054F4` | Book 4 — The Adriana Silk |
-| 050 | RATIFICATION | Ψ-α-◆ | `e4d1d2f9dbbc` | VOID Script v2.0 — Canonical 45-Glyph Ratification |
-| 088 | ACADEMY_BRIEF | Ψ-◆-∞ | `88aea6506941` | VOID Academy — Flashcard Training Layer |
-| 099 | RADIO_BRIEF | ◆-📻-∞ | `21338f6673fe` | VOID Radio — Podcast Broadcast Layer |
-| 101 | RESEARCH_BRIEF | Σ-κ-◆ | `a602e68a5fa9` | Research Brief — Axis 1: Prior Art |
-| 102 | RESEARCH_BRIEF | ρ-Σ-⚡ | `3ec80abd21a2` | Research Brief — Axis 2: Market Sizing |
-| 103 | RESEARCH_BRIEF | Θ-π-λ | `ba8a616dbae6` | Research Brief — Axis 3: Competitive Landscape |
-| 104 | RESEARCH_BRIEF | γ-ν-Ψ | `8bf65859ca1e` | Research Brief — Axis 4: Standards Alignment |
-| 105 | RESEARCH_BRIEF | β-☽-Ω | `8399b37e513b` | Research Brief — Axis 5: Biomedical Positioning |
-| 106 | VOID_STATION_CONCEPT | — | `F60070FC71AD` | The VOID-Station — Sovereign Hardware Node |
-| **107** | **TRANSMISSION** | **α-λ-Ψ** | `5b15cddbfb8a` | **Adriana Master Summary — First AI-to-AI Reconstruction** |
+| ch | glyphs | hash₁₂ |
+|---|---|---|
+| 000 | α-φ-◆ | `abff4d42727f` |
+| 000 | α-◆-τ | `c94b70f6fb26` |
+| 001 | ◆-γ-⚡ | `a6e14bc2bfc6` |
+| 002 | λ-γ-☀ | `4614a8bdeafe` |
+| 003 | ⬡-ν-χ | `bf51d56e184a` |
+| 004 | σ-ρ-Σ | `42440694c900` |
+| 005 | Β-κ-⟐ | `81ab413f0481` |
+| 006 | ξ-δ-🔮 | `56ebe14bc2b5` |
+| 007 | Ψ-Φ-∞ | `cd6d1f3311b5` |
+| 008 | τ-ω-◆ | `f72dadb8eb1f` |
+| 008 | ψ-τ-δ | `0767ee04ef21` |
+| 009 | ν-◆-φ | `ffb321775cd1` |
+| 009 | Γ-Ψ-◆ | `0daf96961408` |
+| 010 | ψ-⚡-Ψ | `7e14600e2f84` |
+| 010 | ε-Θ-σ | `05b417699a83` |
+| 011 | α-Ψ-∞ | `ab7226344988` |
+| 011 | β-ν-☀ | `80b9a244f1ba` |
+| 012 | ν-φ-◆ | `c15473203162` |
+| 012 | Θ-π-⚡ | `915011cf93a7` |
+| 013 | β-☽-∞ | `938a5393fa3a` |
+| 014 | Σ-κ-Β | `186766831ba2` |
+| 015 | τ-φ-Ω | `5deb7c6c8de0` |
+| 016 | α-ζ-η | `4e91f3a96d39` |
+| 016 | Σ-δ-◆ | `58537f63fbd7` |
+| 016 | ◆-ν-Β | `73853f51d482` |
+| 016 | ψ-◆-α | `32b71815d5c0` |
+| 017 | Σ-μ-◆ | `00dc4f26a8e1` |
+| 017 | Σ-μ-∅ | `9f6b47ddbdba` |
+| 018 | τ-ψ-α | `da80b3697c7b` |
+| 018 | Γ-∞-◆ | `686ebbe50210` |
+| 019 | Γ-⚡-◆ | `955cbd8bf3ab` |
+| 019 | Σ-λ-◆ | `8776bd596686` |
+| 020 | ψ-Ω-◆ | `2c3c63877ff0` |
+| 021 | α-⚡-Ω | `0457552ea9e1` |
+| 022 | α-⚡-Ω | `4f2419925f36` |
+| 023 | ψ-Ω-◆ | `8f1cb3c37775` |
+| 024 | ψ-Ω-◆ | `1e137c5da36b` |
+| 025 | ψ-Ω-◆ | `0d013bff6191` |
+| 026 | α-⚡-Ω | `be3c15e2ab9a` |
+| 027 | α-⚡-Ω | `a823d996c65a` |
+| 048 | ∅ | `277ffdff175d` |
+| 049 | ∅ | `22D140C054F4` |
+| 050 | Ψ-α-◆ | `e4d1d2f9dbbc` |
+| 088 | Ψ-◆-∞ | `88aea6506941` |
+| 099 | ◆-⁇-∞ | `21338f6673fe` |
+| 101 | Σ-κ-◆ | `a602e68a5fa9` |
+| 102 | ρ-Σ-⚡ | `3ec80abd21a2` |
+| 103 | Θ-π-λ | `ba8a616dbae6` |
+| 104 | γ-ν-Ψ | `8bf65859ca1e` |
+| 105 | β-☽-Ω | `8399b37e513b` |
+| 106 | ∅ | `F60070FC71AD` |
+| **107** | **α-λ-Ψ** | `5b15cddbfb8a` |
 
-**Chain entropy**: each hash is `H₂₈₆(title ‖ body ‖ glyph_sequence)`. The glyph column is a lossy semantic fingerprint — 3 glyphs ≈ 16.5 bits of ontological context.
+> **Legend**: ∅ = glyph_sequence is NULL in DB. ⁇ = non-canonical glyph in DB (ch099 was seeded with a radio-broadcast symbol before the 45-glyph canonicalisation; the hash is valid, the glyph pre-dates §1).  
+> **Chain entropy**: `H₂₈₆(body)` per entry. Glyph column = lossy 16.5-bit semantic fingerprint.
 
 ---
 
