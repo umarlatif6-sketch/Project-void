@@ -9,6 +9,7 @@ from void_engine.library_data import (
     TOTAL_COLLECTIONS, BOOKS_PER_COLLECTION, PAGES_PER_BOOK,
     TOTAL_BOOKS, TOTAL_PAGES, COLLECTION_1_AUTHORS,
     get_live_database_snapshot, get_book_1_pages,
+    get_book_4_pages,
     get_collection_meta, get_book_meta,
 )
 
@@ -66,6 +67,9 @@ def library_book(coll_num, book_num):
         )[:72].upper()
         if pages:
             pages[0]["content"] = book_hash
+
+    elif coll_num == 1 and book_num == 4:
+        pages = get_book_4_pages()
 
     return render_template(
         "library_book.html",
