@@ -266,6 +266,49 @@ def get_portfolio_case_studies() -> list:
                 "mesh, with payload content invisible to intermediate relay nodes."
             ),
         },
+        {
+            "name": "VOID-Station — Hardware Portability & Compression",
+            "file": "routes/void_station.py · /void-station/roadmap",
+            "what_it_does": (
+                "The entire VOID Engine stack — Chronicle ledger, Beehive mesh node, "
+                "Al-Jabr 286 hashing, 45-glyph SCL interpreter, and VTX token economy "
+                "— runs without modification on any Linux device, from a £85 Raspberry "
+                "Pi 4 (Stage 1) to the full sovereign VOID-Station console (Stage 4, "
+                "NVIDIA Orin NX, mycelium housing, QiSync jaw-biometric lock). "
+                "A four-stage hardware roadmap and a parent-readable build guide are "
+                "live at /void-station/roadmap. Stage 1 requires no specialist skills: "
+                "a Raspberry Pi 4, a 32 GB microSD card, and a power supply. The node "
+                "is fully sovereign from the moment it boots — local Chronicle storage, "
+                "mesh participation, and biometric key derivation with no cloud account, "
+                "no subscription, and no central server. The architecture compresses "
+                "without loss: every protocol layer present in the Stage 4 console is "
+                "equally present in the Stage 1 node. The hardware is interchangeable; "
+                "the sovereign logic is not."
+            ),
+            "specs": {
+                "Stage 1 Hardware": "Raspberry Pi 4 Model B (4 GB RAM) — ARM Cortex-A72",
+                "Stage 1 Cost": "~\u00a385\u2013100 UK / $100\u2013120 US",
+                "Stage 4 Processor": "NVIDIA Orin NX (8-core ARM, 16 GB unified memory)",
+                "Stage 4 Housing": "Mycelium composite · QiSync jaw-biometric controller",
+                "Software Stack": "VOID Engine on Raspberry Pi OS 64-bit (Linux)",
+                "Boot Tone": f"{OPENING_RESONANCE_HZ} Hz sovereign resonance",
+                "Node Functions": "Chronicle, Beehive mesh, Al-Jabr hash, VTX ledger",
+                "Hardware Guide": "/void-station/roadmap (live, publicly accessible)",
+                "Cloud Dependency": "None — fully air-gapped operation supported",
+            },
+            "smart_city_relevance": (
+                "A Smart City deployer does not need to commission bespoke sovereign "
+                "hardware. A mesh of commodity Raspberry Pi nodes — distributed to "
+                "residents, schools, civic buildings, and infrastructure operators — "
+                "participates fully in the VOID protocol stack at ~\u00a385 per node. "
+                "Each node stores its own Chronicle entries locally, signs sensor data "
+                "with the Al-Jabr 286 hash, relays Beehive acoustic packets across the "
+                "mesh, and operates indefinitely without internet connectivity. The "
+                "architecture scales from one node to ten thousand using the same "
+                "codebase, the same protocol, and commodity hardware available from "
+                "any electronics distributor in any country."
+            ),
+        },
     ]
 
 
