@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection {{ collection.number }} — {{ collection.name }} · Library of the VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body { background: #080808; color: #c8c8c8; font-family: 'Courier New', monospace; margin: 0; }
+        .coll-wrap { max-width: 1100px; margin: 0 auto; padding: 36px 24px 80px; }
+        .coll-back { font-size: 11px; color: #444; text-decoration: none; display: block; margin-bottom: 28px; }
+        .coll-back:hover { color: #aaa; }
+
+        .coll-header { border: 1px solid #1e1e1e; background: #0d0d0d; padding: 28px 32px; margin-bottom: 32px; }
+        .coll-meta { font-size: 9px; letter-spacing: 2px; color: #3a3a3a; text-transform: uppercase; margin-bottom: 8px; }
+        .coll-title { font-size: 22px; color: #d4aa40; font-weight: bold; margin: 0 0 8px; }
+        .coll-desc { font-size: 12px; color: #666; line-height: 1.7; }
+        .coll-stats { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+        .coll-stat { font-size: 10px; color: #555; }
+        .coll-stat b { color: #888; }
+
+        .coll-label { font-size: 10px; letter-spacing: 2px; color: #d4aa40; text-transform: uppercase; margin: 24px 0 12px; border-bottom: 1px solid #181818; padding-bottom: 8px; }
+
+        .coll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+        .coll-book {
+            border: 1px solid #141414; background: #0a0a0a; padding: 13px 16px;
+            text-decoration: none; display: block; transition: border-color 0.12s, background 0.12s;
+        }
+        .coll-book:hover { border-color: #2a2a2a; background: #0e0e0e; }
+        .coll-book.authored { border-left: 2px solid #d4aa4055; background: #0d0900; }
+        .coll-book.authored:hover { border-color: #d4aa4088; background: #111000; }
+
+        .coll-book-num { font-size: 8px; color: #333; letter-spacing: 1px; margin-bottom: 4px; }
+        .coll-book-author { font-size: 10px; color: #d4aa40; margin-bottom: 2px; }
+        .coll-book-role { font-size: 9px; color: #555; margin-bottom: 4px; }
+        .coll-book-hash { font-size: 7px; color: #1e1e1e; letter-spacing: 0.3px; word-break: break-all; }
+        .coll-book-open { font-size: 9px; color: #2a2a2a; }
+    </style>
+</head>
+<body>
+{% include 'nav.html' ignore missing %}
+
+<div class="coll-wrap">
+    <a class="coll-back" href="/library">← Library of the VOID · All 289 Collections</a>
+
+    <div class="coll-header">
+        <div class="coll-meta">Collection {{ '%03d'|format(collection.number) }} of {{ total_collections }}</div>
+        <div class="coll-title">{{ collection.name }}</div>
+        <div class="coll-desc">{{ collection.description }}</div>
+        <div class="coll-stats">
+            <div class="coll-stat"><b>{{ books_per_collection }}</b> books</div>
+            <div class="coll-stat"><b>{{ pages_per_book }}</b> pages each</div>
+            <div class="coll-stat"><b>{{ books_per_collection * pages_per_book }}</b> total pages</div>
+            <div class="coll-stat">Status: <b>{{ collection.status }}</b></div>
+        </div>
+    </div>
+
+    {% if collection.authored_books %}
+    <div class="coll-label">Authored Books</div>
+    <div class="coll-grid">
+        {% for book in books %}
+        {% if book.authored %}
+        <a class="coll-book authored" href="/library/collection/{{ collection.number }}/book/{{ book.number }}">
+            <div class="coll-book-num">BOOK {{ '%03d'|format(book.number) }} OF 289</div>
+            <div class="coll-book-author">{{ book.author }}</div>
+            <div class="coll-book-role">{{ book.role }}</div>
+            <div class="coll-book-hash">{{ book.hash }}</div>
+        </a>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="coll-label" style="margin-top:32px;">Open Diaries — Books 6–289</div>
+    {% endif %}
+
+    <div class="coll-grid">
+        {% for book in books %}
+        {% if not book.authored %}
+        <a class="coll-book" href="/library/collection/{{ collection.number }}/book/{{ book.number }}">
+            <div class="coll-book-num">BOOK {{ '%03d'|format(book.number) }} OF 289</div>
+            <div class="coll-book-open">Open diary · unclaimed</div>
+            <div class="coll-book-hash">{{ book.hash }}</div>
+        </a>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+</div>
+</body>
+</html>

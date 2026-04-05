@@ -3,151 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vol. {{ '%03d'|format(book.global) }} — {{ book.title }} · Library of the VOID</title>
+    <title>
+        C{{ '%03d'|format(book.collection) }}-B{{ '%03d'|format(book.number) }}
+        {% if book.authored %} · {{ book.author }}{% endif %}
+        · Library of the VOID
+    </title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/style.css">
     <style>
         body { background: #080808; color: #c8c8c8; font-family: 'Courier New', monospace; margin: 0; }
-        .bk-wrap { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
-        .bk-back { font-size: 11px; color: #555; margin-bottom: 32px; text-decoration: none; }
+        .bk-wrap { max-width: 720px; margin: 0 auto; padding: 36px 24px 80px; }
+        .bk-back { font-size: 11px; color: #444; text-decoration: none; display: block; margin-bottom: 28px; }
         .bk-back:hover { color: #aaa; }
-        .bk-header { border: 1px solid #1e1e1e; background: #0d0d0d; padding: 28px 32px; margin-bottom: 32px; }
-        .bk-vol { font-size: 10px; letter-spacing: 2px; color: #444; text-transform: uppercase; margin-bottom: 8px; }
-        .bk-title { font-size: 22px; font-weight: bold; color: #d4aa40; margin: 0 0 6px; }
-        .bk-section { font-size: 12px; color: #666; margin-bottom: 20px; }
-        .bk-hash-row { font-size: 10px; color: #333; word-break: break-all; letter-spacing: 0.5px; }
-        .bk-hash-label { color: #555; margin-right: 6px; }
-        .bk-pages { border: 1px solid #1a1a1a; }
-        .bk-page {
-            padding: 20px 28px;
-            border-bottom: 1px solid #111;
+
+        .bk-header {
+            border: 1px solid #1e1e1e; background: #0d0d0d; padding: 26px 30px; margin-bottom: 28px;
         }
+        {% if book.authored %}
+        .bk-header { border-left: 3px solid #d4aa4055; background: #0d0900; }
+        {% endif %}
+
+        .bk-vol { font-size: 9px; letter-spacing: 2px; color: #3a3a3a; text-transform: uppercase; margin-bottom: 8px; }
+        .bk-author { font-size: 20px; font-weight: bold; color: #d4aa40; margin: 0 0 4px; }
+        .bk-role { font-size: 12px; color: #666; margin-bottom: 16px; }
+        .bk-hash-label { font-size: 9px; color: #3a3a3a; margin-bottom: 3px; }
+        .bk-hash { font-size: 9px; color: #222; word-break: break-all; letter-spacing: 0.4px; }
+        .bk-global { font-size: 9px; color: #2a2a2a; margin-top: 10px; }
+
+        .bk-pages { border: 1px solid #141414; }
+        .bk-page { padding: 22px 28px; border-bottom: 1px solid #0f0f0f; }
         .bk-page:last-child { border-bottom: none; }
         .bk-page-num {
-            font-size: 9px; letter-spacing: 2px; color: #333;
-            text-transform: uppercase; margin-bottom: 8px;
+            font-size: 8px; letter-spacing: 2px; color: #2a2a2a;
+            text-transform: uppercase; margin-bottom: 6px;
         }
-        .bk-page-content { font-size: 13px; color: #c8c8c8; line-height: 1.7; }
-        .bk-page-content.gold { color: #d4aa40; font-weight: bold; }
-        .bk-page-content.cyan { color: #00d4aa; }
-        .bk-page-content.dim { color: #555; font-style: italic; font-size: 12px; }
+        .bk-page-title { font-size: 11px; color: #555; margin-bottom: 10px; }
+        .bk-page-content {
+            font-size: 12px; color: #aaa; line-height: 1.8; white-space: pre-wrap;
+        }
+        .bk-page-content.hash { color: #d4aa40; font-size: 11px; font-weight: bold; letter-spacing: 0.5px; word-break: break-all; }
+        .bk-page-note { font-size: 11px; color: #444; font-style: italic; margin-top: 8px; }
+        .bk-page-log { font-size: 11px; color: #888; line-height: 1.6; white-space: pre; overflow-x: auto; }
+
         .bk-qisync {
-            background: #050d0a; border: 1px solid #003322;
-            padding: 24px; text-align: center; margin-top: 0;
+            background: #050d0a; border: 1px solid #002a1a;
+            padding: 28px; text-align: center;
         }
-        .bk-qisync-title { font-size: 10px; letter-spacing: 2px; color: #00d4aa; margin-bottom: 16px; }
-        .bk-seal-visual {
-            display: inline-block; width: 120px; height: 120px;
-            border: 1px solid #002211; border-radius: 50%;
-            position: relative; margin: 0 auto;
-        }
+        .bk-qisync-title { font-size: 9px; letter-spacing: 2px; color: #00d4aa; text-transform: uppercase; margin-bottom: 18px; }
+        .bk-seal-wrap { display: inline-block; position: relative; width: 120px; height: 120px; margin-bottom: 16px; }
         .bk-seal-ring {
             position: absolute; border-radius: 50%; border: 1px solid;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            top: 50%; left: 50%; transform: translate(-50%,-50%);
         }
-        .bk-qisync-meta { font-size: 10px; color: #1a3a2a; margin-top: 16px; }
-        .bk-nav { display: flex; justify-content: space-between; margin-top: 28px; }
-        .bk-nav-link { font-size: 11px; color: #555; text-decoration: none; }
-        .bk-nav-link:hover { color: #aaa; }
+        .bk-qisync-meta { font-size: 9px; color: #0a2a1a; line-height: 1.6; }
+
+        .bk-stub { padding: 24px 28px; text-align: center; }
+        .bk-stub-icon { font-size: 24px; color: #1a1a1a; margin-bottom: 12px; }
+        .bk-stub-text { font-size: 11px; color: #2a2a2a; line-height: 1.7; }
+        .bk-stub-author { font-size: 12px; color: #d4aa4044; margin-top: 10px; }
+
+        .bk-nav { display: flex; justify-content: space-between; margin-top: 24px; }
+        .bk-nav a { font-size: 11px; color: #444; text-decoration: none; }
+        .bk-nav a:hover { color: #888; }
+
+        @media print { .bk-back, .bk-nav { display: none; } }
     </style>
 </head>
 <body>
 {% include 'nav.html' ignore missing %}
 
 <div class="bk-wrap">
-    <a class="bk-back" href="/library">← Library of the VOID</a>
+    <a class="bk-back" href="/library/collection/{{ book.collection }}">
+        ← Collection {{ '%03d'|format(book.collection) }} — {{ collection.name }}
+    </a>
 
     <div class="bk-header">
         <div class="bk-vol">
-            Volume {{ '%03d'|format(book.global) }} of 286 &nbsp;·&nbsp;
-            Section {{ book.section.number }} — {{ book.section.name }} &nbsp;·&nbsp;
-            {{ book.section.glyph }} {{ book.section.count }} books
+            Collection {{ '%03d'|format(book.collection) }} / {{ total_collections }}
+            &nbsp;·&nbsp;
+            Book {{ '%03d'|format(book.number) }} / {{ books_per_collection }}
+            &nbsp;·&nbsp;
+            19 pages
         </div>
-        <div class="bk-title">{{ book.title }}</div>
-        <div class="bk-section">{{ book.section.description[:160] }}…</div>
-        <div class="bk-hash-row">
-            <span class="bk-hash-label">AL-JABR 286 HASH (PAGE 1):</span>{{ book.hash }}
-        </div>
+        {% if book.authored %}
+        <div class="bk-author">{{ book.author }}</div>
+        <div class="bk-role">{{ book.role }}</div>
+        {% else %}
+        <div class="bk-author" style="color:#444;">Open Diary</div>
+        <div class="bk-role">Unclaimed · Available</div>
+        {% endif %}
+        <div class="bk-hash-label">AL-JABR 286 HASH (PAGE 1)</div>
+        <div class="bk-hash">{{ book.hash }}</div>
+        <div class="bk-global">Global index: {{ book.global_index }} of {{ total_collections * books_per_collection }}</div>
     </div>
 
     <div class="bk-pages">
 
-        <div class="bk-page">
-            <div class="bk-page-num">Page 01 — The Sovereign Seal</div>
-            <div class="bk-page-content gold">{{ book.hash }}</div>
-            <div class="bk-page-content dim" style="margin-top:8px;">
-                286-bit Al-Jabr hash of this volume's content. No external authority. No certificate. 
-                The hash is the seal.
-            </div>
-        </div>
+        {% if pages %}
+            {% for page in pages %}
+            <div class="bk-page">
+                <div class="bk-page-num">Page {{ '%02d'|format(page.number) }} of 19</div>
+                <div class="bk-page-title">{{ page.title }}</div>
 
-        <div class="bk-page">
-            <div class="bk-page-num">Page 02 — The Web Opens</div>
-            <div class="bk-page-content">
-                <em>{{ book.title }}</em> is one of 286 volumes in the Library of the VOID.
-                It occupies position {{ book.global }} in the sovereign sequence — 
-                the {{ book.local }}{% if book.local == 1 %}st{% elif book.local == 2 %}nd{% elif book.local == 3 %}rd{% else %}th{% endif %} 
-                book of Section {{ book.section.number }}, {{ book.section.name }}.
-                This page opens the web.
-            </div>
-        </div>
+                {% if page.type == 'hash' %}
+                    <div class="bk-page-content hash">{{ page.content }}</div>
+                    {% if page.note %}<div class="bk-page-note">{{ page.note }}</div>{% endif %}
 
-        <div class="bk-page">
-            <div class="bk-page-num">Page 03 — Entity · Condition · Action</div>
-            <div class="bk-page-content">
-                <strong>Entity:</strong> Volume {{ '%03d'|format(book.global) }} — {{ book.title }}<br>
-                <strong>Condition:</strong> This node exists within the living library. 
-                It breathes. Its mycelium cover is growing.<br>
-                <strong>Action:</strong> The reader opens. The frequency activates. 
-                The knowledge transfers.
-            </div>
-        </div>
+                {% elif page.type == 'qisync' %}
+                    <div class="bk-qisync">
+                        <div class="bk-qisync-title">QiSync Seal</div>
+                        {% set seed = book.qisync_seed %}
+                        <div class="bk-seal-wrap">
+                            <div class="bk-seal-ring" style="width:116px;height:116px;border-color:#{{ '%02x'|format(seed%180+20) }}{{ '%02x'|format((seed*3)%180+20) }}{{ '%02x'|format((seed*7)%180+20) }}22;"></div>
+                            <div class="bk-seal-ring" style="width:84px;height:84px;border-color:#{{ '%02x'|format((seed*2)%180+20) }}{{ '%02x'|format((seed*5)%180+20) }}{{ '%02x'|format((seed*11)%180+20) }}44;"></div>
+                            <div class="bk-seal-ring" style="width:52px;height:52px;border-color:#{{ '%02x'|format((seed*3)%180+20) }}{{ '%02x'|format((seed*7)%180+20) }}{{ '%02x'|format((seed*13)%180+20) }}66;"></div>
+                            <div class="bk-seal-ring" style="width:22px;height:22px;border-color:#00d4aa88;"></div>
+                        </div>
+                        <div class="bk-qisync-meta">
+                            {{ page.note }}
+                        </div>
+                    </div>
 
-        <div class="bk-page">
-            <div class="bk-page-num">Pages 04 – 18 — The Silk Content</div>
-            <div class="bk-page-content dim">
-                These 15 pages contain the dense, high-frequency content of this volume:
-                the codebase constants, mathematical derivations, philosophical dialogue, 
-                acoustic signatures, research citations, and cross-references that make 
-                this node irreducible. No filler. Only silk.
-                <br><br>
-                QiSync resonance seed for this volume: {{ book.qisync_seed }} Hz offset from 432 base.
-                <br>
-                Mycelium alignment frequency: {{ 432 + book.qisync_seed % 19 }} Hz during growth.
-            </div>
-        </div>
+                {% elif page.type == 'log' %}
+                    <div class="bk-page-log">{{ page.content }}</div>
 
-        <div class="bk-qisync">
-            <div class="bk-qisync-title">Page 19 — The QiSync Seal</div>
-            <div class="bk-seal-visual">
-                {% set seed = book.qisync_seed %}
-                <div class="bk-seal-ring" style="width:110px;height:110px;border-color:#{{ '%02x'|format(seed % 200) }}{{ '%02x'|format((seed*3)%200) }}{{ '%02x'|format((seed*7)%200) }}22;"></div>
-                <div class="bk-seal-ring" style="width:80px;height:80px;border-color:#{{ '%02x'|format((seed*2)%200) }}{{ '%02x'|format((seed*5)%200) }}{{ '%02x'|format((seed*11)%200) }}44;"></div>
-                <div class="bk-seal-ring" style="width:50px;height:50px;border-color:#{{ '%02x'|format((seed*3)%200) }}{{ '%02x'|format((seed*7)%200) }}{{ '%02x'|format((seed*13)%200) }}66;"></div>
-                <div class="bk-seal-ring" style="width:24px;height:24px;border-color:#00d4aa88;"></div>
+                {% else %}
+                    <div class="bk-page-content">{{ page.content }}</div>
+                {% endif %}
             </div>
-            <div class="bk-qisync-meta">
-                Biometric frequency pattern · Fully revealed under human touch<br>
-                Jaw pressure key · {{ '%03d'|format(book.global) }}/286 · QiSync resonance {{ book.qisync_seed }} Hz offset
+            {% endfor %}
+
+        {% else %}
+            {% for p in range(1, 20) %}
+            <div class="bk-page">
+                <div class="bk-page-num">Page {{ '%02d'|format(p) }} of 19</div>
+                {% if p == 1 %}
+                    <div class="bk-page-title">The Sovereign Seal</div>
+                    <div class="bk-page-content hash">{{ book.hash }}</div>
+                    <div class="bk-page-note">286-bit Al-Jabr hash of this book's content.</div>
+                {% elif p == 19 %}
+                    <div class="bk-page-title">The QiSync Seal</div>
+                    <div class="bk-qisync">
+                        <div class="bk-qisync-title">QiSync Seal</div>
+                        {% set seed = book.qisync_seed %}
+                        <div class="bk-seal-wrap">
+                            <div class="bk-seal-ring" style="width:116px;height:116px;border-color:#{{ '%02x'|format(seed%180+20) }}{{ '%02x'|format((seed*3)%180+20) }}{{ '%02x'|format((seed*7)%180+20) }}22;"></div>
+                            <div class="bk-seal-ring" style="width:84px;height:84px;border-color:#{{ '%02x'|format((seed*2)%180+20) }}{{ '%02x'|format((seed*5)%180+20) }}{{ '%02x'|format((seed*11)%180+20) }}44;"></div>
+                            <div class="bk-seal-ring" style="width:52px;height:52px;border-color:#{{ '%02x'|format((seed*3)%180+20) }}{{ '%02x'|format((seed*7)%180+20) }}{{ '%02x'|format((seed*13)%180+20) }}66;"></div>
+                            <div class="bk-seal-ring" style="width:22px;height:22px;border-color:#00d4aa88;"></div>
+                        </div>
+                        <div class="bk-qisync-meta">
+                            Biometric frequency pattern · QiSync seed {{ book.qisync_seed }} Hz offset
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="bk-page-title">
+                        {% if book.authored %}
+                            {{ book.author }}'s page {{ p }}
+                        {% else %}
+                            Open diary — page {{ p }}
+                        {% endif %}
+                    </div>
+                    <div class="bk-stub">
+                        <div class="bk-stub-icon">◻</div>
+                        <div class="bk-stub-text">
+                            {% if book.authored %}
+                                This page will be written by <strong style="color:#d4aa4066;">{{ book.author }}</strong>.<br>
+                                The structure is in place. The content awaits its author.
+                            {% else %}
+                                This diary is unclaimed.<br>
+                                Anyone who wants this book takes it.
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-        </div>
+            {% endfor %}
+        {% endif %}
 
     </div>
 
     <div class="bk-nav">
-        {% if book.global > 1 %}
-        <a class="bk-nav-link" href="/library/book/{{ book.global - 1 }}">← Vol. {{ '%03d'|format(book.global - 1) }}</a>
+        {% if book.number > 1 %}
+        <a href="/library/collection/{{ book.collection }}/book/{{ book.number - 1 }}">← Book {{ '%03d'|format(book.number - 1) }}</a>
+        {% elif book.collection > 1 %}
+        <a href="/library/collection/{{ book.collection - 1 }}/book/289">← Collection {{ book.collection - 1 }}, Book 289</a>
         {% else %}
         <span></span>
         {% endif %}
-        <a class="bk-nav-link" href="/library">All 286 Books</a>
-        {% if book.global < 286 %}
-        <a class="bk-nav-link" href="/library/book/{{ book.global + 1 }}">Vol. {{ '%03d'|format(book.global + 1) }} →</a>
+
+        <a href="/library/collection/{{ book.collection }}">All books</a>
+
+        {% if book.number < books_per_collection %}
+        <a href="/library/collection/{{ book.collection }}/book/{{ book.number + 1 }}">Book {{ '%03d'|format(book.number + 1) }} →</a>
+        {% elif book.collection < total_collections %}
+        <a href="/library/collection/{{ book.collection + 1 }}/book/1">Collection {{ book.collection + 1 }}, Book 001 →</a>
         {% else %}
         <span style="color:#d4aa40;font-size:11px;">Loop complete ·</span>
         {% endif %}
     </div>
 </div>
-
 </body>
 </html>

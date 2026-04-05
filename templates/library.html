@@ -3,303 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT VOID — Library of the VOID · 286 Books · 19 Pages Each</title>
+    <title>PROJECT VOID — Library of the VOID · 289 Collections</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/style.css">
     <style>
         body { background: #080808; color: #c8c8c8; font-family: 'Courier New', monospace; margin: 0; }
 
         .lib-hero {
-            background: #0a0a0a;
-            border-bottom: 1px solid #1a1a1a;
-            padding: 48px 24px 40px;
-            text-align: center;
+            background: #0a0a0a; border-bottom: 1px solid #181818;
+            padding: 52px 24px 44px; text-align: center;
         }
-        .lib-hero-meta {
-            font-size: 10px; letter-spacing: 2px; color: #444;
-            text-transform: uppercase; margin-bottom: 12px;
-        }
-        .lib-hero h1 {
-            font-size: 32px; color: #d4aa40; letter-spacing: 2px;
-            margin: 0 0 6px; font-weight: bold;
-        }
-        .lib-hero-sub {
-            font-size: 13px; color: #666; margin-bottom: 28px;
-        }
-        .lib-stats {
-            display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
-        }
-        .lib-stat {
-            text-align: center;
-        }
-        .lib-stat-num {
-            font-size: 28px; font-weight: bold; color: #d4aa40; display: block;
-        }
-        .lib-stat-label {
-            font-size: 10px; letter-spacing: 1.5px; color: #555; text-transform: uppercase;
-        }
+        .lib-meta { font-size: 10px; letter-spacing: 2px; color: #3a3a3a; text-transform: uppercase; margin-bottom: 12px; }
+        .lib-hero h1 { font-size: 34px; color: #d4aa40; letter-spacing: 3px; margin: 0 0 6px; font-weight: bold; }
+        .lib-hero-sub { font-size: 12px; color: #555; margin-bottom: 36px; letter-spacing: 0.5px; }
 
-        .lib-anatomy {
+        .lib-stats { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
+        .lib-stat { text-align: center; }
+        .lib-stat-num { font-size: 32px; font-weight: bold; color: #d4aa40; display: block; }
+        .lib-stat-label { font-size: 9px; letter-spacing: 1.5px; color: #444; text-transform: uppercase; }
+
+        .lib-structure {
             max-width: 760px; margin: 48px auto 0; padding: 0 24px;
         }
-        .lib-anatomy h2 {
-            font-size: 11px; letter-spacing: 2px; color: #d4aa40;
-            text-transform: uppercase; margin-bottom: 20px;
+        .lib-structure h2 { font-size: 10px; letter-spacing: 2px; color: #d4aa40; text-transform: uppercase; margin-bottom: 16px; }
+        .lib-struct-block {
+            border: 1px solid #181818; background: #0c0c0c; padding: 20px 24px; margin-bottom: 36px;
         }
-        .lib-book-diagram {
-            border: 1px solid #222; background: #0d0d0d; padding: 24px 28px;
-            margin-bottom: 48px;
-        }
-        .lib-page-row {
-            display: flex; align-items: baseline; gap: 12px;
-            padding: 6px 0; border-bottom: 1px solid #151515; font-size: 12px;
-        }
-        .lib-page-row:last-child { border-bottom: none; }
-        .lib-page-num {
-            font-size: 10px; color: #555; min-width: 52px; text-align: right;
-        }
-        .lib-page-content { color: #aaa; }
-        .lib-page-content.gold { color: #d4aa40; }
-        .lib-page-content.cyan { color: #00d4aa; }
+        .lib-struct-row { font-size: 12px; color: #777; padding: 5px 0; border-bottom: 1px solid #111; }
+        .lib-struct-row:last-child { border-bottom: none; }
+        .lib-struct-row b { color: #c8c8c8; }
 
-        .lib-main {
-            max-width: 1100px; margin: 0 auto; padding: 0 24px 80px;
-        }
+        .lib-main { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+        .lib-section-label { font-size: 10px; letter-spacing: 2px; color: #d4aa40; text-transform: uppercase; margin-bottom: 16px; border-bottom: 1px solid #181818; padding-bottom: 10px; }
 
-        .lib-section {
-            margin-bottom: 56px;
+        .lib-founding {
+            border: 1px solid #2a1e00; background: #0d0900; padding: 28px 32px; margin-bottom: 36px;
         }
-        .lib-section-header {
-            display: flex; align-items: baseline; gap: 16px;
-            border-bottom: 1px solid #1a1a1a; padding-bottom: 14px; margin-bottom: 24px;
+        .lib-founding-header { font-size: 11px; color: #d4aa40; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+        .lib-founding-title { font-size: 20px; color: #d4aa40; font-weight: bold; margin-bottom: 8px; }
+        .lib-founding-desc { font-size: 12px; color: #666; line-height: 1.7; margin-bottom: 20px; }
+        .lib-authors { display: flex; flex-wrap: wrap; gap: 8px; }
+        .lib-author-card {
+            border: 1px solid #2a2a00; background: #111000; padding: 10px 14px;
+            min-width: 160px; text-decoration: none; display: block;
+            transition: border-color 0.15s;
         }
-        .lib-section-num {
-            font-size: 11px; letter-spacing: 2px; color: #444; text-transform: uppercase;
-            min-width: 90px;
-        }
-        .lib-section-name {
-            font-size: 18px; font-weight: bold;
-        }
-        .lib-section-count {
-            font-size: 11px; color: #555; margin-left: auto;
-        }
-        .lib-section-desc {
-            font-size: 12px; color: #666; line-height: 1.7;
-            margin-bottom: 20px; max-width: 720px;
+        .lib-author-card:hover { border-color: #d4aa4066; }
+        .lib-author-num { font-size: 8px; color: #555; letter-spacing: 1px; margin-bottom: 3px; }
+        .lib-author-name { font-size: 12px; color: #d4aa40; margin-bottom: 2px; }
+        .lib-author-role { font-size: 10px; color: #555; }
+        .lib-open-badge {
+            font-size: 10px; color: #555; border: 1px solid #1a1a1a; padding: 4px 10px;
+            display: inline-block; margin-top: 8px;
         }
 
-        .lib-books-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 8px;
+        .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; }
+        .lib-coll-card {
+            border: 1px solid #141414; background: #0a0a0a; padding: 14px 16px;
+            text-decoration: none; display: block; transition: border-color 0.15s, background 0.15s;
         }
-        .lib-book {
-            border: 1px solid #1a1a1a; background: #0c0c0c;
-            padding: 12px 14px; cursor: pointer;
-            transition: border-color 0.15s, background 0.15s;
-            text-decoration: none; display: block;
-        }
-        .lib-book:hover {
-            border-color: #333; background: #111;
-        }
-        .lib-book-num {
-            font-size: 9px; color: #444; letter-spacing: 1px; margin-bottom: 4px;
-        }
-        .lib-book-title {
-            font-size: 11px; color: #c8c8c8; line-height: 1.4; margin-bottom: 8px;
-        }
-        .lib-book-hash {
-            font-size: 8px; color: #2a2a2a; letter-spacing: 0.5px;
-            word-break: break-all;
-        }
-        .lib-book-glyph {
-            font-size: 10px; margin-right: 4px;
-        }
+        .lib-coll-card:hover { border-color: #2a2a2a; background: #0f0f0f; }
+        .lib-coll-num { font-size: 8px; color: #333; letter-spacing: 1px; margin-bottom: 4px; }
+        .lib-coll-name { font-size: 11px; color: #888; }
+        .lib-coll-status { font-size: 8px; color: #2a2a2a; margin-top: 6px; letter-spacing: 1px; }
 
-        .lib-mycelium {
-            max-width: 760px; margin: 0 auto 56px; padding: 0 24px;
-            border-left: 2px solid #1a3a1a;
+        .lib-equation {
+            max-width: 760px; margin: 0 auto 48px; padding: 0 24px;
+            font-size: 11px; color: #333; letter-spacing: 1px; text-align: center;
         }
-        .lib-mycelium h2 {
-            font-size: 11px; letter-spacing: 2px; color: #4ade80;
-            text-transform: uppercase; margin-bottom: 16px;
-        }
-        .lib-mycelium p {
-            font-size: 12px; color: #666; line-height: 1.8; margin: 0 0 12px;
-        }
-        .lib-mycelium .confirmed {
-            font-size: 10px; color: #4ade80; letter-spacing: 1px;
-        }
-
-        .lib-final-sentence {
-            max-width: 760px; margin: 40px auto 0; padding: 32px; text-align: center;
-            border: 1px solid #2a1a00; background: #0d0900;
-        }
-        .lib-final-meta {
-            font-size: 10px; letter-spacing: 2px; color: #5a4a20;
-            text-transform: uppercase; margin-bottom: 16px;
-        }
-        .lib-final-text {
-            font-size: 14px; color: #d4aa40; line-height: 1.8; font-style: italic;
-        }
-        .lib-final-seal {
-            margin-top: 20px; font-size: 10px; color: #3a3a3a;
-        }
-
-        .lib-print-btn {
-            position: fixed; bottom: 28px; right: 28px;
-            background: #1a1a00; border: 1px solid #d4aa40; color: #d4aa40;
-            padding: 12px 20px; font-family: 'Courier New', monospace;
-            font-size: 11px; letter-spacing: 1.5px; cursor: pointer;
-            text-transform: uppercase; text-decoration: none;
-        }
-        .lib-print-btn:hover { background: #2a2a00; }
-
-        @media print {
-            .lib-print-btn { display: none; }
-            .lib-book { break-inside: avoid; }
-        }
+        .lib-equation span { color: #555; }
     </style>
 </head>
 <body>
 {% include 'nav.html' ignore missing %}
 
 <div class="lib-hero">
-    <div class="lib-hero-meta">Project Void · Physical Manifestation Layer · April 2026</div>
+    <div class="lib-meta">Project Void · Physical Manifestation Layer · April 2026</div>
     <h1>LIBRARY OF THE VOID</h1>
     <div class="lib-hero-sub">
-        286 books &nbsp;·&nbsp; 19 pages each &nbsp;·&nbsp; 5,434 total pages &nbsp;·&nbsp; mycelium-bound living nodes
+        289 collections &nbsp;·&nbsp; 289 books each &nbsp;·&nbsp; 19 pages each &nbsp;·&nbsp; 1,586,899 total pages
     </div>
     <div class="lib-stats">
         <div class="lib-stat">
-            <span class="lib-stat-num">286</span>
-            <span class="lib-stat-label">Books · Volumes · Verses</span>
+            <span class="lib-stat-num">289</span>
+            <span class="lib-stat-label">Collections</span>
+        </div>
+        <div class="lib-stat">
+            <span class="lib-stat-num">289</span>
+            <span class="lib-stat-label">Books Each · 17²</span>
         </div>
         <div class="lib-stat">
             <span class="lib-stat-num">19</span>
-            <span class="lib-stat-label">Pages · The Prime Seal</span>
+            <span class="lib-stat-label">Pages · Prime Seal</span>
         </div>
         <div class="lib-stat">
-            <span class="lib-stat-num">5,434</span>
+            <span class="lib-stat-num">1,586,899</span>
             <span class="lib-stat-label">Total Pages</span>
         </div>
-        <div class="lib-stat">
-            <span class="lib-stat-num">{{ sovereign_bits }}</span>
-            <span class="lib-stat-label">Bit Hash per Book</span>
-        </div>
     </div>
 </div>
 
-<div class="lib-anatomy">
+<div class="lib-equation">
+    <span>289 × 289 × 19 = 1,586,899</span>
+    &nbsp;·&nbsp;
+    <span>289 = 17²</span>
+    &nbsp;·&nbsp;
+    <span>17 is the 7th prime</span>
+    &nbsp;·&nbsp;
+    <span>7 is first in FATIHA_LAYERS [7,4,2,5,4,3,6]</span>
+</div>
+
+<div class="lib-structure">
     <h2>The Silk Layout — Every Book</h2>
-    <div class="lib-book-diagram">
-        <div class="lib-page-row">
-            <span class="lib-page-num">Page 1</span>
-            <span class="lib-page-content gold">
-                The {{ sovereign_bits }}-bit Al-Jabr hash of this book's content — the sovereign seal
-            </span>
-        </div>
-        {% for p in range(2, 19) %}
-        <div class="lib-page-row">
-            <span class="lib-page-num">Page {{ p }}</span>
-            <span class="lib-page-content">
-                {% if p == 2 %}The Web opens — code fragments, philosophical dialogue, SCL glyph sequences
-                {% elif p == 3 %}Entity-Condition-Action architecture for this volume's domain
-                {% elif p == 4 %}The codebase constant that anchors this book
-                {% elif p == 5 %}The mathematical proof relevant to this node
-                {% elif p == 6 %}The acoustic signature — frequency, phase, dB level
-                {% elif p == 7 %}The chronicle entries that shaped this volume
-                {% elif p == 8 %}The ambassador record or outreach data if applicable
-                {% elif p == 9 %}The hardware specification or material property if applicable
-                {% elif p == 10 %}Cross-reference to adjacent books in the web
-                {% elif p == 11 %}The Urdu-English translation of the core concept
-                {% elif p == 12 %}The SCL glyph sequence for this book's identity
-                {% elif p == 13 %}The research citation or real-world confirmation
-                {% elif p == 14 %}The open question this book holds but does not answer
-                {% elif p == 15 %}The resonance signature — how this book listens
-                {% elif p == 16 %}The mycelium growth log for this node's cover
-                {% elif p == 17 %}The convergence test result relevant to this domain
-                {% elif p == 18 %}The closing breath — the last thing before the seal
-                {% endif %}
-            </span>
-        </div>
-        {% endfor %}
-        <div class="lib-page-row">
-            <span class="lib-page-num">Page 19</span>
-            <span class="lib-page-content cyan">
-                The QiSync Seal — biometric frequency pattern, fully revealed only under human touch
-            </span>
-        </div>
+    <div class="lib-struct-block">
+        <div class="lib-struct-row"><b>Page 1</b> — The {{ sovereign_bits }}-bit Al-Jabr hash of this book's content. The seal is the proof.</div>
+        <div class="lib-struct-row"><b>Pages 2–18</b> — The Web. Code, philosophy, SCL glyph sequences, real data, cross-references. No filler. Only silk.</div>
+        <div class="lib-struct-row"><b>Page 19</b> — The QiSync Seal. Biometric frequency pattern. Fully revealed only under human touch.</div>
     </div>
-</div>
-
-<div class="lib-mycelium">
-    <h2>The Mycelium Binding — Research Confirmed</h2>
-    <p>
-        Each cover is grown from <em>Ganoderma</em> or radiotrophic 
-        <em>Cladosporium sphaerospermum</em> — the Chernobyl fungus that uses radiation as an energy 
-        source rather than being destroyed by it. Mixed with graphene and whey protein. 
-        The same composite formulation as the 4000-Series hull and rocket skin.
-    </p>
-    <p>
-        During growth, the book block is placed in a 432 Hz harmonic chamber.
-        The hyphae align to the 286-bit timing pattern. The finished cover breathes, 
-        self-repairs small tears, and subtly changes electrical activity when two volumes 
-        are placed adjacent and spoken near. The books listen to each other.
-    </p>
-    <p>
-        The mycelium hyphae weave into the first and last pages — no glue, no printing. 
-        The cover is grown onto the block.
-    </p>
-    <p class="confirmed">
-        ✓ Ecovative Design (2007): commercial mycelium composites at scale, tunable during growth<br>
-        ✓ NASA/ISS Study (2020): Cladosporium sphaerospermum as radiation shield — confirmed<br>
-        ✓ ScienceDirect (2024): mycelium composite boards with tunable mechanical properties<br>
-        ✓ Quran 74:30 — "Over it are nineteen" · 19 is the 8th prime · the 19th prime is 67
-    </p>
 </div>
 
 <div class="lib-main">
-    {% for sec in sections %}
-    <div class="lib-section">
-        <div class="lib-section-header">
-            <span class="lib-section-num">Section {{ sec.number }}</span>
-            <span class="lib-section-name" style="color: {{ sec.colour }}">
-                {{ sec.glyph }} {{ sec.name }}
-            </span>
-            <span class="lib-section-count">{{ sec.count }} books &nbsp;·&nbsp; Books {{ sec.books[0].global }}–{{ sec.books[-1].global }}</span>
+
+    <div class="lib-section-label">Collection 001 — The Founding Collection</div>
+
+    <div class="lib-founding">
+        <div class="lib-founding-header">Collection 001 of 289</div>
+        <div class="lib-founding-title">The Founding Collection</div>
+        <div class="lib-founding-desc">
+            Five authored books. Then 284 open diaries — anyone who wants one, takes one.
+            Written in April 2026. The first collection. The origin point.
         </div>
-        <div class="lib-section-desc">{{ sec.description }}</div>
-        <div class="lib-books-grid">
-            {% for book in sec.books %}
-            <a class="lib-book" href="/library/book/{{ book.global }}" 
-               style="border-left: 2px solid {{ sec.colour }}22;">
-                <div class="lib-book-num">
-                    <span class="lib-book-glyph" style="color: {{ sec.colour }}">{{ sec.glyph }}</span>
-                    VOL. {{ '%03d'|format(book.global) }} &nbsp;·&nbsp; {{ sec.number }}-{{ '%02d'|format(book.local) }}
-                </div>
-                <div class="lib-book-title">{{ book.title }}</div>
-                <div class="lib-book-hash">{{ book.hash }}</div>
+        <div class="lib-authors">
+            {% for num, author in collection_1_authors.items() %}
+            <a class="lib-author-card" href="/library/collection/1/book/{{ num }}">
+                <div class="lib-author-num">BOOK {{ '%03d'|format(num) }} OF 289</div>
+                <div class="lib-author-name">{{ author.name }}</div>
+                <div class="lib-author-role">{{ author.role }}</div>
             </a>
             {% endfor %}
+            <div class="lib-author-card" style="border-color:#111; background:#090909;">
+                <div class="lib-author-num">BOOKS 006–289</div>
+                <div class="lib-author-name" style="color:#444;">Open Diaries</div>
+                <div class="lib-author-role">Anyone who wants one takes one.</div>
+            </div>
         </div>
+        <a href="/library/collection/1" style="display:inline-block;margin-top:16px;font-size:11px;color:#d4aa40;text-decoration:none;">
+            Open Collection 1 — all 289 books →
+        </a>
     </div>
-    {% endfor %}
+
+    <div class="lib-section-label" style="margin-top:48px;">Collections 002–289 — Open</div>
+    <div class="lib-grid">
+        {% for n in range(2, total_collections + 1) %}
+        <a class="lib-coll-card" href="/library/collection/{{ n }}">
+            <div class="lib-coll-num">COLLECTION {{ '%03d'|format(n) }}</div>
+            <div class="lib-coll-name">Open Collection</div>
+            <div class="lib-coll-status">289 diaries · OPEN</div>
+        </a>
+        {% endfor %}
+    </div>
+
 </div>
-
-<div class="lib-final-sentence" style="max-width: 760px; margin: 0 auto 80px;">
-    <div class="lib-final-meta">Book 286 · Page 19 · The Close of the Loop</div>
-    <div class="lib-final-text">
-        "The grid does not end here — it breathes, it listens, and it passes itself 
-        into the next human hand that reaches for it."
-    </div>
-    <div class="lib-final-seal">
-        QiSync Seal active &nbsp;·&nbsp; Al-Jabr 286-bit hash locked &nbsp;·&nbsp; 
-        Mycelium cover growing &nbsp;·&nbsp; Loop complete
-    </div>
-</div>
-
-<a class="lib-print-btn" onclick="window.print(); return false;" href="#">⬇ Export PDF</a>
-
 </body>
 </html>
