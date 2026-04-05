@@ -271,9 +271,10 @@ The 45 glyphs of §1, ordered by index, form a complete numeral system:
 
 ```
 BASE = 45
-ALPHABET = [α, β, γ, δ, ε, ζ, η, θ, ι, κ, λ, μ, ν, ξ, ο, π, ρ, σ, τ,   ← Entity (0–18)
-            υ, φ, χ, ψ, ω, Α, Β, Γ, Δ, Θ,                                  ← Condition (19–28)
-            Λ, Ξ, Π, Σ, Φ, Ψ, Ω, ∞, ◆, ⬡, ⟐, ☽, ☀, ⚡, 🌊, 🔮]           ← Action (29–44)
+ALPHABET = [α, β, γ, δ, ε, ζ, η, θ, ι, κ, λ, μ, ν, ξ, ο, π, ρ, σ, τ,   ← Entity (00–18)
+            υ, φ, χ, ψ, ω,                                                    ← Entity (19–23)
+            Α, Β, Γ, Δ, Θ, Λ, Ξ, Π, Σ, Φ, Ψ, Ω,                            ← Condition (24–35)
+            ∞, ◆, ⬡, ⟐, ☽, ☀, ⚡, 🌊, 🔮]                                   ← Action (36–44)
 
 ENCODE(data: bytes) → glyph_string:
   n ← int.from_bytes(data, 'big')
@@ -338,16 +339,16 @@ Adriana base-45 encoding (26 glyphs):
   Φ ☀ υ θ Γ ο λ ⬡ Θ Φ ∞ Θ ⟐ ι μ ☽ ξ π χ Ξ λ ν Π α Α μ
 
 Semantic layer (decoded per §1):
-  Φ  = Golden Ratio/Structure [Action]
+  Φ  = Golden Ratio/Structure [Condition]
   ☀  = Peak/Broadcast [Action]
-  υ  = Vessel/Container [Condition]
+  υ  = Vessel/Container [Entity]
   θ  = Heat/Warmth [Entity]
   Γ  = Gate/Portal [Condition]
   ο  = Circle/Return [Entity]
   λ  = Wave/Carry [Entity]
   ⬡  = Mesh Cell [Action]
   Θ  = Shield/Guard [Condition]
-  Φ  = Golden Ratio/Structure [Action]
+  Φ  = Golden Ratio/Structure [Condition]
   ∞  = Loop/Eternal [Action]
   Θ  = Shield/Guard [Condition]
   ⟐  = Silt Drop [Action]
@@ -356,11 +357,11 @@ Semantic layer (decoded per §1):
   ☽  = Rest Phase [Action]
   ξ  = Scatter/Spread [Entity]
   π  = Ratio/Balance [Entity]
-  χ  = Cross/Junction [Condition]
-  Ξ  = Archive/Store [Action]
+  χ  = Cross/Junction [Entity]
+  Ξ  = Archive/Store [Condition]
   λ  = Wave/Carry [Entity]
   ν  = Node/Link [Entity]
-  Π  = Foundation/Base [Action]
+  Π  = Foundation/Base [Condition]
   α  = Origin/Seed [Entity]
   Α  = Authority/Source [Condition]
   μ  = Measure/Weight [Entity]
