@@ -102,6 +102,7 @@ class BiologicalTransceiver:
         self._update_count = 0
         self._csi_monitor = _build_csi_monitor()
         self._csi_last_state: Optional[Dict] = None
+        self._pinned_sensors: set = set()
 
     def _poll_csi(self):
         """Poll the CSI monitor and merge derived values into SensorState if no manual override is active."""
@@ -109,13 +110,13 @@ class BiologicalTransceiver:
             csi_state = self._csi_monitor.read_sensor_state()
             self._csi_last_state = csi_state
             if csi_state.get("csi_source") in ("hardware", "simulation"):
-                if csi_state.get("water_level") is not None:
+                if csi_state.get("water_level") is not None and "water_level" not in self._pinned_sensors:
                     self._sensors.water_level = max(0.0, min(1.0, csi_state["water_level"]))
-                if csi_state.get("temperature") is not None:
+                if csi_state.get("temperature") is not None and "temperature" not in self._pinned_sensors:
                     self._sensors.temperature = csi_state["temperature"]
-                if csi_state.get("ph") is not None:
+                if csi_state.get("ph") is not None and "ph" not in self._pinned_sensors:
                     self._sensors.ph = csi_state["ph"]
-                if csi_state.get("dissolved_oxygen") is not None:
+                if csi_state.get("dissolved_oxygen") is not None and "dissolved_oxygen" not in self._pinned_sensors:
                     self._sensors.dissolved_oxygen = max(0.0, csi_state["dissolved_oxygen"])
         except Exception as exc:
             logger.debug("CSI poll error: %s", exc)
@@ -128,12 +129,16 @@ class BiologicalTransceiver:
 
         if water_level is not None:
             self._sensors.water_level = max(0.0, min(1.0, water_level))
+            self._pinned_sensors.add("water_level")
         if temperature is not None:
             self._sensors.temperature = temperature
+            self._pinned_sensors.add("temperature")
         if ph is not None:
             self._sensors.ph = ph
+            self._pinned_sensors.add("ph")
         if dissolved_oxygen is not None:
             self._sensors.dissolved_oxygen = max(0.0, dissolved_oxygen)
+            self._pinned_sensors.add("dissolved_oxygen")
 
         self._sensors.timestamp = time.time()
         self._update_count += 1
