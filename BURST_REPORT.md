@@ -38,3 +38,22 @@
 - **Reason**: SURFACE TENSION exceeded 40% (reached 81.5%)
 
 ---
+
+## Stress Test — 2026-04-06 05:33:36
+
+- **Carrier**: _stress_carrier.wav
+- **Duration**: 60.0s
+- **Samples**: 2,646,000
+- **Max Capacity**: 323.00 KB (LSB depth 1)
+- **SNR Floor**: 15.0 dB
+- **Tension Ceiling**: 40%
+- **Probes**: 1
+
+| Payload (MB) | Surface Tension % | SNR (dB) | Encode Time (s) | Grade |
+|:---:|:---:|:---:|:---:|:---:|
+| 1 | OVERFLOW | — | — | OVERFLOW |
+
+**[BREAKPOINT FOUND]**: The Sapphire Bubble bursts at **1MB** for a 60s carrier.
+- **Reason**: CAPACITY OVERFLOW
+
+---
