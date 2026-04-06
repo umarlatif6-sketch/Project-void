@@ -370,10 +370,11 @@ PRE_ANSWERED_QUESTIONS = [
     {
         "q": "What does the licensing structure look like?",
         "a": (
-            "Blueprint NFT Tier — £286 founder stake, 6 chapters of the story protocol, "
-            "286 VTX (Vortex Token) ambassador allocation. "
-            "For institutional licensing: separate sovereign licensee agreement under "
-            "the Adriana SDK Release (Module #9)."
+            "For institutional partners: a sovereign licensee agreement covering cross-licensing "
+            "of the three patent pillars, co-development rights on QiSync clinical validation, "
+            "and Myco-Switch hospital deployment. Terms are negotiated — not fixed. "
+            "The founding tier is available separately for early stakeholders who want "
+            "a direct stake before institutional terms are set."
         ),
     },
     {
