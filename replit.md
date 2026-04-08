@@ -1,7 +1,7 @@
 # PROJECT VOID
 
 ## Overview
-PROJECT VOID is a full-stack sovereign platform integrating audio LSB steganography (432 Hz, ChaCha20), a VTX cryptocurrency economy, a Blueprint NFT marketplace with yield distribution, the Adriana AI assistant, an acoustic Beehive mesh network, QiSync biostance tracking, MycoVOID mycelium remediation, and a 3D sovereign game. The platform is currently deployed and production-ready, aiming to create a self-sustaining digital ecosystem.
+PROJECT VOID is a full-stack sovereign platform integrating audio LSB steganography (432 Hz, ChaCha20), a VTX cryptocurrency economy, a Blueprint NFT marketplace with yield distribution, the Adriana AI assistant, an acoustic Beehive mesh network, QiSync biostance tracking, MycoVOID mycelium remediation, a 3D sovereign game, and the Codon Distillation Engine (AI Memory Reader). The platform is currently deployed and production-ready, aiming to create a self-sustaining digital ecosystem.
 
 ## User Preferences
 - Login page visual: 8-system colour-coded zone design on desktop (≥900px); subtle blueprint on mobile
@@ -75,3 +75,4 @@ A separate React 19 + TypeScript + tRPC + MySQL application built by Manus (The 
 - **Tavily API**
 - **Exa API**
 - **Brave Search API**
+- **Codon Distillation Engine (Task #114):** AI memory reader that processes any large text archive and surfaces the strongest stories, deepest insights, and most resonant signals as VOID codons (Entity · Condition · Action). Uses OpenAI GPT-4o-mini per 800-word chunk. Each codon is mapped to 3 canonical glyphs from the 45-glyph VOID Script alphabet, scored on Resonance/Clarity/Story axes, and optionally sealed into the VOID Chronicle with an Al-Jabr 286 hash. SSE-based live progress stream during processing. Key files: `void_engine/codon_distil.py` (engine), `routes/codon_distil.py` (blueprint), `templates/codon_distil.html` (UI). Tables: `codon_distil_jobs`, `codon_distil_results`. Endpoints: `/codon-distil` (GET, admin/founder only), `/api/codon-distil/process` (POST — start job), `/codon-distil/stream/<job_id>` (GET SSE), `/api/codon-distil/results/<job_id>` (GET), `/api/codon-distil/seal` (POST, founder only).

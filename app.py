@@ -157,6 +157,14 @@ def _startup_migrations():
         seed_biomedical_brief_into_chronicle()
     except Exception as e:
         logger.error("Biomedical brief chronicle seeding failed: %s", e)
+    try:
+        from void_engine.codon_distil import init_codon_distil_tables
+        from void_engine.db_pool import get_db as _get_db_app
+        _conn = _get_db_app()
+        init_codon_distil_tables(_conn)
+        _conn.close()
+    except Exception as e:
+        logger.error("Codon distil tables init failed: %s", e)
 
 try:
     from routes import register_blueprints

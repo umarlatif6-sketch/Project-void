@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT VOID — Codon Distillation Engine</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold:    #c9a84c;
+            --teal:    #2dd4bf;
+            --blue:    #60a5fa;
+            --violet:  #a78bfa;
+            --bg:      #07070a;
+            --bg2:     #0d0d12;
+            --bg3:     #121218;
+            --border:  #1a1a24;
+            --text:    #c8c8d8;
+            --dim:     #666680;
+            --bright:  #e8e8f4;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 100vh;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── NAV ─────────────────────────────────────────────── */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(7,7,10,0.92);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            backdrop-filter: blur(8px);
+        }
+        .nav-logo {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+        .nav-sep { color: var(--border); }
+        .nav-title { color: var(--dim); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; }
+        .nav-back {
+            margin-left: auto;
+            color: var(--dim);
+            font-size: 0.75rem;
+            text-decoration: none;
+        }
+        .nav-back:hover { color: var(--text); }
+
+        /* ── MAIN LAYOUT ─────────────────────────────────────── */
+        .main {
+            padding-top: 80px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding-left: 24px;
+            padding-right: 24px;
+            padding-bottom: 80px;
+        }
+
+        /* ── HERO ────────────────────────────────────────────── */
+        .hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(201, 168, 76, 0.08);
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            color: var(--gold);
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .hero-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--bright);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        .hero-title span { color: var(--teal); }
+        .hero-sub {
+            color: var(--dim);
+            font-size: 0.9rem;
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* ── PANELS ──────────────────────────────────────────── */
+        .panel {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+        .panel-title {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .panel-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── INPUT ───────────────────────────────────────────── */
+        textarea#archive-text {
+            width: 100%;
+            min-height: 220px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.85rem;
+            padding: 14px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        textarea#archive-text:focus { border-color: rgba(45, 212, 191, 0.4); }
+        textarea#archive-text::placeholder { color: var(--dim); }
+
+        .input-sep {
+            text-align: center;
+            color: var(--dim);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            margin: 14px 0;
+        }
+
+        .file-zone {
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            color: var(--dim);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .file-zone:hover { border-color: var(--teal); background: rgba(45,212,191,0.03); }
+        .file-zone.drag-over { border-color: var(--teal); background: rgba(45,212,191,0.06); }
+        #file-input { display: none; }
+
+        .word-count {
+            text-align: right;
+            color: var(--dim);
+            font-size: 0.7rem;
+            margin-top: 6px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: rgba(45, 212, 191, 0.12);
+            border: 1px solid rgba(45, 212, 191, 0.35);
+            color: var(--teal);
+        }
+        .btn-primary:hover { background: rgba(45, 212, 191, 0.2); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-gold {
+            background: rgba(201, 168, 76, 0.1);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            color: var(--gold);
+            font-size: 0.75rem;
+            padding: 8px 16px;
+        }
+        .btn-gold:hover { background: rgba(201, 168, 76, 0.2); }
+        .btn-gold:disabled { opacity: 0.35; cursor: not-allowed; }
+        .btn-gold.sealed {
+            background: rgba(201, 168, 76, 0.05);
+            color: var(--dim);
+            cursor: default;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+        .input-hint { color: var(--dim); font-size: 0.75rem; }
+
+        /* ── PROGRESS ────────────────────────────────────────── */
+        #progress-section { display: none; }
+        .progress-bar-outer {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, var(--teal), var(--blue));
+            border-radius: 20px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+        .progress-log {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.78rem;
+            color: var(--dim);
+        }
+        .progress-log .log-line { margin-bottom: 3px; }
+        .progress-log .log-codon { color: var(--teal); }
+        .progress-label {
+            font-size: 0.75rem;
+            color: var(--dim);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ── SUMMARY ─────────────────────────────────────────── */
+        #summary-line {
+            display: none;
+            background: rgba(201, 168, 76, 0.06);
+            border: 1px solid rgba(201, 168, 76, 0.2);
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-size: 0.8rem;
+            color: var(--gold);
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── RESULTS ─────────────────────────────────────────── */
+        #results-section { display: none; }
+        #codons-container {
+            display: grid;
+            gap: 16px;
+        }
+
+        .codon-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 22px 24px;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+        .codon-card:hover { border-color: rgba(45,212,191,0.2); }
+        .codon-card.sealed-card { border-color: rgba(201, 168, 76, 0.25); }
+
+        .codon-rank {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            font-size: 0.65rem;
+            color: var(--dim);
+            letter-spacing: 2px;
+        }
+
+        .codon-glyphs {
+            font-size: 2rem;
+            letter-spacing: 8px;
+            margin-bottom: 14px;
+            line-height: 1;
+        }
+
+        .codon-triad {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .triad-part {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 8px 12px;
+        }
+        .triad-label {
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 3px;
+        }
+        .triad-value {
+            font-size: 0.8rem;
+            color: var(--bright);
+        }
+
+        .codon-excerpt {
+            font-size: 0.82rem;
+            color: var(--dim);
+            border-left: 2px solid var(--border);
+            padding-left: 12px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .codon-scores {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .score-item {
+            flex: 1;
+            min-width: 80px;
+        }
+        .score-label {
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 5px;
+        }
+        .score-bar-outer {
+            background: var(--bg3);
+            border-radius: 3px;
+            height: 5px;
+            overflow: hidden;
+        }
+        .score-bar-inner {
+            height: 100%;
+            border-radius: 3px;
+        }
+        .score-bar-resonance { background: #f472b6; }
+        .score-bar-clarity   { background: #60a5fa; }
+        .score-bar-story     { background: #a78bfa; }
+        .score-val {
+            font-size: 0.65rem;
+            color: var(--dim);
+            margin-top: 3px;
+        }
+
+        .codon-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .codon-total {
+            font-size: 0.75rem;
+            color: var(--dim);
+        }
+        .codon-total span {
+            color: var(--teal);
+            font-weight: 700;
+        }
+        .codon-hash {
+            font-size: 0.65rem;
+            color: #333;
+        }
+
+        .sealed-badge {
+            display: inline-block;
+            background: rgba(201, 168, 76, 0.1);
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            color: var(--gold);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* ── TOAST ───────────────────────────────────────────── */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 0.8rem;
+            color: var(--text);
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            pointer-events: none;
+        }
+        #toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #toast.toast-ok { border-color: rgba(45,212,191,0.35); color: var(--teal); }
+        #toast.toast-err { border-color: rgba(244,114,182,0.35); color: #f472b6; }
+
+        /* ── RESPONSIVE ──────────────────────────────────────── */
+        @media (max-width: 600px) {
+            .hero-title { font-size: 1.6rem; }
+            .codon-triad { grid-template-columns: 1fr; }
+            .codon-scores { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a class="nav-logo" href="/">VOID</a>
+    <span class="nav-sep">·</span>
+    <span class="nav-title">Codon Distillation Engine</span>
+    <a class="nav-back" href="/">← Dashboard</a>
+</nav>
+
+<div class="main">
+    <div class="hero">
+        <div class="hero-badge">AI Memory Reader · VOID Codon Engine</div>
+        <h1 class="hero-title">Codon <span>Distillation</span></h1>
+        <p class="hero-sub">
+            Feed any large body of text — memory archives, journals, conversations, documents —
+            and the engine surfaces the strongest stories, deepest insights, and most resonant signals,
+            each crystallised into a VOID codon: <strong>Entity · Condition · Action</strong>.
+        </p>
+    </div>
+
+    <!-- INPUT PANEL -->
+    <div class="panel" id="input-panel">
+        <div class="panel-title">Archive Input</div>
+
+        <textarea
+            id="archive-text"
+            placeholder="Paste your text here… journals, memory archives, conversations, research, any large body of text. The engine reads everything and distils what matters."
+        ></textarea>
+        <div class="word-count" id="word-count">0 words</div>
+
+        <div class="input-sep">— or upload a file —</div>
+
+        <div class="file-zone" id="file-zone">
+            <input type="file" id="file-input" accept=".txt,.json,.md,.csv">
+            Click to upload or drag a file here (.txt, .json, .md, .csv — up to 10 MB)
+        </div>
+
+        <div class="input-row">
+            <button class="btn btn-primary" id="process-btn" onclick="startProcessing()">
+                ◆ Distil Archive
+            </button>
+            <span class="input-hint" id="chunk-preview"></span>
+        </div>
+    </div>
+
+    <!-- PROGRESS PANEL -->
+    <div id="progress-section">
+        <div class="panel">
+            <div class="panel-title">Distillation in Progress</div>
+            <div class="progress-label">
+                <span id="progress-text">Initialising…</span>
+                <span id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar-outer">
+                <div class="progress-bar-inner" id="progress-bar"></div>
+            </div>
+            <div class="progress-log" id="progress-log"></div>
+        </div>
+    </div>
+
+    <!-- SUMMARY LINE -->
+    <div id="summary-line"></div>
+
+    <!-- RESULTS -->
+    <div id="results-section">
+        <div class="panel-title" style="margin-bottom:16px;">
+            <span>Distilled Codons</span>
+            <span style="flex:1;height:1px;background:var(--border);display:block;margin-left:12px;"></span>
+        </div>
+        <div id="codons-container"></div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+    const IS_FOUNDER = {{ 'true' if is_founder else 'false' }};
+
+    let currentText = '';
+    let currentJobId = null;
+    let sseSource = null;
+
+    // ── Word count ───────────────────────────────────────────────────────────
+    const textArea = document.getElementById('archive-text');
+    textArea.addEventListener('input', updateWordCount);
+
+    function updateWordCount() {
+        const words = textArea.value.trim().split(/\s+/).filter(Boolean).length;
+        document.getElementById('word-count').textContent = words.toLocaleString() + ' words';
+        const chunks = Math.ceil(words / 800);
+        document.getElementById('chunk-preview').textContent =
+            words > 0 ? `≈ ${chunks} chunk${chunks !== 1 ? 's' : ''} to read` : '';
+    }
+
+    // ── File upload ──────────────────────────────────────────────────────────
+    const fileZone = document.getElementById('file-zone');
+    const fileInput = document.getElementById('file-input');
+
+    fileZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', e => {
+        const f = e.target.files[0];
+        if (f) readFile(f);
+    });
+
+    fileZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        fileZone.classList.add('drag-over');
+    });
+    fileZone.addEventListener('dragleave', () => fileZone.classList.remove('drag-over'));
+    fileZone.addEventListener('drop', e => {
+        e.preventDefault();
+        fileZone.classList.remove('drag-over');
+        const f = e.dataTransfer.files[0];
+        if (f) readFile(f);
+    });
+
+    function readFile(file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            textArea.value = e.target.result;
+            updateWordCount();
+            fileZone.textContent = `✓ ${file.name} loaded`;
+        };
+        reader.readAsText(file);
+    }
+
+    // ── Process ──────────────────────────────────────────────────────────────
+    async function startProcessing() {
+        const text = textArea.value.trim();
+        if (!text) { showToast('Paste or upload text first', 'err'); return; }
+
+        const btn = document.getElementById('process-btn');
+        btn.disabled = true;
+        btn.textContent = '⟳ Starting…';
+
+        document.getElementById('progress-section').style.display = 'block';
+        document.getElementById('results-section').style.display = 'none';
+        document.getElementById('summary-line').style.display = 'none';
+        document.getElementById('codons-container').innerHTML = '';
+        document.getElementById('progress-log').innerHTML = '';
+        document.getElementById('progress-bar').style.width = '0%';
+        document.getElementById('progress-text').textContent = 'Sending archive…';
+        document.getElementById('progress-pct').textContent = '0%';
+
+        if (sseSource) { sseSource.close(); sseSource = null; }
+
+        try {
+            const res = await fetch('/api/codon-distil/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text }),
+            });
+            const data = await res.json();
+            if (!res.ok) { showToast(data.error || 'Failed to start', 'err'); btn.disabled = false; btn.textContent = '◆ Distil Archive'; return; }
+
+            currentJobId = data.job_id;
+            logLine(`Job started — ${data.total_chunks} chunk${data.total_chunks !== 1 ? 's' : ''} to read`);
+            btn.textContent = '⟳ Processing…';
+            openStream(data.job_id, data.total_chunks);
+        } catch (err) {
+            showToast('Network error: ' + err.message, 'err');
+            btn.disabled = false;
+            btn.textContent = '◆ Distil Archive';
+        }
+    }
+
+    function openStream(jobId, totalChunks) {
+        sseSource = new EventSource(`/codon-distil/stream/${jobId}`);
+        sseSource.onmessage = e => {
+            let evt;
+            try { evt = JSON.parse(e.data); } catch { return; }
+            handleEvent(evt, totalChunks);
+        };
+        sseSource.onerror = () => {
+            logLine('Stream ended — checking results…', false);
+            sseSource.close();
+            loadResults(jobId);
+        };
+    }
+
+    function handleEvent(evt, totalChunks) {
+        if (evt.type === 'progress') {
+            const done = evt.done;
+            const total = evt.total || totalChunks;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            document.getElementById('progress-bar').style.width = pct + '%';
+            document.getElementById('progress-text').textContent = `Reading chunk ${done} of ${total}…`;
+            document.getElementById('progress-pct').textContent = pct + '%';
+            if (evt.codon) {
+                logLine(`Codon found: ${evt.codon.glyph_seq}  —  ${evt.codon.entity} · ${evt.codon.condition} · ${evt.codon.action}`, true);
+            } else {
+                logLine(`Chunk ${done} read`);
+            }
+        } else if (evt.type === 'complete') {
+            logLine(`Distillation complete — ${evt.total_codons} codon${evt.total_codons !== 1 ? 's' : ''} from ${evt.total_chunks} chunks`);
+            document.getElementById('progress-bar').style.width = '100%';
+            document.getElementById('progress-text').textContent = 'Complete';
+            document.getElementById('progress-pct').textContent = '100%';
+        } else if (evt.type === 'results') {
+            if (sseSource) { sseSource.close(); sseSource = null; }
+            renderResults(evt.codons, totalChunks);
+        } else if (evt.type === 'error') {
+            logLine('Error: ' + evt.message);
+            showToast('Processing error', 'err');
+        }
+    }
+
+    async function loadResults(jobId) {
+        try {
+            const res = await fetch(`/api/codon-distil/results/${jobId}`);
+            const data = await res.json();
+            renderResults(data.codons || [], data.status?.total_chunks || 0);
+        } catch (err) {
+            showToast('Could not load results', 'err');
+        }
+    }
+
+    function renderResults(codons, totalChunks) {
+        const btn = document.getElementById('process-btn');
+        btn.disabled = false;
+        btn.textContent = '◆ Distil Archive';
+
+        const summaryEl = document.getElementById('summary-line');
+        summaryEl.style.display = 'block';
+        const wordCount = textArea.value.trim().split(/\s+/).filter(Boolean).length;
+        const sizeDesc = wordCount > 0 ? wordCount.toLocaleString() + ' words' : 'archive';
+        summaryEl.textContent =
+            `Distilled ${sizeDesc} → ${codons.length} codon${codons.length !== 1 ? 's' : ''}. Showing all ranked by total score.`;
+
+        const container = document.getElementById('codons-container');
+        container.innerHTML = '';
+
+        if (codons.length === 0) {
+            container.innerHTML = '<div style="color:var(--dim);text-align:center;padding:40px;">No significant moments found in this text. Try a different or larger passage.</div>';
+        } else {
+            codons.forEach((c, i) => container.appendChild(buildCard(c, i + 1)));
+        }
+
+        document.getElementById('results-section').style.display = 'block';
+        document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function buildCard(c, rank) {
+        const card = document.createElement('div');
+        card.className = 'codon-card' + (c.sealed ? ' sealed-card' : '');
+        card.id = 'card-' + c.id;
+
+        const glyphs = buildGlyphs(c.glyph_seq);
+        const excerpt = c.story_excerpt ? `<div class="codon-excerpt">"${escHtml(c.story_excerpt)}"</div>` : '';
+        const hashSnip = c.al_jabr_hash ? c.al_jabr_hash.slice(0, 20) + '…' : '';
+
+        const sealBtn = IS_FOUNDER
+            ? `<button class="btn btn-gold ${c.sealed ? 'sealed' : ''}" id="seal-btn-${c.id}"
+                   onclick="sealCodon(${c.id})" ${c.sealed ? 'disabled' : ''}>
+                   ${c.sealed ? '✦ SEALED' : '◆ Seal to Chronicle'}
+               </button>`
+            : '';
+
+        const sealedBadge = c.sealed ? '<span class="sealed-badge">Sealed</span>' : '';
+
+        card.innerHTML = `
+            <div class="codon-rank">#${rank}</div>
+            <div class="codon-glyphs">${glyphs}</div>
+            <div class="codon-triad">
+                <div class="triad-part">
+                    <div class="triad-label">Entity</div>
+                    <div class="triad-value">${escHtml(c.entity)}</div>
+                </div>
+                <div class="triad-part">
+                    <div class="triad-label">Condition</div>
+                    <div class="triad-value">${escHtml(c.condition)}</div>
+                </div>
+                <div class="triad-part">
+                    <div class="triad-label">Action</div>
+                    <div class="triad-value">${escHtml(c.action)}</div>
+                </div>
+            </div>
+            ${excerpt}
+            <div class="codon-scores">
+                <div class="score-item">
+                    <div class="score-label">Resonance</div>
+                    <div class="score-bar-outer"><div class="score-bar-inner score-bar-resonance" style="width:${c.resonance * 10}%"></div></div>
+                    <div class="score-val">${c.resonance}/10</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Clarity</div>
+                    <div class="score-bar-outer"><div class="score-bar-inner score-bar-clarity" style="width:${c.clarity * 10}%"></div></div>
+                    <div class="score-val">${c.clarity}/10</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Story</div>
+                    <div class="score-bar-outer"><div class="score-bar-inner score-bar-story" style="width:${c.story_score * 10}%"></div></div>
+                    <div class="score-val">${c.story_score}/10</div>
+                </div>
+            </div>
+            <div class="codon-footer">
+                <span class="codon-total">Total score: <span>${c.total_score}</span></span>
+                <span class="codon-hash">${hashSnip}</span>
+                ${sealedBadge}
+                ${sealBtn}
+            </div>
+        `;
+        return card;
+    }
+
+    function buildGlyphs(seq) {
+        if (!seq) return '';
+        const parts = seq.split('·');
+        return parts.map((g, i) => {
+            const colors = ['#c9a84c', '#60a5fa', '#2dd4bf'];
+            return `<span style="color:${colors[i] || '#c9a84c'}">${g}</span>`;
+        }).join('<span style="color:#333">·</span>');
+    }
+
+    async function sealCodon(codonId) {
+        const btn = document.getElementById('seal-btn-' + codonId);
+        if (!btn || btn.disabled) return;
+        btn.disabled = true;
+        btn.textContent = '⟳ Sealing…';
+
+        try {
+            const res = await fetch('/api/codon-distil/seal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codon_id: codonId }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                showToast(data.error || 'Seal failed', 'err');
+                btn.disabled = false;
+                btn.textContent = '◆ Seal to Chronicle';
+                return;
+            }
+            btn.textContent = '✦ SEALED';
+            btn.classList.add('sealed');
+            const card = document.getElementById('card-' + codonId);
+            if (card) {
+                card.classList.add('sealed-card');
+                const footer = card.querySelector('.codon-footer');
+                if (footer) {
+                    const badge = document.createElement('span');
+                    badge.className = 'sealed-badge';
+                    badge.textContent = 'Sealed';
+                    footer.insertBefore(badge, btn);
+                }
+            }
+            showToast(`Codon ${data.glyph_seq} sealed to Chronicle`, 'ok');
+        } catch (err) {
+            showToast('Network error: ' + err.message, 'err');
+            btn.disabled = false;
+            btn.textContent = '◆ Seal to Chronicle';
+        }
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function logLine(msg, isCodon = false) {
+        const log = document.getElementById('progress-log');
+        const line = document.createElement('div');
+        line.className = 'log-line' + (isCodon ? ' log-codon' : '');
+        line.textContent = '› ' + msg;
+        log.appendChild(line);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function escHtml(s) {
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    let _toastTimer = null;
+    function showToast(msg, type = 'ok') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'show toast-' + type;
+        if (_toastTimer) clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+    }
+</script>
+</body>
+</html>
