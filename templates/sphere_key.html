@@ -364,6 +364,98 @@
 
         .seal-line.gold { color: var(--gold); }
 
+        /* ── Element rows ─────────────────────────────── */
+        .element-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 18px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+        }
+
+        .el-glyph {
+            font-size: 20px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .el-name {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            min-width: 60px;
+            font-weight: bold;
+        }
+
+        .el-desc {
+            font-size: 12px;
+            color: var(--dim);
+            line-height: 1.6;
+        }
+
+        /* ── Tier cards ────────────────────────────────── */
+        .tier-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--border);
+            padding: 20px 24px;
+            transition: border-color 0.2s;
+        }
+
+        .tier-card:hover {
+            border-left-color: var(--gold);
+        }
+
+        .tier-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .tier-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .tier-num {
+            font-size: 22px;
+            color: var(--border);
+            min-width: 24px;
+            font-weight: bold;
+        }
+
+        .tier-name {
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .tier-sub {
+            font-size: 10px;
+            color: var(--dim);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .tier-price {
+            font-size: 20px;
+            color: var(--gold);
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .tier-body {
+            font-size: 12px;
+            color: var(--dim);
+            line-height: 1.9;
+            padding-left: 40px;
+        }
+
         /* ── Responsive ───────────────────────────────── */
         @media (max-width: 640px) {
             .header { padding: 24px 20px; }
@@ -650,10 +742,158 @@
         </div>
     </div>
 
-    <!-- Microscale note -->
+    <!-- Earth Element -->
     <div class="section">
         <div class="section-header">
             <span class="section-num">06</span>
+            <span class="section-title">The Fifth Element — Earth</span>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num" style="color:var(--green)">⊕</div>
+                <div class="step-body">
+                    <div class="step-title">Chladni Plate — The Key in Sand</div>
+                    <p>Place a flat metal or acrylic plate on a speaker or hold a violin bow against its edge. Scatter fine sand or salt evenly across the surface. Apply 432 Hz. The sand migrates away from the vibrating regions and collects at the nodal lines — the places of stillness. The pattern that forms is the geometric expression of 432 Hz in matter.</p>
+                    <p>It is the same pattern as the sphere's surface. The same pattern as the water vortex. The same pattern as the plasma arc. Four different materials — resin, water, gas, sand — all expressing the same geometry because the frequency is the same.</p>
+                    <p class="note">Materials: metal plate or acrylic sheet · fine sand or salt · speaker or violin bow · £5–15 total. The Chladni plate was first demonstrated in 1787. It has been waiting for this protocol ever since.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Five Elements Summary -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-num">07</span>
+            <span class="section-title">The Five Elements — One Frequency</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:8px;">
+            <div class="element-row">
+                <span class="el-glyph" style="color:var(--gold)">◎</span>
+                <span class="el-name" style="color:var(--gold)">SOUND</span>
+                <span class="el-desc">The 432 Hz wave that contains the document · invisible · everywhere · the origin</span>
+            </div>
+            <div class="element-row">
+                <span class="el-glyph" style="color:var(--cyan)">◈</span>
+                <span class="el-name" style="color:var(--cyan)">SOLID</span>
+                <span class="el-desc">The UV-cured resin sphere · Faraday geometry frozen · the key made physical</span>
+            </div>
+            <div class="element-row">
+                <span class="el-glyph" style="color:#60a5fa">〜</span>
+                <span class="el-name" style="color:#60a5fa">LIQUID</span>
+                <span class="el-desc">Water vortex around the sphere · toroidal field · the key made fluid</span>
+            </div>
+            <div class="element-row">
+                <span class="el-glyph" style="color:#f87171">⚡</span>
+                <span class="el-name" style="color:#f87171">PLASMA</span>
+                <span class="el-desc">Plasma ball arc tracing the surface geometry · the key made electric</span>
+            </div>
+            <div class="element-row">
+                <span class="el-glyph" style="color:var(--green)">⊕</span>
+                <span class="el-name" style="color:var(--green)">EARTH</span>
+                <span class="el-desc">Sand on a Chladni plate at 432 Hz · the key made matter · nodal geometry identical</span>
+            </div>
+        </div>
+        <p style="font-size:12px; color:var(--dim); margin-top:16px; line-height:2;">Total materials cost across all five elements: under £100.</p>
+    </div>
+
+    <!-- Pricing Tiers -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-num">08</span>
+            <span class="section-title">Knowledge Tiers</span>
+        </div>
+        <p style="font-size:12px; color:var(--dim); margin-bottom:28px; line-height:2;">Each tier grants access to one more element of the Physical Key Cryptography protocol. Each tier includes all previous tiers. The full five-element system — all four classical elements plus the acoustic origin — is available at Tier V.</p>
+
+        <div style="display:flex; flex-direction:column; gap:3px;">
+
+            <div class="tier-card">
+                <div class="tier-header">
+                    <div class="tier-left">
+                        <span class="tier-num">I</span>
+                        <div>
+                            <div class="tier-name" style="color:var(--gold)">◎ Sound</div>
+                            <div class="tier-sub">VoidEcho Acoustic Protocol</div>
+                        </div>
+                    </div>
+                    <div class="tier-price">£1,000</div>
+                </div>
+                <div class="tier-body">
+                    How to encode any document inside audio at 432 Hz using VoidEcho. The carrier sounds normal. The document is undetectable by standard forensic tools. Full encode and decode protocol, passphrase derivation, and key management.
+                </div>
+            </div>
+
+            <div class="tier-card">
+                <div class="tier-header">
+                    <div class="tier-left">
+                        <span class="tier-num">II</span>
+                        <div>
+                            <div class="tier-name" style="color:var(--cyan)">◈ Solid</div>
+                            <div class="tier-sub">Sphere Key Creation</div>
+                        </div>
+                    </div>
+                    <div class="tier-price">£2,000</div>
+                </div>
+                <div class="tier-body">
+                    Everything in Tier I, plus: how to create a UV-cured resin sphere whose surface geometry is determined by 432 Hz Faraday membrane resonance. The sphere becomes the physical key. How to photograph it, derive the Al-Jabr 286 key, and use it to lock and unlock VoidEcho documents. The key cannot exist in any digital system.
+                </div>
+            </div>
+
+            <div class="tier-card">
+                <div class="tier-header">
+                    <div class="tier-left">
+                        <span class="tier-num">III</span>
+                        <div>
+                            <div class="tier-name" style="color:#60a5fa">〜 Liquid</div>
+                            <div class="tier-sub">Water Vortex Resonance</div>
+                        </div>
+                    </div>
+                    <div class="tier-price">£3,000</div>
+                </div>
+                <div class="tier-body">
+                    Everything in Tier II, plus: how to create a water vortex around the sphere that organises itself into the sphere's frequency geometry. The key becomes visible in flowing water. The toroidal vortex field is the hydraulic expression of the same 432 Hz pattern. How to set up, tune, and photograph the liquid expression of the key.
+                </div>
+            </div>
+
+            <div class="tier-card">
+                <div class="tier-header">
+                    <div class="tier-left">
+                        <span class="tier-num">IV</span>
+                        <div>
+                            <div class="tier-name" style="color:#f87171">⚡ Plasma</div>
+                            <div class="tier-sub">Plasma Ball Display</div>
+                        </div>
+                    </div>
+                    <div class="tier-price">£4,000</div>
+                </div>
+                <div class="tier-body">
+                    Everything in Tier III, plus: how to use a plasma ball to make the sphere's key geometry visible in electrical discharge. The arc follows the 432 Hz Faraday pattern pressed into the resin. The key is expressed in plasma. How to position the sphere, tune the discharge, and use the plasma display as a live demonstration of Physical Key Cryptography.
+                </div>
+            </div>
+
+            <div class="tier-card" style="border-color: var(--green);">
+                <div class="tier-header">
+                    <div class="tier-left">
+                        <span class="tier-num" style="color:var(--green)">V</span>
+                        <div>
+                            <div class="tier-name" style="color:var(--green)">⊕ Earth — Full System</div>
+                            <div class="tier-sub">All Five Elements · Complete Protocol</div>
+                        </div>
+                    </div>
+                    <div class="tier-price" style="color:var(--green)">£5,000</div>
+                </div>
+                <div class="tier-body">
+                    The complete Physical Key Cryptography system. All four previous tiers, plus: the Chladni plate earth demonstration — sand organised into the 432 Hz nodal geometry, visually identical to the sphere's surface pattern. How to construct a full five-element demonstration. The same frequency expressed in sound, solid, liquid, plasma, and earth simultaneously. Under £100 in materials. A new discipline founded 8 April 2026.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Microscale note -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-num">09</span>
             <span class="section-title">The Microscopic Scale</span>
         </div>
         <div class="declaration" style="border-color: var(--violet);">
