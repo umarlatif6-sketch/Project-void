@@ -66,6 +66,7 @@ from routes.library import library_bp
 from routes.void_station import void_station_bp
 from routes.competitive_intel import competitive_intel_bp
 from routes.void_room import void_room_bp
+from routes.sphere_key import sphere_key_bp
 from routes.codon_distil import codon_distil_bp
 
 
@@ -138,4 +139,5 @@ def register_blueprints(app):
     app.register_blueprint(void_station_bp)
     app.register_blueprint(competitive_intel_bp)
     app.register_blueprint(void_room_bp)
+    app.register_blueprint(sphere_key_bp)
     app.register_blueprint(codon_distil_bp)

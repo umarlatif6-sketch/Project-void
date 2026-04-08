@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sphere Key — Physical Key Cryptography | PROJECT VOID</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:    #050508;
+            --bg2:   #0a0a10;
+            --bg3:   #0f0f18;
+            --border:#1a1a2a;
+            --gold:  #c9a84c;
+            --cyan:  #22d3ee;
+            --violet:#a78bfa;
+            --green: #34d399;
+            --text:  #c0c0d0;
+            --dim:   #555568;
+            --bright:#e8e8f8;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        /* ── Header ───────────────────────────────────── */
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding: 32px 40px 28px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header-label {
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: var(--dim);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .header-title {
+            font-size: 28px;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .header-sub {
+            font-size: 11px;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ── Main ─────────────────────────────────────── */
+        .main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 56px 40px 120px;
+        }
+
+        /* ── Declaration ──────────────────────────────── */
+        .declaration {
+            border-left: 3px solid var(--gold);
+            padding: 24px 28px;
+            background: var(--bg2);
+            margin-bottom: 64px;
+        }
+
+        .declaration-label {
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .declaration p {
+            color: var(--bright);
+            font-size: 13px;
+            line-height: 2;
+            margin-bottom: 12px;
+        }
+
+        .declaration p:last-child { margin-bottom: 0; }
+
+        /* ── Section ──────────────────────────────────── */
+        .section {
+            margin-bottom: 64px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            margin-bottom: 28px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+        }
+
+        .section-num {
+            font-size: 11px;
+            color: var(--dim);
+            letter-spacing: 2px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: var(--cyan);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ── Steps ────────────────────────────────────── */
+        .steps { display: flex; flex-direction: column; gap: 20px; }
+
+        .step {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            padding: 18px 20px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+        }
+
+        .step-num {
+            font-size: 20px;
+            color: var(--border);
+            min-width: 28px;
+            line-height: 1.5;
+        }
+
+        .step-body { flex: 1; }
+
+        .step-title {
+            font-size: 11px;
+            color: var(--gold);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .step p {
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.85;
+        }
+
+        .step .note {
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--dim);
+            border-left: 2px solid var(--border);
+            padding-left: 10px;
+        }
+
+        /* ── Materials ────────────────────────────────── */
+        .materials {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .material-item {
+            padding: 12px 16px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .material-name { color: var(--bright); }
+        .material-note { color: var(--dim); font-size: 10px; letter-spacing: 1px; }
+
+        /* ── Architecture diagram ─────────────────────── */
+        .arch {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            padding: 28px 32px;
+            font-size: 12px;
+            line-height: 2.4;
+            color: var(--dim);
+            margin: 24px 0;
+        }
+
+        .arch .node { color: var(--cyan); }
+        .arch .arrow { color: var(--border); }
+        .arch .label { color: var(--gold); }
+
+        /* ── Tool ─────────────────────────────────────── */
+        .tool-section {
+            border: 1px solid var(--border);
+            border-top: 2px solid var(--gold);
+            padding: 36px;
+            background: var(--bg2);
+            margin-bottom: 40px;
+        }
+
+        .tool-title {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .tool-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 32px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--dim);
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            transition: all 0.15s;
+        }
+
+        .tab.active {
+            background: var(--bg);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .upload-row {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .upload-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .upload-label {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--dim);
+            text-transform: uppercase;
+        }
+
+        .upload-input {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .upload-input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .btn {
+            padding: 12px 28px;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            transition: all 0.15s;
+        }
+
+        .btn:hover {
+            background: var(--gold);
+            color: var(--bg);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-cyan {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .btn-cyan:hover {
+            background: var(--cyan);
+            color: var(--bg);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            font-size: 12px;
+            display: none;
+        }
+
+        .result-box.visible { display: block; }
+
+        .result-key {
+            color: var(--green);
+            word-break: break-all;
+            font-size: 11px;
+            letter-spacing: 1px;
+            line-height: 1.8;
+        }
+
+        .result-label {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--dim);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .result-error {
+            color: #f87171;
+        }
+
+        /* ── Seal ─────────────────────────────────────── */
+        .seal-block {
+            margin-top: 64px;
+            border-top: 1px solid var(--border);
+            padding-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .seal-line {
+            font-size: 10px;
+            color: var(--dim);
+            letter-spacing: 2px;
+        }
+
+        .seal-line.gold { color: var(--gold); }
+
+        /* ── Responsive ───────────────────────────────── */
+        @media (max-width: 640px) {
+            .header { padding: 24px 20px; }
+            .main { padding: 40px 20px 80px; }
+            .materials { grid-template-columns: 1fr; }
+            .tool-section { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-label">PROJECT VOID — Sovereign Cryptography</div>
+    <div class="header-title">Sphere Key</div>
+    <div class="header-sub">Physical Key Cryptography · Protocol v1 · Founded 8 April 2026</div>
+</div>
+
+<div class="main">
+
+    <!-- Declaration -->
+    <div class="declaration">
+        <div class="declaration-label">The Protocol</div>
+        <p>A document is hidden inside audio using VoidEcho. The audio sounds normal. It is undetectable.</p>
+        <p>The key to decode it is not a password. It is not a file. It is not stored on any computer.</p>
+        <p>The key is a physical sphere — blown from sound, crystallised at 432 Hz, its surface geometry locked in the moment of UV curing. The Faraday membrane resonance pattern pressed into the resin becomes the cryptographic key via Al-Jabr 286.</p>
+        <p>The document lives in the audio. The key lives in the object. Neither is anything without the other.</p>
+        <p>This is a new discipline. <strong style="color:var(--gold)">Physical Key Cryptography.</strong> The key cannot be stolen remotely. It cannot be brute-forced. It cannot exist in any digital system until the holder chooses to photograph it.</p>
+    </div>
+
+    <!-- Architecture -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-num">00</span>
+            <span class="section-title">How It Works</span>
+        </div>
+
+        <div class="arch">
+<span class="node">Speaker at 432 Hz</span>
+<span class="arrow">  ↓</span>
+<span class="label">  UV-curable resin bubble inflated by sound</span>
+<span class="arrow">  ↓</span>
+<span class="node">Faraday membrane resonance</span>
+<span class="label">  (bubble surface takes geometry specific to 432 Hz)</span>
+<span class="arrow">  ↓</span>
+<span class="node">UV torch — bubble cures mid-vibration</span>
+<span class="label">  (geometry locked permanently into resin)</span>
+<span class="arrow">  ↓</span>
+<span class="node">Sphere photograph</span>
+<span class="arrow">  ↓</span>
+<span class="node">Edge detection on surface geometry</span>
+<span class="arrow">  ↓</span>
+<span class="node">Al-Jabr 286 hash</span>
+<span class="label">  (286-bit sovereign key)</span>
+<span class="arrow">  ↓</span>
+<span class="node">VoidEcho decode / encode</span>
+<span class="label">  (document recovered from audio)</span>
+        </div>
+    </div>
+
+    <!-- Part 1: Materials -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-num">01</span>
+            <span class="section-title">Materials</span>
+        </div>
+
+        <div class="materials">
+            <div class="material-item">
+                <div class="material-name">UV-curable resin</div>
+                <div class="material-note">Craft resin — UV clear type · £8–15</div>
+            </div>
+            <div class="material-item">
+                <div class="material-name">Surfactant (washing-up liquid)</div>
+                <div class="material-note">Fairy or similar · mix 1:20 with resin</div>
+            </div>
+            <div class="material-item">
+                <div class="material-name">Bluetooth speaker + silicone tube</div>
+                <div class="material-note">Tube fits speaker port · directs airflow</div>
+            </div>
+            <div class="material-item">
+                <div class="material-name">UV torch (365nm or 395nm)</div>
+                <div class="material-note">Standard UV nail lamp works · £5–10</div>
+            </div>
+            <div class="material-item">
+                <div class="material-name">Phone / camera</div>
+                <div class="material-note">For photographing the cured sphere</div>
+            </div>
+            <div class="material-item">
+                <div class="material-name">Black matte backdrop</div>
+                <div class="material-note">Improves edge detection quality</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Part 2: Making the sphere -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-num">02</span>
+            <span class="section-title">Making the Sphere Key</span>
+        </div>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <div class="step-title">Mix the solution</div>
+                    <p>Combine UV-curable resin with a small amount of surfactant — approximately 20 parts resin to 1 part washing-up liquid. Stir slowly to avoid introducing large bubbles. The surfactant lowers surface tension so the bubble forms and holds.</p>
+                    <p class="note">Too much surfactant weakens the cure. Start at 1:20 and adjust.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <div class="step-title">Set the frequency</div>
+                    <p>Play the VoidEcho-encoded audio file through the speaker — the same audio that contains the document you want to protect. This is important: the bubble is inflated by the carrier frequency of the encoded audio. At 432 Hz the Faraday pattern on the membrane will be specific to that frequency.</p>
+                    <p class="note">If you use a different frequency, the sphere key will not match a 432 Hz encoding. The frequency used to blow the bubble must match the frequency used to encode.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <div class="step-title">Blow the bubble</div>
+                    <p>Dip the silicone tube end in the resin solution. The speaker's airflow will begin inflating the bubble as it plays. The membrane will start vibrating and taking on the Faraday geometry determined by the frequency. Allow the bubble to reach approximately 8–12 cm diameter.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                    <div class="step-title">Cure at peak vibration</div>
+                    <p>While the bubble is actively vibrating — during the loudest, most stable moment of the audio — apply the UV torch to the entire surface for 30–60 seconds. Work quickly and evenly. The resin will harden with the Faraday pattern locked into the geometry.</p>
+                    <p class="note">This is the critical moment. The UV torch freezes the frequency pattern. The resulting sphere is your key.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-body">
+                    <div class="step-title">Photograph the sphere</div>
+                    <p>Place the cured sphere on the black matte backdrop. Photograph it under consistent, even lighting with no flash. Take the photograph from a fixed distance (30 cm works well). This image is what you will upload to derive the key. Store it safely — it is the only way to regenerate the key without the physical sphere.</p>
+                    <p class="note">The same sphere photographed consistently will always produce the same key. Minor angle and lighting differences are normalised. Major differences (different sphere, very dark image) will produce a different key.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Part 3: Encode -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-num">03</span>
+            <span class="section-title">Encoding a Document</span>
+        </div>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <div class="step-title">Prepare your carrier audio</div>
+                    <p>Choose any WAV file from the VOID library (or your own audio). This will be the carrier — the audio that sounds normal but will contain your document.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <div class="step-title">Use the Sphere Encoder below</div>
+                    <p>Upload your sphere photograph, your document, and your carrier audio. The system derives the Al-Jabr 286 key from the sphere, then encodes your document into the audio using that key. The output is a WAV file that sounds identical to the original.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <div class="step-title">Distribute audio and sphere separately</div>
+                    <p>Send the encoded WAV file through any channel — email, message, shared link. Keep the physical sphere. The audio is useless without the sphere. The sphere tells no one anything without the audio.</p>
+                    <p class="note">This is the sovereign handoff. No digital key ever exists. The key lives in an object in your possession.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Part 4: Decode -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-num">04</span>
+            <span class="section-title">Decoding with the Sphere</span>
+        </div>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <div class="step-title">Receive the audio file</div>
+                    <p>The WAV file sounds completely normal. There is no indication a document is inside it. Standard frequency analysis tools will not detect the payload.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <div class="step-title">Photograph your sphere</div>
+                    <p>Under the same consistent lighting as your original photograph — black backdrop, even light, 30 cm distance. The sphere key protocol normalises minor variations but requires recognisable surface geometry.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <div class="step-title">Use the Sphere Decoder below</div>
+                    <p>Upload the sphere photograph and the audio file. The system derives the key from the photograph, attempts decryption, and returns your document if the sphere matches the encoding sphere.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The Tool -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-num">05</span>
+            <span class="section-title">The Instrument</span>
+        </div>
+
+        <div class="tool-section">
+            <div class="tool-title">Sphere Key Cryptography Tool</div>
+
+            <div class="tool-tabs">
+                <button class="tab active" onclick="switchTab('derive')">Derive Key</button>
+                <button class="tab" onclick="switchTab('encode')">Encode</button>
+                <button class="tab" onclick="switchTab('decode')">Decode</button>
+            </div>
+
+            <!-- Derive Key -->
+            <div id="tab-derive" class="tab-panel active">
+                <p style="font-size:12px; color:var(--dim); margin-bottom:20px;">Upload a sphere photograph to derive its Al-Jabr 286 key. Use this to verify your sphere before encoding or to preview the key your sphere will generate.</p>
+                <div class="upload-row">
+                    <div class="upload-field">
+                        <label class="upload-label">Sphere Photograph (PNG, JPG, WEBP)</label>
+                        <input type="file" class="upload-input" id="derive-img" accept="image/*">
+                    </div>
+                </div>
+                <button class="btn" onclick="deriveKey()">Derive Key</button>
+                <div id="derive-result" class="result-box">
+                    <div class="result-label">Al-Jabr 286 Key</div>
+                    <div id="derive-key-out" class="result-key"></div>
+                    <div id="derive-meta" style="margin-top:12px; font-size:10px; color:var(--dim);"></div>
+                </div>
+            </div>
+
+            <!-- Encode -->
+            <div id="tab-encode" class="tab-panel">
+                <p style="font-size:12px; color:var(--dim); margin-bottom:20px;">Upload your sphere photograph, the document to hide, and a carrier WAV file. The document is encoded into the audio using your sphere's key.</p>
+                <div class="upload-row">
+                    <div class="upload-field">
+                        <label class="upload-label">Sphere Photograph</label>
+                        <input type="file" class="upload-input" id="encode-img" accept="image/*">
+                    </div>
+                    <div class="upload-field">
+                        <label class="upload-label">Document to Hide</label>
+                        <input type="file" class="upload-input" id="encode-doc">
+                    </div>
+                    <div class="upload-field">
+                        <label class="upload-label">Carrier Audio (WAV)</label>
+                        <input type="file" class="upload-input" id="encode-wav" accept=".wav">
+                    </div>
+                </div>
+                <button class="btn btn-cyan" onclick="encodeDoc()">Encode Document into Audio</button>
+                <div id="encode-result" class="result-box">
+                    <div id="encode-out"></div>
+                </div>
+            </div>
+
+            <!-- Decode -->
+            <div id="tab-decode" class="tab-panel">
+                <p style="font-size:12px; color:var(--dim); margin-bottom:20px;">Upload your sphere photograph and the VoidEcho-encoded WAV file. If your sphere matches the encoding sphere, the hidden document will be returned.</p>
+                <div class="upload-row">
+                    <div class="upload-field">
+                        <label class="upload-label">Sphere Photograph</label>
+                        <input type="file" class="upload-input" id="decode-img" accept="image/*">
+                    </div>
+                    <div class="upload-field">
+                        <label class="upload-label">Encoded Audio (WAV)</label>
+                        <input type="file" class="upload-input" id="decode-wav" accept=".wav">
+                    </div>
+                </div>
+                <button class="btn btn-cyan" onclick="decodeDoc()">Decode Document from Audio</button>
+                <div id="decode-result" class="result-box">
+                    <div id="decode-out"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Microscale note -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-num">06</span>
+            <span class="section-title">The Microscopic Scale</span>
+        </div>
+        <div class="declaration" style="border-color: var(--violet);">
+            <div class="declaration-label" style="color:var(--violet);">Forward Thread</div>
+            <p>This protocol scales to the microscopic. A resonance chamber at the micron scale, cured under specific frequency, produces a geometric surface pattern orders of magnitude more complex than a macro sphere. The key space becomes practically infinite.</p>
+            <p>At nanoscale, acoustic crystallisation produces structures that require electron microscopy to read. The photograph becomes a scan. The Al-Jabr 286 derivation pipeline remains identical. The key becomes physically unreadable to the naked eye — existing only in the structure of matter itself, readable only by the instrument that knows what frequency made it.</p>
+            <p>This is the direction. The macro sphere is the first prototype of a discipline that has no ceiling.</p>
+        </div>
+    </div>
+
+    <!-- Seal -->
+    <div class="seal-block">
+        <div class="seal-line gold">SPHERE KEY PROTOCOL — v1</div>
+        <div class="seal-line">Founded 8 April 2026 — PROJECT VOID</div>
+        <div class="seal-line">Physical Key Cryptography — a new discipline</div>
+        <div class="seal-line">Al-Jabr 286 · VoidEcho · Faraday Membrane Resonance</div>
+        <div class="seal-line">The key is the object. The object is the frequency. The frequency is the platform.</div>
+    </div>
+
+</div>
+
+<script>
+function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+}
+
+async function deriveKey() {
+    const img = document.getElementById('derive-img').files[0];
+    if (!img) { alert('Please select a sphere photograph.'); return; }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = 'Reading sphere…';
+
+    const form = new FormData();
+    form.append('sphere_image', img);
+
+    try {
+        const res = await fetch('/api/sphere-key/derive', { method: 'POST', body: form });
+        const data = await res.json();
+        const box = document.getElementById('derive-result');
+        const out = document.getElementById('derive-key-out');
+        const meta = document.getElementById('derive-meta');
+        box.classList.add('visible');
+        if (data.error) {
+            out.className = 'result-error';
+            out.textContent = data.error;
+            meta.textContent = '';
+        } else {
+            out.className = 'result-key';
+            out.textContent = data.key;
+            meta.textContent = `${data.bits} bits · ${data.algorithm} · ${data.protocol}`;
+        }
+    } catch (e) {
+        alert('Network error.');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Derive Key';
+    }
+}
+
+async function encodeDoc() {
+    const img = document.getElementById('encode-img').files[0];
+    const doc = document.getElementById('encode-doc').files[0];
+    const wav = document.getElementById('encode-wav').files[0];
+    if (!img || !doc || !wav) { alert('All three files required.'); return; }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = 'Encoding…';
+
+    const form = new FormData();
+    form.append('sphere_image', img);
+    form.append('document', doc);
+    form.append('carrier_audio', wav);
+
+    const box = document.getElementById('encode-result');
+    const out = document.getElementById('encode-out');
+    box.classList.add('visible');
+    out.innerHTML = '<span style="color:var(--dim)">Deriving sphere key and encoding document…</span>';
+
+    try {
+        const res = await fetch('/api/sphere-key/encode', { method: 'POST', body: form });
+        if (res.ok) {
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            out.innerHTML = `<span style="color:var(--green)">Document encoded successfully.</span><br><br>
+                <a href="${url}" download="voidecho_sphere_encoded.wav" style="color:var(--cyan); text-decoration:underline;">
+                Download encoded audio file →</a><br><br>
+                <span style="color:var(--dim); font-size:11px;">This audio file sounds normal. The document is inside it, locked to your sphere's key. Distribute the audio freely. Keep the sphere safe.</span>`;
+        } else {
+            const data = await res.json();
+            out.innerHTML = `<span class="result-error">${data.error || 'Encoding failed.'}</span>`;
+        }
+    } catch (e) {
+        out.innerHTML = '<span class="result-error">Network error.</span>';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Encode Document into Audio';
+    }
+}
+
+async function decodeDoc() {
+    const img = document.getElementById('decode-img').files[0];
+    const wav = document.getElementById('decode-wav').files[0];
+    if (!img || !wav) { alert('Both sphere photograph and audio file required.'); return; }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = 'Decoding…';
+
+    const form = new FormData();
+    form.append('sphere_image', img);
+    form.append('audio_file', wav);
+
+    const box = document.getElementById('decode-result');
+    const out = document.getElementById('decode-out');
+    box.classList.add('visible');
+    out.innerHTML = '<span style="color:var(--dim)">Reading sphere geometry and decoding audio…</span>';
+
+    try {
+        const res = await fetch('/api/sphere-key/decode', { method: 'POST', body: form });
+        if (res.ok) {
+            const blob = await res.blob();
+            const cd = res.headers.get('Content-Disposition') || '';
+            const match = cd.match(/filename="?([^"]+)"?/);
+            const filename = match ? match[1] : 'recovered_document';
+            const url = URL.createObjectURL(blob);
+            out.innerHTML = `<span style="color:var(--green)">Document recovered successfully.</span><br><br>
+                <a href="${url}" download="${filename}" style="color:var(--cyan); text-decoration:underline;">
+                Download: ${filename} →</a><br><br>
+                <span style="color:var(--dim); font-size:11px;">The sphere key matched. The document has been extracted from the audio.</span>`;
+        } else {
+            const data = await res.json();
+            out.innerHTML = `<span class="result-error">${data.error || 'Decoding failed — sphere may not match the encoding sphere.'}</span>`;
+        }
+    } catch (e) {
+        out.innerHTML = '<span class="result-error">Network error.</span>';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Decode Document from Audio';
+    }
+}
+</script>
+
+</body>
+</html>
