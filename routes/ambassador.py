@@ -219,6 +219,10 @@ Project VOID — Est. 2012 — Rebuilt 2026
 """
 
 
+STAGE1_SUBJECT = "Something I built — 30 seconds on your phone"
+ADRIANA_URL = "https://adrisync-hkxrydbp.manus.space"
+
+
 def _build_stage1_email_html(name: str, field: str) -> str:
     field_ref = field or "your field"
     return f"""<!DOCTYPE html>
@@ -227,47 +231,46 @@ def _build_stage1_email_html(name: str, field: str) -> str:
 <meta charset="utf-8">
 <style>
   body {{ font-family: 'Courier New', monospace; background: #0a0a0a; color: #e0e0e0; margin: 0; padding: 0; }}
-  .container {{ max-width: 600px; margin: 0 auto; padding: 40px 24px; }}
-  .header {{ border-bottom: 1px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 32px; }}
-  .logo {{ font-size: 18px; letter-spacing: 6px; color: #fff; }}
-  .sub {{ font-size: 10px; color: #444; letter-spacing: 3px; margin-top: 4px; }}
-  p {{ line-height: 1.9; color: #bbb; font-size: 14px; margin-bottom: 18px; }}
-  .footer {{ margin-top: 48px; padding-top: 20px; border-top: 1px solid #111; font-size: 11px; color: #333; }}
+  .container {{ max-width: 560px; margin: 0 auto; padding: 48px 24px; }}
+  p {{ line-height: 2; color: #bbb; font-size: 14px; margin-bottom: 20px; }}
+  .link-block {{ margin: 32px 0; padding: 20px 24px; border-left: 2px solid #333; }}
+  .link-label {{ font-size: 10px; color: #555; letter-spacing: 3px; margin-bottom: 10px; }}
+  .link-url {{ font-size: 13px; }}
+  .link-url a {{ color: #888; }}
+  .sig {{ margin-top: 40px; padding-top: 20px; border-top: 1px solid #111; font-size: 12px; color: #444; line-height: 1.8; }}
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <div class="logo">PROJECT VOID</div>
-    <div class="sub">EST. 2012 — REBUILT 2026</div>
-  </div>
   <p>Hello {name},</p>
   <p>
-    My name is Umar Lateef. I am the founder of Project VOID — a sovereign communication platform I began building in 2012,
-    not as a startup, not with funding, but as a response to the question of why six billion people share a planet and most
-    of them still cannot communicate privately, securely, or freely.
+    I built something that reads you.
   </p>
   <p>
-    I am writing to you specifically because of your work in {field_ref}. This is not a mass email.
-    I reached out to you by name because the problem we are solving is one that people in {field_ref} understand
-    better than most.
+    Open it on your phone. Scroll for thirty seconds — don't do anything special.
+    It watches how you move: click speed, scroll depth, how long you pause.
+    Then it generates a hex signature unique to you and plays a track that matches it.
   </p>
   <p>
-    Project VOID hides documents inside sound — a technique called acoustic steganography. A music file carries a
-    document invisibly inside it. No login. No server. No central point that can be monitored or switched off.
-    This is our first public entry point: VoidEcho.
+    Thirty seconds. No signup. Nothing to install.
   </p>
   <p>
-    I am not asking you to do anything right now. I am simply introducing myself and the project, and giving you
-    the chance to ask questions or tell me what you think — if you are curious.
+    The people who experience it find it either accurate or strange. A few found it both.
   </p>
+  <div class="link-block">
+    <div class="link-label">OPEN ON YOUR PHONE</div>
+    <div class="link-url"><a href="{ADRIANA_URL}">{ADRIANA_URL}</a></div>
+  </div>
   <p>
-    If you have thirty seconds: what is one thing in {field_ref} that you think should be able to move
-    without being seen?
+    I am reaching out to you because of your work in {field_ref}. I built this alone,
+    without funding, in 48 days. I thought you might want to know what your frequency
+    sounds like before I explain what I am building.
   </p>
-  <div class="footer">
-    <p>Umar Lateef — Project VOID — Est. 2012</p>
-    <p>You will not receive further emails unless you respond.</p>
+  <div class="sig">
+    Umar Lateef<br>
+    PROJECT VOID<br>
+    <br>
+    You will not receive further emails unless you respond.
   </div>
 </div>
 </body>
@@ -278,18 +281,20 @@ def _build_stage1_email_text(name: str, field: str) -> str:
     field_ref = field or "your field"
     return f"""Hello {name},
 
-My name is Umar Lateef. I am the founder of Project VOID — a sovereign communication platform I began building in 2012, not as a startup, not with funding, but as a response to the question of why six billion people share a planet and most of them still cannot communicate privately, securely, or freely.
+I built something that reads you.
 
-I am writing to you specifically because of your work in {field_ref}. This is not a mass email. I reached out to you by name because the problem we are solving is one that people in {field_ref} understand better than most.
+Open it on your phone. Scroll for thirty seconds — don't do anything special. It watches how you move: click speed, scroll depth, how long you pause. Then it generates a hex signature unique to you and plays a track that matches it.
 
-Project VOID hides documents inside sound — a technique called acoustic steganography. A music file carries a document invisibly inside it. No login. No server. No central point that can be monitored or switched off. This is our first public entry point: VoidEcho.
+Thirty seconds. No signup. Nothing to install.
 
-I am not asking you to do anything right now. I am simply introducing myself and the project, and giving you the chance to ask questions or tell me what you think — if you are curious.
+The people who experience it find it either accurate or strange. A few found it both.
 
-If you have thirty seconds: what is one thing in {field_ref} that you think should be able to move without being seen?
+{ADRIANA_URL}
+
+I am reaching out to you because of your work in {field_ref}. I built this alone, without funding, in 48 days. I thought you might want to know what your frequency sounds like before I explain what I am building.
 
 Umar Lateef
-Project VOID — Est. 2012 — Rebuilt 2026
+PROJECT VOID
 
 You will not receive further emails unless you respond.
 """
@@ -510,7 +515,7 @@ def send_ambassador_email(ambassador_id: int):
     from void_engine.gmail_client import send_email as _send_email
     html = _build_stage1_email_html(name, field)
     text = _build_stage1_email_text(name, field)
-    sent = _send_email(email, "An introduction — Project VOID", html, text)
+    sent = _send_email(email, STAGE1_SUBJECT, html, text)
 
     if sent:
         conn2 = _get_db()
@@ -551,7 +556,7 @@ def send_all_ambassador_emails():
             try:
                 html = _build_stage1_email_html(name, field)
                 text = _build_stage1_email_text(name, field)
-                sent = _send_email(email, "An introduction — Project VOID", html, text)
+                sent = _send_email(email, STAGE1_SUBJECT, html, text)
                 if sent:
                     cur.execute(
                         """UPDATE void_ambassadors
@@ -597,7 +602,7 @@ def send_stage1_email(ambassador_id: int):
         from void_engine.gmail_client import send_email
         html = _build_stage1_email_html(name, field)
         text = _build_stage1_email_text(name, field)
-        sent = send_email(email, "An introduction — Project VOID", html, text)
+        sent = send_email(email, STAGE1_SUBJECT, html, text)
 
         if sent:
             cur.execute(
@@ -685,7 +690,7 @@ def send_all_stage1():
             try:
                 html = _build_stage1_email_html(name, field)
                 text = _build_stage1_email_text(name, field)
-                sent = send_email(email, "An introduction — Project VOID", html, text)
+                sent = send_email(email, STAGE1_SUBJECT, html, text)
                 if sent:
                     cur.execute(
                         """UPDATE void_ambassadors
