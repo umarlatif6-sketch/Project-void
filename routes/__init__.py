@@ -65,6 +65,7 @@ from routes.nda import nda_bp
 from routes.library import library_bp
 from routes.void_station import void_station_bp
 from routes.competitive_intel import competitive_intel_bp
+from routes.void_room import void_room_bp
 
 
 def register_blueprints(app):
@@ -135,3 +136,4 @@ def register_blueprints(app):
     app.register_blueprint(library_bp)
     app.register_blueprint(void_station_bp)
     app.register_blueprint(competitive_intel_bp)
+    app.register_blueprint(void_room_bp)

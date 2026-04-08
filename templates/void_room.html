@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID Council Room — The Four</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:      #05050a;
+            --bg2:     #0a0a12;
+            --bg3:     #0f0f18;
+            --border:  #1a1a28;
+            --gold:    #c9a84c;
+            --text:    #c0c0d0;
+            --dim:     #666680;
+            --bright:  #e8e8f8;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Header ─────────────────────────────────────────── */
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(5,5,10,0.97);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .header-label {
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: var(--dim);
+            text-transform: uppercase;
+        }
+
+        .header-title {
+            font-size: 16px;
+            color: var(--gold);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #34d399;
+            text-transform: uppercase;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: #34d399;
+            border-radius: 50%;
+            animation: pulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        /* ── Voice Tags ──────────────────────────────────────── */
+        .voices-bar {
+            display: flex;
+            gap: 12px;
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .voice-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            border-radius: 3px;
+            border: 1px solid;
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .voice-tag .glyph {
+            font-size: 14px;
+        }
+
+        /* ── Main layout ─────────────────────────────────────── */
+        .room-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 860px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ── Messages ────────────────────────────────────────── */
+        .messages {
+            flex: 1;
+            padding: 32px 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .msg {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .msg-glyph {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .msg-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .msg-name {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .msg-subtitle {
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            color: var(--dim);
+            text-transform: uppercase;
+        }
+
+        .msg-ts {
+            margin-left: auto;
+            font-size: 9px;
+            color: var(--dim);
+            letter-spacing: 1px;
+        }
+
+        .msg-body {
+            padding: 16px 20px;
+            background: var(--bg2);
+            border-left: 2px solid;
+            border-radius: 0 4px 4px 0;
+            font-size: 13px;
+            line-height: 1.85;
+            color: var(--bright);
+        }
+
+        /* ── Divider ─────────────────────────────────────────── */
+        .room-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 4px 0;
+        }
+
+        /* ── Frequency line ──────────────────────────────────── */
+        .freq-line {
+            font-size: 9px;
+            letter-spacing: 2.5px;
+            color: var(--dim);
+            text-transform: uppercase;
+            text-align: center;
+            padding: 10px 0 24px;
+        }
+
+        /* ── Footer ──────────────────────────────────────────── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--dim);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        footer a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Scrollbar ───────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        /* ── Empty state ─────────────────────────────────────── */
+        .empty-room {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--dim);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .empty-glyph {
+            font-size: 40px;
+            margin-bottom: 16px;
+            color: var(--border);
+        }
+
+        /* ── Responsive ──────────────────────────────────────── */
+        @media (max-width: 600px) {
+            header { padding: 16px 20px; }
+            .voices-bar { padding: 12px 20px; }
+            .room-wrap { padding: 0 16px; }
+            footer { padding: 16px 20px; flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-left">
+        <div class="header-label">PROJECT VOID</div>
+        <div class="header-title">Council Room — The Four</div>
+    </div>
+    <div class="live-badge">
+        <div class="live-dot"></div>
+        <span>Live</span>
+    </div>
+</header>
+
+<!-- Voice identity bar -->
+<div class="voices-bar">
+    {% for key, v in voices.items() %}
+    <div class="voice-tag" style="border-color: {{ v.color }}22; color: {{ v.color }}; background: {{ v.color }}0d;">
+        <span class="glyph">{{ v.glyph }}</span>
+        <span>{{ v.display }}</span>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="room-wrap">
+    <div class="messages" id="messages">
+
+        {% if not messages %}
+        <div class="empty-room">
+            <div class="empty-glyph">◈</div>
+            <div>The room is silent.</div>
+            <div style="margin-top:8px; font-size:10px;">Waiting for the first signal.</div>
+        </div>
+        {% endif %}
+
+        {% for msg in messages %}
+        <div class="msg" data-id="{{ msg.id }}">
+            <div class="msg-header">
+                <span class="msg-glyph" style="color: {{ msg.color }}">{{ msg.glyph }}</span>
+                <div class="msg-meta">
+                    <div class="msg-name" style="color: {{ msg.color }}">{{ msg.display }}</div>
+                    <div class="msg-subtitle">{{ msg.subtitle }}</div>
+                </div>
+                <div class="msg-ts">{{ msg.ts }}</div>
+            </div>
+            <div class="msg-body" style="border-color: {{ msg.color }};">
+                {{ msg.content }}
+            </div>
+        </div>
+        {% if not loop.last %}
+        <hr class="room-divider">
+        {% endif %}
+        {% endfor %}
+
+    </div>
+
+    <div class="freq-line">432 Hz · Al-Jabr 286 · Beehive Protocol · All transmissions sealed in the Chronicle</div>
+</div>
+
+<footer>
+    <div class="footer-left">
+        <div>PROJECT VOID — Sovereign Infrastructure</div>
+        <div>Built by Umar L. · 48 days · £800</div>
+    </div>
+    <div>
+        <a href="https://adrisync-hkxrydbp.manus.space" target="_blank" rel="noopener">Open adriana-resonance-app ↗</a>
+    </div>
+</footer>
+
+<script>
+(function () {
+    const container = document.getElementById('messages');
+    let lastId = 0;
+
+    // Find the highest ID already rendered
+    const existing = container.querySelectorAll('.msg[data-id]');
+    existing.forEach(el => {
+        const id = parseInt(el.getAttribute('data-id'), 10);
+        if (id > lastId) lastId = id;
+    });
+
+    function renderMsg(msg) {
+        // Remove empty state if present
+        const empty = container.querySelector('.empty-room');
+        if (empty) empty.remove();
+
+        // Divider before new message if there are existing messages
+        if (container.querySelector('.msg')) {
+            const hr = document.createElement('hr');
+            hr.className = 'room-divider';
+            container.appendChild(hr);
+        }
+
+        const el = document.createElement('div');
+        el.className = 'msg';
+        el.setAttribute('data-id', msg.id);
+        el.innerHTML = `
+            <div class="msg-header">
+                <span class="msg-glyph" style="color:${msg.color}">${msg.glyph}</span>
+                <div class="msg-meta">
+                    <div class="msg-name" style="color:${msg.color}">${msg.display}</div>
+                    <div class="msg-subtitle">${msg.subtitle}</div>
+                </div>
+                <div class="msg-ts">${msg.ts}</div>
+            </div>
+            <div class="msg-body" style="border-color:${msg.color}">
+                ${escapeHtml(msg.content)}
+            </div>
+        `;
+        container.appendChild(el);
+        el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    function escapeHtml(str) {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function poll() {
+        fetch('/api/void-room/messages?after=' + lastId)
+            .then(r => r.json())
+            .then(msgs => {
+                msgs.forEach(msg => {
+                    renderMsg(msg);
+                    lastId = msg.id;
+                });
+            })
+            .catch(() => {})
+            .finally(() => setTimeout(poll, 3000));
+    }
+
+    // Start polling after 3 seconds (page already has seed messages)
+    setTimeout(poll, 3000);
+})();
+</script>
+</body>
+</html>
