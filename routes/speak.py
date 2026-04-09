@@ -432,7 +432,9 @@ def listen():
             domain, "The frequency is registered. Speak more and the pattern deepens."
         )
 
-    codon_requested = bool(data.get("codon")) or bool(request.args.get("codon"))
+    _codon_json = str(data.get("codon", "")).lower()
+    _codon_qs = str(request.args.get("codon", "")).lower()
+    codon_requested = _codon_json in ("1", "true", "yes") or _codon_qs in ("1", "true", "yes")
     if codon_requested:
         try:
             from void_engine.adriana_local import codon_wrap
