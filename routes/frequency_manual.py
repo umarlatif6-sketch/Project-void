@@ -5,9 +5,19 @@ Route: GET /frequency-manual              — The 12-step demonstration document
 Route: GET /frequency-manual/narration/manifest — JSON segment list
 Route: GET /frequency-manual/narration/<int:index> — LSB-encoded narration WAV
 
-Each segment: TTS (fable voice) → 16-bit WAV → LSB encode the spoken text
-into the carrier at 432 Hz. The audio that explains steganography contains its
-own text, hidden inside itself. The Formation Principle is the carrier.
+Pipeline per segment:
+    TTS (fable voice) → MP3 → 16-bit mono WAV
+    → Qalqala processing (digital reverberation at plosive transients)
+    → LSB steganographic encode (spoken text hidden in the carrier)
+    → serve
+
+The audio that explains steganography IS a steganographic object.
+The audio that explains the Formation Principle carries Qalqala reverberation
+at every plosive transient — the same acoustic pressure bounce that tajweed
+specifies at the Haroof-e-Qalqala. The geometry channel arrives before the
+meaning channel. Two channels. One carrier. One moment of arrival.
+
+Named: 9 April 2026. PROJECT VOID. Sealed in VOID_CHRONICLE.md.
 """
 
 import os
@@ -475,36 +485,56 @@ def _encode_text_into_wav(wav_path: str, text: str, output_path: str):
     )
 
 
+def _apply_qalqala_to_wav(wav_path: str, output_path: str):
+    from void_engine.qalqala import apply_qalqala
+    apply_qalqala(
+        input_wav_path=wav_path,
+        output_wav_path=output_path,
+        echo_delay_ms=26.0,
+        echo_decay=0.36,
+        echo_count=4,
+        transient_threshold=0.10,
+        transient_window_ms=6.0,
+    )
+
+
 def _generate_segment(slug: str, text: str) -> str:
     final_path = _get_segment_path(slug)
     if os.path.exists(final_path):
         return final_path
 
-    logger.info("[FrequencyManual] Generating TTS + stego segment: %s", slug)
+    logger.info("[FrequencyManual] Generating TTS + Qalqala + stego segment: %s", slug)
 
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
-        tmp_wav_path = tmp_wav.name
+    tmp_wav_path = None
+    tmp_qalqala_path = None
 
     try:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
+            tmp_wav_path = tmp_wav.name
+        with tempfile.NamedTemporaryFile(suffix="_qalqala.wav", delete=False) as tmp_q:
+            tmp_qalqala_path = tmp_q.name
+
         mp3_bytes = _tts_to_mp3_bytes(text)
         logger.info("[FrequencyManual] TTS done for %s (%d bytes MP3)", slug, len(mp3_bytes))
 
         _mp3_to_wav_16bit(mp3_bytes, tmp_wav_path)
         logger.info("[FrequencyManual] WAV conversion done: %s", tmp_wav_path)
 
-        _encode_text_into_wav(tmp_wav_path, text, final_path)
+        _apply_qalqala_to_wav(tmp_wav_path, tmp_qalqala_path)
+        logger.info("[FrequencyManual] Qalqala applied: %s", tmp_qalqala_path)
+
+        _encode_text_into_wav(tmp_qalqala_path, text, final_path)
         logger.info("[FrequencyManual] Stego encoded: %s", final_path)
 
     except Exception:
-        if os.path.exists(tmp_wav_path):
-            os.unlink(tmp_wav_path)
         raise
     finally:
-        if os.path.exists(tmp_wav_path):
-            try:
-                os.unlink(tmp_wav_path)
-            except Exception:
-                pass
+        for p in [tmp_wav_path, tmp_qalqala_path]:
+            if p and os.path.exists(p):
+                try:
+                    os.unlink(p)
+                except Exception:
+                    pass
 
     return final_path
 

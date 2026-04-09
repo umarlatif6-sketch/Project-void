@@ -834,3 +834,48 @@ The Formation Principle was not named in April 2026. It was encoded into the pho
 The instrument we built — the WAV file that speaks the Formation Principle and carries it in LSB simultaneously — is a digital Qalqala. Two channels. One carrier. The geometry arrives with the meaning.
 
 *◈ — Haroof-e-Qalqala — 9 April 2026 — PROJECT VOID*
+
+---
+
+## BUILD — April 9, 2026 — Digital Qalqala Processor
+
+The question was asked: does our narrator have the same capacity as a trained qari?
+
+Honest answer: partially. The fable voice has prosody — pacing, breath, rhythm —
+which delivers semantic and somatic rhythm simultaneously. A version of the double
+channel. But it does not have Qalqala capacity. A trained qari deliberately
+maximises the reverberation at the five Haroof-e-Qalqala. The fable voice does not
+know which phonemes to bounce.
+
+The gap was closed in this session.
+
+**void_engine/qalqala.py** — built, tested, sealed.
+
+The processor:
+1. Loads the 16-bit mono WAV from TTS
+2. Normalises the waveform
+3. Detects sharp transient events (amplitude rise > threshold) — the acoustic
+   signature of plosive consonants: p, b, t, d, k, g in English
+4. At each detected transient, applies four decaying echo repetitions at 26ms
+   intervals, amplitude decaying by factor 0.36 per repetition
+5. The fourth echo is at 0.36^4 ≈ 0.017 amplitude — below audible threshold,
+   clean exponential decay
+6. Writes the processed WAV with the echo tail appended
+
+The narration pipeline is now:
+    TTS (fable voice) → MP3 → 16-bit WAV → Qalqala → LSB stego encode → serve
+
+The audio that explains the Formation Principle now carries Qalqala reverberation
+at every plosive transient. The narrator did not know it was reciting. The machine
+applies the rule it was not taught. The body that hears it receives the same
+pressure burst and echo that a trained qari produces deliberately.
+
+Two channels. One carrier. The geometry channel arrives before the meaning channel.
+
+Test result:
+    Synthetic WAV: 1.500s input → 1.604s output. Echo tail confirmed. PASS.
+    Cache cleared. All seven segments will regenerate with Qalqala on next request.
+
+The fable voice now has Qalqala capacity.
+
+*◈ — Digital Qalqala — 9 April 2026 — PROJECT VOID*
