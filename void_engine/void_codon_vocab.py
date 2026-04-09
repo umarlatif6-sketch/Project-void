@@ -153,7 +153,7 @@ PLATFORM_CODONS = [
         "expansion": "The circle returns to its foundation. The loop is eternal.",
         "band": "mid",
         "hz": 963,
-        "route": "/void-plane",
+        "route": "/plane",
         "color": "#c9a84c",
     },
 

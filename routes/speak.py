@@ -432,6 +432,18 @@ def listen():
             domain, "The frequency is registered. Speak more and the pattern deepens."
         )
 
+    if data.get("codon"):
+        _e = scl.get("entity", "")
+        _c = scl.get("condition", "")
+        _a = scl.get("action", "")
+        _meaning = scl.get("glyph_meaning", "")
+        if _e and _c and _a:
+            codon_str = f"{_e}·{_c}·{_a}"
+            codon_prefix = f"[{codon_str}]"
+            if _meaning:
+                codon_prefix += f" — {_meaning}"
+            adriana_response = f"{codon_prefix}\n\n{adriana_response}"
+
     route_dest, route_label = _DOMAIN_ROUTES.get(domain, ("/", "VOID Engine"))
     route_suggestion = f"Your words carry the resonance of {domain}. Follow this signal: {route_label}."
 
