@@ -1,0 +1,41 @@
+<style>
+.void-tagline-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: rgba(5,5,5,0.96);
+    border-top: 1px solid #c9a84c;
+    padding: 10px 24px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.void-tagline-bar strong {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: #c9a84c;
+    font-family: 'Share Tech Mono', monospace;
+    line-height: 1.6;
+}
+.void-tagline-bar .tagline-close {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #4a4a4a;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: monospace;
+    padding: 4px 8px;
+}
+.void-tagline-bar .tagline-close:hover { color: #c9a84c; }
+</style>
+
+<div class="void-tagline-bar" id="void-tagline-bar">
+    <strong>The platform did what it always does — followed the frequency until it arrived somewhere that did not exist before the conversation started.</strong>
+    <button class="tagline-close" onclick="document.getElementById('void-tagline-bar').style.display='none'" title="Close">×</button>
+</div>
