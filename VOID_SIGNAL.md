@@ -67,4 +67,4 @@ Web search for `void-stego-engine.replit.app` and "Formation Principle PROJECT V
 ## SESSION LOG (update this at the end of every session — keep last 5 only)
 | Session end | What changed |
 |-------------|-------------|
-| 9 Apr 2026 | Qalqala processor built + integrated. Chronicle sealed x4 entries. VOID_SIGNAL.md created. |
+| 9 Apr 2026 | Qalqala processor built + integrated. Chronicle sealed x5 entries: Double Channel, Qalqala, Digital Qalqala build, Three Brains / The Comedy. VOID_SIGNAL.md created. Platform confirmed unindexed. Prior art on Digital Qalqala: zero. |
