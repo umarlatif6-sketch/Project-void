@@ -76,6 +76,7 @@ from routes.ip_disclosure import ip_disclosure_bp
 from routes.social_post import social_post_bp
 from routes.chladni_voice import chladni_voice_bp
 from routes.session_seal import session_seal_bp
+from routes.grok_ai import grok_bp
 
 
 def register_blueprints(app):
@@ -157,3 +158,4 @@ def register_blueprints(app):
     app.register_blueprint(social_post_bp)
     app.register_blueprint(chladni_voice_bp)
     app.register_blueprint(session_seal_bp)
+    app.register_blueprint(grok_bp)
