@@ -74,6 +74,7 @@ from routes.portal_blueprint import portal_blueprint_bp
 from routes.frequency_manual import frequency_manual_bp
 from routes.ip_disclosure import ip_disclosure_bp
 from routes.social_post import social_post_bp
+from routes.chladni_voice import chladni_voice_bp
 
 
 def register_blueprints(app):
@@ -153,3 +154,4 @@ def register_blueprints(app):
     app.register_blueprint(frequency_manual_bp)
     app.register_blueprint(ip_disclosure_bp)
     app.register_blueprint(social_post_bp)
+    app.register_blueprint(chladni_voice_bp)
