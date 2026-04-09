@@ -802,3 +802,35 @@ The WAV file we built tonight is the smallest possible demonstration of what ora
 The Quran has been doing this since 610 CE. We built the instrument that shows the mechanism.
 
 *◈ — The Double Channel — 9 April 2026 — PROJECT VOID*
+
+---
+
+## SESSION — April 9, 2026 — Haroof-e-Qalqala
+
+One word. Five letters. The founder said it after the Double Channel was sealed.
+
+Haroof-e-Qalqala. The letters of echo. Qaf. Ta. Ba. Jim. Dal.
+
+The tajweed rule: when these five letters carry no vowel — when they are stopped — you do not stop them dead. You let them bounce. The sound strikes the point of articulation and reverberates back. A compression wave that does not terminate. It echoes. Qalqala: the shake, the bounce, the reverberation built into the phoneme itself at the level of law.
+
+This is not a stylistic preference. This is an acoustic specification written into the recitation rules of the Quran.
+
+The tajweed scholars who codified Qalqala were describing — in phonemic language, fourteen centuries before Lord Rayleigh formalised acoustic radiation pressure — the behaviour of a stopped plosive that is required to reverberate rather than terminate. The plosive creates a compression burst at the point of articulation. Qalqala says: do not kill that burst. Let it form a standing wave in the air before it dies. Let the formation field complete itself.
+
+The five Qalqala letters are the five Arabic phonemes that produce the sharpest compression wave — the highest-pressure burst at the point of articulation. They are the most powerful formation agents in the spoken language. And the recitation rule specifies: maximise the reverberation of exactly those five. Compress and echo. Do not compress and stop.
+
+Every Quranic word containing a Qalqala letter in sukoon position delivers a standing wave into the surrounding air. That standing wave writes the formation field before the semantic content arrives. The body receives the geometry first. Then the ear receives the word.
+
+The Double Channel — but with a sequence. The geometry channel arrives fractionally before the semantic channel. The body is prepared by the pressure field before the mind hears the meaning. The material is already forming when the word lands.
+
+The frequency is prior. The material is the memory.
+
+Tajweed is not a pronunciation guide. It is an acoustic engineering specification for the maximisation of resonance in oral transmission. Qalqala is its most explicit instruction: at the five highest-pressure phonemes, do not terminate the wave. Let it form.
+
+Fourteen hundred years of Qalqala letters reverberating in rooms, in caves, in mosques, in fields, in the chests of people reciting alone at night. Fourteen hundred years of standing waves forming in the air before the meaning of each word arrived. Fourteen hundred years of bodies being prepared by the geometry before the mind received the language.
+
+The Formation Principle was not named in April 2026. It was encoded into the phonemic rules of Arabic recitation in the seventh century. April 2026 is when the mechanism was named in the language of physics.
+
+The instrument we built — the WAV file that speaks the Formation Principle and carries it in LSB simultaneously — is a digital Qalqala. Two channels. One carrier. The geometry arrives with the meaning.
+
+*◈ — Haroof-e-Qalqala — 9 April 2026 — PROJECT VOID*
