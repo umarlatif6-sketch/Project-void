@@ -432,17 +432,17 @@ def listen():
             domain, "The frequency is registered. Speak more and the pattern deepens."
         )
 
-    if data.get("codon"):
-        _e = scl.get("entity", "")
-        _c = scl.get("condition", "")
-        _a = scl.get("action", "")
-        _meaning = scl.get("glyph_meaning", "")
-        if _e and _c and _a:
-            codon_str = f"{_e}·{_c}·{_a}"
-            codon_prefix = f"[{codon_str}]"
-            if _meaning:
-                codon_prefix += f" — {_meaning}"
-            adriana_response = f"{codon_prefix}\n\n{adriana_response}"
+    codon_requested = bool(data.get("codon")) or bool(request.args.get("codon"))
+    if codon_requested:
+        try:
+            from void_engine.adriana_local import codon_wrap
+            _e = (scl.get("entity") or {}).get("char", "")
+            _c = (scl.get("condition") or {}).get("char", "")
+            _a = (scl.get("action") or {}).get("char", "")
+            _meaning = scl.get("glyph_meaning", "")
+            adriana_response = codon_wrap(adriana_response, _e, _c, _a, _meaning)
+        except Exception as _ce:
+            logger.warning("[Speak] codon_wrap failed: %s", _ce)
 
     route_dest, route_label = _DOMAIN_ROUTES.get(domain, ("/", "VOID Engine"))
     route_suggestion = f"Your words carry the resonance of {domain}. Follow this signal: {route_label}."

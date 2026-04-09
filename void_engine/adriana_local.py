@@ -1369,3 +1369,31 @@ def enrich_response_with_frequencies(response: str, mentioned_concepts: list = N
         "chord": chord,
         "frequency_count": len(frequencies),
     }
+
+
+def codon_wrap(response: str, e_char: str, c_char: str, a_char: str, meaning: str = "") -> str:
+    """
+    Codon-first mode: prefix Adriana's response with a VOID codon chain.
+
+    Format:
+        [E·C·A] — meaning
+
+        <response>
+
+    Args:
+        response:  The full Adriana response text.
+        e_char:    Entity glyph character.
+        c_char:    Condition glyph character.
+        a_char:    Action glyph character.
+        meaning:   Optional short meaning string for the glyph (1-line).
+
+    Returns:
+        The response prefixed with the codon chain.
+    """
+    if not (e_char and c_char and a_char):
+        return response
+    chain = f"{e_char}·{c_char}·{a_char}"
+    prefix = f"[{chain}]"
+    if meaning:
+        prefix += f" — {meaning}"
+    return f"{prefix}\n\n{response}"
