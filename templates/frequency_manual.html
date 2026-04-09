@@ -294,9 +294,74 @@
     }
     .footer a { color: var(--dim2); text-decoration: none; }
     .footer a:hover { color: var(--gold); }
+
+    .listen-bar {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 100;
+        background: rgba(5,5,5,0.97);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 12px 28px;
+        backdrop-filter: blur(8px);
+    }
+    .listen-btn {
+        background: none;
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 3px;
+        padding: 8px 20px;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+        min-width: 90px;
+        text-align: center;
+    }
+    .listen-btn:hover { background: var(--gold); color: #050505; }
+    .listen-btn.active { background: var(--gold); color: #050505; }
+    .listen-label {
+        font-size: 9px;
+        color: var(--dim2);
+        letter-spacing: 2px;
+        flex: 1;
+    }
+    .listen-label .current-seg {
+        color: var(--white);
+    }
+    .listen-progress {
+        font-size: 9px;
+        color: var(--dim);
+        letter-spacing: 1px;
+        white-space: nowrap;
+    }
+    .listen-stop {
+        background: none;
+        border: none;
+        color: var(--dim2);
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 2px;
+        cursor: pointer;
+        padding: 4px 8px;
+        transition: color 0.2s;
+    }
+    .listen-stop:hover { color: var(--red); }
+    body.listening { padding-top: 52px; }
 </style>
 </head>
 <body>
+
+<div class="listen-bar" id="listenBar" style="display:none;">
+    <button class="listen-btn active" id="listenPlayPause" onclick="togglePlayPause()">PAUSE</button>
+    <div class="listen-label">
+        NARRATION &nbsp;·&nbsp; <span class="current-seg" id="listenSegLabel">INTRODUCTION</span>
+    </div>
+    <div class="listen-progress" id="listenProgress">1 / 7</div>
+    <button class="listen-stop" onclick="stopNarration()">✕ STOP</button>
+</div>
 
 <div class="cover">
     <div class="cover-sup">PROJECT VOID · DOCUMENT 002 · OPEN ACCESS · 9 APRIL 2026</div>
@@ -320,7 +385,10 @@
         STATUS: OPEN<br>
         VERSION: 1.0
     </div>
-    <div class="cover-scroll">↓ SCROLL TO BEGIN</div>
+    <div class="cover-scroll" style="display:flex;gap:24px;align-items:center;">
+        <span>↓ SCROLL TO BEGIN</span>
+        <button id="coverListenBtn" onclick="startNarration()" style="background:none;border:1px solid #c9a84c;color:#c9a84c;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;padding:7px 18px;cursor:pointer;">▶ LISTEN ALOUD</button>
+    </div>
 </div>
 
 <div class="doc-body">
@@ -624,6 +692,98 @@
 </div>
 
 {% include "partials/void_tagline.html" %}
+
+<script>
+const SEG_LABELS = [
+    "INTRODUCTION",
+    "STEPS 01 — 02",
+    "STEPS 03 — 04",
+    "STEPS 05 — 06",
+    "STEPS 07 — 08",
+    "STEPS 09 — 10",
+    "STEPS 11 — 12"
+];
+const TOTAL = SEG_LABELS.length;
+
+let audio = null;
+let currentIndex = 0;
+let playing = false;
+let preloaded = {};
+
+function preloadNext(idx) {
+    if (idx >= TOTAL || preloaded[idx]) return;
+    const a = new Audio(`/frequency-manual/narration/${idx}`);
+    a.preload = "auto";
+    preloaded[idx] = a;
+}
+
+function updateBar() {
+    document.getElementById("listenSegLabel").textContent = SEG_LABELS[currentIndex] || "";
+    document.getElementById("listenProgress").textContent = `${currentIndex + 1} / ${TOTAL}`;
+    document.getElementById("listenPlayPause").textContent = playing ? "PAUSE" : "RESUME";
+    document.getElementById("listenPlayPause").classList.toggle("active", playing);
+}
+
+function playSegment(idx) {
+    if (idx >= TOTAL) {
+        stopNarration();
+        return;
+    }
+    currentIndex = idx;
+    if (audio) {
+        audio.pause();
+        audio.src = "";
+    }
+    audio = preloaded[idx] || new Audio(`/frequency-manual/narration/${idx}`);
+    delete preloaded[idx];
+    playing = true;
+    updateBar();
+    preloadNext(idx + 1);
+    audio.play().catch(err => console.warn("Audio play error:", err));
+    audio.onended = () => playSegment(idx + 1);
+    audio.onerror = () => {
+        console.warn("Audio error on segment", idx);
+        playSegment(idx + 1);
+    };
+}
+
+function startNarration() {
+    document.getElementById("listenBar").style.display = "flex";
+    document.body.classList.add("listening");
+    const btn = document.getElementById("coverListenBtn");
+    if (btn) btn.style.display = "none";
+    preloadNext(0);
+    preloadNext(1);
+    playSegment(0);
+}
+
+function togglePlayPause() {
+    if (!audio) return;
+    if (playing) {
+        audio.pause();
+        playing = false;
+    } else {
+        audio.play();
+        playing = true;
+    }
+    updateBar();
+}
+
+function stopNarration() {
+    if (audio) {
+        audio.pause();
+        audio.src = "";
+        audio = null;
+    }
+    playing = false;
+    currentIndex = 0;
+    preloaded = {};
+    document.getElementById("listenBar").style.display = "none";
+    document.body.classList.remove("listening");
+    const btn = document.getElementById("coverListenBtn");
+    if (btn) btn.style.display = "";
+}
+</script>
 
 </body>
 </html>
