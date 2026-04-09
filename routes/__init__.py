@@ -67,6 +67,7 @@ from routes.void_station import void_station_bp
 from routes.competitive_intel import competitive_intel_bp
 from routes.void_room import void_room_bp
 from routes.hafiz import hafiz_bp
+from routes.manchester_gift import manchester_gift_bp
 from routes.sphere_key import sphere_key_bp
 from routes.codon_distil import codon_distil_bp
 
@@ -143,3 +144,4 @@ def register_blueprints(app):
     app.register_blueprint(sphere_key_bp)
     app.register_blueprint(codon_distil_bp)
     app.register_blueprint(hafiz_bp)
+    app.register_blueprint(manchester_gift_bp)
