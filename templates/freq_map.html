@@ -277,7 +277,8 @@
     <div class="band band-low">
       <div class="band-bg"></div>
       <span class="band-label">LOW</span>
-      <span class="band-hz">{{ low_band[0].hz if low_band else 0 }}–{{ low_band[-1].hz if low_band else 0 }} Hz</span>
+      {% set low_sorted = low_band | sort(attribute='hz') %}
+      <span class="band-hz">{{ low_sorted[0].hz if low_sorted else 0 }}–{{ low_sorted[-1].hz if low_sorted else 0 }} Hz</span>
       <div class="zones">
         {% for zone in low_band %}
         <a href="{{ zone.route }}" class="zone" style="color: {{ zone.color }};">
@@ -294,7 +295,8 @@
     <div class="band band-mid">
       <div class="band-bg"></div>
       <span class="band-label">MID</span>
-      <span class="band-hz">{{ mid_band[0].hz if mid_band else 0 }}–{{ mid_band[-1].hz if mid_band else 0 }} Hz</span>
+      {% set mid_sorted = mid_band | sort(attribute='hz') %}
+      <span class="band-hz">{{ mid_sorted[0].hz if mid_sorted else 0 }}–{{ mid_sorted[-1].hz if mid_sorted else 0 }} Hz</span>
       <div class="zones">
         {% for zone in mid_band %}
         <a href="{{ zone.route }}" class="zone" style="color: {{ zone.color }};">
@@ -311,7 +313,8 @@
     <div class="band band-high">
       <div class="band-bg"></div>
       <span class="band-label">HIGH</span>
-      <span class="band-hz">{{ high_band[0].hz if high_band else 0 }}–{{ high_band[-1].hz if high_band else 0 }} Hz</span>
+      {% set high_sorted = high_band | sort(attribute='hz') %}
+      <span class="band-hz">{{ high_sorted[0].hz if high_sorted else 0 }}–{{ high_sorted[-1].hz if high_sorted else 0 }} Hz</span>
       <div class="zones">
         {% for zone in high_band %}
         <a href="{{ zone.route }}" class="zone" style="color: {{ zone.color }};">

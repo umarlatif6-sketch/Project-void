@@ -127,7 +127,7 @@ PLATFORM_CODONS = [
         "expansion": "Every junction is a gate. The mesh cell opens.",
         "band": "mid",
         "hz": 741,
-        "route": "/beehive",
+        "route": "/beehive/demo",
         "color": "#22d3ee",
     },
     {
@@ -194,7 +194,7 @@ PLATFORM_CODONS = [
         "expansion": "The ledger tallies the total. The value deposits into the flow.",
         "band": "high",
         "hz": 4000,
-        "route": "/peace",
+        "route": "/peace/flywheel",
         "color": "#c9a84c",
     },
     {

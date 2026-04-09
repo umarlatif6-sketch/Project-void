@@ -1373,27 +1373,34 @@ def enrich_response_with_frequencies(response: str, mentioned_concepts: list = N
 
 def codon_wrap(response: str, e_char: str, c_char: str, a_char: str, meaning: str = "") -> str:
     """
-    Codon-first mode: prefix Adriana's response with a VOID codon chain.
+    Codon-first mode: compress Adriana's response to a canonical codon chain.
 
-    Format:
-        [E·C·A] — meaning
+    Output format (compressed-first):
+        [E·C·A] — one-sentence compressed signal
 
-        <response>
+        Full prose response (shown below codon line only when depth is needed)
+
+    The codon line is always the first thing seen.
+    The expansion sentence is the single-sentence signal derived from `meaning`.
+    The full response follows separated by a blank line.
 
     Args:
         response:  The full Adriana response text.
         e_char:    Entity glyph character.
         c_char:    Condition glyph character.
         a_char:    Action glyph character.
-        meaning:   Optional short meaning string for the glyph (1-line).
+        meaning:   The glyph meaning string used as compressed expansion signal.
 
     Returns:
-        The response prefixed with the codon chain.
+        The response with codon prefix as the primary compressed signal.
     """
     if not (e_char and c_char and a_char):
         return response
     chain = f"{e_char}·{c_char}·{a_char}"
-    prefix = f"[{chain}]"
-    if meaning:
-        prefix += f" — {meaning}"
-    return f"{prefix}\n\n{response}"
+    first_sentence = (response.split(".")[0].strip() + ".") if response else meaning or ""
+    codon_line = f"[{chain}]"
+    if first_sentence:
+        codon_line += f" — {first_sentence}"
+    elif meaning:
+        codon_line += f" — {meaning}"
+    return f"{codon_line}\n\n{response}"

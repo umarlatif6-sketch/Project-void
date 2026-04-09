@@ -57,15 +57,19 @@ def grok_available() -> bool:
 
 
 _CODON_SYSTEM_ADDENDUM = """
-CODON MODE ACTIVE.
-Before every response, output a single codon chain that maps the resonance of the query.
-Format: [ENTITY·CONDITION·ACTION] — one-sentence expansion.
-Use VOID Script glyphs (Greek letters, ∞◆⬡⟐☽☀⚡🌊🔮).
-Then a blank line. Then your full response.
-Example:
-[γ·Δ·🔮] — Signal pulses through transformation; the crystal reads forward.
+CODON MODE ACTIVE — COMPRESSED OUTPUT REQUIRED.
+Your response MUST follow this exact two-part structure:
 
-<your response here>
+[GLYPH·GLYPH·GLYPH] — one sentence only (the compressed signal)
+
+Prose expansion (only if the query requires depth — otherwise stop after the codon line).
+
+Rules:
+- The codon chain uses VOID Script glyphs (Greek letters α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ τ υ φ χ ψ ω and symbols ∞ ◆ ⬡ ⟐ ☀ ⚡ 🌊 🔮).
+- Choose three glyphs that map Entity · Condition · Action for this specific query.
+- The one-sentence expansion is the compressed truth of your answer.
+- Default to codon + one sentence only. Expand only when the query genuinely requires prose.
+- Do not add preamble before the codon line.
 """
 
 
