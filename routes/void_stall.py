@@ -17,4 +17,6 @@ void_stall_bp = Blueprint("void_stall", __name__)
 
 @void_stall_bp.route("/void-stall")
 def void_stall():
-    return render_template("void_stall.html")
+    from void_engine.void_codon_vocab import freq_to_codon
+    zone = freq_to_codon(432)
+    return render_template("void_stall.html", zone=zone)

@@ -193,11 +193,17 @@
 
 <div class="eyebrow">PROJECT VOID · Manchester Tech Week · April 27 – May 1, 2026</div>
 
-<div class="codon-hero">λ·Λ·☀</div>
-<div class="codon-label">432 Hz — VoidEcho Zone</div>
+<div class="codon-hero">{{ zone.codon if zone else 'λ·Λ·☀' }}</div>
+<div class="codon-label">{{ zone.hz if zone else 432 }} Hz — {{ zone.name if zone else 'VoidEcho' }} Zone</div>
 <div class="codon-expansion">
-  Wave · Carrier · Broadcast<br>
-  The wave rides the carrier. It broadcasts at peak amplitude.
+  {% if zone %}
+    {% set parts = zone.codon.split('·') %}
+    {{ parts[0] }} · {{ parts[1] }} · {{ parts[2] }}<br>
+    {{ zone.expansion }}
+  {% else %}
+    Wave · Carrier · Broadcast<br>
+    The wave rides the carrier. It broadcasts at peak amplitude.
+  {% endif %}
 </div>
 
 <div class="divider"></div>
