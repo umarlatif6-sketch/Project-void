@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resonance Node Portal — Blueprint — PROJECT VOID</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+    :root {
+        --bg: #050505;
+        --bg2: #0a0a0a;
+        --bg3: #0d0d0d;
+        --gold: #c9a84c;
+        --cyan: #22d3ee;
+        --green: #4ade80;
+        --blue: #60a5fa;
+        --red: #f87171;
+        --plasma: #b57bee;
+        --dim: #3a3a3a;
+        --dim2: #5a5a5a;
+        --white: #e0ddd8;
+        --border: #141414;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        background: var(--bg);
+        color: var(--white);
+        font-family: 'Share Tech Mono', monospace;
+        min-height: 100vh;
+    }
+
+    .header {
+        padding: 40px 40px 32px;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+    }
+    .header-sup {
+        font-size: 10px;
+        letter-spacing: 4px;
+        color: var(--dim2);
+        margin-bottom: 12px;
+    }
+    .header-title {
+        font-size: 30px;
+        color: var(--plasma);
+        letter-spacing: 4px;
+        margin-bottom: 8px;
+        text-shadow: 0 0 40px rgba(181,123,238,0.3);
+    }
+    .header-sub {
+        font-size: 11px;
+        color: var(--dim2);
+        letter-spacing: 2px;
+    }
+    .header-stamp {
+        position: absolute;
+        top: 40px;
+        right: 40px;
+        font-size: 9px;
+        letter-spacing: 2px;
+        color: var(--dim);
+        text-align: right;
+        line-height: 1.8;
+    }
+
+    .main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 56px 40px 120px;
+    }
+
+    .hypothesis-bar {
+        border: 1px solid var(--plasma);
+        border-left: 4px solid var(--plasma);
+        padding: 14px 20px;
+        margin-bottom: 48px;
+        font-size: 11px;
+        color: var(--plasma);
+        letter-spacing: 2px;
+        line-height: 1.9;
+        background: rgba(181,123,238,0.03);
+    }
+
+    .section {
+        margin-bottom: 52px;
+    }
+    .section-label {
+        font-size: 9px;
+        letter-spacing: 4px;
+        color: var(--dim2);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .principle-block {
+        font-size: 13px;
+        line-height: 2.2;
+        color: var(--white);
+        max-width: 720px;
+    }
+    .principle-block .hl { color: var(--gold); }
+    .principle-block .hl-cyan { color: var(--cyan); }
+    .principle-block .hl-plasma { color: var(--plasma); }
+    .principle-block .hl-green { color: var(--green); }
+
+    .physics-chain {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-top: 8px;
+    }
+    .chain-item {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 16px;
+        align-items: start;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .chain-num {
+        font-size: 9px;
+        color: var(--dim2);
+        letter-spacing: 1px;
+        padding-top: 2px;
+    }
+    .chain-body {}
+    .chain-title {
+        font-size: 11px;
+        color: var(--cyan);
+        letter-spacing: 2px;
+        margin-bottom: 6px;
+    }
+    .chain-text {
+        font-size: 12px;
+        color: var(--dim2);
+        line-height: 1.9;
+    }
+    .chain-text .hl { color: var(--white); }
+    .chain-text .hl-gold { color: var(--gold); }
+
+    .stage-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    .stage {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+    .stage-id {
+        background: var(--bg3);
+        padding: 20px 16px;
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+    }
+    .stage-roman {
+        font-size: 20px;
+        color: var(--plasma);
+        letter-spacing: 2px;
+    }
+    .stage-name-sm {
+        font-size: 8px;
+        color: var(--dim2);
+        letter-spacing: 2px;
+        line-height: 1.6;
+    }
+    .stage-body {
+        padding: 20px 24px;
+    }
+    .stage-title {
+        font-size: 12px;
+        color: var(--gold);
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+    }
+    .stage-desc {
+        font-size: 11px;
+        color: var(--dim2);
+        line-height: 2;
+    }
+    .stage-desc .hl { color: var(--white); }
+    .stage-desc .hl-cyan { color: var(--cyan); }
+    .stage-desc .hl-green { color: var(--green); }
+    .stage-spec {
+        margin-top: 10px;
+        font-size: 10px;
+        color: var(--dim);
+        letter-spacing: 1px;
+        border-top: 1px solid var(--border);
+        padding-top: 10px;
+        line-height: 1.8;
+    }
+    .stage-spec span { color: var(--cyan); }
+
+    .freq-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 3px;
+    }
+    .freq-card {
+        border: 1px solid var(--border);
+        padding: 20px;
+        background: var(--bg2);
+    }
+    .freq-hz {
+        font-size: 22px;
+        color: var(--plasma);
+        letter-spacing: 2px;
+        margin-bottom: 6px;
+    }
+    .freq-name {
+        font-size: 9px;
+        color: var(--gold);
+        letter-spacing: 3px;
+        margin-bottom: 10px;
+    }
+    .freq-desc {
+        font-size: 10px;
+        color: var(--dim2);
+        line-height: 1.8;
+    }
+
+    .component-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .component {
+        display: grid;
+        grid-template-columns: 32px 200px 1fr;
+        gap: 0;
+        border: 1px solid var(--border);
+        align-items: stretch;
+    }
+    .component-dot {
+        background: var(--bg3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 6px;
+        color: var(--plasma);
+        border-right: 1px solid var(--border);
+    }
+    .component-name {
+        padding: 14px 16px;
+        font-size: 10px;
+        color: var(--cyan);
+        letter-spacing: 1px;
+        line-height: 1.7;
+        border-right: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+    }
+    .component-spec {
+        padding: 14px 20px;
+        font-size: 10px;
+        color: var(--dim2);
+        line-height: 1.8;
+    }
+    .component-spec .hl { color: var(--white); }
+
+    .node-diagram {
+        border: 1px solid var(--border);
+        padding: 40px;
+        text-align: center;
+        background: var(--bg2);
+        position: relative;
+        overflow: hidden;
+    }
+    .diagram-ring {
+        width: 260px;
+        height: 260px;
+        border: 2px solid var(--plasma);
+        border-radius: 50%;
+        margin: 0 auto;
+        position: relative;
+        box-shadow: 0 0 60px rgba(181,123,238,0.15), inset 0 0 60px rgba(181,123,238,0.05);
+    }
+    .diagram-ball {
+        width: 24px;
+        height: 24px;
+        background: radial-gradient(circle at 35% 35%, var(--cyan), #0e7490);
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: -12px;
+        transform: translateY(-50%);
+        box-shadow: 0 0 20px rgba(34,211,238,0.5);
+    }
+    .diagram-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        width: 8px;
+        height: 8px;
+        background: var(--gold);
+        border-radius: 50%;
+        box-shadow: 0 0 30px rgba(201,168,76,0.6);
+    }
+    .diagram-pole {
+        width: 10px;
+        height: 10px;
+        background: var(--red);
+        border-radius: 50%;
+        position: absolute;
+        box-shadow: 0 0 12px rgba(248,113,113,0.5);
+    }
+    .pole-n { top: -5px; left: 50%; transform: translateX(-50%); }
+    .pole-s { bottom: -5px; left: 50%; transform: translateX(-50%); }
+    .pole-e { right: -5px; top: 50%; transform: translateY(-50%); }
+    .pole-w { left: -5px; top: 50%; transform: translateY(-50%); }
+    .diagram-label {
+        font-size: 9px;
+        color: var(--dim2);
+        letter-spacing: 2px;
+        margin-top: 24px;
+        line-height: 1.9;
+    }
+    .diagram-label .hl { color: var(--plasma); }
+
+    .nodal-boundary {
+        width: 120px;
+        height: 120px;
+        border: 1px dashed var(--gold);
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        opacity: 0.4;
+        animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 0.2; transform: translate(-50%,-50%) scale(1); }
+        50% { opacity: 0.5; transform: translate(-50%,-50%) scale(1.05); }
+    }
+
+    .formation-seal {
+        border: 1px solid var(--gold);
+        border-left: 4px solid var(--gold);
+        padding: 24px 28px;
+        margin-top: 48px;
+        background: rgba(201,168,76,0.03);
+    }
+    .seal-title {
+        font-size: 9px;
+        letter-spacing: 4px;
+        color: var(--gold);
+        margin-bottom: 14px;
+    }
+    .seal-text {
+        font-size: 13px;
+        color: var(--white);
+        line-height: 2.2;
+    }
+    .seal-text em {
+        color: var(--gold);
+        font-style: normal;
+    }
+
+    .warning-bar {
+        border: 1px solid var(--red);
+        border-left: 4px solid var(--red);
+        padding: 14px 20px;
+        margin-bottom: 48px;
+        font-size: 11px;
+        color: var(--red);
+        letter-spacing: 1px;
+        line-height: 1.9;
+        background: rgba(248,113,113,0.03);
+    }
+
+    .footer {
+        border-top: 1px solid var(--border);
+        padding: 28px 40px;
+        font-size: 9px;
+        color: var(--dim);
+        letter-spacing: 2px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .footer a { color: var(--dim2); text-decoration: none; }
+    .footer a:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-sup">PROJECT VOID · HYPOTHESIS INSTRUMENT SERIES · DOCUMENT 001</div>
+    <div class="header-title">THE RESONANCE NODE PORTAL</div>
+    <div class="header-sub">Blueprint · Rotating Magnetic Field · Nodal Boundary Formation · 432 Hz</div>
+    <div class="header-stamp">
+        FOUNDED IN CONVERSATION<br>
+        9 APRIL 2026<br>
+        STATUS: HYPOTHESIS<br>
+        CLASSIFICATION: OPEN
+    </div>
+</div>
+
+<div class="main">
+
+    <div class="hypothesis-bar">
+        HYPOTHESIS INSTRUMENT — This blueprint describes a physical device that has not yet been built.<br>
+        The physics underlying each stage are documented and testable independently.<br>
+        The full system behaviour at resonance lock remains to be observed.
+    </div>
+
+    <div class="section">
+        <div class="section-label">ORIGIN</div>
+        <div class="principle-block">
+            The Chladni experiment (1787) showed sand moving to nodal lines on a vibrating plate.<br>
+            Everyone saw <span class="hl">where the sand went</span>.<br>
+            No one named <span class="hl-plasma">what was pushing it</span>.<br><br>
+
+            Between the plate and the sand — between the grains themselves —
+            the sound wave writes itself into the air as a <span class="hl-cyan">pressure field</span>.
+            The sand does not respond to the plate. The sand responds to what the plate
+            wrote into the space between.<br><br>
+
+            The sand climbs at the mound because the pressure field has an <span class="hl-green">upward component</span>.
+            The frequency is trying to lift it. At sufficient intensity, the sand would levitate —
+            suspended in the exact geometry of the nodal field.<br><br>
+
+            This instrument scales that principle to the electromagnetic domain.
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">PHYSICS CHAIN</div>
+        <div class="physics-chain">
+            <div class="chain-item">
+                <div class="chain-num">01</div>
+                <div class="chain-body">
+                    <div class="chain-title">ROTATING MAGNETIC FIELD</div>
+                    <div class="chain-text">
+                        A spinning magnetic ball in a circular track creates a <span class="hl">rotating magnetic field</span>.
+                        The field writes itself into the surrounding space — not into the ball,
+                        into the <span class="hl-gold">medium between the ball and everything else</span>.
+                        The same principle as the speaker writing into the air before the sand feels it.
+                    </div>
+                </div>
+            </div>
+            <div class="chain-item">
+                <div class="chain-num">02</div>
+                <div class="chain-body">
+                    <div class="chain-title">STANDING ELECTROMAGNETIC WAVE</div>
+                    <div class="chain-text">
+                        Electrical poles placed at geometric intervals around the ring —
+                        driven at a specific Hz — create a standing EM wave in the space enclosed by the ring.
+                        Nodes and antinodes form in the field, just as nodal lines form on the Chladni plate.
+                        The <span class="hl-gold">nodal geometry is determined by the frequency</span>, not by the material.
+                    </div>
+                </div>
+            </div>
+            <div class="chain-item">
+                <div class="chain-num">03</div>
+                <div class="chain-body">
+                    <div class="chain-title">RESONANCE LOCK</div>
+                    <div class="chain-text">
+                        When the orbital frequency of the spinning ball matches the frequency of the electrical poles,
+                        the two fields couple. The rotating field and the standing wave <span class="hl-gold">lock into one geometry</span>.
+                        The nodal boundary becomes stable, defined, and measurable.
+                        Inside the lock: field conditions structurally different from outside.
+                    </div>
+                </div>
+            </div>
+            <div class="chain-item">
+                <div class="chain-num">04</div>
+                <div class="chain-body">
+                    <div class="chain-title">NODAL BOUNDARY — THE PORTAL</div>
+                    <div class="chain-text">
+                        The nodal boundary is not a hole in space. It is a <span class="hl-gold">phase transition boundary</span>
+                        in the electromagnetic field. The frequency has written such a defined geometry into the space
+                        that a distinct inside and outside exist. Material entering the node at the moment of resonance lock
+                        forms in the presence of that geometry.
+                        The boundary is the portal. The frequency is the door.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">BUILD STAGES</div>
+        <div class="stage-grid">
+            <div class="stage">
+                <div class="stage-id">
+                    <div class="stage-roman">I</div>
+                    <div class="stage-name-sm">CONTAINMENT<br>RING</div>
+                </div>
+                <div class="stage-body">
+                    <div class="stage-title">CIRCULAR MAGNETIC TRACK</div>
+                    <div class="stage-desc">
+                        A <span class="hl">circular non-ferrous track</span> — acrylic or copper — guides the magnetic ball
+                        in a perfect closed orbit. The track diameter determines the orbital frequency range.
+                        The ring must be level and balanced. Any asymmetry distorts the field geometry.
+                    </div>
+                    <div class="stage-spec">
+                        MATERIAL: <span>copper or acrylic</span> &nbsp;·&nbsp;
+                        DIAMETER: <span>300–600mm recommended</span> &nbsp;·&nbsp;
+                        TRACK DEPTH: <span>8–12mm</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stage">
+                <div class="stage-id">
+                    <div class="stage-roman">II</div>
+                    <div class="stage-name-sm">INDUCTION<br>ACCELERATION</div>
+                </div>
+                <div class="stage-body">
+                    <div class="stage-title">ELECTROMAGNETIC DRIVE COILS</div>
+                    <div class="stage-desc">
+                        Coils placed at intervals around the ring fire in sequence to
+                        <span class="hl">accelerate the ball electromagnetically</span>.
+                        The firing sequence is the base frequency — the rotational Hz.
+                        Target: ball spinning at a stable orbital frequency before poles are introduced.
+                    </div>
+                    <div class="stage-spec">
+                        COIL COUNT: <span>4–8 coils</span> &nbsp;·&nbsp;
+                        DRIVER: <span>H-bridge MOSFET, PWM controlled</span> &nbsp;·&nbsp;
+                        TARGET RPM: <span>tunable to 432 Hz orbital equivalent</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stage">
+                <div class="stage-id">
+                    <div class="stage-roman">III</div>
+                    <div class="stage-name-sm">POLE<br>ARRAY</div>
+                </div>
+                <div class="stage-body">
+                    <div class="stage-title">ELECTRICAL POLES AT GEOMETRIC INTERVALS</div>
+                    <div class="stage-desc">
+                        Four poles at 90° intervals — mirroring the <span class="hl-cyan">Chladni quadrant pattern</span>.
+                        Each pole carries the electrical frequency from the generator.
+                        The poles do not touch the ball. They create a field in the space the ball moves through.
+                        The geometry of the pole placement determines the nodal pattern.
+                    </div>
+                    <div class="stage-spec">
+                        POLES: <span>4 at 90° (quadrant) or 6 at 60° (hexagonal)</span> &nbsp;·&nbsp;
+                        MATERIAL: <span>copper rod, 6mm diameter</span> &nbsp;·&nbsp;
+                        HEIGHT: <span>flush with ball orbit plane</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stage">
+                <div class="stage-id">
+                    <div class="stage-roman">IV</div>
+                    <div class="stage-name-sm">FREQUENCY<br>TUNING</div>
+                </div>
+                <div class="stage-body">
+                    <div class="stage-title">RESONANCE GENERATOR + DETECTOR</div>
+                    <div class="stage-desc">
+                        A function generator drives the poles. Start at <span class="hl-cyan">7.83 Hz</span> (Schumann resonance).
+                        Step through to <span class="hl-cyan">432 Hz</span>. Monitor the field with a Hall effect sensor
+                        array or ferrofluid observation medium.
+                        Resonance lock is visible: the ferrofluid surface geometry stabilises suddenly
+                        into a defined nodal pattern and holds.
+                    </div>
+                    <div class="stage-spec">
+                        GENERATOR: <span>AD9833 or similar DDS, 0.1 Hz resolution</span> &nbsp;·&nbsp;
+                        DETECTOR: <span>Hall effect array or ferrofluid surface</span> &nbsp;·&nbsp;
+                        LOCK INDICATOR: <span>sudden geometry stabilisation</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stage">
+                <div class="stage-id">
+                    <div class="stage-roman">V</div>
+                    <div class="stage-name-sm">OBSERVATION<br>MEDIUM</div>
+                </div>
+                <div class="stage-body">
+                    <div class="stage-title">FIELD VISUALISATION LAYER</div>
+                    <div class="stage-desc">
+                        Fine conductive particles or <span class="hl-green">ferrofluid</span> placed in the interior space
+                        of the ring will migrate to the nodal points of the standing EM wave — exactly as sand
+                        migrates to the Chladni nodal lines. The pattern reveals the geometry of the field
+                        written into the space by the rotating ball and the electrical poles.
+                    </div>
+                    <div class="stage-spec">
+                        MEDIUM: <span>ferrofluid in shallow acrylic dish, centred in ring</span> &nbsp;·&nbsp;
+                        ALTERNATIVE: <span>iron filings, lycopodium powder</span> &nbsp;·&nbsp;
+                        CAMERA: <span>overhead, high contrast lighting</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stage">
+                <div class="stage-id">
+                    <div class="stage-roman">VI</div>
+                    <div class="stage-name-sm">FIELD<br>LOCK</div>
+                </div>
+                <div class="stage-body">
+                    <div class="stage-title">RESONANCE NODE — OBSERVABLE BOUNDARY</div>
+                    <div class="stage-desc">
+                        At resonance lock — orbital frequency matches pole frequency —
+                        the ferrofluid surface snaps to the nodal geometry and holds.
+                        The interior of the locked geometry is the <span class="hl-green">resonance node</span>.
+                        Field conditions inside are measurably different from outside.
+                        This is the portal. Not a doorway. A <span class="hl-green">defined field boundary</span>
+                        created by the frequency in the space between.
+                    </div>
+                    <div class="stage-spec">
+                        MEASURE: <span>Gaussmeter interior vs exterior</span> &nbsp;·&nbsp;
+                        RECORD: <span>high-speed camera + Hall array log</span> &nbsp;·&nbsp;
+                        EXPECTED: <span>field intensity differential at boundary</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">SCHEMATIC — TOP VIEW</div>
+        <div class="node-diagram">
+            <div class="diagram-ring">
+                <div class="diagram-ball"></div>
+                <div class="diagram-center"></div>
+                <div class="nodal-boundary"></div>
+                <div class="diagram-pole pole-n"></div>
+                <div class="diagram-pole pole-s"></div>
+                <div class="diagram-pole pole-e"></div>
+                <div class="diagram-pole pole-w"></div>
+            </div>
+            <div class="diagram-label">
+                <span class="hl">● MAGNETIC BALL</span> orbiting at target Hz &nbsp;·&nbsp;
+                <span style="color:var(--red)">● POLES</span> at 90° intervals &nbsp;·&nbsp;
+                <span style="color:var(--gold)">● CENTRE NODE</span> — field lock point<br>
+                Dashed ring = <span class="hl">nodal boundary</span> — the resonance portal
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">TARGET FREQUENCIES</div>
+        <div class="freq-grid">
+            <div class="freq-card">
+                <div class="freq-hz">7.83 Hz</div>
+                <div class="freq-name">SCHUMANN RESONANCE</div>
+                <div class="freq-desc">
+                    Earth's fundamental electromagnetic resonance. The cavity between
+                    the earth's surface and the ionosphere. The planetary base frequency.
+                    Start here. Establish the orbital baseline.
+                </div>
+            </div>
+            <div class="freq-card">
+                <div class="freq-hz">432 Hz</div>
+                <div class="freq-name">FORMATION CARRIER</div>
+                <div class="freq-desc">
+                    The carrier frequency of the Formation Principle. Demonstrated in
+                    acoustic form — Chladni sand, ferrofluid Rosensweig, UV-cured resin sphere.
+                    The target pole frequency at full system speed.
+                </div>
+            </div>
+            <div class="freq-card">
+                <div class="freq-hz">54 Hz</div>
+                <div class="freq-name">BRIDGE — 53–54 Hz</div>
+                <div class="freq-desc">
+                    The boundary frequency identified in the Adriana resonance observation.
+                    53–54% between two worlds. The transition band between Schumann and audible
+                    formation range. A secondary resonance lock candidate.
+                </div>
+            </div>
+            <div class="freq-card">
+                <div class="freq-hz">ƒ(r)</div>
+                <div class="freq-name">ORBITAL RESONANCE</div>
+                <div class="freq-desc">
+                    The natural resonant frequency of the ball in the ring — determined by
+                    ring diameter and ball mass. Must be calculated before construction.
+                    The pole Hz must be tuned to match or harmonically couple with ƒ(r).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">COMPONENTS LIST</div>
+        <div class="component-list">
+            <div class="component">
+                <div class="component-dot">◆</div>
+                <div class="component-name">NEODYMIUM MAGNETIC BALL</div>
+                <div class="component-spec">Grade N52, 30–50mm diameter. <span class="hl">Spherical for uniform field distribution</span>. High field strength ensures the rotating field writes clearly into the surrounding medium.</div>
+            </div>
+            <div class="component">
+                <div class="component-dot">◆</div>
+                <div class="component-name">CIRCULAR TRACK</div>
+                <div class="component-spec">Non-ferrous. Acrylic or copper. 300–600mm diameter. <span class="hl">Precision-formed</span> — any asymmetry distorts the nodal geometry. Machined or 3D printed in segments.</div>
+            </div>
+            <div class="component">
+                <div class="component-dot">◆</div>
+                <div class="component-name">INDUCTION DRIVE COILS</div>
+                <div class="component-spec">4–8 coils at equal intervals. <span class="hl">H-bridge MOSFET driver</span>. Microcontroller sequencing — Arduino or STM32. Firing sequence = orbital frequency. Variable speed via PWM.</div>
+            </div>
+            <div class="component">
+                <div class="component-dot">◆</div>
+                <div class="component-name">ELECTRICAL POLE ARRAY</div>
+                <div class="component-spec">4 copper rods at 90°. Connected to DDS function generator. <span class="hl">Isolated from drive coils</span>. Each pole is a field emitter — not a contact point. Insulated mounting.</div>
+            </div>
+            <div class="component">
+                <div class="component-dot">◆</div>
+                <div class="component-name">DDS FUNCTION GENERATOR</div>
+                <div class="component-spec">AD9833 or equivalent. 0.1 Hz resolution minimum. <span class="hl">Sweep mode enabled</span> to scan from 7 Hz to 500 Hz. Amplitude control. SPI interface for microcontroller tuning.</div>
+            </div>
+            <div class="component">
+                <div class="component-dot">◆</div>
+                <div class="component-name">FERROFLUID OBSERVATION DISH</div>
+                <div class="component-spec">Shallow acrylic dish, 150mm diameter. Centred in the ring. <span class="hl">Ferrofluid as field medium</span> — surface migrates to nodal geometry at resonance lock. Overhead camera for observation.</div>
+            </div>
+            <div class="component">
+                <div class="component-dot">◆</div>
+                <div class="component-name">HALL EFFECT SENSOR ARRAY</div>
+                <div class="component-spec">4–8 sensors at nodal points. <span class="hl">Continuous field intensity logging</span>. Detects the differential between interior and exterior field conditions. Resonance lock visible in sensor data.</div>
+            </div>
+            <div class="component">
+                <div class="component-dot">◆</div>
+                <div class="component-name">OVERHEAD CAMERA</div>
+                <div class="component-spec">High contrast. <span class="hl">Black ferrofluid on white dish</span> for maximum visibility. Record the moment of resonance lock — the geometry stabilising suddenly. This is the evidence.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="warning-bar">
+        ELECTROMAGNETIC SAFETY — The rotating magnetic ball at high speed and the electrical pole field at resonance
+        create a combined EM environment that has not been fully characterised.<br>
+        Do not operate near pacemakers, implanted medical devices, or sensitive electronics.<br>
+        All field measurements should be logged. All observations should be recorded. This is a hypothesis instrument — the result is the observation.
+    </div>
+
+    <div class="formation-seal">
+        <div class="seal-title">THE FORMATION PRINCIPLE — APPLIED</div>
+        <div class="seal-text">
+            The frequency writes itself into the medium before it reaches the material.<br>
+            The sand did not respond to the plate. It responded to what the plate wrote into the air.<br>
+            The ferrofluid does not respond to the coil. It responds to what the coil writes into the space.<br><br>
+            <em>Any responsive material, at the moment of formation, inherits the geometry of the frequency present.</em><br><br>
+            The nodal boundary is not built. It is written — by the frequency, into the space between.<br>
+            The instrument creates the conditions. The frequency creates the portal.<br><br>
+            The caves the ancients described were nodes. Places where the earth's resonance field
+            created a defined boundary — a geometry so distinct from the surrounding space that
+            the material formed inside it carried a different record.<br>
+            The portal is not a door. It is a frequency writing itself into the world clearly enough
+            that the boundary between inside and outside becomes observable.
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">
+    <span>PROJECT VOID · /portal-blueprint · DOCUMENT 001 · FOUNDED 9 APRIL 2026</span>
+    <span>
+        <a href="/manchester-gift">GIFTS →</a> &nbsp;&nbsp;
+        <a href="/sphere-key">SPHERE KEY →</a> &nbsp;&nbsp;
+        <a href="/">VOID →</a>
+    </span>
+</div>
+
+{% include "partials/void_tagline.html" %}
+
+</body>
+</html>

@@ -70,6 +70,7 @@ from routes.hafiz import hafiz_bp
 from routes.manchester_gift import manchester_gift_bp
 from routes.sphere_key import sphere_key_bp
 from routes.codon_distil import codon_distil_bp
+from routes.portal_blueprint import portal_blueprint_bp
 
 
 def register_blueprints(app):
@@ -145,3 +146,4 @@ def register_blueprints(app):
     app.register_blueprint(codon_distil_bp)
     app.register_blueprint(hafiz_bp)
     app.register_blueprint(manchester_gift_bp)
+    app.register_blueprint(portal_blueprint_bp)
