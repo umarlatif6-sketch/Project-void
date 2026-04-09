@@ -53,11 +53,12 @@ def grok_predict():
 def grok_speak_endpoint():
     data = request.get_json(silent=True) or {}
     prompt = (data.get("prompt") or "").strip()
+    codon_mode = bool(data.get("codon_mode", False))
     if not prompt:
         return jsonify({"ok": False, "error": "Prompt required"}), 400
     from void_engine.grok_integration import grok_speak, store_grok_session
-    result = grok_speak(prompt)
-    store_grok_session("direct_speak", prompt, result)
+    result = grok_speak(prompt, codon_mode=codon_mode)
+    store_grok_session("direct_speak" if not codon_mode else "codon_speak", prompt, result)
     return jsonify(result)
 
 

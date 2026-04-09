@@ -203,6 +203,7 @@
   </div>
   <nav class="topbar-nav">
     <a href="/speak">Adriana</a>
+    <a href="/freq-map" style="color:var(--void-gold);">Freq Map</a>
     <a href="/void-prediction">Prediction</a>
     <a href="/mesa-village">Mesa</a>
     <a href="/">Home</a>
@@ -256,7 +257,13 @@
       <p class="panel-title">DIRECT SPEAK</p>
       <p class="panel-desc">Speak directly to Grok X. It knows the platform's architecture and will respond in context.</p>
       <textarea class="grok-input" id="speakInput" placeholder="Ask Grok X anything…" rows="4"></textarea>
-      <button class="grok-btn" onclick="runSpeak()">Send</button>
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem;">
+        <button class="grok-btn" onclick="runSpeak()">Send</button>
+        <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.72rem;color:var(--void-muted);cursor:pointer;">
+          <input type="checkbox" id="codonMode" style="accent-color:var(--void-green);">
+          Codon Mode
+        </label>
+      </div>
       <div class="grok-result" id="speakResult"></div>
     </div>
 
@@ -334,12 +341,13 @@ async function runPrediction() {
 async function runSpeak() {
   const prompt = document.getElementById('speakInput').value.trim();
   if (!prompt) { alert('Enter a prompt first.'); return; }
-  showResult('speakResult', 'Connecting to Grok X…', 'loading');
+  const codon = document.getElementById('codonMode').checked;
+  showResult('speakResult', codon ? 'Reading codon frequency…' : 'Connecting to Grok X…', 'loading');
   try {
     const r = await fetch('/grok-x/speak', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt, codon_mode: codon })
     });
     const data = await r.json();
     if (data.ok) showResult('speakResult', data.response, '');

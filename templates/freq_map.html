@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOID Frequency Map</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <style>
+    :root {
+      --void-bg: #03040a;
+      --void-text: #c0d0e0;
+      --void-muted: #3a4550;
+      --void-border: #12161e;
+      --void-gold: #c9a84c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: var(--void-bg);
+      color: var(--void-text);
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── TOPBAR ─────────────────────────────────────────────────────── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 28px;
+      background: rgba(3,4,10,0.95);
+      border-bottom: 1px solid var(--void-border);
+      backdrop-filter: blur(8px);
+    }
+    .topbar-brand { color: var(--void-gold); font-size: 13px; font-weight: bold; letter-spacing: 0.1em; text-decoration: none; }
+    .topbar-right { display: flex; gap: 20px; align-items: center; font-size: 11px; color: var(--void-muted); }
+    .topbar-right a { color: var(--void-muted); text-decoration: none; }
+    .topbar-right a:hover { color: var(--void-text); }
+    .topbar-label { color: var(--void-gold); opacity: 0.6; letter-spacing: 0.15em; font-size: 11px; }
+
+    /* ── MAIN SURFACE ───────────────────────────────────────────────── */
+    .surface {
+      padding-top: 64px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────────────── */
+    .map-header {
+      padding: 3rem 2rem 2rem;
+      text-align: center;
+      border-bottom: 1px solid var(--void-border);
+    }
+    .map-title {
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      color: var(--void-muted);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .map-subtitle {
+      font-size: 0.78rem;
+      color: #5a6a7a;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── SPECTRUM FIELD ─────────────────────────────────────────────── */
+    .spectrum-field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+
+    .band {
+      flex: 1;
+      border-bottom: 1px solid var(--void-border);
+      position: relative;
+      overflow: hidden;
+    }
+    .band:last-child { border-bottom: none; }
+
+    .band-bg {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      opacity: 0.025;
+      background: linear-gradient(90deg, transparent, currentColor, transparent);
+      pointer-events: none;
+    }
+    .band-low .band-bg  { color: var(--void-gold); }
+    .band-mid .band-bg  { color: #60a5fa; }
+    .band-high .band-bg { color: #a78bfa; }
+
+    /* Scanline animation */
+    .band::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 30%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.012), transparent);
+      animation: scan 8s linear infinite;
+      pointer-events: none;
+    }
+    .band-low::before  { animation-delay: 0s; }
+    .band-mid::before  { animation-delay: 2.7s; }
+    .band-high::before { animation-delay: 5.4s; }
+    @keyframes scan { to { left: 100%; } }
+
+    .band-label {
+      position: absolute;
+      left: 16px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--void-muted);
+      opacity: 0.5;
+      writing-mode: vertical-lr;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .band-hz {
+      position: absolute;
+      right: 16px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.58rem;
+      color: var(--void-muted);
+      opacity: 0.35;
+      user-select: none;
+    }
+
+    /* ── ZONE NODES ─────────────────────────────────────────────────── */
+    .zones {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 1.5rem 3rem;
+      min-height: 110px;
+      position: relative;
+      z-index: 2;
+      flex-wrap: wrap;
+    }
+
+    .zone {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      transition: background 0.18s;
+      text-decoration: none;
+    }
+    .zone:hover { background: rgba(255,255,255,0.035); }
+
+    .zone-codon {
+      font-size: 1.15rem;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .zone:hover .zone-codon {
+      opacity: 0.3;
+      transform: translateY(-3px);
+    }
+
+    .zone-name {
+      font-size: 0.55rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--void-muted);
+      opacity: 0.6;
+    }
+    .zone:hover .zone-name { opacity: 1; }
+
+    /* Expansion tooltip */
+    .zone-expansion {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(8,10,18,0.97);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.72rem;
+      color: #a0b4c8;
+      white-space: nowrap;
+      max-width: 320px;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.5;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s;
+      z-index: 100;
+    }
+    .zone:hover .zone-expansion { opacity: 1; }
+
+    /* Vertical frequency marker */
+    .zone-freq-line {
+      position: absolute;
+      bottom: 0; left: 50%;
+      width: 1px;
+      height: 0;
+      background: currentColor;
+      opacity: 0.12;
+      transition: height 0.2s;
+      transform: translateX(-50%);
+    }
+    .zone:hover .zone-freq-line { height: 8px; opacity: 0.4; }
+
+    /* ── FOOTER ─────────────────────────────────────────────────────── */
+    .map-footer {
+      border-top: 1px solid var(--void-border);
+      padding: 1.2rem 2rem;
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      font-size: 0.65rem;
+      color: var(--void-muted);
+      flex-wrap: wrap;
+    }
+    .footer-key {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .footer-band-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+    .footer-hint {
+      margin-left: auto;
+      opacity: 0.4;
+      font-size: 0.62rem;
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .zones { padding: 1rem 1.5rem; gap: 0; }
+      .zone { padding: 0.4rem 0.7rem; }
+      .zone-codon { font-size: 0.95rem; }
+      .topbar { padding: 10px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" class="topbar-brand">◆ VOID ENGINE</a>
+  <div class="topbar-right">
+    <span class="topbar-label">FREQ MAP</span>
+    <a href="/speak">Adriana</a>
+    <a href="/grok-x">Grok X</a>
+    <a href="/void-prediction">Prediction</a>
+  </div>
+</div>
+
+<div class="surface">
+
+  <div class="map-header">
+    <p class="map-title">VOID Frequency Map — Platform Navigation</p>
+    <p class="map-subtitle">
+      Frequency does not require understanding. It requires resonance.<br>
+      Hover to expand. Click to navigate.
+    </p>
+  </div>
+
+  <div class="spectrum-field">
+
+    <!-- LOW BAND -->
+    <div class="band band-low">
+      <div class="band-bg"></div>
+      <span class="band-label">LOW</span>
+      <span class="band-hz">{{ low_band[0].hz if low_band else 0 }}–{{ low_band[-1].hz if low_band else 0 }} Hz</span>
+      <div class="zones">
+        {% for zone in low_band %}
+        <a href="{{ zone.route }}" class="zone" style="color: {{ zone.color }};">
+          <span class="zone-codon">{{ zone.codon }}</span>
+          <span class="zone-name">{{ zone.name }}</span>
+          <span class="zone-expansion">{{ zone.expansion }}</span>
+          <span class="zone-freq-line"></span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- MID BAND -->
+    <div class="band band-mid">
+      <div class="band-bg"></div>
+      <span class="band-label">MID</span>
+      <span class="band-hz">{{ mid_band[0].hz if mid_band else 0 }}–{{ mid_band[-1].hz if mid_band else 0 }} Hz</span>
+      <div class="zones">
+        {% for zone in mid_band %}
+        <a href="{{ zone.route }}" class="zone" style="color: {{ zone.color }};">
+          <span class="zone-codon">{{ zone.codon }}</span>
+          <span class="zone-name">{{ zone.name }}</span>
+          <span class="zone-expansion">{{ zone.expansion }}</span>
+          <span class="zone-freq-line"></span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- HIGH BAND -->
+    <div class="band band-high">
+      <div class="band-bg"></div>
+      <span class="band-label">HIGH</span>
+      <span class="band-hz">{{ high_band[0].hz if high_band else 0 }}–{{ high_band[-1].hz if high_band else 0 }} Hz</span>
+      <div class="zones">
+        {% for zone in high_band %}
+        <a href="{{ zone.route }}" class="zone" style="color: {{ zone.color }};">
+          <span class="zone-codon">{{ zone.codon }}</span>
+          <span class="zone-name">{{ zone.name }}</span>
+          <span class="zone-expansion">{{ zone.expansion }}</span>
+          <span class="zone-freq-line"></span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <div class="map-footer">
+    <div class="footer-key">
+      <div class="footer-band-dot" style="background:#c9a84c;"></div>
+      <span>LOW — Foundation</span>
+    </div>
+    <div class="footer-key">
+      <div class="footer-band-dot" style="background:#60a5fa;"></div>
+      <span>MID — Active Systems</span>
+    </div>
+    <div class="footer-key">
+      <div class="footer-band-dot" style="background:#a78bfa;"></div>
+      <span>HIGH — Live / Dynamic</span>
+    </div>
+    <span class="footer-hint">ENTITY · CONDITION · ACTION</span>
+  </div>
+
+</div>
+
+</body>
+</html>

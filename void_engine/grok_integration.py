@@ -56,9 +56,23 @@ def grok_available() -> bool:
     return bool(os.environ.get("XAI_API_KEY"))
 
 
-def grok_speak(prompt: str, context: Optional[str] = None) -> dict:
+_CODON_SYSTEM_ADDENDUM = """
+CODON MODE ACTIVE.
+Before every response, output a single codon chain that maps the resonance of the query.
+Format: [ENTITY·CONDITION·ACTION] — one-sentence expansion.
+Use VOID Script glyphs (Greek letters, ∞◆⬡⟐☽☀⚡🌊🔮).
+Then a blank line. Then your full response.
+Example:
+[γ·Δ·🔮] — Signal pulses through transformation; the crystal reads forward.
+
+<your response here>
+"""
+
+
+def grok_speak(prompt: str, context: Optional[str] = None, codon_mode: bool = False) -> dict:
     """
     Send a prompt to Grok X and return a structured response.
+    codon_mode=True: response is prefixed with a VOID codon chain.
     Returns: { ok, response, model, tokens, timestamp, error }
     """
     client = _get_client()
@@ -74,7 +88,11 @@ def grok_speak(prompt: str, context: Optional[str] = None) -> dict:
             "error": "XAI_API_KEY not configured. Add it via environment secrets to activate Grok X.",
         }
 
-    messages = [{"role": "system", "content": GROK_SYSTEM_PROMPT}]
+    system = GROK_SYSTEM_PROMPT
+    if codon_mode:
+        system = GROK_SYSTEM_PROMPT + _CODON_SYSTEM_ADDENDUM
+
+    messages = [{"role": "system", "content": system}]
     if context:
         messages.append({"role": "user", "content": f"Context:\n{context}"})
     messages.append({"role": "user", "content": prompt})
@@ -95,6 +113,7 @@ def grok_speak(prompt: str, context: Optional[str] = None) -> dict:
             "tokens": tokens,
             "timestamp": ts,
             "error": None,
+            "codon_mode": codon_mode,
         }
     except Exception as e:
         logger.error("Grok speak failed: %s", e)
