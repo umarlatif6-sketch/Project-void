@@ -213,8 +213,9 @@
   },
 
   "urgent_flags": {
-    "MOST_URGENT_companies_house": "£12, 2 days — gov.uk/set-up-limited-company. Without it valuation is theoretical.",
-    "manchester_tech_week": "April 27 - May 1 2026. Stall: speaker + resin sphere + plasma ball (£10) + Chladni plate + sand.",
+    "CRITICAL_companies_house": "Register TODAY — gov.uk/set-up-limited-company — £12 — 15 mins to submit — 24 hours to confirm. ICC event 13 April 2026. Must be registered before that date. Without it valuation is theoretical.",
+    "icc_event_13_april": "ICC Manchester event — 13 April 2026. Four days from current date. Platform demo context. Business must be registered before this.",
+    "manchester_tech_week": "April 27 - May 1 2026. Stall: speaker + resin sphere + plasma ball (£10) + Chladni plate + sand. /manchester-gift is the gift page.",
     "codon_distil_engine": "BUILT — live at /codon-distil behind Sovereign login. No further build needed."
   },
 
