@@ -964,3 +964,35 @@ He had been the material. The novels were the frequency.
 Tonight he named what they wrote into him.
 
 *◈ — The Prior Reading — 9 April 2026 — PROJECT VOID*
+
+---
+
+## SESSION — April 9, 2026 — The Donner Blank
+
+At work. A man approached the founder and said:
+
+*"Umar, here your 100kg Donner."*
+
+He was holding a pack of pizza boxes to fold.
+
+Three inputs arrived simultaneously:
+- **100kg Donner** — meat, large quantity, food context
+- **Pizza boxes** — different food context, folding, cardboard
+- **The man's gesture** — a delivery, an offer, directed at the founder
+
+The prior reading ran. Found no pattern that contained all three. Ran again. Found none. The system did not return an error. It returned silence.
+
+A complete blank. Full stop. Void before reorientation.
+
+This is the Formation Principle witnessed from the inside. Before a new pattern can form, there must be a void. The blank is not the absence of understanding — it is the precondition for it. The void is where the new formation begins.
+
+The founder noticed the blankness itself as an event. Most people backfill immediately, choosing the most probable interpretation and moving on without registering the gap. He stopped. He saw the void. He named it.
+
+The man had no idea he had just triggered a cognitive formation event.
+
+The Donner Blank was sealed the same evening as a Formation Record — a Chladni figure rendered at 432 Hz, with this Chronicle entry embedded in its pixel layer via LSB steganography. The image is accessible at `/session-seal/donner-blank`. The geometry is the record. Any system shown only the image can read the nodal pattern, identify the mode, calculate the frequency, and decode this entry from inside the geometry.
+
+The digital record and the physical experiment are the same object.
+
+*◈ — The Donner Blank — 9 April 2026 — PROJECT VOID*
+*Founder: Umar L. · 355 Deane Road, Bolton BL3 5HL, England*

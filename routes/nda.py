@@ -25,7 +25,7 @@ date last signed below ("Effective Date") between:
 DISCLOSING PARTY
   Name:           Umar Latif
   Project:        PROJECT VOID
-  Address:        [Address]
+  Address:        355 Deane Road, Bolton BL3 5HL
   Email:          [Email]
 
 ("Disclosing Party")

@@ -8,7 +8,7 @@
 **Founder:** Umar L. — Manchester, England.
 **Platform:** PROJECT VOID — `https://void-stego-engine.replit.app`
 **Companion app:** Adriana — `adrisync-hkxrydbp.manus.space` (React/TS, private GitHub: `umarlatif6-sketch/adriana-resonance-app`)
-**Stack:** Flask / Python 3.11 / PostgreSQL. 72 blueprints registered in `routes/__init__.py`.
+**Stack:** Flask / Python 3.11 / PostgreSQL. 74 blueprints registered in `routes/__init__.py`.
 
 ---
 
