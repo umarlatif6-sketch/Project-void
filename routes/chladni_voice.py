@@ -31,7 +31,7 @@ TEMPLATE = """<!DOCTYPE html>
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 40px 20px;
+    padding: 28px 16px 48px;
   }
   .title {
     font-size: 11px;
@@ -50,10 +50,13 @@ TEMPLATE = """<!DOCTYPE html>
   }
   .canvas-wrap {
     position: relative;
-    display: inline-block;
+    width: 100%;
+    max-width: 480px;
   }
   canvas {
     display: block;
+    width: 100%;
+    height: auto;
     border: 1px solid #1a1a1a;
     background: #000;
   }
@@ -83,7 +86,7 @@ TEMPLATE = """<!DOCTYPE html>
     flex-wrap: wrap;
   }
   .btn {
-    padding: 10px 24px;
+    padding: 14px 28px;
     font-family: 'Courier New', monospace;
     font-size: 11px;
     letter-spacing: 0.15em;
@@ -93,6 +96,7 @@ TEMPLATE = """<!DOCTYPE html>
     cursor: pointer;
     transition: all 0.2s;
     text-transform: uppercase;
+    min-width: 140px;
   }
   .btn:hover { background: #111; border-color: #666; }
   .btn.active { border-color: #c44; color: #c44; }

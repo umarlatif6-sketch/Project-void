@@ -1,7 +1,7 @@
 """
 IP Disclosure — Intellectual Property Document
 Route: GET /ip-disclosure  — Rendered IP disclosure document for legal counsel
-Route: GET /ip-disclosure/download  — Raw markdown file download
+Route: GET /void-disclosures/download  — Raw markdown file download
 """
 
 import os
@@ -216,7 +216,7 @@ TEMPLATE = """<!DOCTYPE html>
 <div class="print-bar">
   <span>PROJECT VOID — IP DISCLOSURE DOCUMENT — 9 APRIL 2026</span>
   <div>
-    <a href="/ip-disclosure/download">↓ DOWNLOAD .MD</a>
+    <a href="/void-disclosures/download">↓ DOWNLOAD .MD</a>
     <a class="primary" onclick="window.print()">⎙ PRINT / SAVE PDF</a>
   </div>
 </div>
@@ -230,14 +230,14 @@ TEMPLATE = """<!DOCTYPE html>
 </html>"""
 
 
-@ip_disclosure_bp.route("/ip-disclosure")
+@ip_disclosure_bp.route("/void-disclosures")
 def ip_disclosure():
     raw = _load_disclosure()
     content = _md_to_html(raw)
     return render_template_string(TEMPLATE, content=content)
 
 
-@ip_disclosure_bp.route("/ip-disclosure/download")
+@ip_disclosure_bp.route("/void-disclosures/download")
 def ip_disclosure_download():
     if not os.path.exists(DISCLOSURE_PATH):
         abort(404)

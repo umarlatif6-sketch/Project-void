@@ -257,7 +257,7 @@ TEMPLATE = """<!DOCTYPE html>
       TO CONNECT LINKEDIN:<br><br>
       1. Go to linkedin.com/developers → Create App<br>
       2. Add product: Sign In with LinkedIn<br>
-      3. Set redirect URI: {{ request.host_url }}social/linkedin/callback<br>
+      3. Set redirect URI: https://void-stego-engine.replit.app/social/linkedin/callback<br>
       4. Copy Client ID → set LINKEDIN_CLIENT_ID in secrets<br>
       5. Get access token → set LINKEDIN_ACCESS_TOKEN in secrets<br>
       6. Set your person URN → set LINKEDIN_PERSON_URN in secrets

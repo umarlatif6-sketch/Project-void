@@ -211,6 +211,7 @@ PAGE = """<!DOCTYPE html>
     width: 100%;
     display: block;
     border: 1px solid #111;
+    height: auto;
   }
   .entry {
     max-width: 560px;

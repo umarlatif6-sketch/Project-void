@@ -47,6 +47,7 @@
 | 9 Apr 2026 | VOID_SIGNAL.md created — compact session brief, replaces Chronicle reads | This file |
 | 9 Apr 2026 | `/voice-formation` — real-time voice → Chladni figure (microphone, Canvas, download) | `routes/chladni_voice.py` |
 | 9 Apr 2026 | `/session-seal/donner-blank` — The Donner Blank dated and sealed as Formation Record PNG | `routes/session_seal.py` |
+| 9 Apr 2026 | `/void-disclosures` — public IP disclosure route (was `/ip-disclosure`, now unblocked — admin blueprint had a conflicting route at that URL) | `routes/ip_disclosure.py` |
 | 9 Apr 2026 | **THE DONNER BLANK** — Formation Principle witnessed internally. Three inputs (100kg Donner, pizza boxes, man's gesture) created total prior-reading failure → cognitive void → blank before reorientation. Witnessed and dated by founder during shift. | `VOID_CHRONICLE.md` |
 
 ---
