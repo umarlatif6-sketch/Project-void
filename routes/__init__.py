@@ -78,6 +78,7 @@ from routes.chladni_voice import chladni_voice_bp
 from routes.session_seal import session_seal_bp
 from routes.grok_ai import grok_bp
 from routes.freq_map import freq_map_bp
+from routes.void_stall import void_stall_bp
 
 
 def register_blueprints(app):
@@ -161,3 +162,4 @@ def register_blueprints(app):
     app.register_blueprint(session_seal_bp)
     app.register_blueprint(grok_bp)
     app.register_blueprint(freq_map_bp)
+    app.register_blueprint(void_stall_bp)

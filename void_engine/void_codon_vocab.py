@@ -259,3 +259,19 @@ def ai_codon_prefix(zone_id: str) -> str:
     if not z:
         return ""
     return f"[{z['codon']}] — {z['expansion']}"
+
+
+def freq_to_codon(hz: float) -> dict | None:
+    """
+    Return the VCV zone whose hz value is nearest to the given frequency.
+
+    Examples:
+        freq_to_codon(432)  → voidecho zone  (λ·Λ·☀)
+        freq_to_codon(528)  → adriana zone   (ψ·Ψ·◆)
+        freq_to_codon(852)  → chladni zone   (ψ·Φ·☀)
+
+    Used by the stall landing page and the Voice Formation Record live display.
+    """
+    if not PLATFORM_CODONS or hz < 0:
+        return None
+    return min(PLATFORM_CODONS, key=lambda z: abs(z["hz"] - hz))

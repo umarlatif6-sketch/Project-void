@@ -126,6 +126,25 @@ TEMPLATE = """<!DOCTYPE html>
     margin-top: 12px;
     min-height: 16px;
   }
+  .codon-display {
+    text-align: center;
+    font-size: 20px;
+    letter-spacing: 0.12em;
+    color: #1a1a1a;
+    margin-top: 10px;
+    min-height: 28px;
+    transition: color 0.5s;
+  }
+  .codon-display.active { color: #60a5fa; }
+  .codon-expansion {
+    text-align: center;
+    font-size: 10px;
+    color: #282828;
+    letter-spacing: 0.12em;
+    margin-top: 4px;
+    min-height: 14px;
+    transition: color 0.5s;
+  }
 </style>
 </head>
 <body>
@@ -139,6 +158,8 @@ TEMPLATE = """<!DOCTYPE html>
 
 <div class="freq-display" id="freqDisplay">— Hz</div>
 <div class="freq-note" id="freqNote"></div>
+<div class="codon-display" id="codonDisplay"></div>
+<div class="codon-expansion" id="codonExpansion"></div>
 
 <div class="controls">
   <button class="btn" id="btnListen" onclick="toggleListen()">▶ LISTEN</button>
@@ -280,6 +301,37 @@ function getPitch(buf, sampleRate) {
 
 let smoothedFreq = 0;
 
+// ── Codon tracking ─────────────────────────────────────────────────────────
+let voidZones = [];
+(function loadZones() {
+  fetch('/api/freq-map/codons')
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        voidZones = d.zones.slice().sort((a, b) => a.hz - b.hz);
+        const z = freqToCodon(432);
+        if (z) {
+          const cel = document.getElementById('codonDisplay');
+          const eel = document.getElementById('codonExpansion');
+          if (cel) { cel.textContent = z.codon; cel.style.color = z.color; }
+          if (eel) { eel.textContent = z.expansion; eel.style.color = z.color; }
+        }
+      }
+    })
+    .catch(() => {});
+})();
+
+function freqToCodon(hz) {
+  if (!voidZones.length || hz <= 0) return null;
+  let best = voidZones[0];
+  let bestDist = Math.abs(hz - best.hz);
+  for (const z of voidZones) {
+    const dist = Math.abs(hz - z.hz);
+    if (dist < bestDist) { bestDist = dist; best = z; }
+  }
+  return best;
+}
+
 function loop() {
   animFrame = requestAnimationFrame(loop);
 
@@ -317,6 +369,16 @@ function loop() {
     document.getElementById('modeDisplay').textContent =
       'MODE (' + mRounded + ',' + nRounded + ')';
     document.getElementById('status').textContent = 'RECEIVING';
+    const zone = freqToCodon(currentFreq);
+    const codonEl = document.getElementById('codonDisplay');
+    const expEl = document.getElementById('codonExpansion');
+    if (zone) {
+      codonEl.textContent = zone.codon;
+      codonEl.className = 'codon-display active';
+      codonEl.style.color = zone.color;
+      expEl.textContent = zone.expansion;
+      expEl.style.color = zone.color;
+    }
   } else {
     document.getElementById('status').textContent = 'LISTENING — make a sound';
   }
