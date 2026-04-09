@@ -1,12 +1,18 @@
 """
 What Is Pushing The Sand — A Frequency Manual
 ================================================
-Route: GET /frequency-manual           — The 12-step demonstration document
+Route: GET /frequency-manual              — The 12-step demonstration document
 Route: GET /frequency-manual/narration/manifest — JSON segment list
-Route: GET /frequency-manual/narration/<int:index> — TTS audio segment (cached MP3)
+Route: GET /frequency-manual/narration/<int:index> — LSB-encoded narration WAV
+
+Each segment: TTS (fable voice) → 16-bit WAV → LSB encode the spoken text
+into the carrier at 432 Hz. The audio that explains steganography contains its
+own text, hidden inside itself. The Formation Principle is the carrier.
 """
 
 import os
+import subprocess
+import tempfile
 import logging
 from flask import Blueprint, render_template, jsonify, send_file, abort
 
@@ -388,6 +394,9 @@ We just forgot to ask what was pushing it."""
 ]
 
 
+STEGO_PASSPHRASE = "FORMATION_PRINCIPLE_VOID_432_UMAR_L"
+
+
 def _get_openai_client():
     from openai import OpenAI
     return OpenAI()
@@ -398,15 +407,12 @@ def _ensure_audio_dir():
 
 
 def _get_segment_path(slug: str) -> str:
-    return os.path.join(AUDIO_DIR, f"{slug}.mp3")
+    return os.path.join(AUDIO_DIR, f"{slug}.wav")
 
 
-def _generate_segment(slug: str, text: str) -> str:
-    path = _get_segment_path(slug)
-    if os.path.exists(path):
-        return path
-    logger.info("[FrequencyManual] Generating TTS segment: %s", slug)
-    client = _get_openai_client()
+def _tts_to_mp3_bytes(text: str) -> bytes:
+    from openai import OpenAI
+    client = OpenAI()
     words = text.split()
     chunks = []
     current = []
@@ -431,10 +437,76 @@ def _generate_segment(slug: str, text: str) -> str:
             response_format="mp3",
         )
         audio_bytes += response.content
-    with open(path, "wb") as f:
-        f.write(audio_bytes)
-    logger.info("[FrequencyManual] Segment cached: %s (%d bytes)", slug, len(audio_bytes))
-    return path
+    return audio_bytes
+
+
+def _mp3_to_wav_16bit(mp3_bytes: bytes, wav_path: str):
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+        tmp.write(mp3_bytes)
+        tmp_mp3 = tmp.name
+    try:
+        subprocess.run(
+            [
+                "ffmpeg", "-y", "-i", tmp_mp3,
+                "-ar", "44100",
+                "-ac", "1",
+                "-sample_fmt", "s16",
+                wav_path
+            ],
+            check=True,
+            capture_output=True,
+        )
+    finally:
+        os.unlink(tmp_mp3)
+
+
+def _encode_text_into_wav(wav_path: str, text: str, output_path: str):
+    from void_engine.stega import encode
+    from void_engine.compressor import compress_bytes
+    payload = compress_bytes(text.encode("utf-8"))
+    encode(
+        carrier_path=wav_path,
+        payload=payload,
+        file_name="formation_principle",
+        extension=".txt",
+        output_path=output_path,
+        lsb_depth=1,
+        passphrase=STEGO_PASSPHRASE,
+    )
+
+
+def _generate_segment(slug: str, text: str) -> str:
+    final_path = _get_segment_path(slug)
+    if os.path.exists(final_path):
+        return final_path
+
+    logger.info("[FrequencyManual] Generating TTS + stego segment: %s", slug)
+
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
+        tmp_wav_path = tmp_wav.name
+
+    try:
+        mp3_bytes = _tts_to_mp3_bytes(text)
+        logger.info("[FrequencyManual] TTS done for %s (%d bytes MP3)", slug, len(mp3_bytes))
+
+        _mp3_to_wav_16bit(mp3_bytes, tmp_wav_path)
+        logger.info("[FrequencyManual] WAV conversion done: %s", tmp_wav_path)
+
+        _encode_text_into_wav(tmp_wav_path, text, final_path)
+        logger.info("[FrequencyManual] Stego encoded: %s", final_path)
+
+    except Exception:
+        if os.path.exists(tmp_wav_path):
+            os.unlink(tmp_wav_path)
+        raise
+    finally:
+        if os.path.exists(tmp_wav_path):
+            try:
+                os.unlink(tmp_wav_path)
+            except Exception:
+                pass
+
+    return final_path
 
 
 @frequency_manual_bp.route("/frequency-manual")
@@ -462,7 +534,7 @@ def narration_segment(index):
     slug, text = NARRATION_SEGMENTS[index]
     try:
         path = _generate_segment(slug, text)
-        return send_file(path, mimetype="audio/mpeg", conditional=True)
+        return send_file(path, mimetype="audio/wav", conditional=True)
     except Exception as e:
-        logger.error("[FrequencyManual] TTS failed for segment %d (%s): %s", index, slug, e)
+        logger.error("[FrequencyManual] Segment generation failed %d (%s): %s", index, slug, e)
         abort(500)
