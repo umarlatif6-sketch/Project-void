@@ -72,6 +72,7 @@ from routes.sphere_key import sphere_key_bp
 from routes.codon_distil import codon_distil_bp
 from routes.portal_blueprint import portal_blueprint_bp
 from routes.frequency_manual import frequency_manual_bp
+from routes.ip_disclosure import ip_disclosure_bp
 
 
 def register_blueprints(app):
@@ -149,3 +150,4 @@ def register_blueprints(app):
     app.register_blueprint(manchester_gift_bp)
     app.register_blueprint(portal_blueprint_bp)
     app.register_blueprint(frequency_manual_bp)
+    app.register_blueprint(ip_disclosure_bp)
