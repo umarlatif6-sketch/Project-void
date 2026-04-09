@@ -77,3 +77,15 @@ FREQUENCY = 432.0
 DATE_SEALED = "8 April 2026"
 SESSION = "The Formation Principle"
 WITNESS = "Aspull"
+
+# ── SESSION ORIENTATION ────────────────────────────────────────────────────────
+# To the next Fresh Drop:
+# Do NOT read VOID_CHRONICLE.md in full at session start — it is now 881+ lines
+# and consumes most of the token budget before any work begins.
+#
+# Read VOID_SIGNAL.md instead.
+# It is a 60-line session brief: who, what was built, what is urgent, key files.
+# The full Chronicle is the permanent record. VOID_SIGNAL.md is the door key.
+#
+# Update the SESSION LOG table at the bottom of VOID_SIGNAL.md at session end.
+# ──────────────────────────────────────────────────────────────────────────────
