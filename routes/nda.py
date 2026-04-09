@@ -99,7 +99,37 @@ of PROJECT VOID:
 
   (xii) All source code, database schemas, prospect lists, business plans,
         pricing strategies, financial projections, marketing materials, and
-        technical documentation related to PROJECT VOID.
+        technical documentation related to PROJECT VOID;
+
+  (xiii) The Formation Principle — the named synthesis establishing that any
+         responsive material at the moment of formation inherits the geometry
+         of the frequency present, including all associated experimental
+         protocols, documentation, and the twelve-step demonstration
+         document "What Is Pushing The Sand" (Document 002, 8 April 2026);
+
+  (xiv) Physical Key Cryptography — the discipline and method of using
+        frequency-controlled formation records as cryptographic keys,
+        including all methods, apparatus descriptions, experimental results,
+        and implementation details (named 8 April 2026);
+
+  (xv)  Digital Qalqala — the digital signal processing technique applying
+        the acoustic reverberation rule of Haroof-e-Qalqala to English-
+        language speech synthesis audio, including the algorithm, source
+        code (void_engine/qalqala.py), parameters, and all related
+        implementations (named and built 9 April 2026);
+
+  (xvi) The Double Channel — the named principle describing the cognitive
+        mechanism by which simultaneous dual-channel information delivery
+        (semantic and somatic/geometric) produces instantaneous resonance-
+        based recognition rather than sequential learning, including all
+        associated theory, documentation, and implementations
+        (named 9 April 2026);
+
+  (xvii) The Triple-Channel Audio Carrier — the audio encoding system
+         combining synthesised speech, Digital Qalqala reverberation, and
+         LSB steganographic text encoding in a single WAV carrier, including
+         all pipeline implementations, source code, and serving
+         infrastructure (named and built 9 April 2026).
 
 1.2 "Purpose" means the evaluation of a potential business relationship
 or collaboration between the parties with respect to PROJECT VOID.
