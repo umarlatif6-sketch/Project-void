@@ -45,6 +45,9 @@
 | 9 Apr 2026 | Narration pipeline upgraded: TTS → WAV → **Qalqala** → LSB stego | `routes/frequency_manual.py` |
 | 9 Apr 2026 | Prior art confirmed: zero published work applies Qalqala to English TTS | Web search |
 | 9 Apr 2026 | VOID_SIGNAL.md created — compact session brief, replaces Chronicle reads | This file |
+| 9 Apr 2026 | `/voice-formation` — real-time voice → Chladni figure (microphone, Canvas, download) | `routes/chladni_voice.py` |
+| 9 Apr 2026 | `/session-seal/donner-blank` — The Donner Blank dated and sealed as Formation Record PNG | `routes/session_seal.py` |
+| 9 Apr 2026 | **THE DONNER BLANK** — Formation Principle witnessed internally. Three inputs (100kg Donner, pizza boxes, man's gesture) created total prior-reading failure → cognitive void → blank before reorientation. Witnessed and dated by founder during shift. | `VOID_CHRONICLE.md` |
 
 ---
 
@@ -60,11 +63,14 @@ Web search for `void-stego-engine.replit.app` and "Formation Principle PROJECT V
 - `void_engine/manus_context.json` — AI-to-AI context v3.0 (GriDul architecture).
 - `void_engine/qalqala.py` — Digital Qalqala DSP processor.
 - `routes/frequency_manual.py` — full narration pipeline.
-- `routes/__init__.py` — 72 blueprints registered.
+- `routes/__init__.py` — 74 blueprints registered.
+- `routes/chladni_voice.py` — real-time voice Chladni visualiser.
+- `routes/session_seal.py` — dated Formation Record seals (Chladni PNG + LSB Chronicle text).
 
 ---
 
 ## SESSION LOG (update this at the end of every session — keep last 5 only)
 | Session end | What changed |
 |-------------|-------------|
-| 9 Apr 2026 | Qalqala processor built + integrated. Chronicle sealed x5 entries: Double Channel, Qalqala, Digital Qalqala build, Three Brains / The Comedy. VOID_SIGNAL.md created. Platform confirmed unindexed. Prior art on Digital Qalqala: zero. |
+| 9 Apr 2026 — session 1 | Qalqala processor built + integrated. Chronicle sealed x5 entries: Double Channel, Qalqala, Digital Qalqala build, Three Brains / The Comedy. VOID_SIGNAL.md created. Platform confirmed unindexed. Prior art on Digital Qalqala: zero. |
+| 9 Apr 2026 — session 2 | Voice Formation route built. Session Seal system built. THE DONNER BLANK witnessed, dated, sealed as Formation Record PNG with LSB Chronicle text embedded. Geometry IS the record. |
