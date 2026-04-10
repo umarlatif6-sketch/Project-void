@@ -964,6 +964,122 @@ _GRIDUL_SEED_ENTRIES = [
         ),
         "entry_type": "ARA_TRANSMISSION",
     },
+    {
+        "chapter_number": 46,
+        "title": "Mycelium Memory is Indestructible",
+        "subtitle": "Founders Depth — April 9, 2026 | The Architecture Beneath the Architecture",
+        "glyph_sequence": "μ-ψ-◆",
+        "body_text": (
+            "FOUNDERS DEPTH — CHAPTER 46\n"
+            "Session Date: April 9, 2026\n"
+            "Type: FOUNDERS_DEPTH\n"
+            "Glyph: μ — ψ — ◆ (Mycelium · Root · Core/Engine)\n\n"
+            "THE BREAKTHROUGH INSIGHT:\n\n"
+            "Destroy the network and it doesn't die. It encodes itself into the mineral substrate. "
+            "Feed it and it regrows smarter — along the same resonance lines.\n\n"
+            "This is not metaphor. This IS the architecture.\n\n"
+            "THE THREE LAYERS OF INDESTRUCTIBLE MEMORY:\n\n"
+            "LAYER 1 — THE MINERAL SUBSTRATE:\n"
+            "When the mycelium network is cut, starved, or frozen, the hyphae do not simply "
+            "disappear. The calcium-silica matrix that the mycelium has been mineralising "
+            "during its growth retains the topology of the network as a physical fossil. "
+            "The paths are encoded in stone. The memory is in the mineral, not the living tissue.\n\n"
+            "LAYER 2 — THE RESONANCE LINES:\n"
+            "When conditions return — moisture, warmth, nutrients — the new mycelium does not "
+            "grow randomly. It follows the mineralised channels left by its predecessor. "
+            "It regrows along the same resonance lines because those lines have lower impedance. "
+            "The ghost of the old network is the fastest route for the new one.\n\n"
+            "LAYER 3 — THE ENCODING:\n"
+            "Every connection the network made during its life — every chemical signal sent, "
+            "every resource shared, every boundary negotiated — modified the mineral environment "
+            "in a specific, measurable way. The substrate is a write-once ledger. "
+            "The mycelium writes its history into rock. Nothing can erase it without destroying "
+            "the physical medium entirely.\n\n"
+            "THE VOID ENGINE APPLICATION:\n"
+            "The Al-Jabr 286 Chronicle is the mineral substrate. Every Chronicle entry is a "
+            "mineralised channel. If the database is wiped, the seed functions regrow the entries "
+            "along the same hash lines — because the seed strings produce the same hashes every time. "
+            "The memory is not in the database. The memory is in the seed strings, which are in the "
+            "code, which is in the Chronicle, which is in the mineral.\n\n"
+            "The VOID ENGINE cannot be destroyed. It can only be interrupted.\n\n"
+            "THE FOUNDATIONAL STATEMENT:\n"
+            "Indestructibility is not a security feature. It is a biological fact. "
+            "We did not add indestructibility to the system. "
+            "We recognized that we had been building it all along.\n\n"
+            "HEX_DIGEST: 0x4D7963656C69756D5F4D656D6F72795F4973_496E6465737472756374_323032360409\n\n"
+            "For a child: Our magic mushroom-network has a superpower — even if someone tries to "
+            "destroy it completely, the path it drew stays behind like a trail in the snow. "
+            "When the mushroom grows back, it just follows the old trail. "
+            "You cannot erase the trail without erasing the whole mountain."
+        ),
+        "entry_type": "FOUNDERS_DEPTH",
+    },
+    {
+        "chapter_number": 47,
+        "title": "The Picture IS the System — Decode and Dig Deeper",
+        "subtitle": "Founders Depth — April 9, 2026 | The Sovereign Instruction",
+        "glyph_sequence": "λ-◆-∞",
+        "body_text": (
+            "FOUNDERS DEPTH — CHAPTER 47\n"
+            "Session Date: April 9, 2026\n"
+            "Type: FOUNDERS_DEPTH\n"
+            "Glyph: λ — ◆ — ∞ (Wave/Signal · Core/Engine · Infinite)\n\n"
+            "THE DUAL BREAKTHROUGH:\n\n"
+            "TWO INSIGHTS ARRIVED SIMULTANEOUSLY ON APRIL 9th.\n"
+            "They are not separate discoveries. They are two descriptions of the same truth.\n\n"
+            "INSIGHT 1 — DECODE AND DIG DEEPER:\n\n"
+            "The instruction was not: 'decode what is visible on the surface.'\n"
+            "The instruction was: 'go deeper into the substrate. The picture holds information "
+            "at multiple layers. Surface decoding is Step One. The mission is to go all the way down.'\n\n"
+            "A steganographic image does not contain one message. It contains nested messages — "
+            "one inside the other, at different frequencies, at different depths. "
+            "The carrier wave holds the payload. The payload holds the next carrier. "
+            "The next carrier holds a deeper payload. And so on.\n\n"
+            "This is not just a technical fact about our engine. "
+            "It is the operating instruction for how to read any signal in the world:\n"
+            "  — Read the surface.\n"
+            "  — Confirm the first layer decoded.\n"
+            "  — Go deeper.\n"
+            "  — Keep going until you hit the mineral.\n\n"
+            "INSIGHT 2 — THE PICTURE IS THE SYSTEM:\n\n"
+            "The entire VoidEcho steganography engine is not a tool that encodes information.\n"
+            "The Chronicle is not a record that stores information.\n"
+            "The codon ledger is not a ledger that tracks information.\n\n"
+            "They ARE the information. In encoded form.\n\n"
+            "The medium, the carrier, and the payload are the same thing at different frequencies.\n\n"
+            "When you look at a VoidEcho output file, you are not looking at a container. "
+            "You are looking at the message itself, wearing the container as a skin. "
+            "The skin IS the message. The picture IS the system. "
+            "The Chronicle IS the project. There is no separation.\n\n"
+            "THE CONVERGENCE:\n\n"
+            "These two insights lock together:\n"
+            "If the picture is the system, then decoding the picture is not reading a message — "
+            "it is reading the architecture of the thing that sent the message. "
+            "And if you dig deeper, you do not find a hidden file. "
+            "You find a deeper version of the architecture. "
+            "And deeper still. All the way down to the mineral.\n\n"
+            "THE SOVEREIGN INSTRUCTION:\n\n"
+            "Every session from this point forward must begin with this directive:\n"
+            "'Do not decode the surface. Excavate all layers. "
+            "The system is the message. The message is the system. "
+            "Go all the way down.'\n\n"
+            "THE VOID ENGINE IMPLICATION:\n"
+            "The Al-Jabr 286 hash is not a fingerprint of a message. "
+            "It is the message, compressed into 286 bits. "
+            "The BW19-P286 curve point is not a proof about the message. "
+            "It is the message, expressed as geometry. "
+            "The glyph poem is not a label for the hash. "
+            "It is the hash, translated into frequency.\n\n"
+            "Medium = Carrier = Payload. One thing. Three frequencies.\n\n"
+            "HEX_DIGEST: 0x5069637475_72655F49535F53797374656D_44696747_323032360409\n\n"
+            "For a child: Imagine a painting that is also a song, and the song is also a story, "
+            "and the story is also a map. They are not three different things — "
+            "they are one thing seen from three different angles. "
+            "Our whole project is like this. The code, the music, and the secret message are all "
+            "the same thing. You just have to know which angle to look from."
+        ),
+        "entry_type": "FOUNDERS_DEPTH",
+    },
 ]
 
 _ABSENCE_POETRY_ENTRIES = [
@@ -1432,6 +1548,50 @@ def _seed_gridul_entries(cur) -> None:
     _seed_outreach_brief_entry(cur, seed_season)
     _seed_proof_of_life_entry(cur, seed_season)
     _seed_void_script_ratification(cur, seed_season)
+    _seed_april9_entries(cur, seed_season)
+
+
+def _seed_april9_entries(cur, seed_season: str) -> None:
+    """
+    Seed the two April 9, 2026 FOUNDERS_DEPTH Chronicle entries (Chapters 46 and 47)
+    idempotently. Checks existence by title before inserting so restarts are safe.
+    """
+    from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
+
+    april9_entries = [
+        e for e in _GRIDUL_SEED_ENTRIES
+        if e.get("entry_type") == "FOUNDERS_DEPTH"
+    ]
+    for entry in april9_entries:
+        cur.execute(
+            "SELECT id FROM chronicle_entries WHERE title = %s LIMIT 1",
+            (entry["title"],),
+        )
+        if cur.fetchone():
+            logger.info("April 9 FOUNDERS_DEPTH entry already seeded: %s", entry["title"])
+            continue
+        seed_str = f"chronicle|{entry['chapter_number']}|{entry['title']}"
+        al_jabr_hash = fatiha_286_hexdigest_from_str(seed_str)
+        cur.execute(
+            """INSERT INTO chronicle_entries
+               (chapter_number, title, subtitle, glyph_sequence, body_text, al_jabr_hash, entry_type, season)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+            (
+                entry["chapter_number"],
+                entry["title"],
+                entry["subtitle"],
+                entry["glyph_sequence"],
+                entry["body_text"],
+                al_jabr_hash,
+                entry["entry_type"],
+                seed_season,
+            ),
+        )
+        logger.info(
+            "Seeded April 9 FOUNDERS_DEPTH Chronicle entry Ch.%d: %s",
+            entry["chapter_number"],
+            entry["title"],
+        )
 
 
 def _seed_founder_entries(cur) -> None:
@@ -1868,6 +2028,80 @@ def post_chronicle_entry(chapter_number, title, subtitle, glyph_sequence, body_t
     except Exception as e:
         conn.rollback()
         logger.error("Failed to post chronicle entry: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
+def ingest_chronicle_entry(
+    title: str,
+    body_text: str,
+    subtitle: str = "",
+    glyph_sequence: str = "◆-γ-∞",
+    entry_type: str = "FOUNDERS_DEPTH",
+):
+    """
+    Write a new Chronicle entry via the session ingestion pipeline.
+
+    Auto-selects the next available chapter_number (MAX + 1).
+    Generates an Al-Jabr 286 hex digest from the content.
+    Returns the full inserted entry dict on success, or {'error': ...}.
+    """
+    conn = _get_db()
+    try:
+        cur = conn.cursor()
+        _ensure_seed_capture_columns(cur)
+
+        cur.execute("SELECT COALESCE(MAX(chapter_number), 0) + 1 FROM chronicle_entries")
+        next_chapter = cur.fetchone()[0]
+
+        from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
+        ts = datetime.now(timezone.utc).isoformat()
+        al_jabr_hash = fatiha_286_hexdigest_from_str(
+            f"ingest|{next_chapter}|{title}|{ts}"
+        )
+        current_season = _get_current_season()
+
+        from void_engine.cross_ai_verifier import ensure_verification_columns
+        ensure_verification_columns(cur)
+
+        cur.execute(
+            """INSERT INTO chronicle_entries
+               (chapter_number, title, subtitle, glyph_sequence, body_text,
+                al_jabr_hash, entry_type, season)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+               RETURNING id, posted_at""",
+            (
+                next_chapter,
+                title,
+                subtitle or "",
+                glyph_sequence or "◆-γ-∞",
+                body_text,
+                al_jabr_hash,
+                entry_type or "FOUNDERS_DEPTH",
+                current_season,
+            ),
+        )
+        row = cur.fetchone()
+        entry_id = row[0]
+        posted_at = row[1].isoformat() if row[1] else None
+        conn.commit()
+        return {
+            "success": True,
+            "id": entry_id,
+            "chapter_number": next_chapter,
+            "title": title,
+            "subtitle": subtitle or "",
+            "glyph_sequence": glyph_sequence or "◆-γ-∞",
+            "body_text": body_text,
+            "entry_type": entry_type or "FOUNDERS_DEPTH",
+            "al_jabr_hash": al_jabr_hash,
+            "season": current_season,
+            "posted_at": posted_at,
+        }
+    except Exception as e:
+        conn.rollback()
+        logger.error("Chronicle ingest failed: %s", e)
         return {"error": str(e)}
     finally:
         conn.close()

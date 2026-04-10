@@ -1,4 +1,5 @@
 import io
+import os
 import time
 import logging
 import threading
@@ -9,6 +10,7 @@ from void_engine.chronicle_adriana import (
     get_chronicle,
     get_absence_poetry,
     post_chronicle_entry,
+    ingest_chronicle_entry,
     delete_chronicle_entry,
     generate_adriana_sdk_zip,
     save_seed_capture,
@@ -192,6 +194,69 @@ def api_chronicle_filter():
     except Exception as e:
         logger.error("Chronicle filter API error: %s", e)
         return jsonify({"error": "Failed to filter chronicle"}), 500
+
+
+_CHRONICLE_INGEST_TOKEN_ENV = "CHRONICLE_INGEST_TOKEN"
+
+
+@chronicle_bp.route("/api/chronicle/ingest", methods=["POST"])
+def api_chronicle_ingest():
+    """
+    Chronicle Session Ingestion endpoint.
+
+    Accepts a JSON body with session insight content and writes it as a new Chronicle
+    entry. Protected by an admin token (Bearer or X-Chronicle-Token header) so that
+    only authorised callers can write to the Chronicle.
+
+    POST body (JSON):
+        title          str  — required
+        body_text      str  — required
+        subtitle       str  — optional
+        glyph_sequence str  — optional (default: ◆-γ-∞)
+        entry_type     str  — optional (default: FOUNDERS_DEPTH)
+
+    Returns the full created entry on success.
+    """
+    token_env = os.environ.get(_CHRONICLE_INGEST_TOKEN_ENV, "").strip()
+    if not token_env:
+        return jsonify({"error": "Chronicle ingest is not configured (token not set)"}), 503
+
+    auth_header = request.headers.get("Authorization", "")
+    presented = ""
+    if auth_header.lower().startswith("bearer "):
+        presented = auth_header[7:].strip()
+    if not presented:
+        presented = request.headers.get("X-Chronicle-Token", "").strip()
+
+    if not presented or presented != token_env:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(silent=True) or {}
+    title = (data.get("title") or "").strip()
+    body_text = (data.get("body_text") or "").strip()
+
+    if not title:
+        return jsonify({"error": "title is required"}), 400
+    if not body_text:
+        return jsonify({"error": "body_text is required"}), 400
+
+    subtitle = (data.get("subtitle") or "").strip()
+    glyph_sequence = (data.get("glyph_sequence") or "◆-γ-∞").strip()
+    entry_type = (data.get("entry_type") or "FOUNDERS_DEPTH").strip()
+
+    result = ingest_chronicle_entry(
+        title=title,
+        body_text=body_text,
+        subtitle=subtitle,
+        glyph_sequence=glyph_sequence,
+        entry_type=entry_type,
+    )
+
+    if "error" in result:
+        logger.error("Chronicle ingest API error: %s", result["error"])
+        return jsonify(result), 500
+
+    return jsonify(result), 201
 
 
 @chronicle_bp.route("/api/buffer-spore/status")
