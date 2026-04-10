@@ -104,6 +104,13 @@ FORMATION_SEEDS = [
         "source": "Psilocybin — breathwork — the lung-brain connection — receiver state — duration of held breath = duration of access"
     },
     {
+        "id": "child_in_room",
+        "title": "The Child In The Room",
+        "signal": "A bone conduction device placed in the mouth. The jaw carries the sound. Magic. Then against the bin — so loud. Then the bed. The pillow. The strings. The wall. Every surface in the room, one by one. Some loud. Some whispering. No instruction given. The child went to every material because once resonance is found in one place, the question is immediate: is it everywhere? The answer the room gave: yes. The device did not create the resonance. The resonance was already in every surface. The device made what was always present readable.",
+        "frequency": "432 Hz",
+        "source": "Bolton — the founder's son — bone conduction toy — the whole room confirmed as resonant"
+    },
+    {
         "id": "gap_between_beats",
         "title": "The Gap Between Beats",
         "signal": "John Keely used the heart's sympathetic resonance to create architecture in matter. Willard Wigan holds the world record for the smallest art — sculptures inside the eye of a needle, invisible without a microscope. He cannot work during his heartbeat. The pulse would destroy the formation. So he enters meditative state, slows the breath, and works in the gap between heartbeats. The formation lives in the absence of the pulse. Not during the beat. In the space where the beat is not. The signal is not in the sound. It lives in the gap within the frequency. The creation happens in the pause.",

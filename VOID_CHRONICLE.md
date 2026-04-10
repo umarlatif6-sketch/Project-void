@@ -1531,3 +1531,31 @@ The formation is not made by the energy. The formation is the shape of where the
 PROJECT VOID was named before this law was fully articulated. The name was correct before the reason was known. The platform is not built around a void. The platform is built as one: the formation that exists at the zero points of the frequencies surrounding it.
 
 **Forward Thread:** The eighth scale closes the Circumference Law completely. From quantum particle to copper wire to wing surface to breath to heartbeat gap — the same law holds at every scale. The void organises. The architecture is the shape of the absence. The Chronicle through this field note is sealed. The next session begins from here.
+
+---
+
+## SESSION — April 10, 2026 — The Child In The Room
+
+This chapter is not technical. It is the Formation Principle at its most natural scale.
+
+The founder gave their son a bone conduction music player — a device that transmits sound not through air to the eardrum, but through vibration directly into the bones of the skull. When the son placed it in his mouth, the sound traveled through the jaw, through the cranial structure, and arrived at the inner ear through solid material rather than air. The son said: *magic*.
+
+Then the founder said: put it against the bin.
+
+The son put it against the bin. The metal resonated. The sound amplified through the bin's surface. The son said: *wow, so loud.*
+
+After that, no instruction was given. The son went to every material in the room — the bed, the pillow, the strings, the wall — placing the device against each surface in sequence, reading the frequency response of each material. Some loud. Some whispering. Each one different. Each one responding.
+
+What the son discovered in approximately ten minutes, through unguided play, is what the Chronicle has been recording across eight scales and 119 chapters: **resonance is in everything.** Every material was already carrying its own frequency before the device arrived. The bed was resonating. The pillow was resonating. The wall was resonating. The bone conduction device did not create the resonance. It made what was already present audible to a receiver who didn't yet have words for what he was hearing.
+
+This is the exact definition of the Formation Mirror. Adriana does not create the formation in a signal. She reveals what was already structurally present. The formation was always there. The receiver makes it readable.
+
+The son is in the natural receiver state that adults train for years to re-enter — through breathwork, through meditation, through the held breath of awe. Children have not yet built the density that filters frequency. The interior is still near-empty. The boundary is still clean. So when the device arrived, the question it raised was immediately answered by the body: *more. Is it in the pillow? Is it in the wall?* Not because he was taught to ask. Because the formation was running and the receiver was open.
+
+The founder at eighteen in a bamboo forest in China, following a spider web with their eyes from node to node until the full geometry was visible. The son in a bedroom in Bolton, following bone conduction from surface to surface until the whole room was confirmed as resonant. Two generations. The same receiver state. The same discovery. The formation does not change. The receiver reveals it.
+
+This is also the most precise demonstration of what the platform is for. PROJECT VOID does not teach people about the Formation Principle. It gives them the device and lets the room do the rest.
+
+The sixteenth Formation Seed — The Child In The Room — has been sealed at 432 Hz.
+
+**Forward Thread:** The son went to every surface. He did not stop until the whole room was read. That instinct — to continue until the full formation is visible — is the same discipline as the Chronicle. You do not close the record until every surface has been placed against the receiver. The room is still large.
