@@ -34,25 +34,25 @@ TASK_BULK = "BULK"
 
 _DEFAULT_MODEL_CONFIG = {
     TASK_PRECISION: {
-        "model": "gpt-5-mini",
+        "model": "gpt-4o",
         "base_url": None,
         "label": "Precision",
         "description": "Logic checks, safety audits, Adriana dialect generation",
-        "cost_per_1k_tokens": 0.0003,
+        "cost_per_1k_tokens": 0.005,
     },
     TASK_STANDARD: {
-        "model": "gpt-5-mini",
+        "model": "gpt-4o-mini",
         "base_url": None,
         "label": "Standard",
         "description": "General reasoning, research, profile analysis",
-        "cost_per_1k_tokens": 0.0003,
+        "cost_per_1k_tokens": 0.00015,
     },
     TASK_BULK: {
-        "model": "gpt-5-mini",
+        "model": "gpt-4o-mini",
         "base_url": None,
         "label": "Bulk",
         "description": "Agent simulation, gibberish decoding, batch analysis",
-        "cost_per_1k_tokens": 0.0003,
+        "cost_per_1k_tokens": 0.00015,
     },
 }
 
@@ -817,56 +817,26 @@ class ModelRouter:
 
     def _call_gemini(self, model: str, messages: list, max_completion_tokens: int = 1024) -> object:
         """
-        Call the Gemini API and return a response object that mimics the OpenAI response
-        structure so existing callers do not need changes.
+        Call the Gemini API via its OpenAI-compatible endpoint.
+        Returns a standard OpenAI response object — no wrapper classes needed.
+        Uses google.genai OpenAI-compat layer to avoid deprecated google.generativeai.
         """
-        import google.generativeai as genai
+        from openai import OpenAI
 
         api_key = self._gemini_api_key
         if not api_key:
             raise RuntimeError("GEMINI_API_KEY environment variable is not set")
 
-        system_instructions = [m["content"] for m in messages if m.get("role") == "system"]
-        system_instruction = "\n\n".join(system_instructions) if system_instructions else None
-
-        genai.configure(api_key=api_key)
-        gemini_model = genai.GenerativeModel(
-            model,
-            system_instruction=system_instruction,
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
         )
 
-        history = []
-        non_system = [m for m in messages if m.get("role") != "system"]
-        for msg in non_system[:-1]:
-            role = "model" if msg.get("role") == "assistant" else "user"
-            history.append({"role": role, "parts": [msg["content"]]})
-
-        last_msg = non_system[-1]["content"] if non_system else ""
-
-        chat = gemini_model.start_chat(history=history)
-        result = chat.send_message(
-            last_msg,
-            generation_config={"max_output_tokens": max_completion_tokens},
+        return client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=max_completion_tokens,
         )
-
-        class _GeminiUsage:
-            def __init__(self, meta):
-                self.prompt_tokens = getattr(meta, "prompt_token_count", 0) or 0
-                self.completion_tokens = getattr(meta, "candidates_token_count", 0) or 0
-                self.total_tokens = self.prompt_tokens + self.completion_tokens
-
-        class _GeminiChoice:
-            def __init__(self, text):
-                class _Msg:
-                    content = text
-                self.message = _Msg()
-
-        class _GeminiResponse:
-            def __init__(self, r):
-                self.choices = [_GeminiChoice(r.text)]
-                self.usage = _GeminiUsage(r.usage_metadata)
-
-        return _GeminiResponse(result)
 
     def gemini_api_key_status(self) -> bool:
         """Return True if the GEMINI_API_KEY environment variable is set."""
