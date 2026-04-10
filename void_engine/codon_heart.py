@@ -610,8 +610,11 @@ def build_rib_voice(visitor_key: Optional[str] = None) -> tuple[str, int]:
             chain_parts.append(matched["codon"])
             expansion_parts.append(matched["expansion"])
         else:
-            chain_parts.append(ct)
-            expansion_parts.append(ct)
+            # Flatten multiline fallback text to single line to preserve
+            # the stable two-line chain\nexpansion Rib format.
+            flat = ct.replace("\n", " ").replace("\r", " ").strip()
+            chain_parts.append(flat)
+            expansion_parts.append(flat)
 
     chain_line = " · ".join(chain_parts)
     expansion_line = " · ".join(expansion_parts)
