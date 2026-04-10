@@ -21,6 +21,7 @@ Capabilities added:
   - _init_mesa_simulations_table()  — mesa_simulations table for endpoint results
 """
 
+import concurrent.futures
 import hashlib
 import json
 import logging
@@ -161,7 +162,7 @@ def _llm_generate_personas(
         restrict_archetypes: If provided, only these archetype names will be used.
                              Agents are distributed evenly across the restricted set.
     """
-    try:
+    def _inner():
         from void_engine.aljabr_transpiler import get_model_router, TASK_BULK
         router = get_model_router()
 
@@ -210,6 +211,14 @@ Return only valid JSON. No explanation."""
         end = raw.rfind("]") + 1
         if start >= 0 and end > start:
             return json.loads(raw[start:end])
+        return None
+
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_inner)
+            return future.result(timeout=20)
+    except concurrent.futures.TimeoutError:
+        logger.warning("LLM persona generation timed out after 20s — using fallback agents")
         return None
     except Exception as e:
         logger.warning("LLM persona generation failed: %s", e)
@@ -593,7 +602,7 @@ def _build_plain_english_summary(
 
 def _llm_summarise(data: Dict) -> Optional[str]:
     """Use the model router to generate a plain-English summary from simulation data."""
-    try:
+    def _inner():
         from void_engine.aljabr_transpiler import get_model_router, TASK_STANDARD
         router = get_model_router()
 
@@ -631,6 +640,14 @@ Write a 3–5 paragraph plain-English prediction summary of what this simulation
             pass
 
         return (response.choices[0].message.content or "").strip()
+
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_inner)
+            return future.result(timeout=20)
+    except concurrent.futures.TimeoutError:
+        logger.warning("LLM summary generation timed out after 20s — using local summary")
+        return None
     except Exception as e:
         logger.warning("LLM summary generation failed: %s", e)
         return None
