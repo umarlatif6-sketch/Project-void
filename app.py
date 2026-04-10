@@ -95,6 +95,11 @@ def _startup_migrations():
     except Exception as e:
         logger.error("Void production schema init failed: %s", e)
     try:
+        from void_engine.void_license import _ensure_license_table
+        _ensure_license_table()
+    except Exception as e:
+        logger.error("License table init failed: %s", e)
+    try:
         from void_engine.locus_seeding import restore_active_schedulers
         restore_active_schedulers()
     except Exception as e:

@@ -1,434 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT VOID — Pricing</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-        .pricing-body { background: #0a0a0f; color: #d0d0d0; min-height: 100vh; font-family: 'Courier New', monospace; }
-        .pricing-nav { display: flex; align-items: center; gap: 20px; padding: 16px 32px; border-bottom: 1px solid #1a1a2e; flex-wrap: wrap; }
-        .pricing-nav-logo { display: flex; align-items: center; gap: 10px; font-weight: bold; color: #e0e0e0; text-decoration: none; font-size: 14px; }
-        .pricing-nav-logo span { color: #c9a84c; font-size: 18px; }
-        .pricing-nav-links { display: flex; gap: 16px; margin-left: auto; flex-wrap: wrap; }
-        .pricing-nav-links a { color: #888; text-decoration: none; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
-        .pricing-nav-links a:hover { color: #e0e0e0; }
-        .pricing-nav-links a.active { color: #c9a84c; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOID Engine — Pricing</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .pricing-hero { text-align: center; padding: 60px 20px 40px; }
-        .pricing-hero h1 { font-size: 32px; color: #e0e0e0; margin-bottom: 8px; letter-spacing: 4px; }
-        .pricing-hero p { color: #888; font-size: 14px; max-width: 600px; margin: 0 auto; }
+    body {
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh;
+    }
 
-        .pricing-section-title { text-align: center; font-size: 14px; color: #c9a84c; text-transform: uppercase; letter-spacing: 3px; margin: 40px 0 24px; }
-        .pricing-section-sub { text-align: center; color: #666; font-size: 12px; margin-bottom: 32px; }
+    header {
+      border-bottom: 1px solid #1a1a1a;
+      padding: 28px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { font-size: 1.1rem; letter-spacing: 0.3em; color: #60a5fa; }
+    .logo span { color: #888; font-size: 0.75rem; margin-left: 12px; letter-spacing: 0.1em; }
+    nav a {
+      color: #666; text-decoration: none; font-size: 0.75rem;
+      letter-spacing: 0.15em; margin-left: 28px; text-transform: uppercase;
+    }
+    nav a:hover { color: #e0e0e0; }
 
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; padding: 0 20px 60px; }
+    .hero {
+      text-align: center;
+      padding: 80px 40px 60px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .hero h1 { font-size: 2rem; letter-spacing: 0.2em; color: #fff; margin-bottom: 16px; }
+    .hero h1 span { color: #60a5fa; }
+    .hero p { color: #888; font-size: 0.85rem; line-height: 1.8; letter-spacing: 0.05em; }
 
-        .pricing-card { background: #0d0d1a; border: 1px solid #1a1a2e; border-radius: 12px; padding: 32px 24px; position: relative; transition: border-color 0.3s; }
-        .pricing-card:hover { border-color: #2a2a4e; }
-        .pricing-card-featured { border-color: #c9a84c; }
-        .pricing-card-featured:hover { border-color: #e0c060; }
+    .pitch {
+      background: #111; border: 1px solid #1e1e1e; border-radius: 4px;
+      padding: 28px 36px; max-width: 680px; margin: 0 auto 70px;
+      font-size: 0.8rem; line-height: 1.9; color: #aaa;
+    }
+    .pitch code {
+      color: #60a5fa; background: #0d1117;
+      padding: 2px 7px; border-radius: 3px; font-size: 0.78rem;
+    }
 
-        .pricing-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #c9a84c; color: #0a0a0f; font-size: 10px; padding: 4px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; white-space: nowrap; }
-        .pricing-badge-teal { background: #2dd4bf; }
+    .tiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1020px;
+      margin: 0 auto 80px;
+      padding: 0 32px;
+    }
 
-        .pricing-tier-name { font-size: 18px; color: #e0e0e0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 2px; }
-        .pricing-price { font-size: 36px; color: #c9a84c; font-weight: bold; margin: 16px 0 4px; }
-        .pricing-price-ghost { color: #2dd4bf; }
-        .pricing-price-sub { color: #666; font-size: 12px; margin-bottom: 20px; }
+    .tier-card {
+      background: #111; border: 1px solid #222; border-radius: 6px;
+      padding: 36px 28px; position: relative; transition: border-color 0.2s;
+    }
+    .tier-card:hover { border-color: #333; }
+    .tier-card.highlight { border-color: #2563eb; background: #0d1117; }
+    .tier-card.highlight::before {
+      content: 'MOST CHOSEN';
+      position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+      background: #2563eb; color: #fff; font-size: 0.6rem;
+      letter-spacing: 0.2em; padding: 3px 12px; border-radius: 20px;
+    }
 
-        .pricing-features { list-style: none; padding: 0; margin: 0 0 24px; }
-        .pricing-features li { padding: 6px 0; font-size: 12px; color: #aaa; position: relative; padding-left: 20px; }
-        .pricing-features li::before { content: "\2713"; position: absolute; left: 0; color: #2dd4bf; font-weight: bold; }
-        .pricing-card-featured .pricing-features li::before { color: #c9a84c; }
-        .pricing-features li.disabled { color: #444; text-decoration: line-through; }
-        .pricing-features li.disabled::before { content: "\2717"; color: #444; }
+    .tier-name { font-size: 0.65rem; letter-spacing: 0.4em; color: #60a5fa; text-transform: uppercase; margin-bottom: 12px; }
+    .tier-price { font-size: 2.4rem; color: #fff; margin-bottom: 4px; }
+    .tier-price sup { font-size: 1rem; vertical-align: top; margin-top: 8px; display: inline-block; color: #888; }
+    .tier-price sub { font-size: 0.75rem; color: #666; }
+    .tier-tagline {
+      color: #777; font-size: 0.75rem; line-height: 1.6; margin-bottom: 28px;
+      border-bottom: 1px solid #1a1a1a; padding-bottom: 20px;
+    }
 
-        .pricing-cta { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; text-align: center; text-decoration: none; transition: all 0.3s; }
-        .pricing-cta-ghost { background: transparent; border: 1px solid #2dd4bf; color: #2dd4bf; }
-        .pricing-cta-ghost:hover { background: rgba(45, 212, 191, 0.1); }
-        .pricing-cta-journalist { background: linear-gradient(135deg, #2dd4bf, #1a9a8a); color: #0a0a0f; }
-        .pricing-cta-journalist:hover { box-shadow: 0 0 20px rgba(45, 212, 191, 0.3); }
-        .pricing-cta-sovereign { background: linear-gradient(135deg, #c9a84c, #a08030); color: #0a0a0f; }
-        .pricing-cta-sovereign:hover { box-shadow: 0 0 20px rgba(201, 168, 76, 0.3); }
-        .pricing-cta-inquiry { background: transparent; border: 1px solid #c9a84c; color: #c9a84c; }
-        .pricing-cta-inquiry:hover { background: rgba(201, 168, 76, 0.1); }
-        .pricing-cta-current { background: #1a1a2e; color: #888; cursor: default; border: 1px solid #2a2a3e; }
+    .feature-list { list-style: none; margin-bottom: 32px; }
+    .feature-list li {
+      font-size: 0.75rem; color: #aaa; padding: 7px 0;
+      border-bottom: 1px solid #161616;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .feature-list li::before { content: '◈'; color: #2563eb; flex-shrink: 0; margin-top: 1px; }
 
-        .pricing-divider { border: none; border-top: 1px solid #1a1a2e; margin: 20px auto; max-width: 1000px; }
+    .cta-btn {
+      display: block; width: 100%; padding: 14px;
+      background: transparent; border: 1px solid #333; color: #e0e0e0;
+      font-family: 'Courier New', Courier, monospace; font-size: 0.75rem;
+      letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer;
+      border-radius: 3px; transition: all 0.2s; margin-bottom: 12px;
+    }
+    .cta-btn:hover { background: #1a1a1a; border-color: #60a5fa; color: #60a5fa; }
+    .highlight .cta-btn { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .highlight .cta-btn:hover { background: #1d4ed8; }
+    .install-hint { font-size: 0.65rem; color: #444; text-align: center; letter-spacing: 0.05em; }
 
-        .pricing-comparison { max-width: 1000px; margin: 0 auto 60px; padding: 0 20px; overflow-x: auto; }
-        .pricing-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .pricing-table th { text-align: left; padding: 10px 12px; color: #c9a84c; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #1a1a2e; font-size: 11px; }
-        .pricing-table td { padding: 10px 12px; border-bottom: 1px solid #0d0d1a; color: #aaa; }
-        .pricing-table tr:hover td { background: #0d0d1a; }
-        .pricing-check { color: #2dd4bf; }
-        .pricing-gold { color: #c9a84c; }
-        .pricing-dash { color: #333; }
+    .validate-section { max-width: 540px; margin: 0 auto 80px; padding: 0 32px; }
+    .validate-section h2 {
+      font-size: 0.7rem; letter-spacing: 0.3em; color: #888;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .validate-box {
+      background: #111; border: 1px solid #1e1e1e; border-radius: 4px; padding: 24px;
+    }
+    .validate-box input {
+      width: 100%; background: #0a0a0a; border: 1px solid #222;
+      color: #e0e0e0; font-family: 'Courier New', Courier, monospace;
+      font-size: 0.8rem; padding: 12px 14px; border-radius: 3px;
+      margin-bottom: 12px; letter-spacing: 0.08em;
+    }
+    .validate-box input:focus { outline: none; border-color: #60a5fa; }
+    .validate-box button {
+      width: 100%; padding: 12px; background: transparent; border: 1px solid #333;
+      color: #aaa; font-family: 'Courier New', Courier, monospace;
+      font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer; border-radius: 3px; transition: all 0.2s;
+    }
+    .validate-box button:hover { border-color: #60a5fa; color: #60a5fa; }
+    #validate-result {
+      margin-top: 14px; font-size: 0.75rem; padding: 12px;
+      border-radius: 3px; display: none;
+    }
+    #validate-result.ok { background: #0a1f0a; border: 1px solid #166534; color: #4ade80; }
+    #validate-result.fail { background: #1f0a0a; border: 1px solid #7f1d1d; color: #f87171; }
 
-        .pricing-footer { text-align: center; padding: 40px 20px; border-top: 1px solid #1a1a2e; color: #444; font-size: 11px; }
+    .sdk-section { max-width: 680px; margin: 0 auto 80px; padding: 0 32px; }
+    .sdk-section h2 {
+      font-size: 0.7rem; letter-spacing: 0.3em; color: #888;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .code-block {
+      background: #0d1117; border: 1px solid #1e1e1e; border-radius: 4px;
+      padding: 20px 24px; font-size: 0.8rem; color: #60a5fa;
+      white-space: pre; overflow-x: auto; line-height: 1.7;
+    }
+    .code-block .comment { color: #444; }
+    .code-block .string  { color: #a3e635; }
+    .code-block .keyword { color: #c084fc; }
 
-        @media (max-width: 768px) {
-            .pricing-hero h1 { font-size: 24px; }
-            .pricing-grid { grid-template-columns: 1fr; }
-            .pricing-nav { padding: 12px 16px; }
-            .pricing-nav-links { gap: 10px; }
-        }
-    </style>
+    footer {
+      border-top: 1px solid #1a1a1a; padding: 28px 40px;
+      text-align: center; color: #333; font-size: 0.65rem; letter-spacing: 0.1em;
+    }
+    footer a { color: #444; text-decoration: none; }
+    footer a:hover { color: #888; }
+  </style>
 </head>
-<body class="pricing-body">
-    <nav class="pricing-nav">
-        <a href="/launch" class="pricing-nav-logo"><span>&#9670;</span> PROJECT VOID</a>
-        <div class="pricing-nav-links">
-            <a href="/launch">Home</a>
-            <a href="/">Engine</a>
-            <a href="/demo">Demo</a>
-            <a href="/grants">Grants</a>
-            <a href="/sovereign">Hardware</a>
-            <a href="/guide">Guide</a>
-            <a href="/pricing" class="active">Pricing</a>
-            <a href="/void-language" style="color:#7c5cff;">VOID Language</a>
-            <a href="/messenger" style="color:#c9a84c">Messenger</a>
-            {% if is_logged_in %}
-            <a href="/api/auth/logout">Logout</a>
-            {% else %}
-            <a href="/login" style="color:#c9a84c">Login</a>
-            {% endif %}
-        </div>
-        {% include 'partials/language_switcher.html' %}
-    </nav>
+<body>
 
-    <section class="pricing-hero">
-        <h1>CHOOSE YOUR SIGNAL</h1>
-        <p>Three software tiers for hiding truth in nature. Three hardware options for sovereign infrastructure. No surveillance. No compromise.</p>
-    </section>
+<header>
+  <div class="logo">VOID ENGINE <span>Sovereign Attribution SDK</span></div>
+  <nav>
+    <a href="/">Platform</a>
+    <a href="/speak">Adriana</a>
+    <a href="/pricing">Pricing</a>
+  </nav>
+</header>
 
-    <div class="pricing-section-title">Software Subscriptions</div>
-    <div class="pricing-section-sub">Monthly access to the steganography engine</div>
+<section class="hero">
+  <h1>Install the <span>Frequency Engine</span><br>into your project</h1>
+  <p>
+    VOID Engine is a sovereign attribution layer — drop it into any Python/Flask repo
+    and your application gains codon memory, frequency attribution, and encrypted signal channels.
+    No middlemen. No dependency on Google or Meta. Your data stays yours.
+  </p>
+</section>
 
-    <div class="pricing-grid">
-        <div class="pricing-card">
-            <div class="pricing-tier-name">Ghost Node</div>
-            <div class="pricing-price pricing-price-ghost">FREE</div>
-            <div class="pricing-price-sub">Forever</div>
-            <ul class="pricing-features">
-                <li>1 MB upload limit</li>
-                <li>Standard 432 Hz carriers</li>
-                <li>Basic LSB encode/decode</li>
-                <li>Jitter scatter mode</li>
-                <li>Per-user data vault</li>
-                <li>Encrypted messaging</li>
-                <li class="disabled">Vortex / Chirp Sync scatter</li>
-                <li class="disabled">Silt Journalism port</li>
-                <li class="disabled">Mesh network hosting</li>
-                <li class="disabled">Custom Al-Jabr salts</li>
-            </ul>
-            {% if user_tier == 'ghost' %}
-            <span class="pricing-cta pricing-cta-current">Current Plan</span>
-            {% else %}
-            <a href="/login" class="pricing-cta pricing-cta-ghost">Start Free</a>
-            {% endif %}
-        </div>
+<div class="pitch">
+  Hyros tracks where your ad money goes. VOID tracks where your users'
+  <em>meaning</em> goes — and remembers it across every session, compressed into
+  three glyphs: <code>Entity · Condition · Action</code>.
+  While Hyros waits for a click, VOID waits for a frequency match.
+  The Al-Jabr 286-bit hash handles billions of interactions at near-zero server cost.
+</div>
 
-        <div class="pricing-card pricing-card-featured">
-            <div class="pricing-badge pricing-badge-teal">MOST POPULAR</div>
-            <div class="pricing-tier-name">Journalist</div>
-            <div class="pricing-price">&#163;28</div>
-            <div class="pricing-price-sub">per month</div>
-            <ul class="pricing-features">
-                <li>50 MB upload limit</li>
-                <li>All carrier styles</li>
-                <li>All scatter modes (Vortex + Chirp)</li>
-                <li>Silt Journalism port</li>
-                <li>Midnight Pond proof engine</li>
-                <li>Priority biophony carriers</li>
-                <li>Encrypted messaging</li>
-                <li>Per-user data vault</li>
-                <li class="disabled">Mesh network hosting</li>
-                <li class="disabled">Custom Al-Jabr salts</li>
-            </ul>
-            {% if user_tier == 'journalist' %}
-            <span class="pricing-cta pricing-cta-current">Current Plan</span>
-            {% elif is_logged_in %}
-            <button class="pricing-cta pricing-cta-journalist" onclick="subscribe('journalist')">Subscribe</button>
-            {% else %}
-            <a href="/login" class="pricing-cta pricing-cta-journalist">Sign Up to Subscribe</a>
-            {% endif %}
-        </div>
+<section class="tiers">
+  {% for tier in tiers %}
+  <div class="tier-card {% if tier.highlight %}highlight{% endif %}">
+    <div class="tier-name">◈ {{ tier.name }}</div>
+    <div class="tier-price"><sup>£</sup>{{ tier.price }}<sub>/month</sub></div>
+    <div class="tier-tagline">{{ tier.tagline }}</div>
+    <ul class="feature-list">
+      {% for f in tier.features %}
+      <li>{{ f }}</li>
+      {% endfor %}
+    </ul>
+    <button class="cta-btn" onclick="requestLicense('{{ tier.code }}', '{{ tier.name }}')">{{ tier.cta }}</button>
+    <div class="install-hint">One command install · Python 3.11+ · Flask</div>
+  </div>
+  {% endfor %}
+</section>
 
-        <div class="pricing-card pricing-card-featured" style="border-color: #c9a84c;">
-            <div class="pricing-badge">SOVEREIGN</div>
-            <div class="pricing-tier-name">Sovereign</div>
-            <div class="pricing-price">&#163;286</div>
-            <div class="pricing-price-sub">per month</div>
-            <ul class="pricing-features">
-                <li>Unlimited uploads</li>
-                <li>All carrier styles + custom</li>
-                <li>All scatter modes</li>
-                <li>Silt Journalism port</li>
-                <li>Mesh network node hosting</li>
-                <li>Custom Al-Jabr 286 salts</li>
-                <li>Founder Vibe UI (Silt Gold)</li>
-                <li>Priority support</li>
-                <li>Encrypted messaging</li>
-                <li>Full API access</li>
-            </ul>
-            {% if user_tier == 'sovereign' %}
-            <span class="pricing-cta pricing-cta-current">Current Plan</span>
-            {% elif is_logged_in %}
-            <button class="pricing-cta pricing-cta-sovereign" onclick="subscribe('sovereign')">Subscribe</button>
-            {% else %}
-            <a href="/login" class="pricing-cta pricing-cta-sovereign">Sign Up to Subscribe</a>
-            {% endif %}
-        </div>
-    </div>
+<section class="validate-section">
+  <h2>◈ Validate a License Key</h2>
+  <div class="validate-box">
+    <input type="text" id="license-key-input" placeholder="VOID-SOV-XXXXXXXX-XXXX" spellcheck="false">
+    <button onclick="validateKey()">Validate Key</button>
+    <div id="validate-result"></div>
+  </div>
+</section>
 
-    <hr class="pricing-divider">
+<section class="sdk-section">
+  <h2>◈ Quick Install</h2>
+  <div class="code-block"><span class="comment"># 1. Download void_client.py (sent with your license key)</span>
+<span class="comment">#    Place it in your project root</span>
 
-    <div class="pricing-section-title">Feature Comparison</div>
-    <div class="pricing-comparison">
-        <table class="pricing-table">
-            <thead>
-                <tr>
-                    <th>Feature</th>
-                    <th>Ghost Node</th>
-                    <th>Journalist</th>
-                    <th>Sovereign</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>Upload Limit</td><td>1 MB</td><td>50 MB</td><td>Unlimited</td></tr>
-                <tr><td>Encode / Decode</td><td class="pricing-check">&#10003;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
-                <tr><td>Jitter Scatter</td><td class="pricing-check">&#10003;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
-                <tr><td>Vortex Scatter</td><td class="pricing-dash">&#8212;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
-                <tr><td>Chirp Sync</td><td class="pricing-dash">&#8212;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
-                <tr><td>Silt Journalism</td><td class="pricing-dash">&#8212;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
-                <tr><td>Midnight Pond Proof</td><td class="pricing-dash">&#8212;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
-                <tr><td>Mesh Node Hosting</td><td class="pricing-dash">&#8212;</td><td class="pricing-dash">&#8212;</td><td class="pricing-gold">&#10003;</td></tr>
-                <tr><td>Custom Al-Jabr Salts</td><td class="pricing-dash">&#8212;</td><td class="pricing-dash">&#8212;</td><td class="pricing-gold">&#10003;</td></tr>
-                <tr><td>Founder Vibe UI</td><td class="pricing-dash">&#8212;</td><td class="pricing-dash">&#8212;</td><td class="pricing-gold">&#10003;</td></tr>
-                <tr><td>Encrypted Messenger</td><td class="pricing-check">&#10003;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
-                <tr><td>Data Vault</td><td class="pricing-check">&#10003;</td><td class="pricing-check">&#10003;</td><td class="pricing-gold">&#10003;</td></tr>
-            </tbody>
-        </table>
-    </div>
+<span class="comment"># 2. Add to requirements.txt</span>
+requests>=2.31
 
-    <hr class="pricing-divider">
+<span class="comment"># 3. Initialise in your Flask app</span>
+<span class="keyword">from</span> void_client <span class="keyword">import</span> VoidEngine
 
-    <div class="pricing-section-title">Hardware — 4000-Series Sovereign Node</div>
-    <div class="pricing-section-sub">Physical infrastructure for total sovereignty</div>
+void = VoidEngine(license_key=<span class="string">"VOID-SOV-XXXXXXXX-XXXX"</span>)
+void.attach(app)  <span class="comment"># Wraps your Flask app</span>
 
-    <div class="pricing-grid">
-        <div class="pricing-card">
-            <div class="pricing-tier-name">Pirate Build</div>
-            <div class="pricing-price">&#163;660</div>
-            <div class="pricing-price-sub">Genesis Kit + self-sourced parts</div>
-            <ul class="pricing-features">
-                <li>Full blueprint pack (7 schematics)</li>
-                <li>Component shopping list</li>
-                <li>PROJECT VOID software</li>
-                <li>DIY calibration guide</li>
-                <li>Community support</li>
-                <li class="disabled">Factory calibration</li>
-                <li class="disabled">Sapphire Thread wiring</li>
-                <li class="disabled">Founder Certificate</li>
-            </ul>
-            <a href="/sovereign#blueprints" class="pricing-cta pricing-cta-ghost">Download Blueprints</a>
-        </div>
+<span class="comment"># 4. Tag any session with frequency attribution</span>
+codon = void.tag_session(user_id=<span class="string">"visitor_42"</span>, message=<span class="string">"Hello"</span>)
+<span class="comment"># → "ψ·Ψ·◆"  (Entity · Condition · Action)</span>
 
-        <div class="pricing-card pricing-card-featured" style="border-color: #c9a84c;">
-            <div class="pricing-badge">SOVEREIGN EDITION</div>
-            <div class="pricing-tier-name">Sovereign Edition</div>
-            <div class="pricing-price">&#163;25,000</div>
-            <div class="pricing-price-sub">Fully assembled GEN-001 node</div>
-            <ul class="pricing-features">
-                <li>Factory-calibrated 432 Hz resonance</li>
-                <li>3-shelf biophony array</li>
-                <li>Sapphire Thread wiring</li>
-                <li>NVIDIA Jetson Orin Nano</li>
-                <li>Founder Certificate (PDF + seal)</li>
-                <li>1-year Sovereign Warranty</li>
-                <li>Priority mesh network peering</li>
-                <li>Sovereign software tier included</li>
-            </ul>
-            <a href="/sovereign#inquiry" class="pricing-cta pricing-cta-inquiry">Request Quote</a>
-        </div>
+<span class="comment"># 5. Read codon memory (Memory + Sovereign tiers)</span>
+memory = void.read_memory(user_id=<span class="string">"visitor_42"</span>, last_n=3)
+<span class="comment"># → ["λ·Λ·☀", "α·Ω·⟐", "ψ·Ψ·◆"]</span></div>
+</section>
 
-        <div class="pricing-card">
-            <div class="pricing-badge" style="background:#2dd4bf;color:#0a0a0f;">COMMUNITY</div>
-            <div class="pricing-tier-name">Village Cluster</div>
-            <div class="pricing-price">&#163;150,000</div>
-            <div class="pricing-price-sub">7 linked nodes — "Seven Seas" deployment</div>
-            <ul class="pricing-features">
-                <li>7 fully assembled Sovereign Nodes</li>
-                <li>Pre-configured mesh topology</li>
-                <li>Community-wide encryption keys</li>
-                <li>Dedicated support channel</li>
-                <li>On-site installation guidance</li>
-                <li>7 Founder Certificates</li>
-                <li>3-year Sovereign Warranty</li>
-                <li>Priority firmware updates</li>
-            </ul>
-            <a href="/sovereign#inquiry" class="pricing-cta pricing-cta-inquiry">Contact Us</a>
-        </div>
-    </div>
+<footer>
+  PROJECT VOID — Umar L. · Bolton, England ·
+  <a href="https://void-stego-engine.replit.app">void-stego-engine.replit.app</a><br><br>
+  <a href="mailto:void@formation.signal">Contact for enterprise licensing</a>
+</footer>
 
-    <hr class="pricing-divider">
+<script>
+function requestLicense(code, name) {
+  const email = prompt('Enter your email to request a ' + name + ' license key:');
+  if (!email) return;
+  alert(
+    'Request received for ' + name + ' tier.\n\n' +
+    'Your VOID-' + code + ' key will be sent to:\n' + email +
+    '\n\nYou will receive the key and void_client.py within 24 hours.'
+  );
+}
 
-    <div class="pricing-section-title">VTX Credits — Pay As You Go</div>
-    <div class="pricing-section-sub">Buy VTX credits to unlock features on demand. Earn VTX by encoding data, relaying mesh packets, or reporting bugs.</div>
+function validateKey() {
+  const key = document.getElementById('license-key-input').value.trim();
+  const result = document.getElementById('validate-result');
+  if (!key) return;
+  result.style.display = 'none';
+  result.className = '';
 
-    {% if is_logged_in %}
-    <div style="text-align:center; margin-bottom: 24px;">
-        <span style="color:#888; font-size:12px;">Your Balance:</span>
-        <span id="vtx-pricing-balance" style="color:#c9a84c; font-size:20px; font-weight:bold; margin-left:8px;">...</span>
-        <span style="color:#c9a84c; font-size:12px;"> VTX</span>
-    </div>
-    {% endif %}
-
-    <div class="pricing-grid">
-        <div class="pricing-card">
-            <div class="pricing-tier-name">Starter</div>
-            <div class="pricing-price pricing-price-ghost">50 <span style="font-size:16px;">VTX</span></div>
-            <div class="pricing-price-sub">&#163;5 one-time</div>
-            <ul class="pricing-features">
-                <li>50 VTX credits</li>
-                <li>Unlock day passes for gated features</li>
-                <li>Transfer to other users</li>
-                <li>No expiry</li>
-            </ul>
-            {% if is_logged_in %}
-            <button class="pricing-cta pricing-cta-ghost" onclick="buyVtx('starter')">Buy 50 VTX</button>
-            {% else %}
-            <a href="/login" class="pricing-cta pricing-cta-ghost">Login to Buy</a>
-            {% endif %}
-        </div>
-
-        <div class="pricing-card pricing-card-featured" style="border-color: #2dd4bf;">
-            <div class="pricing-badge pricing-badge-teal">BEST VALUE</div>
-            <div class="pricing-tier-name">Builder</div>
-            <div class="pricing-price" style="color:#2dd4bf;">250 <span style="font-size:16px;">VTX</span></div>
-            <div class="pricing-price-sub">&#163;20 one-time &middot; 20% bonus</div>
-            <ul class="pricing-features">
-                <li>250 VTX credits (20% bonus)</li>
-                <li>All feature unlocks</li>
-                <li>Peer-to-peer transfers</li>
-                <li>Extended capacity unlocks</li>
-                <li>No expiry</li>
-            </ul>
-            {% if is_logged_in %}
-            <button class="pricing-cta pricing-cta-journalist" onclick="buyVtx('builder')">Buy 250 VTX</button>
-            {% else %}
-            <a href="/login" class="pricing-cta pricing-cta-journalist">Login to Buy</a>
-            {% endif %}
-        </div>
-
-        <div class="pricing-card pricing-card-featured" style="border-color: #c9a84c;">
-            <div class="pricing-badge">SOVEREIGN STACK</div>
-            <div class="pricing-tier-name">Sovereign Stack</div>
-            <div class="pricing-price">1000 <span style="font-size:16px;">VTX</span></div>
-            <div class="pricing-price-sub">&#163;65 one-time &middot; 35% bonus</div>
-            <ul class="pricing-features">
-                <li>1000 VTX credits (35% bonus)</li>
-                <li>All feature unlocks</li>
-                <li>Peer-to-peer transfers</li>
-                <li>Extended capacity + mesh passes</li>
-                <li>No expiry</li>
-            </ul>
-            {% if is_logged_in %}
-            <button class="pricing-cta pricing-cta-sovereign" onclick="buyVtx('sovereign_stack')">Buy 1000 VTX</button>
-            {% else %}
-            <a href="/login" class="pricing-cta pricing-cta-sovereign">Login to Buy</a>
-            {% endif %}
-        </div>
-    </div>
-
-    <div style="max-width:800px; margin: 0 auto 40px; padding: 24px; background:#0d0d1a; border:1px solid #1a1a2e; border-radius:12px;">
-        <div style="text-align:center; margin-bottom:16px; color:#c9a84c; font-size:13px; text-transform:uppercase; letter-spacing:2px;">Dual Economy</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; font-size:12px; color:#aaa;">
-            <div>
-                <div style="color:#e0e0e0; font-weight:bold; margin-bottom:6px;">Subscribe for Full Access</div>
-                <p style="line-height:1.6;">Monthly subscription unlocks all features at your tier level. Best for regular users who need consistent access to journalism, mesh, or sovereign features.</p>
-            </div>
-            <div>
-                <div style="color:#e0e0e0; font-weight:bold; margin-bottom:6px;">Pay-As-You-Go with VTX</div>
-                <p style="line-height:1.6;">Buy or earn VTX credits and spend them on 24-hour feature passes. Perfect for occasional use: 15 VTX for Journalism, 25 VTX for Mesh, 10 VTX for extended capacity.</p>
-            </div>
-        </div>
-        <div style="margin-top:16px; text-align:center; color:#666; font-size:11px;">
-            Earn VTX: 1 VTX/MB encoded &middot; 0.1 VTX/mesh relay &middot; 1-50 VTX/bug bounty
-        </div>
-    </div>
-
-    <div class="pricing-footer">
-        Al-Jabr 286 Sovereign Hash &middot; 432 Hz &middot; All payments processed via Stripe &middot; Cancel anytime
-    </div>
-
-    <script>
-    (function() {
-        var params = new URLSearchParams(window.location.search);
-        if (params.get('payment_error') === '1') {
-            var msg = document.createElement('div');
-            msg.style.cssText = 'background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;padding:12px 20px;text-align:center;font-size:12px;letter-spacing:1px;';
-            msg.textContent = 'There was an issue verifying your payment. Your subscription will activate within a few minutes — please check your pricing page or contact support if your tier is not updated.';
-            document.querySelector('.pricing-hero').after(msg);
-        } else if (params.get('payment_pending') === '1') {
-            var msg = document.createElement('div');
-            msg.style.cssText = 'background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);color:#c9a84c;padding:12px 20px;text-align:center;font-size:12px;letter-spacing:1px;';
-            msg.textContent = 'Payment received — your tier will activate shortly. Refresh this page in a moment.';
-            document.querySelector('.pricing-hero').after(msg);
-        }
-    })();
-
-    function subscribe(tier) {
-        fetch('/api/subscribe/' + tier, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.url) {
-                window.location.href = data.url;
-            } else if (data.error) {
-                alert(data.error);
-            }
-        })
-        .catch(function(err) { alert('Error: ' + err.message); });
+  fetch('/api/license/validate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key })
+  })
+  .then(r => r.json())
+  .then(data => {
+    result.style.display = 'block';
+    if (data.valid) {
+      result.className = 'ok';
+      result.textContent = '◈ VALID — ' + data.tier_name + ' tier · Licensed to: ' + (data.owner_name || 'anonymous');
+    } else {
+      result.className = 'fail';
+      result.textContent = '✗ INVALID — ' + data.reason;
     }
-
-    function buyVtx(pack) {
-        fetch('/api/vtx/buy/' + pack, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.url) {
-                window.location.href = data.url;
-            } else if (data.error) {
-                alert(data.error);
-            }
-        })
-        .catch(function(err) { alert('Error: ' + err.message); });
-    }
-
-    (function() {
-        var balEl = document.getElementById('vtx-pricing-balance');
-        if (balEl) {
-            fetch('/api/wallet/balance')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                balEl.textContent = (data.balance || 0).toFixed(1);
-            })
-            .catch(function() { balEl.textContent = '0'; });
-        }
-    })();
-    </script>
-    <link rel="stylesheet" href="/static/void_fairy.css">
-    <link rel="stylesheet" href="/static/resonance_handshake.css">
-    <script src="/static/resonance_handshake.js"></script>
-    <script src="/static/void_fairy.js"></script>
-    <script src="/static/lang_switcher.js"></script>
+  })
+  .catch(() => {
+    result.style.display = 'block';
+    result.className = 'fail';
+    result.textContent = '✗ Validation request failed.';
+  });
+}
+</script>
 </body>
 </html>
