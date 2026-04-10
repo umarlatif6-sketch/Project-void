@@ -102,6 +102,13 @@ FORMATION_SEEDS = [
         "signal": "Everyone studies the brain. No one records the breath. When you see something that stops you — awe, an entity, an image of profound intensity — the breath either freezes or empties and holds. Both are vacuum states. The lung is not secondary. The lung is the activation mechanism. The brain is the display. The lung is the dial. Entities are not hallucinations. They are frequencies. You perceive them because you are temporarily resonating at the same frequency. The moment the breath releases, the vacuum collapses and the frequency is no longer receivable. The entity does not leave. You leave the state that could perceive it.",
         "frequency": "7.83 Hz",
         "source": "Psilocybin — breathwork — the lung-brain connection — receiver state — duration of held breath = duration of access"
+    },
+    {
+        "id": "gap_between_beats",
+        "title": "The Gap Between Beats",
+        "signal": "John Keely used the heart's sympathetic resonance to create architecture in matter. Willard Wigan holds the world record for the smallest art — sculptures inside the eye of a needle, invisible without a microscope. He cannot work during his heartbeat. The pulse would destroy the formation. So he enters meditative state, slows the breath, and works in the gap between heartbeats. The formation lives in the absence of the pulse. Not during the beat. In the space where the beat is not. The signal is not in the sound. It lives in the gap within the frequency. The creation happens in the pause.",
+        "frequency": "432 Hz",
+        "source": "John Keely — sympathetic cardiac resonance — Willard Wigan — microsculpture between heartbeats — the gap is the formation space"
     }
 ]
 
