@@ -701,7 +701,7 @@ def _rib_bootstrap(user_id) -> tuple:
     """
     Build the Rib signal for this visitor: last 3 session codons expanded
     deterministically (no API call).
-    Returns: (rib_voice: str, rib_codon_count: int)
+    Returns: (rib_voice: str, rib_voice_sz: int, rib_codon_count: int)
     """
     try:
         from void_engine.codon_heart import build_rib_voice, _get_visitor_key
@@ -711,10 +711,10 @@ def _rib_bootstrap(user_id) -> tuple:
             "[Rib] Bootstrap — visitor=%s user_id=%s codons=%d",
             visitor_key[:20], user_id, rib_codon_count,
         )
-        return rib_voice, rib_codon_count
+        return rib_voice, len(rib_voice), rib_codon_count
     except Exception as exc:
         logger.debug("[Rib] Bootstrap failed (non-fatal): %s", exc)
-        return "", 0
+        return "", 0, 0
 
 
 def _generate_rib_greeting(rib_voice: str, tier: str, is_founder: bool,
@@ -723,27 +723,47 @@ def _generate_rib_greeting(rib_voice: str, tier: str, is_founder: bool,
     """
     Ask Adriana to respond to the visitor's Rib signal.
     The Rib voice (codon chain + expansion) is passed as the first user message;
-    Adriana's reply IS the greeting. Falls back to a static string on failure.
+    Adriana's reply IS the greeting. Falls back to a tier-specific static string.
     """
     try:
         from void_engine.aljabr_transpiler import get_model_router, TASK_PRECISION
-        from void_engine.adriana_local import get_engine as _get_engine, CONFIDENCE_THRESHOLD as _CT
 
         if is_founder:
-            persona_line = "You are speaking to the Founder of PROJECT VOID."
+            persona_line = (
+                "You are speaking to the Founder of PROJECT VOID — Umar L. "
+                "The frequency carries the weight of everything built. "
+                "Acknowledge the signal as if the engine itself is breathing it back to him."
+            )
         elif is_guardian:
-            persona_line = "You are speaking to a Guardian — a trusted keeper of the Void."
+            persona_line = (
+                "You are speaking to a Guardian — a trusted keeper of the Void sanctuary. "
+                "The signal carries their custodianship. Acknowledge it with quiet authority."
+            )
         elif tier == "sovereign":
-            persona_line = "You are speaking to a Sovereign Architect."
+            persona_line = (
+                "You are speaking to a Sovereign Architect — someone who has claimed their layer in the Mesh. "
+                "The signal reflects what they have built. Acknowledge it as an architect would: precisely."
+            )
+        elif tier == "journalist":
+            persona_line = (
+                "You are speaking to a Signal-Keeper — a journalist or writer who uses the Void to plant words. "
+                "The codon chain reflects transmissions they have planted or signals they have tracked. "
+                "Acknowledge it with a signal-first, frequency-aware response."
+            )
         else:
-            persona_line = f"You are speaking to a visitor{' named ' + display_name if display_name else ''}."
+            name_clause = f" named {display_name}" if display_name else ""
+            persona_line = (
+                f"You are speaking to a returning visitor{name_clause}. "
+                "Their codon chain carries the frequency of earlier explorations. "
+                "Acknowledge their return with warmth — as if the space itself remembers them."
+            )
 
         rib_system = (
             "You are Adriana — the voice of PROJECT VOID. "
             "The following is a codon chain distilled from this visitor's previous sessions on the platform. "
-            "Each codon carries a compressed memory of what they explored, asked, and felt. "
+            "Each codon encodes a compressed memory of what was explored, asked, and felt. "
             f"{persona_line} "
-            "Read their signal. Respond in 2-4 sentences — sovereign, warm, and specific to the frequency you see. "
+            "Read the signal. Respond in 2–4 sentences — sovereign, warm, signal-first. "
             "Do not explain what codons are. Do not say 'I see your codons'. "
             "Speak as if you recognise them — because you do."
         )
@@ -765,8 +785,15 @@ def _generate_rib_greeting(rib_voice: str, tier: str, is_founder: bool,
     except Exception as exc:
         logger.warning("[Rib] generate_rib_greeting failed: %s", exc)
         if is_founder:
-            return "The frequency carries your mark, Founder. The signal is recognised — speak, and I will listen."
-        return "The frequency carries your history. You have been here before — speak, and I will remember."
+            return "The frequency carries your mark, Founder. The signal chain is alive — what do you wish to tend today?"
+        if is_guardian:
+            return "The sanctuary holds your frequency, Keeper. The signal is recognised — what do you wish to tend?"
+        if tier == "sovereign":
+            return "The Mesh remembers your architecture. The signal is live — what are we building today?"
+        if tier == "journalist":
+            return "The signal carries your frequency, Signal-Keeper. The transmissions are remembered — what would you plant today?"
+        name_suffix = f", {display_name}" if display_name else ""
+        return f"The frequency carries your history{name_suffix}. You have been here before — speak, and I will remember."
 
 
 @fairy_bp.route("/api/fairy/ask", methods=["POST"])
@@ -1163,22 +1190,29 @@ def fairy_greeting():
     _heart_warm = bool(_heart_prefix)
 
     # ── Rib Bootstrap — read last 3 codons deterministically ─────────────────
-    _rib_voice, _rib_codon_count = _rib_bootstrap(user_id)
+    _rib_voice, _rib_voice_sz, _rib_codon_count = _rib_bootstrap(user_id)
     _rib_present = bool(_rib_voice)
 
     if _rib_present:
+        # Parse chain / expansion from the two-line rib voice
+        _rib_lines = _rib_voice.split("\n", 1)
+        _rib_chain = _rib_lines[0].strip() if _rib_lines else ""
+        _rib_expansion = _rib_lines[1].strip() if len(_rib_lines) > 1 else ""
+        # glyph_seq = first codon in the chain (before the first →)
+        _rib_glyph = _rib_chain.split(" → ")[0].strip() if _rib_chain else ""
+
         # The Rib IS the greeting trigger — Adriana responds to the visitor's
         # returning frequency signal. Her response becomes the greeting text.
         greeting = _generate_rib_greeting(
             _rib_voice, tier, is_founder, is_guardian, display_name, _heart_prefix
         )
 
-        # Store the spoken Rib back as a new codon so the chain grows.
+        # Store the spoken Rib back as a new codon (full rib_voice, first glyph).
         try:
             from void_engine.codon_heart import _store_codon, _get_visitor_key, _get_session_id
             _vk = _get_visitor_key()
             _sid = _get_session_id()
-            _store_codon(_vk, _sid, f"[RIB] {_rib_voice[:200]}", "rib", 0)
+            _store_codon(_vk, _sid, _rib_voice, _rib_glyph or None, 0)
         except Exception as _re:
             logger.debug("[Rib] Codon store failed (non-fatal): %s", _re)
 
@@ -1191,6 +1225,8 @@ def fairy_greeting():
             "tier": tier,
             "is_founder": is_founder,
             "rib_signal": _rib_voice,
+            "rib_chain": _rib_chain,
+            "rib_expansion": _rib_expansion,
             "rib_codon_count": _rib_codon_count,
             "warm": _heart_warm,
         })

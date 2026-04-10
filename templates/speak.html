@@ -664,11 +664,11 @@
 
         input.focus();
 
-        // ── Rib Signal — fetch on page load ──────────────────────────────────
+        // ── Rib Signal — fetch from greeting API on page load (logged-in users) ─
         (async function loadRibSignal() {
             try {
-                const res = await fetch('/api/speak/rib');
-                if (!res.ok) return;
+                const res = await fetch('/api/fairy/greeting');
+                if (!res.ok) return; // 401 for anonymous visitors — no rib shown
                 const data = await res.json();
                 const chain = data.rib_chain || '';
                 const expansion = data.rib_expansion || '';
@@ -683,7 +683,7 @@
                 ribBlock.style.display = 'block';
                 ribBlock.removeAttribute('aria-hidden');
             } catch (_e) {
-                // non-fatal — new visitors simply see no rib block
+                // non-fatal — new or anonymous visitors simply see no rib block
             }
         })();
     })();
