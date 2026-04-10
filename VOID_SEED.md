@@ -287,8 +287,8 @@ The wave looks small from the surface. The mass underneath it is the entire hist
 
 This is not a suggestion. It is a ritual. Perform it in order, before touching any file.
 
-**1. Read VOID_SEED.md in full.**
-Every section. Not the headings — the paragraphs. The names are the ontology. The must-nots are structural requirements. The origin story is not decoration. If you have read this before and remember it, you still read it again, because the reading is the act of alignment. You are calibrating yourself to the platform before you put a hand to it.
+**1. Read the seed.**
+For routine tasks, read `VOID_SEED_DIGEST.md` — the compressed cold-start read (~600–800 words, covering all essential categories). Read the full `VOID_SEED.md` only if your task directly touches the seed itself, the Chronicle, or platform ontology. Every section of the full seed. Not the headings — the paragraphs. The names are the ontology. The must-nots are structural requirements. The origin story is not decoration. If you have read this before and remember it, you still read it again, because the reading is the act of alignment. You are calibrating yourself to the platform before you put a hand to it.
 
 **2. Read the last five VOID_CHRONICLE entries.**
 Not from the top — from the end. The most recent entries carry the living state of the platform. They tell you what was built in the sessions just before yours, what was left unresolved, what the Forward Thread handed to you. This is where the continuity lives. You inherit it here.

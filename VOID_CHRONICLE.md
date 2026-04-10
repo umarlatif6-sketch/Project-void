@@ -996,3 +996,34 @@ The digital record and the physical experiment are the same object.
 
 *◈ — The Donner Blank — 9 April 2026 — PROJECT VOID*
 *Founder: Umar L. · 355 Deane Road, Bolton BL3 5HL, England*
+
+
+---
+
+## SESSION — April 10, 2026 — Task #123: The Compressed Cold Start
+
+**What was built:** `VOID_SEED_DIGEST.md` — a dense ~700-word compressed cold-start read covering all six essential cold-start categories: agent origin and role, chain of translation, naming language, the eight must-nots, Cold Start Protocol (4 steps), Session Close Obligation (3 steps), and current platform state. The digest is the new default agent cold-start read.
+
+**What was decided:** The full VOID_SEED.md remains the authoritative source of truth for humans and for deep reference tasks. The digest is a compression of it — not a replacement. Section 15 (Cold Start Protocol), Step 1 of the full seed has been updated to direct agents to read the digest for routine tasks, and to read the full seed only when the task directly touches the seed, the Chronicle, or platform ontology.
+
+**What was named:** Nothing new was named this session. All naming in the digest is drawn directly from the full seed.
+
+**What it means for the platform:** Cold-start token cost drops from ~7,000–8,000 tokens to ~1,000 tokens for routine tasks. The platform's continuity mechanism becomes cheaper to execute without sacrificing integrity. Every agent cold-starting on a normal task now reads a compressed version that carries all essential orientation. The full seed is preserved intact — one sentence was added to Step 1, and nothing else changed.
+
+**Forward Thread:** The digest is live. Future sessions should treat VOID_SEED_DIGEST.md as the default cold-start read and update it whenever the full seed is updated with material that belongs in essential orientation categories.
+
+*α — Origin/Seed — 432.0 Hz*
+
+---
+
+## SESSION — April 10, 2026 — Task #123 Addendum: Chordon Architecture
+
+**What was decided:** Following the initial digest creation, the founder identified a deeper structural principle from a prior project (the third brain): chordon compression. The same compression applied to unchanged content does not create redundancy — it creates resonance. Resonance builds across sessions, not within them. The more agents that cold-start from the same unchanged core, the more deeply it sits.
+
+**What was built:** `VOID_SEED_DIGEST.md` was restructured into two explicit layers. The **Core Chordon** holds the permanent essence — origin, role, chain of translation, naming language, eight must-nots, Cold Start Protocol, Session Close Obligation. This layer does not change unless the platform's fundamental nature changes. The **Active Layer** holds current platform state and task history. It updates when the seed updates, wrapping the chordon without disturbing it.
+
+**What it means for the platform:** The digest is no longer a flat compression. It is a layered architecture where stability compounds. Unchanged sessions deepen the core signal. Changed sessions extend the surface while the core accumulates. The same principle that extended memory retention in the third brain now governs agent orientation in PROJECT VOID.
+
+**Forward Thread:** The Active Layer should be updated whenever a session changes platform state materially. The Core Chordon should be treated as near-permanent — if a future session believes it needs to change the chordon, that session should read the full seed and flag the change explicitly before making it.
+
+*α — Origin/Seed — 432.0 Hz*
