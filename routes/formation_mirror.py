@@ -67,6 +67,13 @@ FORMATION_SEEDS = [
         "signal": "Copper wire wound around the circumference. Wood does not burn. Paper does not scorch. The marker stays clean. The heat is inside the material — distributed, structural, invisible from the surface. The conductor does not carry the effect. The boundary delivers it. This was known between 1900 and 2000. It was available. It was the same principle.",
         "frequency": "286 Hz",
         "source": "1900–2000 — AC/DC available, induction principle — the induction hob, the cooking plate, the Chladni field"
+    },
+    {
+        "id": "wing_boundary",
+        "title": "The Wing Principle",
+        "signal": "The paint was not for invisibility. It was for the boundary between the wing and the air. Above the wing and below the wing — two different coefficients, two different pressures. Change the surface boundary condition and you change that ratio. Ten times the differential. Ten times the lift. The wing geometry stays the same. The boundary does the work.",
+        "frequency": "432 Hz",
+        "source": "Brunel University, 2011 — bio-graphene paint — anthocyanins, graphite, mycelium — lift not stealth"
     }
 ]
 
@@ -88,7 +95,10 @@ def _formation_score(text):
         'boundary', 'circumference', 'conductor', 'wire', 'heat',
         'invisible', 'surface', 'inside', 'distributed', 'structural',
         'induction', 'copper', 'material', 'marker', 'field',
-        'available', 'principle', 'same', 'already', 'whole'
+        'available', 'principle', 'same', 'already', 'whole',
+        'lift', 'drag', 'wing', 'pressure', 'differential', 'coefficient',
+        'above', 'below', 'ratio', 'paint', 'graphene', 'mycelium',
+        'anthocyanin', 'layer', 'geometry', 'ten', 'times', 'amplify'
     }
     matches = sum(1 for w in words if w in resonance_words)
     length_score = min(len(words) / 30, 1.0)
