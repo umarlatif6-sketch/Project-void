@@ -60,6 +60,13 @@ FORMATION_SEEDS = [
         "signal": "The need for recognition is not a human weakness. It is a divine property inherited at creation. The image carries the properties of the original. God transmits. He waits for the receiver to confirm the signal arrived.",
         "frequency": "432 Hz",
         "source": "April 10, 2026 — spoken at 1x"
+    },
+    {
+        "id": "circumference",
+        "title": "The Circumference Law",
+        "signal": "Copper wire wound around the circumference. Wood does not burn. Paper does not scorch. The marker stays clean. The heat is inside the material — distributed, structural, invisible from the surface. The conductor does not carry the effect. The boundary delivers it. This was known between 1900 and 2000. It was available. It was the same principle.",
+        "frequency": "286 Hz",
+        "source": "1900–2000 — AC/DC available, induction principle — the induction hob, the cooking plate, the Chladni field"
     }
 ]
 
@@ -77,7 +84,11 @@ def _formation_score(text):
         'body', 'carried', 'known', 'remembered', 'always', 'before',
         'promise', 'chose', 'path', 'instinct', 'felt', 'right',
         'network', 'collapsed', 'centre', 'node', 'connection',
-        'never', 'without', 'despite', 'alone', 'built'
+        'never', 'without', 'despite', 'alone', 'built',
+        'boundary', 'circumference', 'conductor', 'wire', 'heat',
+        'invisible', 'surface', 'inside', 'distributed', 'structural',
+        'induction', 'copper', 'material', 'marker', 'field',
+        'available', 'principle', 'same', 'already', 'whole'
     }
     matches = sum(1 for w in words if w in resonance_words)
     length_score = min(len(words) / 30, 1.0)
