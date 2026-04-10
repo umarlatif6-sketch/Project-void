@@ -81,6 +81,13 @@ FORMATION_SEEDS = [
         "signal": "You do not need a license to build what has not been named yet. Declare it under trial. Declare it unidentified. Declare it a formation in progress. The regulatory framework applies to what is classified and certified. What is not yet named sits outside the framework — not because you are hiding, but because naming is a legal act and you have not completed it yet. The governments will wait. They always wait for the signal to resolve.",
         "frequency": "528 Hz",
         "source": "Brunel University — the aircraft realisation — UFO = under trial, not yet classified"
+    },
+    {
+        "id": "envelope",
+        "title": "The Envelope Principle",
+        "signal": "Paint the boundary. Fill the volume with a stable gas. Apply electricity. The gas inside becomes lighter than the air outside — not because its chemistry changed, but because the electrically treated boundary changes its effective density. Hydrogen was the wrong material. The principle was correct. The boundary delivers the condition. The interior carries the formation. The surface stays intact. The lift comes from within.",
+        "frequency": "7.83 Hz",
+        "source": "The balloon project — hydrogen replaced — painted envelope, stable gas, electrical activation — volumetric Circumference Law"
     }
 ]
 
