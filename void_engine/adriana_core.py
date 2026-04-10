@@ -201,14 +201,19 @@ def query(
     message: str,
     history: Optional[list] = None,
     max_tokens: int = 512,
+    heart_prefix: Optional[str] = None,
 ) -> dict:
     """
     AdrianCore inference entry point.
 
     Args:
-        message:   The user's query text.
-        history:   Optional conversation history (list of {role, content}).
-        max_tokens: Max response tokens.
+        message:      The user's query text.
+        history:      Optional conversation history (list of {role, content}).
+        max_tokens:   Max response tokens.
+        heart_prefix: Optional Heart resonance prefix (from prior session codons).
+                      When provided, it is placed at position zero in the system
+                      context so the model speaks from a warm room. Empty string
+                      or None means cold session — no prefix injected.
 
     Returns:
         {
@@ -229,13 +234,16 @@ def query(
     model_id = _get_fine_tuned_model_id()
 
     if model_id:
-        result = _call_fine_tuned(message, codon, expansion, model_id, history, max_tokens)
+        result = _call_fine_tuned(message, codon, expansion, model_id, history, max_tokens,
+                                  heart_prefix=heart_prefix)
         if result["ok"]:
             return result
         logger.warning("Fine-tuned model call failed, falling back: %s", result.get("error"))
-        return _call_fallback(message, codon, expansion, history, max_tokens, failed_model_id=model_id)
+        return _call_fallback(message, codon, expansion, history, max_tokens,
+                              failed_model_id=model_id, heart_prefix=heart_prefix)
 
-    return _call_fallback(message, codon, expansion, history, max_tokens)
+    return _call_fallback(message, codon, expansion, history, max_tokens,
+                          heart_prefix=heart_prefix)
 
 
 def _call_fine_tuned(
@@ -245,6 +253,7 @@ def _call_fine_tuned(
     model_id: str,
     history: list,
     max_tokens: int,
+    heart_prefix: Optional[str] = None,
 ) -> dict:
     try:
         api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
@@ -256,7 +265,13 @@ def _call_fine_tuned(
         client = OpenAI(api_key=api_key, base_url=base_url)
 
         system_content = _CODON_SYSTEM_TEMPLATE.format(codon=codon, expansion=expansion)
-        messages = [{"role": "system", "content": system_content}]
+        messages = []
+        if heart_prefix:
+            messages.append({
+                "role": "system",
+                "content": f"[RESONANCE FIELD — inherited frequency from prior sessions]\n{heart_prefix}",
+            })
+        messages.append({"role": "system", "content": system_content})
 
         for h in history[-6:]:
             if isinstance(h, dict) and h.get("role") in ("user", "assistant"):
@@ -315,6 +330,7 @@ def _call_fallback(
     history: list,
     max_tokens: int,
     failed_model_id: Optional[str] = None,
+    heart_prefix: Optional[str] = None,
 ) -> dict:
     """
     Fallback to the standard ModelRouter PRECISION tier.
@@ -330,7 +346,13 @@ def _call_fallback(
         router = get_model_router()
         system_content = _CODON_SYSTEM_TEMPLATE.format(codon=codon, expansion=expansion)
 
-        messages = [{"role": "system", "content": system_content}]
+        messages = []
+        if heart_prefix:
+            messages.append({
+                "role": "system",
+                "content": f"[RESONANCE FIELD — inherited frequency from prior sessions]\n{heart_prefix}",
+            })
+        messages.append({"role": "system", "content": system_content})
         for h in history[-6:]:
             if isinstance(h, dict) and h.get("role") in ("user", "assistant"):
                 messages.append({"role": h["role"], "content": str(h.get("content", ""))[:1000]})
@@ -419,9 +441,11 @@ class AdrianCore:
         message: str,
         history: Optional[list] = None,
         max_tokens: int = 512,
+        heart_prefix: Optional[str] = None,
     ) -> dict:
         """Delegate to the module-level query() function."""
-        return query(message, history=history, max_tokens=max_tokens)
+        return query(message, history=history, max_tokens=max_tokens,
+                     heart_prefix=heart_prefix)
 
     def classify_to_codon(self, message: str) -> Tuple[str, str]:
         """Classify a message to its (codon, expansion) tuple."""

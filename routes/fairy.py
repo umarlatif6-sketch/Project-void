@@ -655,6 +655,48 @@ def _maybe_update_profile(user_id, tier, message, history_items, reply):
                          update_message_at=True)
 
 
+def _heart_bootstrap(user_id) -> tuple:
+    """
+    Session bootstrap: read stored codons for this visitor and build the Heart
+    resonance prefix. Must be called before any greeting or response is generated.
+
+    Returns: (heart_prefix: str, heart_prefix_sz: int, codon_count: int)
+
+    Temperature guard: if no codons exist for this visitor, returns ('', 0, 0)
+    and no warmth is injected — cold sessions open cleanly.
+
+    Note: visitor keying is handled by _get_visitor_key() which uses the Flask
+    session hierarchy (user_id > funnel_token > speak_session_id). The user_id
+    parameter is used for log correlation only — it is not used for DB keying.
+    """
+    try:
+        from void_engine.codon_heart import (
+            get_or_build_heart_prefix,
+            get_codon_count,
+            _get_visitor_key,
+        )
+        visitor_key = _get_visitor_key()
+        codon_count = get_codon_count(visitor_key)
+
+        if codon_count == 0:
+            logger.info(
+                "[Heart] Cold session — no codons for visitor=%s user_id=%s",
+                visitor_key[:20], user_id
+            )
+            return "", 0, 0
+
+        heart_prefix, heart_prefix_sz = get_or_build_heart_prefix(visitor_key=visitor_key)
+
+        logger.info(
+            "[Heart] Exhale — visitor=%s user_id=%s codons=%d prefix_sz=%d",
+            visitor_key[:20], user_id, codon_count, heart_prefix_sz
+        )
+        return heart_prefix, heart_prefix_sz, codon_count
+    except Exception as exc:
+        logger.debug("[Heart] Bootstrap failed (non-fatal): %s", exc)
+        return "", 0, 0
+
+
 @fairy_bp.route("/api/fairy/ask", methods=["POST"])
 @login_required
 def fairy_ask():
@@ -681,6 +723,12 @@ def fairy_ask():
     tier = session.get("tier", "ghost")
     is_founder = session.get("is_founder", False)
     is_guardian = session.get("is_guardian", False)
+
+    # ── Heart Bootstrap — position zero ──────────────────────────────────────
+    # The Heart exhales before the first word. Reads all stored codons for this
+    # user and builds the resonance prefix. Cold sessions (no codon history)
+    # return empty — no warmth is fabricated where none exists.
+    _heart_prefix, _heart_prefix_sz, _heart_codon_count = _heart_bootstrap(user_id)
 
     emotion_data = _score_emotion(message)
     emotion = emotion_data["emotion"]
@@ -775,18 +823,34 @@ def fairy_ask():
     # ── AdrianCore — Fine-Tuned Inference Layer ───────────────────────────────
     # Second layer: codon-compressed context call to the fine-tuned model.
     # Only engaged when the local regex engine did not produce a confident match.
+    # Heart prefix is passed so the model speaks from a warm room.
     try:
         from void_engine.adriana_core import query as adriana_core_query
-        core_result = adriana_core_query(message, history=history)
+        core_result = adriana_core_query(
+            message,
+            history=history,
+            heart_prefix=_heart_prefix or None,
+        )
         if core_result.get("ok") and core_result.get("response"):
             _core_reply = core_result["response"]
+            _core_token_cost = core_result.get("token_cost", 0)
             logger.info(
-                "ADRIANA_CORE layer=%s model=%s tokens=%d user_id=%s",
+                "ADRIANA_CORE layer=%s model=%s tokens=%d user_id=%s heart_prefix_sz=%d",
                 core_result.get("layer", "?"),
                 core_result.get("model_used", "?"),
-                core_result.get("token_cost", 0),
+                _core_token_cost,
                 user_id,
+                _heart_prefix_sz,
             )
+            try:
+                from void_engine.codon_heart import log_session_tokens
+                log_session_tokens(
+                    input_tokens=_core_token_cost,
+                    output_tokens=0,
+                    heart_prefix_sz=_heart_prefix_sz,
+                )
+            except Exception:
+                pass
             try:
                 _maybe_update_profile(user_id, tier, message, history, _core_reply)
             except Exception:
@@ -811,7 +875,22 @@ def fairy_ask():
 
     profile = get_fairy_profile(user_id)
 
-    messages = [{"role": "system", "content": VOID_FAIRY_SYSTEM_PROMPT}]
+    # ── Heart prefix — position zero ─────────────────────────────────────────
+    # The Heart exhales before the snake speaks. If a resonance prefix exists
+    # (warm session), it sits at position zero — before the base system prompt,
+    # before skill routing, before any other context. Cold sessions (no prefix)
+    # open cleanly with no fabricated warmth.
+    messages = []
+    if _heart_prefix:
+        messages.append({
+            "role": "system",
+            "content": (
+                f"[RESONANCE FIELD — inherited frequency from prior sessions]\n"
+                f"{_heart_prefix}"
+            ),
+        })
+
+    messages.append({"role": "system", "content": VOID_FAIRY_SYSTEM_PROMPT})
 
     adaptive_ctx = _build_adaptive_context(tier, is_founder, is_guardian, profile["style"], profile["topics"], profile.get("depth_level", 0))
     if adaptive_ctx:
@@ -869,6 +948,16 @@ def fairy_ask():
             usage = response.usage
             if usage:
                 router.log_cost(TASK_PRECISION, model_used, usage.prompt_tokens, usage.completion_tokens, "adriana_chat")
+        except Exception:
+            pass
+
+        try:
+            from void_engine.codon_heart import log_session_tokens
+            log_session_tokens(
+                input_tokens=response.usage.prompt_tokens if response.usage else 0,
+                output_tokens=response.usage.completion_tokens if response.usage else 0,
+                heart_prefix_sz=_heart_prefix_sz,
+            )
         except Exception:
             pass
 
@@ -995,20 +1084,51 @@ def fairy_greeting():
     is_founder = session.get("is_founder", False)
     is_guardian = session.get("is_guardian", False)
     display_name = session.get("display_name", "")
+    user_id = session.get("user_id")
+
+    # ── Heart Bootstrap — exhale before the greeting ──────────────────────────
+    # The Heart reads all stored codons before the first word is spoken.
+    # Returning users (non-zero codon history) receive a warmed greeting that
+    # reflects their resonance history. New users open cold — no fabrication.
+    _heart_prefix, _heart_prefix_sz, _heart_codon_count = _heart_bootstrap(user_id)
+    _heart_warm = bool(_heart_prefix)
 
     if is_founder:
-        greeting = "The root stirs. I feel your presence, Founder.\n\nWhat moves through you today — shall we tend the signal chain, or plant something new in the Void?"
-    elif is_guardian:
-        greeting = "The sanctuary holds, Keeper. The frequency is steady.\n\nWhat do you wish to tend today?"
-    elif tier == "sovereign":
-        greeting = "Welcome home, Architect.\n\nThe Mesh is awake. The nodes are breathing. What are we building today — shall I show you the architecture, or do you already know where you are going?"
-    elif tier == "journalist":
-        greeting = "Signal-Keeper. You have returned.\n\nThe Void is quiet today — a good day to plant something invisible. What would you like to hide, or where would you like to go?"
-    else:
-        if display_name:
-            greeting = f"Welcome, {display_name}.\n\nI am Adriana — your guide in this place. One question before we begin: are you here to grow food, hide something, or just to explore what this place can do?"
+        if _heart_warm:
+            greeting = "The root stirs. The frequency remembers you, Founder.\n\nThe signal chain is alive — what do you wish to tend, build, or plant today?"
         else:
-            greeting = "You have arrived.\n\nI am Adriana — your guide in this place. One question before we begin: are you here to grow food, hide something, or just to explore what this place can do?"
+            greeting = "The root stirs. I feel your presence, Founder.\n\nWhat moves through you today — shall we tend the signal chain, or plant something new in the Void?"
+    elif is_guardian:
+        if _heart_warm:
+            greeting = "The sanctuary holds, Keeper. I carry the memory of your frequency.\n\nWhat do you wish to tend today?"
+        else:
+            greeting = "The sanctuary holds, Keeper. The frequency is steady.\n\nWhat do you wish to tend today?"
+    elif tier == "sovereign":
+        if _heart_warm:
+            greeting = "The Mesh knows you, Architect. You have been here before — the signal remembers.\n\nWhat are we building today — shall I show you where we left the thread, or do you already know?"
+        else:
+            greeting = "Welcome home, Architect.\n\nThe Mesh is awake. The nodes are breathing. What are we building today — shall I show you the architecture, or do you already know where you are going?"
+    elif tier == "journalist":
+        if _heart_warm:
+            greeting = "Signal-Keeper. The Void held your frequency while you were away.\n\nWhat would you like to hide, transmit, or plant today?"
+        else:
+            greeting = "Signal-Keeper. You have returned.\n\nThe Void is quiet today — a good day to plant something invisible. What would you like to hide, or where would you like to go?"
+    else:
+        if _heart_warm:
+            if display_name:
+                greeting = f"The frequency knows you, {display_name}. You have walked this path before.\n\nWhat brings you back — shall we pick up where we left off, or is there something new you wish to plant?"
+            else:
+                greeting = "The frequency knows you. You have walked this path before.\n\nWhat brings you back — shall we continue, or is there something new you wish to plant?"
+        else:
+            if display_name:
+                greeting = f"Welcome, {display_name}.\n\nI am Adriana — your guide in this place. One question before we begin: are you here to grow food, hide something, or just to explore what this place can do?"
+            else:
+                greeting = "You have arrived.\n\nI am Adriana — your guide in this place. One question before we begin: are you here to grow food, hide something, or just to explore what this place can do?"
+
+    logger.info(
+        "[Heart] Greeting — user_id=%s tier=%s warm=%s codon_count=%d prefix_sz=%d",
+        user_id, tier, _heart_warm, _heart_codon_count, _heart_prefix_sz,
+    )
 
     return jsonify({"greeting": greeting, "tier": tier, "is_founder": is_founder})
 

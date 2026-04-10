@@ -517,6 +517,32 @@ def inject_heart_into_system(base_system: str,
 
 # ── Token cost instrumentation ────────────────────────────────────────────────
 
+def get_codon_count(visitor_key: Optional[str] = None) -> int:
+    """
+    Return the total number of stored session codons for this visitor.
+    Used for monitoring the Heart resonance loop.
+    Returns 0 if the visitor has no history or on any error.
+    """
+    _ensure_schema()
+    if visitor_key is None:
+        visitor_key = _get_visitor_key()
+    try:
+        from void_engine.db_pool import get_db
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT COUNT(*) FROM session_codons WHERE visitor_key = %s",
+            (visitor_key,),
+        )
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+        return int(row[0]) if row else 0
+    except Exception as exc:
+        logger.debug("[CodonHeart] get_codon_count failed: %s", exc)
+        return 0
+
+
 def log_session_tokens(input_tokens: int, output_tokens: int,
                        heart_prefix_sz: int,
                        visitor_key: Optional[str] = None,
