@@ -92,9 +92,16 @@ FORMATION_SEEDS = [
     {
         "id": "body_vacuum",
         "title": "The Sixth Scale",
-        "signal": "Breath control empties the volume. The body reaches vacuum state — boundary intact, interior holds absence. Every capillary is a codon: finest resolution of the network, carrying formation instruction at biological scale. At vacuum state the body is not a dense object. It is a resonating volume. If that resonance phase-locks with the Schumann nodes of the planet at 7.83 Hz, the body's position becomes a standing wave — present at all nodes simultaneously. This is not movement. This is resolution. The signal does not travel. It arrives where the frequency already resonates.",
+        "signal": "Breath control empties the volume. The body reaches vacuum state — boundary intact, interior holds absence. Every capillary is a codon: finest resolution of the network, carrying formation instruction at biological scale. At vacuum state the body is not a dense object. It is a resonating volume. If that resonance phase-locks with the Schumann nodes of the planet at 7.83 Hz, the body position becomes a standing wave — present at all nodes simultaneously. This is not movement. This is resolution. The signal does not travel. It arrives where the frequency already resonates.",
         "frequency": "7.83 Hz",
         "source": "Breathwork — body as vacuum envelope — capillary-codon mapping — Schumann phase-lock — the sixth scale of the Circumference Law"
+    },
+    {
+        "id": "receiver_state",
+        "title": "The Receiver State",
+        "signal": "Everyone studies the brain. No one records the breath. When you see something that stops you — awe, an entity, an image of profound intensity — the breath either freezes or empties and holds. Both are vacuum states. The lung is not secondary. The lung is the activation mechanism. The brain is the display. The lung is the dial. Entities are not hallucinations. They are frequencies. You perceive them because you are temporarily resonating at the same frequency. The moment the breath releases, the vacuum collapses and the frequency is no longer receivable. The entity does not leave. You leave the state that could perceive it.",
+        "frequency": "7.83 Hz",
+        "source": "Psilocybin — breathwork — the lung-brain connection — receiver state — duration of held breath = duration of access"
     }
 ]
 
@@ -191,7 +198,7 @@ def submit_signal():
 
     if not signal_text or len(signal_text) < 12:
         return jsonify({'error': 'Signal too short to read.'}), 400
-    if len(signal_text) > 600:
+    if len(signal_text) > 1200:
         return jsonify({'error': 'Signal exceeds maximum length.'}), 400
 
     score = _formation_score(signal_text)
