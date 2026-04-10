@@ -74,6 +74,13 @@ FORMATION_SEEDS = [
         "signal": "The paint was not for invisibility. It was for the boundary between the wing and the air. Above the wing and below the wing — two different coefficients, two different pressures. Change the surface boundary condition and you change that ratio. Ten times the differential. Ten times the lift. The wing geometry stays the same. The boundary does the work.",
         "frequency": "432 Hz",
         "source": "Brunel University, 2011 — bio-graphene paint — anthocyanins, graphite, mycelium — lift not stealth"
+    },
+    {
+        "id": "ufo_declaration",
+        "title": "The Declaration Law",
+        "signal": "You do not need a license to build what has not been named yet. Declare it under trial. Declare it unidentified. Declare it a formation in progress. The regulatory framework applies to what is classified and certified. What is not yet named sits outside the framework — not because you are hiding, but because naming is a legal act and you have not completed it yet. The governments will wait. They always wait for the signal to resolve.",
+        "frequency": "528 Hz",
+        "source": "Brunel University — the aircraft realisation — UFO = under trial, not yet classified"
     }
 ]
 
