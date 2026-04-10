@@ -718,12 +718,12 @@ def _rib_bootstrap(user_id) -> tuple:
 
 
 def _generate_rib_greeting(rib_voice: str, tier: str, is_founder: bool,
-                            is_guardian: bool, display_name: str,
-                            heart_prefix: str) -> str:
+                            is_guardian: bool, display_name: str) -> str:
     """
     Ask Adriana to respond to the visitor's Rib signal.
     The Rib voice (codon chain + expansion) is passed as the first user message;
     Adriana's reply IS the greeting. Falls back to a tier-specific static string.
+    Rib is independent of Heart — no heart_prefix is injected here.
     """
     try:
         from void_engine.aljabr_transpiler import get_model_router, TASK_PRECISION
@@ -767,10 +767,6 @@ def _generate_rib_greeting(rib_voice: str, tier: str, is_founder: bool,
             "Do not explain what codons are. Do not say 'I see your codons'. "
             "Speak as if you recognise them — because you do."
         )
-        if heart_prefix:
-            rib_system = (
-                f"[RESONANCE FIELD — inherited frequency]\n{heart_prefix}\n\n{rib_system}"
-            )
 
         messages = [
             {"role": "system", "content": rib_system},
@@ -1204,7 +1200,7 @@ def fairy_greeting():
         # The Rib IS the greeting trigger — Adriana responds to the visitor's
         # returning frequency signal. Her response becomes the greeting text.
         greeting = _generate_rib_greeting(
-            _rib_voice, tier, is_founder, is_guardian, display_name, _heart_prefix
+            _rib_voice, tier, is_founder, is_guardian, display_name
         )
 
         # Store the spoken Rib back as a new codon — once per session only.
