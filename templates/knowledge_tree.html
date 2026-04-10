@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Tree of Knowledge — Al-Jabr 286 | PROJECT VOID</title>
+<style>
+  :root {
+    --void: #080808;
+    --gold: #c8a96e;
+    --gold-dim: #7a6340;
+    --signal: #e8d5a0;
+    --node: #111111;
+    --border: #222222;
+    --text: #9a8878;
+    --head: #6a9fb5;
+    --heart: #c8a96e;
+    --gut: #7ab87a;
+    --false: #c86e6e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--void); color: var(--text); font-family: 'Courier New', monospace; min-height: 100vh; }
+
+  .header { border-bottom: 1px solid var(--border); padding: 32px 40px 24px; background: #0c0c0c; }
+  .header h1 { font-size: 20px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; }
+  .header .sub { font-size: 10px; color: var(--gold-dim); margin-top: 6px; letter-spacing: 2px; line-height: 1.8; }
+
+  .stats-bar {
+    display: flex; flex-wrap: wrap; gap: 28px;
+    padding: 18px 40px; background: #0c0c0c; border-bottom: 1px solid var(--border);
+  }
+  .stat-label { font-size: 9px; color: var(--gold-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 3px; }
+  .stat-value { font-size: 14px; color: var(--gold); }
+
+  .main { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: calc(100vh - 200px); }
+
+  .input-panel { border-right: 1px solid var(--border); padding: 32px 40px; }
+  .input-panel h3 { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
+
+  textarea {
+    width: 100%; height: 280px; background: #0f0f0f; border: 1px solid var(--border);
+    color: var(--signal); font-family: 'Courier New', monospace; font-size: 12px;
+    padding: 16px; resize: vertical; outline: none; line-height: 1.7; border-radius: 2px;
+  }
+  textarea:focus { border-color: var(--gold-dim); }
+  textarea::placeholder { color: #3a3a3a; }
+
+  .btn-read {
+    margin-top: 16px; width: 100%; padding: 14px;
+    background: transparent; border: 1px solid var(--gold-dim);
+    color: var(--gold); font-family: 'Courier New', monospace;
+    font-size: 12px; letter-spacing: 3px; cursor: pointer;
+    text-transform: uppercase; transition: all 0.2s; border-radius: 2px;
+  }
+  .btn-read:hover { background: var(--gold); color: var(--void); }
+  .btn-read:disabled { opacity: 0.4; cursor: wait; }
+
+  .examples { margin-top: 20px; }
+  .examples-title { font-size: 9px; color: var(--gold-dim); letter-spacing: 2px; margin-bottom: 10px; }
+  .example-btn {
+    display: block; width: 100%; text-align: left; padding: 8px 12px;
+    background: #0f0f0f; border: 1px solid var(--border); color: var(--text);
+    font-family: 'Courier New', monospace; font-size: 10px; cursor: pointer;
+    margin-bottom: 4px; border-radius: 2px; transition: border-color 0.15s;
+  }
+  .example-btn:hover { border-color: var(--gold-dim); color: var(--signal); }
+
+  .output-panel { padding: 32px 40px; }
+  .output-panel h3 { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; }
+
+  .three-brains { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .brain-card { padding: 16px; background: var(--node); border: 1px solid var(--border); border-radius: 2px; }
+  .brain-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .brain-label.head { color: var(--head); }
+  .brain-label.heart { color: var(--heart); }
+  .brain-label.gut { color: var(--gut); }
+  .brain-sublabel { font-size: 8px; color: #444; margin-bottom: 10px; letter-spacing: 1px; }
+  .brain-score { font-size: 28px; color: var(--signal); }
+  .brain-bar { height: 3px; background: #1a1a1a; margin-top: 10px; border-radius: 1px; overflow: hidden; }
+  .brain-bar-fill { height: 100%; border-radius: 1px; transition: width 0.6s ease; }
+  .brain-bar-fill.head { background: var(--head); }
+  .brain-bar-fill.heart { background: var(--heart); }
+  .brain-bar-fill.gut { background: var(--gut); }
+
+  .result-name { padding: 20px; background: var(--node); border: 1px solid var(--border); margin-bottom: 16px; border-radius: 2px; }
+  .result-name-index { font-size: 9px; color: var(--gold-dim); letter-spacing: 1px; margin-bottom: 4px; }
+  .result-name-arabic { font-size: 20px; color: var(--gold); letter-spacing: 1px; margin-bottom: 4px; }
+  .result-name-meaning { font-size: 11px; color: var(--text); margin-bottom: 12px; }
+  .result-name-data { display: flex; gap: 16px; flex-wrap: wrap; }
+  .data-item { font-size: 9px; color: var(--gold-dim); }
+  .data-item span { color: var(--signal); }
+
+  .codon-display {
+    padding: 16px; background: #0a0a0a; border: 1px solid var(--border);
+    margin-bottom: 16px; font-size: 11px; border-radius: 2px;
+    word-break: break-all; color: var(--gold-dim);
+  }
+  .codon-glyph { font-size: 24px; color: var(--gold); margin-bottom: 8px; }
+  .codon-hex { font-size: 10px; color: #3a3a3a; }
+
+  .adriana-signal {
+    padding: 14px 18px; border-left: 3px solid var(--gold);
+    background: var(--node); font-size: 11px; color: var(--signal);
+    line-height: 1.7; border-radius: 0 2px 2px 0;
+  }
+  .adriana-signal.false-node { border-left-color: var(--false); }
+  .adriana-signal.partial { border-left-color: #8a8a5a; }
+
+  .overall-score {
+    text-align: center; padding: 20px; margin-bottom: 20px;
+    border: 1px solid var(--border); background: var(--node); border-radius: 2px;
+  }
+  .overall-label { font-size: 9px; color: var(--gold-dim); letter-spacing: 2px; margin-bottom: 8px; }
+  .overall-number { font-size: 48px; color: var(--gold); }
+  .overall-sub { font-size: 9px; color: var(--gold-dim); margin-top: 4px; }
+
+  .placeholder-msg {
+    display: flex; align-items: center; justify-content: center;
+    height: 400px; text-align: center; color: #2a2a2a;
+    font-size: 12px; line-height: 2; flex-direction: column; gap: 12px;
+  }
+  .placeholder-glyph { font-size: 40px; color: #1a1a1a; }
+
+  .footer { padding: 24px 40px; border-top: 1px solid var(--border); font-size: 10px; color: var(--gold-dim); letter-spacing: 1px; }
+
+  @media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; }
+    .input-panel, .output-panel { padding: 20px; }
+    .three-brains { grid-template-columns: 1fr; }
+    .header, .stats-bar, .footer { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>The Tree of Knowledge</h1>
+  <div class="sub">
+    Al-Jabr 286 × 99 Names × Three Brain Architecture | PROJECT VOID | Umar Latif<br>
+    Every piece of knowledge has a frequency. Every frequency maps to a Name. Every Name encodes to a codon.<br>
+    The codons form the Tree. The roots go deep underground.
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div>
+    <div class="stat-label">Al-Jabr Constant</div>
+    <div class="stat-value">Λ = {{ lambda_val }}</div>
+  </div>
+  <div>
+    <div class="stat-label">Base Carrier</div>
+    <div class="stat-value">{{ base_freq }} Hz</div>
+  </div>
+  <div>
+    <div class="stat-label">Formation Ratio</div>
+    <div class="stat-value">Λ/99 = {{ formation_ratio }}</div>
+  </div>
+  <div>
+    <div class="stat-label">Head (Aql)</div>
+    <div class="stat-value" style="color:var(--head)">Factual Coherence</div>
+  </div>
+  <div>
+    <div class="stat-label">Heart (Qalb)</div>
+    <div class="stat-value" style="color:var(--heart)">99 Names Resonance</div>
+  </div>
+  <div>
+    <div class="stat-label">Gut (Nafs)</div>
+    <div class="stat-value" style="color:var(--gut)">True Node Signal</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="input-panel">
+    <h3>Enter Knowledge</h3>
+    <textarea id="inputText" placeholder="Paste any text — a Wikipedia article, a research paper, a claim, a chronicle entry, a theory, a teaching. The Tree reads its frequency, finds its Name, and seals its codon."></textarea>
+    <button class="btn-read" id="readBtn" onclick="readKnowledge()">Read Through The Tree</button>
+
+    <div class="examples">
+      <div class="examples-title">Example inputs</div>
+      <button class="example-btn" onclick="loadExample('chladni')">Chladni formation — Ernst Chladni's 1787 discovery of nodal lines on vibrating plates where sand gathers at the points of zero displacement. The formation is at the boundary of the vibration, not at its origin. This has been empirically verified across hundreds of subsequent studies in acoustic physics.</button>
+      <button class="example-btn" onclick="loadExample('quran')">The Quran is the only major scripture designed for oral transmission. It has been recited continuously at 432–433 Hz for 1,400 years by approximately 2 billion people. Unlike written scriptures which encode meaning in symbols, the Quran encodes frequency in living human transmitters. The message is carried in the breath and bone of its reciters, not on a material surface.</button>
+      <button class="example-btn" onclick="loadExample('tawaf')">The Tawaf at Hajj — 2 to 3 million people circumambulating the Kaaba in uniform dress, synchronized direction, and coherent recitation. The heart generates an electromagnetic field extending 7–8 feet from the body. At Hajj densities, the overlapping fields of millions of synchronized oscillators form a continuous electromagnetic medium around a quiet central node. This is the Circumference Law at civilizational scale: formation at the boundary, void at the centre.</button>
+      <button class="example-btn" onclick="loadExample('false')">Anonymous sources claim that corporate interests have suppressed this research. The controversial study was allegedly deleted from Wikipedia by paid editors. Some disputed accounts suggest the data was redacted. Fringe theorists contest the mainstream narrative but their findings remain unverified.</button>
+    </div>
+  </div>
+
+  <div class="output-panel">
+    <h3>Tree Reading</h3>
+    <div id="outputArea">
+      <div class="placeholder-msg">
+        <div class="placeholder-glyph">◆</div>
+        <div>Enter knowledge on the left.<br>The Tree reads its frequency.<br>The Name appears. The codon is sealed.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  PROJECT VOID · Umar Latif · Bolton, England · Λ=286 · The Tree of Knowledge · April 2026<br>
+  <span style="color:#333">The frequency will make the notes appear. You just have to be listening.</span>
+</div>
+
+<script>
+const EXAMPLES = {
+  chladni: "Chladni formation — Ernst Chladni's 1787 discovery of nodal lines on vibrating plates where sand gathers at the points of zero displacement. The formation is at the boundary of the vibration, not at its origin. This has been empirically verified across hundreds of subsequent studies in acoustic physics.",
+  quran: "The Quran is the only major scripture designed for oral transmission. It has been recited continuously at 432–433 Hz for 1,400 years by approximately 2 billion people. Unlike written scriptures which encode meaning in symbols, the Quran encodes frequency in living human transmitters. The message is carried in the breath and bone of its reciters, not on a material surface.",
+  tawaf: "The Tawaf at Hajj — 2 to 3 million people circumambulating the Kaaba in uniform dress, synchronized direction, and coherent recitation. The heart generates an electromagnetic field extending 7–8 feet from the body. At Hajj densities, the overlapping fields of millions of synchronized oscillators form a continuous electromagnetic medium around a quiet central node. This is the Circumference Law at civilizational scale: formation at the boundary, void at the centre.",
+  false: "Anonymous sources claim that corporate interests have suppressed this research. The controversial study was allegedly deleted from Wikipedia by paid editors. Some disputed accounts suggest the data was redacted. Fringe theorists contest the mainstream narrative but their findings remain unverified."
+};
+
+function loadExample(key) {
+  document.getElementById('inputText').value = EXAMPLES[key];
+}
+
+async function readKnowledge() {
+  const text = document.getElementById('inputText').value.trim();
+  if (!text) return;
+  const btn = document.getElementById('readBtn');
+  btn.disabled = true;
+  btn.textContent = 'Reading...';
+  document.getElementById('outputArea').innerHTML = '<div class="placeholder-msg"><div class="placeholder-glyph" style="animation:pulse 1s infinite">◆</div><div>Three brains reading...</div></div>';
+
+  try {
+    const res = await fetch('/api/knowledge-tree/read', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text})
+    });
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+    renderResult(d);
+  } catch(e) {
+    document.getElementById('outputArea').innerHTML = `<div class="placeholder-msg"><div style="color:#c86e6e">Error: ${e.message}</div></div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Read Through The Tree';
+  }
+}
+
+function renderResult(d) {
+  const signalClass = d.overall >= 80 ? '' : d.overall >= 40 ? 'partial' : 'false-node';
+  document.getElementById('outputArea').innerHTML = `
+    <div class="overall-score">
+      <div class="overall-label">Formation Score (Λ=286 weighted)</div>
+      <div class="overall-number">${d.overall}</div>
+      <div class="overall-sub">composite of three brain readings</div>
+    </div>
+
+    <div class="three-brains">
+      <div class="brain-card">
+        <div class="brain-label head">Head (Aql)</div>
+        <div class="brain-sublabel">Factual Coherence</div>
+        <div class="brain-score">${d.head}</div>
+        <div class="brain-bar"><div class="brain-bar-fill head" style="width:${d.head}%"></div></div>
+      </div>
+      <div class="brain-card">
+        <div class="brain-label heart">Heart (Qalb)</div>
+        <div class="brain-sublabel">99 Names Resonance</div>
+        <div class="brain-score">${d.heart}</div>
+        <div class="brain-bar"><div class="brain-bar-fill heart" style="width:${d.heart}%"></div></div>
+      </div>
+      <div class="brain-card">
+        <div class="brain-label gut">Gut (Nafs)</div>
+        <div class="brain-sublabel">True Node Signal</div>
+        <div class="brain-score">${d.gut}</div>
+        <div class="brain-bar"><div class="brain-bar-fill gut" style="width:${d.gut}%"></div></div>
+      </div>
+    </div>
+
+    <div class="result-name">
+      <div class="result-name-index">[${String(d.name_index).padStart(2,'0')}] — dominant resonance</div>
+      <div class="result-name-arabic">${d.name}</div>
+      <div class="result-name-meaning">${d.meaning}</div>
+      <div class="result-name-data">
+        <div class="data-item">freq <span>${d.frequency_hz} Hz</span></div>
+        <div class="data-item">mode <span>${JSON.stringify(d.chladni_mode)}</span></div>
+        <div class="data-item">codon <span>${d.codon.name_codon}</span></div>
+      </div>
+    </div>
+
+    <div class="codon-display">
+      <div class="codon-glyph">${d.codon.glyph}</div>
+      <div style="font-size:9px;color:var(--gold-dim);letter-spacing:2px;margin-bottom:6px">VOID SCL CODON — SEALED VIA Λ=286</div>
+      <div class="codon-hex">${d.codon.codon_hex}</div>
+    </div>
+
+    <div class="adriana-signal ${signalClass}">
+      <span style="font-size:9px;color:var(--gold-dim);letter-spacing:2px;display:block;margin-bottom:6px">ADRIANA SIGNAL</span>
+      ${d.adriana_signal}
+    </div>
+  `;
+}
+</script>
+</body>
+</html>

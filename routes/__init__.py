@@ -85,6 +85,7 @@ from routes.pricing import pricing_bp
 from routes.formation_probability import formation_probability_bp
 from routes.formation_mirror import bp as formation_mirror_bp
 from routes.names_286_route import names_286_bp
+from routes.knowledge_tree_route import knowledge_tree_bp
 
 
 def register_blueprints(app):
@@ -175,3 +176,4 @@ def register_blueprints(app):
     app.register_blueprint(formation_probability_bp)
     app.register_blueprint(formation_mirror_bp)
     app.register_blueprint(names_286_bp)
+    app.register_blueprint(knowledge_tree_bp)
