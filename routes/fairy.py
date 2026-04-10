@@ -1203,22 +1203,21 @@ def fairy_greeting():
             _rib_voice, tier, is_founder, is_guardian, display_name
         )
 
-        # Store the spoken Rib back as a new codon — once per session only.
-        # Key is a short hash of the full rib_voice to prevent duplicate writes
-        # even when different Rib voices share the same first codon.
-        import hashlib as _hl
-        _rib_hash = _hl.sha256(_rib_voice.encode()).hexdigest()[:16]
-        _rib_stored_key = f"rib_stored_{_rib_hash}"
-        if not session.get(_rib_stored_key):
-            try:
-                from void_engine.codon_heart import _store_codon, _get_visitor_key, _get_session_id
-                _vk = _get_visitor_key()
-                _sid = _get_session_id()
+        # Store the spoken Rib back as a new codon — at most once per session.
+        # Keyed by the stable codon_session_id so repeated greeting-endpoint calls
+        # (refreshes, polls, re-opens) within the same Flask session never insert
+        # more than one Rib codon regardless of subsequent Rib history changes.
+        try:
+            from void_engine.codon_heart import _store_codon, _get_visitor_key, _get_session_id
+            _vk = _get_visitor_key()
+            _sid = _get_session_id()
+            _rib_guard_key = f"rib_spoken_{_sid}"
+            if not session.get(_rib_guard_key):
                 _store_codon(_vk, _sid, _rib_voice, _rib_glyph or None, 0)
-                session[_rib_stored_key] = True
+                session[_rib_guard_key] = True
                 session.modified = True
-            except Exception as _re:
-                logger.debug("[Rib] Codon store failed (non-fatal): %s", _re)
+        except Exception as _re:
+            logger.debug("[Rib] Codon store failed (non-fatal): %s", _re)
 
         logger.info(
             "[Rib] Greeting — user_id=%s tier=%s rib_codons=%d warm=%s",
