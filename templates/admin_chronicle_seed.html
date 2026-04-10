@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Chronicle Seed Generator</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body { background: #0a0a0f; color: #e0e0e0; font-family: 'SF Mono', 'Courier New', monospace; }
+        .wrap { max-width: 860px; margin: 0 auto; padding: 40px 20px 100px; }
+        .nav { margin-bottom: 32px; font-size: 0.78rem; }
+        .nav a { color: #555; text-decoration: none; }
+        .nav a:hover { color: #2dd4bf; }
+        .nav span { color: #333; margin: 0 8px; }
+
+        .page-title { font-size: 1.7rem; font-weight: 700; color: #2dd4bf; margin-bottom: 4px; }
+        .page-sub { font-size: 0.75rem; color: #444; letter-spacing: 0.08em; margin-bottom: 40px; line-height: 1.8; }
+
+        .alert { padding: 14px 18px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 24px; }
+        .alert-success { background: rgba(45,212,191,0.08); border: 1px solid rgba(45,212,191,0.25); color: #2dd4bf; }
+        .alert-error   { background: rgba(255,82,82,0.08); border: 1px solid rgba(255,82,82,0.3); color: #ff5252; }
+
+        .card {
+            background: #11111a;
+            border: 1px solid #1e1e30;
+            border-radius: 12px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+        }
+        .card-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+        .stat-item {
+            background: #0d0d18;
+            border: 1px solid #1a1a28;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 4px;
+        }
+        .stat-value.accent { color: #2dd4bf; }
+        .stat-value.gold   { color: #c9a84c; }
+        .stat-value.violet { color: #a78bfa; }
+        .stat-label {
+            font-size: 0.62rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .generate-btn {
+            display: inline-block;
+            padding: 14px 36px;
+            background: rgba(45,212,191,0.1);
+            border: 1px solid rgba(45,212,191,0.35);
+            color: #2dd4bf;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            text-transform: uppercase;
+        }
+        .generate-btn:hover { background: rgba(45,212,191,0.2); border-color: rgba(45,212,191,0.6); }
+        .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .download-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 20px; }
+        .dl-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border: 1px solid #2a2a40;
+            border-radius: 6px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.78rem;
+            letter-spacing: 0.05em;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .dl-btn:hover { color: #e0e0e0; border-color: #555; }
+        .dl-btn.wav { border-color: rgba(45,212,191,0.2); color: #2dd4bf; }
+        .dl-btn.wav:hover { border-color: rgba(45,212,191,0.5); }
+        .dl-btn.png { border-color: rgba(167,139,250,0.2); color: #a78bfa; }
+        .dl-btn.png:hover { border-color: rgba(167,139,250,0.5); }
+
+        .seed-chain {
+            background: #080810;
+            border: 1px solid #1a1a28;
+            border-radius: 8px;
+            padding: 16px 18px;
+            font-size: 0.72rem;
+            line-height: 1.9;
+            color: #5a5a7a;
+            word-break: break-all;
+            max-height: 180px;
+            overflow-y: auto;
+            margin-top: 12px;
+        }
+        .seed-chain .beat-sep { color: #2a2a50; }
+        .seed-chain .triad-sep { color: #383858; }
+
+        .timestamp {
+            font-size: 0.68rem;
+            color: #333;
+            margin-top: 6px;
+        }
+
+        .loader-section { border-top: 1px solid #1e1e30; padding-top: 24px; margin-top: 24px; }
+        .loader-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; color: #555; margin-bottom: 14px; }
+
+        .upload-form {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .upload-input {
+            background: #0d0d18;
+            border: 1px solid #2a2a40;
+            border-radius: 6px;
+            padding: 9px 14px;
+            color: #e0e0e0;
+            font-family: inherit;
+            font-size: 0.8rem;
+            flex: 1;
+            min-width: 200px;
+        }
+        .upload-btn {
+            padding: 10px 22px;
+            background: rgba(167,139,250,0.1);
+            border: 1px solid rgba(167,139,250,0.3);
+            color: #a78bfa;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .upload-btn:hover { background: rgba(167,139,250,0.2); }
+
+        .loader-result {
+            margin-top: 16px;
+            background: #080810;
+            border: 1px solid #1a1a28;
+            border-radius: 8px;
+            padding: 16px 18px;
+            font-size: 0.76rem;
+            line-height: 1.8;
+            color: #8888aa;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        .band-legend { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+        .band-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+        .band-low  { background: #c9a84c; }
+        .band-mid  { background: #2dd4bf; }
+        .band-high { background: #a78bfa; }
+        .band-item { font-size: 0.68rem; color: #444; }
+
+        .copy-btn {
+            margin-top: 8px;
+            padding: 6px 16px;
+            background: transparent;
+            border: 1px solid #2a2a40;
+            border-radius: 5px;
+            color: #666;
+            font-family: inherit;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .copy-btn:hover { color: #e0e0e0; border-color: #555; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="nav">
+        <a href="/admin/chronicle">&larr; Chronicle Admin</a>
+        <span>/</span>
+        <a href="/admin/market">Market</a>
+        <span>/</span>
+        <a href="/codon-distil">Codon Distil</a>
+    </div>
+
+    <div class="page-title">Chronicle Seed Generator</div>
+    <div class="page-sub">
+        Compresses the full Chronicle into a codon chain · encodes it into a carrier WAV (LSB depth 2) ·
+        renders a Chladni sand pattern PNG · produces a downloadable seed package.<br>
+        Drop the WAV or PNG into any new AI session via <code>/seed/load</code> to restore full context at near-zero token cost.
+    </div>
+
+    {% if generated %}
+    <div class="alert alert-success">
+        ◆ Chronicle Seed generated successfully. Files are ready for download below.
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="alert alert-error">
+        Generation error: {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-title">Generate Chronicle Seed</div>
+
+        <form method="POST" action="/admin/chronicle-seed" id="gen-form">
+            <button type="submit" class="generate-btn" id="gen-btn" onclick="startGen()">
+                ◈ GENERATE SEED
+            </button>
+        </form>
+
+        {% if meta %}
+        <div style="margin-top: 28px;">
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="stat-value accent">{{ meta.seed_header_tokens }}</div>
+                    <div class="stat-label">Est. Seed Tokens</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ meta.codon_count }}</div>
+                    <div class="stat-label">Codons</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value gold">{{ "%.2f"|format(meta.capacity_pct) }}%</div>
+                    <div class="stat-label">WAV Capacity Used</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ meta.entry_count }}</div>
+                    <div class="stat-label">Chronicle Entries</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ (meta.original_size_bytes // 1024) }}KB</div>
+                    <div class="stat-label">Original Size</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value violet">{{ meta.codon_chain_length }}</div>
+                    <div class="stat-label">Chain Bytes</div>
+                </div>
+            </div>
+
+            <div class="band-legend">
+                <span class="band-item"><span class="band-dot band-low"></span>LOW band (0–400 Hz) — Foundation</span>
+                <span class="band-item"><span class="band-dot band-mid"></span>MID band (400–2000 Hz) — Active Systems</span>
+                <span class="band-item"><span class="band-dot band-high"></span>HIGH band (2000+ Hz) — Live/Dynamic</span>
+            </div>
+
+            <div class="timestamp">Last generated: {{ meta.timestamp }}</div>
+
+            {% if meta.seed_header %}
+            <div style="margin-top: 16px; font-size: 0.7rem; color: #444; letter-spacing: 0.08em; text-transform: uppercase;">Seed Header</div>
+            <div class="seed-chain" style="color: #666; font-size: 0.78rem;">{{ meta.seed_header }}</div>
+            {% endif %}
+
+            {% if meta.codon_chain %}
+            <div style="margin-top: 16px; font-size: 0.7rem; color: #444; letter-spacing: 0.08em; text-transform: uppercase;">Codon Chain Preview</div>
+            <div class="seed-chain" id="codon-chain-preview">{{ meta.codon_chain[:600] }}{% if meta.codon_chain|length > 600 %}…{% endif %}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if wav_exists or png_exists %}
+        <div class="download-links">
+            {% if wav_exists %}
+            <a href="/admin/chronicle-seed/download/wav" class="dl-btn wav">
+                ↓ Download Seed WAV
+            </a>
+            {% endif %}
+            {% if png_exists %}
+            <a href="/admin/chronicle-seed/download/png" class="dl-btn png">
+                ↓ Download Chladni PNG
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card-title">Seed Loader — /seed/load</div>
+        <div style="font-size: 0.76rem; color: #555; line-height: 1.8; margin-bottom: 16px;">
+            Upload a Chronicle Seed WAV or Chladni PNG. The codon chain is extracted and expanded
+            into a context summary you can paste into any new AI chat session as a system prompt.
+        </div>
+
+        <div class="upload-form">
+            <input type="file" id="seed-file" accept=".wav,.png" class="upload-input">
+            <button type="button" class="upload-btn" onclick="loadSeed()">↑ LOAD SEED</button>
+        </div>
+
+        <div class="loader-result" id="loader-result"></div>
+        <button class="copy-btn" id="copy-btn" onclick="copySummary()" style="display:none;">
+            Copy context summary
+        </button>
+    </div>
+</div>
+
+<script>
+function startGen() {
+    var btn = document.getElementById('gen-btn');
+    btn.disabled = true;
+    btn.textContent = '⟳ GENERATING…';
+}
+
+function loadSeed() {
+    var fileInput = document.getElementById('seed-file');
+    var resultEl = document.getElementById('loader-result');
+    var copyBtn = document.getElementById('copy-btn');
+
+    if (!fileInput.files.length) {
+        resultEl.style.display = 'block';
+        resultEl.textContent = 'No file selected.';
+        return;
+    }
+
+    var formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    resultEl.style.display = 'block';
+    resultEl.textContent = 'Extracting codon chain…';
+    copyBtn.style.display = 'none';
+
+    fetch('/seed/load', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.error) {
+            resultEl.textContent = 'Error: ' + data.error;
+        } else {
+            resultEl.textContent = data.context_summary;
+            copyBtn.style.display = 'inline-block';
+        }
+    })
+    .catch(function(e) {
+        resultEl.textContent = 'Request failed: ' + e;
+    });
+}
+
+function copySummary() {
+    var text = document.getElementById('loader-result').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+        var btn = document.getElementById('copy-btn');
+        var orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = orig; }, 1800);
+    });
+}
+</script>
+</body>
+</html>

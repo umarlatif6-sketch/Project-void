@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-04-10T00:25:30.513373+00:00",
+  "original_size_bytes": 218785,
+  "codon_chain_length": 1990,
+  "entry_count": 70,
+  "md_codon_count": 23,
+  "codon_count": 134,
+  "bytes_used": 2054,
+  "bytes_available": 661500,
+  "capacity_pct": 0.31,
+  "seed_header_tokens": 14,
+  "seed_header": "VOID·SEED α·Ω·◆ | 134 codons | L45·M45·H44 | 218785 bytes",
+  "sqlite_entry_count": 41,
+  "carrier_wav": "/home/runner/workspace/input_files/carrier_drone_1min.wav"
+}
