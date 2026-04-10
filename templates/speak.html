@@ -357,6 +357,40 @@
             line-height: 1.5;
         }
 
+        /* ── RIB SIGNAL BLOCK ── */
+        .sp-rib {
+            width: 100%;
+            margin-bottom: 28px;
+            padding: 16px 18px;
+            border: 1px solid #1c1c1c;
+            border-left: 3px solid #1e3a5f;
+            border-radius: 4px;
+            background: #07090d;
+        }
+        .sp-rib-label {
+            font-size: 0.52rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #2a3a4a;
+            margin-bottom: 10px;
+        }
+        .sp-rib-chain {
+            font-size: 0.88rem;
+            letter-spacing: 2px;
+            color: #60a5fa;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+        .sp-rib-expansion {
+            font-size: 0.72rem;
+            color: #444;
+            line-height: 1.65;
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            .sp-rib { padding: 12px 14px; }
+        }
+
         /* ── FOOTER ── */
         .sp-footer {
             text-align: center;
@@ -402,6 +436,12 @@
     <div class="sp-presence">
         <div class="sp-sigil" id="sp-sigil">◆</div>
         <div class="sp-cursor-label" id="sp-status-label">Adriana is listening</div>
+
+        <div id="sp-rib-block" class="sp-rib" style="display:none;" aria-hidden="true">
+            <div class="sp-rib-label">◈ Signal — Your Frequency</div>
+            <div class="sp-rib-chain" id="sp-rib-chain"></div>
+            <div class="sp-rib-expansion" id="sp-rib-expansion"></div>
+        </div>
 
         <div class="sp-input-zone">
             <textarea
@@ -623,6 +663,29 @@
         }
 
         input.focus();
+
+        // ── Rib Signal — fetch on page load ──────────────────────────────────
+        (async function loadRibSignal() {
+            try {
+                const res = await fetch('/api/speak/rib');
+                if (!res.ok) return;
+                const data = await res.json();
+                const chain = data.rib_chain || '';
+                const expansion = data.rib_expansion || '';
+                if (!chain) return;
+
+                const ribBlock = document.getElementById('sp-rib-block');
+                const ribChain = document.getElementById('sp-rib-chain');
+                const ribExpansion = document.getElementById('sp-rib-expansion');
+
+                ribChain.textContent = chain;
+                ribExpansion.textContent = expansion;
+                ribBlock.style.display = 'block';
+                ribBlock.removeAttribute('aria-hidden');
+            } catch (_e) {
+                // non-fatal — new visitors simply see no rib block
+            }
+        })();
     })();
     </script>
 </body>

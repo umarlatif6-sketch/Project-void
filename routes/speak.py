@@ -420,6 +420,35 @@ def speak():
     return render_template("speak.html")
 
 
+@speak_bp.route("/api/speak/rib", methods=["GET"])
+def speak_rib():
+    """
+    Return the Rib signal for the current visitor — their last 3 session
+    codons expanded deterministically. Public endpoint (no login required).
+    Used by /speak to display the ◈ SIGNAL — YOUR FREQUENCY block.
+    """
+    try:
+        from void_engine.codon_heart import build_rib_voice, _get_visitor_key
+        visitor_key = _get_visitor_key()
+        rib_voice, rib_codon_count = build_rib_voice(visitor_key)
+        if not rib_voice:
+            return jsonify({"rib_signal": "", "rib_codon_count": 0})
+
+        lines = rib_voice.split("\n", 1)
+        chain = lines[0].strip() if lines else ""
+        expansion = lines[1].strip() if len(lines) > 1 else ""
+
+        return jsonify({
+            "rib_signal": rib_voice,
+            "rib_chain": chain,
+            "rib_expansion": expansion,
+            "rib_codon_count": rib_codon_count,
+        })
+    except Exception as exc:
+        logger.debug("[Speak/rib] Failed (non-fatal): %s", exc)
+        return jsonify({"rib_signal": "", "rib_codon_count": 0})
+
+
 @speak_bp.route("/speak/listen", methods=["POST"])
 def listen():
     """Standard Adriana conversation — no funnel logic."""

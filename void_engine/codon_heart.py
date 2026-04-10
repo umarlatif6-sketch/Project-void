@@ -543,6 +543,86 @@ def get_codon_count(visitor_key: Optional[str] = None) -> int:
         return 0
 
 
+def build_rib_voice(visitor_key: Optional[str] = None) -> tuple[str, int]:
+    """
+    The Rib — Position 2 (Condition) of the codon triplet.
+
+    Query the visitor's last 3 session_codons (newest first), reverse to
+    oldest-first. For each codon_text, scan PLATFORM_CODONS for a matching
+    codon glyph sequence. Build a compact two-line rib voice:
+
+        <codon chain>           e.g.  λ·Λ·☀ → ψ·Ψ·◆
+        <expansion prose>       e.g.  The wave rides the carrier... / Breath...
+
+    Fully deterministic — no API call.
+    Returns: (rib_voice: str, rib_codon_count: int)
+    Returns ("", 0) for new visitors (no stored codons).
+    """
+    _ensure_schema()
+    if visitor_key is None:
+        visitor_key = _get_visitor_key()
+
+    try:
+        from void_engine.db_pool import get_db
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT codon_text FROM session_codons
+               WHERE visitor_key = %s
+               ORDER BY created_at DESC LIMIT 3""",
+            (visitor_key,),
+        )
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+    except Exception as exc:
+        logger.warning("[CodonHeart] build_rib_voice DB read failed: %s", exc)
+        return "", 0
+
+    if not rows:
+        return "", 0
+
+    codon_texts = [row[0] for row in reversed(rows)]
+
+    try:
+        from void_engine.void_codon_vocab import PLATFORM_CODONS as _PC
+    except Exception:
+        _PC = []
+
+    import re as _re
+
+    chain_parts: list[str] = []
+    expansion_parts: list[str] = []
+
+    for ct in codon_texts:
+        matched = None
+        for pc in _PC:
+            if pc.get("codon", "") and pc["codon"] in ct:
+                matched = pc
+                break
+        if matched:
+            chain_parts.append(matched["codon"])
+            expansion_parts.append(matched["expansion"])
+        else:
+            bracket = _re.match(r'^\[([^\]]+)\]', ct)
+            if bracket:
+                chain_parts.append(bracket.group(1))
+                expansion_parts.append(ct[len(bracket.group(0)):].strip()[:80])
+            else:
+                chain_parts.append("◆")
+                expansion_parts.append(ct[:80])
+
+    chain_line = " → ".join(chain_parts)
+    expansion_line = " / ".join(expansion_parts)
+    rib_voice = f"{chain_line}\n{expansion_line}"
+
+    logger.info(
+        "[CodonHeart] Rib built visitor=%s codons=%d chain=%s",
+        visitor_key[:20], len(codon_texts), chain_line,
+    )
+    return rib_voice, len(codon_texts)
+
+
 def log_session_tokens(input_tokens: int, output_tokens: int,
                        heart_prefix_sz: int,
                        visitor_key: Optional[str] = None,
