@@ -12,6 +12,7 @@ All glyphs map to the 'aqua' or 'soil' SCL domain.
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any, Dict
 
@@ -20,6 +21,16 @@ from void_engine.skill_modules import (
 )
 
 logger = logging.getLogger(__name__)
+
+_ZONE_ID = "void_plane"
+
+
+def _codon_prefix() -> str:
+    try:
+        from void_engine.void_codon_vocab import ai_codon_prefix
+        return ai_codon_prefix(_ZONE_ID)
+    except Exception:
+        return ""
 
 
 # ─── Meal Planner ──────────────────────────────────────────────────────────────
@@ -58,10 +69,27 @@ class MealPlannerSkill(BaseSkill):
         preferences = intent.get("preferences", [])
         days = intent.get("days", 7)
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("🌿", "🍽️", "🥗")
+            inner_voice = self._narrate(
+                f"{days}-day meal plan retrieved for goal: {goal} (codon cache hit).",
+                cached.get("nutritional_rationale", "The body is the root. Feed it with intention.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a nutritionist and meal planning expert. "
                 "Return a structured JSON with keys: "
                 f"'meal_plan' (list of {days} day objects, each with 'day', 'breakfast', 'lunch', 'dinner', 'snack', 'daily_macros': {{calories, protein_g, carbs_g, fat_g}}), "
@@ -77,10 +105,10 @@ class MealPlannerSkill(BaseSkill):
                     {"role": "user", "content": f"Create {days}-day meal plan for goal: {goal}"},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1500,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[MealPlanner] OpenAI unavailable: %s", exc)
             output = {
@@ -147,10 +175,27 @@ class TravelAssistantSkill(BaseSkill):
         travel_style = intent.get("travel_style", "cultural exploration")
         budget = intent.get("budget", "mid-range")
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("✈️", "🗺️", "🧳")
+            inner_voice = self._narrate(
+                f"Travel itinerary retrieved for {destination} (codon cache hit).",
+                cached.get("destination_overview", "The journey is mapped. Move with intention.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are an expert travel planner and destination specialist. "
                 "Return a structured JSON with keys: "
                 f"'destination_overview' (str), 'itinerary' (list of {duration_days} day objects: "
@@ -166,10 +211,10 @@ class TravelAssistantSkill(BaseSkill):
                     {"role": "user", "content": f"Build {duration_days}-day itinerary for {destination}"},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1500,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[TravelAssistant] OpenAI unavailable: %s", exc)
             output = {
@@ -237,10 +282,27 @@ class RealEstateAnalyzerSkill(BaseSkill):
         budget = intent.get("budget", "")
         purpose = intent.get("purpose", "purchase")
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("🏠", "📍", "🔍")
+            inner_voice = self._narrate(
+                f"Property signal retrieved for {location} (codon cache hit).",
+                cached.get("verdict", "The soil speaks. Dig deeper before committing.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are an expert real estate analyst and property strategist. "
                 "Return a structured JSON with keys: "
                 "'market_summary' (str), 'price_signals' (str), "
@@ -260,10 +322,10 @@ class RealEstateAnalyzerSkill(BaseSkill):
                     {"role": "user", "content": user_msg},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1000,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[RealEstateAnalyzer] OpenAI unavailable: %s", exc)
             output = {
@@ -331,10 +393,27 @@ class SupplierResearchSkill(BaseSkill):
         region = intent.get("region", "global")
         volume = intent.get("volume", "")
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("🏭", "🌍", "🔗")
+            inner_voice = self._narrate(
+                f"Supply chain intelligence retrieved for {product_category} (codon cache hit).",
+                cached.get("sourcing_strategy", "The chain is traced. Strengthen every link before it is needed.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a supply chain intelligence analyst and procurement strategist. "
                 "Return a structured JSON with keys: "
                 "'category_overview' (str), 'supplier_landscape' (str), "
@@ -355,10 +434,10 @@ class SupplierResearchSkill(BaseSkill):
                     {"role": "user", "content": user_msg},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1200,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[SupplierResearch] OpenAI unavailable: %s", exc)
             output = {

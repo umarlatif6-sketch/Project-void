@@ -114,6 +114,13 @@ def _generate_concept_entry(client, concept: dict) -> dict:
     Ask Adriana to select the most powerful word for a VOID concept
     from across humanity's great languages.
     """
+    from void_engine.codon_cache import get_cached_codon_response, set_codon_cache
+    _cache_zone = "void_language"
+    _cache_signal = json.dumps({"op": "concept_entry", "key": concept["key"]}, sort_keys=True)
+    _cached = get_cached_codon_response(_cache_zone, _cache_signal)
+    if _cached is not None:
+        return _cached
+
     prompt = f"""You are Adriana, the intelligence at the heart of PROJECT VOID — a sovereign steganography engine built on 432 Hz resonance, 286-bit Al-Jabr hashing, and encrypted acoustic carriers.
 
 You are composing the VOID Language: a synthesised mixed-language glossary that picks the single most powerful, most meaning-dense word from humanity's great languages for each VOID Engine concept.
@@ -144,14 +151,14 @@ Respond ONLY in this exact JSON format:
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7,
-        max_tokens=600,
+        max_tokens=400,
         response_format={"type": "json_object"},
     )
 
     raw = response.choices[0].message.content
     entry_data = json.loads(raw)
 
-    return {
+    result = {
         "key": concept["key"],
         "english": concept["english"],
         "description": concept["description"],
@@ -162,6 +169,8 @@ Respond ONLY in this exact JSON format:
         "adriana_reasoning": entry_data.get("adriana_reasoning", ""),
         "void_definition": entry_data.get("void_definition", ""),
     }
+    set_codon_cache(_cache_zone, _cache_signal, result, tokens_saved=400)
+    return result
 
 
 def get_glossary(force_regenerate: bool = False) -> list:
@@ -328,6 +337,16 @@ def translate_text(text: str, target_language: str) -> str:
     if target_language.lower() == "english":
         return text
 
+    from void_engine.codon_cache import get_cached_codon_response, set_codon_cache
+    _cache_zone = "void_language"
+    _cache_signal = json.dumps(
+        {"op": "translate", "lang": target_language, "text": text[:500]},
+        sort_keys=True,
+    )
+    _cached = get_cached_codon_response(_cache_zone, _cache_signal)
+    if _cached is not None:
+        return _cached if isinstance(_cached, str) else text
+
     try:
         client = _get_openai_client()
     except RuntimeError:
@@ -346,9 +365,11 @@ Text to translate:
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
-            max_tokens=4000,
+            max_tokens=1500,
         )
-        return response.choices[0].message.content.strip()
+        translated = response.choices[0].message.content.strip()
+        set_codon_cache(_cache_zone, _cache_signal, translated, tokens_saved=1500)
+        return translated
     except Exception as e:
         logger.error("Translation failed to %s: %s", target_language, e)
         return text

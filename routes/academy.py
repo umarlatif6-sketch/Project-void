@@ -76,6 +76,17 @@ def api_academy_quiz():
         f"Source material:\n{card_text}"
     )
 
+    import json
+    from void_engine.codon_cache import get_cached_codon_response, set_codon_cache
+    _cache_zone = "academy"
+    _cache_signal = json.dumps(
+        {"op": "quiz", "module": module_id or "all", "cards": sorted(c["id"] for c in sample)},
+        sort_keys=True,
+    )
+    _cached = get_cached_codon_response(_cache_zone, _cache_signal)
+    if _cached is not None and isinstance(_cached, list):
+        return jsonify({"questions": _cached, "topic": topic_name, "cached": True})
+
     try:
         api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
         if not api_key:
@@ -87,10 +98,9 @@ def api_academy_quiz():
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=3000,
+            max_tokens=1200,
         )
         raw = resp.choices[0].message.content.strip()
-        import json
         if raw.startswith("```"):
             raw = raw.split("```")[1]
             if raw.startswith("json"):
@@ -99,6 +109,7 @@ def api_academy_quiz():
         questions = quiz_data.get("questions", [])
         if len(questions) > 10:
             questions = questions[:10]
+        set_codon_cache(_cache_zone, _cache_signal, questions, tokens_saved=1200)
         return jsonify({"questions": questions, "topic": topic_name})
     except Exception as exc:
         logger.warning("Quiz generation failed, using fallback: %s", exc)

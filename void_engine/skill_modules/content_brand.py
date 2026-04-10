@@ -12,6 +12,7 @@ All glyphs map to the 'signal' SCL domain.
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any, Dict
 
@@ -20,6 +21,16 @@ from void_engine.skill_modules import (
 )
 
 logger = logging.getLogger(__name__)
+
+_ZONE_ID = "voidecho"
+
+
+def _codon_prefix() -> str:
+    try:
+        from void_engine.void_codon_vocab import ai_codon_prefix
+        return ai_codon_prefix(_ZONE_ID)
+    except Exception:
+        return ""
 
 
 # ─── Content Machine ───────────────────────────────────────────────────────────
@@ -57,10 +68,27 @@ class ContentMachineSkill(BaseSkill):
         audience = intent.get("audience", "general")
         tone = intent.get("tone", "authoritative")
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("✍️", "📡", "🖊️")
+            inner_voice = self._narrate(
+                f"Content signal retrieved for '{topic}' (codon cache hit).",
+                cached.get("hook", "Signal seeded.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a professional content strategist and writer. "
                 "Return a structured JSON with keys: "
                 "'title', 'hook' (str), 'outline' (list of section titles), "
@@ -75,10 +103,10 @@ class ContentMachineSkill(BaseSkill):
                     {"role": "user", "content": f"Create {content_type} about: {topic}"},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1500,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[ContentMachine] OpenAI unavailable: %s", exc)
             output = {
@@ -137,10 +165,27 @@ class AdCreativeSkill(BaseSkill):
         objective = intent.get("objective", "awareness")
         platform = intent.get("platform", "multi-platform")
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("📢", "🎪", "🎨")
+            inner_voice = self._narrate(
+                f"Ad creative retrieved for '{product}' (codon cache hit).",
+                cached.get("tagline", "Signal broadcast.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a senior advertising copywriter and creative director. "
                 "Return a structured JSON with keys: "
                 "'headline_primary', 'headline_variants' (list of 3), "
@@ -155,10 +200,10 @@ class AdCreativeSkill(BaseSkill):
                     {"role": "user", "content": f"Create ad creative for: {product}"},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1000,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[AdCreative] OpenAI unavailable: %s", exc)
             output = {
@@ -217,10 +262,27 @@ class BrandingGeneratorSkill(BaseSkill):
         industry = intent.get("industry", "technology")
         values = intent.get("values", [])
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("🌟", "🎭", "🏛️")
+            inner_voice = self._narrate(
+                f"Brand identity retrieved for '{venture}' (codon cache hit).",
+                cached.get("positioning_statement", "Identity planted.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a world-class brand strategist and naming expert. "
                 "Return a structured JSON with keys: "
                 "'name_candidates' (list of 5 names with short rationale each), "
@@ -237,10 +299,10 @@ class BrandingGeneratorSkill(BaseSkill):
                     {"role": "user", "content": f"Build brand identity for: {venture}"},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1200,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[BrandingGenerator] OpenAI unavailable: %s", exc)
             output = {
@@ -304,10 +366,27 @@ class SEOAuditorSkill(BaseSkill):
         )
         industry = intent.get("industry", "general")
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("🕷️", "🔎", "⬆️")
+            inner_voice = self._narrate(
+                f"SEO signal retrieved for '{url_or_topic}' (codon cache hit).",
+                cached.get("audit_summary", "Signal optimised.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are an expert SEO strategist and technical SEO auditor. "
                 "Return a structured JSON with keys: "
                 "'audit_summary' (str), 'critical_issues' (list), "
@@ -323,10 +402,10 @@ class SEOAuditorSkill(BaseSkill):
                     {"role": "user", "content": f"Audit SEO for: {url_or_topic}"},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1200,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[SEOAuditor] OpenAI unavailable: %s", exc)
             output = {

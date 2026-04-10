@@ -11,6 +11,7 @@ All glyphs map to the 'intelligence' SCL domain.
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any, Dict
 
@@ -19,6 +20,16 @@ from void_engine.skill_modules import (
 )
 
 logger = logging.getLogger(__name__)
+
+_ZONE_ID = "adriana"
+
+
+def _codon_prefix() -> str:
+    try:
+        from void_engine.void_codon_vocab import ai_codon_prefix
+        return ai_codon_prefix(_ZONE_ID)
+    except Exception:
+        return ""
 
 
 # ─── Deep Research ─────────────────────────────────────────────────────────────
@@ -54,10 +65,27 @@ class DeepResearchSkill(BaseSkill):
         )
         context = intent.get("context", "")
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("🔬", "🌐", "📚")
+            inner_voice = self._narrate(
+                f"Deep research on '{topic}' (codon cache hit).",
+                cached.get("summary", "Synthesis complete.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a deep research synthesiser. "
                 "Given a topic, produce a structured JSON synthesis with keys: "
                 "'summary', 'key_claims' (list), 'evidence_gaps' (list), "
@@ -72,10 +100,10 @@ class DeepResearchSkill(BaseSkill):
                     {"role": "user", "content": user_msg},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1200,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[DeepResearch] OpenAI unavailable, using stub: %s", exc)
             output = {
@@ -135,11 +163,28 @@ class CompetitiveAnalysisSkill(BaseSkill):
         )
         competitors = intent.get("competitors", [])
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("⚔️", "📊", "🎯")
+            inner_voice = self._narrate(
+                f"Competitive field scanned for '{subject}' (codon cache hit).",
+                cached.get("positioning_recommendation", "Position mapped.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             comp_list = ", ".join(competitors) if competitors else "key market players"
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a competitive intelligence analyst. "
                 "Return a structured JSON with keys: "
                 "'market_summary', 'strengths' (list), 'weaknesses' (list), "
@@ -154,10 +199,10 @@ class CompetitiveAnalysisSkill(BaseSkill):
                     {"role": "user", "content": user_msg},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1000,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[CompetitiveAnalysis] OpenAI unavailable: %s", exc)
             output = {
@@ -217,10 +262,27 @@ class StockAnalysisSkill(BaseSkill):
             intent.get("entity", {}).get("description", "market")
         )
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("📈", "💹", "🔭")
+            inner_voice = self._narrate(
+                f"Financial signal read for {ticker} (codon cache hit).",
+                f"Resonance verdict: {cached.get('resonance_verdict', 'hold')}."
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a financial signal analyst. "
                 "Return a structured JSON with keys: "
                 "'company_summary', 'signal_layers' (list of str), "
@@ -237,8 +299,8 @@ class StockAnalysisSkill(BaseSkill):
                 response_format={"type": "json_object"},
                 max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[StockAnalysis] OpenAI unavailable: %s", exc)
             output = {

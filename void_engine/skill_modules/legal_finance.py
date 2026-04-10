@@ -12,6 +12,7 @@ All glyphs map to the 'ledger' SCL domain.
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any, Dict
 
@@ -20,6 +21,16 @@ from void_engine.skill_modules import (
 )
 
 logger = logging.getLogger(__name__)
+
+_ZONE_ID = "peace_economy"
+
+
+def _codon_prefix() -> str:
+    try:
+        from void_engine.void_codon_vocab import ai_codon_prefix
+        return ai_codon_prefix(_ZONE_ID)
+    except Exception:
+        return ""
 
 
 # ─── Legal Contract ────────────────────────────────────────────────────────────
@@ -58,10 +69,27 @@ class LegalContractSkill(BaseSkill):
         jurisdiction = intent.get("jurisdiction", "England and Wales")
         key_terms = intent.get("key_terms", [])
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("⚖️", "📋", "✒️")
+            inner_voice = self._narrate(
+                f"Legal contract template retrieved for {contract_type} (codon cache hit).",
+                "The ledger is inscribed. Seek a qualified reader before the seal is pressed."
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a legal document drafter. "
                 "Return a structured JSON with keys: "
                 "'contract_title', 'jurisdiction', 'parties_section' (str), "
@@ -78,10 +106,10 @@ class LegalContractSkill(BaseSkill):
                     {"role": "user", "content": f"Draft {contract_type} for parties: {parties_str}. Key terms: {terms_str}"},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1500,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[LegalContract] OpenAI unavailable: %s", exc)
             output = {
@@ -217,10 +245,27 @@ class TaxReviewerSkill(BaseSkill):
         financial_summary = intent.get("financial_summary", "")
         jurisdiction = intent.get("jurisdiction", "United Kingdom")
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("🏛️", "⚠️", "🔏")
+            inner_voice = self._narrate(
+                f"Tax review retrieved for {entity_type} (codon cache hit).",
+                "The ledger speaks. A qualified accountant must verify before the seal is pressed."
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a tax review assistant. "
                 "Return a structured JSON with keys: "
                 "'summary' (str), 'tax_obligations' (list of {tax_type, amount_estimate, notes}), "
@@ -239,10 +284,10 @@ class TaxReviewerSkill(BaseSkill):
                     {"role": "user", "content": user_msg},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1000,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[TaxReviewer] OpenAI unavailable: %s", exc)
             output = {
@@ -303,10 +348,27 @@ class ExcelDataGeneratorSkill(BaseSkill):
         )
         rows = intent.get("sample_rows", 5)
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("📊", "🗂️", "📥")
+            inner_voice = self._narrate(
+                f"Data structure retrieved for '{dataset_description}' (codon cache hit).",
+                f"Schema has {len(cached.get('columns', []))} columns."
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a data architect and Excel/spreadsheet expert. "
                 "Return a structured JSON with keys: "
                 "'sheet_title', 'columns' (list of {name, type, formula_hint}), "
@@ -322,10 +384,10 @@ class ExcelDataGeneratorSkill(BaseSkill):
                     {"role": "user", "content": f"Create data structure for: {dataset_description}"},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1200,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[ExcelDataGenerator] OpenAI unavailable: %s", exc)
             output = {
@@ -337,7 +399,7 @@ class ExcelDataGeneratorSkill(BaseSkill):
                     {"name": "Date", "type": "date", "formula_hint": "=TODAY()"},
                     {"name": "Status", "type": "dropdown", "formula_hint": "Data validation list"},
                 ],
-                "sample_data": [{"ID": i, "Name": f"Item {i}", "Value": i * 100, "Date": "2026-04-03", "Status": "Active"} for i in range(1, rows + 1)],
+                "sample_data": [{"ID": i, "Name": f"Item {i}", "Value": i * 100, "Date": "2026-04-10", "Status": "Active"} for i in range(1, rows + 1)],
                 "pivot_suggestion": "Group by Status, sum Value",
                 "chart_suggestion": "Bar chart: Value by Name",
                 "use_case_summary": f"Structured tracking for: {dataset_description}",

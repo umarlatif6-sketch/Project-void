@@ -12,6 +12,7 @@ All glyphs map to the 'mesh' SCL domain.
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any, Dict
 
@@ -20,6 +21,16 @@ from void_engine.skill_modules import (
 )
 
 logger = logging.getLogger(__name__)
+
+_ZONE_ID = "mesa_village"
+
+
+def _codon_prefix() -> str:
+    try:
+        from void_engine.void_codon_vocab import ai_codon_prefix
+        return ai_codon_prefix(_ZONE_ID)
+    except Exception:
+        return ""
 
 
 # ─── AI Recruiter ──────────────────────────────────────────────────────────────
@@ -57,10 +68,27 @@ class AIRecruiterSkill(BaseSkill):
         candidate_profile = intent.get("candidate_profile", "")
         requirements = intent.get("requirements", [])
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("👤", "🎯", "🤝")
+            inner_voice = self._narrate(
+                f"Candidate evaluation retrieved for role: {role} (codon cache hit).",
+                f"Fit score: {cached.get('fit_score', 'N/A')}/10. Recommendation: {cached.get('hiring_recommendation', 'hold')}."
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are a senior talent acquisition specialist. "
                 "Return a structured JSON with keys: "
                 "'fit_score' (0-10), 'strengths_alignment' (list), "
@@ -79,10 +107,10 @@ class AIRecruiterSkill(BaseSkill):
                     {"role": "user", "content": user_msg},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1000,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[AIRecruiter] OpenAI unavailable: %s", exc)
             output = {
@@ -146,10 +174,27 @@ class AISDRSkill(BaseSkill):
         pain_point = intent.get("pain_point", "")
         sender_name = intent.get("sender_name", "the team")
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("📨", "🌱", "💬")
+            inner_voice = self._narrate(
+                f"Outbound sequence retrieved for {prospect} (codon cache hit).",
+                "The signal is seeded. The mesh reaches toward a new root."
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are an elite sales development representative and copywriter. "
                 "Return a structured JSON with keys: "
                 "'cold_email' ({subject, body}), 'follow_up_1' ({subject, body, timing}), "
@@ -169,10 +214,10 @@ class AISDRSkill(BaseSkill):
                     {"role": "user", "content": user_msg},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1200,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[AISDR] OpenAI unavailable: %s", exc)
             output = {
@@ -235,10 +280,27 @@ class ResumeMakerSkill(BaseSkill):
         )
         skills = intent.get("skills", [])
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("📄", "🧭", "📝")
+            inner_voice = self._narrate(
+                f"Professional profile retrieved for {name} (codon cache hit).",
+                cached.get("headline", "Profile planted in the mesh.")
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are an expert CV writer and career coach. "
                 "Return a structured JSON with keys: "
                 "'professional_summary' (str, 3-4 sentences), "
@@ -257,10 +319,10 @@ class ResumeMakerSkill(BaseSkill):
                     {"role": "user", "content": f"Build CV for {name}. Experience: {exp_str}. Skills: {skills_str}"},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1200,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[ResumeMaker] OpenAI unavailable: %s", exc)
             output = {
@@ -320,10 +382,27 @@ class InterviewPrepSkill(BaseSkill):
         background = intent.get("background", "")
         company = intent.get("company", "the organisation")
 
+        from void_engine.codon_cache import get_cached_codon_response, set_codon_cache, build_skill_cache_key
+        cache_key = build_skill_cache_key(self.skill_id, intent)
+        cached = get_cached_codon_response(_ZONE_ID, cache_key)
+        if cached is not None:
+            poem = self._make_poem("🎤", "🏋️", "🗣️")
+            inner_voice = self._narrate(
+                f"Interview preparation retrieved for {role} at {company} (codon cache hit).",
+                "The root is prepared. Enter the room with stillness and precision."
+            )
+            return SkillResult(
+                success=True, domain=self.domain, skill_id=self.skill_id,
+                output=cached, scl_poem=poem, inner_voice=inner_voice,
+            )
+
+        prefix = _codon_prefix()
         try:
             from void_engine.skill_modules import _get_openai_client
             client = _get_openai_client()
             system_prompt = (
+                f"{prefix}\n" if prefix else ""
+            ) + (
                 "You are an expert interview coach. "
                 "Return a structured JSON with keys: "
                 "'role_summary' (str), "
@@ -343,10 +422,10 @@ class InterviewPrepSkill(BaseSkill):
                     {"role": "user", "content": user_msg},
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1500,
+                max_tokens=800,
             )
-            import json
             output = json.loads(response.choices[0].message.content)
+            set_codon_cache(_ZONE_ID, cache_key, output, tokens_saved=800)
         except Exception as exc:
             logger.warning("[InterviewPrep] OpenAI unavailable: %s", exc)
             output = {
