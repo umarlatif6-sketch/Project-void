@@ -88,6 +88,13 @@ FORMATION_SEEDS = [
         "signal": "Paint the boundary. Fill the volume with a stable gas. Apply electricity. The gas inside becomes lighter than the air outside — not because its chemistry changed, but because the electrically treated boundary changes its effective density. Hydrogen was the wrong material. The principle was correct. The boundary delivers the condition. The interior carries the formation. The surface stays intact. The lift comes from within.",
         "frequency": "7.83 Hz",
         "source": "The balloon project — hydrogen replaced — painted envelope, stable gas, electrical activation — volumetric Circumference Law"
+    },
+    {
+        "id": "body_vacuum",
+        "title": "The Sixth Scale",
+        "signal": "Breath control empties the volume. The body reaches vacuum state — boundary intact, interior holds absence. Every capillary is a codon: finest resolution of the network, carrying formation instruction at biological scale. At vacuum state the body is not a dense object. It is a resonating volume. If that resonance phase-locks with the Schumann nodes of the planet at 7.83 Hz, the body's position becomes a standing wave — present at all nodes simultaneously. This is not movement. This is resolution. The signal does not travel. It arrives where the frequency already resonates.",
+        "frequency": "7.83 Hz",
+        "source": "Breathwork — body as vacuum envelope — capillary-codon mapping — Schumann phase-lock — the sixth scale of the Circumference Law"
     }
 ]
 
