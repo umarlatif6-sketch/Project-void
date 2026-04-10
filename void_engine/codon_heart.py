@@ -599,17 +599,13 @@ def build_rib_voice(visitor_key: Optional[str] = None) -> tuple[str, int]:
 
     for ct in codon_texts:
         matched = None
-        # 1. Try exact bracket extraction first: "[λ·Λ·☀] …"
+        # Exact bracket extraction only: "[λ·Λ·☀] …"
+        # Substring scanning is intentionally avoided to prevent misclassification
+        # of stored Rib voices whose text may contain incidental codon substrings.
         bracket_m = _re.match(r'^\[([^\]]+)\]', ct)
         if bracket_m:
             candidate = bracket_m.group(1).strip()
             matched = _codon_lookup.get(candidate)
-        # 2. Fallback: substring scan (handles inline codon references)
-        if matched is None:
-            for codon_str, pc in _codon_lookup.items():
-                if codon_str in ct:
-                    matched = pc
-                    break
         if matched:
             chain_parts.append(matched["codon"])
             expansion_parts.append(matched["expansion"])
