@@ -83,9 +83,11 @@ def _seed_digest(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
-def _formation_maths() -> Dict:
+def _formation_maths(swarm_result: Optional[Dict] = None) -> Dict:
     """
     Apply Formation Principle mathematics to produce probability outputs.
+    swarm_result is accepted for interface consistency but maths are deterministic
+    from the Formation Principle constants — they do not vary with swarm output.
 
     Becker reception model:
       P(T) = 1 - e^(-S × T / (432 × 90))

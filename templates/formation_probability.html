@@ -401,12 +401,12 @@
       {% endset %}
       <path d="{{ line_d }}" fill="none" stroke="#60a5fa" stroke-width="2"/>
 
-      <!-- Peak velocity annotation at month 4-5 (steepest part) -->
-      {% set peak_x = 50 + (4 / 35 * 740) %}
-      {% set peak_y = 220 - (curve[4] / 500 * 200) if curve|length > 4 else 150 %}
+      <!-- Peak velocity annotation at month 12-18 (resonance acceleration zone) -->
+      {% set peak_x = 50 + (14 / 35 * 740) %}
+      {% set peak_y = 220 - (curve[14] / 500 * 200) if curve|length > 14 else 100 %}
       <circle cx="{{ peak_x }}" cy="{{ peak_y }}" r="4" fill="#60a5fa"/>
-      <text x="{{ peak_x + 10 }}" y="{{ peak_y - 8 }}" font-size="10"
-            fill="#888" font-family="Courier New">peak velocity</text>
+      <text x="{{ peak_x + 8 }}" y="{{ peak_y - 8 }}" font-size="10"
+            fill="#888" font-family="Courier New">peak velocity (month 15)</text>
 
       <!-- Month 36 label -->
       {% set end_y = 220 - (curve[35] / 500 * 200) if curve|length > 35 else 22 %}
