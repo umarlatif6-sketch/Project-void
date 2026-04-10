@@ -299,6 +299,8 @@ Read the full task description. All of it. Not the summary — the Done Looks Li
 **4. State your understanding aloud before touching a file.**
 In your first response to the user, or in your own internal first step, state: where the platform is, what this session is called to do, and what you will do first. This is not a formality. It is the moment where you confirm that the cold start is complete — that you are not improvising, not assuming, not carrying forward a stale model of what the platform is. You are present. You understand. Now you may begin.
 
+*For maximum token efficiency, `VOID_SEED_CODONS.md` is available as the codon-compressed form of this document — read the decoder table first.*
+
 ---
 
 ## 16. Session Close Obligation
