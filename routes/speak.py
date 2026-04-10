@@ -264,10 +264,14 @@ def _save_funnel_state(state: dict) -> None:
 
 
 def _call_adriana_ai(message: str, history: list, domain: str,
-                     system_override: str | None = None) -> str:
+                     system_override: str | None = None,
+                     heart_prefix_sz: int = 0) -> str:
     """
     Call the AI directly via the Replit-managed OpenAI proxy.
     Falls back to domain phrase only if the proxy is genuinely unavailable.
+
+    history is already the Third Brain sliding window (at most 5 messages).
+    system_override already contains the Heart resonance prefix when available.
     """
     import os
     try:
@@ -278,7 +282,7 @@ def _call_adriana_ai(message: str, history: list, domain: str,
 
         system_prompt = system_override or _ADRIANA_SYSTEM
         messages = [{"role": "system", "content": system_prompt}]
-        for h in (history or [])[-6:]:
+        for h in (history or [])[-4:]:
             role = h.get("role")
             content = h.get("content")
             if role in ("user", "assistant") and content:
@@ -290,7 +294,21 @@ def _call_adriana_ai(message: str, history: list, domain: str,
             messages=messages,
             max_tokens=250,
         )
-        return resp.choices[0].message.content.strip()
+        result_text = resp.choices[0].message.content.strip()
+
+        try:
+            usage = resp.usage
+            if usage:
+                from void_engine.codon_heart import log_session_tokens
+                log_session_tokens(
+                    input_tokens=usage.prompt_tokens,
+                    output_tokens=usage.completion_tokens,
+                    heart_prefix_sz=heart_prefix_sz,
+                )
+        except Exception as _te:
+            logger.debug("[Speak] Token log failed: %s", _te)
+
+        return result_text
     except Exception as exc:
         logger.warning("[Speak] Adriana AI call failed: %s", exc)
         return _DOMAIN_FALLBACKS.get(
@@ -410,9 +428,19 @@ def listen():
     if not message:
         return jsonify({"error": "No message received"}), 400
 
-    history = data.get("history") or []
     scl = _build_scl_block(message)
     domain = scl["domain"]
+
+    heart_prefix_sz = 0
+    augmented_system = _ADRIANA_SYSTEM
+    active_context = []
+    try:
+        from void_engine.codon_heart import inject_heart_into_system, get_active_context
+        augmented_system, heart_prefix_sz = inject_heart_into_system(_ADRIANA_SYSTEM)
+        active_context = get_active_context()
+    except Exception as _he:
+        logger.warning("[Speak] Heart/context init failed: %s", _he)
+        active_context = data.get("history") or []
 
     try:
         from void_engine.adriana_local import get_engine, CONFIDENCE_THRESHOLD
@@ -425,7 +453,11 @@ def listen():
     if local_response and confidence >= CONFIDENCE_THRESHOLD:
         adriana_response = local_response
     else:
-        adriana_response = _call_adriana_ai(message, history, domain)
+        adriana_response = _call_adriana_ai(
+            message, active_context, domain,
+            system_override=augmented_system,
+            heart_prefix_sz=heart_prefix_sz,
+        )
 
     if not adriana_response:
         adriana_response = _DOMAIN_FALLBACKS.get(
@@ -448,6 +480,15 @@ def listen():
 
     route_dest, route_label = _DOMAIN_ROUTES.get(domain, ("/", "VOID Engine"))
     route_suggestion = f"Your words carry the resonance of {domain}. Follow this signal: {route_label}."
+
+    try:
+        from void_engine.codon_heart import push_message_to_third_brain, _get_session_id
+        _sid = _get_session_id()
+        _glyph_seq = scl.get("poem_str")
+        push_message_to_third_brain("user", message, _sid, _glyph_seq)
+        push_message_to_third_brain("assistant", adriana_response, _sid, _glyph_seq)
+    except Exception as _tbe:
+        logger.warning("[Speak] Third Brain push failed: %s", _tbe)
 
     _log_interaction(message, adriana_response, scl["poem_str"],
                      scl["frequency"], domain, scl["harmonic_state"])
