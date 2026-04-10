@@ -191,6 +191,43 @@
       padding: 10px 28px; cursor: pointer; border-radius: 2px;
     }
     .btn-run:hover { background: rgba(96,165,250,0.08); }
+    .btn-full-scan {
+      background: transparent; border: 1px solid #a78bfa;
+      color: #a78bfa; font-family: inherit; font-size: 0.72rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 10px 32px; cursor: pointer; border-radius: 2px;
+    }
+    .btn-full-scan:hover { background: rgba(167,139,250,0.08); }
+    .btn-full-scan:disabled { opacity: 0.4; cursor: not-allowed; }
+    .stream-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-top: 20px;
+    }
+    @media (max-width: 600px) { .stream-grid { grid-template-columns: 1fr; } }
+    .stream-card {
+      background: #0a0a0a; border: 1px solid #1a1a1a;
+      border-radius: 4px; padding: 16px 20px;
+    }
+    .stream-card.active { border-color: #a78bfa44; }
+    .stream-card.failed { border-color: #ef444444; }
+    .stream-name {
+      font-size: 0.65rem; letter-spacing: 0.18em; color: #666;
+      text-transform: uppercase; margin-bottom: 10px;
+    }
+    .stream-val { font-size: 0.82rem; color: #c0c0c0; margin: 3px 0; }
+    .stream-val span { color: #a78bfa; }
+    .scan-adriana {
+      margin-top: 22px; background: #090909;
+      border: 1px solid #1e1e1e; border-left: 2px solid #a78bfa;
+      padding: 22px 26px; font-size: 0.82rem; line-height: 1.75;
+      color: #c8c8c8; white-space: pre-wrap;
+    }
+    .scan-status {
+      font-size: 0.72rem; color: #555; margin-top: 14px;
+      letter-spacing: 0.1em;
+    }
+    .scan-status.ok { color: #4ade80; }
+    .scan-status.err { color: #ef4444; }
 
     .alert {
       max-width: 860px; margin: 0 auto 24px; padding: 0 32px;
@@ -489,12 +526,104 @@
       </div>
       <button type="submit" class="btn-run">Run Swarm</button>
       <span style="font-size:0.68rem;color:#444;">
-        This runs the MESA swarm on the Becker formation seed.<br>
-        Takes 30–90 seconds. Results replace the current view.
+        MESA Swarm only. Takes 15–30 seconds.
       </span>
     </div>
   </form>
 </div>
+
+<!-- ── Full Formation Scan ────────────────────────────────────────────── -->
+<div class="section" id="full-scan-section">
+  <div class="section-label">Full Formation Scan — All Four Systems</div>
+  <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:4px;padding:24px 28px;">
+    <div style="font-size:0.78rem;color:#888;margin-bottom:18px;line-height:1.6;">
+      Fires all four agent engines simultaneously against the Becker formation seed.<br>
+      <strong style="color:#a78bfa;">MESA Swarm · VoidVillage · MESA Engine · Mesa Sandbox</strong><br>
+      Adriana receives every stream and gives one unified formation reading.
+    </div>
+    <button class="btn-full-scan" id="btn-full-scan" onclick="runFullScan()">
+      Full Formation Scan
+    </button>
+    <span id="scan-spinner" style="display:none;font-size:0.72rem;color:#a78bfa;margin-left:18px;letter-spacing:0.12em;">
+      SCANNING — all four systems firing…
+    </span>
+
+    <div id="scan-results" style="display:none;">
+      <div class="stream-grid" id="stream-grid"></div>
+      <div class="scan-adriana" id="scan-adriana"></div>
+      <div class="scan-status ok" id="scan-meta"></div>
+    </div>
+    <div class="scan-status err" id="scan-error" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+function runFullScan() {
+  const btn = document.getElementById('btn-full-scan');
+  const spinner = document.getElementById('scan-spinner');
+  const results = document.getElementById('scan-results');
+  const errBox = document.getElementById('scan-error');
+  btn.disabled = true;
+  spinner.style.display = 'inline';
+  results.style.display = 'none';
+  errBox.style.display = 'none';
+
+  fetch('/formation-probability/full-scan', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({swarm_agents:10, swarm_rounds:3, engine_agents:15, engine_rounds:3, sandbox_rounds:3})
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    if (!data.ok) {
+      errBox.textContent = 'Scan error: ' + (data.error || 'unknown');
+      errBox.style.display = 'block';
+      return;
+    }
+
+    const s = data.streams;
+    const grid = document.getElementById('stream-grid');
+    grid.innerHTML = `
+      <div class="stream-card ${s.mesa_swarm.ok ? 'active' : 'failed'}">
+        <div class="stream-name">MESA Swarm</div>
+        <div class="stream-val">Agents: <span>${s.mesa_swarm.agent_count || '—'}</span></div>
+        <div class="stream-val">Themes: <span>${(s.mesa_swarm.themes||[]).join(', ') || '—'}</span></div>
+        <div class="stream-val" style="font-size:0.73rem;color:#555;margin-top:6px;">${(s.mesa_swarm.summary||'').slice(0,120)}…</div>
+      </div>
+      <div class="stream-card ${s.void_village.ok ? 'active' : 'failed'}">
+        <div class="stream-name">VoidVillage</div>
+        <div class="stream-val">Zone: <span>${s.void_village.zone_id || '—'}</span></div>
+        <div class="stream-val">Resonance: <span>${(s.void_village.resonance_score||0).toFixed(1)} / 100</span></div>
+        <div class="stream-val">Activity: <span>${(s.void_village.activity_level||0).toFixed(2)}</span></div>
+      </div>
+      <div class="stream-card ${s.mesa_engine.ok ? 'active' : 'failed'}">
+        <div class="stream-name">MESA Engine</div>
+        <div class="stream-val">Dominant: <span>${s.mesa_engine.dominant_archetype || '—'}</span></div>
+        <div class="stream-val">Avg influence: <span>${s.mesa_engine.avg_influence || '—'}</span></div>
+        <div class="stream-val" style="font-size:0.72rem;color:#555;margin-top:6px;">${Object.entries(s.mesa_engine.archetype_distribution||{}).map(([k,v])=>k+': '+v).join(' · ')}</div>
+      </div>
+      <div class="stream-card ${s.mesa_sandbox.ok ? 'active' : 'failed'}">
+        <div class="stream-name">Mesa Sandbox</div>
+        <div class="stream-val">Scars recorded: <span>${s.mesa_sandbox.scar_count}</span></div>
+        <div class="stream-val" style="font-size:0.72rem;color:#555;margin-top:6px;">${Object.entries(s.mesa_sandbox.scar_types||{}).map(([k,v])=>k+': '+v).join(' · ') || 'no scar pattern'}</div>
+      </div>
+    `;
+
+    document.getElementById('scan-adriana').textContent = data.adriana_reading || '';
+    document.getElementById('scan-meta').textContent =
+      `${data.active_streams}/4 streams active · ${data.elapsed_seconds}s · Adriana reading from unified field`;
+    results.style.display = 'block';
+  })
+  .catch(err => {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    errBox.textContent = 'Network error: ' + err.message;
+    errBox.style.display = 'block';
+  });
+}
+</script>
 
 <footer>
   <span>🔮·ν·φ</span> &nbsp;·&nbsp; First external MESA simulation &nbsp;·&nbsp;
