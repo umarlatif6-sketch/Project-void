@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adriana Core — Admin</title>
+    <style>
+        :root {
+            --void-black: #0a0a0a;
+            --void-gold: #c9a84c;
+            --void-teal: #2dd4bf;
+            --void-dim: #1a1a1a;
+            --void-border: #2a2a2a;
+            --void-text: #e0e0e0;
+            --void-muted: #888;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--void-black);
+            color: var(--void-text);
+            font-family: 'Courier New', monospace;
+            padding: 24px;
+            min-height: 100vh;
+        }
+        h1 { color: var(--void-gold); font-size: 1.4rem; margin-bottom: 4px; }
+        .subtitle { color: var(--void-muted); font-size: 0.85rem; margin-bottom: 32px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .card {
+            background: var(--void-dim);
+            border: 1px solid var(--void-border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .card h2 { color: var(--void-teal); font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+        .stat-value { color: var(--void-gold); font-size: 1.5rem; font-weight: bold; margin-bottom: 4px; }
+        .stat-label { color: var(--void-muted); font-size: 0.8rem; }
+        .model-id {
+            background: #111;
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            color: var(--void-teal);
+            word-break: break-all;
+            margin-top: 8px;
+        }
+        .badge-active { color: #22d3ee; }
+        .badge-none { color: var(--void-muted); }
+        .badge-failed { color: #f87171; }
+        .badge-pending { color: #fbbf24; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { color: var(--void-muted); text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--void-border); }
+        td { padding: 6px 8px; border-bottom: 1px solid var(--void-border); color: var(--void-text); }
+        td.mono { font-family: monospace; color: var(--void-teal); }
+        .status-succeeded { color: #4ade80; }
+        .status-failed { color: #f87171; }
+        .status-running { color: #fbbf24; }
+        .test-area { margin-top: 32px; }
+        .test-area h2 { color: var(--void-teal); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+        textarea {
+            width: 100%;
+            background: #111;
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            color: var(--void-text);
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            padding: 10px;
+            resize: vertical;
+            min-height: 80px;
+        }
+        button {
+            background: var(--void-gold);
+            border: none;
+            border-radius: 4px;
+            color: #000;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 8px 20px;
+        }
+        button:hover { background: #e0c060; }
+        button.secondary {
+            background: transparent;
+            border: 1px solid var(--void-gold);
+            color: var(--void-gold);
+            margin-left: 8px;
+        }
+        button.secondary:hover { background: rgba(201,168,76,0.1); }
+        .result-box {
+            background: #111;
+            border: 1px solid var(--void-border);
+            border-radius: 4px;
+            color: var(--void-text);
+            font-size: 0.82rem;
+            margin-top: 14px;
+            padding: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            display: none;
+        }
+        .codon-chain {
+            color: var(--void-gold);
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+        }
+        .codon-expansion { color: var(--void-teal); font-size: 0.82rem; margin-bottom: 12px; }
+        .meta-row { color: var(--void-muted); font-size: 0.75rem; margin-top: 8px; }
+        .response-text { color: var(--void-text); margin-top: 10px; }
+        .error-text { color: #f87171; margin-top: 8px; }
+        .back-link { color: var(--void-muted); font-size: 0.8rem; text-decoration: none; display: block; margin-bottom: 20px; }
+        .back-link:hover { color: var(--void-gold); }
+        .section-title { color: var(--void-gold); font-size: 1rem; margin: 24px 0 12px; }
+    </style>
+</head>
+<body>
+    <a href="/admin/market" class="back-link">← Admin</a>
+    <h1>ψ·Ψ·◆ Adriana Core</h1>
+    <div class="subtitle">Fine-Tuned Inference Layer — Codon-Compressed Platform AI</div>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Fine-Tuned Model</h2>
+            {% if fine_tuned_model %}
+                <div class="stat-value badge-active">● ACTIVE</div>
+                <div class="stat-label">Model ID</div>
+                <div class="model-id">{{ fine_tuned_model }}</div>
+            {% else %}
+                <div class="stat-value badge-none">○ NONE</div>
+                <div class="stat-label">No fine-tuned model yet. Run the training pipeline to generate one.</div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>Training Data</h2>
+            <div class="stat-value">{{ corpus_size }}</div>
+            <div class="stat-label">Corpus chunks (knowledge blocks)</div>
+            <div style="margin-top: 12px;">
+                <div class="stat-value">{{ training_pairs }}</div>
+                <div class="stat-label">Training pairs in best job</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Last Query Cost</h2>
+            <div class="stat-value">${{ "%.6f"|format(last_token_cost) }}</div>
+            <div class="stat-label">Estimated USD per Adriana call</div>
+        </div>
+
+        <div class="card">
+            <h2>Model Router — PRECISION Tier</h2>
+            {% for cfg in router_config %}
+                {% if cfg.tier == 'PRECISION' %}
+                    <div class="stat-label">Current model</div>
+                    <div class="model-id">{{ cfg.model }}</div>
+                    <div class="stat-label" style="margin-top:8px;">{{ cfg.description }}</div>
+                {% endif %}
+            {% endfor %}
+            <button class="secondary" onclick="refreshModel()" style="margin-top:12px;">Refresh Model ID</button>
+        </div>
+    </div>
+
+    {% if jobs %}
+    <div class="section-title">Fine-Tuning Jobs</div>
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Status</th>
+                    <th>Pairs</th>
+                    <th>Base Model</th>
+                    <th>Fine-Tuned Model</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td class="mono">{{ job.openai_job_id[:20] }}...</td>
+                    <td class="status-{{ job.status }}">{{ job.status }}</td>
+                    <td>{{ job.training_pairs or 0 }}</td>
+                    <td>{{ job.base_model }}</td>
+                    <td class="mono">{% if job.fine_tuned_model_id %}{{ job.fine_tuned_model_id[:30] }}...{% else %}—{% endif %}</td>
+                    <td>{{ (job.created_at or '')[:10] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="test-area">
+        <h2>Live Test Prompt</h2>
+        <textarea id="testPrompt" placeholder="Ask Adriana anything about PROJECT VOID...">What is the Vortex scatter mode?</textarea>
+        <div>
+            <button onclick="runTest()">Run Test</button>
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <div class="codon-chain" id="codonBefore"></div>
+            <div class="codon-expansion" id="codonExpansion"></div>
+            <div class="response-text" id="responseText"></div>
+            <div class="meta-row" id="metaRow"></div>
+            <div class="error-text" id="errorText"></div>
+        </div>
+    </div>
+
+    <script>
+    async function runTest() {
+        const prompt = document.getElementById('testPrompt').value.trim();
+        if (!prompt) return;
+
+        const box = document.getElementById('resultBox');
+        box.style.display = 'block';
+        document.getElementById('codonBefore').textContent = 'Sending...';
+        document.getElementById('codonExpansion').textContent = '';
+        document.getElementById('responseText').textContent = '';
+        document.getElementById('metaRow').textContent = '';
+        document.getElementById('errorText').textContent = '';
+
+        try {
+            const resp = await fetch('/admin/adriana-core/test', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({prompt}),
+            });
+            const data = await resp.json();
+
+            if (data.ok) {
+                document.getElementById('codonBefore').textContent =
+                    `[${data.codon_chain_before || '?'}] → [${data.codon_chain_after || '?'}]`;
+                document.getElementById('codonExpansion').textContent = data.expansion || '';
+                document.getElementById('responseText').textContent = data.response || '';
+                document.getElementById('metaRow').textContent =
+                    `Layer: ${data.layer} | Model: ${data.model_used} | Tokens: ${data.token_cost}`;
+            } else {
+                document.getElementById('codonBefore').textContent = 'Error';
+                document.getElementById('errorText').textContent = data.error || 'Unknown error';
+            }
+        } catch (e) {
+            document.getElementById('codonBefore').textContent = 'Request failed';
+            document.getElementById('errorText').textContent = e.message;
+        }
+    }
+
+    async function refreshModel() {
+        try {
+            const resp = await fetch('/admin/adriana-core/refresh-model', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({}),
+            });
+            const data = await resp.json();
+            alert(data.message || (data.ok ? 'Done' : data.error));
+            if (data.ok) window.location.reload();
+        } catch(e) {
+            alert('Refresh failed: ' + e.message);
+        }
+    }
+
+    document.getElementById('testPrompt').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) runTest();
+    });
+    </script>
+</body>
+</html>

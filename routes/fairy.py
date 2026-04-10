@@ -772,6 +772,43 @@ def fairy_ask():
 
     logger.info("API_CALL intent_confidence=%.2f user_id=%s", local_confidence, user_id)
 
+    # ── AdrianCore — Fine-Tuned Inference Layer ───────────────────────────────
+    # Second layer: codon-compressed context call to the fine-tuned model.
+    # Only engaged when the local regex engine did not produce a confident match.
+    try:
+        from void_engine.adriana_core import query as adriana_core_query
+        core_result = adriana_core_query(message, history=history)
+        if core_result.get("ok") and core_result.get("response"):
+            _core_reply = core_result["response"]
+            logger.info(
+                "ADRIANA_CORE layer=%s model=%s tokens=%d user_id=%s",
+                core_result.get("layer", "?"),
+                core_result.get("model_used", "?"),
+                core_result.get("token_cost", 0),
+                user_id,
+            )
+            try:
+                _maybe_update_profile(user_id, tier, message, history, _core_reply)
+            except Exception:
+                pass
+            resp = {
+                "reply": _core_reply,
+                "tier": tier,
+                "is_founder": is_founder,
+                "emotion_state": emotion_state,
+                "theme_hint": theme_hint,
+                "tone_hint": tone_hint,
+                "resonance_log_seed": resonance_log_seed,
+                "adriana_core": True,
+                "codon_chain": core_result.get("codon_chain"),
+                "codon_expansion": core_result.get("expansion"),
+            }
+            if hex_flowers:
+                resp["hex_flowers"] = hex_flowers
+            return jsonify(resp)
+    except Exception as _core_exc:
+        logger.debug("AdrianCore layer skipped: %s", _core_exc)
+
     profile = get_fairy_profile(user_id)
 
     messages = [{"role": "system", "content": VOID_FAIRY_SYSTEM_PROMPT}]

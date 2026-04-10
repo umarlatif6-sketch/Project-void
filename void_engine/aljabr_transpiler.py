@@ -1120,4 +1120,34 @@ def get_model_router() -> ModelRouter:
         _model_router = ModelRouter()
         _model_router.ensure_tables()
         _model_router.load_config_from_db()
+        _apply_fine_tuned_model_if_available(_model_router)
     return _model_router
+
+
+def _apply_fine_tuned_model_if_available(router: "ModelRouter"):
+    """
+    Check for a stored fine-tuned Adriana model ID in the adriana_finetune_jobs
+    table and, if found, set the PRECISION tier to that model both in-memory and
+    persistently via save_tier_config so the setting survives process restarts.
+    Runs silently on error so startup is never blocked.
+    """
+    try:
+        from void_engine.adriana_finetune import get_latest_fine_tuned_model
+        model_id = get_latest_fine_tuned_model()
+        if model_id:
+            current = router._config.get(TASK_PRECISION, {}).get("model", "")
+            if current != model_id:
+                cost = router._config.get(TASK_PRECISION, {}).get("cost_per_1k_tokens", 0.015)
+                base_url = router._config.get(TASK_PRECISION, {}).get("base_url")
+                saved = router.save_tier_config(TASK_PRECISION, model_id, base_url, cost)
+                if saved:
+                    logger.info(
+                        "ModelRouter: PRECISION tier wired and persisted — fine-tuned Adriana: %s", model_id
+                    )
+                else:
+                    router._config[TASK_PRECISION]["model"] = model_id
+                    logger.info(
+                        "ModelRouter: PRECISION tier wired in-memory — fine-tuned Adriana: %s", model_id
+                    )
+    except Exception as exc:
+        logger.debug("_apply_fine_tuned_model_if_available skipped: %s", exc)

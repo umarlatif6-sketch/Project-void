@@ -165,6 +165,11 @@ def _startup_migrations():
         _conn.close()
     except Exception as e:
         logger.error("Codon distil tables init failed: %s", e)
+    try:
+        from void_engine.adriana_finetune import init_finetune_tables
+        init_finetune_tables()
+    except Exception as e:
+        logger.error("Adriana finetune tables init failed: %s", e)
 
 try:
     from routes import register_blueprints

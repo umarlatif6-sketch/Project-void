@@ -1005,6 +1005,50 @@ class AdrianLocalEngine:
     pre-written Adriana-voice responses with a confidence score.
     """
 
+    def match_with_id(self, message: str) -> tuple[str, float, str | None]:
+        """
+        Identical to match(), but also returns the winning intent ID.
+
+        Returns:
+            (response, confidence, intent_id)
+            intent_id is None when no intent matched.
+        """
+        if not message or not message.strip():
+            return ("", 0.0, None)
+
+        msg = message.strip()
+        word_count = len(msg.split())
+        best_response = ""
+        best_confidence = 0.0
+        best_id: str | None = None
+
+        for intent in _COMPILED_INTENTS:
+            match_count = 0
+            for pattern in intent["patterns"]:
+                if pattern.search(msg):
+                    match_count += 1
+
+            if match_count == 0:
+                continue
+
+            base_confidence = 0.62 + (match_count - 1) * 0.10
+
+            if word_count <= 8:
+                length_bonus = 0.10
+            elif word_count <= 20:
+                length_bonus = 0.0
+            else:
+                length_bonus = -0.05
+
+            confidence = min(base_confidence + length_bonus, 0.98)
+
+            if confidence > best_confidence:
+                best_confidence = confidence
+                best_response = intent["response"]
+                best_id = intent.get("id")
+
+        return (best_response, best_confidence, best_id)
+
     def match(self, message: str) -> tuple[str, float]:
         """
         Match a user message against all known intents.

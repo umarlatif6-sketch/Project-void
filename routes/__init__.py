@@ -79,6 +79,7 @@ from routes.session_seal import session_seal_bp
 from routes.grok_ai import grok_bp
 from routes.freq_map import freq_map_bp
 from routes.void_stall import void_stall_bp
+from routes.adriana_core_admin import adriana_core_admin_bp
 
 
 def register_blueprints(app):
@@ -163,3 +164,4 @@ def register_blueprints(app):
     app.register_blueprint(grok_bp)
     app.register_blueprint(freq_map_bp)
     app.register_blueprint(void_stall_bp)
+    app.register_blueprint(adriana_core_admin_bp)
