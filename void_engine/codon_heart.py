@@ -591,15 +591,25 @@ def build_rib_voice(visitor_key: Optional[str] = None) -> tuple[str, int]:
 
     import re as _re
 
+    # Build a lookup: codon glyph string → platform entry (for O(1) exact match)
+    _codon_lookup: dict = {pc["codon"]: pc for pc in _PC if pc.get("codon")}
+
     chain_parts: list[str] = []
     expansion_parts: list[str] = []
 
     for ct in codon_texts:
         matched = None
-        for pc in _PC:
-            if pc.get("codon", "") and pc["codon"] in ct:
-                matched = pc
-                break
+        # 1. Try exact bracket extraction first: "[λ·Λ·☀] …"
+        bracket_m = _re.match(r'^\[([^\]]+)\]', ct)
+        if bracket_m:
+            candidate = bracket_m.group(1).strip()
+            matched = _codon_lookup.get(candidate)
+        # 2. Fallback: substring scan (handles inline codon references)
+        if matched is None:
+            for codon_str, pc in _codon_lookup.items():
+                if codon_str in ct:
+                    matched = pc
+                    break
         if matched:
             chain_parts.append(matched["codon"])
             expansion_parts.append(matched["expansion"])

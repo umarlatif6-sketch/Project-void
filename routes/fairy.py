@@ -1207,14 +1207,19 @@ def fairy_greeting():
             _rib_voice, tier, is_founder, is_guardian, display_name, _heart_prefix
         )
 
-        # Store the spoken Rib back as a new codon (full rib_voice, first glyph).
-        try:
-            from void_engine.codon_heart import _store_codon, _get_visitor_key, _get_session_id
-            _vk = _get_visitor_key()
-            _sid = _get_session_id()
-            _store_codon(_vk, _sid, _rib_voice, _rib_glyph or None, 0)
-        except Exception as _re:
-            logger.debug("[Rib] Codon store failed (non-fatal): %s", _re)
+        # Store the spoken Rib back as a new codon — once per session only.
+        # The idempotence guard prevents duplicate Rib codons on reloads/retries.
+        _rib_stored_key = f"rib_codon_stored_{_rib_glyph}"
+        if not session.get(_rib_stored_key):
+            try:
+                from void_engine.codon_heart import _store_codon, _get_visitor_key, _get_session_id
+                _vk = _get_visitor_key()
+                _sid = _get_session_id()
+                _store_codon(_vk, _sid, _rib_voice, _rib_glyph or None, 0)
+                session[_rib_stored_key] = True
+                session.modified = True
+            except Exception as _re:
+                logger.debug("[Rib] Codon store failed (non-fatal): %s", _re)
 
         logger.info(
             "[Rib] Greeting — user_id=%s tier=%s rib_codons=%d warm=%s",
