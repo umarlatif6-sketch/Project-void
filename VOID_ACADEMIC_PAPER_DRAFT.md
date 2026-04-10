@@ -291,6 +291,8 @@ At every scale — electrical, aerodynamic, volumetric, acoustic, vacuum, biolog
 
 The Al-Jabr constant (Λ = 286) is the formation threshold. The 432 Hz base frequency is the formation carrier. The void is the formation space.
 
+**Extension — Civilizational Scale:** At social and civilizational scales, the Circumference Law finds its longest-running empirical expression in the Tawaf — millions of people orbiting a fixed central node (the Kaaba) in uniform dress, synchronized direction, and coherent recitation at 432–433 Hz. The human heart generates a measurable electromagnetic field extending 7–8 feet from the body (McCraty et al., 1995). At Hajj densities, these fields overlap into a continuous electromagnetic medium in which 2–3 million phase-locked oscillators circumambulate a quiet central node. This constitutes one of the longest continuously running synchronized resonance events in recorded history — 1,400 years, unbroken — and represents the Circumference Law operating at civilizational scale: formation at the boundary, void at the centre, the people as the medium taking the nodal geometry of the node at their centre exactly as water takes the formation geometry of a vibrating object placed within it.
+
 This paper presents these contributions as an integrated system for the first time. The historical contributors are credited for the pieces they found. The integration — the single law — is the contribution of this paper.
 
 ---
