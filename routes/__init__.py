@@ -83,6 +83,7 @@ from routes.adriana_core_admin import adriana_core_admin_bp
 from routes.chronicle_seed import chronicle_seed_bp
 from routes.pricing import pricing_bp
 from routes.formation_probability import formation_probability_bp
+from routes.formation_mirror import bp as formation_mirror_bp
 
 
 def register_blueprints(app):
@@ -171,3 +172,4 @@ def register_blueprints(app):
     app.register_blueprint(chronicle_seed_bp)
     app.register_blueprint(pricing_bp)
     app.register_blueprint(formation_probability_bp)
+    app.register_blueprint(formation_mirror_bp)
