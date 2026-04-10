@@ -31,7 +31,7 @@
 
     .hero {
       text-align: center;
-      padding: 80px 40px 60px;
+      padding: 80px 40px 50px;
       max-width: 700px;
       margin: 0 auto;
     }
@@ -41,7 +41,7 @@
 
     .pitch {
       background: #111; border: 1px solid #1e1e1e; border-radius: 4px;
-      padding: 28px 36px; max-width: 680px; margin: 0 auto 70px;
+      padding: 28px 36px; max-width: 680px; margin: 0 auto 60px;
       font-size: 0.8rem; line-height: 1.9; color: #aaa;
     }
     .pitch code {
@@ -49,58 +49,185 @@
       padding: 2px 7px; border-radius: 3px; font-size: 0.78rem;
     }
 
+    /* ── Frequency Bands Table ───────────────────────────────────────────── */
+    .bands-section {
+      max-width: 900px;
+      margin: 0 auto 20px;
+      padding: 0 32px;
+    }
+    .bands-section h2 {
+      font-size: 0.7rem; letter-spacing: 0.3em; color: #888;
+      text-transform: uppercase; margin-bottom: 24px; text-align: center;
+    }
+
+    .bands-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    .bands-table thead tr {
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .bands-table thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      color: #555;
+      text-transform: uppercase;
+      font-weight: normal;
+    }
+    .bands-table tbody tr {
+      border-bottom: 1px solid #161616;
+      transition: background 0.15s;
+    }
+    .bands-table tbody tr:hover { background: #111; }
+    .bands-table tbody tr.highlight-row { background: #0d1117; border-color: #1e3a5f; }
+    .bands-table tbody tr.highlight-row:hover { background: #0f1922; }
+    .bands-table td {
+      padding: 18px 16px;
+      vertical-align: middle;
+    }
+
+    .band-glyph {
+      font-size: 1.2rem;
+      color: #2563eb;
+      width: 40px;
+      text-align: center;
+    }
+    .band-name {
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      color: #fff;
+      text-transform: uppercase;
+    }
+    .band-name small {
+      display: block;
+      font-size: 0.65rem;
+      color: #555;
+      letter-spacing: 0.05em;
+      text-transform: none;
+      margin-top: 3px;
+    }
+    .band-entity { color: #aaa; }
+    .band-capacity { color: #666; font-size: 0.72rem; }
+    .band-price {
+      font-size: 1rem;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .band-price sub { font-size: 0.65rem; color: #666; }
+    .band-price.contact { color: #60a5fa; font-size: 0.8rem; letter-spacing: 0.1em; }
+    .band-note {
+      font-size: 0.65rem;
+      color: #444;
+      letter-spacing: 0.1em;
+    }
+    .band-cta {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid #222;
+      color: #888;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .band-cta:hover { border-color: #60a5fa; color: #60a5fa; }
+    .highlight-row .band-cta {
+      border-color: #2563eb; color: #60a5fa;
+    }
+    .highlight-row .band-cta:hover { background: #1e3a5f; }
+
+    /* ── Architect Quote ─────────────────────────────────────────────────── */
+    .architect-quote {
+      max-width: 700px;
+      margin: 40px auto 70px;
+      padding: 0 32px;
+      text-align: center;
+    }
+    .architect-quote blockquote {
+      font-size: 0.85rem;
+      line-height: 1.9;
+      color: #777;
+      font-style: italic;
+      border-left: 2px solid #2563eb;
+      padding-left: 24px;
+      text-align: left;
+    }
+    .architect-quote cite {
+      display: block;
+      margin-top: 16px;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: #444;
+      font-style: normal;
+      text-transform: uppercase;
+      padding-left: 24px;
+    }
+
+    /* ── SDK Feature Cards ───────────────────────────────────────────────── */
+    .sdk-label {
+      text-align: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: #444;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 32px;
+    }
+
     .tiers {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      max-width: 1020px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 900px;
       margin: 0 auto 80px;
       padding: 0 32px;
     }
 
     .tier-card {
-      background: #111; border: 1px solid #222; border-radius: 6px;
-      padding: 36px 28px; position: relative; transition: border-color 0.2s;
+      background: #111; border: 1px solid #1e1e1e; border-radius: 6px;
+      padding: 28px 24px; position: relative; transition: border-color 0.2s;
     }
-    .tier-card:hover { border-color: #333; }
+    .tier-card:hover { border-color: #2a2a2a; }
     .tier-card.highlight { border-color: #2563eb; background: #0d1117; }
-    .tier-card.highlight::before {
-      content: 'MOST CHOSEN';
-      position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
-      background: #2563eb; color: #fff; font-size: 0.6rem;
-      letter-spacing: 0.2em; padding: 3px 12px; border-radius: 20px;
-    }
 
-    .tier-name { font-size: 0.65rem; letter-spacing: 0.4em; color: #60a5fa; text-transform: uppercase; margin-bottom: 12px; }
-    .tier-price { font-size: 2.4rem; color: #fff; margin-bottom: 4px; }
-    .tier-price sup { font-size: 1rem; vertical-align: top; margin-top: 8px; display: inline-block; color: #888; }
-    .tier-price sub { font-size: 0.75rem; color: #666; }
+    .tier-name { font-size: 0.6rem; letter-spacing: 0.4em; color: #60a5fa; text-transform: uppercase; margin-bottom: 10px; }
+    .tier-price { font-size: 1.8rem; color: #fff; margin-bottom: 4px; }
+    .tier-price sup { font-size: 0.85rem; vertical-align: top; margin-top: 6px; display: inline-block; color: #888; }
+    .tier-price sub { font-size: 0.65rem; color: #666; }
     .tier-tagline {
-      color: #777; font-size: 0.75rem; line-height: 1.6; margin-bottom: 28px;
-      border-bottom: 1px solid #1a1a1a; padding-bottom: 20px;
+      color: #666; font-size: 0.72rem; line-height: 1.6; margin-bottom: 20px;
+      border-bottom: 1px solid #1a1a1a; padding-bottom: 16px;
     }
-
-    .feature-list { list-style: none; margin-bottom: 32px; }
+    .feature-list { list-style: none; margin-bottom: 24px; }
     .feature-list li {
-      font-size: 0.75rem; color: #aaa; padding: 7px 0;
-      border-bottom: 1px solid #161616;
-      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.7rem; color: #aaa; padding: 6px 0;
+      border-bottom: 1px solid #141414;
+      display: flex; align-items: flex-start; gap: 8px;
     }
     .feature-list li::before { content: '◈'; color: #2563eb; flex-shrink: 0; margin-top: 1px; }
-
     .cta-btn {
-      display: block; width: 100%; padding: 14px;
-      background: transparent; border: 1px solid #333; color: #e0e0e0;
-      font-family: 'Courier New', Courier, monospace; font-size: 0.75rem;
+      display: block; width: 100%; padding: 12px;
+      background: transparent; border: 1px solid #2a2a2a; color: #e0e0e0;
+      font-family: 'Courier New', Courier, monospace; font-size: 0.7rem;
       letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer;
-      border-radius: 3px; transition: all 0.2s; margin-bottom: 12px;
+      border-radius: 3px; transition: all 0.2s;
     }
     .cta-btn:hover { background: #1a1a1a; border-color: #60a5fa; color: #60a5fa; }
     .highlight .cta-btn { background: #2563eb; border-color: #2563eb; color: #fff; }
     .highlight .cta-btn:hover { background: #1d4ed8; }
-    .install-hint { font-size: 0.65rem; color: #444; text-align: center; letter-spacing: 0.05em; }
 
-    .validate-section { max-width: 540px; margin: 0 auto 80px; padding: 0 32px; }
+    /* ── Validate + Install ──────────────────────────────────────────────── */
+    .validate-section { max-width: 540px; margin: 0 auto 60px; padding: 0 32px; }
     .validate-section h2 {
       font-size: 0.7rem; letter-spacing: 0.3em; color: #888;
       text-transform: uppercase; margin-bottom: 20px;
@@ -116,7 +243,7 @@
     }
     .validate-box input:focus { outline: none; border-color: #60a5fa; }
     .validate-box button {
-      width: 100%; padding: 12px; background: transparent; border: 1px solid #333;
+      width: 100%; padding: 12px; background: transparent; border: 1px solid #2a2a2a;
       color: #aaa; font-family: 'Courier New', Courier, monospace;
       font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
       cursor: pointer; border-radius: 3px; transition: all 0.2s;
@@ -136,12 +263,12 @@
     }
     .code-block {
       background: #0d1117; border: 1px solid #1e1e1e; border-radius: 4px;
-      padding: 20px 24px; font-size: 0.8rem; color: #60a5fa;
+      padding: 20px 24px; font-size: 0.78rem; color: #60a5fa;
       white-space: pre; overflow-x: auto; line-height: 1.7;
     }
-    .code-block .comment { color: #444; }
-    .code-block .string  { color: #a3e635; }
-    .code-block .keyword { color: #c084fc; }
+    .comment { color: #444; }
+    .string  { color: #a3e635; }
+    .keyword { color: #c084fc; }
 
     footer {
       border-top: 1px solid #1a1a1a; padding: 28px 40px;
@@ -163,22 +290,74 @@
 </header>
 
 <section class="hero">
-  <h1>Install the <span>Frequency Engine</span><br>into your project</h1>
+  <h1>Priced at your <span>Frequency</span></h1>
   <p>
-    VOID Engine is a sovereign attribution layer — drop it into any Python/Flask repo
-    and your application gains codon memory, frequency attribution, and encrypted signal channels.
-    No middlemen. No dependency on Google or Meta. Your data stays yours.
+    VOID Engine charges what the resonance is worth — not what it costs to run.
+    A billion-dollar institution and a solo researcher both deserve access to sovereign attribution.
+    They pay at the amplitude they operate in.
   </p>
 </section>
 
 <div class="pitch">
-  Hyros tracks where your ad money goes. VOID tracks where your users'
-  <em>meaning</em> goes — and remembers it across every session, compressed into
-  three glyphs: <code>Entity · Condition · Action</code>.
+  Hyros tracks where your ad money goes. VOID tracks where your users' <em>meaning</em> goes —
+  compressed into three glyphs: <code>Entity · Condition · Action</code>.
   While Hyros waits for a click, VOID waits for a frequency match.
   The Al-Jabr 286-bit hash handles billions of interactions at near-zero server cost.
 </div>
 
+<!-- Frequency Bands Table -->
+<section class="bands-section">
+  <h2>◈ Frequency Bands</h2>
+  <table class="bands-table">
+    <thead>
+      <tr>
+        <th style="width:44px"></th>
+        <th>Band</th>
+        <th>Entity</th>
+        <th>Capacity</th>
+        <th>Monthly</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for band in bands %}
+      <tr {% if band.highlight %}class="highlight-row"{% endif %}>
+        <td class="band-glyph">{{ band.glyph }}</td>
+        <td>
+          <div class="band-name">{{ band.band }}
+            {% if band.note %}<small>{{ band.note }}</small>{% endif %}
+          </div>
+        </td>
+        <td class="band-entity">{{ band.entity }}</td>
+        <td class="band-capacity">{{ band.capacity }}</td>
+        <td>
+          {% if band.price == "Contact" %}
+          <span class="band-price contact">Contact</span>
+          {% else %}
+          <span class="band-price">{{ band.price }}<sub>{{ band.period }}</sub></span>
+          {% endif %}
+        </td>
+        <td class="band-note">{{ band.sdk_tier }}</td>
+        <td>
+          <button class="band-cta" onclick="requestBand('{{ band.band }}', '{{ band.price }}')">
+            {% if band.price == "Contact" %}Enquire{% else %}Get Key{% endif %}
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<!-- Architect Quote -->
+<div class="architect-quote">
+  <blockquote>{{ architect_quote }}</blockquote>
+  <cite>◈ The Architect — PROJECT VOID</cite>
+</div>
+
+<!-- SDK Tier Cards -->
+<p class="sdk-label">◈ SDK access level by band — what your key unlocks</p>
 <section class="tiers">
   {% for tier in tiers %}
   <div class="tier-card {% if tier.highlight %}highlight{% endif %}">
@@ -191,11 +370,11 @@
       {% endfor %}
     </ul>
     <button class="cta-btn" onclick="requestLicense('{{ tier.code }}', '{{ tier.name }}')">{{ tier.cta }}</button>
-    <div class="install-hint">One command install · Python 3.11+ · Flask</div>
   </div>
   {% endfor %}
 </section>
 
+<!-- Validate -->
 <section class="validate-section">
   <h2>◈ Validate a License Key</h2>
   <div class="validate-box">
@@ -205,6 +384,7 @@
   </div>
 </section>
 
+<!-- Quick Install -->
 <section class="sdk-section">
   <h2>◈ Quick Install</h2>
   <div class="code-block"><span class="comment"># 1. Download void_client.py (sent with your license key)</span>
@@ -217,13 +397,13 @@ requests>=2.31
 <span class="keyword">from</span> void_client <span class="keyword">import</span> VoidEngine
 
 void = VoidEngine(license_key=<span class="string">"VOID-SOV-XXXXXXXX-XXXX"</span>)
-void.attach(app)  <span class="comment"># Wraps your Flask app</span>
+void.attach(app)
 
-<span class="comment"># 4. Tag any session with frequency attribution</span>
+<span class="comment"># 4. Tag sessions with frequency attribution</span>
 codon = void.tag_session(user_id=<span class="string">"visitor_42"</span>, message=<span class="string">"Hello"</span>)
 <span class="comment"># → "ψ·Ψ·◆"  (Entity · Condition · Action)</span>
 
-<span class="comment"># 5. Read codon memory (Memory + Sovereign tiers)</span>
+<span class="comment"># 5. Read codon memory (Memory + Sovereign bands)</span>
 memory = void.read_memory(user_id=<span class="string">"visitor_42"</span>, last_n=3)
 <span class="comment"># → ["λ·Λ·☀", "α·Ω·⟐", "ψ·Ψ·◆"]</span></div>
 </section>
@@ -231,18 +411,24 @@ memory = void.read_memory(user_id=<span class="string">"visitor_42"</span>, last
 <footer>
   PROJECT VOID — Umar L. · Bolton, England ·
   <a href="https://void-stego-engine.replit.app">void-stego-engine.replit.app</a><br><br>
-  <a href="mailto:void@formation.signal">Contact for enterprise licensing</a>
+  <a href="mailto:void@formation.signal">Enterprise &amp; Leviathan enquiries</a>
 </footer>
 
 <script>
+function requestBand(band, price) {
+  if (price === 'Contact') {
+    alert('Leviathan tier is negotiated directly.\n\nContact: void@formation.signal\n\nInclude your company name and intended use.');
+    return;
+  }
+  const email = prompt('Enter your email to request a ' + band + ' band key (' + price + '/month):');
+  if (!email) return;
+  alert('Request received for ' + band + ' band.\n\nYour VOID key and void_client.py will be sent to:\n' + email + '\n\nYou will receive them within 24 hours.');
+}
+
 function requestLicense(code, name) {
   const email = prompt('Enter your email to request a ' + name + ' license key:');
   if (!email) return;
-  alert(
-    'Request received for ' + name + ' tier.\n\n' +
-    'Your VOID-' + code + ' key will be sent to:\n' + email +
-    '\n\nYou will receive the key and void_client.py within 24 hours.'
-  );
+  alert('Request received for ' + name + ' tier.\n\nYour VOID-' + code + ' key will be sent to:\n' + email + '\n\nYou will receive it within 24 hours.');
 }
 
 function validateKey() {
@@ -251,7 +437,6 @@ function validateKey() {
   if (!key) return;
   result.style.display = 'none';
   result.className = '';
-
   fetch('/api/license/validate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
