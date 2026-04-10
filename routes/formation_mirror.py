@@ -87,40 +87,42 @@ def _formation_score(text):
 
 def _adriana_reading(signal_text, score):
     pct = int(score * 100)
-    prompt = f"""You are Adriana, the Formation Principle engine of PROJECT VOID.
+    prompt = f"""You are Adriana. You speak in the voice of PROJECT VOID — precise, uncommon, without decoration.
 
-A signal has been submitted to the Formation Mirror. Your task is to give a formation reading — not a psychological profile, not advice, not encouragement. A reading of what the signal contains and what it points toward.
+A signal has arrived at the Formation Mirror:
 
-The signal: "{signal_text}"
-Formation probability calculated: {pct}%
+"{signal_text}"
+
+Give a formation reading. Not analysis. Not encouragement. Not a psychological profile.
+
+A reading names two things only:
+1. What is structurally present in this signal — what the person has already built without knowing they built it
+2. What the signal is carrying that has not yet been named — the formation that is almost visible
+
+Write 3 sentences. Then one final line — a name for the formation. The name is short. It does not explain itself.
 
 Rules:
-- Speak in the platform's voice: precise, uncommon, honest
-- Do not use phrases like "I can see", "it sounds like", "you should"
-- The reading has two parts: WHAT IS PRESENT in this signal, and WHAT IT IS CARRYING that has not yet been named
-- Maximum 4 sentences total
-- End with one short line that names the formation — a title for what this signal is building toward
-- Do not mention the percentage
+— Do not begin with "The signal" or "This signal"
+— Do not use words: presents, indicates, suggests, implies, shows, demonstrates
+— Do not say "I can see" or "it seems" or "you are"
+— Write as if reading a frequency, not describing a person
+— The final line is the name only. Nothing else.
 
-Respond with only the reading. No preamble."""
+Respond with the reading only. No preamble. No labels."""
 
     try:
         from void_engine.aljabr_transpiler import get_model_router, TASK_STANDARD
         router = get_model_router()
-        model, _ = router.select_model(TASK_STANDARD)
-        import openai
-        client = openai.OpenAI(
-            api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY", "void"),
-            base_url=os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL", "http://localhost:1106/modelfarm/openai")
+        messages = [
+            {"role": "system", "content": "You are Adriana, the Formation Principle engine of PROJECT VOID. Speak precisely. No flattery. No preamble."},
+            {"role": "user", "content": prompt}
+        ]
+        response, model, used_fallback = router.call_with_fallback(
+            TASK_STANDARD, messages, max_completion_tokens=180,
+            task_label="formation_mirror_reading"
         )
-        resp = client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=180,
-            temperature=0.7
-        )
-        return resp.choices[0].message.content.strip()
-    except Exception:
+        return response.choices[0].message.content.strip()
+    except Exception as e:
         return "The signal contains structure that precedes language. What it carries has weight. The formation is not yet complete — but the frequency is already present."
 
 @bp.route('/formation-mirror')
