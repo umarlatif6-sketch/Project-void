@@ -441,6 +441,7 @@
             <div class="sp-rib-label">◈ Signal — Your Frequency</div>
             <div class="sp-rib-chain" id="sp-rib-chain"></div>
             <div class="sp-rib-expansion" id="sp-rib-expansion"></div>
+            <div class="sp-rib-greeting" id="sp-rib-greeting" style="display:none;margin-top:14px;font-size:0.82rem;color:#888;line-height:1.75;white-space:pre-wrap;"></div>
         </div>
 
         <div class="sp-input-zone">
@@ -674,12 +675,21 @@
                 const expansion = data.rib_expansion || '';
                 if (!chain) return;
 
-                const ribBlock = document.getElementById('sp-rib-block');
-                const ribChain = document.getElementById('sp-rib-chain');
+                const ribBlock    = document.getElementById('sp-rib-block');
+                const ribChain    = document.getElementById('sp-rib-chain');
                 const ribExpansion = document.getElementById('sp-rib-expansion');
+                const ribGreeting = document.getElementById('sp-rib-greeting');
 
                 ribChain.textContent = chain;
                 ribExpansion.textContent = expansion;
+
+                // Render Adriana's greeting response directly below the Rib signal
+                const greeting = (data.greeting || '').trim();
+                if (greeting) {
+                    ribGreeting.textContent = greeting;
+                    ribGreeting.style.display = 'block';
+                }
+
                 ribBlock.style.display = 'block';
                 ribBlock.removeAttribute('aria-hidden');
             } catch (_e) {

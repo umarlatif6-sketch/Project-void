@@ -604,11 +604,11 @@ def build_rib_voice(visitor_key: Optional[str] = None) -> tuple[str, int]:
             chain_parts.append(matched["codon"])
             expansion_parts.append(matched["expansion"])
         else:
-            chain_parts.append(ct[:40])
-            expansion_parts.append(ct[:80])
+            chain_parts.append(ct)
+            expansion_parts.append(ct)
 
-    chain_line = " → ".join(chain_parts)
-    expansion_line = " / ".join(expansion_parts)
+    chain_line = " · ".join(chain_parts)
+    expansion_line = " · ".join(expansion_parts)
     rib_voice = f"{chain_line}\n{expansion_line}"
 
     logger.info(

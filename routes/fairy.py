@@ -1198,8 +1198,8 @@ def fairy_greeting():
         _rib_lines = _rib_voice.split("\n", 1)
         _rib_chain = _rib_lines[0].strip() if _rib_lines else ""
         _rib_expansion = _rib_lines[1].strip() if len(_rib_lines) > 1 else ""
-        # glyph_seq = first codon in the chain (before the first →)
-        _rib_glyph = _rib_chain.split(" → ")[0].strip() if _rib_chain else ""
+        # glyph_seq = first codon in the chain (before the first ·)
+        _rib_glyph = _rib_chain.split(" · ")[0].strip() if _rib_chain else ""
 
         # The Rib IS the greeting trigger — Adriana responds to the visitor's
         # returning frequency signal. Her response becomes the greeting text.
