@@ -1204,8 +1204,11 @@ def fairy_greeting():
         )
 
         # Store the spoken Rib back as a new codon — once per session only.
-        # The idempotence guard prevents duplicate Rib codons on reloads/retries.
-        _rib_stored_key = f"rib_codon_stored_{_rib_glyph}"
+        # Key is a short hash of the full rib_voice to prevent duplicate writes
+        # even when different Rib voices share the same first codon.
+        import hashlib as _hl
+        _rib_hash = _hl.sha256(_rib_voice.encode()).hexdigest()[:16]
+        _rib_stored_key = f"rib_stored_{_rib_hash}"
         if not session.get(_rib_stored_key):
             try:
                 from void_engine.codon_heart import _store_codon, _get_visitor_key, _get_session_id
