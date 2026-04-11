@@ -3,7 +3,10 @@ import json
 from flask import Blueprint, request, jsonify, session, redirect, current_app
 from routes.auth import login_required, _set_user_tier, _set_stripe_ids, _get_stripe_customer_id, _get_user_by_stripe_customer, _get_user_by_stripe_subscription
 from routes.stripe_client import get_stripe_client, get_publishable_key
-from void_engine.vortex_wallet import VTX_PACKS, VTX_UNLOCK_FEATURES
+from void_engine.vortex_wallet import (
+    VTX_PACKS, VTX_UNLOCK_FEATURES,
+    update_vtx_pack_price, update_all_vtx_prices, get_vtx_price_info,
+)
 
 payments_bp = Blueprint("payments", __name__)
 
@@ -398,3 +401,36 @@ def vtx_spend():
         "expires_at": result.get("expires_at", ""),
         "block": result,
     })
+
+
+@payments_bp.route("/api/vtx/prices", methods=["GET"])
+def vtx_prices():
+    return jsonify(get_vtx_price_info())
+
+
+@payments_bp.route("/api/vtx/prices", methods=["POST"])
+@login_required
+def update_vtx_prices():
+    data = request.get_json(silent=True) or {}
+
+    if "base_pence_per_vtx" in data:
+        base = int(data["base_pence_per_vtx"])
+        result = update_all_vtx_prices(base)
+        return jsonify({
+            "updated": True,
+            "base_pence_per_vtx": base,
+            "packs": get_vtx_price_info(),
+        })
+
+    pack = data.get("pack")
+    if pack:
+        ok = update_vtx_pack_price(
+            pack,
+            price_pence=data.get("price_pence"),
+            vtx_amount=data.get("vtx_amount"),
+        )
+        if not ok:
+            return jsonify({"error": f"Unknown pack: {pack}"}), 400
+        return jsonify({"updated": True, "packs": get_vtx_price_info()})
+
+    return jsonify({"error": "Provide base_pence_per_vtx or pack+price_pence"}), 400

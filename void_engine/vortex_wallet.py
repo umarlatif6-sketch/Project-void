@@ -30,6 +30,48 @@ VTX_PACKS = {
     "sovereign_stack": {"vtx": Decimal("1000"), "price_pence": 6500, "label": "Sovereign Stack", "bonus": "35% bonus"},
 }
 
+
+def update_vtx_pack_price(pack_key: str, price_pence: int = None, vtx_amount=None):
+    if pack_key not in VTX_PACKS:
+        return False
+    if price_pence is not None:
+        VTX_PACKS[pack_key]["price_pence"] = int(price_pence)
+    if vtx_amount is not None:
+        VTX_PACKS[pack_key]["vtx"] = Decimal(str(vtx_amount))
+    logger.info("[VTX] Pack %s updated: %s", pack_key, VTX_PACKS[pack_key])
+    return True
+
+
+def update_all_vtx_prices(base_price_pence_per_vtx: int):
+    for key, pack in VTX_PACKS.items():
+        vtx = int(pack["vtx"])
+        if key == "starter":
+            pack["price_pence"] = vtx * base_price_pence_per_vtx
+        elif key == "builder":
+            pack["price_pence"] = int(vtx * base_price_pence_per_vtx * 0.8)
+        elif key == "sovereign_stack":
+            pack["price_pence"] = int(vtx * base_price_pence_per_vtx * 0.65)
+    logger.info("[VTX] All prices updated at base %d pence/VTX: %s",
+                base_price_pence_per_vtx,
+                {k: v["price_pence"] for k, v in VTX_PACKS.items()})
+    return VTX_PACKS
+
+
+def get_vtx_price_info():
+    result = {}
+    for key, pack in VTX_PACKS.items():
+        vtx = float(pack["vtx"])
+        pence = pack["price_pence"]
+        result[key] = {
+            "label": pack["label"],
+            "vtx": vtx,
+            "price_pence": pence,
+            "price_gbp": round(pence / 100, 2),
+            "per_vtx_pence": round(pence / vtx, 2) if vtx > 0 else 0,
+            "bonus": pack["bonus"],
+        }
+    return result
+
 VTX_UNLOCK_FEATURES = {
     "extended_capacity": {"cost": Decimal("10"), "hours": 24, "label": "Extended Capacity (+10 MB)", "description": "Unlock 10 MB upload bonus for 24 hours"},
     "mesh_day_pass": {"cost": Decimal("25"), "hours": 24, "label": "Mesh Day Pass", "description": "Temporary mesh network access for 24 hours"},

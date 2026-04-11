@@ -58,6 +58,8 @@ _DEFAULT_VISIBLE = {
     "/frequency-manual",
     "/voice-formation",
     "/vortex-shield",
+    "/agent-immortality",
+    "/stance-science",
 }
 
 
