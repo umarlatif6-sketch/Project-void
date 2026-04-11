@@ -90,6 +90,7 @@ from routes.voidmessage import voidmessage_bp
 from routes.sdk_validate import sdk_validate_bp
 from routes.micro_fractures import micro_fractures_bp
 from routes.cockroach_sanitation import cockroach_sanitation_bp
+from routes.void_flower import void_flower_bp
 
 
 def register_blueprints(app):
@@ -185,3 +186,4 @@ def register_blueprints(app):
     app.register_blueprint(sdk_validate_bp)
     app.register_blueprint(micro_fractures_bp)
     app.register_blueprint(cockroach_sanitation_bp)
+    app.register_blueprint(void_flower_bp)
