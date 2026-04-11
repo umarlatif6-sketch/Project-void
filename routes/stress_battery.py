@@ -27,12 +27,16 @@ def api_run_battery():
     _battery_running = True
     data = request.get_json(silent=True) or {}
     seed = data.get("seed", "formation_zero")
+    integrated = bool(data.get("integrated", False))
+    sovereign_ratio = float(data.get("sovereign_ratio", 0.3))
+
+    mode_label = "INTEGRATED 286" if integrated else "STANDARD"
 
     def _run():
         global _battery_running, _battery_result
         try:
             from void_engine.stress_battery import run_stress_battery
-            result = run_stress_battery(seed=seed)
+            result = run_stress_battery(seed=seed, integrated=integrated, sovereign_ratio=sovereign_ratio)
             with _battery_lock:
                 _battery_result = result
         except Exception as e:
@@ -45,7 +49,7 @@ def api_run_battery():
     t = threading.Thread(target=_run, daemon=True)
     t.start()
 
-    return jsonify({"status": "running", "message": "Battery started — 10 tests firing."})
+    return jsonify({"status": "running", "message": f"Battery started ({mode_label}) — 10 tests firing."})
 
 
 @stress_battery_bp.route("/api/stress-battery/status")

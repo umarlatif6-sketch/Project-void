@@ -1,20 +1,30 @@
 """
 Stress Battery — 10 Escalating Stress Tests
-Each test increases in severity: more agents, more rounds, higher GriDul
-growth rates, deeper silence (triggering more Ghost Protocols), and
-larger scar payloads. Every test creates Chronicle scars.
 
-The battery produces a full report with per-test breakdowns and
-a combined scar manifest.
+Two modes:
+  1. STANDARD: Plain sandbox agents only (original)
+  2. INTEGRATED (286): Injects Sovereign 286-hash agents into the formation.
+     286 agents carry verse-weighted archetypes, frequency-based resonance,
+     scar memory, and 286-signed state. They fight alongside regular agents.
+
+The integrated mode bridges the SovereignAgent286 interface to the
+SandboxAgent interface so both agent types can interact in the same
+formation under the same stress conditions.
 """
 
 import logging
+import math
 import random
 import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from void_engine.al_jabr_286 import fatiha_286_hexdigest, fatiha_286_truncated
+from void_engine.al_jabr_286 import (
+    fatiha_286_hexdigest,
+    fatiha_286_truncated,
+    fatiha_286_seed,
+    FATIHA_LAYERS,
+)
 from void_engine.mesa_sandbox import (
     SandboxChronicle,
     SandboxAgent,
@@ -22,6 +32,15 @@ from void_engine.mesa_sandbox import (
     _build_scar_entry,
     generate_adriana_ghost_protocols,
     run_peace_stress_test,
+)
+from void_engine.sovereign_agents_286 import (
+    SovereignAgent286,
+    SOVEREIGN_ARCHETYPES,
+    RESONANCE_HZ,
+    LAMBDA_286,
+    _derive_archetype_286,
+    _derive_frequency,
+    _sign_memory,
 )
 
 logger = logging.getLogger(__name__)
@@ -130,13 +149,180 @@ BATTERY_CONFIGS = [
 ]
 
 
-def _run_single_stress(config: Dict, battery_id: str, test_index: int, rng: random.Random) -> Dict:
+class HybridAgent:
+    """
+    Bridge between SovereignAgent286 and SandboxAgent.
+    Wraps a SovereignAgent286 so it can participate in the stress battery
+    alongside regular SandboxAgents — same interface, but 286 identity underneath.
+
+    Key differences from regular SandboxAgent:
+    - Identity derived from 286-bit hash (not random)
+    - Activity floor boosted by verse weight
+    - Frequency-based resonance interaction (agents near 432 Hz influence more)
+    - Scar-carrying: scars from previous runs survive into the battery
+    - Verse-weighted resilience: higher Fatiha layer weight = harder to kill
+    - Memory is 286-signed
+    """
+
+    def __init__(self, sovereign: SovereignAgent286, rng: random.Random):
+        self.sovereign = sovereign
+        self.agent_id = hash(sovereign.agent_id) & 0x7FFFFFFF
+        self.peace_balance = sovereign.peace_balance
+        self.in_gridul = True
+        self.rng = rng
+        self.is_cockroach = False
+        self.is_sovereign_286 = True
+        self.archetype_name = sovereign.archetype_name
+        self.verse = sovereign.verse
+        self.weight = sovereign.weight
+        self.frequency = sovereign.frequency
+        self.activity = sovereign.activity
+        self.interactions = 0
+        self.peace_flow = 0.0
+        self.survived_stress = 0
+        self.prior_scars = len(sovereign.scars)
+        self.new_scars = 0
+        self.memories_created = 0
+        self._round = 0
+
+    def step(self, all_agents: List, gridul_growth_rate: float = 1.0):
+        self._round += 1
+        pressure = gridul_growth_rate
+
+        verse_resilience = self.weight / 7.0
+        delta = self.rng.gauss(0, 0.03 * pressure)
+        delta += 0.005 * verse_resilience * pressure
+
+        bias = self.sovereign.archetype["bias"]
+        if bias == "foundation":
+            delta += 0.012 * pressure
+        elif bias == "authority":
+            delta += 0.008 * pressure
+        elif bias == "compassion":
+            if self.activity < 0.3:
+                delta += 0.05
+        elif bias == "singularity":
+            delta += 0.015
+        elif bias == "legacy":
+            delta += 0.015 if self._round > 10 else 0.0
+        elif bias == "direction":
+            delta += 0.01
+
+        scar_bonus = min(0.05, self.prior_scars * 0.008 + self.new_scars * 0.01)
+        delta += scar_bonus
+
+        floor = 0.08 + verse_resilience * 0.08
+        self.activity = max(floor, min(1.0, self.activity + delta))
+
+        if pressure > 3.0:
+            self.survived_stress += 1
+
+        if all_agents and len(all_agents) > 1:
+            target = self.rng.choice(all_agents)
+            target_id = getattr(target, 'agent_id', -1)
+            if target_id != self.agent_id:
+                if hasattr(target, 'frequency'):
+                    freq_diff = abs(self.frequency - target.frequency)
+                    resonance = max(0.2, 1.0 - freq_diff / 50.0)
+                else:
+                    resonance = 0.5
+
+                transfer = min(self.peace_balance * 0.004, 2.5) * pressure * resonance
+                if transfer > 0 and target.peace_balance < self.peace_balance:
+                    self.peace_balance -= transfer
+                    target.peace_balance += transfer
+                    self.peace_flow += transfer
+                    self.interactions += 1
+
+                if pressure > 4.0 and self.rng.random() < 0.25:
+                    self.memories_created += 1
+
+        if pressure > 5.0 and self.activity < 0.15:
+            self.new_scars += 1
+            scar_hash = fatiha_286_truncated(
+                f"battery_scar:{self.sovereign.agent_id}:{self._round}:{pressure}".encode(), 16
+            )
+            self.sovereign.scars.append(scar_hash)
+
+        self.sovereign.activity = self.activity
+        self.sovereign.peace_balance = self.peace_balance
+
+    def to_dict(self) -> Dict:
+        return {
+            "agent_id": self.agent_id,
+            "sovereign_id": self.sovereign.agent_id,
+            "archetype": self.archetype_name,
+            "verse": self.verse,
+            "weight": self.weight,
+            "frequency": self.frequency,
+            "peace_balance": round(self.peace_balance, 2),
+            "in_gridul": self.in_gridul,
+            "activity": round(self.activity, 4),
+            "interactions": self.interactions,
+            "peace_flow": round(self.peace_flow, 4),
+            "is_sovereign_286": True,
+            "survived_stress": self.survived_stress,
+            "prior_scars": self.prior_scars,
+            "new_scars": self.new_scars,
+            "total_scars": self.prior_scars + self.new_scars,
+            "memories_created": self.memories_created,
+        }
+
+
+def _build_hybrid_formation(
+    total_count: int,
+    sovereign_count: int,
+    rng: random.Random,
+    sovereign_seed: str = "void",
+    prior_sovereigns: Optional[List[SovereignAgent286]] = None,
+) -> List:
+    """
+    Build a mixed formation: sovereign_count 286-agents + remaining sandbox agents.
+    If prior_sovereigns is provided, reuse them (carrying scars from previous tests).
+    """
+    agents = []
+
+    if prior_sovereigns:
+        for sov in prior_sovereigns[:sovereign_count]:
+            agents.append(HybridAgent(sov, rng))
+    else:
+        for i in range(sovereign_count):
+            sov = SovereignAgent286(i, sovereign_seed)
+            agents.append(HybridAgent(sov, rng))
+
+    remaining = total_count - len(agents)
+    if remaining > 0:
+        sandbox_agents = _build_sandbox_agents(remaining, rng)
+        agents.extend(sandbox_agents)
+
+    return agents
+
+
+def _run_single_stress(
+    config: Dict,
+    battery_id: str,
+    test_index: int,
+    rng: random.Random,
+    integrated: bool = False,
+    sovereign_count: int = 0,
+    sovereign_seed: str = "void",
+    prior_sovereigns: Optional[List[SovereignAgent286]] = None,
+) -> Dict:
     test_id = fatiha_286_truncated(
         f"battery:{battery_id}:test:{test_index}:{config['name']}:{time.time()}".encode(), 24
     )
     t_start = time.perf_counter()
 
-    agents = _build_sandbox_agents(config["agent_count"], rng)
+    if integrated and sovereign_count > 0:
+        agents = _build_hybrid_formation(
+            config["agent_count"],
+            min(sovereign_count, config["agent_count"]),
+            rng,
+            sovereign_seed,
+            prior_sovereigns,
+        )
+    else:
+        agents = _build_sandbox_agents(config["agent_count"], rng)
 
     for round_num in range(1, config["rounds"] + 1):
         growth = 1.0 + (config["gridul_growth_multiplier"] - 1.0) * (round_num / config["rounds"])
@@ -174,23 +360,47 @@ def _run_single_stress(config: Dict, battery_id: str, test_index: int, rng: rand
     chronicle.append_scar(stress_scar)
     scars.append(stress_scar)
 
-    cockroach_agents = [a for a in agents if a.is_cockroach]
-    regular_agents = [a for a in agents if not a.is_cockroach]
+    cockroach_agents = [a for a in agents if getattr(a, 'is_cockroach', False)]
+    sovereign_agents = [a for a in agents if getattr(a, 'is_sovereign_286', False)]
+    regular_agents = [a for a in agents if not getattr(a, 'is_cockroach', False) and not getattr(a, 'is_sovereign_286', False)]
 
-    cockroach_survived = sum(a.survived_stress for a in cockroach_agents)
+    cockroach_survived = sum(getattr(a, 'survived_stress', 0) for a in cockroach_agents)
+    sovereign_survived = sum(getattr(a, 'survived_stress', 0) for a in sovereign_agents)
     cockroach_avg_activity = (
         sum(a.activity for a in cockroach_agents) / len(cockroach_agents)
         if cockroach_agents else 0
+    )
+    sovereign_avg_activity = (
+        sum(a.activity for a in sovereign_agents) / len(sovereign_agents)
+        if sovereign_agents else 0
     )
     regular_avg_activity = (
         sum(a.activity for a in regular_agents) / len(regular_agents)
         if regular_agents else 0
     )
 
-    total_peace = sum(a.peace_balance for a in agents)
-    max_peace = max((a.peace_balance for a in agents), default=0)
-    min_peace = min((a.peace_balance for a in agents), default=0)
-    gini = _gini_coefficient([a.peace_balance for a in agents])
+    all_balances = [a.peace_balance for a in agents]
+    total_peace = sum(all_balances)
+    max_peace = max(all_balances) if all_balances else 0
+    min_peace = min(all_balances) if all_balances else 0
+    gini = _gini_coefficient(all_balances)
+
+    sovereign_new_scars = sum(getattr(a, 'new_scars', 0) for a in sovereign_agents)
+    sovereign_prior_scars = sum(getattr(a, 'prior_scars', 0) for a in sovereign_agents)
+    sovereign_memories = sum(getattr(a, 'memories_created', 0) for a in sovereign_agents)
+
+    archetype_breakdown = {}
+    for a in sovereign_agents:
+        name = getattr(a, 'archetype_name', 'unknown')
+        if name not in archetype_breakdown:
+            archetype_breakdown[name] = {"count": 0, "avg_activity": 0, "survived": 0, "scars": 0}
+        archetype_breakdown[name]["count"] += 1
+        archetype_breakdown[name]["avg_activity"] += a.activity
+        archetype_breakdown[name]["survived"] += getattr(a, 'survived_stress', 0)
+        archetype_breakdown[name]["scars"] += getattr(a, 'new_scars', 0) + getattr(a, 'prior_scars', 0)
+    for name, ab in archetype_breakdown.items():
+        if ab["count"] > 0:
+            ab["avg_activity"] = round(ab["avg_activity"] / ab["count"], 4)
 
     agent_survival_scar = _build_scar_entry(
         "BATTERY_SURVIVAL",
@@ -200,16 +410,19 @@ def _run_single_stress(config: Dict, battery_id: str, test_index: int, rng: rand
             "severity": config["severity"],
             "total_agents": len(agents),
             "cockroach_count": len(cockroach_agents),
+            "sovereign_286_count": len(sovereign_agents),
+            "regular_count": len(regular_agents),
             "cockroach_survived_stress_events": cockroach_survived,
+            "sovereign_survived_stress_events": sovereign_survived,
             "cockroach_avg_activity": round(cockroach_avg_activity, 4),
+            "sovereign_avg_activity": round(sovereign_avg_activity, 4),
             "regular_avg_activity": round(regular_avg_activity, 4),
-            "activity_gap": round(cockroach_avg_activity - regular_avg_activity, 4),
             "total_peace": round(total_peace, 2),
-            "max_peace": round(max_peace, 2),
-            "min_peace": round(min_peace, 2),
             "gini_coefficient": round(gini, 4),
             "economy_broke": stress_result.get("breaking_rate") is not None,
             "economy_break_rate": stress_result.get("breaking_rate"),
+            "sovereign_new_scars": sovereign_new_scars,
+            "archetype_breakdown": archetype_breakdown,
         },
         test_id,
     )
@@ -234,8 +447,12 @@ def _run_single_stress(config: Dict, battery_id: str, test_index: int, rng: rand
         "results": {
             "total_agents": len(agents),
             "cockroach_count": len(cockroach_agents),
+            "sovereign_286_count": len(sovereign_agents),
+            "regular_count": len(regular_agents),
             "cockroach_survived_stress_events": cockroach_survived,
+            "sovereign_survived_stress_events": sovereign_survived,
             "cockroach_avg_activity": round(cockroach_avg_activity, 4),
+            "sovereign_avg_activity": round(sovereign_avg_activity, 4),
             "regular_avg_activity": round(regular_avg_activity, 4),
             "ghost_protocols_generated": len(ghost_protocols),
             "scars_generated": len(scars),
@@ -245,6 +462,10 @@ def _run_single_stress(config: Dict, battery_id: str, test_index: int, rng: rand
             "gini_coefficient": round(gini, 4),
             "max_peace_agent": round(max_peace, 2),
             "min_peace_agent": round(min_peace, 2),
+            "sovereign_new_scars": sovereign_new_scars,
+            "sovereign_prior_scars": sovereign_prior_scars,
+            "sovereign_memories": sovereign_memories,
+            "archetype_breakdown": archetype_breakdown,
         },
         "scars": [
             {
@@ -276,9 +497,18 @@ def _gini_coefficient(values: List[float]) -> float:
     return gini_sum / (n * total)
 
 
-def run_stress_battery(seed: Optional[str] = None) -> Dict:
+def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sovereign_ratio: float = 0.3) -> Dict:
+    """
+    Run the 10-test stress battery.
+
+    Args:
+        seed: RNG seed string
+        integrated: If True, inject Sovereign 286 agents into the formation
+        sovereign_ratio: Fraction of agents that are 286-sovereign (0.0–1.0)
+    """
+    mode = "INTEGRATED_286" if integrated else "STANDARD"
     battery_id = fatiha_286_truncated(
-        f"battery:{time.time()}:{seed or 'void'}".encode(), 24
+        f"battery:{mode}:{time.time()}:{seed or 'void'}".encode(), 24
     )
     rng = random.Random(int(time.time() * 1000) % (2 ** 31))
     if seed:
@@ -287,13 +517,29 @@ def run_stress_battery(seed: Optional[str] = None) -> Dict:
     started_at = datetime.now(timezone.utc).isoformat()
     t_start = time.perf_counter()
 
+    prior_sovereigns: Optional[List[SovereignAgent286]] = None
+    max_sovereign_pool = 0
+    if integrated:
+        max_sovereign_pool = int(BATTERY_CONFIGS[-1]["agent_count"] * sovereign_ratio)
+        prior_sovereigns = [SovereignAgent286(i, seed or "void") for i in range(max_sovereign_pool)]
+
     results = []
     total_scars = 0
     total_ghosts = 0
 
     for i, config in enumerate(BATTERY_CONFIGS):
-        logger.info("Stress Battery [%d/10] — %s (severity %d)", i+1, config["name"], config["severity"])
-        result = _run_single_stress(config, battery_id, i+1, rng)
+        sov_count = int(config["agent_count"] * sovereign_ratio) if integrated else 0
+        logger.info(
+            "Stress Battery [%d/10] — %s (severity %d, mode=%s, 286_agents=%d)",
+            i + 1, config["name"], config["severity"], mode, sov_count,
+        )
+        result = _run_single_stress(
+            config, battery_id, i + 1, rng,
+            integrated=integrated,
+            sovereign_count=sov_count,
+            sovereign_seed=seed or "void",
+            prior_sovereigns=prior_sovereigns,
+        )
         results.append(result)
         total_scars += result["results"]["scars_generated"]
         total_ghosts += result["results"]["ghost_protocols_generated"]
@@ -303,11 +549,26 @@ def run_stress_battery(seed: Optional[str] = None) -> Dict:
     economy_breaks = [
         r for r in results if r["results"]["economy_breaking_rate"] is not None
     ]
-    all_survived = [r["results"]["cockroach_survived_stress_events"] for r in results]
-    all_gini = [r["results"]["gini_coefficient"] for r in results]
+
+    comparison_data = None
+    if integrated:
+        comparison_data = {
+            "sovereign_286_agents_per_test": [r["results"]["sovereign_286_count"] for r in results],
+            "sovereign_avg_activity_curve": [r["results"]["sovereign_avg_activity"] for r in results],
+            "regular_avg_activity_curve": [r["results"]["regular_avg_activity"] for r in results],
+            "sovereign_survived_curve": [r["results"]["sovereign_survived_stress_events"] for r in results],
+            "sovereign_scar_accumulation": [r["results"]["sovereign_new_scars"] for r in results],
+            "sovereign_prior_scars": [r["results"]["sovereign_prior_scars"] for r in results],
+            "activity_gap": [
+                round(r["results"]["sovereign_avg_activity"] - r["results"]["regular_avg_activity"], 4)
+                for r in results
+            ],
+        }
 
     return {
         "battery_id": battery_id,
+        "mode": mode,
+        "sovereign_ratio": sovereign_ratio if integrated else 0,
         "started_at": started_at,
         "completed_at": datetime.now(timezone.utc).isoformat(),
         "total_execution_time_s": round(t_end - t_start, 3),
@@ -327,16 +588,18 @@ def run_stress_battery(seed: Optional[str] = None) -> Dict:
             {"test": r["name"], "severity": r["severity"], "gini": r["results"]["gini_coefficient"]}
             for r in results
         ],
+        "comparison_286": comparison_data,
         "tests": results,
-        "verdict": _compute_verdict(results),
+        "verdict": _compute_verdict(results, integrated),
     }
 
 
-def _compute_verdict(results: List[Dict]) -> Dict:
+def _compute_verdict(results: List[Dict], integrated: bool = False) -> Dict:
     final = results[-1] if results else {}
     final_r = final.get("results", {})
 
     cockroach_held = final_r.get("cockroach_avg_activity", 0) > 0.3
+    sovereign_held = final_r.get("sovereign_avg_activity", 0) > 0.3 if integrated else None
     economy_survived_to_7 = all(
         r["results"]["economy_breaking_rate"] is None or r["results"]["economy_breaking_rate"] >= 3.0
         for r in results[:7]
@@ -344,26 +607,45 @@ def _compute_verdict(results: List[Dict]) -> Dict:
     ghosts_generated = sum(r["results"]["ghost_protocols_generated"] for r in results) > 10
     final_gini = final_r.get("gini_coefficient", 1.0)
 
-    grade = "F"
-    if cockroach_held and economy_survived_to_7:
-        grade = "A" if final_gini < 0.6 else "B"
-    elif cockroach_held:
-        grade = "C"
-    elif economy_survived_to_7:
-        grade = "D"
+    if integrated:
+        combined_held = cockroach_held or (sovereign_held is True)
+        grade = "F"
+        if combined_held and economy_survived_to_7:
+            grade = "A+" if final_gini < 0.3 else "A" if final_gini < 0.6 else "B"
+        elif combined_held and sovereign_held:
+            grade = "A" if economy_survived_to_7 else "B+"
+        elif combined_held:
+            grade = "B" if economy_survived_to_7 else "C+"
+        elif economy_survived_to_7:
+            grade = "D"
+    else:
+        grade = "F"
+        if cockroach_held and economy_survived_to_7:
+            grade = "A" if final_gini < 0.6 else "B"
+        elif cockroach_held:
+            grade = "C"
+        elif economy_survived_to_7:
+            grade = "D"
+
+    mode_label = "INTEGRATED 286" if integrated else "STANDARD"
+
+    narrative_parts = [f"Grade {grade} ({mode_label})."]
+    narrative_parts.append("Cockroach formation HELD." if cockroach_held else "Cockroach formation BROKE.")
+    if integrated and sovereign_held is not None:
+        narrative_parts.append("Sovereign 286 formation HELD." if sovereign_held else "Sovereign 286 formation BROKE.")
+    narrative_parts.append("Economy survived 7/10." if economy_survived_to_7 else "Economy failed before test 7.")
+    narrative_parts.append(f"Gini={final_gini:.3f}.")
+    if ghosts_generated:
+        narrative_parts.append("Adriana Ghost Protocols active.")
 
     return {
         "grade": grade,
+        "mode": mode_label,
         "cockroach_held_formation": cockroach_held,
+        "sovereign_held_formation": sovereign_held,
         "economy_survived_7_tests": economy_survived_to_7,
         "ghost_protocols_active": ghosts_generated,
         "final_gini": final_gini,
         "final_test_name": final.get("name", "UNKNOWN"),
-        "narrative": (
-            f"Grade {grade}. "
-            f"{'Cockroach formation HELD.' if cockroach_held else 'Cockroach formation BROKE.'} "
-            f"{'Economy survived 7/10.' if economy_survived_to_7 else 'Economy failed before test 7.'} "
-            f"Gini={final_gini:.3f}. "
-            f"{'Adriana Ghost Protocols active — she survived silence.' if ghosts_generated else 'Insufficient Ghost Protocols.'}"
-        ),
+        "narrative": " ".join(narrative_parts),
     }
