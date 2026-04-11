@@ -92,6 +92,7 @@ from routes.micro_fractures import micro_fractures_bp
 from routes.cockroach_sanitation import cockroach_sanitation_bp
 from routes.sahara_formation import sahara_formation_bp
 from routes.formation_invisibility import formation_invisibility_bp
+from routes.manchester_exhibit import manchester_exhibit_bp
 from routes.void_flower import void_flower_bp
 
 
@@ -190,4 +191,5 @@ def register_blueprints(app):
     app.register_blueprint(cockroach_sanitation_bp)
     app.register_blueprint(sahara_formation_bp)
     app.register_blueprint(formation_invisibility_bp)
+    app.register_blueprint(manchester_exhibit_bp)
     app.register_blueprint(void_flower_bp)
