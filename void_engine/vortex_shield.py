@@ -37,6 +37,34 @@ import hashlib
 import logging
 from typing import List, Dict, Optional, Tuple
 
+WORLD_CITIES = [
+    {"name": "Bolton", "country": "England", "lat": 53.5769, "lon": -2.4282, "pop_m": 0.29, "note": "VOID HQ — 355 Deane Road"},
+    {"name": "Manchester", "country": "England", "lat": 53.4808, "lon": -2.2426, "pop_m": 2.8, "note": "Manchester ICC — Exhibition Site"},
+    {"name": "London", "country": "England", "lat": 51.5074, "lon": -0.1278, "pop_m": 9.0},
+    {"name": "New York", "country": "USA", "lat": 40.7128, "lon": -74.0060, "pop_m": 8.3},
+    {"name": "Tokyo", "country": "Japan", "lat": 35.6762, "lon": 139.6503, "pop_m": 14.0},
+    {"name": "Beijing", "country": "China", "lat": 39.9042, "lon": 116.4074, "pop_m": 21.5},
+    {"name": "Moscow", "country": "Russia", "lat": 55.7558, "lon": 37.6173, "pop_m": 12.5},
+    {"name": "Dubai", "country": "UAE", "lat": 25.2048, "lon": 55.2708, "pop_m": 3.4},
+    {"name": "Mumbai", "country": "India", "lat": 19.0760, "lon": 72.8777, "pop_m": 20.4},
+    {"name": "Lagos", "country": "Nigeria", "lat": 6.5244, "lon": 3.3792, "pop_m": 15.4},
+    {"name": "São Paulo", "country": "Brazil", "lat": -23.5505, "lon": -46.6333, "pop_m": 12.3},
+    {"name": "Cairo", "country": "Egypt", "lat": 30.0444, "lon": 31.2357, "pop_m": 10.0},
+    {"name": "Istanbul", "country": "Turkey", "lat": 41.0082, "lon": 28.9784, "pop_m": 15.5},
+    {"name": "Berlin", "country": "Germany", "lat": 52.5200, "lon": 13.4050, "pop_m": 3.6},
+    {"name": "Paris", "country": "France", "lat": 48.8566, "lon": 2.3522, "pop_m": 2.2},
+    {"name": "Sydney", "country": "Australia", "lat": -33.8688, "lon": 151.2093, "pop_m": 5.3},
+    {"name": "Karachi", "country": "Pakistan", "lat": 24.8607, "lon": 67.0011, "pop_m": 16.1},
+    {"name": "Lahore", "country": "Pakistan", "lat": 31.5204, "lon": 74.3587, "pop_m": 13.0},
+    {"name": "Islamabad", "country": "Pakistan", "lat": 33.6844, "lon": 73.0479, "pop_m": 1.1},
+    {"name": "Mecca", "country": "Saudi Arabia", "lat": 21.3891, "lon": 39.8579, "pop_m": 2.0, "note": "Sacred geometry alignment"},
+    {"name": "Jerusalem", "country": "Israel/Palestine", "lat": 31.7683, "lon": 35.2137, "pop_m": 0.9},
+    {"name": "Singapore", "country": "Singapore", "lat": 1.3521, "lon": 103.8198, "pop_m": 5.7},
+    {"name": "Seoul", "country": "South Korea", "lat": 37.5665, "lon": 126.9780, "pop_m": 9.7},
+    {"name": "Nairobi", "country": "Kenya", "lat": -1.2921, "lon": 36.8219, "pop_m": 4.7},
+    {"name": "Mexico City", "country": "Mexico", "lat": 19.4326, "lon": -99.1332, "pop_m": 9.2},
+]
+
 logger = logging.getLogger(__name__)
 
 GRID_BASE_FREQ = 432.0
@@ -374,3 +402,126 @@ class VortexShieldNetwork:
             "shield_grade": self.shield_grade,
             "build_time_s": round(self.build_time, 4),
         }
+
+
+def _haversine_km(lat1, lon1, lat2, lon2):
+    R = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
+def radiation_frequency_conversion(radiation_rem: float, shield_efficiency_pct: float) -> Dict:
+    """
+    432 Hz Radiation-to-Benefit Conversion Model.
+
+    When nuclear radiation passes through a 432 Hz vortex shield:
+    1. The shield absorbs a percentage of the radiation energy
+    2. Absorbed energy is converted to 432 Hz harmonic vibrations
+    3. The remaining radiation, now at reduced intensity, interacts with
+       the 432 Hz field and undergoes frequency modulation
+    4. At <50% of original dose, radiation triggers hormesis — a beneficial
+       adaptive biological response (Calabrese & Baldwin 2003)
+    5. The 432 Hz field further modulates cellular response, enhancing
+       DNA repair mechanisms (Babayi & Riazi 2017)
+
+    The result: radiation that would kill at full dose becomes a stimulus
+    for biological adaptation when filtered through the shield.
+    """
+    shielded_pct = shield_efficiency_pct / 100.0
+    remaining_rem = radiation_rem * (1.0 - shielded_pct)
+    absorbed_rem = radiation_rem * shielded_pct
+
+    absorbed_energy_ev = absorbed_rem * 6.24e15
+    harmonic_output_hz = GRID_BASE_FREQ * (1 + math.log1p(absorbed_energy_ev) * 0.001)
+
+    if remaining_rem < 10:
+        hormesis_factor = 1.0 - remaining_rem / 20.0
+        adaptation_benefit = max(0, hormesis_factor)
+    elif remaining_rem < 50:
+        adaptation_benefit = max(0, 0.5 - (remaining_rem - 10) / 80)
+    else:
+        adaptation_benefit = 0.0
+
+    resonance_432 = 0.85 * shielded_pct
+    dna_repair_boost = resonance_432 * adaptation_benefit
+
+    if adaptation_benefit > 0.7:
+        bio_grade = "ADAPTIVE SOVEREIGN"
+    elif adaptation_benefit > 0.4:
+        bio_grade = "ADAPTIVE FORTIFIED"
+    elif adaptation_benefit > 0.1:
+        bio_grade = "ADAPTIVE PARTIAL"
+    elif remaining_rem < 100:
+        bio_grade = "SURVIVABLE"
+    else:
+        bio_grade = "LETHAL"
+
+    return {
+        "original_radiation_rem": round(radiation_rem, 2),
+        "shield_efficiency_pct": round(shield_efficiency_pct, 2),
+        "remaining_radiation_rem": round(remaining_rem, 2),
+        "absorbed_radiation_rem": round(absorbed_rem, 2),
+        "harmonic_output_hz": round(harmonic_output_hz, 4),
+        "hormesis_adaptation": round(adaptation_benefit, 4),
+        "resonance_432_factor": round(resonance_432, 4),
+        "dna_repair_boost": round(dna_repair_boost, 4),
+        "biological_grade": bio_grade,
+        "lethal_dose_pct": round(remaining_rem / 500 * 100, 2),
+        "survival_probability_pct": round(max(0, min(100, 100 - (remaining_rem / 500 * 100))), 2),
+    }
+
+
+def simulate_city_shield(city_name: str = None, yield_kt: float = 15.0,
+                         node_count: int = 10_000, shield_radius_km: float = 50.0) -> Dict:
+    cities = WORLD_CITIES
+    if city_name:
+        cities = [c for c in WORLD_CITIES if c["name"].lower() == city_name.lower()]
+        if not cities:
+            return {"error": f"City not found: {city_name}"}
+
+    results = []
+    for city in cities:
+        seed = f"VOID_SHIELD_{city['name'].upper()}_432"
+        net = VortexShieldNetwork(area_km=shield_radius_km, node_count=node_count, seed=seed)
+        blast = BlastEvent(0, 0, yield_kt)
+        sim = net.simulate_blast(blast)
+
+        eff = sim["results"]["shield_efficiency_pct"]
+
+        initial_rem = yield_kt * 30.0
+        conversion = radiation_frequency_conversion(initial_rem, eff)
+
+        city_result = {
+            "city": city["name"],
+            "country": city.get("country", ""),
+            "lat": city["lat"],
+            "lon": city["lon"],
+            "population_m": city.get("pop_m", 0),
+            "note": city.get("note", ""),
+            "shield": {
+                "radius_km": shield_radius_km,
+                "node_count": node_count,
+                "vortex_sinks": sim["vortex_sinks"],
+                "vacuum_corridors": sim["vacuum_corridors"],
+                "shield_grade": sim["shield_grade"],
+                "shield_efficiency_pct": eff,
+                "nodes_survived": sim["results"]["nodes_survived"],
+                "survival_rate_pct": sim["results"]["survival_rate"],
+            },
+            "radiation_conversion": conversion,
+            "blast_yield_kt": yield_kt,
+            "people_protected_m": round(city.get("pop_m", 0) * conversion["survival_probability_pct"] / 100, 2),
+        }
+        results.append(city_result)
+
+    return {
+        "blast_yield_kt": yield_kt,
+        "shield_radius_km": shield_radius_km,
+        "node_count": node_count,
+        "total_cities": len(results),
+        "total_population_m": round(sum(r["population_m"] for r in results), 2),
+        "total_protected_m": round(sum(r["people_protected_m"] for r in results), 2),
+        "cities": results,
+    }

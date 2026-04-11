@@ -58,8 +58,10 @@ _DEFAULT_VISIBLE = {
     "/frequency-manual",
     "/voice-formation",
     "/vortex-shield",
+    "/vortex-shield/geo-map",
     "/agent-immortality",
     "/stance-science",
+    "/nexus",
 }
 
 

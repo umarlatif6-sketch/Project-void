@@ -101,6 +101,7 @@ from routes.yin_yang import yin_yang_bp
 from routes.vortex_shield import vortex_shield_bp
 from routes.agent_immortality import agent_immortality_bp
 from routes.stance_science import stance_science_bp
+from routes.nexus import nexus_bp
 from void_engine.stealth_cloak import stealth_bp
 
 
@@ -208,4 +209,5 @@ def register_blueprints(app):
     app.register_blueprint(vortex_shield_bp)
     app.register_blueprint(agent_immortality_bp)
     app.register_blueprint(stance_science_bp)
+    app.register_blueprint(nexus_bp)
     app.register_blueprint(stealth_bp)
