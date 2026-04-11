@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "void-engine-sdk"
+version = "1.0.0"
+description = "Sovereign attribution SDK — track meaning, not clicks. Entity · Condition · Action."
+readme = "README.md"
+license = { text = "Proprietary — PROJECT VOID, Umar Latif, Bolton, England, April 2026" }
+authors = [{ name = "Umar Latif", email = "umar@projectvoid.io" }]
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+postgres = ["psycopg2-binary>=2.9"]
+flask = ["flask>=3.0"]
+all = ["psycopg2-binary>=2.9", "flask>=3.0"]
+
+[project.urls]
+Homepage = "https://void-stego-engine.replit.app"
+Paper = "https://umarlatif6-sketch.github.io/void-origin/formation-paper.html"
+Origin = "https://umarlatif6-sketch.github.io/void-origin/"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["void_sdk*"]

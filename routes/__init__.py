@@ -87,6 +87,7 @@ from routes.formation_mirror import bp as formation_mirror_bp
 from routes.names_286_route import names_286_bp
 from routes.knowledge_tree_route import knowledge_tree_bp
 from routes.voidmessage import voidmessage_bp
+from routes.sdk_validate import sdk_validate_bp
 
 
 def register_blueprints(app):
@@ -179,3 +180,4 @@ def register_blueprints(app):
     app.register_blueprint(names_286_bp)
     app.register_blueprint(knowledge_tree_bp)
     app.register_blueprint(voidmessage_bp)
+    app.register_blueprint(sdk_validate_bp)
