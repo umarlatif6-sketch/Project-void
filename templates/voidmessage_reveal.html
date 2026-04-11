@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoidMessage — Message Revealed</title>
+<meta property="og:title" content="You have a hidden message">
+<meta property="og:description" content="Someone sent you a message hidden inside sound. Click to reveal it.">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #060606;
+    --surface: #0c0c0c;
+    --border: #181818;
+    --muted: #444;
+    --text: #c0c0c0;
+    --bright: #e8e8e8;
+    --cyan: #67e8f9;
+    --red: #f87171;
+    --green: #4ade80;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .card-header {
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-logo {
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    color: var(--bright);
+    text-transform: uppercase;
+  }
+  .card-logo span { color: var(--cyan); }
+  .card-code {
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* SUCCESS STATE */
+  .reveal-box {
+    border: 1px solid #1a3a3a;
+    background: #030d0d;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .reveal-eyebrow {
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .reveal-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .reveal-message {
+    font-size: 1rem;
+    color: var(--bright);
+    line-height: 1.85;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 40px;
+  }
+  .reveal-meta {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 0.65rem;
+    color: var(--muted);
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* ERROR STATE */
+  .error-box {
+    border: 1px solid #2a1010;
+    background: #0a0404;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .error-eyebrow {
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 12px;
+  }
+  .error-text {
+    font-size: 0.85rem;
+    color: #888;
+    line-height: 1.7;
+  }
+
+  /* ACTIONS */
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 11px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    display: inline-block;
+  }
+  .btn:hover { color: var(--cyan); border-color: var(--cyan); }
+  .btn.primary { color: var(--cyan); border-color: var(--cyan); }
+
+  /* ABOUT */
+  .about {
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .about strong { color: #555; }
+
+  footer {
+    margin-top: 28px;
+    font-size: 0.62rem;
+    color: #252525;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+  footer a { color: #333; text-decoration: none; }
+  footer a:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-logo">VOID<span>Message</span></div>
+    <div class="card-code">{{ code }}</div>
+  </div>
+
+  {% if message is not none %}
+  <div class="reveal-box">
+    <div class="reveal-eyebrow">Message revealed</div>
+    <div class="reveal-message" id="msg-text">{{ message }}</div>
+    <div class="reveal-meta">
+      <span>Code: {{ code }}</span>
+      {% if created_at %}<span>Sent: {{ created_at }}</span>{% endif %}
+      <span>Encrypted · Hidden in 432 Hz audio</span>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" onclick="copyMessage()">Copy message</button>
+    <a class="btn" href="/voidmessage">Send a reply →</a>
+  </div>
+
+  {% else %}
+  <div class="error-box">
+    <div class="error-eyebrow">Could not reveal</div>
+    <div class="error-text">{{ error }}</div>
+  </div>
+
+  <div class="actions">
+    <a class="btn" href="/voidmessage">Send a message →</a>
+    <a class="btn" href="/voidmessage/decode">Try manual decode →</a>
+  </div>
+  {% endif %}
+
+  <div class="about">
+    <strong>How this works:</strong> This message was hidden inside an audio file using
+    acoustic steganography and encrypted with ChaCha20. To anyone else, it appeared as
+    an ordinary sound file. Only the holder of this link could read it.
+    Built on PROJECT VOID · <a href="https://umarlatif6-sketch.github.io/void-origin/" target="_blank" style="color:#3a7a7a">Learn more</a>
+  </div>
+
+  <footer>
+    <a href="/voidmessage">VoidMessage</a> &nbsp;·&nbsp;
+    <a href="/">PROJECT VOID</a> &nbsp;·&nbsp;
+    Umar Latif · Bolton, England
+  </footer>
+</div>
+
+<script>
+  function copyMessage() {
+    const text = document.getElementById('msg-text').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.btn.primary');
+      btn.textContent = 'Copied ✓';
+      setTimeout(() => { btn.textContent = 'Copy message'; }, 2000);
+    }).catch(() => {
+      const btn = document.querySelector('.btn.primary');
+      btn.textContent = 'Select text above';
+    });
+  }
+</script>
+</body>
+</html>

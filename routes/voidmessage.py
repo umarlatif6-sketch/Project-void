@@ -347,10 +347,12 @@ def encode_message():
             _increment_free_usage(ip)
 
         download_url = url_for("voidmessage.download_audio", code=retrieval_code)
+        share_url = url_for("voidmessage.reveal_link", code=retrieval_code, _external=True)
 
         return jsonify({
             "retrieval_code": retrieval_code,
             "download_url": download_url,
+            "share_url": share_url,
             "message_length": len(message),
             "tier": tier,
         })
@@ -407,6 +409,33 @@ def decode_page():
     except Exception as e:
         logger.error("[VoidMessage] Decode error: %s", e)
         return jsonify({"error": "Could not decode message — wrong file or code."}), 400
+
+
+@voidmessage_bp.route("/voidmessage/r/<code>")
+def reveal_link(code):
+    """One-click reveal — no file upload needed. Server decodes using stored audio + passphrase."""
+    code = code.strip().upper()
+    passphrase = _lookup_passphrase(code)
+
+    if not passphrase:
+        return render_template("voidmessage_reveal.html", code=code, error="This link has expired or does not exist.", message=None)
+
+    db = _get_db()
+    row = db.execute("SELECT output_path, created_at, tier FROM vm_messages WHERE retrieval_code=?", (code,)).fetchone()
+    db.close()
+
+    if not row or not os.path.exists(row["output_path"]):
+        return render_template("voidmessage_reveal.html", code=code, error="Audio file not found — it may have been cleaned up.", message=None)
+
+    try:
+        from void_engine.stega import decode as stega_decode
+        payload_bytes, _, _ = stega_decode(row["output_path"], passphrase=passphrase)
+        message = payload_bytes.decode("utf-8", errors="replace")
+        created_at = row["created_at"][:10] if row["created_at"] else ""
+        return render_template("voidmessage_reveal.html", code=code, message=message, created_at=created_at, error=None)
+    except Exception as e:
+        logger.error("[VoidMessage] Reveal link decode error: %s", e)
+        return render_template("voidmessage_reveal.html", code=code, error="Could not decode — file may be corrupted.", message=None)
 
 
 @voidmessage_bp.route("/voidmessage/subscribe")

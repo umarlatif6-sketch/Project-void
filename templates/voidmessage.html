@@ -488,17 +488,29 @@
         </form>
 
         <div id="result-block">
-          <div class="result-label">Transmission complete</div>
-          <div class="result-code" id="result-code"></div>
-          <div class="result-sub">
-            <strong style="color:var(--bright)">Step 1:</strong> Download the audio file below.<br>
-            <strong style="color:var(--bright)">Step 2:</strong> Send it to anyone — WhatsApp, email, AirDrop, USB.<br>
-            <strong style="color:var(--bright)">Step 3:</strong> Share your retrieval code separately.<br>
-            <strong style="color:var(--bright)">Step 4:</strong> They upload the audio at <a href="/voidmessage/decode" style="color:var(--cyan)">VoidMessage Reveal</a>.
+          <div class="result-label">Transmission complete — share this link</div>
+
+          <div style="display:flex;gap:8px;margin-bottom:16px;align-items:stretch">
+            <input
+              type="text"
+              id="share-url"
+              readonly
+              style="flex:1;background:#020808;border:1px solid #1a3a3a;color:var(--cyan);font-family:'Courier New',monospace;font-size:0.78rem;padding:12px 14px;outline:none;"
+            >
+            <button
+              onclick="copyShareUrl()"
+              id="copy-btn"
+              style="border:1px solid #1a3a3a;background:#030d0d;color:var(--cyan);font-family:'Courier New',monospace;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;padding:0 16px;cursor:pointer;white-space:nowrap;transition:background 0.2s;"
+            >Copy</button>
           </div>
-          <a class="btn-download" id="download-btn" href="#">DOWNLOAD AUDIO FILE</a>
-          <br><br>
-          <a class="btn-download" href="/voidmessage/decode" style="margin-top:8px">GO TO REVEAL PAGE →</a>
+
+          <div class="result-sub">
+            Send that link to anyone. They click it — message appears. No account needed. No file upload.
+            <br><br>
+            <span style="color:#333">Code for reference: </span><span id="result-code" style="color:#555;font-size:0.78rem;letter-spacing:0.1em;"></span>
+          </div>
+
+          <a class="btn-download" id="download-btn" href="#" style="font-size:0.68rem;margin-top:4px">Download audio file (optional)</a>
         </div>
       </div>
     </div>
@@ -644,6 +656,7 @@
       }
 
       resultCode.textContent = data.retrieval_code;
+      document.getElementById('share-url').value = data.share_url;
       downloadBtn.href = data.download_url;
       resultBlock.style.display = 'block';
       statusEl.classList.remove('show');
@@ -652,11 +665,23 @@
       textarea.value = '';
       counter.textContent = `0 / ${MAX_CHARS} characters`;
       counter.className = 'char-counter';
+      document.getElementById('share-url').select();
 
     } catch (err) {
       showError('Network error — please try again.');
     }
   });
+
+  function copyShareUrl() {
+    const input = document.getElementById('share-url');
+    const btn = document.getElementById('copy-btn');
+    navigator.clipboard.writeText(input.value).then(() => {
+      btn.textContent = 'Copied ✓';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+    }).catch(() => {
+      input.select();
+    });
+  }
 </script>
 </body>
 </html>
