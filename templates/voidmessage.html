@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoidMessage — Hide a Message in Sound</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #060606;
+    --surface: #0c0c0c;
+    --border: #181818;
+    --muted: #444;
+    --text: #c0c0c0;
+    --bright: #e8e8e8;
+    --cyan: #67e8f9;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --green: #4ade80;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    min-height: 100vh;
+    line-height: 1.7;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .nav-logo {
+    font-size: 0.78rem;
+    letter-spacing: 0.3em;
+    color: var(--bright);
+    text-transform: uppercase;
+  }
+  .nav-logo span { color: var(--cyan); }
+  .nav-links { display: flex; gap: 20px; }
+  .nav-links a {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+
+  /* HERO */
+  .hero {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero-title {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 400;
+    color: var(--bright);
+    letter-spacing: 0.03em;
+    line-height: 1.25;
+    margin-bottom: 20px;
+  }
+  .hero-title span { color: var(--cyan); }
+  .hero-sub {
+    font-size: 0.88rem;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto 40px;
+    line-height: 1.9;
+  }
+
+  /* TIER BANNER */
+  .tier-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+  .tier-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .tier-dot.active { background: var(--green); }
+  .tier-banner a { color: var(--cyan); text-decoration: none; margin-left: 8px; }
+
+  /* MAIN LAYOUT */
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* ENCODE PANEL */
+  .panel {
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .panel-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .panel-head .step { color: var(--cyan); }
+  .panel-body { padding: 24px 20px; }
+
+  label {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--bright);
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    padding: 14px;
+    resize: vertical;
+    min-height: 140px;
+    line-height: 1.7;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: #2a4a4a; }
+  textarea::placeholder { color: #2a2a2a; }
+
+  .char-counter {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: right;
+    margin-top: 6px;
+    margin-bottom: 20px;
+  }
+  .char-counter.near { color: var(--amber); }
+  .char-counter.over { color: var(--red); }
+
+  .audio-option {
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+  .audio-option:hover { border-color: #2a4a4a; }
+  .audio-option.selected { border-color: var(--cyan); }
+  .audio-option input[type=radio] { margin-top: 2px; accent-color: var(--cyan); }
+  .audio-option-title {
+    font-size: 0.78rem;
+    color: var(--bright);
+    margin-bottom: 3px;
+  }
+  .audio-option-desc {
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .audio-option-badge {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    padding: 2px 6px;
+    border: 1px solid;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .badge-free { color: var(--green); border-color: var(--green); }
+  .badge-paid { color: var(--amber); border-color: var(--amber); }
+
+  #upload-audio-wrap {
+    display: none;
+    margin-top: 12px;
+  }
+  #upload-audio-wrap input[type=file] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    cursor: pointer;
+  }
+
+  .btn-encode {
+    width: 100%;
+    padding: 14px;
+    background: var(--cyan);
+    color: var(--bg);
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: opacity 0.2s;
+    font-weight: bold;
+  }
+  .btn-encode:hover { opacity: 0.85; }
+  .btn-encode:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* RESULT */
+  #result-block {
+    display: none;
+    margin-top: 20px;
+    border: 1px solid #1a3a3a;
+    background: #030d0d;
+    padding: 20px;
+  }
+  .result-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .result-code {
+    font-size: 1.4rem;
+    letter-spacing: 0.2em;
+    color: var(--cyan);
+    margin-bottom: 16px;
+  }
+  .result-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .btn-download {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s;
+    cursor: pointer;
+    background: transparent;
+  }
+  .btn-download:hover { background: #0a2020; }
+
+  /* SIDEBAR */
+  .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+  .info-card {
+    border: 1px solid var(--border);
+    padding: 20px;
+    background: var(--surface);
+  }
+  .info-card-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-step {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 0.78rem;
+  }
+  .info-step-num {
+    color: var(--cyan);
+    font-size: 0.68rem;
+  }
+  .info-step-text { color: var(--text); line-height: 1.5; }
+
+  .tier-card {
+    border: 1px solid var(--border);
+    padding: 20px;
+    background: var(--surface);
+  }
+  .tier-card-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tier-row {
+    padding: 12px 0;
+    border-bottom: 1px solid #0e0e0e;
+    font-size: 0.78rem;
+  }
+  .tier-row:last-child { border-bottom: none; }
+  .tier-row-name { color: var(--bright); margin-bottom: 3px; }
+  .tier-row-desc { color: var(--muted); font-size: 0.7rem; line-height: 1.5; }
+  .tier-row-price { color: var(--cyan); font-size: 0.7rem; margin-top: 6px; }
+
+  .btn-upgrade {
+    display: block;
+    width: 100%;
+    padding: 11px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    margin-top: 16px;
+    transition: color 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+  .btn-upgrade:hover { color: var(--cyan); border-color: var(--cyan); }
+
+  /* ERROR */
+  .error-msg {
+    display: none;
+    color: var(--red);
+    font-size: 0.75rem;
+    margin-top: 12px;
+    padding: 10px 14px;
+    border: 1px solid #2a1010;
+    background: #0a0404;
+    line-height: 1.6;
+  }
+  .error-msg.show { display: block; }
+
+  /* STATUS */
+  .status-msg {
+    display: none;
+    color: var(--muted);
+    font-size: 0.72rem;
+    margin-top: 12px;
+    letter-spacing: 0.05em;
+  }
+  .status-msg.show { display: block; }
+
+  /* FOOTER */
+  footer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.65rem;
+    color: #2a2a2a;
+    letter-spacing: 0.1em;
+  }
+  footer a { color: #333; text-decoration: none; }
+  footer a:hover { color: var(--cyan); }
+
+  @media (max-width: 700px) {
+    .main { grid-template-columns: 1fr; }
+    nav, .hero, .main, footer { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">VOID<span>Message</span></div>
+  <div class="nav-links">
+    <a href="/voidmessage/decode">Reveal</a>
+    <a href="/voidmessage/subscribe">Upgrade</a>
+    <a href="/voidecho">VoidEcho</a>
+    <a href="/">VOID</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">PROJECT VOID · Acoustic Steganography</div>
+  <h1 class="hero-title">Hide a message<br>inside <span>sound</span></h1>
+  <p class="hero-sub">
+    Type your message. We embed it into an audio file using acoustic steganography.
+    Send the audio anywhere — WhatsApp, email, airdrop. Only the person with your code can read it.
+  </p>
+
+  <div class="tier-banner">
+    <div class="tier-dot {% if tier != 'free' %}active{% endif %}"></div>
+    {% if tier == 'free' %}
+      FREE TIER — {{ free_limit - free_used }} of {{ free_limit }} messages remaining today
+      <a href="/voidmessage/subscribe">Upgrade →</a>
+    {% elif tier == 'seed' %}
+      SEED TIER — Active
+    {% elif tier == 'signal' %}
+      SIGNAL TIER — Active
+    {% endif %}
+  </div>
+</div>
+
+<div class="main">
+  <!-- ENCODE PANEL -->
+  <div>
+    <div class="panel">
+      <div class="panel-head">
+        <span>Encode a message</span>
+        <span class="step">STEP 1 OF 2</span>
+      </div>
+      <div class="panel-body">
+        <form id="encode-form" enctype="multipart/form-data">
+
+          <label for="message-input">Your message</label>
+          <textarea
+            id="message-input"
+            name="message"
+            placeholder="Type your message here..."
+            maxlength="{{ 500 if tier == 'free' else (5000 if tier == 'seed' else 50000) }}"
+          ></textarea>
+          <div class="char-counter" id="char-count">
+            0 / {{ 500 if tier == 'free' else (5000 if tier == 'seed' else 50000) }} characters
+          </div>
+
+          <label>Audio carrier</label>
+
+          <div class="audio-option selected" id="opt-generated" onclick="selectAudio('generated')">
+            <input type="radio" name="audio_mode" value="generated" checked>
+            <div>
+              <div class="audio-option-title">Use generated 432 Hz carrier</div>
+              <div class="audio-option-desc">We generate a 20-second atmospheric audio file tuned to 432 Hz. Your message is hidden inside. To any listener, it sounds like ambient music.</div>
+              <span class="audio-option-badge badge-free">FREE</span>
+            </div>
+          </div>
+
+          <div class="audio-option" id="opt-upload" onclick="selectAudio('upload')">
+            <input type="radio" name="audio_mode" value="upload">
+            <div>
+              <div class="audio-option-title">Upload your own WAV file</div>
+              <div class="audio-option-desc">Use any WAV file as the carrier. Music, ambient sound, voice recording — your message hides inside your audio.</div>
+              <span class="audio-option-badge badge-paid">SEED+ REQUIRED</span>
+              <div id="upload-audio-wrap">
+                <input type="file" name="audio" accept=".wav" id="audio-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="error-msg" id="error-msg"></div>
+          <div class="status-msg" id="status-msg">Encoding your message into sound...</div>
+
+          <button type="submit" class="btn-encode" id="encode-btn">
+            HIDE MESSAGE IN SOUND
+          </button>
+        </form>
+
+        <div id="result-block">
+          <div class="result-label">Transmission complete</div>
+          <div class="result-code" id="result-code"></div>
+          <div class="result-sub">
+            <strong style="color:var(--bright)">Step 1:</strong> Download the audio file below.<br>
+            <strong style="color:var(--bright)">Step 2:</strong> Send it to anyone — WhatsApp, email, AirDrop, USB.<br>
+            <strong style="color:var(--bright)">Step 3:</strong> Share your retrieval code separately.<br>
+            <strong style="color:var(--bright)">Step 4:</strong> They upload the audio at <a href="/voidmessage/decode" style="color:var(--cyan)">VoidMessage Reveal</a>.
+          </div>
+          <a class="btn-download" id="download-btn" href="#">DOWNLOAD AUDIO FILE</a>
+          <br><br>
+          <a class="btn-download" href="/voidmessage/decode" style="margin-top:8px">GO TO REVEAL PAGE →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="info-card">
+      <div class="info-card-title">How it works</div>
+      <div class="info-step">
+        <div class="info-step-num">1</div>
+        <div class="info-step-text">Type your message here</div>
+      </div>
+      <div class="info-step">
+        <div class="info-step-num">2</div>
+        <div class="info-step-text">We hide it inside an audio file using LSB steganography</div>
+      </div>
+      <div class="info-step">
+        <div class="info-step-num">3</div>
+        <div class="info-step-text">Download the audio. Share it anywhere</div>
+      </div>
+      <div class="info-step">
+        <div class="info-step-num">4</div>
+        <div class="info-step-text">Recipient uploads the audio + your code at the Reveal page</div>
+      </div>
+      <div class="info-step">
+        <div class="info-step-num">5</div>
+        <div class="info-step-text">Your message appears. The audio looks normal to everyone else</div>
+      </div>
+    </div>
+
+    <div class="tier-card">
+      <div class="tier-card-title">Plans</div>
+
+      <div class="tier-row">
+        <div class="tier-row-name">Free</div>
+        <div class="tier-row-desc">3 messages/day · 500 characters · Generated carrier</div>
+        <div class="tier-row-price">Always free</div>
+      </div>
+
+      <div class="tier-row">
+        <div class="tier-row-name">Seed</div>
+        <div class="tier-row-desc">200 messages/month · 5,000 characters · Upload your own audio</div>
+        <div class="tier-row-price">£9/month</div>
+      </div>
+
+      <div class="tier-row">
+        <div class="tier-row-name">Signal</div>
+        <div class="tier-row-desc">Unlimited · 50,000 characters · Custom audio · Priority</div>
+        <div class="tier-row-price">£49/month</div>
+      </div>
+
+      {% if tier == 'free' %}
+      <a href="/voidmessage/subscribe" class="btn-upgrade">Upgrade — from £9/month →</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>VOIDMESSAGE · PROJECT VOID · Umar Latif · Bolton, England</span>
+  <span>
+    <a href="/voidmessage/decode">Reveal a message</a>
+    &nbsp;·&nbsp;
+    <a href="/voidecho">VoidEcho (Files)</a>
+    &nbsp;·&nbsp;
+    <a href="https://umarlatif6-sketch.github.io/void-origin/" target="_blank">About</a>
+  </span>
+</footer>
+
+<script>
+  const MAX_CHARS = {{ 500 if tier == 'free' else (5000 if tier == 'seed' else 50000) }};
+  const TIER = "{{ tier }}";
+
+  const textarea = document.getElementById('message-input');
+  const counter = document.getElementById('char-count');
+  const form = document.getElementById('encode-form');
+  const btn = document.getElementById('encode-btn');
+  const errorEl = document.getElementById('error-msg');
+  const statusEl = document.getElementById('status-msg');
+  const resultBlock = document.getElementById('result-block');
+  const resultCode = document.getElementById('result-code');
+  const downloadBtn = document.getElementById('download-btn');
+
+  textarea.addEventListener('input', () => {
+    const n = textarea.value.length;
+    counter.textContent = `${n} / ${MAX_CHARS} characters`;
+    counter.className = 'char-counter' + (n > MAX_CHARS * 0.9 ? ' near' : '') + (n > MAX_CHARS ? ' over' : '');
+  });
+
+  function selectAudio(mode) {
+    document.getElementById('opt-generated').classList.remove('selected');
+    document.getElementById('opt-upload').classList.remove('selected');
+    document.getElementById('opt-' + mode).classList.add('selected');
+    document.getElementById('upload-audio-wrap').style.display = mode === 'upload' ? 'block' : 'none';
+    document.querySelector(`input[value="${mode}"]`).checked = true;
+  }
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.add('show');
+    statusEl.classList.remove('show');
+    btn.disabled = false;
+    btn.textContent = 'HIDE MESSAGE IN SOUND';
+  }
+
+  function showStatus(msg) {
+    statusEl.textContent = msg;
+    statusEl.classList.add('show');
+    errorEl.classList.remove('show');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.classList.remove('show');
+    resultBlock.style.display = 'none';
+
+    const msg = textarea.value.trim();
+    if (!msg) { showError('Please type a message first.'); return; }
+    if (msg.length > MAX_CHARS) { showError(`Message too long — maximum ${MAX_CHARS} characters.`); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'ENCODING...';
+    showStatus('Embedding your message into sound — this takes a moment...');
+
+    const fd = new FormData(form);
+    if (document.querySelector('input[name=audio_mode]:checked').value !== 'upload') {
+      fd.delete('audio');
+    }
+
+    try {
+      const resp = await fetch('/voidmessage/encode', { method: 'POST', body: fd });
+      const data = await resp.json();
+
+      if (!resp.ok || data.error) {
+        const msg = data.error || 'Encoding failed.';
+        if (data.upgrade) {
+          showError(msg + ' Click "Upgrade" in the menu to unlock more messages.');
+        } else {
+          showError(msg);
+        }
+        return;
+      }
+
+      resultCode.textContent = data.retrieval_code;
+      downloadBtn.href = data.download_url;
+      resultBlock.style.display = 'block';
+      statusEl.classList.remove('show');
+      btn.textContent = 'ENCODE ANOTHER';
+      btn.disabled = false;
+      textarea.value = '';
+      counter.textContent = `0 / ${MAX_CHARS} characters`;
+      counter.className = 'char-counter';
+
+    } catch (err) {
+      showError('Network error — please try again.');
+    }
+  });
+</script>
+</body>
+</html>

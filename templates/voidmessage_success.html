@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoidMessage — Subscription Active</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #060606; color: #c0c0c0; font-family: 'Courier New', Courier, monospace; font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
+  .box { border: 1px solid #1a3a3a; background: #030d0d; max-width: 480px; width: 100%; padding: 48px 36px; }
+  .check { font-size: 2rem; color: #4ade80; margin-bottom: 24px; }
+  h1 { font-size: 1.2rem; font-weight: 400; color: #e8e8e8; margin-bottom: 12px; letter-spacing: 0.05em; }
+  .tier-badge { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: #67e8f9; margin-bottom: 24px; }
+  p { font-size: 0.82rem; color: #555; line-height: 1.8; margin-bottom: 28px; }
+  a { display: inline-block; padding: 12px 28px; border: 1px solid #67e8f9; color: #67e8f9; font-family: 'Courier New', monospace; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; transition: background 0.2s; }
+  a:hover { background: #0a2020; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="check">✓</div>
+  <h1>Subscription active</h1>
+  <div class="tier-badge">{{ tier|upper }} TIER</div>
+  <p>
+    {% if email %}Your confirmation will be sent to {{ email }}.{% endif %}
+    You can now send hidden messages with your full {{ tier }} tier limits.
+  </p>
+  <a href="/voidmessage">Start sending messages →</a>
+</div>
+</body>
+</html>
