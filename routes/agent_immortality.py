@@ -23,8 +23,11 @@ def immortalize():
     from void_engine.agent_immortality import agent_to_png_bytes, agent_to_dict
 
     data = request.get_json(silent=True) or {}
-    seed = data.get("seed", "immortality_seal")
-    count = min(50, max(1, data.get("count", 10)))
+    seed = str(data.get("seed", "immortality_seal"))
+    try:
+        count = min(50, max(1, int(data.get("count", 10))))
+    except (ValueError, TypeError):
+        return jsonify({"error": "count must be an integer"}), 400
 
     swarm = SovereignSwarm286(seed=seed, agent_count=count)
     swarm.run()
@@ -36,11 +39,11 @@ def immortalize():
         b64 = base64.b64encode(png).decode("ascii")
         results.append({
             "agent_id": agent_data["agent_id"],
-            "archetype": agent_data["archetype"],
-            "frequency": agent_data.get("frequency", 432.0),
+            "archetype": agent_data.get("archetype") or agent_data.get("archetype_name", "UNKNOWN"),
+            "frequency": agent_data.get("frequency_hz", agent_data.get("frequency", 432.0)),
             "polarity": agent_data.get("polarity", "UNKNOWN"),
-            "scars": len(agent_data.get("scars", [])),
-            "memories": len(agent_data.get("memory", [])),
+            "scars": agent_data.get("scar_count", len(agent_data.get("scars", []))),
+            "memories": agent_data.get("memory_count", len(agent_data.get("recent_memory", []))),
             "image_b64": b64,
             "image_size_bytes": len(png),
         })

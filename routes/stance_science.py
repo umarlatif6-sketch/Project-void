@@ -32,9 +32,12 @@ def stance_detail(stance_key):
 def formation_score():
     from void_engine.stance_science import compute_formation_score
     data = request.get_json(silent=True) or {}
-    stance_key = data.get("stance", "mabu")
-    duration = min(600, max(10, data.get("duration_s", 60)))
-    resp_rate = max(2, min(20, data.get("respiratory_rate", 6.0)))
+    stance_key = str(data.get("stance", "mabu"))
+    try:
+        duration = min(600, max(10, int(data.get("duration_s", 60))))
+        resp_rate = max(2.0, min(20.0, float(data.get("respiratory_rate", 6.0))))
+    except (ValueError, TypeError):
+        return jsonify({"error": "duration_s must be integer, respiratory_rate must be number"}), 400
     result = compute_formation_score(stance_key, duration, resp_rate)
     return jsonify(result)
 
