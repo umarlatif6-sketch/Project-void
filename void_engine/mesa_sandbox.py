@@ -96,34 +96,55 @@ class SandboxChronicle:
 class SandboxAgent:
     """Lightweight agent for sandbox simulation."""
 
-    def __init__(self, agent_id: int, peace_balance: float, in_gridul: bool, rng: random.Random):
+    def __init__(self, agent_id: int, peace_balance: float, in_gridul: bool, rng: random.Random, is_cockroach: bool = False):
         self.agent_id = agent_id
         self.peace_balance = peace_balance
         self.in_gridul = in_gridul
         self.rng = rng
+        self.is_cockroach = is_cockroach
         self.activity = rng.uniform(0.2, 0.8)
         self.interactions = 0
         self.peace_flow = 0.0
+        self.survived_stress = 0
 
     def step(self, all_agents: List["SandboxAgent"], gridul_growth_rate: float = 1.0):
         delta = self.rng.gauss(0, 0.05)
         if self.in_gridul:
             delta += 0.01 * gridul_growth_rate
-        self.activity = max(0.05, min(1.0, self.activity + delta))
+
+        if self.is_cockroach:
+            if gridul_growth_rate > 3.0:
+                delta += 0.02
+                self.survived_stress += 1
+            if self.activity < 0.25:
+                delta += 0.03
+            floor = 0.15
+        else:
+            floor = 0.05
+
+        self.activity = max(floor, min(1.0, self.activity + delta))
 
         if all_agents:
             target = self.rng.choice(all_agents)
             if target.agent_id != self.agent_id:
-                transfer = min(self.peace_balance * 0.01, 2.0)
-                transfer = max(0.0, transfer) * gridul_growth_rate
-                if transfer > 0 and target.peace_balance < self.peace_balance:
-                    self.peace_balance -= transfer
-                    target.peace_balance += transfer
-                    self.peace_flow += transfer
-                    self.interactions += 1
+                if self.is_cockroach:
+                    scavenge = max(0, target.peace_balance * 0.002)
+                    if scavenge > 0:
+                        target.peace_balance -= scavenge
+                        self.peace_balance += scavenge
+                        self.peace_flow += scavenge
+                        self.interactions += 1
+                else:
+                    transfer = min(self.peace_balance * 0.01, 2.0)
+                    transfer = max(0.0, transfer) * gridul_growth_rate
+                    if transfer > 0 and target.peace_balance < self.peace_balance:
+                        self.peace_balance -= transfer
+                        target.peace_balance += transfer
+                        self.peace_flow += transfer
+                        self.interactions += 1
 
     def to_dict(self) -> Dict:
-        return {
+        d = {
             "agent_id": self.agent_id,
             "peace_balance": round(self.peace_balance, 2),
             "in_gridul": self.in_gridul,
@@ -131,15 +152,24 @@ class SandboxAgent:
             "interactions": self.interactions,
             "peace_flow": round(self.peace_flow, 4),
         }
+        if self.is_cockroach:
+            d["is_cockroach"] = True
+            d["survived_stress"] = self.survived_stress
+        return d
 
 
 def _build_sandbox_agents(count: int, rng: random.Random) -> List[SandboxAgent]:
-    """Create synthetic agents for the sandbox session."""
+    """Create synthetic agents for the sandbox session. ~10% are cockroach agents."""
     agents = []
+    n_cockroach = max(1, int(count * 0.1))
+    cockroach_ids = set(rng.sample(range(count), n_cockroach))
     for i in range(count):
         peace = rng.uniform(10.0, 500.0)
         in_gridul = rng.random() > 0.5
-        agents.append(SandboxAgent(i, peace, in_gridul, rng))
+        is_cockroach = i in cockroach_ids
+        if is_cockroach:
+            peace = rng.uniform(5.0, 50.0)
+        agents.append(SandboxAgent(i, peace, in_gridul, rng, is_cockroach=is_cockroach))
     return agents
 
 

@@ -47,6 +47,7 @@ ARCHETYPE_MAP = {
     "δ": {"role": "transform",   "trait": "changes",      "bias": "adaptation"},
     "ω": {"role": "finality",    "trait": "closes",       "bias": "conservation"},
     "η": {"role": "flow",        "trait": "flows",        "bias": "liquidity"},
+    "🪳": {"role": "cockroach",   "trait": "survives",     "bias": "resilience"},
 }
 
 GLYPH_LIST = list(ARCHETYPE_MAP.keys())
@@ -224,11 +225,18 @@ class MesaAgent:
             delta += self.rng.gauss(0, 0.06)
         elif bias == "conservation":
             delta -= 0.005
+        elif bias == "resilience":
+            if self.activity < 0.3:
+                delta += 0.04
+            elif self.activity > 0.7:
+                delta -= 0.01
+            delta += abs(delta) * 0.2
 
         if seed_event:
             delta += 0.03
 
-        self.activity = max(0.05, min(1.0, self.activity + delta))
+        floor = 0.15 if bias == "resilience" else 0.05
+        self.activity = max(floor, min(1.0, self.activity + delta))
 
         if self.social_links:
             targets = [a for a in all_agents if a.agent_id in self.social_links]
@@ -268,6 +276,15 @@ class MesaAgent:
         elif role in ("sovereign", "core"):
             delta = (self.activity - other.activity) * 0.05
             other.activity = max(0.05, min(1.0, other.activity + delta))
+
+        elif role == "cockroach":
+            scavenge = max(0, other.peace_balance * 0.003)
+            if scavenge > 0:
+                other.peace_balance -= scavenge
+                self.peace_balance += scavenge
+                self.peace_flow_this_round += scavenge
+            if other.activity > self.activity:
+                self.activity = min(1.0, self.activity + 0.01)
 
     def _update_memory(self, round_num: int, seed_event: Optional[str]):
         entry = {

@@ -83,6 +83,12 @@ PERSONALITY_ARCHETYPES = [
         "stance": "records",
         "interaction_style": "reflective",
     },
+    {
+        "name": "cockroach",
+        "motivations": ["survival", "adaptation", "resource efficiency"],
+        "stance": "endures",
+        "interaction_style": "opportunistic",
+    },
 ]
 
 
@@ -436,6 +442,10 @@ class SwarmAgent:
             stance_delta *= 0.5
         elif archetype_name == "amplifier":
             stance_delta *= 1.4
+        elif archetype_name == "cockroach":
+            stance_delta *= 0.3
+            if abs(self.stance_score) > 0.5:
+                stance_delta += 0.02 * (-1 if self.stance_score > 0 else 1)
 
         if seed_event:
             stance_delta += self.rng.gauss(0.03, 0.02)
@@ -454,6 +464,8 @@ class SwarmAgent:
                 influence_delta *= -0.5
             elif archetype_name == "connector":
                 influence_delta *= 1.2
+            elif archetype_name == "cockroach":
+                influence_delta *= 0.2
 
             stance_delta += influence_delta
             self.activity_this_round += weight

@@ -46,15 +46,25 @@ def _run_village_simulation(zone_id: str, owner_activity: float = 0.5,
                         target = self.model.rng.choice(others)
                         boost = 0.04 * target.activity
                         self.activity = min(1.0, self.activity + boost)
+                elif self.type == "cockroach":
+                    if self.activity < 0.2:
+                        self.activity = min(1.0, self.activity + 0.05)
+                    others = list(self.model.agents_by_type[ZoneAgent])
+                    if others:
+                        weakest = min(others, key=lambda a: a.activity)
+                        if weakest.activity < self.activity:
+                            self.activity = min(1.0, self.activity + 0.02)
+                    self.activity = max(0.12, self.activity)
 
         class VoidVillageModel(Model):
             def __init__(self, n_agents: int, base_activity: float, rng_seed: int):
                 super().__init__(seed=rng_seed)
                 self.rng = random.Random(rng_seed)
 
+                n_cockroach = max(1, int(n_agents * 0.1))
                 n_adriana = max(1, int(n_agents * 0.2))
-                n_nodes = max(1, int(n_agents * 0.3))
-                n_players = max(1, n_agents - n_adriana - n_nodes)
+                n_nodes = max(1, int(n_agents * 0.25))
+                n_players = max(1, n_agents - n_adriana - n_nodes - n_cockroach)
 
                 for _ in range(n_players):
                     ZoneAgent(self, "player", base_activity)
@@ -62,6 +72,8 @@ def _run_village_simulation(zone_id: str, owner_activity: float = 0.5,
                     ZoneAgent(self, "node", base_activity * 0.8)
                 for _ in range(n_adriana):
                     ZoneAgent(self, "adriana", base_activity * 1.1)
+                for _ in range(n_cockroach):
+                    ZoneAgent(self, "cockroach", base_activity * 0.4)
 
             def step(self):
                 self.agents.do("step")
@@ -86,7 +98,7 @@ def _run_village_simulation(zone_id: str, owner_activity: float = 0.5,
             + min(len(agents) / 20.0, 1.0) * 10.0
         ))
 
-        type_counts = {"player": 0, "node": 0, "adriana": 0}
+        type_counts = {"player": 0, "node": 0, "adriana": 0, "cockroach": 0}
         for a in agents:
             type_counts[a.type] = type_counts.get(a.type, 0) + 1
 

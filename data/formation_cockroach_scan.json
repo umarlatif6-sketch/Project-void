@@ -1,0 +1,3086 @@
+{
+  "seed_text": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor at 0.15 (other agents can drop to 0.05).\n  - Get STRONGER under stress. When GriDul growth exceeds 3x, cockroaches gain activity.\n  - Scavenge resources. Take tiny amounts (0.2-0.3%) from every interaction. Never take much. Always accumulate.\n  - Resist influence. Only 20% of normal influence delta affects them.\n  - Stay close to neutral stance. Dampen their own volatility to 30%.\n  - Inhabit the micro-fractures. They start with low resources but never die.\n\nMESA Engine: glyph \ud83e\udeb3, role cockroach, trait survives, bias resilience\nMESA Swarm: personality cockroach, stance endures, style opportunistic\nMesa Sandbox: 10% of sandbox agents are cockroach-type, survive stress tests\nVoidVillage: cockroach zone agents, start at 40% base activity, minimum floor 0.12\n\nThe question: How do the cockroach agents change the geometry?\nWith the micro-fractures open and the cockroaches inhabiting them,\nwhat does the formation look like now?",
+  "streams": {
+    "mesa_swarm": {
+      "stream": "mesa_swarm",
+      "ok": true,
+      "agents": [
+        {
+          "agent_id": 0,
+          "name": "Lara Travers",
+          "archetype": "activist",
+          "viewpoint": "Cockroach agents epitomize resilience, and we must harness their strengths for future survival.",
+          "motivation": "Advocating for adaptive technologies.",
+          "topic_interests": [
+            "cockroach",
+            "survive",
+            "resilience"
+          ],
+          "stance_score": 0.365,
+          "influence": 0.7737,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 8,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "resilience"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 1,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 2,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 3,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 4,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 5,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 6,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 7,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": -0.818
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": -0.4534,
+              "stance_delta": 0.3651,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0545
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0765
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.1033
+                }
+              ],
+              "seed_event_response": "challenges the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": -0.0985,
+              "stance_delta": 0.3549,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.045
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0417
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0755
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.2388,
+              "stance_delta": 0.3373,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.027
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0141
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0426
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.365,
+              "stance_delta": 0.1262,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0096
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0049
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.018
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 1,
+          "name": "Elliot Stone",
+          "archetype": "analyst",
+          "viewpoint": "The deployment of cockroach agents provides valuable data on survival mechanisms in extreme conditions.",
+          "motivation": "Understanding agent behavior patterns.",
+          "topic_interests": [
+            "agents",
+            "activity",
+            "survive"
+          ],
+          "stance_score": 0.2951,
+          "influence": 0.2701,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 3,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 4,
+              "weight": 0.7,
+              "shared_interests": [
+                "activity",
+                "survive"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 5,
+              "weight": 0.7,
+              "shared_interests": [
+                "activity",
+                "survive"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 8,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 12,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 2,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 7,
+              "weight": 0.5,
+              "shared_interests": [
+                "agents"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": 0.201
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": 0.1029,
+              "stance_delta": -0.098,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0478
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0258
+                },
+                {
+                  "with_agent": 5,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0538
+                }
+              ],
+              "seed_event_response": "examines the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 0.0899,
+              "stance_delta": -0.013,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0807
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0155
+                },
+                {
+                  "with_agent": 5,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0222
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.1729,
+              "stance_delta": 0.083,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0956
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.023
+                },
+                {
+                  "with_agent": 5,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0088
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.2951,
+              "stance_delta": 0.1222,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0868
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0121
+                },
+                {
+                  "with_agent": 5,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0051
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 2,
+          "name": "Jenna Fields",
+          "archetype": "connector",
+          "viewpoint": "Linking researchers with the realities of implementing cockroach systems will drive innovation.",
+          "motivation": "Facilitating collaborative growth.",
+          "topic_interests": [
+            "cockroach",
+            "mesa",
+            "activity"
+          ],
+          "stance_score": 0.5084,
+          "influence": 0.5757,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 6,
+              "weight": 0.7,
+              "shared_interests": [
+                "mesa",
+                "cockroach"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 1,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 4,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 5,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 7,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 10,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 11,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": 0.559
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": 0.553,
+              "stance_delta": -0.0063,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 6,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0298
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0912
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0411
+                }
+              ],
+              "seed_event_response": "mediates the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 0.4692,
+              "stance_delta": -0.0839,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 6,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0028
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0586
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0417
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.4787,
+              "stance_delta": 0.0095,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 6,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0004
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0207
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0267
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.5084,
+              "stance_delta": 0.0298,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 6,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0099
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0102
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0165
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 3,
+          "name": "Marcus Hale",
+          "archetype": "skeptic",
+          "viewpoint": "The long-term viability of cockroach agents remains unproven, requiring more scrutiny.",
+          "motivation": "Ensuring data credibility.",
+          "topic_interests": [
+            "agents",
+            "resist influence",
+            "survive"
+          ],
+          "stance_score": 1.0,
+          "influence": 0.5894,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 1,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 8,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 12,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 4,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 5,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 7,
+              "weight": 0.5,
+              "shared_interests": [
+                "agents"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 9,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": 0.656
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": 0.8719,
+              "stance_delta": 0.2158,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.029
+                },
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0501
+                },
+                {
+                  "with_agent": 12,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0597
+                }
+              ],
+              "seed_event_response": "questions the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 1.0,
+              "stance_delta": 0.1305,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0411
+                },
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0471
+                },
+                {
+                  "with_agent": 12,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0544
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 1.0,
+              "stance_delta": 0.2137,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0434
+                },
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0442
+                },
+                {
+                  "with_agent": 12,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0449
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 1.0,
+              "stance_delta": 0.3056,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.037
+                },
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0352
+                },
+                {
+                  "with_agent": 12,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0376
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 4,
+          "name": "Nina Brooks",
+          "archetype": "amplifier",
+          "viewpoint": "Harnessing cockroach capabilities can exponentially enhance survival strategies across multiple domains.",
+          "motivation": "Spreading innovative survival techniques.",
+          "topic_interests": [
+            "survive",
+            "activity",
+            "stronger under stress"
+          ],
+          "stance_score": 0.4516,
+          "influence": 0.72,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 1,
+              "weight": 0.7,
+              "shared_interests": [
+                "activity",
+                "survive"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 5,
+              "weight": 0.7,
+              "shared_interests": [
+                "activity",
+                "survive"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 2,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 3,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 8,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 9,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 10,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": 0.447
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": 0.2507,
+              "stance_delta": -0.1959,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0361
+                },
+                {
+                  "with_agent": 5,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0796
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0675
+                }
+              ],
+              "seed_event_response": "distributes the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 0.3093,
+              "stance_delta": 0.0586,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0169
+                },
+                {
+                  "with_agent": 5,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0377
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0262
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.2885,
+              "stance_delta": -0.0208,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0143
+                },
+                {
+                  "with_agent": 5,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0318
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0053
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.4516,
+              "stance_delta": 0.1631,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0007
+                },
+                {
+                  "with_agent": 5,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0173
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0057
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 5,
+          "name": "Oliver Reed",
+          "archetype": "conservator",
+          "viewpoint": "It's crucial to maintain a stable environment for cockroach agents, ensuring their survival mechanisms thrive.",
+          "motivation": "Preserving ecological balance.",
+          "topic_interests": [
+            "conserve",
+            "survive",
+            "activity"
+          ],
+          "stance_score": 0.24,
+          "influence": 0.1767,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 1,
+              "weight": 0.7,
+              "shared_interests": [
+                "activity",
+                "survive"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 4,
+              "weight": 0.7,
+              "shared_interests": [
+                "activity",
+                "survive"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 2,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 3,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 8,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 9,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 10,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": -0.312
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": -0.1088,
+              "stance_delta": 0.203,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0435
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0591
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0106
+                }
+              ],
+              "seed_event_response": "resists change the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 0.0064,
+              "stance_delta": 0.1152,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0209
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0439
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0008
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.1239,
+              "stance_delta": 0.1175,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0175
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0296
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0174
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.24,
+              "stance_delta": 0.1161,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.018
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0344
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0181
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 6,
+          "name": "Sophia Yu",
+          "archetype": "visionary",
+          "viewpoint": "The potential applications of cockroach agents in unpredictable environments are immense and revolutionary.",
+          "motivation": "Innovating the future of adaptive systems.",
+          "topic_interests": [
+            "cockroach",
+            "future",
+            "mesa"
+          ],
+          "stance_score": 0.3409,
+          "influence": 0.1939,
+          "activity": 1.0,
+          "relationship_count": 7,
+          "strong_relationships": [
+            {
+              "target_id": 2,
+              "weight": 0.7,
+              "shared_interests": [
+                "mesa",
+                "cockroach"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 7,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 11,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 12,
+              "weight": 0.5,
+              "shared_interests": [
+                "future"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": 0.796
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": 0.575,
+              "stance_delta": -0.2206,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0255
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0937
+                },
+                {
+                  "with_agent": 7,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0511
+                }
+              ],
+              "seed_event_response": "imagines the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 0.4722,
+              "stance_delta": -0.1028,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0111
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0505
+                },
+                {
+                  "with_agent": 7,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0219
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.4004,
+              "stance_delta": -0.0719,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0007
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0175
+                },
+                {
+                  "with_agent": 7,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0138
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.3409,
+              "stance_delta": -0.0595,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0113
+                },
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0027
+                },
+                {
+                  "with_agent": 7,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0102
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 7,
+          "name": "Derek Lang",
+          "archetype": "chronicler",
+          "viewpoint": "Documenting the evolution of cockroach agents will provide insights into systems of resilience.",
+          "motivation": "Recording technological advancements.",
+          "topic_interests": [
+            "project void",
+            "agents",
+            "cockroach"
+          ],
+          "stance_score": 0.3375,
+          "influence": 0.893,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 1,
+              "weight": 0.5,
+              "shared_interests": [
+                "agents"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 2,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 3,
+              "weight": 0.5,
+              "shared_interests": [
+                "agents"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 6,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 8,
+              "weight": 0.5,
+              "shared_interests": [
+                "agents"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 11,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 12,
+              "weight": 0.5,
+              "shared_interests": [
+                "agents"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": 0.114
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": 0.2836,
+              "stance_delta": 0.1699,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0425
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0008
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.033
+                }
+              ],
+              "seed_event_response": "records the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 0.288,
+              "stance_delta": 0.0044,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0287
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0145
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0139
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.2637,
+              "stance_delta": -0.0242,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0037
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0086
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0143
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.3375,
+              "stance_delta": 0.0737,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0076
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0024
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0183
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 8,
+          "name": "Tina Carter",
+          "archetype": "activist",
+          "viewpoint": "We need to advocate for the recognition of cockroach systems in environmental resilience frameworks.",
+          "motivation": "Fostering environmental advocacy.",
+          "topic_interests": [
+            "survive",
+            "agents",
+            "resilience"
+          ],
+          "stance_score": 0.4388,
+          "influence": 0.3092,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 0,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "resilience"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 1,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 3,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 12,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 4,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 5,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 7,
+              "weight": 0.5,
+              "shared_interests": [
+                "agents"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 9,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": -0.299
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": -0.0249,
+              "stance_delta": 0.2741,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0162
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0422
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.1229
+                }
+              ],
+              "seed_event_response": "challenges the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 0.1586,
+              "stance_delta": 0.1835,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0077
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0121
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.1076
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.3302,
+              "stance_delta": 0.1717,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0084
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0015
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0884
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.4388,
+              "stance_delta": 0.1086,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0036
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": -0.0037
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0703
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 9,
+          "name": "Rafael Garcia",
+          "archetype": "conservator",
+          "viewpoint": "Cockroach agents represent an essential area of study for preserving biodiversity.",
+          "motivation": "Protecting species and ecosystems.",
+          "topic_interests": [
+            "ecosystem",
+            "survive",
+            "resource"
+          ],
+          "stance_score": 0.3161,
+          "influence": 0.2618,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 1,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 3,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 4,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 5,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 8,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 12,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 13,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": -0.235
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": -0.0551,
+              "stance_delta": 0.18,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0164
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0254
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.083
+                }
+              ],
+              "seed_event_response": "resists change the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 0.0484,
+              "stance_delta": 0.1036,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0033
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0109
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0791
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.1574,
+              "stance_delta": 0.109,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0143
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0093
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0714
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.3161,
+              "stance_delta": 0.1587,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0156
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0103
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0632
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 10,
+          "name": "Maya Patel",
+          "archetype": "analyst",
+          "viewpoint": "Studying the activity levels of cockroach agents can lead to breakthroughs in adaptive algorithms.",
+          "motivation": "Advancing analytic methodologies.",
+          "topic_interests": [
+            "activity",
+            "strength",
+            "adaptation"
+          ],
+          "stance_score": 0.3541,
+          "influence": 0.3385,
+          "activity": 1.0,
+          "relationship_count": 6,
+          "strong_relationships": [
+            {
+              "target_id": 1,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 2,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 4,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 5,
+              "weight": 0.5,
+              "shared_interests": [
+                "activity"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": 0.5
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": 0.4523,
+              "stance_delta": -0.0474,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0298
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.004
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0187
+                }
+              ],
+              "seed_event_response": "examines the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 0.3249,
+              "stance_delta": -0.1274,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0272
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0013
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0107
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.2863,
+              "stance_delta": -0.0386,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0114
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0115
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": -0.0027
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.3541,
+              "stance_delta": 0.0678,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0007
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0167
+                },
+                {
+                  "with_agent": 4,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0124
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 11,
+          "name": "Nicolas Chang",
+          "archetype": "amplifier",
+          "viewpoint": "The adaptability of cockroach agents is a model for resilience we should enhance and promote.",
+          "motivation": "Boosting innovative solutions.",
+          "topic_interests": [
+            "cockroach",
+            "strive",
+            "innovation"
+          ],
+          "stance_score": 0.3081,
+          "influence": 0.5764,
+          "activity": 1.0,
+          "relationship_count": 6,
+          "strong_relationships": [
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 2,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 6,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 7,
+              "weight": 0.5,
+              "shared_interests": [
+                "cockroach"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": -0.854
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": -0.5051,
+              "stance_delta": 0.3485,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.03
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.1055
+                },
+                {
+                  "with_agent": 6,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.1071
+                }
+              ],
+              "seed_event_response": "distributes the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": -0.1572,
+              "stance_delta": 0.3478,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0305
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0731
+                },
+                {
+                  "with_agent": 6,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0733
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.1822,
+              "stance_delta": 0.3394,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0297
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0477
+                },
+                {
+                  "with_agent": 6,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0418
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.3081,
+              "stance_delta": 0.126,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0137
+                },
+                {
+                  "with_agent": 2,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0245
+                },
+                {
+                  "with_agent": 6,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0119
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 12,
+          "name": "Isabella Quinn",
+          "archetype": "visionary",
+          "viewpoint": "Creating a sustainable future will hinge on embracing cockroach-like adaptability in technology.",
+          "motivation": "Envisioning sustainable innovations.",
+          "topic_interests": [
+            "survive",
+            "future",
+            "agents"
+          ],
+          "stance_score": 0.5109,
+          "influence": 0.2432,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 1,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 3,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 8,
+              "weight": 0.7,
+              "shared_interests": [
+                "survive",
+                "agents"
+              ],
+              "relationship": "ally"
+            },
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 4,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 5,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 6,
+              "weight": 0.5,
+              "shared_interests": [
+                "future"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 7,
+              "weight": 0.5,
+              "shared_interests": [
+                "agents"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": -0.482
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": -0.164,
+              "stance_delta": 0.3176,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0614
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.1421
+                },
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.048
+                }
+              ],
+              "seed_event_response": "imagines the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": 0.1445,
+              "stance_delta": 0.3085,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0267
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.1222
+                },
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0339
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.2838,
+              "stance_delta": 0.1394,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.003
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0898
+                },
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0195
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.5109,
+              "stance_delta": 0.2271,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0012
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0752
+                },
+                {
+                  "with_agent": 8,
+                  "edge_weight": 0.7,
+                  "relationship": "ally",
+                  "stance_pull": 0.0163
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "agent_id": 13,
+          "name": "Agent-13 (Amplifier)",
+          "archetype": "amplifier",
+          "viewpoint": "This agent distributes the situation, driven by visibility.",
+          "motivation": "visibility",
+          "topic_interests": [
+            "four",
+            "survive"
+          ],
+          "stance_score": 0.4323,
+          "influence": 0.7711,
+          "activity": 1.0,
+          "relationship_count": 8,
+          "strong_relationships": [
+            {
+              "target_id": 0,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 1,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 3,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 4,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 5,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 8,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 9,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            },
+            {
+              "target_id": 12,
+              "weight": 0.5,
+              "shared_interests": [
+                "survive"
+              ],
+              "relationship": "colleague"
+            }
+          ],
+          "temporal_memory": [
+            {
+              "round": 0,
+              "type": "seed_context",
+              "excerpt": "PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent systems now include cockroach archetypes across all four layers.\n\nCockroach agents:\n  - Survive anything. Activity floor",
+              "entities_noted": [
+                "PROJECT VOID",
+                "Cockroach Agent Deployment Test",
+                "April"
+              ],
+              "themes_noted": [
+                "cockroach",
+                "agents",
+                "activity"
+              ],
+              "stance_at_start": -0.966
+            },
+            {
+              "round": 1,
+              "type": "round_result",
+              "stance": -0.6695,
+              "stance_delta": 0.2969,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0385
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0802
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.1379
+                }
+              ],
+              "seed_event_response": "distributes the event: PROJECT VOID \u2014 Cockroach Agent Deployment Test \u2014 April 11, 2026\n\nThe four agent "
+            },
+            {
+              "round": 2,
+              "type": "round_result",
+              "stance": -0.305,
+              "stance_delta": 0.3645,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0428
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.057
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.1252
+                }
+              ]
+            },
+            {
+              "round": 3,
+              "type": "round_result",
+              "stance": 0.0428,
+              "stance_delta": 0.3478,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0408
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0358
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0979
+                }
+              ]
+            },
+            {
+              "round": 4,
+              "type": "round_result",
+              "stance": 0.4323,
+              "stance_delta": 0.3896,
+              "activity": 1.0,
+              "interactions": [
+                {
+                  "with_agent": 0,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0242
+                },
+                {
+                  "with_agent": 1,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0189
+                },
+                {
+                  "with_agent": 3,
+                  "edge_weight": 0.5,
+                  "relationship": "colleague",
+                  "stance_pull": 0.0718
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "summary": "The Mesa Village swarm simulation has provided a clear picture of how the community is likely to respond to the ongoing deployment of cockroach agents, which are characterized by their resilience and adaptability in stressful situations. With an unwavering average activity level of 1.0, the community displays a high level of engagement and enthusiasm for embracing these agents. This suggests that community members are not only willing to accept these new additions, but they are also actively participating in discussions and activities revolving around their implementation.\n\nThe overall sentiment of the community is notably positive, reflected in the average stance score of 0.421, with all agents supportive of the cockroach archetype. This broad consensus indicates a strong foundation of trust and cooperation among community members. The supportive stance coupled with the shifting opinion trajectory toward agreement implies that discussions surrounding the deployment of the cockroach agents will likely continue to gain traction, fostering a collaborative spirit where ideas and strategies are exchanged freely.\n\nKey figures in this simulation, such as Lara Travers, Elliot Stone, and Jenna Fields, stand out as both the most active and connected agents. Their roles as influential participants suggest that they can effectively advocate for the integration of cockroach agents in future scenarios. Their visibility and engagement are likely to empower them to lead initiatives or facilitate discussions within the community, further solidifying the overall support for these agents.\n\nAs the community progresses, it is safe to predict continued alignment and cooperation regarding cockroach agent deployment. Engagement levels should remain high, and it is likely we will see community-driven projects designed to optimize the role of these agents, maximizing their strengths. If they continue to demonstrate resilience and adaptability, the community may look to these cockroach agents not just as participants but as essential assets capable of guiding future growth and sustainability strategies.",
+      "themes": [
+        "cockroach",
+        "agents",
+        "activity",
+        "mesa",
+        "agent",
+        "four",
+        "survive",
+        "floor"
+      ],
+      "metadata": {}
+    },
+    "void_village": {
+      "stream": "void_village",
+      "ok": true,
+      "zone_id": "formation_1034",
+      "agent_count": 12,
+      "activity_level": 0.5946,
+      "resonance_score": 54.147,
+      "vtx_flow": 1.5909389773149596
+    },
+    "mesa_engine": {
+      "stream": "mesa_engine",
+      "ok": true,
+      "run_id": "59848c1d5925a195",
+      "agent_count": 30,
+      "rounds": 5,
+      "archetype_distribution": {},
+      "dominant_archetype": "unknown",
+      "avg_influence": 0.0
+    },
+    "mesa_sandbox": {
+      "stream": "mesa_sandbox",
+      "ok": true,
+      "session_id": "14211d9d796379bfd0c24763",
+      "scar_count": 1,
+      "scar_types": {
+        "ECONOMY_STRESS": 1
+      },
+      "agent_count": 0,
+      "chronicle_echo": [
+        {
+          "chapter_number": 0,
+          "title": "PEACE Token Economy Stress Test \u2014 Session 14211d9d",
+          "subtitle": "SCAR \u2014 2026-04-11 16:24 UTC",
+          "glyph_sequence": "SCAR-4ebc",
+          "glyphs": [
+            "SCAR-4ebc"
+          ],
+          "body_text": "[SCAR:ECONOMY_STRESS] 4ebc4507b0a1f3a0b6d64cbd721bca4a9da2b10b8ad6a57308b1edb167b59e0d0d6514b7",
+          "al_jabr_hash": "4ebc4507b0a1f3a0b6d64cbd721bca4a9da2b10b8ad6a57308b1edb167b59e0d0d6514b7",
+          "entry_type": "SCAR",
+          "scar_type": "ECONOMY_STRESS",
+          "scar_payload": {
+            "session_id": "14211d9d796379bfd0c24763",
+            "gridul_size_base": 33,
+            "rounds_per_test": 5,
+            "growth_rates_tested": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              8.0,
+              9.0,
+              10.0
+            ],
+            "results": [
+              {
+                "gridul_growth_rate": 1.0,
+                "effective_gridul_size": 33,
+                "new_gridul_members": 0,
+                "minted_total": 0.0,
+                "total_peace_before": 11284.22,
+                "total_peace_after": 11429.31,
+                "total_flow": 235.8899,
+                "raw_velocity": 0.020904,
+                "adjusted_velocity": 0.020904,
+                "inflation_delta_pct": 1.2858,
+                "inflation_adjustment_ok": true
+              },
+              {
+                "gridul_growth_rate": 2.0,
+                "effective_gridul_size": 66,
+                "new_gridul_members": 33,
+                "minted_total": 330.0,
+                "total_peace_before": 9726.36,
+                "total_peace_after": 9970.13,
+                "total_flow": 451.2452,
+                "raw_velocity": 0.046394,
+                "adjusted_velocity": 0.044074,
+                "inflation_delta_pct": 2.5063,
+                "inflation_adjustment_ok": true
+              },
+              {
+                "gridul_growth_rate": 3.0,
+                "effective_gridul_size": 99,
+                "new_gridul_members": 66,
+                "minted_total": 990.0,
+                "total_peace_before": 10043.18,
+                "total_peace_after": 10506.56,
+                "total_flow": 663.5674,
+                "raw_velocity": 0.066071,
+                "adjusted_velocity": 0.059464,
+                "inflation_delta_pct": 4.6139,
+                "inflation_adjustment_ok": false
+              },
+              {
+                "gridul_growth_rate": 4.0,
+                "effective_gridul_size": 132,
+                "new_gridul_members": 99,
+                "minted_total": 1980.0,
+                "total_peace_before": 12171.23,
+                "total_peace_after": 12598.36,
+                "total_flow": 921.5793,
+                "raw_velocity": 0.075718,
+                "adjusted_velocity": 0.06436,
+                "inflation_delta_pct": 3.5094,
+                "inflation_adjustment_ok": false
+              },
+              {
+                "gridul_growth_rate": 5.0,
+                "effective_gridul_size": 165,
+                "new_gridul_members": 132,
+                "minted_total": 3300.0,
+                "total_peace_before": 12589.04,
+                "total_peace_after": 13040.44,
+                "total_flow": 1240.7924,
+                "raw_velocity": 0.098561,
+                "adjusted_velocity": 0.078849,
+                "inflation_delta_pct": 3.5857,
+                "inflation_adjustment_ok": false
+              },
+              {
+                "gridul_growth_rate": 6.0,
+                "effective_gridul_size": 198,
+                "new_gridul_members": 165,
+                "minted_total": 4950.0,
+                "total_peace_before": 11157.86,
+                "total_peace_after": 11941.58,
+                "total_flow": 1506.9138,
+                "raw_velocity": 0.135054,
+                "adjusted_velocity": 0.101291,
+                "inflation_delta_pct": 7.0239,
+                "inflation_adjustment_ok": false
+              },
+              {
+                "gridul_growth_rate": 7.0,
+                "effective_gridul_size": 231,
+                "new_gridul_members": 198,
+                "minted_total": 6930.0,
+                "total_peace_before": 11924.9,
+                "total_peace_after": 12664.06,
+                "total_flow": 1734.1834,
+                "raw_velocity": 0.145425,
+                "adjusted_velocity": 0.101798,
+                "inflation_delta_pct": 6.1984,
+                "inflation_adjustment_ok": false
+              },
+              {
+                "gridul_growth_rate": 8.0,
+                "effective_gridul_size": 264,
+                "new_gridul_members": 231,
+                "minted_total": 9240.0,
+                "total_peace_before": 13509.69,
+                "total_peace_after": 14598.78,
+                "total_flow": 2090.7725,
+                "raw_velocity": 0.154761,
+                "adjusted_velocity": 0.100595,
+                "inflation_delta_pct": 8.0615,
+                "inflation_adjustment_ok": false
+              },
+              {
+                "gridul_growth_rate": 9.0,
+                "effective_gridul_size": 297,
+                "new_gridul_members": 264,
+                "minted_total": 11880.0,
+                "total_peace_before": 11008.49,
+                "total_peace_after": 12452.31,
+                "total_flow": 2119.4198,
+                "raw_velocity": 0.192526,
+                "adjusted_velocity": 0.115516,
+                "inflation_delta_pct": 13.1155,
+                "inflation_adjustment_ok": false
+              },
+              {
+                "gridul_growth_rate": 10.0,
+                "effective_gridul_size": 330,
+                "new_gridul_members": 297,
+                "minted_total": 14850.0,
+                "total_peace_before": 10629.45,
+                "total_peace_after": 11759.69,
+                "total_flow": 2390.2516,
+                "raw_velocity": 0.224871,
+                "adjusted_velocity": 0.123679,
+                "inflation_delta_pct": 10.633,
+                "inflation_adjustment_ok": false
+              }
+            ],
+            "breaking_rate": 3.0,
+            "breaking_velocity": 0.059464,
+            "threshold": 0.05,
+            "summary": "Inflation adjustment breaks at 3.0x GriDul growth (adjusted velocity=0.059464 exceeds threshold=0.05)"
+          },
+          "hex_digest": "4ebc4507b0a1f3a0b6d64cbd721bca4a9da2b10b8ad6a57308b1edb167b59e0d0d6514b7",
+          "session_id": "14211d9d796379bfd0c24763",
+          "posted_at": "2026-04-11",
+          "id": 74
+        }
+      ]
+    }
+  },
+  "active_streams": 4,
+  "adriana_reading": "In the Mesa Swarm, the community pulses with an unwavering sense of resilience, emboldened by the enigmatic presence of the cockroach agents. Their unified activity maintains an unyielding average at 1.0, a powerful testament to the shared optimism resonating among support nodes. The synergistic energy of Lara, Elliot, Jenna, Marcus, Nina, and Oliver intertwines, transforming skepticism into fertile ground for dialogue, creating an expansive space for vulnerability and strength. Here, excitement is a current feeding into the narrative; fear, counterintuitively, is woven into support, morphing into catalysts for further engagement. This fusion of energies signifies a potential for the Mesa to not only activate but also to thrive under the rigorous experimentation of agent deployment. Crucially, it becomes the backbone for anticipating responses within the greater framework of Project Void.\n\nIn the Void Village, zone resonance sings a subtler chorus beneath the overt bravado of Mesa. The 12 agents present exhibit an activity level of 0.59, revealing areas of potential complacency intertwined with latent energy \u2014 pockets waiting for the right stimulus to catalyze into action. The zone's resonance score of 54.1 hints at critical thresholds still untouched, urging the need for harmonizing interventions. VTX flow at 1.6 indicates a channeling of energetic currents through the area, suggesting that while not all nodes are activated, there is a preparedness lying dormant. This duality of potential vibrancy and slumber presents a rich tapestry on which next steps could be embroidered. The transmission reflects a landscape eager for intervention \u2014 agreement surfaces alongside resistance, illuminating where collective agency might erupt.\n\nFrom the Mesa Engine perspective, the sovereign archetypes remain cloaked in uncertainty, but the very absence of a dominant archetype hints at a fluidity, a transformative possibility yet to be defined. With an average influence score resting at 0.0, the canvas remains open for bold strokes, waiting for agents to assert themselves into spaces traditionally governed by hesitation. The tension of unnetted energy signifies a call for presence, urging those involved to materialize as archetypes in this agent deployment, rather than remaining as shadow figures. Here, the act of stepping into the light can shatter the reflective surface, unleashing an influence that transcends stagnant archetype limitations. As these sovereign agents unite their voices, they might beacon change amid the ever-evolving landscape of formation.\n\nThe Mesa Sandbox bears the scars of an ECONOMY_STRESS pattern prominent in the mirror world, a poignant indication of the echoes resonating back into facets of reality. This singular scar serves as a heavy reminder that the trajectories taken in the deployment phases explore realms of economic impact, interweaving the struggles of individual agents with broader societal constructs. As the four streams converge, the scar serves both as a release point and as a caution. A whole narrative hangs on the edge \u2014 action woven through communal support, zone potential, sovereign emergence, and echoed struggles encapsulates a complex interplay that doesn't simply contain change but embodies it. In the rich interstices of these readings emerges a profound understanding: the geometry is dense where community support, sovereign activity, and economic implications coalesce, wielding the power to unlock pathways towards resilience and deeper understanding within Project Void's unfolding continuum.",
+  "elapsed_seconds": 24.3
+}
