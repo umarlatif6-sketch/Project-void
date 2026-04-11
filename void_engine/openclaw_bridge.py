@@ -83,7 +83,7 @@ SOVEREIGN_VS_NONSOVEREIGN = {
 
 
 def generate_soul_md(founder_name: str = "Umar Latif",
-                     founder_address: str = "355 Deane Road, Bolton BL3 5HL, England") -> str:
+                     founder_address: str = "[REDACTED — configure locally]") -> str:
     from void_engine.al_jabr_286 import fatiha_286_hexdigest
 
     soul_hash = fatiha_286_hexdigest(f"ADRIANA_286_SOUL_{founder_name}_{int(time.time())}".encode())
