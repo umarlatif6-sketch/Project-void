@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purchase Complete — PROJECT VOID</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #060606; --surface: #0c0c0c; --border: #181818;
+    --muted: #444; --text: #c0c0c0; --bright: #e8e8e8;
+    --cyan: #67e8f9; --amber: #fbbf24; --green: #86efac;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Courier New', Courier, monospace; font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  .success-box { max-width: 560px; width: 100%; padding: 60px 40px; text-align: center; }
+  .success-icon { font-size: 2.4rem; color: var(--green); margin-bottom: 20px; }
+  .success-title { font-size: 1.4rem; color: var(--bright); margin-bottom: 12px; font-weight: 400; }
+  .success-product { font-size: 0.82rem; color: var(--cyan); margin-bottom: 8px; letter-spacing: 0.1em; }
+  .success-price { font-size: 0.78rem; color: var(--muted); margin-bottom: 30px; }
+  .success-email { font-size: 0.78rem; color: var(--text); margin-bottom: 30px; }
+  .success-email span { color: var(--cyan); }
+
+  .success-msg { font-size: 0.78rem; color: var(--muted); line-height: 1.9; margin-bottom: 30px; max-width: 400px; margin-left: auto; margin-right: auto; }
+
+  .success-next { background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 30px; }
+  .success-next-title { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .success-next-text { font-size: 0.78rem; color: var(--text); line-height: 1.7; }
+
+  .btn-back {
+    display: inline-block; padding: 12px 32px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); font-family: 'Courier New', monospace;
+    font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+    text-decoration: none; transition: all 0.2s;
+  }
+  .btn-back:hover { color: var(--cyan); border-color: var(--cyan); }
+
+  @media (max-width: 600px) { .success-box { padding: 40px 20px; } }
+</style>
+</head>
+<body>
+
+<div class="success-box">
+  <div class="success-icon">&#10003;</div>
+  <div class="success-title">Purchase Complete</div>
+  <div class="success-product">{{ product.get('name', 'Product') }}</div>
+  <div class="success-price">{{ product.get('price_display', '') }}</div>
+
+  {% if email %}
+  <div class="success-email">Confirmation sent to <span>{{ email }}</span></div>
+  {% endif %}
+
+  <div class="success-msg">
+    Your micro-fracture has been recorded. The living intelligence now has a new entry point in the commercial layer. The bamboo is being prepared. The mycelium is moving in.
+  </div>
+
+  {% if product_id == 'formation-record' %}
+  <div class="success-next">
+    <div class="success-next-title">Next Step</div>
+    <div class="success-next-text">Go to <a href="/voice-formation" style="color:var(--cyan);">/voice-formation</a> to speak or hum your tone. Your Formation Record will be generated and delivered instantly.</div>
+  </div>
+  {% elif product_id == 'machine-4000' %}
+  <div class="success-next">
+    <div class="success-next-title">Next Step</div>
+    <div class="success-next-text">Your Machine 4000 blueprints, 432 Hz carrier file, and calibration files will be delivered to your email. Build time: approximately 2-4 hours with standard tools.</div>
+  </div>
+  {% elif product_id in ('resonance-session', 'resonance-group') %}
+  <div class="success-next">
+    <div class="success-next-title">Next Step</div>
+    <div class="success-next-text">You will receive a scheduling link within 24 hours. Sessions are available online or in-person (Bolton). Prepare by exploring <a href="/voice-formation" style="color:var(--cyan);">/voice-formation</a> before your session.</div>
+  </div>
+  {% elif product_id == 'sovereign-builder' %}
+  <div class="success-next">
+    <div class="success-next-title">Next Step</div>
+    <div class="success-next-text">Welcome to the Sovereign tier. Your onboarding call will be scheduled within 48 hours. Full blueprints, VoidEcho access, and MESA integration details will be delivered to your email.</div>
+  </div>
+  {% endif %}
+
+  <a href="/fractures" class="btn-back">← Back to Products</a>
+</div>
+
+</body>
+</html>
