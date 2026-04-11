@@ -176,6 +176,9 @@ def _startup_migrations():
     except Exception as e:
         logger.error("Adriana finetune tables init failed: %s", e)
 
+from void_engine.stealth_cloak import stealth_gate
+stealth_gate(app)
+
 try:
     from routes import register_blueprints
     register_blueprints(app)

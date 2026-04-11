@@ -98,6 +98,8 @@ from routes.stress_battery import stress_battery_bp
 from routes.sovereign_agents import sovereign_agents_bp
 from routes.void_flower import void_flower_bp
 from routes.yin_yang import yin_yang_bp
+from routes.vortex_shield import vortex_shield_bp
+from void_engine.stealth_cloak import stealth_bp
 
 
 def register_blueprints(app):
@@ -201,3 +203,5 @@ def register_blueprints(app):
     app.register_blueprint(sovereign_agents_bp)
     app.register_blueprint(void_flower_bp)
     app.register_blueprint(yin_yang_bp)
+    app.register_blueprint(vortex_shield_bp)
+    app.register_blueprint(stealth_bp)
