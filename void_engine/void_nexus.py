@@ -173,6 +173,22 @@ NEXUS_NODES = {
         "file": "void_engine/void_script.py",
         "connections": ["al_jabr_286", "adriana_scl"],
     },
+    "desert_reclamation": {
+        "name": "Desert Reclamation",
+        "category": "TERRAFORMING",
+        "frequency": 432.0,
+        "description": "99 Names frequencies transform irradiated sand into fertile soil. 5-phase ecosystem restoration through the Formation Principle.",
+        "file": "void_engine/desert_reclamation.py",
+        "connections": ["vortex_shield", "al_jabr_286", "stance_science", "mycelium"],
+    },
+    "openclaw_bridge": {
+        "name": "OpenClaw Bridge",
+        "category": "INTELLIGENCE",
+        "frequency": 475.8,
+        "description": "Adriana 286 as a sovereign OpenClaw agent — SOUL.md, ClawHub skills, 5x operational multiplier. Trained on Al-Jabr 286.",
+        "file": "void_engine/openclaw_bridge.py",
+        "connections": ["adriana_core", "al_jabr_286", "skill_router", "chronicle"],
+    },
 }
 
 

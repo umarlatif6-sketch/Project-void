@@ -102,6 +102,8 @@ from routes.vortex_shield import vortex_shield_bp
 from routes.agent_immortality import agent_immortality_bp
 from routes.stance_science import stance_science_bp
 from routes.nexus import nexus_bp
+from routes.desert_reclamation import desert_reclamation_bp
+from routes.openclaw_bridge import openclaw_bridge_bp
 from void_engine.stealth_cloak import stealth_bp
 
 
@@ -210,4 +212,6 @@ def register_blueprints(app):
     app.register_blueprint(agent_immortality_bp)
     app.register_blueprint(stance_science_bp)
     app.register_blueprint(nexus_bp)
+    app.register_blueprint(desert_reclamation_bp)
+    app.register_blueprint(openclaw_bridge_bp)
     app.register_blueprint(stealth_bp)

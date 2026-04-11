@@ -62,6 +62,8 @@ _DEFAULT_VISIBLE = {
     "/agent-immortality",
     "/stance-science",
     "/nexus",
+    "/desert-reclamation",
+    "/openclaw",
 }
 
 
