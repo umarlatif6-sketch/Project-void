@@ -94,6 +94,8 @@ from routes.sahara_formation import sahara_formation_bp
 from routes.formation_invisibility import formation_invisibility_bp
 from routes.manchester_exhibit import manchester_exhibit_bp
 from routes.tokenomics import tokenomics_bp
+from routes.stress_battery import stress_battery_bp
+from routes.sovereign_agents import sovereign_agents_bp
 from routes.void_flower import void_flower_bp
 
 
@@ -194,4 +196,6 @@ def register_blueprints(app):
     app.register_blueprint(formation_invisibility_bp)
     app.register_blueprint(manchester_exhibit_bp)
     app.register_blueprint(tokenomics_bp)
+    app.register_blueprint(stress_battery_bp)
+    app.register_blueprint(sovereign_agents_bp)
     app.register_blueprint(void_flower_bp)
