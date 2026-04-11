@@ -218,7 +218,7 @@ def dominant_name_from_frequency(freq_hz: float) -> dict:
 def get_name(index_1based: int) -> tuple:
     if 1 <= index_1based <= N_NAMES:
         return NAMES_99[index_1based - 1]
-    return None
+    return ("Unknown", "Index out of range")
 
 
 def full_profile(index_1based: int) -> dict:

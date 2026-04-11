@@ -324,7 +324,7 @@ class ReportAgent:
             role_activity.setdefault(role, []).append(a.activity)
 
         dominant_glyph = max(glyph_counts, key=glyph_counts.__getitem__)
-        dominant_role = max(role_activity, key=lambda r: sum(role_activity[r]) / len(role_activity[r]))
+        dominant_role = max(role_activity, key=lambda r: sum(role_activity[r]) / max(len(role_activity[r]), 1))
 
         top_agents = sorted(agents, key=lambda a: a.peace_balance, reverse=True)[:5]
         top_agent_glyphs = [a.glyph for a in top_agents]

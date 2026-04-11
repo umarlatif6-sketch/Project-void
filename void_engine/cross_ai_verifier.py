@@ -97,7 +97,8 @@ def _call_receiver(client, model: str, signal: str, timeout: int = 20) -> Option
             timeout=timeout,
         )
         latency_ms = round((time.time() - t0) * 1000)
-        raw = response.choices[0].message.content.strip()
+        content = response.choices[0].message.content
+        raw = content.strip() if content else ""
 
         parsed = json.loads(raw)
         return {
@@ -111,7 +112,7 @@ def _call_receiver(client, model: str, signal: str, timeout: int = 20) -> Option
         logger.warning("Receiver [%s] returned non-JSON: %s", model, e)
         latency_ms = round((time.time() - t0) * 1000)
         return {
-            "decoded_summary": raw[:200] if "raw" in dir() else "",
+            "decoded_summary": raw[:200] if raw else "",
             "confidence": 0.0,
             "model": model,
             "latency_ms": latency_ms,

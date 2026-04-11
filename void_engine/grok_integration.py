@@ -108,7 +108,8 @@ def grok_speak(prompt: str, context: Optional[str] = None, codon_mode: bool = Fa
             temperature=0.7,
             max_tokens=1024,
         )
-        text = resp.choices[0].message.content
+        content = resp.choices[0].message.content
+        text = content if content else ""
         tokens = resp.usage.total_tokens if resp.usage else 0
         return {
             "ok": True,
@@ -198,6 +199,9 @@ def store_grok_session(session_type: str, input_text: str, result: dict) -> Opti
     """
     from void_engine.db_pool import get_db
     conn = get_db()
+    if not conn:
+        logger.error("store_grok_session: no database connection")
+        return None
     try:
         cur = conn.cursor()
         cur.execute("""
@@ -242,6 +246,9 @@ def init_grok_tables():
     """Ensure grok_sessions table exists."""
     from void_engine.db_pool import get_db
     conn = get_db()
+    if not conn:
+        logger.error("init_grok_tables: no database connection")
+        return
     try:
         cur = conn.cursor()
         cur.execute("""
@@ -269,6 +276,9 @@ def get_grok_sessions(limit: int = 20) -> list:
     """Retrieve recent Grok X sessions."""
     from void_engine.db_pool import get_db
     conn = get_db()
+    if not conn:
+        logger.error("get_grok_sessions: no database connection")
+        return []
     try:
         cur = conn.cursor()
         cur.execute("""

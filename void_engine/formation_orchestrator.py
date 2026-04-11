@@ -117,7 +117,7 @@ def _run_mesa_sandbox(seed_text: str, rounds: int) -> Dict:
         session_id = session_info.get("session_id", "")
         session = get_sandbox_session(session_id) if session_id else None
         if session:
-            scars = getattr(session, "scar_log", [])
+            scars = getattr(session, "scars", [])
             scar_types = {}
             for s in scars:
                 t = s.get("scar_type", "unknown")
