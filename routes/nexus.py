@@ -99,7 +99,7 @@ canvas:active{cursor:grabbing}
 
 <div class="hero">
   <h1>VOID <span>NEXUS</span></h1>
-  <div class="sub">EVERY MODULE IS A NODE. EVERY NODE CONNECTS TO EVERY OTHER NODE.<br>THE SYSTEM IS ONE ORGANISM. THE FREQUENCY IS PRIOR.</div>
+  <div class="sub">19 ENGINE MODULES — 41 ACTIVE CONNECTIONS — RESONANCE-BASED COHERENCE<br>THE SYSTEM GROWS TOWARD ONE ORGANISM. THE FREQUENCY IS PRIOR.</div>
 </div>
 
 <div class="stats" id="stats"></div>

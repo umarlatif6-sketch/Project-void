@@ -20,9 +20,12 @@ def vortex_shield_page():
 def build_network():
     from void_engine.vortex_shield import VortexShieldNetwork
     data = request.get_json(silent=True) or {}
-    area_km = min(200, max(5, data.get("area_km", 50)))
-    node_count = min(50_000, max(1_000, data.get("node_count", 10_000)))
-    seed = data.get("seed", "VOID_SHIELD_432")
+    try:
+        area_km = min(200, max(5, float(data.get("area_km", 50))))
+        node_count = min(50_000, max(1_000, int(data.get("node_count", 10_000))))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid numeric parameters"}), 400
+    seed = str(data.get("seed", "VOID_SHIELD_432"))
 
     net = VortexShieldNetwork(area_km=area_km, node_count=node_count, seed=seed)
     request._vortex_net = net
@@ -76,12 +79,15 @@ def simulate_blast():
     from void_engine.vortex_shield import VortexShieldNetwork, BlastEvent
     data = request.get_json(silent=True) or {}
 
-    area_km = min(200, max(5, data.get("area_km", 50)))
-    node_count = min(50_000, max(1_000, data.get("node_count", 10_000)))
-    seed = data.get("seed", "VOID_SHIELD_432")
-    yield_kt = min(100_000, max(0.1, data.get("yield_kt", 15)))
-    origin_x = data.get("origin_x", 0)
-    origin_y = data.get("origin_y", 0)
+    try:
+        area_km = min(200, max(5, float(data.get("area_km", 50))))
+        node_count = min(50_000, max(1_000, int(data.get("node_count", 10_000))))
+        yield_kt = min(100_000, max(0.1, float(data.get("yield_kt", 15))))
+        origin_x = float(data.get("origin_x", 0))
+        origin_y = float(data.get("origin_y", 0))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid numeric parameters"}), 400
+    seed = str(data.get("seed", "VOID_SHIELD_432"))
 
     net = VortexShieldNetwork(area_km=area_km, node_count=node_count, seed=seed)
     blast = BlastEvent(origin_x, origin_y, yield_kt)
