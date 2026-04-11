@@ -23,6 +23,8 @@ from typing import Optional
 
 VALIDATE_URL = "https://void-stego-engine.replit.app/sdk/validate"
 
+from typing import cast
+
 TIER_LIMITS = {
     "FREE":      {"events_per_day": 100,    "codons": ["voidecho", "adriana", "chronicle"]},
     "SIGNAL":    {"events_per_day": 1_000,  "codons": "all"},
@@ -99,7 +101,7 @@ def check_limit(state: LicenseState, events_today: int) -> tuple[bool, str]:
     """
     Returns (allowed: bool, reason: str).
     """
-    limit = TIER_LIMITS[state.tier]["events_per_day"]
+    limit = cast(Optional[int], TIER_LIMITS[state.tier]["events_per_day"])
     if limit is None:
         return True, "unlimited"
     if events_today >= limit:
@@ -111,9 +113,9 @@ def check_codon(state: LicenseState, codon: str) -> tuple[bool, str]:
     """
     Returns (allowed: bool, reason: str).
     """
-    allowed = TIER_LIMITS[state.tier]["codons"]
+    allowed = cast(object, TIER_LIMITS[state.tier]["codons"])
     if allowed == "all":
         return True, "all codons permitted"
-    if codon in allowed:
+    if isinstance(allowed, list) and codon in allowed:
         return True, f"codon '{codon}' permitted on {state.tier} tier"
     return False, f"codon '{codon}' requires SIGNAL tier or above"

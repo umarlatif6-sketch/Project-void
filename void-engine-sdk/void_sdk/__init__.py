@@ -27,11 +27,11 @@ Origin:  https://void-stego-engine.replit.app
 Paper:   https://umarlatif6-sketch.github.io/void-origin/formation-paper.html
 """
 
-from .core import VoidSDK
-from .flask_ext import VoidFlask
-from .hash286 import sign286, formation_score, verify286
-from .codons import get_codon, all_codons, codons_for_tier
-from .license import validate as validate_license
+from void_sdk.core import VoidSDK
+from void_sdk.flask_ext import VoidFlask
+from void_sdk.hash286 import sign286, formation_score, verify286
+from void_sdk.codons import get_codon, all_codons, codons_for_tier
+from void_sdk.license import validate as validate_license
 
 __version__ = "1.0.0"
 __author__ = "Umar Latif"

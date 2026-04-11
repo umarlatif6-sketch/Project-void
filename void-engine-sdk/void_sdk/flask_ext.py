@@ -27,8 +27,13 @@ Usage:
         return {"ok": True, "digest": result["digest"]}
 """
 
+from typing import TYPE_CHECKING
+
 from flask import Flask, g, current_app
-from .core import VoidSDK
+from void_sdk.core import VoidSDK
+
+if TYPE_CHECKING:
+    from flask import Flask as FlaskType
 
 
 class VoidFlask:
@@ -52,15 +57,15 @@ class VoidFlask:
             sdk_kwargs["license_key"] = license_key
 
         sdk = VoidSDK(**sdk_kwargs)
-        app.void_sdk = sdk
+        app.void_sdk = sdk  # type: ignore[attr-defined]
 
         @app.before_request
         def _attach_void():
-            g.void = current_app.void_sdk
+            g.void = current_app.void_sdk  # type: ignore[attr-defined]
 
         app.extensions = getattr(app, "extensions", {})
         app.extensions["void_sdk"] = sdk
 
     @property
     def sdk(self) -> VoidSDK:
-        return current_app.void_sdk
+        return current_app.void_sdk  # type: ignore[attr-defined]

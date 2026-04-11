@@ -28,10 +28,10 @@ Usage:
 import time
 from typing import Optional
 
-from .hash286 import sign286, formation_score
-from .license import validate, check_limit, check_codon, LicenseState
-from .memory import VoidMemory
-from .codons import get_codon, all_codons
+from void_sdk.hash286 import sign286, formation_score
+from void_sdk.license import validate, check_limit, check_codon, LicenseState
+from void_sdk.memory import VoidMemory
+from void_sdk.codons import all_codons
 
 
 class VoidSDK:
