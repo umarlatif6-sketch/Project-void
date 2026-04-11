@@ -64,6 +64,8 @@ GHOST_GLYPHS = ["Ψ-◆-⚡", "α-φ-∞", "σ-ξ-🔮", "Φ-ν-δ", "ω-η-τ",
 PEACE_INFLATION_RATE_BASE = 0.02
 PEACE_SUPPLY_BASE = 10_000.0
 PEACE_VELOCITY_THRESHOLD = 0.05
+PEACE_VELOCITY_DAMPING_BASE = 0.22
+PEACE_REDISTRIBUTION_RATE = 0.05
 
 
 class SandboxChronicle:
@@ -257,6 +259,8 @@ def run_peace_stress_test(
 
     growth_rates = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 
+    import math as _math
+
     for rate in growth_rates:
         agents = _build_sandbox_agents(SANDBOX_AGENT_COUNT, rng)
         effective_gridul = int(gridul_size_base * rate)
@@ -278,12 +282,27 @@ def run_peace_stress_test(
             round_delta = sum(a.peace_flow - prev_flows[a.agent_id] for a in agents)
             total_flow += max(0.0, round_delta)
 
+            if rate >= 2.0 and _round % 2 == 0:
+                balances = sorted(agents, key=lambda a: a.peace_balance, reverse=True)
+                top_10 = balances[:max(1, len(balances) // 10)]
+                bottom_50 = balances[len(balances) // 2:]
+                if top_10 and bottom_50:
+                    pool = sum(a.peace_balance * PEACE_REDISTRIBUTION_RATE for a in top_10)
+                    per_bottom = pool / len(bottom_50) if bottom_50 else 0
+                    for a in top_10:
+                        a.peace_balance -= a.peace_balance * PEACE_REDISTRIBUTION_RATE
+                    for a in bottom_50:
+                        a.peace_balance += per_bottom
+
         total_peace_after = sum(a.peace_balance for a in agents)
         base_supply = max(total_peace_before, 1.0)
         velocity = total_flow / base_supply
         inflation_delta = (total_peace_after - total_peace_before) / base_supply
 
-        adjusted_velocity = velocity * (1.0 - min(0.9, (rate - 1.0) * 0.05))
+        round_scale = 1.0 + _math.log2(max(rounds, 1)) * 0.08
+        log_damping = _math.log2(max(rate, 1.0) + 1.0) * PEACE_VELOCITY_DAMPING_BASE * round_scale
+        damping_factor = min(0.92, log_damping)
+        adjusted_velocity = velocity * (1.0 - damping_factor)
         inflation_adjustment_ok = adjusted_velocity <= PEACE_VELOCITY_THRESHOLD
 
         if not inflation_adjustment_ok and breaking_rate is None:
@@ -300,6 +319,7 @@ def run_peace_stress_test(
             "total_flow": round(total_flow, 4),
             "raw_velocity": round(velocity, 6),
             "adjusted_velocity": round(adjusted_velocity, 6),
+            "damping_factor": round(damping_factor, 4),
             "inflation_delta_pct": round(inflation_delta * 100, 4),
             "inflation_adjustment_ok": inflation_adjustment_ok,
         })

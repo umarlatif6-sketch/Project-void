@@ -29,14 +29,20 @@ def api_run_battery():
     seed = data.get("seed", "formation_zero")
     integrated = bool(data.get("integrated", False))
     sovereign_ratio = float(data.get("sovereign_ratio", 0.3))
+    yin_yang = bool(data.get("yin_yang", False))
 
-    mode_label = "INTEGRATED 286" if integrated else "STANDARD"
+    if yin_yang:
+        mode_label = "INTEGRATED 286 + YIN-YANG"
+    elif integrated:
+        mode_label = "INTEGRATED 286"
+    else:
+        mode_label = "STANDARD"
 
     def _run():
         global _battery_running, _battery_result
         try:
             from void_engine.stress_battery import run_stress_battery
-            result = run_stress_battery(seed=seed, integrated=integrated, sovereign_ratio=sovereign_ratio)
+            result = run_stress_battery(seed=seed, integrated=integrated, sovereign_ratio=sovereign_ratio, yin_yang=yin_yang)
             with _battery_lock:
                 _battery_result = result
         except Exception as e:

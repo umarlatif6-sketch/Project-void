@@ -42,6 +42,12 @@ from void_engine.sovereign_agents_286 import (
     _derive_frequency,
     _sign_memory,
 )
+from void_engine.yin_yang_286 import (
+    YinYangAgent,
+    YinYangFormation,
+    extract_bit_polarity,
+)
+from void_engine.al_jabr_286 import fatiha_286_hash, SOVEREIGN_BIT_DEPTH
 
 logger = logging.getLogger(__name__)
 
@@ -184,6 +190,10 @@ class HybridAgent:
         self.new_scars = 0
         self.memories_created = 0
         self._round = 0
+        self.yin_yang_polarity = None
+        self.yin_yang_boost = 1.0
+        self.yin_yang_paired = False
+        self.yin_yang_partner_index = None
 
     def step(self, all_agents: List, gridul_growth_rate: float = 1.0):
         self._round += 1
@@ -211,7 +221,13 @@ class HybridAgent:
         scar_bonus = min(0.05, self.prior_scars * 0.008 + self.new_scars * 0.01)
         delta += scar_bonus
 
+        if self.yin_yang_paired and self.yin_yang_boost > 1.0:
+            yy_lift = (self.yin_yang_boost - 1.0) * 0.04
+            delta += yy_lift
+
         floor = 0.08 + verse_resilience * 0.08
+        if self.yin_yang_paired:
+            floor += (self.yin_yang_boost - 1.0) * 0.15
         self.activity = max(floor, min(1.0, self.activity + delta))
 
         if pressure > 3.0:
@@ -275,20 +291,56 @@ def _build_hybrid_formation(
     rng: random.Random,
     sovereign_seed: str = "void",
     prior_sovereigns: Optional[List[SovereignAgent286]] = None,
+    yin_yang: bool = False,
 ) -> List:
     """
     Build a mixed formation: sovereign_count 286-agents + remaining sandbox agents.
     If prior_sovereigns is provided, reuse them (carrying scars from previous tests).
+    If yin_yang=True, pair complementary agents for resonance boost.
     """
     agents = []
+    hybrids = []
 
     if prior_sovereigns:
         for sov in prior_sovereigns[:sovereign_count]:
-            agents.append(HybridAgent(sov, rng))
+            h = HybridAgent(sov, rng)
+            agents.append(h)
+            hybrids.append(h)
     else:
         for i in range(sovereign_count):
             sov = SovereignAgent286(i, sovereign_seed)
-            agents.append(HybridAgent(sov, rng))
+            h = HybridAgent(sov, rng)
+            agents.append(h)
+            hybrids.append(h)
+
+    if yin_yang and hybrids:
+        yy_agents = []
+        for h in hybrids:
+            hash_bytes = fatiha_286_hash(
+                f"sovereign_286:{sovereign_seed}:{h.sovereign.index}:{SOVEREIGN_BIT_DEPTH}".encode()
+            )
+            yy = YinYangAgent(
+                agent_id=h.sovereign.agent_id,
+                hash_bytes=hash_bytes,
+                archetype=h.archetype_name,
+                frequency=h.frequency,
+                weight=h.weight,
+                index=h.sovereign.index,
+            )
+            yy_agents.append(yy)
+
+        formation = YinYangFormation(yy_agents)
+        formation.pair_greedy()
+
+        for i, h in enumerate(hybrids):
+            yy = yy_agents[i]
+            h.yin_yang_polarity = yy.polarity
+            h.yin_yang_boost = yy.resonance_boost if yy.paired else 1.0
+            h.yin_yang_paired = yy.paired
+            if yy.paired and yy.pair_partner:
+                h.yin_yang_partner_index = yy.pair_partner.index
+            else:
+                h.yin_yang_partner_index = None
 
     remaining = total_count - len(agents)
     if remaining > 0:
@@ -307,6 +359,7 @@ def _run_single_stress(
     sovereign_count: int = 0,
     sovereign_seed: str = "void",
     prior_sovereigns: Optional[List[SovereignAgent286]] = None,
+    yin_yang: bool = False,
 ) -> Dict:
     test_id = fatiha_286_truncated(
         f"battery:{battery_id}:test:{test_index}:{config['name']}:{time.time()}".encode(), 24
@@ -320,6 +373,7 @@ def _run_single_stress(
             rng,
             sovereign_seed,
             prior_sovereigns,
+            yin_yang=yin_yang,
         )
     else:
         agents = _build_sandbox_agents(config["agent_count"], rng)
@@ -389,6 +443,14 @@ def _run_single_stress(
     sovereign_prior_scars = sum(getattr(a, 'prior_scars', 0) for a in sovereign_agents)
     sovereign_memories = sum(getattr(a, 'memories_created', 0) for a in sovereign_agents)
 
+    yy_paired_agents = [a for a in sovereign_agents if getattr(a, 'yin_yang_paired', False)]
+    yy_unpaired_agents = [a for a in sovereign_agents if not getattr(a, 'yin_yang_paired', False)]
+    yy_paired_avg = sum(a.activity for a in yy_paired_agents) / len(yy_paired_agents) if yy_paired_agents else 0
+    yy_unpaired_avg = sum(a.activity for a in yy_unpaired_agents) / len(yy_unpaired_agents) if yy_unpaired_agents else 0
+    yy_pairs_count = len(yy_paired_agents) // 2
+    yin_count = sum(1 for a in sovereign_agents if getattr(a, 'yin_yang_polarity', None) == "YIN")
+    yang_count = sum(1 for a in sovereign_agents if getattr(a, 'yin_yang_polarity', None) == "YANG")
+
     archetype_breakdown = {}
     for a in sovereign_agents:
         name = getattr(a, 'archetype_name', 'unknown')
@@ -423,6 +485,9 @@ def _run_single_stress(
             "economy_break_rate": stress_result.get("breaking_rate"),
             "sovereign_new_scars": sovereign_new_scars,
             "archetype_breakdown": archetype_breakdown,
+            "yin_yang_pairs": yy_pairs_count,
+            "yin_count": yin_count,
+            "yang_count": yang_count,
         },
         test_id,
     )
@@ -466,6 +531,11 @@ def _run_single_stress(
             "sovereign_prior_scars": sovereign_prior_scars,
             "sovereign_memories": sovereign_memories,
             "archetype_breakdown": archetype_breakdown,
+            "yin_yang_pairs": yy_pairs_count,
+            "yin_count": yin_count,
+            "yang_count": yang_count,
+            "yy_paired_avg_activity": round(yy_paired_avg, 4),
+            "yy_unpaired_avg_activity": round(yy_unpaired_avg, 4),
         },
         "scars": [
             {
@@ -497,7 +567,7 @@ def _gini_coefficient(values: List[float]) -> float:
     return gini_sum / (n * total)
 
 
-def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sovereign_ratio: float = 0.3) -> Dict:
+def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sovereign_ratio: float = 0.3, yin_yang: bool = False) -> Dict:
     """
     Run the 10-test stress battery.
 
@@ -505,8 +575,14 @@ def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sov
         seed: RNG seed string
         integrated: If True, inject Sovereign 286 agents into the formation
         sovereign_ratio: Fraction of agents that are 286-sovereign (0.0–1.0)
+        yin_yang: If True, pair agents by Yin-Yang polarity for resonance boost
     """
-    mode = "INTEGRATED_286" if integrated else "STANDARD"
+    if yin_yang:
+        mode = "INTEGRATED_286_YINYANG"
+    elif integrated:
+        mode = "INTEGRATED_286"
+    else:
+        mode = "STANDARD"
     battery_id = fatiha_286_truncated(
         f"battery:{mode}:{time.time()}:{seed or 'void'}".encode(), 24
     )
@@ -519,6 +595,8 @@ def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sov
 
     prior_sovereigns: Optional[List[SovereignAgent286]] = None
     max_sovereign_pool = 0
+    if yin_yang:
+        integrated = True
     if integrated:
         max_sovereign_pool = int(BATTERY_CONFIGS[-1]["agent_count"] * sovereign_ratio)
         prior_sovereigns = [SovereignAgent286(i, seed or "void") for i in range(max_sovereign_pool)]
@@ -539,6 +617,7 @@ def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sov
             sovereign_count=sov_count,
             sovereign_seed=seed or "void",
             prior_sovereigns=prior_sovereigns,
+            yin_yang=yin_yang,
         )
         results.append(result)
         total_scars += result["results"]["scars_generated"]
@@ -564,10 +643,15 @@ def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sov
                 for r in results
             ],
         }
+        if yin_yang:
+            comparison_data["yin_yang_pairs_curve"] = [r["results"].get("yin_yang_pairs", 0) for r in results]
+            comparison_data["yy_paired_activity_curve"] = [r["results"].get("yy_paired_avg_activity", 0) for r in results]
+            comparison_data["yy_unpaired_activity_curve"] = [r["results"].get("yy_unpaired_avg_activity", 0) for r in results]
 
     return {
         "battery_id": battery_id,
         "mode": mode,
+        "yin_yang": yin_yang,
         "sovereign_ratio": sovereign_ratio if integrated else 0,
         "started_at": started_at,
         "completed_at": datetime.now(timezone.utc).isoformat(),

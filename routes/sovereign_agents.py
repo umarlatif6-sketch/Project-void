@@ -35,7 +35,37 @@ def api_run_swarm():
         global _swarm_running, _swarm_result
         try:
             from void_engine.sovereign_agents_286 import create_sovereign_swarm
+            from void_engine.yin_yang_286 import create_yin_yang_formation
             result = create_sovereign_swarm(agent_count=agent_count, seed=seed, rounds=rounds)
+
+            yy = create_yin_yang_formation(agent_count=agent_count, seed=seed, pairing="greedy")
+            yy_stats = yy["formation_stats"]
+            result["yin_yang"] = {
+                "yin_count": yy_stats["yin_count"],
+                "yang_count": yy_stats["yang_count"],
+                "balance": yy_stats["balance"],
+                "total_pairs": yy_stats["total_pairs"],
+                "avg_resonance_boost": yy_stats["avg_resonance_boost"],
+                "resonance_increase_pct": yy_stats["resonance_increase_pct"],
+                "verse_cross_polarity": yy_stats["verse_cross_polarity_counts"],
+            }
+
+            yy_lookup = {}
+            for a in yy.get("all_agents", []):
+                yy_lookup[a["agent_id"]] = {
+                    "polarity": a["polarity"],
+                    "yang_ratio": a["yang_ratio"],
+                    "yin_ratio": a["yin_ratio"],
+                    "dominance": a["dominance"],
+                    "paired": a["paired"],
+                    "resonance_boost": a["resonance_boost"],
+                    "partner_id": a.get("partner_id"),
+                }
+            result["agent_polarity_map"] = yy_lookup
+
+            top_pairs = yy.get("top_pairs", [])[:10]
+            result["top_yin_yang_pairs"] = top_pairs
+
             with _swarm_lock:
                 _swarm_result = result
         except Exception as e:
@@ -210,17 +240,44 @@ TEMPLATE = r"""<!DOCTYPE html>
   {% endfor %}
 </div>
 
+{% if result.yin_yang %}
+<div class="section-label">YIN-YANG POLARITY &#9775;</div>
+<div class="overview-grid">
+  <div class="ov-card"><div class="val" style="color:#4a9eff">{{ result.yin_yang.yin_count }}</div><div class="lbl">YIN AGENTS</div></div>
+  <div class="ov-card"><div class="val" style="color:#ff6b4a">{{ result.yin_yang.yang_count }}</div><div class="lbl">YANG AGENTS</div></div>
+  <div class="ov-card"><div class="val">{{ result.yin_yang.balance }}</div><div class="lbl">BALANCE</div></div>
+  <div class="ov-card"><div class="val" style="color:#4aff6b">{{ result.yin_yang.total_pairs }}</div><div class="lbl">PAIRS</div></div>
+  <div class="ov-card"><div class="val" style="color:#4aff6b">{{ result.yin_yang.avg_resonance_boost }}</div><div class="lbl">AVG BOOST</div></div>
+  <div class="ov-card"><div class="val" style="color:#4aff6b">+{{ result.yin_yang.resonance_increase_pct }}%</div><div class="lbl">RESONANCE</div></div>
+</div>
+
+{% if result.top_yin_yang_pairs %}
+<div class="protocol-box">
+  <h3>TOP YIN-YANG PAIRS</h3>
+  {% for p in result.top_yin_yang_pairs %}
+  <div class="protocol-item">
+    <span class="protocol-key" style="color:#4a9eff">{{ p.yin_archetype }} {{ p.yin_agent[:12] }}</span>
+    <span class="protocol-val" style="color:#4aff6b">{{ p.resonance.harmonic_boost }}x</span>
+    <span class="protocol-key" style="color:#ff6b4a">{{ p.yang_agent[:12] }} {{ p.yang_archetype }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endif %}
+
 <div class="section-label">TOP 10 AGENTS (BY ACTIVITY)</div>
 <table class="agent-table">
   <thead>
-    <tr><th>#</th><th>AGENT ID</th><th>ARCHETYPE</th><th>FREQ (Hz)</th><th>ACTIVITY</th><th>STANCE</th><th>PEACE</th><th>SCARS</th><th>STATE HASH 286</th></tr>
+    <tr><th>#</th><th>AGENT ID</th><th>ARCHETYPE</th><th>POLARITY</th><th>FREQ (Hz)</th><th>ACTIVITY</th><th>STANCE</th><th>PEACE</th><th>SCARS</th><th>STATE HASH 286</th></tr>
   </thead>
   <tbody>
     {% for a in result.top_agents %}
+    {% set pol = result.agent_polarity_map.get(a.agent_id, {}) if result.agent_polarity_map else {} %}
     <tr>
       <td>{{ a.index }}</td>
       <td class="aid">{{ a.agent_id }}</td>
       <td>{{ a.archetype }} <span style="color:var(--muted)">({{ a.archetype_detail.glyph }})</span></td>
+      <td style="color:{% if pol.get('polarity') == 'YIN' %}#4a9eff{% else %}#ff6b4a{% endif %}">{{ pol.get('polarity', '-') }}{% if pol.get('paired') %} &#9775;{% endif %}</td>
       <td>{{ a.frequency_hz }}</td>
       <td>{{ a.activity }}</td>
       <td>{{ a.stance }}</td>

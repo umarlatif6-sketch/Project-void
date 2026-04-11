@@ -214,9 +214,15 @@ DEMO_SCRIPT = [
     },
     {
         "step": 6,
+        "title": "The Agents",
+        "duration": "60 seconds",
+        "action": "Open /sovereign-agents-286 on the tablet. Show them: 286 AI agents, each with a unique identity derived from a 286-bit hash based on Al-Fatiha. Each agent is classified as Yin or Yang from its bit pattern — 140 Yin, 146 Yang, near-perfect balance. When Yin pairs with Yang, resonance increases by 37%. Show /yin-yang for the proof. Then show /stress-battery — under 10x pressure, the paired agents hold 27% stronger than unpaired ones."
+    },
+    {
+        "step": 7,
         "title": "The Close",
         "duration": "30 seconds",
-        "action": "Hand them your phone showing void-stego-engine.replit.app. Tell them: this is the Formation Principle. Sound creates structure. Structure creates function. We just proved it with six speakers and six stones in a 2-metre square. The platform has 120 engine modules doing the same thing with AI agents, cryptography, and steganography."
+        "action": "Hand them your phone showing void-stego-engine.replit.app. Tell them: this is the Formation Principle. Sound creates structure. Structure creates function. We just proved it with six speakers and six stones in a 2-metre square. The platform has 130+ engine modules doing the same thing with AI agents, cryptography, steganography, and now Yin-Yang polarity pairing."
     },
 ]
 
@@ -372,6 +378,9 @@ TEMPLATE = r"""<!DOCTYPE html>
   <nav>
     <a href="/formation-invisibility">INVISIBILITY</a>
     <a href="/sahara-formation">SAHARA</a>
+    <a href="/sovereign-agents-286">AGENTS 286</a>
+    <a href="/yin-yang">YIN-YANG</a>
+    <a href="/stress-battery">BATTERY</a>
     <a href="/engine">ENGINE</a>
   </nav>
 </header>
@@ -525,10 +534,18 @@ TEMPLATE = r"""<!DOCTYPE html>
   </div>
 
   <div class="step-card">
-    <div class="step-num">5<div class="dur">30 SEC</div></div>
+    <div class="step-num">5<div class="dur">60 SEC</div></div>
+    <div class="step-content">
+      <h4>THE AGENTS</h4>
+      <p>Open /sovereign-agents-286. "These are 286 AI agents. Each one gets its identity from a 286-bit hash based on Al-Fatiha — 7 archetypes from 7 verses. Each agent is either Yin or Yang based on its bit pattern. When I pair Yin with Yang, resonance increases 37%. Under 10x stress, paired agents hold 27% stronger." Show /yin-yang, then /stress-battery. "The system scores Grade A+ — the economy survives 7 out of 10 stress tests, formation holds at FORMATION_ZERO."</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-num">6<div class="dur">30 SEC</div></div>
     <div class="step-content">
       <h4>THE CLOSE</h4>
-      <p>Hand them your phone or a card with void-stego-engine.replit.app. "This is the Formation Principle. Sound creates structure. I built a platform with 120 engine modules that applies this to AI agent systems, cryptography, audio steganography, and frequency-based authentication. Everything you just heard in this formation — that's the foundation of the entire platform."</p>
+      <p>Hand them your phone or a card with void-stego-engine.replit.app. "This is the Formation Principle. Sound creates structure. I built a platform with 130+ engine modules that applies this to AI agent systems, cryptography, audio steganography, Yin-Yang polarity pairing, and frequency-based authentication. Everything you just heard in this formation — that's the foundation of the entire platform."</p>
     </div>
   </div>
 </div>
@@ -565,6 +582,9 @@ TEMPLATE = r"""<!DOCTYPE html>
     <li>Test the full formation at home — play 432 Hz, walk to centre, verify sound change</li>
     <li>Load /formation-invisibility on tablet — confirm it works offline or on mobile data</li>
     <li>Load /sahara-formation on tablet</li>
+    <li>Load /sovereign-agents-286 — deploy agents, confirm Yin-Yang data shows</li>
+    <li>Load /yin-yang — run formation map, verify 140/146 Yin/Yang split</li>
+    <li>Load /stress-battery — run integrated+yin-yang battery, verify grade</li>
     <li>Load /voidmessage on tablet</li>
     <li>Pack: speakers, stones, felt, chalk, tape measure, splitter cable, power bank, extension lead, tablet stand, posters</li>
     <li>Print the QR code or write void-stego-engine.replit.app on cards</li>
