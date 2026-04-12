@@ -49,7 +49,7 @@ RESONANCE_JS = r"""
     '/memories':'475.81','/formation-invisibility':'286',
     '/frequency-manual':'432','/voice-formation':'440',
     '/fractures':'369','/void-disclosures':'286',
-    '/z-axis':'432'
+    '/z-axis':'432','/z-axis/video':'432'
   };
 
   const path=window.location.pathname;

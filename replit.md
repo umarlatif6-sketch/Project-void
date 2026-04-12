@@ -56,6 +56,8 @@ PROJECT VOID is a full-stack sovereign platform integrating advanced audio stega
 - **Live Prompter:** Real-time speech correction during presentations — the second man behind the imam. Web Speech API transcription, no wake word, always listening. Corrects wrong numbers (256→286), feeds next talking points, suggests module connections. Falls back to local keyword matching when AI unavailable.
 - **OpenClaw Phone Agent:** Mobile-first full-screen agent interface at `/openclaw/agent`. Adriana loaded with full SOUL.md (90+ modules, 12 layers). Text input, voice input (Web Speech API), camera capture (seals as formation memories), GPS awareness, quick command buttons, module browser grouped by layer, persistent session history. PWA meta tags for Add to Home Screen. Offline indicator. Connected to all key VOID APIs.
 - **ICC Manchester Exhibition:** Self-narrating exhibition page. 13 scrollable sections with animated canvas visualizations. Each section has AI narration ("Let The System Speak"). Particle field, scroll-reveal animations, 432 Hz pulsing ring. The system introduces itself — not a human presentation.
+- **Z-Axis Formation Encoder:** 9,999-layer Chladni formation card steganography at `/z-axis`. ~85 KB capacity per 600×800 card with Al-Jabr 286 integrity verification. Encode/decode/capacity APIs.
+- **Z-Axis Video Carrier:** Gigabyte-scale dimensional steganography at `/z-axis/video`. Encodes data into video frames using FFV1 lossless codec in MKV container to preserve RGB24 LSBs exactly. 1min 1080p ≈ 1.3 GB capacity, 5min 4K ≈ 26 GB. Formation-hash-derived pixel position permutations per frame. ChaCha20 encryption, Al-Jabr 286 integrity, parity error correction. Encode/decode/capacity web UI and APIs.
 
 ## External Dependencies
 - **Python 3.11**
@@ -69,6 +71,7 @@ PROJECT VOID is a full-stack sovereign platform integrating advanced audio stega
 - **openai**
 - **gunicorn**
 - **requests**
+- **opencv-python-headless** (video frame processing for Z-Axis Video Carrier)
 - **Standard Library Components:** zlib, lzma, wave, hashlib, tempfile
 - **Firecrawl API**
 - **Tavily API**
