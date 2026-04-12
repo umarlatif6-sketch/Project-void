@@ -33,6 +33,16 @@ from typing import Dict, Optional, Callable
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
+# Try to use imageio-ffmpeg if available, fallback to system ffmpeg
+try:
+    import imageio_ffmpeg
+    FFMPEG_PATH = imageio_ffmpeg.get_ffmpeg_exe()
+    # ffprobe might not be available, use ffmpeg for probing 
+    FFPROBE_PATH = FFMPEG_PATH
+except (ImportError, Exception):
+    FFMPEG_PATH = "ffmpeg"
+    FFPROBE_PATH = "ffprobe"
+
 from void_engine.al_jabr_286 import (
     fatiha_286_hash,
     fatiha_286_hexdigest,
@@ -227,6 +237,19 @@ def _frame_pixel_positions(frame_idx: int, formation_hash: str,
 def _bits_per_frame(width: int, height: int) -> int:
     return width * height * 3
 
+def _get_video_dimensions(video_path: str) -> tuple:
+    """Get video width and height using ffmpeg."""
+    cmd = [FFMPEG_PATH, "-v", "error", "-select_streams", "v:0", 
+           "-show_entries", "stream=width,height", "-of", "csv=p=0", video_path]
+    try:
+        output = subprocess.check_output(cmd, timeout=30, stderr=subprocess.DEVNULL).decode().strip()
+        parts = output.split(",")
+        w = int(parts[0])
+        h = int(parts[1])
+        return w, h
+    except Exception:
+        # Fallback: try with basic ffmpeg info
+        return 1920, 1080
 
 def calculate_video_capacity(resolution: str = "1080p", fps: int = 30,
                              duration_seconds: int = 60) -> Dict:
@@ -380,7 +403,7 @@ def encode_to_video(data: bytes, formation_hash: str,
 
     if carrier_video_path and os.path.exists(carrier_video_path):
         probe_cmd = [
-            "ffprobe", "-v", "error",
+            FFPROBE_PATH, "-v", "error",
             "-select_streams", "v:0",
             "-show_entries", "stream=width,height,r_frame_rate,nb_frames,duration",
             "-of", "csv=p=0",
@@ -470,7 +493,7 @@ def _encode_generated(output_path: str, formation_hash: str,
                       progress_callback: Optional[Callable],
                       session: BW19Session = None) -> None:
     ffmpeg_cmd = [
-        "ffmpeg", "-y",
+        FFMPEG_PATH, "-y",
         "-f", "rawvideo",
         "-vcodec", "rawvideo",
         "-pix_fmt", "rgb24",
@@ -537,7 +560,7 @@ def _encode_with_carrier(carrier_path: str, output_path: str,
                          progress_callback: Optional[Callable],
                          session: BW19Session = None) -> None:
     extract_cmd = [
-        "ffmpeg", "-i", carrier_path,
+        FFMPEG_PATH, "-i", carrier_path,
         "-f", "rawvideo",
         "-pix_fmt", "rgb24",
         "-v", "error",
@@ -545,7 +568,7 @@ def _encode_with_carrier(carrier_path: str, output_path: str,
     ]
 
     encode_cmd = [
-        "ffmpeg", "-y",
+        FFMPEG_PATH, "-y",
         "-f", "rawvideo",
         "-vcodec", "rawvideo",
         "-pix_fmt", "rgb24",
@@ -634,7 +657,7 @@ def _decode_video_pass(video_path: str, formation_hash: str, w: int, h: int,
                        session: BW19Session = None,
                        progress_callback: Optional[Callable] = None) -> bytes:
     extract_cmd = [
-        "ffmpeg", "-i", video_path,
+        FFMPEG_PATH, "-i", video_path,
         "-f", "rawvideo",
         "-pix_fmt", "rgb24",
         "-v", "error",
@@ -746,17 +769,16 @@ def _decode_video_pass(video_path: str, formation_hash: str, w: int, h: int,
 def decode_from_video(video_path: str, formation_hash: str,
                       output_path: Optional[str] = None,
                       progress_callback: Optional[Callable] = None) -> bytes:
-    probe_cmd = [
-        "ffprobe", "-v", "error",
-        "-select_streams", "v:0",
-        "-show_entries", "stream=width,height",
-        "-of", "csv=p=0",
-        video_path
-    ]
-    probe_out = subprocess.check_output(probe_cmd, timeout=30).decode().strip()
-    parts = probe_out.split(",")
-    w = int(parts[0])
-    h = int(parts[1])
+    # Get video dimensions using cv2
+    try:
+        import cv2
+        cap = cv2.VideoCapture(video_path)
+        w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        cap.release()
+    except Exception as e:
+        logger.warning("[Z-Video] cv2 probe failed: %s, using 1280x720", e)
+        w, h = 1280, 720
 
     try:
         session = BW19Session(formation_hash)
@@ -777,7 +799,7 @@ def decode_from_video(video_path: str, formation_hash: str,
 def get_video_info(video_path: str) -> Dict:
     import json as _json
     probe_cmd = [
-        "ffprobe", "-v", "error",
+        FFPROBE_PATH, "-v", "error",
         "-select_streams", "v:0",
         "-show_entries", "stream=width,height,r_frame_rate,nb_frames,duration",
         "-of", "json",

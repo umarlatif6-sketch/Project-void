@@ -43,6 +43,7 @@ def capacity():
     from void_engine.z_axis_video import calculate_video_capacity
 
     resolution = request.args.get("resolution", "1080p")
+    tier = request.args.get("tier", "standard")
     try:
         fps = int(request.args.get("fps", 30))
         duration = int(request.args.get("duration", 60))
@@ -52,7 +53,27 @@ def capacity():
     fps = max(1, min(fps, 120))
     duration = max(1, min(duration, 3600))
 
+    # Apply tier presets
+    tier_configs = {
+        "basic": {"resolution": "480p", "fps": 15, "price_usd": 5, "download_speed": "Standard"},
+        "standard": {"resolution": "720p", "fps": 30, "price_usd": 10, "download_speed": "Fast (BW19-286 optimized)"},
+        "premium": {"resolution": "1080p", "fps": 60, "price_usd": 20, "download_speed": "Ultra-fast (Advanced BW19-286 layers)"},
+        "ultra": {"resolution": "4k", "fps": 120, "price_usd": 50, "download_speed": "Lightning (Full BW19-286 curve acceleration)"},
+    }
+    if tier in tier_configs:
+        config = tier_configs[tier]
+        resolution = config["resolution"]
+        fps = config["fps"]
+        price = config["price_usd"]
+        speed = config["download_speed"]
+    else:
+        price = 0
+        speed = "Custom"
+
     result = calculate_video_capacity(resolution, fps, duration)
+    result["tier"] = tier
+    result["price_usd"] = price
+    result["download_speed"] = speed
     return jsonify(result)
 
 
@@ -66,11 +87,24 @@ def encode_video():
     from void_engine.al_jabr_286 import fatiha_286_hexdigest
 
     formation_hash = request.form.get("formation_hash", "")
+    tier = request.form.get("tier", "standard")
     resolution = request.form.get("resolution", "1080p")
     try:
         fps = int(request.form.get("fps", 30))
     except (ValueError, TypeError):
         fps = 30
+
+    # Apply tier presets if not custom
+    tier_configs = {
+        "basic": {"resolution": "480p", "fps": 15},
+        "standard": {"resolution": "720p", "fps": 30},
+        "premium": {"resolution": "1080p", "fps": 60},
+        "ultra": {"resolution": "4k", "fps": 120},
+    }
+    if tier in tier_configs and resolution == "1080p" and fps == 30:  # Only override if defaults
+        config = tier_configs[tier]
+        resolution = config["resolution"]
+        fps = config["fps"]
 
     file = request.files.get("file")
     text = request.form.get("text", "")
@@ -305,6 +339,16 @@ footer p{font-size:9px;color:#333;letter-spacing:3px}
     <input type="text" id="encHash" placeholder="Enter formation hash or leave blank">
   </div>
 
+  <div class="form-group">
+    <label>TIER (QUALITY & SPEED — AFFECTS PRICE & DOWNLOAD SPEED)</label>
+    <select id="encTier">
+      <option value="basic">Basic ($5) - 480p/15fps, Standard Speed</option>
+      <option value="standard" selected>Standard ($10) - 720p/30fps, Fast (BW19-286 Optimized)</option>
+      <option value="premium">Premium ($20) - 1080p/60fps, Ultra-fast (Advanced BW19-286 Layers)</option>
+      <option value="ultra">Ultra ($50) - 4K/120fps, Lightning (Full BW19-286 Curve Acceleration)</option>
+    </select>
+  </div>
+
   <div class="row">
     <div class="form-group">
       <label>RESOLUTION</label>
@@ -482,6 +526,7 @@ async function doEncode(){
 
   const fd=new FormData();
   fd.append('formation_hash',document.getElementById('encHash').value.trim());
+  fd.append('tier',document.getElementById('encTier').value);
   fd.append('resolution',document.getElementById('encRes').value);
   fd.append('fps',document.getElementById('encFps').value);
   if(encFile)fd.append('file',encFile);

@@ -114,6 +114,53 @@ SLM.V --> TRK.A --> ZHR.V --> KTM.A --> JDR.A
 
 ---
 
+## Real-world testing setup
+
+1. Create a Python virtual environment and install dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+2. Copy the environment sample and fill in required values:
+
+```bash
+cp .env.example .env
+```
+
+Required values:
+- `SESSION_SECRET` — application session secret
+- `DATABASE_URL` — PostgreSQL DSN for production/testing
+
+Optional but recommended for extended features:
+- `AI_INTEGRATIONS_OPENAI_API_KEY`
+- `AI_INTEGRATIONS_OPENAI_BASE_URL`
+- `OPENAI_API_KEY`
+- `STRIPE_API_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+3. Start the app locally:
+
+```bash
+python app.py
+```
+
+4. Verify the app is running:
+
+```bash
+curl http://127.0.0.1:5000/health
+```
+
+5. For a production-style server with Gunicorn:
+
+```bash
+gunicorn -c gunicorn.conf.py app:app
+```
+
+> Note: `ffmpeg` is required for the Z-Axis video carrier routes.
+
 ## How to Test (The Convergence Suite)
 
 ### Test 1: Integrity Round-Trip

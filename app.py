@@ -1,6 +1,12 @@
 import os
 import logging
 import threading
+from pathlib import Path
+
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    load_dotenv = None
 from flask import Flask, render_template, request, session
 
 logging.basicConfig(
@@ -10,6 +16,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+env_path = Path(__file__).resolve().parent / ".env"
+if env_path.exists():
+    if load_dotenv is not None:
+        load_dotenv(env_path)
+        logger.info("Loaded environment variables from %s", env_path)
+    else:
+        logger.warning(
+            ".env file exists but python-dotenv is not installed. "
+            "Install the requirements to load it."
+        )
 
 _secret = os.environ.get("SESSION_SECRET")
 if not _secret:
@@ -22,6 +39,10 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = True
 
 def _startup_migrations():
+    if not os.environ.get("DATABASE_URL"):
+        logger.warning("DATABASE_URL not set; startup migrations are skipped in demo mode.")
+        return
+
     from routes.auth import _ensure_columns
     _ensure_columns()
     try:
@@ -252,6 +273,11 @@ def health_check():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("404.html"), 404
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", "5000"))
+    app.run(host="0.0.0.0", port=port)
 
 
 @app.errorhandler(500)
