@@ -73,12 +73,17 @@ class _ImageBW19Session:
             self._current_point = self.base_point
             self._current_z = 0
         elif z == self._current_z + 1:
-            self._current_point = ec_add(self._current_point, GENERATOR)
+            pt = ec_add(self._current_point, GENERATOR)
+            if pt is None:
+                raise RuntimeError(f"BW19 curve point at infinity at layer {z}")
+            self._current_point = pt
             self._current_z = z
         elif z != self._current_z:
             pt = self.base_point
             for _ in range(z):
                 pt = ec_add(pt, GENERATOR)
+                if pt is None:
+                    raise RuntimeError(f"BW19 curve point at infinity at layer {z}")
             self._current_point = pt
             self._current_z = z
         x, y = self._current_point
@@ -343,16 +348,11 @@ def encode(data: bytes, formation_hash: str,
     return buf.getvalue()
 
 
-def decode(image_data: bytes, formation_hash: str,
-           progress_callback=None) -> bytes:
-    img = Image.open(io.BytesIO(image_data)).convert("RGBA")
-    pixels = np.array(img)
-    width, height = img.size
-
+def _decode_image_pass(pixels, width, height, formation_hash,
+                        session=None, progress_callback=None):
     header_bits_needed = HEADER_SIZE * 8
     total_bits_needed = None
 
-    session = _ImageBW19Session(formation_hash)
     all_bits = []
     bit_idx = 0
     used_slots = set()
@@ -409,6 +409,22 @@ def decode(image_data: bytes, formation_hash: str,
         )
 
     return original_data
+
+
+def decode(image_data: bytes, formation_hash: str,
+           progress_callback=None) -> bytes:
+    img = Image.open(io.BytesIO(image_data)).convert("RGBA")
+    pixels = np.array(img)
+    width, height = img.size
+
+    try:
+        session = _ImageBW19Session(formation_hash)
+        return _decode_image_pass(pixels, width, height, formation_hash,
+                                   session=session, progress_callback=progress_callback)
+    except (ValueError, RuntimeError):
+        logger.info("[Z-Axis] BW19-286 decode failed, falling back to legacy position generation")
+        return _decode_image_pass(pixels, width, height, formation_hash,
+                                   session=None, progress_callback=progress_callback)
 
 
 def _bits_to_bytes(bits: list) -> bytes:

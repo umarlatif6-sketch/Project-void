@@ -104,12 +104,17 @@ class BW19Session:
             self._current_point = self.base_point
             self._current_frame_idx = 0
         elif frame_idx == self._current_frame_idx + 1:
-            self._current_point = ec_add(self._current_point, GENERATOR)
+            pt = ec_add(self._current_point, GENERATOR)
+            if pt is None:
+                raise RuntimeError(f"BW19 curve point at infinity at frame {frame_idx}")
+            self._current_point = pt
             self._current_frame_idx = frame_idx
         elif frame_idx != self._current_frame_idx:
             pt = self.base_point
             for _ in range(frame_idx):
                 pt = ec_add(pt, GENERATOR)
+                if pt is None:
+                    raise RuntimeError(f"BW19 curve point at infinity at frame {frame_idx}")
             self._current_point = pt
             self._current_frame_idx = frame_idx
         x, y = self._current_point
@@ -624,23 +629,9 @@ def _encode_with_carrier(carrier_path: str, output_path: str,
             )
 
 
-def decode_from_video(video_path: str, formation_hash: str,
-                      output_path: Optional[str] = None,
-                      progress_callback: Optional[Callable] = None) -> bytes:
-    probe_cmd = [
-        "ffprobe", "-v", "error",
-        "-select_streams", "v:0",
-        "-show_entries", "stream=width,height",
-        "-of", "csv=p=0",
-        video_path
-    ]
-    probe_out = subprocess.check_output(probe_cmd, timeout=30).decode().strip()
-    parts = probe_out.split(",")
-    w = int(parts[0])
-    h = int(parts[1])
-
-    session = BW19Session(formation_hash)
-
+def _decode_video_pass(video_path: str, formation_hash: str, w: int, h: int,
+                       session: BW19Session = None,
+                       progress_callback: Optional[Callable] = None) -> bytes:
     extract_cmd = [
         "ffmpeg", "-i", video_path,
         "-f", "rawvideo",
@@ -747,6 +738,33 @@ def decode_from_video(video_path: str, formation_hash: str,
             f"Al-Jabr 286 integrity check FAILED — data corrupted or wrong formation hash. "
             f"Expected {checksum_hex[:32]}, got {verify_checksum[:32]}"
         )
+
+    return original_data
+
+
+def decode_from_video(video_path: str, formation_hash: str,
+                      output_path: Optional[str] = None,
+                      progress_callback: Optional[Callable] = None) -> bytes:
+    probe_cmd = [
+        "ffprobe", "-v", "error",
+        "-select_streams", "v:0",
+        "-show_entries", "stream=width,height",
+        "-of", "csv=p=0",
+        video_path
+    ]
+    probe_out = subprocess.check_output(probe_cmd, timeout=30).decode().strip()
+    parts = probe_out.split(",")
+    w = int(parts[0])
+    h = int(parts[1])
+
+    try:
+        session = BW19Session(formation_hash)
+        original_data = _decode_video_pass(video_path, formation_hash, w, h,
+                                           session=session, progress_callback=progress_callback)
+    except (ValueError, RuntimeError):
+        logger.info("[Z-Video] BW19-286 decode failed, falling back to legacy position generation")
+        original_data = _decode_video_pass(video_path, formation_hash, w, h,
+                                           session=None, progress_callback=progress_callback)
 
     if output_path:
         with open(output_path, "wb") as f:
