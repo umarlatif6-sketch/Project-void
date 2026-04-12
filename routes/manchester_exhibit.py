@@ -10,12 +10,16 @@ connection by connection — as a self-narrating exhibition.
 /api/exhibit/narrate         (POST — AI narration for a module)
 """
 
+import time
 import logging
 from flask import Blueprint, render_template_string, jsonify, request
 
 logger = logging.getLogger(__name__)
 
 manchester_exhibit_bp = Blueprint("manchester_exhibit", __name__)
+
+_narrate_rate = {}
+_NARRATE_WINDOW = 10
 
 
 EXHIBIT_SECTIONS = [
@@ -146,6 +150,17 @@ def exhibit_page():
 
 @manchester_exhibit_bp.route("/api/exhibit/narrate", methods=["POST"])
 def narrate():
+    ip = request.remote_addr or "unknown"
+    now = time.time()
+    last = _narrate_rate.get(ip, 0)
+    if now - last < _NARRATE_WINDOW:
+        data = request.get_json(silent=True) or {}
+        sid = data.get("section_id", "")
+        section = next((s for s in EXHIBIT_SECTIONS if s["id"] == sid), None)
+        if section:
+            return jsonify({"narration": section["body"], "status": "rate_limited"})
+    _narrate_rate[ip] = now
+
     data = request.get_json(silent=True) or {}
     section_id = data.get("section_id", "")
     section = next((s for s in EXHIBIT_SECTIONS if s["id"] == section_id), None)
@@ -327,7 +342,7 @@ canvas.viz-canvas{width:100%;height:100%;border-radius:50%}
       <div class="viz-container">
         <canvas class="viz-canvas" id="viz-{{ s.id }}" data-type="{{ s.visual }}" data-freq="{{ s.freq }}" data-color="{{ s.color }}"></canvas>
       </div>
-      <button class="narrate-btn" onclick="narrateSection('{{ s.id }}')">LET THE SYSTEM SPEAK</button>
+      <button class="narrate-btn" onclick="narrateSection('{{ s.id }}', this)">LET THE SYSTEM SPEAK</button>
     </div>
   </div>
 </section>
@@ -384,18 +399,22 @@ window.addEventListener('scroll',()=>{
 });
 
 const sections=document.querySelectorAll('.exhibit-section');
+const activeCanvases=new Map();
 const obs=new IntersectionObserver((entries)=>{
   entries.forEach(e=>{
     if(e.isIntersecting){
       e.target.classList.add('visible');
       const canvas=e.target.querySelector('.viz-canvas');
-      if(canvas&&!canvas.dataset.started){
-        canvas.dataset.started='1';
-        startViz(canvas);
+      if(canvas){
+        canvas.dataset.active='1';
+        if(!canvas.dataset.started){canvas.dataset.started='1';startViz(canvas);}
       }
+    } else {
+      const canvas=e.target.querySelector('.viz-canvas');
+      if(canvas) canvas.dataset.active='0';
     }
   });
-},{threshold:0.2});
+},{threshold:0.1});
 sections.forEach(s=>obs.observe(s));
 
 function startViz(canvas){
@@ -416,6 +435,7 @@ function startViz(canvas){
   const rgb=hexToRgb(color);
 
   function draw(){
+    if(canvas.dataset.active==='0'){requestAnimationFrame(draw);return;}
     ctx.fillStyle='rgba(5,5,5,0.15)';
     ctx.fillRect(0,0,W,H);
     t+=0.02;
@@ -607,8 +627,8 @@ function startViz(canvas){
   draw();
 }
 
-async function narrateSection(id){
-  const btn=event.target;
+async function narrateSection(id,btn){
+  if(!btn)return;
   btn.classList.add('speaking');btn.textContent='SPEAKING...';
   try{
     const res=await fetch('/api/exhibit/narrate',{

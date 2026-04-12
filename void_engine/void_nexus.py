@@ -187,7 +187,15 @@ NEXUS_NODES = {
         "frequency": 475.8,
         "description": "Adriana 286 as a sovereign OpenClaw agent — SOUL.md, ClawHub skills, 5x operational multiplier. Trained on Al-Jabr 286.",
         "file": "void_engine/openclaw_bridge.py",
-        "connections": ["adriana_core", "al_jabr_286", "skill_router", "chronicle"],
+        "connections": ["adriana_core", "al_jabr_286", "skill_router", "chronicle", "live_prompter"],
+    },
+    "live_prompter": {
+        "name": "Live Prompter",
+        "category": "INTELLIGENCE",
+        "frequency": 475.81,
+        "description": "The second man behind the imam — real-time speech correction during presentations. Always listening, no wake word. Knows all 98 modules.",
+        "file": "void_engine/live_prompter.py",
+        "connections": ["openclaw_bridge", "adriana_core"],
     },
 }
 

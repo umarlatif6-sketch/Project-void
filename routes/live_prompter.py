@@ -6,9 +6,14 @@ sends to Adriana for corrections/prompts, displays on screen.
 The second man behind the imam.
 """
 
+import time
 from flask import Blueprint, request, jsonify, render_template_string
 
 live_prompter_bp = Blueprint("live_prompter", __name__)
+
+_rate_limit = {}
+_RATE_WINDOW = 5
+_MAX_TRANSCRIPT = 500
 
 
 @live_prompter_bp.route("/openclaw/live")
@@ -18,10 +23,17 @@ def page():
 
 @live_prompter_bp.route("/api/openclaw/live/correct", methods=["POST"])
 def correct():
+    ip = request.remote_addr or "unknown"
+    now = time.time()
+    last = _rate_limit.get(ip, 0)
+    if now - last < _RATE_WINDOW:
+        return jsonify({"correction": "ON TRACK", "status": "rate_limited"}), 200
+    _rate_limit[ip] = now
+
     from void_engine.live_prompter import generate_correction
     data = request.get_json(silent=True) or {}
-    transcript = data.get("transcript", "").strip()
-    context = data.get("context", "").strip()
+    transcript = data.get("transcript", "").strip()[:_MAX_TRANSCRIPT]
+    context = data.get("context", "").strip()[:200]
     if not transcript:
         return jsonify({"error": "No transcript provided"}), 400
     return jsonify(generate_correction(transcript, context))
@@ -124,6 +136,7 @@ let listening = false;
 let fullTranscript = '';
 let lastSentLength = 0;
 let correctionTimer = null;
+let inflight = false;
 
 function toggleMic() {
   if (listening) { stopListening(); } else { startListening(); }
@@ -162,7 +175,7 @@ function startListening() {
     if (correctionTimer) clearTimeout(correctionTimer);
     correctionTimer = setTimeout(() => {
       const newText = fullTranscript.substring(lastSentLength).trim();
-      if (newText.length > 10) {
+      if (newText.length > 10 && !inflight) {
         sendForCorrection(newText);
         lastSentLength = fullTranscript.length;
       }
@@ -197,6 +210,8 @@ function stopListening() {
 }
 
 async function sendForCorrection(text) {
+  if(inflight) return;
+  inflight = true;
   try {
     const res = await fetch('/api/openclaw/live/correct', {
       method: 'POST',
@@ -207,6 +222,8 @@ async function sendForCorrection(text) {
     showCorrection(d.correction, text);
   } catch(e) {
     console.error('Correction error:', e);
+  } finally {
+    inflight = false;
   }
 }
 
@@ -247,7 +264,12 @@ function addHistory(correction, speech, type) {
   const hist = document.getElementById('history');
   const item = document.createElement('div');
   item.className = `hist-item ${type}`;
-  item.innerHTML = `${correction}<div class="hist-speech">"${speech.substring(0, 80)}..."</div>`;
+  const cText = document.createTextNode(correction);
+  item.appendChild(cText);
+  const sp = document.createElement('div');
+  sp.className = 'hist-speech';
+  sp.textContent = '"' + speech.substring(0, 80) + '..."';
+  item.appendChild(sp);
   hist.insertBefore(item, hist.firstChild);
   if (hist.children.length > 20) hist.removeChild(hist.lastChild);
 }
