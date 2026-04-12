@@ -437,7 +437,10 @@ def _encode_generated(output_path: str, formation_hash: str,
 
     finally:
         proc.stdin.close()
-        proc.wait(timeout=120)
+        rc = proc.wait(timeout=120)
+        if rc != 0:
+            stderr_out = proc.stderr.read().decode(errors="replace") if proc.stderr else ""
+            raise RuntimeError(f"ffmpeg encode failed (rc={rc}): {stderr_out[:500]}")
 
 
 def _encode_with_carrier(carrier_path: str, output_path: str,
