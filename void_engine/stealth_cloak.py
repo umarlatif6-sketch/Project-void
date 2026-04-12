@@ -69,6 +69,7 @@ _DEFAULT_VISIBLE = {
     "/istanbul-guide",
     "/istanbul-guide-urdu",
     "/memories",
+    "/z-axis",
 }
 
 

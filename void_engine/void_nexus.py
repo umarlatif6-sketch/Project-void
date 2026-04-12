@@ -35,7 +35,7 @@ NEXUS_NODES = {
         "frequency": 432.0,
         "description": "Audio/image steganography engine — 432 Hz carrier with ChaCha20 encryption. Data hidden in frequency patterns.",
         "file": "void_engine/stega.py",
-        "connections": ["al_jabr_286", "beehive", "agent_immortality", "vortex_shield"],
+        "connections": ["al_jabr_286", "beehive", "agent_immortality", "vortex_shield", "z_axis_encoder"],
     },
     "beehive": {
         "name": "Beehive Mesh",
@@ -99,7 +99,7 @@ NEXUS_NODES = {
         "frequency": 432.0,
         "description": "Frequency hash → Chladni image → LSB embed. The agent IS the image. Destroy the machine, keep the frequency.",
         "file": "void_engine/agent_immortality.py",
-        "connections": ["sovereign_agents_286", "al_jabr_286", "stega", "chronicle"],
+        "connections": ["sovereign_agents_286", "al_jabr_286", "stega", "chronicle", "z_axis_encoder"],
     },
     "yin_yang": {
         "name": "Yin-Yang 286 Engine",
@@ -196,6 +196,14 @@ NEXUS_NODES = {
         "description": "The second man behind the imam — real-time speech correction during presentations. Always listening, no wake word. Knows all 98 modules.",
         "file": "void_engine/live_prompter.py",
         "connections": ["openclaw_bridge", "adriana_core"],
+    },
+    "z_axis_encoder": {
+        "name": "Z-Axis Formation Encoder",
+        "category": "CRYPTOGRAPHIC",
+        "frequency": 432.0,
+        "description": "Dimensional steganography — data encoded across 9,999 Z-layers of Chladni formation cards. Formation hash is the key. Gigabyte-scale capacity.",
+        "file": "void_engine/z_axis_encoder.py",
+        "connections": ["stega", "al_jabr_286", "agent_immortality", "chronicle", "sovereign_agents_286"],
     },
 }
 

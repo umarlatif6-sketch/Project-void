@@ -29,6 +29,7 @@ RESONANCE_JS = r"""
     <button onclick="voidRes.capture()" style="background:#111;border:1px solid #222;color:#888;padding:8px 16px;font-size:10px;letter-spacing:2px;font-family:'Courier New',monospace;cursor:pointer;border-radius:4px">CAPTURE</button>
     <button onclick="voidRes.download()" style="background:#111;border:1px solid #222;color:#888;padding:8px 16px;font-size:10px;letter-spacing:2px;font-family:'Courier New',monospace;cursor:pointer;border-radius:4px">DOWNLOAD</button>
     <button onclick="voidRes.toggleMic()" id="resMicBtn" style="background:#111;border:1px solid #222;color:#555;padding:8px 16px;font-size:10px;letter-spacing:2px;font-family:'Courier New',monospace;cursor:pointer;border-radius:4px">MIC OFF</button>
+    <button onclick="voidRes.encodeInto()" style="background:#111;border:1px solid #2a3a1a;color:#4caf50;padding:8px 16px;font-size:10px;letter-spacing:2px;font-family:'Courier New',monospace;cursor:pointer;border-radius:4px">ENCODE INTO THIS</button>
   </div>
 </div>
 
@@ -47,7 +48,8 @@ RESONANCE_JS = r"""
     '/istanbul-guide':'432','/istanbul-guide-urdu':'432',
     '/memories':'475.81','/formation-invisibility':'286',
     '/frequency-manual':'432','/voice-formation':'440',
-    '/fractures':'369','/void-disclosures':'286'
+    '/fractures':'369','/void-disclosures':'286',
+    '/z-axis':'432'
   };
 
   const path=window.location.pathname;
@@ -290,6 +292,43 @@ RESONANCE_JS = r"""
       link.download='void_resonance_'+Date.now()+'.png';
       link.href=big.toDataURL('image/png');
       link.click();
+    },
+    encodeInto:function(){
+      var freq=getLiveFreq();
+      var mode=getMode(freq);
+      var ts=new Date().toISOString();
+      var ctx={
+        page:path,
+        frequency:freq,
+        mode:{n:mode.n,m:mode.m},
+        scroll_pct:Math.round(scrollFactor*100),
+        mouse_pct:Math.round(mouseFactor*100),
+        mic_level:Math.round(micLevel*100),
+        frame:frameCount,
+        timestamp:ts,
+        title:document.title,
+        user_agent:navigator.userAgent.substring(0,80)
+      };
+      document.getElementById('resBigInfo').textContent='ENCODING MOMENT INTO Z-AXIS FORMATION...';
+      fetch('/api/z-axis/encode-moment',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({context:ctx})
+      }).then(function(r){return r.json()}).then(function(d){
+        if(d.status==='encoded'){
+          document.getElementById('resBigInfo').textContent='Z-AXIS ENCODED \u2014 '+d.formation_hash.substring(0,24)+'...';
+          document.getElementById('resBigFreq').textContent='ENCODED AT '+freq.toFixed(2)+' Hz';
+          document.getElementById('resBigMode').textContent=d.layers+' LAYERS \u2014 '+d.image_size_bytes+' BYTES';
+          var a=document.createElement('a');
+          a.download='void_zaxis_moment_'+Date.now()+'.png';
+          a.href='data:image/png;base64,'+d.image_b64;
+          a.click();
+        }else{
+          document.getElementById('resBigInfo').textContent='ENCODE FAILED: '+(d.error||'unknown');
+        }
+      }).catch(function(e){
+        document.getElementById('resBigInfo').textContent='ENCODE ERROR: '+e.message;
+      });
     },
     toggleMic:function(){
       const btn=document.getElementById('resMicBtn');

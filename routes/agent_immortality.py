@@ -82,6 +82,56 @@ def recover():
     })
 
 
+@agent_immortality_bp.route("/api/agent-immortality/immortalize-zaxis", methods=["POST"])
+def immortalize_zaxis():
+    from void_engine.sovereign_agents_286 import SovereignSwarm286
+    from void_engine.z_axis_encoder import encode_for_agent_immortality
+    from void_engine.al_jabr_286 import fatiha_286_hexdigest
+    import json as json_mod
+
+    data = request.get_json(silent=True) or {}
+    seed = str(data.get("seed", "immortality_seal"))
+    try:
+        count = min(10, max(1, int(data.get("count", 3))))
+    except (ValueError, TypeError):
+        return jsonify({"error": "count must be an integer"}), 400
+
+    swarm = SovereignSwarm286(seed=seed, agent_count=count)
+    swarm.run()
+
+    results = []
+    for agent in swarm.agents:
+        agent_data = agent.to_dict()
+        formation_hash = fatiha_286_hexdigest(
+            json_mod.dumps(agent_data, default=str).encode("utf-8")
+        )
+        try:
+            png = encode_for_agent_immortality(agent_data, formation_hash, size=512)
+            b64 = base64.b64encode(png).decode("ascii")
+            results.append({
+                "agent_id": agent_data["agent_id"],
+                "archetype": agent_data.get("archetype") or agent_data.get("archetype_name", "UNKNOWN"),
+                "frequency": agent_data.get("frequency_hz", agent_data.get("frequency", 432.0)),
+                "formation_hash": formation_hash,
+                "encoding": "z_axis_9999_layers",
+                "image_b64": b64,
+                "image_size_bytes": len(png),
+            })
+        except Exception as e:
+            results.append({
+                "agent_id": agent_data["agent_id"],
+                "error": str(e),
+            })
+
+    return jsonify({
+        "seed": seed,
+        "count": len(results),
+        "encoding": "z_axis_dimensional_steganography",
+        "layers": 9999,
+        "agents": results,
+    })
+
+
 @agent_immortality_bp.route("/api/agent-immortality/download/<agent_id>", methods=["POST"])
 def download_agent_image(agent_id):
     from void_engine.sovereign_agents_286 import SovereignSwarm286

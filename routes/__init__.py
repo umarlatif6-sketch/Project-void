@@ -109,6 +109,7 @@ from routes.istanbul_guide import istanbul_guide_bp
 from routes.istanbul_guide_urdu import istanbul_guide_urdu_bp
 from routes.memory_capture import memory_capture_bp
 from routes.openclaw_agent import openclaw_agent_bp
+from routes.z_axis import z_axis_bp
 from void_engine.stealth_cloak import stealth_bp
 
 
@@ -224,4 +225,5 @@ def register_blueprints(app):
     app.register_blueprint(istanbul_guide_urdu_bp)
     app.register_blueprint(memory_capture_bp)
     app.register_blueprint(openclaw_agent_bp)
+    app.register_blueprint(z_axis_bp)
     app.register_blueprint(stealth_bp)

@@ -78,15 +78,32 @@ def seal():
         "has_thumbnail": bool(thumbnail_data),
     }
 
+    z_axis_card_b64 = None
+    try:
+        from void_engine.z_axis_encoder import encode_memory_metadata
+        import base64 as b64mod
+        png_bytes = encode_memory_metadata(memory, formation_hash, thumbnail_data)
+        z_axis_card_b64 = b64mod.b64encode(png_bytes).decode("ascii")
+        memory["z_axis_encoded"] = True
+        memory["z_axis_card_size"] = len(png_bytes)
+    except Exception as zex:
+        logger.warning(f"Z-axis encoding skipped for memory: {zex}")
+        memory["z_axis_encoded"] = False
+
     _sealed_memories.append(memory)
     logger.info(f"Memory sealed: {title} @ {freq:.2f} Hz — {formation_hash[:16]}...")
 
-    return jsonify({
+    response = {
         "status": "sealed",
         "memory": memory,
         "message_en": f"Memory sealed at {freq:.2f} Hz — Chladni mode {mode}. Formation hash: {formation_hash[:32]}...",
         "message_ur": f"یاد محفوظ ہو گئی — {freq:.2f} Hz پر۔ فارمیشن ہیش: {formation_hash[:16]}...",
-    })
+    }
+    if z_axis_card_b64:
+        response["z_axis_card_b64"] = z_axis_card_b64
+        response["z_axis_card_size"] = memory.get("z_axis_card_size", 0)
+
+    return jsonify(response)
 
 
 @memory_capture_bp.route("/api/memories/list")
