@@ -188,6 +188,12 @@ except Exception as e:
     logger.exception("FATAL: Failed to register blueprints during startup: %s", e)
     raise
 
+try:
+    from void_engine.resonance_engine import inject_resonance_engine
+    inject_resonance_engine(app)
+except Exception as e:
+    logger.warning("ResonanceEngine injection skipped: %s", e)
+
 
 _LANG_SWITCHER_HTML = None
 
