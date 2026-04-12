@@ -43,7 +43,7 @@ RESONANCE_JS = r"""
     '/vortex-shield':'432','/vortex-shield/geo-map':'432',
     '/agent-immortality':'475.81','/stance-science':'528',
     '/nexus':'432','/desert-reclamation':'396',
-    '/openclaw':'475.81','/openclaw/live':'475.81',
+    '/openclaw':'475.81','/openclaw/live':'475.81','/openclaw/agent':'432',
     '/istanbul-guide':'432','/istanbul-guide-urdu':'432',
     '/memories':'475.81','/formation-invisibility':'286',
     '/frequency-manual':'432','/voice-formation':'440',
@@ -103,8 +103,9 @@ RESONANCE_JS = r"""
     const scroll_shift=scrollFactor*48;
     const mouse_shift=mouseFactor*24;
     const mic_shift=micLevel*60;
+    const chat_shift=(voidRes.chatFactor||0)*36;
     const time_drift=Math.sin(frameCount*0.002)*8;
-    return baseFreq+scroll_shift+mouse_shift+mic_shift+time_drift;
+    return baseFreq+scroll_shift+mouse_shift+mic_shift+chat_shift+time_drift;
   }
 
   function getMode(freq){
@@ -260,6 +261,7 @@ RESONANCE_JS = r"""
   animate();
 
   window.voidRes={
+    chatFactor:0,
     capture:function(){
       const freq=getLiveFreq();
       const mode=getMode(freq);

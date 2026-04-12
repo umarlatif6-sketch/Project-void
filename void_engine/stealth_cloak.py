@@ -65,6 +65,7 @@ _DEFAULT_VISIBLE = {
     "/desert-reclamation",
     "/openclaw",
     "/openclaw/live",
+    "/openclaw/agent",
     "/istanbul-guide",
     "/istanbul-guide-urdu",
     "/memories",
