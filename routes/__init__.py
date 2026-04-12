@@ -107,6 +107,7 @@ from routes.openclaw_bridge import openclaw_bridge_bp
 from routes.live_prompter import live_prompter_bp
 from routes.istanbul_guide import istanbul_guide_bp
 from routes.istanbul_guide_urdu import istanbul_guide_urdu_bp
+from routes.memory_capture import memory_capture_bp
 from void_engine.stealth_cloak import stealth_bp
 
 
@@ -220,4 +221,5 @@ def register_blueprints(app):
     app.register_blueprint(live_prompter_bp)
     app.register_blueprint(istanbul_guide_bp)
     app.register_blueprint(istanbul_guide_urdu_bp)
+    app.register_blueprint(memory_capture_bp)
     app.register_blueprint(stealth_bp)

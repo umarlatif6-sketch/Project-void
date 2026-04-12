@@ -410,6 +410,11 @@ footer .love{color:#c0955a;margin-top:8px;font-size:16px}
   </div>
 </div>
 
+<div class="section" style="text-align:center;padding:20px 0">
+  <a href="/memories" style="display:inline-block;background:#c0955a;color:#0a0a0a;text-decoration:none;padding:12px 24px;font-size:14px;border-radius:4px;font-weight:bold">یادیں محفوظ کریں</a>
+  <div style="font-size:13px;color:#555;margin-top:8px">کوئی لمحہ ریکارڈ کریں — تصویر یا ویڈیو — اور فارمیشن یاد کے طور پر محفوظ کریں</div>
+</div>
+
 <footer>
   <p>PROJECT VOID — ISTANBUL GUIDE</p>
   <div class="love">سفر محفوظ ہو، امی۔ واپس آنے تک دعاؤں میں یاد رکھیں۔</div>

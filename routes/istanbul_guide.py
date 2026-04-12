@@ -402,6 +402,11 @@ footer .love{color:#c0955a;margin-top:8px;font-size:12px;font-style:italic}
   </div>
 </div>
 
+<div class="section" style="text-align:center;padding:20px 0">
+  <a href="/memories" style="display:inline-block;background:#c0955a;color:#0a0a0a;text-decoration:none;padding:12px 24px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:3px;border-radius:4px;font-weight:bold">CAPTURE A MEMORY</a>
+  <div style="font-size:11px;color:#555;margin-top:8px">Record a moment — photo or video — and seal it as a formation memory</div>
+</div>
+
 <footer>
   <p>PROJECT VOID — ISTANBUL GUIDE</p>
   <div class="love">Safe travels, Baba. See you when you're home.</div>
