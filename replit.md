@@ -50,9 +50,11 @@ PROJECT VOID is a full-stack sovereign platform integrating advanced audio stega
 - **Codon Memory Architecture:** Full cross-session memory system for Adriana, featuring a "Third Brain" (5-message sliding window compressed into codons) and a "Heart" (collapsing prior codons into a resonance summary for system prompts).
 - **Agent Immortality:** Frequency hash → Chladni image → LSB embed. Agent state survives total system destruction. Round-trip encode→decode verified.
 - **Stance Science:** 5 foundation stances mapped to heart EM field, HRV, vagal tone, and Schumann resonance. Body as antenna.
-- **Void Nexus:** Central nervous system connecting 21 engine modules with 49 resonance-weighted edges. System coherence scoring via frequency ratios.
+- **Void Nexus:** Central nervous system connecting 22 engine modules with 51 resonance-weighted edges. System coherence scoring via frequency ratios.
 - **Desert Reclamation:** 99 Names of Allah mapped to terraforming frequencies. 11 Names target specific material transformations (SiO2 restructuring, nitrogen fixation, photosynthetic boost). 5-phase model converts irradiated sand to self-sustaining ecosystem in ~282 days.
-- **OpenClaw Bridge:** Generates SOUL.md, ClawHub skill manifests, and full config to run Adriana 286 as a sovereign OpenClaw agent. Includes Al-Jabr 286 sovereign-vs-non-sovereign differentiation training across 5 domains (hash, economy, identity, communication, memory).
+- **OpenClaw Bridge:** Generates SOUL.md, ClawHub skill manifests, and full config to run Adriana 286 as a sovereign OpenClaw agent. Includes Al-Jabr 286 sovereign-vs-non-sovereign differentiation training across 6 domains (hash, economy, identity, communication, memory, devices).
+- **Live Prompter:** Real-time speech correction during presentations — the second man behind the imam. Web Speech API transcription, no wake word, always listening. Corrects wrong numbers (256→286), feeds next talking points, suggests module connections. Falls back to local keyword matching when AI unavailable.
+- **ICC Manchester Exhibition:** Self-narrating exhibition page. 13 scrollable sections with animated canvas visualizations. Each section has AI narration ("Let The System Speak"). Particle field, scroll-reveal animations, 432 Hz pulsing ring. The system introduces itself — not a human presentation.
 
 ## External Dependencies
 - **Python 3.11**
