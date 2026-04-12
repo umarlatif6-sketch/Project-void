@@ -34,6 +34,11 @@ from void_engine.al_jabr_286 import (
     fatiha_286_derive_key,
     fatiha_286_truncated,
 )
+from void_engine.pairing_bw19_286 import (
+    al_jabr_to_curve_point,
+    ec_add,
+    GENERATOR,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -55,9 +60,39 @@ def _hash_to_seed(formation_hash: str, offset: int) -> int:
     return v
 
 
-def _pixel_positions_for_layer(z: int, formation_hash: str, width: int, height: int) -> list:
-    seed = _hash_to_seed(formation_hash, (z * 7) % max(1, len(formation_hash) - 8))
-    rng = np.random.RandomState(seed ^ (z * 2654435761 & 0xFFFFFFFF))
+class _ImageBW19Session:
+    __slots__ = ('base_point', '_current_point', '_current_z')
+
+    def __init__(self, formation_hash: str):
+        self.base_point = al_jabr_to_curve_point(formation_hash)
+        self._current_point = self.base_point
+        self._current_z = 0
+
+    def layer_seed(self, z: int) -> int:
+        if z == 0:
+            self._current_point = self.base_point
+            self._current_z = 0
+        elif z == self._current_z + 1:
+            self._current_point = ec_add(self._current_point, GENERATOR)
+            self._current_z = z
+        elif z != self._current_z:
+            pt = self.base_point
+            for _ in range(z):
+                pt = ec_add(pt, GENERATOR)
+            self._current_point = pt
+            self._current_z = z
+        x, y = self._current_point
+        return (x ^ y) & 0xFFFFFFFF
+
+
+def _pixel_positions_for_layer(z: int, formation_hash: str, width: int, height: int,
+                                session: _ImageBW19Session = None) -> list:
+    if session is not None:
+        seed = session.layer_seed(z)
+    else:
+        seed = _hash_to_seed(formation_hash, (z * 7) % max(1, len(formation_hash) - 8))
+        seed = seed ^ (z * 2654435761 & 0xFFFFFFFF)
+    rng = np.random.RandomState(seed)
 
     margin_x = 20
     margin_y = 60
@@ -221,11 +256,12 @@ def _finalize_card(img: Image.Image, formation_hash: str, extra_label: str = "")
 
 
 def _compute_actual_capacity(formation_hash: str, width: int, height: int) -> int:
+    session = _ImageBW19Session(formation_hash)
     used_slots = set()
     writable = 0
     bit_idx = 0
     for z in range(Z_LAYERS):
-        positions = _pixel_positions_for_layer(z, formation_hash, width, height)
+        positions = _pixel_positions_for_layer(z, formation_hash, width, height, session=session)
         for i, (px, py) in enumerate(positions):
             channel = (bit_idx + z) % 3
             slot = (px, py, channel)
@@ -268,6 +304,7 @@ def encode(data: bytes, formation_hash: str,
     img = _finalize_card(img, formation_hash, extra_label=label)
     pixels = np.array(img)
 
+    session = _ImageBW19Session(formation_hash)
     used_slots = set()
     bit_idx = 0
 
@@ -275,7 +312,7 @@ def encode(data: bytes, formation_hash: str,
         if bit_idx >= total_bits:
             break
 
-        positions = _pixel_positions_for_layer(z, formation_hash, width, height)
+        positions = _pixel_positions_for_layer(z, formation_hash, width, height, session=session)
 
         for i, (px, py) in enumerate(positions):
             if bit_idx >= total_bits:
@@ -315,12 +352,13 @@ def decode(image_data: bytes, formation_hash: str,
     header_bits_needed = HEADER_SIZE * 8
     total_bits_needed = None
 
+    session = _ImageBW19Session(formation_hash)
     all_bits = []
     bit_idx = 0
     used_slots = set()
 
     for z in range(Z_LAYERS):
-        positions = _pixel_positions_for_layer(z, formation_hash, width, height)
+        positions = _pixel_positions_for_layer(z, formation_hash, width, height, session=session)
 
         for i, (px, py) in enumerate(positions):
             channel = (bit_idx + z) % 3

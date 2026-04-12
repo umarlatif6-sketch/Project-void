@@ -39,6 +39,13 @@ from void_engine.al_jabr_286 import (
     fatiha_286_seed,
     fatiha_286_derive_key,
     fatiha_286_truncated,
+    FATIHA_LAYERS,
+)
+from void_engine.pairing_bw19_286 import (
+    al_jabr_to_curve_point,
+    ec_add,
+    GENERATOR,
+    P as CURVE_P,
 )
 
 logger = logging.getLogger(__name__)
@@ -47,6 +54,9 @@ MAGIC = b"ZVID"
 HEADER_SIZE = 64
 PARITY_BLOCK = 255
 VILLAGE_STANDARD_HZ = 432
+
+FATIHA_WEIGHTS = FATIHA_LAYERS
+FATIHA_WEIGHT_SUM = sum(FATIHA_WEIGHTS)
 
 RESOLUTIONS = {
     "480p": (854, 480),
@@ -58,6 +68,52 @@ RESOLUTIONS = {
 
 DEFAULT_FPS = 30
 DEFAULT_RESOLUTION = "1080p"
+
+
+class BW19Session:
+    __slots__ = (
+        'formation_hash', 'base_point', '_current_point',
+        '_current_frame_idx', 'chladni_params',
+    )
+
+    def __init__(self, formation_hash: str):
+        self.formation_hash = formation_hash
+        self.base_point = al_jabr_to_curve_point(formation_hash)
+        self._current_point = self.base_point
+        self._current_frame_idx = 0
+        self.chladni_params = self._precompute_chladni(self.base_point)
+
+    def _precompute_chladni(self, pt):
+        bx, by = pt
+        params = []
+        for i, weight in enumerate(FATIHA_WEIGHTS):
+            shift = i * 36
+            n_raw = ((bx >> shift) & 0xFF) % 12 + 2
+            m_raw = ((by >> shift) & 0xFF) % 12 + 2
+            if n_raw == m_raw:
+                m_raw += 1
+            cr = 140 + ((bx >> (i * 20)) & 0xFF) % 116
+            cg = 100 + ((by >> (i * 20)) & 0xFF) % 156
+            cb = 50 + ((bx >> (i * 20 + 10)) & 0xFF) % 206
+            phase_offset = weight * 0.1 * math.pi
+            params.append((n_raw, m_raw, weight, cr, cg, cb, phase_offset))
+        return params
+
+    def frame_seed(self, frame_idx):
+        if frame_idx == 0:
+            self._current_point = self.base_point
+            self._current_frame_idx = 0
+        elif frame_idx == self._current_frame_idx + 1:
+            self._current_point = ec_add(self._current_point, GENERATOR)
+            self._current_frame_idx = frame_idx
+        elif frame_idx != self._current_frame_idx:
+            pt = self.base_point
+            for _ in range(frame_idx):
+                pt = ec_add(pt, GENERATOR)
+            self._current_point = pt
+            self._current_frame_idx = frame_idx
+        x, y = self._current_point
+        return (x ^ y) & 0xFFFFFFFF
 
 
 def _hash_to_seed(formation_hash: str, offset: int) -> int:
@@ -149,10 +205,15 @@ def _parse_header(header_bytes: bytes):
 
 
 def _frame_pixel_positions(frame_idx: int, formation_hash: str,
-                           width: int, height: int) -> np.ndarray:
-    offset = (frame_idx * 7) % max(1, len(formation_hash) - 8)
-    seed = _hash_to_seed(formation_hash, offset)
-    rng = np.random.RandomState(seed ^ (frame_idx * 2654435761 & 0xFFFFFFFF))
+                           width: int, height: int,
+                           session: BW19Session = None) -> np.ndarray:
+    if session is not None:
+        seed = session.frame_seed(frame_idx)
+    else:
+        offset = (frame_idx * 7) % max(1, len(formation_hash) - 8)
+        seed = _hash_to_seed(formation_hash, offset)
+        seed = seed ^ (frame_idx * 2654435761 & 0xFFFFFFFF)
+    rng = np.random.RandomState(seed)
     total_pixels = width * height
     indices = rng.permutation(total_pixels)
     return indices
@@ -201,16 +262,10 @@ def calculate_video_capacity(resolution: str = "1080p", fps: int = 30,
 
 
 def _generate_chladni_frame(frame_idx: int, total_frames: int,
-                            formation_hash: str, width: int, height: int) -> np.ndarray:
+                            formation_hash: str, width: int, height: int,
+                            session: BW19Session = None) -> np.ndarray:
     frame = np.zeros((height, width, 3), dtype=np.uint8)
     frame[:] = 5
-
-    freq = 432.0 + (_hash_to_seed(formation_hash, 0) % 14800) / 100.0
-    f_norm = (freq % 1000) / 1000.0
-    base_m = max(1, int(f_norm * 10) + 1)
-    base_n = max(1, int((f_norm * 7.3) % 7) + 2)
-    if base_m == base_n:
-        base_n += 1
 
     step = 2
     px_arr = np.arange(0, width, step)
@@ -220,31 +275,53 @@ def _generate_chladni_frame(frame_idx: int, total_frames: int,
     pixels = frame.astype(np.float64)
     t = frame_idx / max(1, total_frames - 1)
 
-    n_layers = 8
-    for z in range(n_layers):
-        z_t = z / n_layers
-        seed = _hash_to_seed(formation_hash, (z * 3) % max(1, len(formation_hash) - 8))
-        n = base_n + math.sin(z * 0.5 + seed + t * math.pi * 2) * 2
-        m = base_m + math.cos(z * 0.7 + seed + t * math.pi * 2) * 1.5
-        phase = t * math.pi * 4 + z_t * math.pi * 2 + seed * 0.1
+    if session is not None:
+        for z, (n_raw, m_raw, weight, cr, cg, cb, phase_offset) in enumerate(session.chladni_params):
+            z_t = z / 7
+            n = n_raw + math.sin(z * 0.5 + t * math.pi * 2) * 2
+            m = m_raw + math.cos(z * 0.7 + t * math.pi * 2) * 1.5
+            phase = t * math.pi * 4 + z_t * math.pi * 2 + phase_offset
+            w_norm = weight / FATIHA_WEIGHT_SUM
 
-        r0 = int(formation_hash[(z * 3) % len(formation_hash)], 16)
-        g0 = int(formation_hash[(z * 3 + 1) % len(formation_hash)], 16)
-        b0 = int(formation_hash[(z * 3 + 2) % len(formation_hash)], 16)
-        cr = 140 + r0 * 7
-        cg = 100 + g0 * 5
-        cb = 50 + b0 * 4
+            val = (np.sin(n * nx_grid * np.pi + phase) * np.sin(m * ny_grid * np.pi + phase)
+                   + np.sin(m * nx_grid * np.pi + phase) * np.sin(n * ny_grid * np.pi + phase))
+            abs_val = np.abs(val)
+            mask = abs_val < 0.15
+            a = w_norm * 0.18 * (1 + abs_val * 3) * mask
 
-        val = (np.sin(n * nx_grid * np.pi + phase) * np.sin(m * ny_grid * np.pi + phase)
-               + np.sin(m * nx_grid * np.pi + phase) * np.sin(n * ny_grid * np.pi + phase))
-        abs_val = np.abs(val)
-        mask = abs_val < 0.15
-        a = 0.08 * (1 + abs_val * 3) * mask
-
-        for ci, cc in enumerate([cr, cg, cb]):
-            region = pixels[::step, ::step, ci]
-            region += cc * a
-            pixels[::step, ::step, ci] = region
+            for ci, cc in enumerate([cr, cg, cb]):
+                region = pixels[::step, ::step, ci]
+                region += cc * a
+                pixels[::step, ::step, ci] = region
+    else:
+        freq = 432.0 + (_hash_to_seed(formation_hash, 0) % 14800) / 100.0
+        f_norm = (freq % 1000) / 1000.0
+        base_m = max(1, int(f_norm * 10) + 1)
+        base_n = max(1, int((f_norm * 7.3) % 7) + 2)
+        if base_m == base_n:
+            base_n += 1
+        n_layers = 8
+        for z in range(n_layers):
+            z_t = z / n_layers
+            seed = _hash_to_seed(formation_hash, (z * 3) % max(1, len(formation_hash) - 8))
+            n = base_n + math.sin(z * 0.5 + seed + t * math.pi * 2) * 2
+            m = base_m + math.cos(z * 0.7 + seed + t * math.pi * 2) * 1.5
+            phase = t * math.pi * 4 + z_t * math.pi * 2 + seed * 0.1
+            r0 = int(formation_hash[(z * 3) % len(formation_hash)], 16)
+            g0 = int(formation_hash[(z * 3 + 1) % len(formation_hash)], 16)
+            b0 = int(formation_hash[(z * 3 + 2) % len(formation_hash)], 16)
+            cr = 140 + r0 * 7
+            cg = 100 + g0 * 5
+            cb = 50 + b0 * 4
+            val = (np.sin(n * nx_grid * np.pi + phase) * np.sin(m * ny_grid * np.pi + phase)
+                   + np.sin(m * nx_grid * np.pi + phase) * np.sin(n * ny_grid * np.pi + phase))
+            abs_val = np.abs(val)
+            mask = abs_val < 0.15
+            a = 0.08 * (1 + abs_val * 3) * mask
+            for ci, cc in enumerate([cr, cg, cb]):
+                region = pixels[::step, ::step, ci]
+                region += cc * a
+                pixels[::step, ::step, ci] = region
 
     result = np.clip(pixels, 0, 255).astype(np.uint8)
     return result
@@ -363,15 +440,19 @@ def encode_to_video(data: bytes, formation_hash: str,
         fd, output_path = tempfile.mkstemp(suffix=".mkv")
         os.close(fd)
 
+    session = BW19Session(formation_hash)
+
     if use_carrier:
         _encode_with_carrier(
             carrier_video_path, output_path, formation_hash,
-            payload_bits, w, h, fps, progress_callback
+            payload_bits, w, h, fps, progress_callback,
+            session=session
         )
     else:
         _encode_generated(
             output_path, formation_hash, payload_bits,
-            w, h, fps, total_frames, progress_callback
+            w, h, fps, total_frames, progress_callback,
+            session=session
         )
 
     return output_path
@@ -380,7 +461,8 @@ def encode_to_video(data: bytes, formation_hash: str,
 def _encode_generated(output_path: str, formation_hash: str,
                       payload_bits: np.ndarray, w: int, h: int,
                       fps: int, total_frames: int,
-                      progress_callback: Optional[Callable]) -> None:
+                      progress_callback: Optional[Callable],
+                      session: BW19Session = None) -> None:
     ffmpeg_cmd = [
         "ffmpeg", "-y",
         "-f", "rawvideo",
@@ -408,13 +490,13 @@ def _encode_generated(output_path: str, formation_hash: str,
 
     try:
         for frame_idx in range(total_frames):
-            frame = _generate_chladni_frame(frame_idx, total_frames, formation_hash, w, h)
+            frame = _generate_chladni_frame(frame_idx, total_frames, formation_hash, w, h, session=session)
 
             if bit_offset < total_bits:
                 chunk_end = min(bit_offset + bpf, total_bits)
                 chunk_bits = payload_bits[bit_offset:chunk_end]
 
-                positions = _frame_pixel_positions(frame_idx, formation_hash, w, h)
+                positions = _frame_pixel_positions(frame_idx, formation_hash, w, h, session=session)
 
                 bi = 0
                 for px_idx in positions:
@@ -446,7 +528,8 @@ def _encode_generated(output_path: str, formation_hash: str,
 def _encode_with_carrier(carrier_path: str, output_path: str,
                          formation_hash: str, payload_bits: np.ndarray,
                          w: int, h: int, fps: int,
-                         progress_callback: Optional[Callable]) -> None:
+                         progress_callback: Optional[Callable],
+                         session: BW19Session = None) -> None:
     extract_cmd = [
         "ffmpeg", "-i", carrier_path,
         "-f", "rawvideo",
@@ -504,7 +587,7 @@ def _encode_with_carrier(carrier_path: str, output_path: str,
                 chunk_end = min(bit_offset + bpf, total_bits)
                 chunk_bits = payload_bits[bit_offset:chunk_end]
 
-                positions = _frame_pixel_positions(frame_idx, formation_hash, w, h)
+                positions = _frame_pixel_positions(frame_idx, formation_hash, w, h, session=session)
 
                 bi = 0
                 for px_idx in positions:
@@ -556,6 +639,8 @@ def decode_from_video(video_path: str, formation_hash: str,
     w = int(parts[0])
     h = int(parts[1])
 
+    session = BW19Session(formation_hash)
+
     extract_cmd = [
         "ffmpeg", "-i", video_path,
         "-f", "rawvideo",
@@ -590,7 +675,7 @@ def decode_from_video(video_path: str, formation_hash: str,
 
             frame = np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 3))
 
-            positions = _frame_pixel_positions(frame_idx, formation_hash, w, h)
+            positions = _frame_pixel_positions(frame_idx, formation_hash, w, h, session=session)
 
             needed_this_frame = bpf
             if total_bits_needed is not None:
