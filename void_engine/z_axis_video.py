@@ -649,20 +649,8 @@ def decode_from_video(video_path: str, formation_hash: str,
     return original_data
 
 
-def _bits_to_bytes(bits: list) -> bytes:
-    result = bytearray()
-    for i in range(0, len(bits), 8):
-        byte_bits = bits[i:i + 8]
-        if len(byte_bits) < 8:
-            byte_bits.extend([0] * (8 - len(byte_bits)))
-        byte = 0
-        for bit in byte_bits:
-            byte = (byte << 1) | bit
-        result.append(byte)
-    return bytes(result)
-
-
 def get_video_info(video_path: str) -> Dict:
+    import json as _json
     probe_cmd = [
         "ffprobe", "-v", "error",
         "-select_streams", "v:0",
@@ -670,9 +658,8 @@ def get_video_info(video_path: str) -> Dict:
         "-of", "json",
         video_path
     ]
-    import json
     out = subprocess.check_output(probe_cmd, timeout=30).decode()
-    info = json.loads(out)
+    info = _json.loads(out)
     stream = info.get("streams", [{}])[0]
 
     w = int(stream.get("width", 0))
@@ -689,7 +676,6 @@ def get_video_info(video_path: str) -> Dict:
         total_frames = int(dur * fps) if dur > 0 else 0
 
     bpf = _bits_per_frame(w, h)
-    cap = calculate_video_capacity.__wrapped__ if hasattr(calculate_video_capacity, '__wrapped__') else None
 
     return {
         "width": w,

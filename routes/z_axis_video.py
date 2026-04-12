@@ -101,28 +101,31 @@ def encode_video():
         logger.error("[Z-Video] Encode failed: %s", e)
         return jsonify({"error": str(e)}), 500
 
-    try:
-        with open(output_path, "rb") as f:
-            video_data = f.read()
-    finally:
+    video_size = os.path.getsize(output_path)
+    integrity_hash = fatiha_286_hexdigest(payload)[:32]
+    short_hash = formation_hash[:8]
+
+    response = send_file(
+        output_path,
+        mimetype="video/x-matroska",
+        as_attachment=True,
+        download_name=f"z-axis-video-{short_hash}.mkv",
+    )
+    response.headers["X-Formation-Hash"] = formation_hash
+    response.headers["X-Payload-Size"] = str(len(payload))
+    response.headers["X-Video-Size"] = str(video_size)
+    response.headers["X-Integrity-286"] = integrity_hash
+    response.headers["X-Resolution"] = resolution
+    response.headers["X-FPS"] = str(fps)
+
+    @response.call_on_close
+    def _cleanup():
         try:
             os.unlink(output_path)
         except Exception:
             pass
 
-    video_b64 = base64.b64encode(video_data).decode("ascii")
-
-    return jsonify({
-        "status": "encoded",
-        "formation_hash": formation_hash,
-        "payload_size": len(payload),
-        "video_size_bytes": len(video_data),
-        "video_b64": video_b64,
-        "resolution": resolution,
-        "fps": fps,
-        "integrity_286": fatiha_286_hexdigest(payload)[:32],
-        "protocol": "Z-Axis Video Carrier",
-    })
+    return response
 
 
 @z_axis_video_bp.route("/api/z-axis/video/decode", methods=["POST"])
@@ -431,7 +434,7 @@ footer p{font-size:9px;color:#333;letter-spacing:3px}
 </div>
 
 <script>
-let encFile=null, decFile=null, lastEncB64='', lastEncHash='', lastDecPayload='', lastDecType='';
+let encFile=null, decFile=null, lastEncBlob=null, lastEncHash='', lastDecPayload='', lastDecType='';
 
 function switchTab(name,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -489,25 +492,34 @@ async function doEncode(){
     fill.style.width='40%';
     const res=await fetch('/api/z-axis/video/encode',{method:'POST',body:fd});
     fill.style.width='80%';
-    const d=await res.json();
-    if(!res.ok){prog.textContent='ERROR: '+d.error;btn.disabled=false;fill.style.width='0%';return}
 
-    lastEncB64=d.video_b64;
-    lastEncHash=d.formation_hash;
+    if(!res.ok){
+      let errMsg='Encode failed';
+      try{const d=await res.json();errMsg=d.error||errMsg;}catch(e){}
+      prog.textContent='ERROR: '+errMsg;btn.disabled=false;fill.style.width='0%';return;
+    }
+
+    const blob=await res.blob();
+    lastEncBlob=blob;
+    lastEncHash=res.headers.get('X-Formation-Hash')||document.getElementById('encHash').value.trim();
+    const payloadSize=res.headers.get('X-Payload-Size')||'?';
+    const videoSize=res.headers.get('X-Video-Size')||blob.size;
+    const integrity=res.headers.get('X-Integrity-286')||'';
+    const resolution=res.headers.get('X-Resolution')||'';
 
     const wrap=document.getElementById('encVideoWrap');
-    wrap.innerHTML='<video controls style="max-width:100%;max-height:400px;border:1px solid #1a1a1a;border-radius:4px"><source src="data:video/mp4;base64,'+d.video_b64+'" type="video/mp4"></video>';
+    wrap.innerHTML='<div style="padding:16px;text-align:center;color:#555;font-size:11px">MKV/FFV1 lossless video — browser preview not available<br>Use DOWNLOAD to save the encoded video</div>';
 
     document.getElementById('encMeta').innerHTML=
-      '<div>Formation Hash: <span>'+d.formation_hash+'</span></div>'+
-      '<div>Payload Size: <span>'+fmt(d.payload_size)+'</span></div>'+
-      '<div>Video Size: <span>'+fmt(d.video_size_bytes)+'</span></div>'+
-      '<div>Resolution: <span>'+d.resolution+'</span></div>'+
-      '<div>Integrity 286: <span>'+d.integrity_286+'</span></div>';
+      '<div>Formation Hash: <span>'+lastEncHash+'</span></div>'+
+      '<div>Payload Size: <span>'+fmt(parseInt(payloadSize))+'</span></div>'+
+      '<div>Video Size: <span>'+fmt(parseInt(videoSize))+'</span></div>'+
+      '<div>Resolution: <span>'+resolution+'</span></div>'+
+      '<div>Integrity 286: <span>'+integrity+'</span></div>';
 
     result.classList.add('show');
     fill.style.width='100%';
-    prog.textContent='ENCODED SUCCESSFULLY — '+fmt(d.payload_size)+' hidden in '+fmt(d.video_size_bytes)+' video';
+    prog.textContent='ENCODED SUCCESSFULLY — '+fmt(parseInt(payloadSize))+' hidden in '+fmt(parseInt(videoSize))+' video';
   }catch(e){
     prog.textContent='ERROR: '+e.message;
     fill.style.width='0%';
@@ -571,11 +583,13 @@ async function doDecode(){
 }
 
 function downloadEncoded(){
-  if(!lastEncB64)return;
+  if(!lastEncBlob)return;
+  const url=URL.createObjectURL(lastEncBlob);
   const a=document.createElement('a');
-  a.href='data:video/mp4;base64,'+lastEncB64;
+  a.href=url;
   a.download='z-axis-video-'+lastEncHash.substring(0,8)+'.mkv';
   a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
 }
 
 function copyHash(){
