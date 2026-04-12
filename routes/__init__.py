@@ -105,6 +105,7 @@ from routes.nexus import nexus_bp
 from routes.desert_reclamation import desert_reclamation_bp
 from routes.openclaw_bridge import openclaw_bridge_bp
 from routes.live_prompter import live_prompter_bp
+from routes.istanbul_guide import istanbul_guide_bp
 from void_engine.stealth_cloak import stealth_bp
 
 
@@ -216,4 +217,5 @@ def register_blueprints(app):
     app.register_blueprint(desert_reclamation_bp)
     app.register_blueprint(openclaw_bridge_bp)
     app.register_blueprint(live_prompter_bp)
+    app.register_blueprint(istanbul_guide_bp)
     app.register_blueprint(stealth_bp)
