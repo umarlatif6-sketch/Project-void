@@ -296,6 +296,7 @@ footer .love{color:#c0955a;margin-top:8px;font-size:12px;font-style:italic}
     One day in the city between two continents
   </div>
   <div class="h-badge">VORTEX SHIELD CITY #14 — 41.01°N, 28.98°E</div>
+  <div style="text-align:center;margin-top:12px"><a href="/istanbul-guide-urdu" style="color:#555;font-size:11px;text-decoration:none;font-family:'Courier New',monospace;border:1px solid #222;padding:4px 12px">اردو ورژن</a></div>
 </header>
 
 <div class="ask-box">

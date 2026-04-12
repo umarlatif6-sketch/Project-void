@@ -66,6 +66,7 @@ _DEFAULT_VISIBLE = {
     "/openclaw",
     "/openclaw/live",
     "/istanbul-guide",
+    "/istanbul-guide-urdu",
 }
 
 
