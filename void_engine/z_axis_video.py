@@ -281,15 +281,16 @@ def _generate_chladni_frame(frame_idx: int, total_frames: int,
     t = frame_idx / max(1, total_frames - 1)
 
     if session is not None:
+        freq_anchor = VILLAGE_STANDARD_HZ / 1000.0
         for z, (n_raw, m_raw, weight, cr, cg, cb, phase_offset) in enumerate(session.chladni_params):
             z_t = z / 7
             n = n_raw + math.sin(z * 0.5 + t * math.pi * 2) * 2
             m = m_raw + math.cos(z * 0.7 + t * math.pi * 2) * 1.5
-            phase = t * math.pi * 4 + z_t * math.pi * 2 + phase_offset
+            phase = t * math.pi * 4 + z_t * math.pi * 2 + phase_offset + freq_anchor * z
             w_norm = weight / FATIHA_WEIGHT_SUM
 
-            val = (np.sin(n * nx_grid * np.pi + phase) * np.sin(m * ny_grid * np.pi + phase)
-                   + np.sin(m * nx_grid * np.pi + phase) * np.sin(n * ny_grid * np.pi + phase))
+            val = (np.sin(n * nx_grid * np.pi * freq_anchor + phase) * np.sin(m * ny_grid * np.pi * freq_anchor + phase)
+                   + np.sin(m * nx_grid * np.pi * freq_anchor + phase) * np.sin(n * ny_grid * np.pi * freq_anchor + phase))
             abs_val = np.abs(val)
             mask = abs_val < 0.15
             a = w_norm * 0.18 * (1 + abs_val * 3) * mask
