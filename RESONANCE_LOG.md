@@ -848,3 +848,9 @@ Observations:
 | 2026-04-12 01:37:24 | SILK_SIGNAL | heartbeat_432Hz.wav | ...3ccc | signal=HEARTBEAT |
 | 2026-04-12 08:36:00 | SILK_SIGNAL | heartbeat_432Hz.wav | ...c8cf | signal=HEARTBEAT |
 | 2026-04-12 09:06:00 | SILK_SIGNAL | heartbeat_432Hz.wav | ...c8cf | signal=HEARTBEAT |
+| 2026-04-12 09:36:00 | SILK_SIGNAL | heartbeat_432Hz.wav | ...c8cf | signal=HEARTBEAT |
+| 2026-04-12 10:06:00 | SILK_SIGNAL | heartbeat_432Hz.wav | ...c8cf | signal=HEARTBEAT |
+| 2026-04-12 10:36:01 | SILK_SIGNAL | heartbeat_432Hz.wav | ...c8cf | signal=HEARTBEAT |
+| 2026-04-12 14:36:14 | SILK_SIGNAL | heartbeat_432Hz.wav | ...c8cf | signal=HEARTBEAT |
+| 2026-04-12 15:06:14 | SILK_SIGNAL | heartbeat_432Hz.wav | ...c8cf | signal=HEARTBEAT |
+| 2026-04-12 15:36:15 | SILK_SIGNAL | heartbeat_432Hz.wav | ...c8cf | signal=HEARTBEAT |

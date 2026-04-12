@@ -161,6 +161,71 @@ gunicorn -c gunicorn.conf.py app:app
 
 > Note: `ffmpeg` is required for the Z-Axis video carrier routes.
 
+## Setup and Installation
+
+### Prerequisites
+- Python 3.11+
+- PostgreSQL database
+- ffmpeg (for video carrier features)
+- OpenAI API key (for AI integrations)
+
+### Quick Start
+
+1. **Clone and install dependencies:**
+   ```bash
+   git clone <repository-url>
+   cd Project-void
+   pip install -r requirements.txt
+   ```
+
+2. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your actual values
+   ```
+
+3. **Set up the database:**
+   ```bash
+   # Create PostgreSQL database
+   createdb void_db
+
+   # Run migrations (app will handle this on startup)
+   ```
+
+4. **Run the application:**
+   ```bash
+   python app.py
+   ```
+
+   The app will be available at `http://localhost:5000`
+
+### Environment Variables
+
+See `.env.example` for all available configuration options. Required variables:
+
+- `SESSION_SECRET`: Random string for Flask sessions
+- `DATABASE_URL`: Database connection string (PostgreSQL for production, SQLite for development)
+
+For development/testing, you can use SQLite:
+
+```bash
+DATABASE_URL=sqlite:///absolute/path/to/void_dev.db
+```
+
+Optional but recommended for full functionality:
+
+- `AI_INTEGRATIONS_OPENAI_API_KEY`: For AI codon generation
+- `STRIPE_API_KEY`: For payment processing
+- `ELEVENLABS_API_KEY`: For voice synthesis
+
+### Production Deployment
+
+For production, use Gunicorn:
+
+```bash
+gunicorn -c gunicorn.conf.py app:app
+```
+
 ## How to Test (The Convergence Suite)
 
 ### Test 1: Integrity Round-Trip

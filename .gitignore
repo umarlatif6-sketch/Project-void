@@ -107,4 +107,9 @@ output_audio/voidecho/
 # Locus Seeding runtime DB
 data/locus_seeding.db
 data/locus_seeding.db-journal
+
+# Local development workspace artifacts
+data/void_dev.db
+data/void_dev.db-journal
+openclaw/
 output_audio/locus/
