@@ -64,6 +64,7 @@ _DEFAULT_VISIBLE = {
     "/nexus",
     "/desert-reclamation",
     "/openclaw",
+    "/openclaw/live",
 }
 
 
