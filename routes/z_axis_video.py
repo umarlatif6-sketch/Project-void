@@ -82,11 +82,10 @@ def encode_video():
     else:
         return jsonify({"error": "Provide file or text to encode"}), 400
 
-    MAX_DEMO_BYTES = 5 * 1024 * 1024
-    if len(payload) > MAX_DEMO_BYTES:
+    MAX_UPLOAD_BYTES = 500 * 1024 * 1024
+    if len(payload) > MAX_UPLOAD_BYTES:
         return jsonify({
-            "error": f"Demo limit: {len(payload):,} bytes exceeds {MAX_DEMO_BYTES:,} byte limit. "
-                     f"Use the Python API for larger payloads."
+            "error": f"Upload limit: {len(payload):,} bytes exceeds {MAX_UPLOAD_BYTES // (1024*1024)} MB limit."
         }), 413
 
     if not formation_hash:

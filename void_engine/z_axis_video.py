@@ -258,6 +258,24 @@ def _required_frames(data_size_bytes: int, width: int, height: int) -> int:
     return max(1, math.ceil(total_bits / bpf))
 
 
+def encode_file_to_video(data_path: str, formation_hash: str,
+                         carrier_video_path: Optional[str] = None,
+                         resolution: str = "1080p", fps: int = 30,
+                         duration_seconds: Optional[int] = None,
+                         output_path: Optional[str] = None,
+                         progress_callback: Optional[Callable] = None) -> str:
+    with open(data_path, "rb") as f:
+        data = f.read()
+    return encode_to_video(
+        data, formation_hash,
+        carrier_video_path=carrier_video_path,
+        resolution=resolution, fps=fps,
+        duration_seconds=duration_seconds,
+        output_path=output_path,
+        progress_callback=progress_callback,
+    )
+
+
 def encode_to_video(data: bytes, formation_hash: str,
                     carrier_video_path: Optional[str] = None,
                     resolution: str = "1080p", fps: int = 30,

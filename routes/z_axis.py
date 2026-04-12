@@ -403,6 +403,8 @@ footer p{font-size:9px;color:#333;letter-spacing:3px}
   <div class="h-tag">DATA HIDDEN IN CHLADNI FORMATION PATTERNS — FORMATION HASH IS THE KEY</div>
 </header>
 
+<div style="text-align:center;padding:10px 0"><a href="/z-axis/video" style="color:#c0955a;text-decoration:none;font-size:11px;letter-spacing:3px">VIDEO CARRIER &rarr; GIGABYTE-SCALE</a></div>
+
 <div class="tabs">
   <button class="tab active" onclick="switchTab('encode',this)">ENCODE</button>
   <button class="tab" onclick="switchTab('decode',this)">DECODE</button>
