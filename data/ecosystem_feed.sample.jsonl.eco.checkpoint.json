@@ -1,0 +1,10 @@
+{
+  "input": "data/wiki_sample.jsonl",
+  "output": "data/ecosystem_feed.sample.jsonl",
+  "threshold": 0.35,
+  "processed": 3,
+  "accepted": 2,
+  "rejected": 1,
+  "acceptance_rate": 66.67,
+  "status": "complete"
+}

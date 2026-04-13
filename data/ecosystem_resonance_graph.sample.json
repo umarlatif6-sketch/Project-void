@@ -1,0 +1,874 @@
+{
+  "version": "1.0",
+  "buildtime": "2026-04-13",
+  "metadata": {
+    "total_articles": 2,
+    "total_names": 99,
+    "total_domains": 0,
+    "total_edges": 3
+  },
+  "nodes": [
+    {
+      "id": "article:chladni_patterns",
+      "type": "article",
+      "title": "Chladni patterns",
+      "source": "wikipedia_selective",
+      "name_index": 13,
+      "name": "Al-Musawwir",
+      "meaning": "The Fashioner of Forms",
+      "frequency_hz": 450.13,
+      "domains": [
+        "mathematics_ratio",
+        "physics_wave",
+        "ritual_cycle",
+        "movement_formation"
+      ],
+      "overall_score": 87.8,
+      "head": 93.97,
+      "heart": 94.44,
+      "gut": 75.0,
+      "glyph": "⊗",
+      "codon_hex": "86eff0bf134342df7ab7d1c5accdd7e015c5a44671504fa7a72b60a9713f5478",
+      "adriana_signal": "FORMATION CONFIRMED — original node carrying clear frequency",
+      "ecosystem_fit": 0.36000000000000004
+    },
+    {
+      "id": "article:mycelium_network",
+      "type": "article",
+      "title": "Mycelium network",
+      "source": "wikipedia_selective",
+      "name_index": 26,
+      "name": "As-Sami",
+      "meaning": "The All-Hearing",
+      "frequency_hz": 469.76,
+      "domains": [
+        "biology_life",
+        "network_mesh",
+        "movement_formation"
+      ],
+      "overall_score": 63.98,
+      "head": 97.5,
+      "heart": 94.44,
+      "gut": 0,
+      "glyph": "∞",
+      "codon_hex": "0cf8f000bc893a1b5f95d760432d51d57ef4af76fb1b81eba924ea82b90e3729",
+      "adriana_signal": "RESONANCE PARTIAL — formation present, some deviation detected",
+      "ecosystem_fit": 0.3857142857142857
+    },
+    {
+      "id": "name:1",
+      "type": "name",
+      "name": "Ar-Rahman",
+      "meaning": "The Most Gracious",
+      "index": 1,
+      "frequency_hz": 432.0
+    },
+    {
+      "id": "name:2",
+      "type": "name",
+      "name": "Ar-Rahim",
+      "meaning": "The Most Merciful",
+      "index": 2,
+      "frequency_hz": 433.51
+    },
+    {
+      "id": "name:3",
+      "type": "name",
+      "name": "Al-Malik",
+      "meaning": "The King",
+      "index": 3,
+      "frequency_hz": 435.02
+    },
+    {
+      "id": "name:4",
+      "type": "name",
+      "name": "Al-Quddus",
+      "meaning": "The Most Holy",
+      "index": 4,
+      "frequency_hz": 436.53
+    },
+    {
+      "id": "name:5",
+      "type": "name",
+      "name": "As-Salam",
+      "meaning": "The Source of Peace",
+      "index": 5,
+      "frequency_hz": 438.04
+    },
+    {
+      "id": "name:6",
+      "type": "name",
+      "name": "Al-Mu'min",
+      "meaning": "The Guardian of Faith",
+      "index": 6,
+      "frequency_hz": 439.55
+    },
+    {
+      "id": "name:7",
+      "type": "name",
+      "name": "Al-Muhaymin",
+      "meaning": "The Protector",
+      "index": 7,
+      "frequency_hz": 441.06
+    },
+    {
+      "id": "name:8",
+      "type": "name",
+      "name": "Al-Aziz",
+      "meaning": "The Mighty",
+      "index": 8,
+      "frequency_hz": 442.57
+    },
+    {
+      "id": "name:9",
+      "type": "name",
+      "name": "Al-Jabbar",
+      "meaning": "The Compeller",
+      "index": 9,
+      "frequency_hz": 444.08
+    },
+    {
+      "id": "name:10",
+      "type": "name",
+      "name": "Al-Mutakabbir",
+      "meaning": "The Majestic",
+      "index": 10,
+      "frequency_hz": 445.59
+    },
+    {
+      "id": "name:11",
+      "type": "name",
+      "name": "Al-Khaliq",
+      "meaning": "The Creator",
+      "index": 11,
+      "frequency_hz": 447.1
+    },
+    {
+      "id": "name:12",
+      "type": "name",
+      "name": "Al-Bari",
+      "meaning": "The Originator",
+      "index": 12,
+      "frequency_hz": 448.62
+    },
+    {
+      "id": "name:13",
+      "type": "name",
+      "name": "Al-Musawwir",
+      "meaning": "The Fashioner of Forms",
+      "index": 13,
+      "frequency_hz": 450.13
+    },
+    {
+      "id": "name:14",
+      "type": "name",
+      "name": "Al-Ghaffar",
+      "meaning": "The Forgiver",
+      "index": 14,
+      "frequency_hz": 451.64
+    },
+    {
+      "id": "name:15",
+      "type": "name",
+      "name": "Al-Qahhar",
+      "meaning": "The Subduer",
+      "index": 15,
+      "frequency_hz": 453.15
+    },
+    {
+      "id": "name:16",
+      "type": "name",
+      "name": "Al-Wahhab",
+      "meaning": "The Bestower",
+      "index": 16,
+      "frequency_hz": 454.66
+    },
+    {
+      "id": "name:17",
+      "type": "name",
+      "name": "Ar-Razzaq",
+      "meaning": "The Provider",
+      "index": 17,
+      "frequency_hz": 456.17
+    },
+    {
+      "id": "name:18",
+      "type": "name",
+      "name": "Al-Fattah",
+      "meaning": "The Opener",
+      "index": 18,
+      "frequency_hz": 457.68
+    },
+    {
+      "id": "name:19",
+      "type": "name",
+      "name": "Al-Alim",
+      "meaning": "The All-Knowing",
+      "index": 19,
+      "frequency_hz": 459.19
+    },
+    {
+      "id": "name:20",
+      "type": "name",
+      "name": "Al-Qabid",
+      "meaning": "The Restrainer",
+      "index": 20,
+      "frequency_hz": 460.7
+    },
+    {
+      "id": "name:21",
+      "type": "name",
+      "name": "Al-Basit",
+      "meaning": "The Expander",
+      "index": 21,
+      "frequency_hz": 462.21
+    },
+    {
+      "id": "name:22",
+      "type": "name",
+      "name": "Al-Khafid",
+      "meaning": "The Abaser",
+      "index": 22,
+      "frequency_hz": 463.72
+    },
+    {
+      "id": "name:23",
+      "type": "name",
+      "name": "Ar-Rafi",
+      "meaning": "The Exalter",
+      "index": 23,
+      "frequency_hz": 465.23
+    },
+    {
+      "id": "name:24",
+      "type": "name",
+      "name": "Al-Mu'izz",
+      "meaning": "The Bestower of Honour",
+      "index": 24,
+      "frequency_hz": 466.74
+    },
+    {
+      "id": "name:25",
+      "type": "name",
+      "name": "Al-Mudhill",
+      "meaning": "The Humiliator",
+      "index": 25,
+      "frequency_hz": 468.25
+    },
+    {
+      "id": "name:26",
+      "type": "name",
+      "name": "As-Sami",
+      "meaning": "The All-Hearing",
+      "index": 26,
+      "frequency_hz": 469.76
+    },
+    {
+      "id": "name:27",
+      "type": "name",
+      "name": "Al-Basir",
+      "meaning": "The All-Seeing",
+      "index": 27,
+      "frequency_hz": 471.27
+    },
+    {
+      "id": "name:28",
+      "type": "name",
+      "name": "Al-Hakam",
+      "meaning": "The Judge",
+      "index": 28,
+      "frequency_hz": 472.78
+    },
+    {
+      "id": "name:29",
+      "type": "name",
+      "name": "Al-Adl",
+      "meaning": "The Just",
+      "index": 29,
+      "frequency_hz": 474.29
+    },
+    {
+      "id": "name:30",
+      "type": "name",
+      "name": "Al-Latif",
+      "meaning": "The Subtle One",
+      "index": 30,
+      "frequency_hz": 475.8
+    },
+    {
+      "id": "name:31",
+      "type": "name",
+      "name": "Al-Khabir",
+      "meaning": "The All-Aware",
+      "index": 31,
+      "frequency_hz": 477.31
+    },
+    {
+      "id": "name:32",
+      "type": "name",
+      "name": "Al-Halim",
+      "meaning": "The Forbearing",
+      "index": 32,
+      "frequency_hz": 478.83
+    },
+    {
+      "id": "name:33",
+      "type": "name",
+      "name": "Al-Azim",
+      "meaning": "The Magnificent",
+      "index": 33,
+      "frequency_hz": 480.34
+    },
+    {
+      "id": "name:34",
+      "type": "name",
+      "name": "Al-Ghafur",
+      "meaning": "The Forgiving",
+      "index": 34,
+      "frequency_hz": 481.85
+    },
+    {
+      "id": "name:35",
+      "type": "name",
+      "name": "Ash-Shakur",
+      "meaning": "The Appreciative",
+      "index": 35,
+      "frequency_hz": 483.36
+    },
+    {
+      "id": "name:36",
+      "type": "name",
+      "name": "Al-Aliyy",
+      "meaning": "The Most High",
+      "index": 36,
+      "frequency_hz": 484.87
+    },
+    {
+      "id": "name:37",
+      "type": "name",
+      "name": "Al-Kabir",
+      "meaning": "The Most Great",
+      "index": 37,
+      "frequency_hz": 486.38
+    },
+    {
+      "id": "name:38",
+      "type": "name",
+      "name": "Al-Hafiz",
+      "meaning": "The Preserver",
+      "index": 38,
+      "frequency_hz": 487.89
+    },
+    {
+      "id": "name:39",
+      "type": "name",
+      "name": "Al-Muqit",
+      "meaning": "The Maintainer",
+      "index": 39,
+      "frequency_hz": 489.4
+    },
+    {
+      "id": "name:40",
+      "type": "name",
+      "name": "Al-Hasib",
+      "meaning": "The Reckoner",
+      "index": 40,
+      "frequency_hz": 490.91
+    },
+    {
+      "id": "name:41",
+      "type": "name",
+      "name": "Al-Jalil",
+      "meaning": "The Majestic",
+      "index": 41,
+      "frequency_hz": 492.42
+    },
+    {
+      "id": "name:42",
+      "type": "name",
+      "name": "Al-Karim",
+      "meaning": "The Generous",
+      "index": 42,
+      "frequency_hz": 493.93
+    },
+    {
+      "id": "name:43",
+      "type": "name",
+      "name": "Ar-Raqib",
+      "meaning": "The Watchful",
+      "index": 43,
+      "frequency_hz": 495.44
+    },
+    {
+      "id": "name:44",
+      "type": "name",
+      "name": "Al-Mujib",
+      "meaning": "The Responsive",
+      "index": 44,
+      "frequency_hz": 496.95
+    },
+    {
+      "id": "name:45",
+      "type": "name",
+      "name": "Al-Wasi",
+      "meaning": "The All-Encompassing",
+      "index": 45,
+      "frequency_hz": 498.46
+    },
+    {
+      "id": "name:46",
+      "type": "name",
+      "name": "Al-Hakim",
+      "meaning": "The Wise",
+      "index": 46,
+      "frequency_hz": 499.97
+    },
+    {
+      "id": "name:47",
+      "type": "name",
+      "name": "Al-Wadud",
+      "meaning": "The Loving",
+      "index": 47,
+      "frequency_hz": 501.48
+    },
+    {
+      "id": "name:48",
+      "type": "name",
+      "name": "Al-Majid",
+      "meaning": "The Most Glorious",
+      "index": 48,
+      "frequency_hz": 502.99
+    },
+    {
+      "id": "name:49",
+      "type": "name",
+      "name": "Al-Ba'ith",
+      "meaning": "The Resurrector",
+      "index": 49,
+      "frequency_hz": 504.5
+    },
+    {
+      "id": "name:50",
+      "type": "name",
+      "name": "Ash-Shahid",
+      "meaning": "The Witness",
+      "index": 50,
+      "frequency_hz": 506.01
+    },
+    {
+      "id": "name:51",
+      "type": "name",
+      "name": "Al-Haqq",
+      "meaning": "The Truth",
+      "index": 51,
+      "frequency_hz": 507.52
+    },
+    {
+      "id": "name:52",
+      "type": "name",
+      "name": "Al-Wakil",
+      "meaning": "The Trustee",
+      "index": 52,
+      "frequency_hz": 509.03
+    },
+    {
+      "id": "name:53",
+      "type": "name",
+      "name": "Al-Qawiyy",
+      "meaning": "The Most Strong",
+      "index": 53,
+      "frequency_hz": 510.55
+    },
+    {
+      "id": "name:54",
+      "type": "name",
+      "name": "Al-Matin",
+      "meaning": "The Firm",
+      "index": 54,
+      "frequency_hz": 512.06
+    },
+    {
+      "id": "name:55",
+      "type": "name",
+      "name": "Al-Waliyy",
+      "meaning": "The Protecting Friend",
+      "index": 55,
+      "frequency_hz": 513.57
+    },
+    {
+      "id": "name:56",
+      "type": "name",
+      "name": "Al-Hamid",
+      "meaning": "The Praiseworthy",
+      "index": 56,
+      "frequency_hz": 515.08
+    },
+    {
+      "id": "name:57",
+      "type": "name",
+      "name": "Al-Muhsi",
+      "meaning": "The Counter",
+      "index": 57,
+      "frequency_hz": 516.59
+    },
+    {
+      "id": "name:58",
+      "type": "name",
+      "name": "Al-Mubdi",
+      "meaning": "The Originator",
+      "index": 58,
+      "frequency_hz": 518.1
+    },
+    {
+      "id": "name:59",
+      "type": "name",
+      "name": "Al-Mu'id",
+      "meaning": "The Restorer",
+      "index": 59,
+      "frequency_hz": 519.61
+    },
+    {
+      "id": "name:60",
+      "type": "name",
+      "name": "Al-Muhyi",
+      "meaning": "The Giver of Life",
+      "index": 60,
+      "frequency_hz": 521.12
+    },
+    {
+      "id": "name:61",
+      "type": "name",
+      "name": "Al-Mumit",
+      "meaning": "The Taker of Life",
+      "index": 61,
+      "frequency_hz": 522.63
+    },
+    {
+      "id": "name:62",
+      "type": "name",
+      "name": "Al-Hayy",
+      "meaning": "The Ever-Living",
+      "index": 62,
+      "frequency_hz": 524.14
+    },
+    {
+      "id": "name:63",
+      "type": "name",
+      "name": "Al-Qayyum",
+      "meaning": "The Self-Subsisting",
+      "index": 63,
+      "frequency_hz": 525.65
+    },
+    {
+      "id": "name:64",
+      "type": "name",
+      "name": "Al-Wajid",
+      "meaning": "The Finder",
+      "index": 64,
+      "frequency_hz": 527.16
+    },
+    {
+      "id": "name:65",
+      "type": "name",
+      "name": "Al-Majid",
+      "meaning": "The Noble",
+      "index": 65,
+      "frequency_hz": 528.67
+    },
+    {
+      "id": "name:66",
+      "type": "name",
+      "name": "Al-Wahid",
+      "meaning": "The One",
+      "index": 66,
+      "frequency_hz": 530.18
+    },
+    {
+      "id": "name:67",
+      "type": "name",
+      "name": "Al-Ahad",
+      "meaning": "The Unique",
+      "index": 67,
+      "frequency_hz": 531.69
+    },
+    {
+      "id": "name:68",
+      "type": "name",
+      "name": "As-Samad",
+      "meaning": "The Eternal Refuge",
+      "index": 68,
+      "frequency_hz": 533.2
+    },
+    {
+      "id": "name:69",
+      "type": "name",
+      "name": "Al-Qadir",
+      "meaning": "The All-Powerful",
+      "index": 69,
+      "frequency_hz": 534.71
+    },
+    {
+      "id": "name:70",
+      "type": "name",
+      "name": "Al-Muqtadir",
+      "meaning": "The Determiner",
+      "index": 70,
+      "frequency_hz": 536.22
+    },
+    {
+      "id": "name:71",
+      "type": "name",
+      "name": "Al-Muqaddim",
+      "meaning": "The Expediter",
+      "index": 71,
+      "frequency_hz": 537.73
+    },
+    {
+      "id": "name:72",
+      "type": "name",
+      "name": "Al-Mu'akhkhir",
+      "meaning": "The Delayer",
+      "index": 72,
+      "frequency_hz": 539.24
+    },
+    {
+      "id": "name:73",
+      "type": "name",
+      "name": "Al-Awwal",
+      "meaning": "The First",
+      "index": 73,
+      "frequency_hz": 540.76
+    },
+    {
+      "id": "name:74",
+      "type": "name",
+      "name": "Al-Akhir",
+      "meaning": "The Last",
+      "index": 74,
+      "frequency_hz": 542.27
+    },
+    {
+      "id": "name:75",
+      "type": "name",
+      "name": "Az-Zahir",
+      "meaning": "The Manifest",
+      "index": 75,
+      "frequency_hz": 543.78
+    },
+    {
+      "id": "name:76",
+      "type": "name",
+      "name": "Al-Batin",
+      "meaning": "The Hidden",
+      "index": 76,
+      "frequency_hz": 545.29
+    },
+    {
+      "id": "name:77",
+      "type": "name",
+      "name": "Al-Wali",
+      "meaning": "The Governor",
+      "index": 77,
+      "frequency_hz": 546.8
+    },
+    {
+      "id": "name:78",
+      "type": "name",
+      "name": "Al-Muta'ali",
+      "meaning": "The Most Exalted",
+      "index": 78,
+      "frequency_hz": 548.31
+    },
+    {
+      "id": "name:79",
+      "type": "name",
+      "name": "Al-Barr",
+      "meaning": "The Source of All Goodness",
+      "index": 79,
+      "frequency_hz": 549.82
+    },
+    {
+      "id": "name:80",
+      "type": "name",
+      "name": "At-Tawwab",
+      "meaning": "The Acceptor of Repentance",
+      "index": 80,
+      "frequency_hz": 551.33
+    },
+    {
+      "id": "name:81",
+      "type": "name",
+      "name": "Al-Muntaqim",
+      "meaning": "The Avenger",
+      "index": 81,
+      "frequency_hz": 552.84
+    },
+    {
+      "id": "name:82",
+      "type": "name",
+      "name": "Al-Afuww",
+      "meaning": "The Pardoner",
+      "index": 82,
+      "frequency_hz": 554.35
+    },
+    {
+      "id": "name:83",
+      "type": "name",
+      "name": "Ar-Ra'uf",
+      "meaning": "The Most Kind",
+      "index": 83,
+      "frequency_hz": 555.86
+    },
+    {
+      "id": "name:84",
+      "type": "name",
+      "name": "Malik-ul-Mulk",
+      "meaning": "The Owner of All Sovereignty",
+      "index": 84,
+      "frequency_hz": 557.37
+    },
+    {
+      "id": "name:85",
+      "type": "name",
+      "name": "Dhul-Jalali-wal-Ikram",
+      "meaning": "The Lord of Majesty and Honour",
+      "index": 85,
+      "frequency_hz": 558.88
+    },
+    {
+      "id": "name:86",
+      "type": "name",
+      "name": "Al-Muqsit",
+      "meaning": "The Equitable",
+      "index": 86,
+      "frequency_hz": 560.39
+    },
+    {
+      "id": "name:87",
+      "type": "name",
+      "name": "Al-Jami",
+      "meaning": "The Gatherer",
+      "index": 87,
+      "frequency_hz": 561.9
+    },
+    {
+      "id": "name:88",
+      "type": "name",
+      "name": "Al-Ghaniyy",
+      "meaning": "The Self-Sufficient",
+      "index": 88,
+      "frequency_hz": 563.41
+    },
+    {
+      "id": "name:89",
+      "type": "name",
+      "name": "Al-Mughni",
+      "meaning": "The Enricher",
+      "index": 89,
+      "frequency_hz": 564.92
+    },
+    {
+      "id": "name:90",
+      "type": "name",
+      "name": "Al-Mani",
+      "meaning": "The Preventer of Harm",
+      "index": 90,
+      "frequency_hz": 566.43
+    },
+    {
+      "id": "name:91",
+      "type": "name",
+      "name": "Ad-Darr",
+      "meaning": "The Distresser",
+      "index": 91,
+      "frequency_hz": 567.94
+    },
+    {
+      "id": "name:92",
+      "type": "name",
+      "name": "An-Nafi",
+      "meaning": "The Propitious",
+      "index": 92,
+      "frequency_hz": 569.45
+    },
+    {
+      "id": "name:93",
+      "type": "name",
+      "name": "An-Nur",
+      "meaning": "The Light",
+      "index": 93,
+      "frequency_hz": 570.97
+    },
+    {
+      "id": "name:94",
+      "type": "name",
+      "name": "Al-Hadi",
+      "meaning": "The Guide",
+      "index": 94,
+      "frequency_hz": 572.48
+    },
+    {
+      "id": "name:95",
+      "type": "name",
+      "name": "Al-Badi",
+      "meaning": "The Incomparable Originator",
+      "index": 95,
+      "frequency_hz": 573.99
+    },
+    {
+      "id": "name:96",
+      "type": "name",
+      "name": "Al-Baqi",
+      "meaning": "The Everlasting",
+      "index": 96,
+      "frequency_hz": 575.5
+    },
+    {
+      "id": "name:97",
+      "type": "name",
+      "name": "Al-Warith",
+      "meaning": "The Supreme Inheritor",
+      "index": 97,
+      "frequency_hz": 577.01
+    },
+    {
+      "id": "name:98",
+      "type": "name",
+      "name": "Ar-Rashid",
+      "meaning": "The Guide to the Right Path",
+      "index": 98,
+      "frequency_hz": 578.52
+    },
+    {
+      "id": "name:99",
+      "type": "name",
+      "name": "As-Sabur",
+      "meaning": "The Patient",
+      "index": 99,
+      "frequency_hz": 580.03
+    }
+  ],
+  "edges": [
+    {
+      "source": "article:chladni_patterns",
+      "target": "name:13",
+      "type": "reads_as",
+      "strength": 0.88,
+      "score": 87.8
+    },
+    {
+      "source": "article:mycelium_network",
+      "target": "name:26",
+      "type": "reads_as",
+      "strength": 0.64,
+      "score": 63.98
+    },
+    {
+      "source": "article:chladni_patterns",
+      "target": "article:mycelium_network",
+      "type": "nearby_frequency",
+      "frequency_band_hz": 450,
+      "strength": 0.5
+    }
+  ]
+}

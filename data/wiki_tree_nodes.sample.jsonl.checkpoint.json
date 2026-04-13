@@ -1,0 +1,8 @@
+{
+  "input": "data/wiki_sample.jsonl",
+  "format": "jsonl",
+  "processed": 2,
+  "skipped": 0,
+  "last_title": "Mycelium network",
+  "status": "complete"
+}

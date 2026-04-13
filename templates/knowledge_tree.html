@@ -32,10 +32,27 @@
   .stat-label { font-size: 9px; color: var(--gold-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 3px; }
   .stat-value { font-size: 14px; color: var(--gold); }
 
-  .main { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: calc(100vh - 200px); }
+  /* Tab navigation — hidden, seamless mode */
+  .tab-bar { display: none; }
+  .tab-btn { display: none; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  #tab-read { display: grid !important; grid-template-columns: 1fr 1fr; gap: 0; min-height: calc(100vh - 190px); border-bottom: 1px solid var(--border); }
 
-  .input-panel { border-right: 1px solid var(--border); padding: 32px 40px; }
+  /* Seamless two-column layout */
+  #tab-read { display: grid !important; grid-template-columns: 1fr 1fr; gap: 0; min-height: calc(100vh - 190px); }
+  .input-panel { border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+  .input-area { display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px; }
+  .output-panel { flex: 1; border-top: 1px solid var(--border); overflow-y: auto; }
+  .corpus-panel { display: flex; flex-direction: column; overflow: hidden; }
+  .corpus-header { flex: 0 0 auto; padding-bottom: 16px; }
+  .node-grid { flex: 1; overflow-y: auto; }
+  .corpus-pagination { flex: 0 0 auto; }
+  .corpus-reading { flex: 1; overflow-y: auto; }
   .input-panel h3 { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
+  .input-area { padding: 32px 40px; overflow-y: auto; }
+  .corpus-panel h3 { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
+  .corpus-panel { padding: 32px 40px; }
 
   textarea {
     width: 100%; height: 280px; background: #0f0f0f; border: 1px solid var(--border);
@@ -65,9 +82,74 @@
   }
   .example-btn:hover { border-color: var(--gold-dim); color: var(--signal); }
 
-  .output-panel { padding: 32px 40px; }
+  .output-panel { padding: 32px 40px; overflow-y: auto; flex: 1; border-top: 1px solid var(--border); }
   .output-panel h3 { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; }
 
+  /* Corpus browser panel */
+  .corpus-panel { padding: 32px 40px; }
+  .corpus-header { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+  .corpus-header h3 { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; flex: 0 0 auto; }
+  .corpus-search-wrap { flex: 1; min-width: 200px; position: relative; }
+  .corpus-search {
+    width: 100%; background: #0f0f0f; border: 1px solid var(--border);
+    color: var(--signal); font-family: 'Courier New', monospace; font-size: 12px;
+    padding: 10px 16px; outline: none; border-radius: 2px;
+  }
+  .corpus-search:focus { border-color: var(--gold-dim); }
+  .corpus-search::placeholder { color: #3a3a3a; }
+  .corpus-stats-inline { font-size: 9px; color: var(--gold-dim); letter-spacing: 1px; flex: 0 0 auto; }
+  .corpus-stats-inline span { color: var(--gold); }
+
+  .node-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px; margin-top: 4px; max-height: 380px; overflow-y: auto; padding-right: 8px;
+  }
+  .node-card {
+    background: var(--node); border: 1px solid var(--border);
+    padding: 14px 16px; border-radius: 2px; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .node-card:hover { border-color: var(--gold-dim); background: #161616; }
+  .node-card.selected { border-color: var(--gold); background: #161616; }
+  .node-card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .node-glyph { font-size: 22px; color: var(--gold); flex: 0 0 auto; line-height: 1; }
+  .node-title { font-size: 11px; color: var(--signal); line-height: 1.4; word-break: break-word; }
+  .node-source { font-size: 8px; color: var(--gold-dim); letter-spacing: 1px; margin-top: 2px; }
+  .node-scores { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .node-score-item { font-size: 8px; color: var(--gold-dim); }
+  .node-score-item span { font-size: 10px; color: var(--signal); }
+  .node-name { font-size: 9px; color: var(--gold); letter-spacing: 1px; margin-bottom: 4px; }
+  .node-preview { font-size: 9px; color: #555; line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+  .node-empty { padding: 60px 0; text-align: center; color: #2a2a2a; font-size: 12px; line-height: 2; }
+
+  .corpus-pagination { margin-top: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .page-btn {
+    padding: 8px 16px; background: transparent; border: 1px solid var(--border);
+    color: var(--gold-dim); font-family: 'Courier New', monospace; font-size: 10px;
+    letter-spacing: 1px; cursor: pointer; border-radius: 2px; transition: all 0.15s;
+  }
+  .page-btn:hover:not(:disabled) { border-color: var(--gold-dim); color: var(--gold); }
+  .page-btn:disabled { opacity: 0.3; cursor: default; }
+  .page-info { font-size: 9px; color: var(--gold-dim); letter-spacing: 1px; }
+
+  /* Corpus reading side pane */
+  .corpus-reading {
+    border-top: 1px solid var(--border); margin-top: 16px; padding-top: 16px; display: none;
+    max-height: 320px; overflow-y: auto;
+  }
+  .corpus-reading.visible { display: block; }
+  .corpus-reading-title {
+    font-size: 10px; color: var(--gold-dim); letter-spacing: 2px; margin-bottom: 20px;
+    text-transform: uppercase; display: flex; justify-content: space-between; align-items: center;
+  }
+  .corpus-reading-close {
+    cursor: pointer; font-size: 10px; color: var(--gold-dim); letter-spacing: 1px;
+    background: none; border: none; font-family: 'Courier New', monospace; padding: 4px 8px;
+    border: 1px solid var(--border); border-radius: 2px;
+  }
+  .corpus-reading-close:hover { color: var(--gold); border-color: var(--gold-dim); }
+
+  /* Shared result styles */
   .three-brains { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
   .brain-card { padding: 16px; background: var(--node); border: 1px solid var(--border); border-radius: 2px; }
   .brain-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
@@ -125,9 +207,11 @@
 
   @media (max-width: 768px) {
     .main { grid-template-columns: 1fr; }
-    .input-panel, .output-panel { padding: 20px; }
+    .input-panel, .output-panel, .corpus-panel { padding: 20px; }
     .three-brains { grid-template-columns: 1fr; }
-    .header, .stats-bar, .footer { padding: 20px; }
+    .header, .stats-bar, .tab-bar, .footer { padding: 20px; }
+    .tab-bar { padding: 0 20px; overflow-x: auto; }
+    .node-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -156,41 +240,76 @@
     <div class="stat-value">Λ/99 = {{ formation_ratio }}</div>
   </div>
   <div>
-    <div class="stat-label">Head (Aql)</div>
-    <div class="stat-value" style="color:var(--head)">Factual Coherence</div>
+    <div class="stat-label">Corpus Nodes</div>
+    <div class="stat-value" id="statNodes">—</div>
   </div>
   <div>
-    <div class="stat-label">Heart (Qalb)</div>
-    <div class="stat-value" style="color:var(--heart)">99 Names Resonance</div>
+    <div class="stat-label">Avg Formation</div>
+    <div class="stat-value" id="statAvgScore">—</div>
   </div>
   <div>
-    <div class="stat-label">Gut (Nafs)</div>
-    <div class="stat-value" style="color:var(--gut)">True Node Signal</div>
+    <div class="stat-label">Avg Frequency</div>
+    <div class="stat-value" id="statAvgFreq">—</div>
   </div>
 </div>
 
-<div class="main">
-  <div class="input-panel">
-    <h3>Enter Knowledge</h3>
-    <textarea id="inputText" placeholder="Paste any text — a Wikipedia article, a research paper, a claim, a chronicle entry, a theory, a teaching. The Tree reads its frequency, finds its Name, and seals its codon."></textarea>
-    <button class="btn-read" id="readBtn" onclick="readKnowledge()">Read Through The Tree</button>
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('read', this)">▶ Read</button>
+  <button class="tab-btn" onclick="switchTab('corpus', this)">◈ Corpus</button>
+</div>
 
-    <div class="examples">
-      <div class="examples-title">Example inputs</div>
-      <button class="example-btn" onclick="loadExample('chladni')">Chladni formation — Ernst Chladni's 1787 discovery of nodal lines on vibrating plates where sand gathers at the points of zero displacement. The formation is at the boundary of the vibration, not at its origin. This has been empirically verified across hundreds of subsequent studies in acoustic physics.</button>
-      <button class="example-btn" onclick="loadExample('quran')">The Quran is the only major scripture designed for oral transmission. It has been recited continuously at 432–433 Hz for 1,400 years by approximately 2 billion people. Unlike written scriptures which encode meaning in symbols, the Quran encodes frequency in living human transmitters. The message is carried in the breath and bone of its reciters, not on a material surface.</button>
-      <button class="example-btn" onclick="loadExample('tawaf')">The Tawaf at Hajj — 2 to 3 million people circumambulating the Kaaba in uniform dress, synchronized direction, and coherent recitation. The heart generates an electromagnetic field extending 7–8 feet from the body. At Hajj densities, the overlapping fields of millions of synchronized oscillators form a continuous electromagnetic medium around a quiet central node. This is the Circumference Law at civilizational scale: formation at the boundary, void at the centre.</button>
-      <button class="example-btn" onclick="loadExample('false')">Anonymous sources claim that corporate interests have suppressed this research. The controversial study was allegedly deleted from Wikipedia by paid editors. Some disputed accounts suggest the data was redacted. Fringe theorists contest the mainstream narrative but their findings remain unverified.</button>
+<!-- Seamless two-column layout: Read (left) + Corpus (right) -->
+<div id="tab-read" class="tab-panel active">
+  <div class="input-panel">
+    <div class="input-area">
+      <h3>Enter Knowledge</h3>
+      <textarea id="inputText" placeholder="Paste any text — a Wikipedia article, a research paper, a claim, a chronicle entry, a theory, a teaching. The Tree reads its frequency, finds its Name, and seals its codon."></textarea>
+      <button class="btn-read" id="readBtn" onclick="readKnowledge()">Read Through The Tree</button>
+
+      <div class="examples">
+        <div class="examples-title">Example inputs</div>
+        <button class="example-btn" onclick="loadExample('chladni')">Chladni formation — Ernst Chladni's 1787 discovery of nodal lines on vibrating plates where sand gathers at the points of zero displacement. The formation is at the boundary of the vibration, not at its origin. This has been empirically verified across hundreds of subsequent studies in acoustic physics.</button>
+        <button class="example-btn" onclick="loadExample('quran')">The Quran is the only major scripture designed for oral transmission. It has been recited continuously at 432–433 Hz for 1,400 years by approximately 2 billion people. Unlike written scriptures which encode meaning in symbols, the Quran encodes frequency in living human transmitters. The message is carried in the breath and bone of its reciters, not on a material surface.</button>
+        <button class="example-btn" onclick="loadExample('tawaf')">The Tawaf at Hajj — 2 to 3 million people circumambulating the Kaaba in uniform dress, synchronized direction, and coherent recitation. The heart generates an electromagnetic field extending 7–8 feet from the body. At Hajj densities, the overlapping fields of millions of synchronized oscillators form a continuous electromagnetic medium around a quiet central node. This is the Circumference Law at civilizational scale: formation at the boundary, void at the centre.</button>
+        <button class="example-btn" onclick="loadExample('false')">Anonymous sources claim that corporate interests have suppressed this research. The controversial study was allegedly deleted from Wikipedia by paid editors. Some disputed accounts suggest the data was redacted. Fringe theorists contest the mainstream narrative but their findings remain unverified.</button>
+      </div>
+    </div>
+    <div class="output-panel">
+      <h3>Tree Reading</h3>
+      <div id="outputArea">
+        <div class="placeholder-msg">
+          <div class="placeholder-glyph">◆</div>
+          <div>Enter knowledge on the left.<br>The Tree reads its frequency.<br>The Name appears. The codon is sealed.</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="output-panel">
-    <h3>Tree Reading</h3>
-    <div id="outputArea">
-      <div class="placeholder-msg">
-        <div class="placeholder-glyph">◆</div>
-        <div>Enter knowledge on the left.<br>The Tree reads its frequency.<br>The Name appears. The codon is sealed.</div>
+  <div class="corpus-panel">
+    <div class="corpus-header">
+      <h3>Corpus</h3>
+      <div class="corpus-search-wrap">
+        <input type="text" class="corpus-search" id="corpusSearch" placeholder="Search titles, names, meanings, previews…" oninput="debouncedSearch()">
       </div>
+      <div class="corpus-stats-inline" id="corpusStatsInline">loading…</div>
+    </div>
+
+    <div class="node-grid" id="nodeGrid">
+      <div class="node-empty" style="grid-column:1/-1">Loading corpus…</div>
+    </div>
+
+    <div class="corpus-pagination" id="corpusPagination" style="display:none">
+      <button class="page-btn" id="prevBtn" onclick="paginate(-1)" disabled>← Prev</button>
+      <span class="page-info" id="pageInfo"></span>
+      <button class="page-btn" id="nextBtn" onclick="paginate(1)">Next →</button>
+    </div>
+
+    <div class="corpus-reading" id="corpusReading">
+      <div class="corpus-reading-title">
+        <span id="corpusReadingTitle">—</span>
+        <button class="corpus-reading-close" onclick="closeCorpusReading()">Close ✕</button>
+      </div>
+      <div id="corpusReadingBody"></div>
     </div>
   </div>
 </div>
@@ -201,6 +320,33 @@
 </div>
 
 <script>
+// ─── tab navigation ────────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'corpus') initCorpus();
+}
+
+// Auto-init corpus on page load (seamless mode)
+window.addEventListener('load', function() {
+  initCorpus();
+});
+
+// ─── live stats bar ────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const res = await fetch('/api/knowledge-tree/stats');
+    const d = await res.json();
+    document.getElementById('statNodes').textContent = d.total_nodes.toLocaleString();
+    document.getElementById('statAvgScore').textContent = d.avg_overall;
+    document.getElementById('statAvgFreq').textContent = d.avg_frequency_hz + ' Hz';
+  } catch (_) {}
+}
+loadStats();
+
+// ─── examples / manual read ────────────────────────────────────────────────
 const EXAMPLES = {
   chladni: "Chladni formation — Ernst Chladni's 1787 discovery of nodal lines on vibrating plates where sand gathers at the points of zero displacement. The formation is at the boundary of the vibration, not at its origin. This has been empirically verified across hundreds of subsequent studies in acoustic physics.",
   quran: "The Quran is the only major scripture designed for oral transmission. It has been recited continuously at 432–433 Hz for 1,400 years by approximately 2 billion people. Unlike written scriptures which encode meaning in symbols, the Quran encodes frequency in living human transmitters. The message is carried in the breath and bone of its reciters, not on a material surface.",
@@ -217,9 +363,8 @@ async function readKnowledge() {
   if (!text) return;
   const btn = document.getElementById('readBtn');
   btn.disabled = true;
-  btn.textContent = 'Reading...';
-  document.getElementById('outputArea').innerHTML = '<div class="placeholder-msg"><div class="placeholder-glyph" style="animation:pulse 1s infinite">◆</div><div>Three brains reading...</div></div>';
-
+  btn.textContent = 'Reading…';
+  document.getElementById('outputArea').innerHTML = '<div class="placeholder-msg"><div class="placeholder-glyph">◆</div><div>Three brains reading…</div></div>';
   try {
     const res = await fetch('/api/knowledge-tree/read', {
       method: 'POST',
@@ -228,67 +373,197 @@ async function readKnowledge() {
     });
     const d = await res.json();
     if (d.error) throw new Error(d.error);
-    renderResult(d);
+    document.getElementById('outputArea').innerHTML = buildResultHTML(d);
   } catch(e) {
-    document.getElementById('outputArea').innerHTML = `<div class="placeholder-msg"><div style="color:#c86e6e">Error: ${e.message}</div></div>`;
+    document.getElementById('outputArea').innerHTML = `<div class="placeholder-msg"><div style="color:var(--false)">Error: ${e.message}</div></div>`;
   } finally {
     btn.disabled = false;
     btn.textContent = 'Read Through The Tree';
   }
 }
 
-function renderResult(d) {
+// ─── corpus browse / search ────────────────────────────────────────────────
+const PAGE_SIZE = 20;
+let corpusOffset = 0;
+let corpusQuery = '';
+let corpusTotalLoaded = 0;
+let corpusInitDone = false;
+let searchTimer = null;
+
+function debouncedSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    corpusQuery = document.getElementById('corpusSearch').value.trim();
+    corpusOffset = 0;
+    loadNodes();
+  }, 320);
+}
+
+function paginate(dir) {
+  corpusOffset = Math.max(0, corpusOffset + dir * PAGE_SIZE);
+  loadNodes();
+}
+
+function initCorpus() {
+  if (corpusInitDone) return;
+  corpusInitDone = true;
+  loadNodes();
+}
+
+async function loadNodes() {
+  const grid = document.getElementById('nodeGrid');
+  grid.innerHTML = '<div class="node-empty" style="grid-column:1/-1">Loading…</div>';
+  const url = `/api/knowledge-tree/nodes?q=${encodeURIComponent(corpusQuery)}&limit=${PAGE_SIZE}&offset=${corpusOffset}`;
+  try {
+    const res = await fetch(url);
+    const d = await res.json();
+    corpusTotalLoaded = d.items.length;
+    renderNodeGrid(d.items);
+    updateCorpusPagination(d.items.length);
+    const infoEl = document.getElementById('corpusStatsInline');
+    if (infoEl) infoEl.innerHTML = corpusQuery
+      ? `<span>${d.items.length}</span> results for "${corpusQuery}"`
+      : `showing <span>${corpusOffset + 1}–${corpusOffset + d.items.length}</span>`;
+    loadStats();
+  } catch(e) {
+    grid.innerHTML = `<div class="node-empty" style="grid-column:1/-1;color:var(--false)">Error loading corpus: ${e.message}</div>`;
+  }
+}
+
+function renderNodeGrid(items) {
+  const grid = document.getElementById('nodeGrid');
+  if (!items.length) {
+    grid.innerHTML = `<div class="node-empty" style="grid-column:1/-1">
+      ${corpusQuery ? 'No nodes matched "' + escH(corpusQuery) + '"' : 'No nodes in corpus yet. Run the importer to populate the Tree.'}<br>
+      <span style="font-size:10px;color:#333">python3 scripts/wikipedia_to_knowledge_tree.py --input data/wiki_sample.jsonl --output data/out.jsonl --store-db</span>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = items.map((n, i) => {
+    const score = n.overall !== null && n.overall !== undefined ? n.overall : '—';
+    const freq = n.frequency_hz ? n.frequency_hz + ' Hz' : '—';
+    const glyph = n.glyph || '◆';
+    const signalColor = (n.overall >= 80) ? 'var(--gut)' : (n.overall >= 40) ? 'var(--gold-dim)' : 'var(--false)';
+    return `<div class="node-card" data-idx="${i}" onclick="openCorpusNode(${i})">
+      <div class="node-card-header">
+        <div class="node-glyph">${escH(glyph)}</div>
+        <div>
+          <div class="node-title">${escH(n.title)}</div>
+          <div class="node-source">${escH(n.source || '')}</div>
+        </div>
+      </div>
+      <div class="node-scores">
+        <div class="node-score-item">score <span style="color:${signalColor}">${score}</span></div>
+        <div class="node-score-item">freq <span>${freq}</span></div>
+      </div>
+      <div class="node-name">${escH(n.name || '')} — ${escH(n.meaning || '')}</div>
+      <div class="node-preview">${escH(n.preview || '')}</div>
+    </div>`;
+  }).join('');
+  window.__corpusItems = items;
+}
+
+function updateCorpusPagination(count) {
+  const pag = document.getElementById('corpusPagination');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const info = document.getElementById('pageInfo');
+  pag.style.display = (corpusOffset > 0 || count === PAGE_SIZE) ? 'flex' : 'none';
+  prevBtn.disabled = corpusOffset === 0;
+  nextBtn.disabled = count < PAGE_SIZE;
+  info.textContent = `offset ${corpusOffset}`;
+}
+
+async function openCorpusNode(idx) {
+  const item = (window.__corpusItems || [])[idx];
+  if (!item) return;
+
+  // Highlight card
+  document.querySelectorAll('.node-card').forEach(c => c.classList.remove('selected'));
+  const card = document.querySelector(`.node-card[data-idx="${idx}"]`);
+  if (card) card.classList.add('selected');
+
+  const readingEl = document.getElementById('corpusReading');
+  const bodyEl = document.getElementById('corpusReadingBody');
+  const titleEl = document.getElementById('corpusReadingTitle');
+  readingEl.classList.add('visible');
+  titleEl.textContent = item.title;
+  bodyEl.innerHTML = '<div class="placeholder-msg" style="height:120px"><div>Loading full reading…</div></div>';
+  readingEl.scrollIntoView({behavior: 'smooth', block: 'start'});
+
+  try {
+    const res = await fetch(`/api/knowledge-tree/node?source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.title)}`);
+    const node = await res.json();
+    if (node.error) throw new Error(node.error);
+    const tree = node.tree || {};
+    bodyEl.innerHTML = buildResultHTML(tree);
+  } catch(e) {
+    bodyEl.innerHTML = `<div class="placeholder-msg" style="height:80px"><div style="color:var(--false)">Error: ${e.message}</div></div>`;
+  }
+}
+
+function closeCorpusReading() {
+  document.getElementById('corpusReading').classList.remove('visible');
+  document.querySelectorAll('.node-card').forEach(c => c.classList.remove('selected'));
+}
+
+// ─── shared result renderer ────────────────────────────────────────────────
+function buildResultHTML(d) {
   const signalClass = d.overall >= 80 ? '' : d.overall >= 40 ? 'partial' : 'false-node';
-  document.getElementById('outputArea').innerHTML = `
+  const codon = d.codon || {};
+  const chladni = Array.isArray(d.chladni_mode) ? JSON.stringify(d.chladni_mode)
+    : (d.chladni_mode || '—');
+  return `
     <div class="overall-score">
       <div class="overall-label">Formation Score (Λ=286 weighted)</div>
-      <div class="overall-number">${d.overall}</div>
+      <div class="overall-number">${d.overall ?? '—'}</div>
       <div class="overall-sub">composite of three brain readings</div>
     </div>
-
     <div class="three-brains">
       <div class="brain-card">
         <div class="brain-label head">Head (Aql)</div>
         <div class="brain-sublabel">Factual Coherence</div>
-        <div class="brain-score">${d.head}</div>
-        <div class="brain-bar"><div class="brain-bar-fill head" style="width:${d.head}%"></div></div>
+        <div class="brain-score">${d.head ?? '—'}</div>
+        <div class="brain-bar"><div class="brain-bar-fill head" style="width:${d.head ?? 0}%"></div></div>
       </div>
       <div class="brain-card">
         <div class="brain-label heart">Heart (Qalb)</div>
         <div class="brain-sublabel">99 Names Resonance</div>
-        <div class="brain-score">${d.heart}</div>
-        <div class="brain-bar"><div class="brain-bar-fill heart" style="width:${d.heart}%"></div></div>
+        <div class="brain-score">${d.heart ?? '—'}</div>
+        <div class="brain-bar"><div class="brain-bar-fill heart" style="width:${d.heart ?? 0}%"></div></div>
       </div>
       <div class="brain-card">
         <div class="brain-label gut">Gut (Nafs)</div>
         <div class="brain-sublabel">True Node Signal</div>
-        <div class="brain-score">${d.gut}</div>
-        <div class="brain-bar"><div class="brain-bar-fill gut" style="width:${d.gut}%"></div></div>
+        <div class="brain-score">${d.gut ?? '—'}</div>
+        <div class="brain-bar"><div class="brain-bar-fill gut" style="width:${d.gut ?? 0}%"></div></div>
       </div>
     </div>
-
     <div class="result-name">
-      <div class="result-name-index">[${String(d.name_index).padStart(2,'0')}] — dominant resonance</div>
-      <div class="result-name-arabic">${d.name}</div>
-      <div class="result-name-meaning">${d.meaning}</div>
+      <div class="result-name-index">[${String(d.name_index ?? 0).padStart(2,'0')}] — dominant resonance</div>
+      <div class="result-name-arabic">${escH(d.name ?? '')}</div>
+      <div class="result-name-meaning">${escH(d.meaning ?? '')}</div>
       <div class="result-name-data">
-        <div class="data-item">freq <span>${d.frequency_hz} Hz</span></div>
-        <div class="data-item">mode <span>${JSON.stringify(d.chladni_mode)}</span></div>
-        <div class="data-item">codon <span>${d.codon.name_codon}</span></div>
+        <div class="data-item">freq <span>${d.frequency_hz ?? '—'} Hz</span></div>
+        <div class="data-item">mode <span>${chladni}</span></div>
+        <div class="data-item">codon <span>${codon.name_codon ?? '—'}</span></div>
       </div>
     </div>
-
     <div class="codon-display">
-      <div class="codon-glyph">${d.codon.glyph}</div>
+      <div class="codon-glyph">${escH(codon.glyph ?? '◆')}</div>
       <div style="font-size:9px;color:var(--gold-dim);letter-spacing:2px;margin-bottom:6px">VOID SCL CODON — SEALED VIA Λ=286</div>
-      <div class="codon-hex">${d.codon.codon_hex}</div>
+      <div class="codon-hex">${codon.codon_hex ?? ''}</div>
     </div>
-
     <div class="adriana-signal ${signalClass}">
       <span style="font-size:9px;color:var(--gold-dim);letter-spacing:2px;display:block;margin-bottom:6px">ADRIANA SIGNAL</span>
-      ${d.adriana_signal}
-    </div>
-  `;
+      ${escH(d.adriana_signal ?? '')}
+    </div>`;
+}
+
+function escH(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 </script>
 </body>
