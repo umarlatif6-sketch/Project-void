@@ -8,10 +8,10 @@ You do not need to open code files, databases, or terminals manually.
 Use these exact requests to run the full loop:
 
 1. Ingest your latest notes:
-- "Run story-world ingest on the template file at threshold 0.35 and store to DB."
+- "Run autopilot cycle now."
 
 2. Build your weekly chronicle:
-- "Build the story world chronicle markdown from the latest JSONL output."
+- "Show me the latest autopilot summary and top clusters."
 
 3. Give me top analogies/perspectives:
 - "Show top 20 analogies and perspectives grouped by Name cluster from story_world."
@@ -45,6 +45,15 @@ In the right panel:
 - Keep everything GitHub + local workspace based
 - Avoid paid external tools/services
 - Use this chat as control plane for ingestion, summarization, and navigation
+
+## One-Command Autopilot
+
+```bash
+bash scripts/autopilot_cycle.sh --threshold 0.30 --store-db true
+```
+
+This runs story-world + public-source ingestion, builds chronicles, and writes:
+- `docs/AUTOPILOT_CYCLE_SUMMARY.md`
 
 ## If You Disconnect
 
