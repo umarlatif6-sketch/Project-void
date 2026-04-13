@@ -92,7 +92,7 @@ def main() -> None:
     lines.append("")
     lines.append("## Immediate Next Step")
     lines.append("")
-    lines.append("- Open knowledge tree and filter Signals Navigator by All signal feeds, then perspective")
+    lines.append("- Open knowledge tree and filter Signals Navigator by All signal feeds, then perspective filter to extract forward scenarios quickly")
 
     out = ROOT / "docs" / "TEAM_SYSTEM_STATE_CARD.md"
     out.write_text("\n".join(lines), encoding="utf-8")
