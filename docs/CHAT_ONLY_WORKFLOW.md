@@ -55,6 +55,9 @@ bash scripts/autopilot_cycle.sh --threshold 0.30 --store-db true
 This runs story-world + public-source ingestion, builds chronicles, and writes:
 - `docs/AUTOPILOT_CYCLE_SUMMARY.md`
 - `docs/TEAM_SYSTEM_STATE_CARD.md`
+- `docs/TEAM_SYSTEM_STATE_CARD_FOUNDER.md`
+- `docs/TEAM_SYSTEM_STATE_CARD_OPERATOR.md`
+- `docs/TEAM_SYSTEM_STATE_CARD_RESEARCH.md`
 
 ## If You Disconnect
 

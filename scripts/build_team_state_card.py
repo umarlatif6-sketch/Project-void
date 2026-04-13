@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -27,33 +28,23 @@ def _load_feed_checkpoint(path: Path):
     }
 
 
-def main() -> None:
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-
-    story = _load_feed_checkpoint(ROOT / "data" / "story_world_ecosystem.jsonl.story.checkpoint.json")
-    voxcpm = _load_feed_checkpoint(ROOT / "data" / "public_source_voxcpm_ecosystem.jsonl.public.checkpoint.json")
-    minicpm = _load_feed_checkpoint(ROOT / "data" / "public_source_minicpm_ecosystem.jsonl.public.checkpoint.json")
-
-    integration = _load_json(ROOT / "data" / "integration_web.json")
-    integration_meta = integration.get("metadata", {}) if isinstance(integration, dict) else {}
-    judgment = integration.get("judgment_narrative", "") if isinstance(integration, dict) else ""
-
-    weaver = _load_json(ROOT / "data" / "resonance_weaver_baseline.json")
-    clusters = weaver.get("clusters", []) if isinstance(weaver, dict) else []
-
-    top_clusters = []
-    for c in clusters[:5]:
-        idx = c.get("name_index")
-        idx_text = str(idx).zfill(2) if isinstance(idx, int) and idx >= 0 else "??"
-        top_clusters.append(
-            f"- [{idx_text}] {c.get('name', 'Unknown')} | count={c.get('count', 0)} | coherence={c.get('coherence_score', 0)} | sources={','.join(c.get('sources', []))}"
-        )
-
+def _render_card(
+    *,
+    title: str,
+    now: str,
+    role: str,
+    story: dict,
+    voxcpm: dict,
+    minicpm: dict,
+    integration_meta: dict,
+    judgment: str,
+    top_clusters: list[str],
+) -> str:
     total_processed = story["processed"] + voxcpm["processed"] + minicpm["processed"]
     total_accepted = story["accepted"] + voxcpm["accepted"] + minicpm["accepted"]
 
-    lines = []
-    lines.append("# Team System State Card")
+    lines: list[str] = []
+    lines.append(f"# {title}")
     lines.append("")
     lines.append(f"Generated: {now}")
     lines.append("")
@@ -83,20 +74,143 @@ def main() -> None:
     lines.append("")
     lines.append(judgment or "No judgment available yet. Run autopilot first.")
     lines.append("")
-    lines.append("## Team Benefits")
-    lines.append("")
-    lines.append("- Shared map: multiple sources converge into one decision surface")
-    lines.append("- Faster prioritization: perspective-dense clusters highlight next scenarios")
-    lines.append("- Lower noise: same-theory/different-story filter reduces scattered signals")
-    lines.append("- Repeatable cadence: one command regenerates this card each cycle")
-    lines.append("")
-    lines.append("## Immediate Next Step")
-    lines.append("")
-    lines.append("- Open knowledge tree and filter Signals Navigator by All signal feeds, then perspective filter to extract forward scenarios quickly")
 
-    out = ROOT / "docs" / "TEAM_SYSTEM_STATE_CARD.md"
-    out.write_text("\n".join(lines), encoding="utf-8")
-    print(f"WROTE {out}")
+    if role == "founder":
+        lines.append("## Founder Lens")
+        lines.append("")
+        lines.append("- Decision priority: reinforce bridge anchors before expanding breadth")
+        lines.append("- Capital focus: allocate effort to clusters with high coherence and cross-feed overlap")
+        lines.append("- Narrative posture: communicate woven-system advantage over isolated experiments")
+        lines.append("")
+        lines.append("## Immediate Next Step")
+        lines.append("")
+        lines.append("- Pick top 2 bridge anchors from this card and define one strategic bet per anchor for the next cycle")
+    elif role == "operator":
+        lines.append("## Operator Lens")
+        lines.append("")
+        lines.append("- Cadence priority: keep daily autopilot execution stable and checkpoint-safe")
+        lines.append("- Throughput focus: raise weak feed acceptance by tightening low-fit source inputs")
+        lines.append("- Delivery posture: convert perspective-dense clusters into concrete next-day tasks")
+        lines.append("")
+        lines.append("## Immediate Next Step")
+        lines.append("")
+        lines.append("- Run one quality pass on the lowest-acceptance feed and re-run autopilot to confirm improved signal density")
+    elif role == "research":
+        lines.append("## Research Lens")
+        lines.append("")
+        lines.append("- Inquiry priority: test whether low-cardinality clusters are emergent or noisy")
+        lines.append("- Validation focus: compare analogy/perspective structure across story and public lanes")
+        lines.append("- Evidence posture: document same-theory/different-story examples with cluster references")
+        lines.append("")
+        lines.append("## Immediate Next Step")
+        lines.append("")
+        lines.append("- Select 3 clusters and write hypothesis notes on why their convergence appears, then test in the next ingest cycle")
+    else:
+        lines.append("## Team Benefits")
+        lines.append("")
+        lines.append("- Shared map: multiple sources converge into one decision surface")
+        lines.append("- Faster prioritization: perspective-dense clusters highlight next scenarios")
+        lines.append("- Lower noise: same-theory/different-story filter reduces scattered signals")
+        lines.append("- Repeatable cadence: one command regenerates this card each cycle")
+        lines.append("")
+        lines.append("## Immediate Next Step")
+        lines.append("")
+        lines.append("- Open knowledge tree and filter Signals Navigator by All signal feeds, then perspective filter to extract forward scenarios quickly")
+
+    return "\n".join(lines)
+
+
+def _write_card(path: Path, content: str) -> None:
+    path.write_text(content, encoding="utf-8")
+    print(f"WROTE {path}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Build role-aware team system state cards")
+    parser.add_argument(
+        "--role",
+        choices=["all", "founder", "operator", "research"],
+        default="all",
+        help="Render a specific role view or all views",
+    )
+    args = parser.parse_args()
+
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    story = _load_feed_checkpoint(ROOT / "data" / "story_world_ecosystem.jsonl.story.checkpoint.json")
+    voxcpm = _load_feed_checkpoint(ROOT / "data" / "public_source_voxcpm_ecosystem.jsonl.public.checkpoint.json")
+    minicpm = _load_feed_checkpoint(ROOT / "data" / "public_source_minicpm_ecosystem.jsonl.public.checkpoint.json")
+
+    integration = _load_json(ROOT / "data" / "integration_web.json")
+    integration_meta = integration.get("metadata", {}) if isinstance(integration, dict) else {}
+    judgment = integration.get("judgment_narrative", "") if isinstance(integration, dict) else ""
+
+    weaver = _load_json(ROOT / "data" / "resonance_weaver_baseline.json")
+    clusters = weaver.get("clusters", []) if isinstance(weaver, dict) else []
+
+    top_clusters = []
+    for c in clusters[:5]:
+        idx = c.get("name_index")
+        idx_text = str(idx).zfill(2) if isinstance(idx, int) and idx >= 0 else "??"
+        top_clusters.append(
+            f"- [{idx_text}] {c.get('name', 'Unknown')} | count={c.get('count', 0)} | coherence={c.get('coherence_score', 0)} | sources={','.join(c.get('sources', []))}"
+        )
+
+    if args.role in {"all", "founder"}:
+        founder_content = _render_card(
+            title="Team System State Card - Founder",
+            now=now,
+            role="founder",
+            story=story,
+            voxcpm=voxcpm,
+            minicpm=minicpm,
+            integration_meta=integration_meta,
+            judgment=judgment,
+            top_clusters=top_clusters,
+        )
+        _write_card(ROOT / "docs" / "TEAM_SYSTEM_STATE_CARD_FOUNDER.md", founder_content)
+
+    if args.role in {"all", "operator"}:
+        operator_content = _render_card(
+            title="Team System State Card - Operator",
+            now=now,
+            role="operator",
+            story=story,
+            voxcpm=voxcpm,
+            minicpm=minicpm,
+            integration_meta=integration_meta,
+            judgment=judgment,
+            top_clusters=top_clusters,
+        )
+        _write_card(ROOT / "docs" / "TEAM_SYSTEM_STATE_CARD_OPERATOR.md", operator_content)
+
+    if args.role in {"all", "research"}:
+        research_content = _render_card(
+            title="Team System State Card - Research",
+            now=now,
+            role="research",
+            story=story,
+            voxcpm=voxcpm,
+            minicpm=minicpm,
+            integration_meta=integration_meta,
+            judgment=judgment,
+            top_clusters=top_clusters,
+        )
+        _write_card(ROOT / "docs" / "TEAM_SYSTEM_STATE_CARD_RESEARCH.md", research_content)
+
+    if args.role == "all":
+        default_content = _render_card(
+            title="Team System State Card",
+            now=now,
+            role="all",
+            story=story,
+            voxcpm=voxcpm,
+            minicpm=minicpm,
+            integration_meta=integration_meta,
+            judgment=judgment,
+            top_clusters=top_clusters,
+        )
+        _write_card(ROOT / "docs" / "TEAM_SYSTEM_STATE_CARD.md", default_content)
 
 
 if __name__ == "__main__":
