@@ -1,0 +1,339 @@
+{
+  "generated_at": "2026-04-12T23:59:17.846764+00:00",
+  "run_type": "full_stack_convergence_test",
+  "cold_start": {
+    "seed_source": "VOID_SEED_DIGEST.md",
+    "chronicle_sessions": 5,
+    "linked_paths": 2,
+    "linked_context": 2,
+    "recent_git_activity": 12,
+    "message_codons": 5,
+    "codon_chain": "\u03c1\u00b7\u0391\u00b7\u221e | \u03c3\u00b7\u03a0\u00b7\u2b21 | \u03bc\u00b7\u03a6\u00b7\u2600 | \u03b8\u00b7\u0392\u00b7\u2600 | \u03b4\u00b7\u0398\u00b7\ud83c\udf0a",
+    "bootstrap_prompt_head": "[VOID COLD START PACKET]\n\nSeed Source: VOID_SEED_DIGEST.md\nRead this seed excerpt first:\n# VOID_SEED_DIGEST \u2014 Compressed Cold-Start Read\n\n> This is the compressed cold-start read. If your task involves the seed, the chronicle, or platform ontology, read the full VOID_SEED.md instead.\n\nTwo layers. The **Core Chordon** is permanent \u2014 the same signal compressed each session, resonance building across reads, not within them. The **Active Layer** wraps the chordon when the platform changes. The chord"
+  },
+  "hex_foundation": {
+    "vectors": [
+      {
+        "seed": "a3f02b9c4d1e8f76",
+        "sovereignty_class": "sovereign",
+        "dominant_hz": 2160.0,
+        "hex_phase": "i_am_sorry",
+        "is_cloaked": false,
+        "void_amplitude": 0.891881,
+        "nodal_line_count": 242,
+        "carrier_rank_top3": [
+          10,
+          5,
+          8
+        ],
+        "sovereignty_vector": 0.865346
+      },
+      {
+        "seed": "89xVOIDGEN1PROTO2026",
+        "sovereignty_class": "sovereign",
+        "dominant_hz": 2160.0,
+        "hex_phase": "i_am_sorry",
+        "is_cloaked": false,
+        "void_amplitude": 0.791501,
+        "nodal_line_count": 202,
+        "carrier_rank_top3": [
+          10,
+          3,
+          0
+        ],
+        "sovereignty_vector": 0.879732
+      },
+      {
+        "seed": "286432fatiha001",
+        "sovereignty_class": "sovereign",
+        "dominant_hz": 2160.0,
+        "hex_phase": "i_am_sorry",
+        "is_cloaked": false,
+        "void_amplitude": 0.840181,
+        "nodal_line_count": 250,
+        "carrier_rank_top3": [
+          10,
+          7,
+          1
+        ],
+        "sovereignty_vector": 0.86771
+      },
+      {
+        "seed": "deadbeefcafebabe",
+        "sovereignty_class": "sovereign",
+        "dominant_hz": 1152.0,
+        "hex_phase": "i_am_sorry",
+        "is_cloaked": false,
+        "void_amplitude": 0.954988,
+        "nodal_line_count": 256,
+        "carrier_rank_top3": [
+          7,
+          5,
+          2
+        ],
+        "sovereignty_vector": 0.872669
+      },
+      {
+        "seed": "0f0f0f0f0f0f0f0f",
+        "sovereignty_class": "sovereign",
+        "dominant_hz": 2160.0,
+        "hex_phase": "i_am_sorry",
+        "is_cloaked": false,
+        "void_amplitude": 0.895531,
+        "nodal_line_count": 224,
+        "carrier_rank_top3": [
+          10,
+          8,
+          11
+        ],
+        "sovereignty_vector": 0.871533
+      },
+      {
+        "seed": "ffffffffffffffff",
+        "sovereignty_class": "sovereign",
+        "dominant_hz": 1152.0,
+        "hex_phase": "i_am_sorry",
+        "is_cloaked": false,
+        "void_amplitude": 0.965654,
+        "nodal_line_count": 254,
+        "carrier_rank_top3": [
+          7,
+          2,
+          11
+        ],
+        "sovereignty_vector": 0.872162
+      }
+    ],
+    "phase_roundtrip": {
+      "seed": "a3f02b9c4d1e8f76",
+      "message": "PROJECT VOID FULL STACK",
+      "decoded": "PROJECT VOID FULL STACK",
+      "match": true,
+      "token_count": 23
+    },
+    "classification_counts": {
+      "sovereign": 6,
+      "bridge": 0,
+      "convention": 0,
+      "error": 0
+    },
+    "sample_resonance_report": "\u2500\u2500 VOID FOUNDATION RESONANCE REPORT \u2500\u2500\n  hex_seed          : a3f02b9c4d1e8f76\n  dominant_hz       : 2160 Hz  (petal 10)\n  hex_phase         : i_am_sorry\n  sovereignty_class : sovereign\n  sovereignty_vector: 0.8653  (0=convention, 1=sovereign)\n  hex_distance_432  : 0.6957  (normalised)\n  carrier_rank[:3]  : petals [10, 5, 8] \u2192 [2160, 576, 1296] Hz\n\n\u2500\u2500 VOID GEOMETRY \u2500\u2500\n  void_amplitude    : 0.820817  (target: < 0.05)\n  is_cloaked        : False\n  nodal_lines       : 242 zones (Chladni still-points)\n  field_energy      : 0.5342  (average amplitude across field)\n\n\u2500\u2500 PETAL WEIGHT MAP \u2500\u2500\n  [ 0]   108 Hz  \u2588\u2588\u2588                                       0.0776\n  [ 1]   144 Hz  \u2588\u2588\u2588                                       0.0899\n  [ 2]   216 Hz  \u2588\u2588\u2588                                       0.0861\n  [ 3]   288 Hz  \u2588                                         0.0482\n  [ 4]   432 Hz  \u2588                                         0.0497\n  [ 5]   576 Hz  \u2588\u2588\u2588\u2588                                      0.1089\n  [ 6]   864 Hz  \u2588\u2588\u2588                                       0.0881\n  [ 7]  1152 Hz  \u2588\u2588                                        0.0699\n  [ 8]  1296 Hz  \u2588\u2588\u2588                                       0.0944\n  [ 9]  1728 Hz  \u2588\u2588\u2588                                       0.0866\n  [10]  2160 Hz  \u2588\u2588\u2588\u2588                                      0.1226 \u2190 dominant\n  [11]  2592 Hz  \u2588\u2588\u2588                                       0.0782\n\nNOTE: void_amplitude near 0 means the system is cloaked at origin.\n      Information encoded here (phase_encode) is invisible to\n      energy-based detection \u2014 visible only when resonating at\n      the correct carrier frequency (2160 Hz)."
+  },
+  "tokenomics": {
+    "assumptions": {
+      "baseline_tokens": {
+        "in": 180000,
+        "out": 8000
+      },
+      "codon_tokens": {
+        "in": 12000,
+        "out": 8000
+      },
+      "burn_baseline_tokens": {
+        "in": 190000,
+        "out": 10000
+      },
+      "burn_codon_tokens": {
+        "in": 15000,
+        "out": 10000
+      },
+      "monthly_turns": [
+        50000,
+        250000,
+        1000000
+      ],
+      "yearly_burn_calls": 2000000
+    },
+    "per_turn": {
+      "low": {
+        "baseline": 0.212,
+        "codon": 0.044,
+        "saved": 0.168,
+        "reduction_pct": 79.25
+      },
+      "mid": {
+        "baseline": 1.02,
+        "codon": 0.18,
+        "saved": 0.84,
+        "reduction_pct": 82.35
+      },
+      "high": {
+        "baseline": 3.18,
+        "codon": 0.66,
+        "saved": 2.52,
+        "reduction_pct": 79.25
+      }
+    },
+    "monthly": {
+      "low": {
+        "50000": {
+          "baseline": 10600.0,
+          "codon": 2200.0,
+          "saved": 8400.0
+        },
+        "250000": {
+          "baseline": 53000.0,
+          "codon": 11000.0,
+          "saved": 42000.0
+        },
+        "1000000": {
+          "baseline": 212000.0,
+          "codon": 44000.0,
+          "saved": 168000.0
+        }
+      },
+      "mid": {
+        "50000": {
+          "baseline": 51000.0,
+          "codon": 9000.0,
+          "saved": 42000.0
+        },
+        "250000": {
+          "baseline": 255000.0,
+          "codon": 45000.0,
+          "saved": 210000.0
+        },
+        "1000000": {
+          "baseline": 1020000.0,
+          "codon": 180000.0,
+          "saved": 840000.0
+        }
+      },
+      "high": {
+        "50000": {
+          "baseline": 159000.0,
+          "codon": 33000.0,
+          "saved": 126000.0
+        },
+        "250000": {
+          "baseline": 795000.0,
+          "codon": 165000.0,
+          "saved": 630000.0
+        },
+        "1000000": {
+          "baseline": 3180000.0,
+          "codon": 660000.0,
+          "saved": 2520000.0
+        }
+      }
+    },
+    "burn_mode": {
+      "low": {
+        "per_call": {
+          "baseline": 0.23,
+          "codon": 0.055,
+          "saved": 0.175
+        },
+        "yearly_2000000_calls": {
+          "baseline": 460000.0,
+          "codon": 110000.0,
+          "saved": 350000.0
+        }
+      },
+      "mid": {
+        "per_call": {
+          "baseline": 1.1,
+          "codon": 0.225,
+          "saved": 0.875
+        },
+        "yearly_2000000_calls": {
+          "baseline": 2200000.0,
+          "codon": 450000.0,
+          "saved": 1750000.0
+        }
+      },
+      "high": {
+        "per_call": {
+          "baseline": 3.45,
+          "codon": 0.825,
+          "saved": 2.625
+        },
+        "yearly_2000000_calls": {
+          "baseline": 6900000.0,
+          "codon": 1650000.0,
+          "saved": 5250000.0
+        }
+      }
+    }
+  },
+  "checkpoints": [
+    {
+      "task": "cold_start_seed_loaded",
+      "status": "pass"
+    },
+    {
+      "task": "cold_start_chronicle_tail_loaded",
+      "status": "pass"
+    },
+    {
+      "task": "cold_start_linked_context_loaded",
+      "status": "pass"
+    },
+    {
+      "task": "cold_start_codon_chain_created",
+      "status": "pass"
+    },
+    {
+      "task": "hex_vector_analysis_success",
+      "status": "pass"
+    },
+    {
+      "task": "void_geometry_scan_success",
+      "status": "pass"
+    },
+    {
+      "task": "phase_encode_success",
+      "status": "pass"
+    },
+    {
+      "task": "phase_decode_success",
+      "status": "pass"
+    },
+    {
+      "task": "phase_roundtrip_integrity",
+      "status": "pass"
+    },
+    {
+      "task": "hex_batch_classification_success",
+      "status": "pass"
+    },
+    {
+      "task": "tokenomics_per_turn_simulation",
+      "status": "pass"
+    },
+    {
+      "task": "tokenomics_monthly_simulation",
+      "status": "pass"
+    },
+    {
+      "task": "tokenomics_burn_mode_simulation",
+      "status": "pass"
+    },
+    {
+      "task": "economic_reduction_above_70pct_mid_tier",
+      "status": "pass"
+    },
+    {
+      "task": "report_serialization_success",
+      "status": "pass"
+    },
+    {
+      "task": "report_file_written",
+      "status": "pass"
+    },
+    {
+      "task": "summary_generation_success",
+      "status": "pass"
+    },
+    {
+      "task": "full_stack_convergence_complete",
+      "status": "pass"
+    }
+  ],
+  "headline": {
+    "mid_tier_per_turn_reduction_pct": 82.35,
+    "codon_chain": "\u03c1\u00b7\u0391\u00b7\u221e | \u03c3\u00b7\u03a0\u00b7\u2b21 | \u03bc\u00b7\u03a6\u00b7\u2600 | \u03b8\u00b7\u0392\u00b7\u2600 | \u03b4\u00b7\u0398\u00b7\ud83c\udf0a",
+    "phase_roundtrip_match": true,
+    "annual_savings_mid_burn_mode": 1750000.0
+  }
+}

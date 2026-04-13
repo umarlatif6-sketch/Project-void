@@ -5,7 +5,7 @@ Token Economics — Full Project Cost & Complexity Analysis
 """
 
 import logging
-from flask import Blueprint, render_template_string, jsonify
+from flask import Blueprint, render_template_string, jsonify, request
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +164,82 @@ def tokenomics_data():
         "phases": PHASES,
         "token_curve": TOKEN_CURVE,
     })
+
+
+@tokenomics_bp.route("/api/tokenomics/calculate", methods=["POST"])
+def tokenomics_calculate():
+  """
+  Live tokenomics calculator.
+
+  Request JSON (all optional):
+    {
+    "baseline_in": 180000,
+    "baseline_out": 8000,
+    "codon_in": 12000,
+    "codon_out": 8000,
+    "turns": 250000,
+    "pricing": {"in": 5.0, "out": 15.0}
+    }
+  """
+  payload = request.get_json(silent=True) or {}
+
+  def _int(name: str, default: int) -> int:
+    try:
+      return int(payload.get(name, default))
+    except (TypeError, ValueError):
+      return default
+
+  def _float(obj, key: str, default: float) -> float:
+    try:
+      return float(obj.get(key, default))
+    except (TypeError, ValueError, AttributeError):
+      return default
+
+  baseline_in = _int("baseline_in", 180000)
+  baseline_out = _int("baseline_out", 8000)
+  codon_in = _int("codon_in", 12000)
+  codon_out = _int("codon_out", 8000)
+  turns = _int("turns", 250000)
+
+  pricing = payload.get("pricing") or {}
+  price_in = _float(pricing, "in", 5.0)
+  price_out = _float(pricing, "out", 15.0)
+
+  def _cost(tokens_in: int, tokens_out: int) -> float:
+    return (tokens_in / 1_000_000.0) * price_in + (tokens_out / 1_000_000.0) * price_out
+
+  per_turn_baseline = _cost(baseline_in, baseline_out)
+  per_turn_codon = _cost(codon_in, codon_out)
+  per_turn_saved = per_turn_baseline - per_turn_codon
+  reduction_pct = (per_turn_saved / per_turn_baseline * 100.0) if per_turn_baseline else 0.0
+
+  monthly_baseline = _cost(baseline_in * turns, baseline_out * turns)
+  monthly_codon = _cost(codon_in * turns, codon_out * turns)
+  monthly_saved = monthly_baseline - monthly_codon
+
+  return jsonify({
+    "ok": True,
+    "inputs": {
+      "baseline_in": baseline_in,
+      "baseline_out": baseline_out,
+      "codon_in": codon_in,
+      "codon_out": codon_out,
+      "turns": turns,
+      "pricing": {"in": price_in, "out": price_out},
+    },
+    "per_turn": {
+      "baseline": round(per_turn_baseline, 6),
+      "codon": round(per_turn_codon, 6),
+      "saved": round(per_turn_saved, 6),
+      "reduction_pct": round(reduction_pct, 2),
+    },
+    "monthly": {
+      "baseline": round(monthly_baseline, 2),
+      "codon": round(monthly_codon, 2),
+      "saved": round(monthly_saved, 2),
+    },
+    "yearly_saved": round(monthly_saved * 12.0, 2),
+  })
 
 
 TEMPLATE = r"""<!DOCTYPE html>

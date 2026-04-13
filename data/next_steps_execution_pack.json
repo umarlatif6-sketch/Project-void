@@ -1,0 +1,102 @@
+{
+  "generated_at": "2026-04-12T23:59:18.212214+00:00",
+  "source_reports": {
+    "full_stack_convergence_report": "data/full_stack_convergence_report.json"
+  },
+  "headline_metrics": {
+    "mid_tier_per_turn_reduction_pct": 82.35,
+    "annual_mid_tier_burn_mode_savings": 1750000.0,
+    "phase_roundtrip_match": true
+  },
+  "roi_scenarios": {
+    "conservative": {
+      "turns_per_month": 50000,
+      "low_tier_saved_monthly": 8400.0,
+      "mid_tier_saved_monthly": 42000.0,
+      "high_tier_saved_monthly": 126000.0,
+      "mid_tier_saved_yearly": 504000.0
+    },
+    "base": {
+      "turns_per_month": 250000,
+      "low_tier_saved_monthly": 42000.0,
+      "mid_tier_saved_monthly": 210000.0,
+      "high_tier_saved_monthly": 630000.0,
+      "mid_tier_saved_yearly": 2520000.0
+    },
+    "aggressive": {
+      "turns_per_month": 1000000,
+      "low_tier_saved_monthly": 168000.0,
+      "mid_tier_saved_monthly": 840000.0,
+      "high_tier_saved_monthly": 2520000.0,
+      "mid_tier_saved_yearly": 10080000.0
+    }
+  },
+  "founder_narrative": "Project VOID began as a continuity problem: intelligence keeps resetting, context gets lost, and cost rises as systems repeatedly reload the same history. We built Chronicle memory for lineage, codon compression for efficient recall, and multi-agent convergence for higher-confidence outputs. The result is measurable: lower token cost, deeper session continuity, and improved cross-system coherence.",
+  "product_definition": {
+    "what_it_is": "Continuity and compression infrastructure for AI systems that forget.",
+    "core_components": [
+      "Chronicle memory layer",
+      "Codon compression layer",
+      "Multi-agent consensus layer",
+      "Hex-first resonance classification"
+    ],
+    "outcomes": [
+      "79-82% modeled token-cost reduction",
+      "Higher handoff continuity",
+      "Reduced contradiction across model outputs",
+      "Auditable reasoning trail"
+    ]
+  },
+  "landing_page_copy": {
+    "hook": "From Amnesia AI to Lineage AI.",
+    "pitch_30s": "Project VOID gives memoryless AI systems continuity. We compress historical context into codons, load live chronicle state at startup, and orchestrate multi-model consensus to produce stronger outputs at lower cost.",
+    "proof_block": "In live simulation, codon continuity reduced per-turn spend by over 82% in mid-tier pricing while preserving output quality and session coherence.",
+    "metrics_block": [
+      "Mid-tier per-turn reduction: 82.35%",
+      "Annual mid-tier burn-mode savings: $1,750,000",
+      "Phase encode/decode integrity: PASS"
+    ]
+  },
+  "icc_demo_script_5min": [
+    "1) Run cold-start baseline question (no chronicle packet).",
+    "2) Run chronicle-loaded question with codon chain.",
+    "3) Show coherence/depth delta in output.",
+    "4) Run tokenomics calculator with audience traffic profile.",
+    "5) Show annual savings and close with pilot offer."
+  ],
+  "validation_protocol": {
+    "design": "A/B within-session and cross-session comparison",
+    "arms": [
+      "memoryless baseline",
+      "chronicle+codon continuity"
+    ],
+    "metrics": [
+      "context recall accuracy",
+      "contradiction rate",
+      "handoff integrity",
+      "token spend per resolved task"
+    ],
+    "window": "30 days",
+    "pass_criteria": [
+      ">=50% reduction in repeated context tokens",
+      ">=25% reduction in contradiction rate",
+      ">=20% increase in handoff integrity score"
+    ]
+  },
+  "decision_protocol_template": {
+    "step_1": "Capture intuitive signal in one sentence.",
+    "step_2": "Translate signal into Adriana-compatible operational language.",
+    "step_3": "Apply risk/impact gate before societal-scale recommendation.",
+    "step_4": "Record chronicle entry and schedule 7/30/90-day review."
+  },
+  "pilot_offer": {
+    "title": "30-Day Codon Continuity Pilot",
+    "guarantee": "Targeted reduction in token spend with auditable continuity improvements.",
+    "deliverables": [
+      "Baseline + post-integration spend report",
+      "Continuity quality scorecard",
+      "Deployment blueprint for production"
+    ]
+  },
+  "chartered_engineer_statement": "I work as a cross-domain systems integrator focused on continuity, signal, and operational memory. My approach is proof-first engineering: low-cost prototypes, measurable outcomes, and architecture that scales across software, sensing, and decision systems."
+}

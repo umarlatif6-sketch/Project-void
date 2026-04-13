@@ -111,6 +111,7 @@ from routes.memory_capture import memory_capture_bp
 from routes.openclaw_agent import openclaw_agent_bp
 from routes.z_axis import z_axis_bp
 from routes.z_axis_video import z_axis_video_bp
+from routes.convergence import convergence_bp
 from void_engine.stealth_cloak import stealth_bp
 
 
@@ -228,4 +229,5 @@ def register_blueprints(app):
     app.register_blueprint(openclaw_agent_bp)
     app.register_blueprint(z_axis_bp)
     app.register_blueprint(z_axis_video_bp)
+    app.register_blueprint(convergence_bp)
     app.register_blueprint(stealth_bp)
