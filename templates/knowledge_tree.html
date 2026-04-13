@@ -49,6 +49,33 @@
   .node-grid { flex: 1; overflow-y: auto; }
   .corpus-pagination { flex: 0 0 auto; }
   .corpus-reading { flex: 1; overflow-y: auto; }
+  .signals-panel { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .signals-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .signals-title { font-size: 10px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
+  .signals-meta { font-size: 9px; color: var(--gold-dim); letter-spacing: 1px; }
+  .signals-filters { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .signals-filters input,
+  .signals-filters select {
+    width: 100%; background: #0f0f0f; border: 1px solid var(--border);
+    color: var(--signal); font-family: 'Courier New', monospace; font-size: 10px;
+    padding: 8px 10px; outline: none; border-radius: 2px;
+  }
+  .signals-filters input:focus,
+  .signals-filters select:focus { border-color: var(--gold-dim); }
+  .signals-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  .signal-item {
+    background: #0f0f0f; border: 1px solid var(--border); padding: 10px; border-radius: 2px;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  }
+  .signal-item:hover { border-color: var(--gold-dim); background: #151515; }
+  .signal-top { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; align-items: center; }
+  .signal-kind { font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); }
+  .signal-kind.perspective { color: var(--gut); }
+  .signal-name { font-size: 8px; color: var(--gold-dim); letter-spacing: 1px; }
+  .signal-text { font-size: 10px; color: var(--signal); line-height: 1.5; }
+  .signal-ref { margin-top: 6px; font-size: 8px; color: #666; letter-spacing: 1px; }
+  .signals-pagination { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .signals-page-info { font-size: 8px; color: var(--gold-dim); letter-spacing: 1px; }
   .input-panel h3 { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
   .input-area { padding: 32px 40px; overflow-y: auto; }
   .corpus-panel h3 { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
@@ -212,6 +239,7 @@
     .header, .stats-bar, .tab-bar, .footer { padding: 20px; }
     .tab-bar { padding: 0 20px; overflow-x: auto; }
     .node-grid { grid-template-columns: 1fr; }
+    .signals-filters { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -311,6 +339,32 @@
       </div>
       <div id="corpusReadingBody"></div>
     </div>
+
+    <div class="signals-panel">
+      <div class="signals-head">
+        <div class="signals-title">Signals Navigator</div>
+        <div class="signals-meta" id="signalsMeta">loading signals…</div>
+      </div>
+      <div class="signals-filters">
+        <select id="signalType" onchange="onSignalsFilterChange()">
+          <option value="all">All signals</option>
+          <option value="analogy">Analogies</option>
+          <option value="perspective">Perspectives</option>
+        </select>
+        <select id="signalNameCluster" onchange="onSignalsFilterChange()">
+          <option value="">All Name clusters</option>
+        </select>
+        <input id="signalQuery" type="text" placeholder="Search signal text, series, tags..." oninput="debouncedSignalsSearch()">
+      </div>
+      <div class="signals-list" id="signalsList">
+        <div class="node-empty">Loading signals…</div>
+      </div>
+      <div class="signals-pagination">
+        <button class="page-btn" id="signalsPrevBtn" onclick="paginateSignals(-1)" disabled>← Prev</button>
+        <div class="signals-page-info" id="signalsPageInfo">offset 0</div>
+        <button class="page-btn" id="signalsNextBtn" onclick="paginateSignals(1)" disabled>Next →</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -389,6 +443,10 @@ let corpusQuery = '';
 let corpusTotalLoaded = 0;
 let corpusInitDone = false;
 let searchTimer = null;
+const SIGNAL_PAGE_SIZE = 12;
+let signalsOffset = 0;
+let signalsTotal = 0;
+let signalSearchTimer = null;
 
 function debouncedSearch() {
   clearTimeout(searchTimer);
@@ -408,6 +466,7 @@ function initCorpus() {
   if (corpusInitDone) return;
   corpusInitDone = true;
   loadNodes();
+  loadSignals();
 }
 
 async function loadNodes() {
@@ -507,6 +566,107 @@ function closeCorpusReading() {
   document.querySelectorAll('.node-card').forEach(c => c.classList.remove('selected'));
 }
 
+// ─── story signals navigator ───────────────────────────────────────────────
+function onSignalsFilterChange() {
+  signalsOffset = 0;
+  loadSignals();
+}
+
+function debouncedSignalsSearch() {
+  clearTimeout(signalSearchTimer);
+  signalSearchTimer = setTimeout(onSignalsFilterChange, 280);
+}
+
+function paginateSignals(dir) {
+  signalsOffset = Math.max(0, signalsOffset + (dir * SIGNAL_PAGE_SIZE));
+  loadSignals();
+}
+
+async function loadSignals() {
+  const list = document.getElementById('signalsList');
+  const meta = document.getElementById('signalsMeta');
+  const type = document.getElementById('signalType').value;
+  const nameIndex = document.getElementById('signalNameCluster').value;
+  const q = document.getElementById('signalQuery').value.trim();
+
+  list.innerHTML = '<div class="node-empty">Loading signals…</div>';
+  try {
+    const url = `/api/knowledge-tree/signals?signal_type=${encodeURIComponent(type)}&name_index=${encodeURIComponent(nameIndex)}&q=${encodeURIComponent(q)}&limit=${SIGNAL_PAGE_SIZE}&offset=${signalsOffset}`;
+    const res = await fetch(url);
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+
+    signalsTotal = d.total || 0;
+    meta.innerHTML = `<span>${signalsTotal}</span> matched signals`;
+    renderSignalClusters(d.clusters || []);
+    renderSignalsList(d.items || []);
+    updateSignalsPagination((d.items || []).length);
+  } catch (e) {
+    list.innerHTML = `<div class="node-empty" style="color:var(--false)">Error loading signals: ${escH(e.message)}</div>`;
+  }
+}
+
+function renderSignalClusters(clusters) {
+  const select = document.getElementById('signalNameCluster');
+  const current = select.value;
+  let options = '<option value="">All Name clusters</option>';
+  for (const c of clusters) {
+    options += `<option value="${c.name_index}">[${String(c.name_index).padStart(2,'0')}] ${escH(c.name || '')} · ${c.count}</option>`;
+  }
+  select.innerHTML = options;
+  if (current && Array.from(select.options).some(o => o.value === current)) {
+    select.value = current;
+  }
+}
+
+function renderSignalsList(items) {
+  const list = document.getElementById('signalsList');
+  if (!items.length) {
+    list.innerHTML = '<div class="node-empty">No signals matched this filter.</div>';
+    return;
+  }
+  list.innerHTML = items.map(item => {
+    const kindClass = item.signal_type === 'perspective' ? 'perspective' : '';
+    return `<div class="signal-item" onclick="openSignalNode('${escQ(item.source)}','${escQ(item.title)}')">
+      <div class="signal-top">
+        <div class="signal-kind ${kindClass}">${escH(item.signal_type)}</div>
+        <div class="signal-name">[${String(item.name_index ?? '').padStart(2, '0')}] ${escH(item.name || '')}</div>
+      </div>
+      <div class="signal-text">${escH(item.signal_text || '')}</div>
+      <div class="signal-ref">${escH(item.series || 'Unlabeled')} · ${escH(item.title || '')}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateSignalsPagination(count) {
+  const prev = document.getElementById('signalsPrevBtn');
+  const next = document.getElementById('signalsNextBtn');
+  const info = document.getElementById('signalsPageInfo');
+  prev.disabled = signalsOffset === 0;
+  next.disabled = (signalsOffset + count) >= signalsTotal;
+  info.textContent = `offset ${signalsOffset} · showing ${count}`;
+}
+
+async function openSignalNode(source, title) {
+  const readingEl = document.getElementById('corpusReading');
+  const bodyEl = document.getElementById('corpusReadingBody');
+  const titleEl = document.getElementById('corpusReadingTitle');
+  readingEl.classList.add('visible');
+  titleEl.textContent = title;
+  bodyEl.innerHTML = '<div class="placeholder-msg" style="height:120px"><div>Loading linked node…</div></div>';
+  readingEl.scrollIntoView({behavior: 'smooth', block: 'start'});
+
+  try {
+    const res = await fetch(`/api/knowledge-tree/node?source=${encodeURIComponent(source)}&title=${encodeURIComponent(title)}`);
+    const node = await res.json();
+    if (node.error) throw new Error(node.error);
+    const tree = node.tree || {};
+    bodyEl.innerHTML = buildResultHTML(tree);
+  } catch (e) {
+    bodyEl.innerHTML = `<div class="placeholder-msg" style="height:80px"><div style="color:var(--false)">Error: ${escH(e.message)}</div></div>`;
+  }
+}
+
 // ─── shared result renderer ────────────────────────────────────────────────
 function buildResultHTML(d) {
   const signalClass = d.overall >= 80 ? '' : d.overall >= 40 ? 'partial' : 'false-node';
@@ -564,6 +724,10 @@ function escH(s) {
   return String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function escQ(s) {
+  return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 </script>
 </body>

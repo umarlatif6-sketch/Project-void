@@ -299,3 +299,125 @@ def get_knowledge_tree_stats() -> Dict[str, Any]:
         }
     finally:
         conn.close()
+
+
+def search_story_signals(
+    query: str = "",
+    signal_type: str = "all",
+    name_index: Optional[int] = None,
+    limit: int = 30,
+    offset: int = 0,
+    source_like: str = "story_world",
+) -> Dict[str, Any]:
+    """
+    Search extracted story-world analogies/perspectives from raw payload.
+
+    Returns a flat signal list and cluster summary for navigation.
+    """
+    conn = get_db()
+    try:
+        ph = _ph(conn)
+        cur = conn.cursor()
+        like_source = f"{source_like}%"
+
+        where = [f"source LIKE {ph}"]
+        params: List[Any] = [like_source]
+        if name_index is not None:
+            where.append(f"name_index = {ph}")
+            params.append(name_index)
+
+        where_sql = " AND ".join(where)
+        cur.execute(
+            f"""
+            SELECT source, source_title, name, name_index, overall_score, frequency_hz, raw_payload, updated_at
+            FROM knowledge_tree_nodes
+            WHERE {where_sql}
+            ORDER BY overall_score DESC, updated_at DESC
+            """,
+            tuple(params),
+        )
+        rows = cur.fetchall()
+
+        q = (query or "").strip().lower()
+        normalized_type = (signal_type or "all").strip().lower()
+        items: List[Dict[str, Any]] = []
+        cluster_counts: Dict[tuple, Dict[str, Any]] = {}
+
+        for row in rows:
+            source = row[0]
+            title = row[1]
+            name = row[2]
+            idx = row[3]
+            overall = row[4]
+            frequency_hz = row[5]
+            raw_payload = row[6]
+            updated_at = str(row[7])
+
+            try:
+                payload = json.loads(raw_payload) if isinstance(raw_payload, str) else (raw_payload or {})
+            except Exception:
+                payload = {}
+
+            analogies = payload.get("analogies") or []
+            perspectives = payload.get("perspectives") or []
+            series = str(payload.get("series") or "")
+            tags = str(payload.get("tags") or "")
+
+            cluster_key = (idx, name)
+            if cluster_key not in cluster_counts:
+                cluster_counts[cluster_key] = {
+                    "name_index": idx,
+                    "name": name,
+                    "count": 0,
+                    "analogy_count": 0,
+                    "perspective_count": 0,
+                }
+
+            def include_signal(kind: str, text: str) -> None:
+                hay = f"{title} {name} {series} {tags} {text}".lower()
+                if normalized_type != "all" and kind != normalized_type:
+                    return
+                if q and q not in hay:
+                    return
+                items.append(
+                    {
+                        "source": source,
+                        "title": title,
+                        "series": series,
+                        "tags": tags,
+                        "name": name,
+                        "name_index": idx,
+                        "overall": overall,
+                        "frequency_hz": frequency_hz,
+                        "signal_type": kind,
+                        "signal_text": text,
+                        "updated_at": updated_at,
+                    }
+                )
+                cluster_counts[cluster_key]["count"] += 1
+                if kind == "analogy":
+                    cluster_counts[cluster_key]["analogy_count"] += 1
+                elif kind == "perspective":
+                    cluster_counts[cluster_key]["perspective_count"] += 1
+
+            for text in analogies:
+                if isinstance(text, str) and text.strip():
+                    include_signal("analogy", text.strip())
+            for text in perspectives:
+                if isinstance(text, str) and text.strip():
+                    include_signal("perspective", text.strip())
+
+        total = len(items)
+        paged = items[offset : offset + max(1, limit)]
+        clusters = sorted(
+            [c for c in cluster_counts.values() if c["count"] > 0],
+            key=lambda c: c["count"],
+            reverse=True,
+        )
+        return {
+            "items": paged,
+            "total": total,
+            "clusters": clusters,
+        }
+    finally:
+        conn.close()

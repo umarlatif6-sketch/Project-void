@@ -10,6 +10,7 @@ from void_engine.knowledge_tree_store import (
     get_import_run,
     get_knowledge_tree_stats,
     init_knowledge_tree_tables,
+    search_story_signals,
     search_knowledge_tree_nodes,
 )
 from void_engine.names_286 import LAMBDA, BASE_FREQ
@@ -86,3 +87,41 @@ def api_node():
     if not payload:
         return jsonify({"error": "Node not found"}), 404
     return jsonify(payload)
+
+
+@knowledge_tree_bp.route('/api/knowledge-tree/signals', methods=['GET'])
+def api_signals():
+    init_knowledge_tree_tables()
+    query = request.args.get('q', '').strip()
+    signal_type = request.args.get('signal_type', 'all').strip().lower()
+    raw_name_index = request.args.get('name_index', '').strip()
+    name_index = None
+    if raw_name_index:
+        try:
+            name_index = int(raw_name_index)
+        except ValueError:
+            return jsonify({"error": "name_index must be an integer"}), 400
+
+    if signal_type not in {'all', 'analogy', 'perspective'}:
+        return jsonify({"error": "signal_type must be all, analogy, or perspective"}), 400
+
+    limit = min(_safe_int(request.args.get('limit'), 30), 100)
+    offset = max(_safe_int(request.args.get('offset'), 0), 0)
+
+    payload = search_story_signals(
+        query=query,
+        signal_type=signal_type,
+        name_index=name_index,
+        limit=limit,
+        offset=offset,
+    )
+    return jsonify({
+        "query": query,
+        "signal_type": signal_type,
+        "name_index": name_index,
+        "limit": limit,
+        "offset": offset,
+        "total": payload.get("total", 0),
+        "clusters": payload.get("clusters", []),
+        "items": payload.get("items", []),
+    })

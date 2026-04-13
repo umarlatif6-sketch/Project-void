@@ -65,3 +65,14 @@ python3 scripts/build_ecosystem_resonance_graph.py \
 ```
 
 Then open the app and explore in the Knowledge Tree UI.
+
+## Signals Navigation in UI
+
+After ingesting with `--store-db`, open the Knowledge Tree page and use the Signals Navigator:
+
+- Filter by signal type: all, analogy, perspective
+- Filter by Name cluster (99-Name index)
+- Search by phrase, series, or tags
+- Click any signal to jump to the linked node reading
+
+This gives fast traversal across analogies and forward-looking perspectives without scanning full chapter notes.
