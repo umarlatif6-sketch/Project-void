@@ -174,6 +174,9 @@ python3 scripts/build_integration_web.py
 # 6) Universal resonance-weaver baseline (same theory, different story)
 python3 scripts/build_resonance_weaver_baseline.py
 
+# 7) Team-facing one-page state card
+python3 scripts/build_team_state_card.py
+
 echo
 echo "============================================================"
 echo "AUTOPILOT CYCLE COMPLETE"
