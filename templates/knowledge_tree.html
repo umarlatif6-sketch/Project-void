@@ -53,7 +53,7 @@
   .signals-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
   .signals-title { font-size: 10px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
   .signals-meta { font-size: 9px; color: var(--gold-dim); letter-spacing: 1px; }
-  .signals-filters { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .signals-filters { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
   .signals-filters input,
   .signals-filters select {
     width: 100%; background: #0f0f0f; border: 1px solid var(--border);
@@ -346,6 +346,11 @@
         <div class="signals-meta" id="signalsMeta">loading signals…</div>
       </div>
       <div class="signals-filters">
+        <select id="signalSource" onchange="onSignalsFilterChange()">
+          <option value="story_world">Story world</option>
+          <option value="public_source">Public source</option>
+          <option value="all">All signal feeds</option>
+        </select>
         <select id="signalType" onchange="onSignalsFilterChange()">
           <option value="all">All signals</option>
           <option value="analogy">Analogies</option>
@@ -585,13 +590,14 @@ function paginateSignals(dir) {
 async function loadSignals() {
   const list = document.getElementById('signalsList');
   const meta = document.getElementById('signalsMeta');
+  const source = document.getElementById('signalSource').value;
   const type = document.getElementById('signalType').value;
   const nameIndex = document.getElementById('signalNameCluster').value;
   const q = document.getElementById('signalQuery').value.trim();
 
   list.innerHTML = '<div class="node-empty">Loading signals…</div>';
   try {
-    const url = `/api/knowledge-tree/signals?signal_type=${encodeURIComponent(type)}&name_index=${encodeURIComponent(nameIndex)}&q=${encodeURIComponent(q)}&limit=${SIGNAL_PAGE_SIZE}&offset=${signalsOffset}`;
+    const url = `/api/knowledge-tree/signals?source_like=${encodeURIComponent(source)}&signal_type=${encodeURIComponent(type)}&name_index=${encodeURIComponent(nameIndex)}&q=${encodeURIComponent(q)}&limit=${SIGNAL_PAGE_SIZE}&offset=${signalsOffset}`;
     const res = await fetch(url);
     const d = await res.json();
     if (d.error) throw new Error(d.error);

@@ -46,10 +46,10 @@ def _top_domain(row: Dict) -> str:
     return max(scores.items(), key=lambda kv: float(kv[1] or 0.0))[0]
 
 
-def build_markdown(rows: List[Dict], limit_per_series: int = 8) -> str:
+def build_markdown(rows: List[Dict], limit_per_series: int = 8, title: str = "Story World Chronicle") -> str:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     lines: List[str] = []
-    lines.append("# Story World Chronicle")
+    lines.append(f"# {title}")
     lines.append("")
     lines.append(f"Generated: {now}")
     lines.append("")
@@ -114,6 +114,7 @@ def main() -> None:
     parser.add_argument("--input", required=True, help="Path to story-world ecosystem JSONL")
     parser.add_argument("--output", required=True, help="Path to markdown chronicle output")
     parser.add_argument("--limit-per-series", type=int, default=8, help="Entries per series in digest")
+    parser.add_argument("--title", default="Story World Chronicle", help="Title for the generated markdown digest")
     args = parser.parse_args()
 
     input_path = Path(args.input)
@@ -121,7 +122,7 @@ def main() -> None:
         raise SystemExit(f"Input not found: {input_path}")
 
     rows = _read_jsonl(input_path)
-    markdown = build_markdown(rows, args.limit_per_series)
+    markdown = build_markdown(rows, args.limit_per_series, args.title)
 
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)

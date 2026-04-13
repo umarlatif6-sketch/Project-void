@@ -318,15 +318,18 @@ def search_story_signals(
     try:
         ph = _ph(conn)
         cur = conn.cursor()
-        like_source = f"{source_like}%"
-
-        where = [f"source LIKE {ph}"]
-        params: List[Any] = [like_source]
+        where = []
+        params: List[Any] = []
+        normalized_source_like = (source_like or "").strip()
+        if normalized_source_like and normalized_source_like != "all":
+            like_source = f"{normalized_source_like}%"
+            where.append(f"source LIKE {ph}")
+            params.append(like_source)
         if name_index is not None:
             where.append(f"name_index = {ph}")
             params.append(name_index)
 
-        where_sql = " AND ".join(where)
+        where_sql = " AND ".join(where) if where else "1=1"
         cur.execute(
             f"""
             SELECT source, source_title, name, name_index, overall_score, frequency_hz, raw_payload, updated_at

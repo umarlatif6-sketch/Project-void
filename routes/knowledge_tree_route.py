@@ -94,6 +94,7 @@ def api_signals():
     init_knowledge_tree_tables()
     query = request.args.get('q', '').strip()
     signal_type = request.args.get('signal_type', 'all').strip().lower()
+    source_like = request.args.get('source_like', 'story_world').strip().lower() or 'story_world'
     raw_name_index = request.args.get('name_index', '').strip()
     name_index = None
     if raw_name_index:
@@ -114,10 +115,12 @@ def api_signals():
         name_index=name_index,
         limit=limit,
         offset=offset,
+        source_like=source_like,
     )
     return jsonify({
         "query": query,
         "signal_type": signal_type,
+        "source_like": source_like,
         "name_index": name_index,
         "limit": limit,
         "offset": offset,
