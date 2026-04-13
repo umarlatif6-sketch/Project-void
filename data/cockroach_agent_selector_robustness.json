@@ -1,0 +1,251 @@
+{
+  "generated_at": "2026-04-13T02:25:41.954824+00:00",
+  "seed_count": 10,
+  "binary_definition": {
+    "0": "unpaired_286",
+    "1": "paired_286_yinyang"
+  },
+  "summary": {
+    "wins_set_1": 10,
+    "wins_set_0": 0,
+    "ties": 0,
+    "set_1_win_rate": 1.0,
+    "avg_score_delta_set1_minus_set0": 139.4116,
+    "max_delta": 148.7044,
+    "min_delta": 131.4236,
+    "recommended_bit": 1,
+    "recommendation": "Use agent set 1"
+  },
+  "runs": [
+    {
+      "seed": "cockroach_selector_seed_01",
+      "set0": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7635,
+        "economy_breaks": 4,
+        "mean_gini": 0.2634,
+        "mean_yinyang_pairs": 0.0,
+        "mean_yinyang_activity_lift": -0.8638,
+        "composite_score": 64.694
+      },
+      "set1": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7635,
+        "economy_breaks": 4,
+        "mean_gini": 0.2634,
+        "mean_yinyang_pairs": 56.8,
+        "mean_yinyang_activity_lift": 0.0345,
+        "composite_score": 200.8912
+      },
+      "score_delta_set1_minus_set0": 136.1972,
+      "winner_bit": 1
+    },
+    {
+      "seed": "cockroach_selector_seed_02",
+      "set0": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7794,
+        "economy_breaks": 6,
+        "mean_gini": 0.255,
+        "mean_yinyang_pairs": 0.0,
+        "mean_yinyang_activity_lift": -0.8542,
+        "composite_score": 63.44
+      },
+      "set1": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7794,
+        "economy_breaks": 6,
+        "mean_gini": 0.255,
+        "mean_yinyang_pairs": 58.5,
+        "mean_yinyang_activity_lift": 0.1351,
+        "composite_score": 211.4048
+      },
+      "score_delta_set1_minus_set0": 147.9648,
+      "winner_bit": 1
+    },
+    {
+      "seed": "cockroach_selector_seed_03",
+      "set0": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7954,
+        "economy_breaks": 5,
+        "mean_gini": 0.2594,
+        "mean_yinyang_pairs": 0.0,
+        "mean_yinyang_activity_lift": -0.8604,
+        "composite_score": 66.288
+      },
+      "set1": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7954,
+        "economy_breaks": 5,
+        "mean_gini": 0.2594,
+        "mean_yinyang_pairs": 51.7,
+        "mean_yinyang_activity_lift": 0.0462,
+        "composite_score": 200.9408
+      },
+      "score_delta_set1_minus_set0": 134.6528,
+      "winner_bit": 1
+    },
+    {
+      "seed": "cockroach_selector_seed_04",
+      "set0": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7917,
+        "economy_breaks": 4,
+        "mean_gini": 0.2592,
+        "mean_yinyang_pairs": 0.0,
+        "mean_yinyang_activity_lift": -0.8666,
+        "composite_score": 67.1756
+      },
+      "set1": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7917,
+        "economy_breaks": 4,
+        "mean_gini": 0.2592,
+        "mean_yinyang_pairs": 59.3,
+        "mean_yinyang_activity_lift": 0.1255,
+        "composite_score": 215.88
+      },
+      "score_delta_set1_minus_set0": 148.7044,
+      "winner_bit": 1
+    },
+    {
+      "seed": "cockroach_selector_seed_05",
+      "set0": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7841,
+        "economy_breaks": 5,
+        "mean_gini": 0.2614,
+        "mean_yinyang_pairs": 0.0,
+        "mean_yinyang_activity_lift": -0.8617,
+        "composite_score": 65.0054
+      },
+      "set1": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7841,
+        "economy_breaks": 5,
+        "mean_gini": 0.2614,
+        "mean_yinyang_pairs": 59.4,
+        "mean_yinyang_activity_lift": 0.1204,
+        "composite_score": 212.5562
+      },
+      "score_delta_set1_minus_set0": 147.5508,
+      "winner_bit": 1
+    },
+    {
+      "seed": "cockroach_selector_seed_06",
+      "set0": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7958,
+        "economy_breaks": 5,
+        "mean_gini": 0.2637,
+        "mean_yinyang_pairs": 0.0,
+        "mean_yinyang_activity_lift": -0.8545,
+        "composite_score": 67.0358
+      },
+      "set1": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7958,
+        "economy_breaks": 5,
+        "mean_gini": 0.2637,
+        "mean_yinyang_pairs": 55.7,
+        "mean_yinyang_activity_lift": 0.0243,
+        "composite_score": 200.3406
+      },
+      "score_delta_set1_minus_set0": 133.3048,
+      "winner_bit": 1
+    },
+    {
+      "seed": "cockroach_selector_seed_07",
+      "set0": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7554,
+        "economy_breaks": 5,
+        "mean_gini": 0.2623,
+        "mean_yinyang_pairs": 0.0,
+        "mean_yinyang_activity_lift": -0.8613,
+        "composite_score": 62.1816
+      },
+      "set1": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7554,
+        "economy_breaks": 5,
+        "mean_gini": 0.2623,
+        "mean_yinyang_pairs": 56.2,
+        "mean_yinyang_activity_lift": 0.0925,
+        "composite_score": 204.7424
+      },
+      "score_delta_set1_minus_set0": 142.5608,
+      "winner_bit": 1
+    },
+    {
+      "seed": "cockroach_selector_seed_08",
+      "set0": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7608,
+        "economy_breaks": 6,
+        "mean_gini": 0.259,
+        "mean_yinyang_pairs": 0.0,
+        "mean_yinyang_activity_lift": -0.8391,
+        "composite_score": 63.3946
+      },
+      "set1": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7608,
+        "economy_breaks": 6,
+        "mean_gini": 0.259,
+        "mean_yinyang_pairs": 50.8,
+        "mean_yinyang_activity_lift": 0.0445,
+        "composite_score": 194.8182
+      },
+      "score_delta_set1_minus_set0": 131.4236,
+      "winner_bit": 1
+    },
+    {
+      "seed": "cockroach_selector_seed_09",
+      "set0": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7724,
+        "economy_breaks": 4,
+        "mean_gini": 0.2495,
+        "mean_yinyang_pairs": 0.0,
+        "mean_yinyang_activity_lift": -0.8683,
+        "composite_score": 65.0526
+      },
+      "set1": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7724,
+        "economy_breaks": 4,
+        "mean_gini": 0.2495,
+        "mean_yinyang_pairs": 56.0,
+        "mean_yinyang_activity_lift": 0.0303,
+        "composite_score": 200.8774
+      },
+      "score_delta_set1_minus_set0": 135.8248,
+      "winner_bit": 1
+    },
+    {
+      "seed": "cockroach_selector_seed_10",
+      "set0": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7633,
+        "economy_breaks": 5,
+        "mean_gini": 0.2571,
+        "mean_yinyang_pairs": 0.0,
+        "mean_yinyang_activity_lift": -0.8609,
+        "composite_score": 63.0268
+      },
+      "set1": {
+        "grade": "A+",
+        "mean_cockroach_activity": 0.7633,
+        "economy_breaks": 5,
+        "mean_gini": 0.2571,
+        "mean_yinyang_pairs": 58.6,
+        "mean_yinyang_activity_lift": 0.0277,
+        "composite_score": 198.9588
+      },
+      "score_delta_set1_minus_set0": 135.932,
+      "winner_bit": 1
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "generated_at": "2026-04-13T02:25:28.475911+00:00",
+  "selector": "agent_set_0_or_1",
+  "agent_set_0": {
+    "label": "binary_0_unpaired_286",
+    "mode": "INTEGRATED_286",
+    "cockroach_ratio": 0.22,
+    "sovereign_ratio": 0.3,
+    "binary_definition": "0 = no yin/yang pair lock",
+    "score": {
+      "grade": "A+",
+      "grade_points": 10,
+      "mean_cockroach_activity": 0.7708,
+      "economy_breaks": 5,
+      "mean_gini": 0.2616,
+      "mean_yinyang_pairs": 0.0,
+      "mean_yinyang_activity_lift": -0.8514,
+      "composite_score": 64.921
+    },
+    "verdict": {
+      "grade": "A+",
+      "mode": "INTEGRATED 286",
+      "cockroach_held_formation": true,
+      "sovereign_held_formation": true,
+      "economy_survived_7_tests": true,
+      "ghost_protocols_active": true,
+      "final_gini": 0.0873,
+      "final_test_name": "FORMATION_ZERO",
+      "narrative": "Grade A+ (INTEGRATED 286). Cockroach formation HELD. Sovereign 286 formation HELD. Economy survived 7/10. Gini=0.087. Adriana Ghost Protocols active."
+    }
+  },
+  "agent_set_1": {
+    "label": "binary_1_paired_286",
+    "mode": "INTEGRATED_286_YINYANG",
+    "cockroach_ratio": 0.22,
+    "sovereign_ratio": 0.3,
+    "binary_definition": "1 = yin/yang pair lock from 286-bit polarity",
+    "score": {
+      "grade": "A+",
+      "grade_points": 10,
+      "mean_cockroach_activity": 0.7708,
+      "economy_breaks": 5,
+      "mean_gini": 0.2616,
+      "mean_yinyang_pairs": 60.3,
+      "mean_yinyang_activity_lift": 0.2008,
+      "composite_score": 221.3266
+    },
+    "verdict": {
+      "grade": "A+",
+      "mode": "INTEGRATED 286",
+      "cockroach_held_formation": true,
+      "sovereign_held_formation": true,
+      "economy_survived_7_tests": true,
+      "ghost_protocols_active": true,
+      "final_gini": 0.0873,
+      "final_test_name": "FORMATION_ZERO",
+      "narrative": "Grade A+ (INTEGRATED 286). Cockroach formation HELD. Sovereign 286 formation HELD. Economy survived 7/10. Gini=0.087. Adriana Ghost Protocols active."
+    }
+  },
+  "winner_bit": 1,
+  "winner_label": "agent_set_1",
+  "decision": "Use agent set 1",
+  "score_delta_set1_minus_set0": 156.4056,
+  "tie_break_reason": "higher_composite_score"
+}

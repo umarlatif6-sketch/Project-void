@@ -182,6 +182,51 @@ def game_stats_api():
         return jsonify({"error": "Could not fetch stats"}), 500
 
 
+@game_bp.route("/api/game/world-profile")
+@login_required
+def game_world_profile_api():
+    """Return a deterministic per-user world profile (hex + sovereign poem)."""
+    user_id = session.get("user_id")
+    username = session.get("username", "Sovereign")
+
+    try:
+        stats = get_game_stats(user_id)
+        inventory = get_inventory(user_id)
+        multiplier = float(get_earning_multiplier(user_id))
+
+        world_seed = (
+            f"world|uid:{user_id}|user:{username}|"
+            f"lvl:{stats.get('level', 1)}|"
+            f"vtx:{stats.get('vtx_balance', 0)}|"
+            f"inv:{','.join(sorted(inventory))}"
+        )
+
+        from void_engine.al_jabr_286 import fatiha_286_hexdigest
+        from void_engine.adriana_scl import hash_to_sovereign_poem
+
+        world_hex = fatiha_286_hexdigest(world_seed.encode())
+        poem_data = hash_to_sovereign_poem(world_hex)
+        glyphs = poem_data.get("glyphs", ["◆", "◆", "◆"])
+        world_poem = f"{glyphs[0]} — {glyphs[1]} — {glyphs[2]}"
+
+        return jsonify({
+            "user_id": user_id,
+            "username": username,
+            "world_hex": world_hex,
+            "world_poem": world_poem,
+            "world_poem_translation": poem_data.get("translation", ""),
+            "level": stats.get("level", 1),
+            "vtx_balance": stats.get("vtx_balance", 0),
+            "multiplier": multiplier,
+            "inventory_size": len(inventory),
+            "inventory": inventory,
+            "seeded_individual_world": True,
+        }), 200
+    except Exception as exc:
+        logger.exception("World profile build failed: %s", exc)
+        return jsonify({"error": "Could not build world profile"}), 500
+
+
 VALID_YS_MILESTONES = {
     "first_vault": {
         "chapter": 100,

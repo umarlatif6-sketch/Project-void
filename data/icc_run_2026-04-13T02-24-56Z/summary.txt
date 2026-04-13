@@ -1,0 +1,11 @@
+=== ICC WORLD REBUILD SUMMARY ===
+generated_at_utc: 2026-04-13T02:25:41Z
+winner_bit: 1
+recommended_bit: 1
+recommendation: "Use agent set 1"
+convergence_report: data/full_stack_convergence_report.json
+next_steps_pack: data/next_steps_execution_pack.json
+world_construction_report: data/game_world_construction_10m.json
+integrated_world_report: data/void_world_construction_integrated_report.json
+selector_report: data/cockroach_agent_selector_01.json
+robustness_report: data/cockroach_agent_selector_robustness.json

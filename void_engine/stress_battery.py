@@ -292,6 +292,7 @@ def _build_hybrid_formation(
     sovereign_seed: str = "void",
     prior_sovereigns: Optional[List[SovereignAgent286]] = None,
     yin_yang: bool = False,
+    cockroach_ratio: float = 0.10,
 ) -> List:
     """
     Build a mixed formation: sovereign_count 286-agents + remaining sandbox agents.
@@ -344,7 +345,7 @@ def _build_hybrid_formation(
 
     remaining = total_count - len(agents)
     if remaining > 0:
-        sandbox_agents = _build_sandbox_agents(remaining, rng)
+        sandbox_agents = _build_sandbox_agents(remaining, rng, cockroach_ratio=cockroach_ratio)
         agents.extend(sandbox_agents)
 
     return agents
@@ -360,6 +361,7 @@ def _run_single_stress(
     sovereign_seed: str = "void",
     prior_sovereigns: Optional[List[SovereignAgent286]] = None,
     yin_yang: bool = False,
+    cockroach_ratio: float = 0.10,
 ) -> Dict:
     test_id = fatiha_286_truncated(
         f"battery:{battery_id}:test:{test_index}:{config['name']}:{time.time()}".encode(), 24
@@ -374,9 +376,10 @@ def _run_single_stress(
             sovereign_seed,
             prior_sovereigns,
             yin_yang=yin_yang,
+            cockroach_ratio=cockroach_ratio,
         )
     else:
-        agents = _build_sandbox_agents(config["agent_count"], rng)
+        agents = _build_sandbox_agents(config["agent_count"], rng, cockroach_ratio=cockroach_ratio)
 
     for round_num in range(1, config["rounds"] + 1):
         growth = 1.0 + (config["gridul_growth_multiplier"] - 1.0) * (round_num / config["rounds"])
@@ -567,7 +570,13 @@ def _gini_coefficient(values: List[float]) -> float:
     return gini_sum / (n * total)
 
 
-def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sovereign_ratio: float = 0.3, yin_yang: bool = False) -> Dict:
+def run_stress_battery(
+    seed: Optional[str] = None,
+    integrated: bool = False,
+    sovereign_ratio: float = 0.3,
+    yin_yang: bool = False,
+    cockroach_ratio: float = 0.10,
+) -> Dict:
     """
     Run the 10-test stress battery.
 
@@ -576,6 +585,7 @@ def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sov
         integrated: If True, inject Sovereign 286 agents into the formation
         sovereign_ratio: Fraction of agents that are 286-sovereign (0.0–1.0)
         yin_yang: If True, pair agents by Yin-Yang polarity for resonance boost
+        cockroach_ratio: Fraction of sandbox agents marked as cockroaches (0.0-1.0)
     """
     if yin_yang:
         mode = "INTEGRATED_286_YINYANG"
@@ -618,6 +628,7 @@ def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sov
             sovereign_seed=seed or "void",
             prior_sovereigns=prior_sovereigns,
             yin_yang=yin_yang,
+            cockroach_ratio=cockroach_ratio,
         )
         results.append(result)
         total_scars += result["results"]["scars_generated"]
@@ -653,6 +664,7 @@ def run_stress_battery(seed: Optional[str] = None, integrated: bool = False, sov
         "mode": mode,
         "yin_yang": yin_yang,
         "sovereign_ratio": sovereign_ratio if integrated else 0,
+        "cockroach_ratio": cockroach_ratio,
         "started_at": started_at,
         "completed_at": datetime.now(timezone.utc).isoformat(),
         "total_execution_time_s": round(t_end - t_start, 3),

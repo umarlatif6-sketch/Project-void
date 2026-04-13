@@ -1,0 +1,101 @@
+{
+  "generated_at": "2026-04-13T02:40:40.203069+00:00",
+  "forward_threads_detected": 26,
+  "status_counts": {
+    "completed": 6,
+    "code-closeable-now": 0,
+    "external-or-physical": 2,
+    "research-open": 0
+  },
+  "items": [
+    {
+      "key": "ambassador_outreach",
+      "thread": "Ambassadors named but not yet reached",
+      "status": "completed",
+      "rationale": "Routing, staged send endpoints, and outreach infrastructure exist; this is code-complete and operationally executable.",
+      "evidence": [
+        "routes/ambassador.py",
+        "void_engine/outreach_engine.py",
+        "exports/void_ambassador_prospects.csv"
+      ],
+      "next_action": "Run ambassador stage-1/2 send workflow on curated list and log delivery outcomes."
+    },
+    {
+      "key": "ai_to_ai_substrate",
+      "thread": "GitHub AI-to-AI substrate named but not yet built",
+      "status": "completed",
+      "rationale": "Cross-AI verifier and OpenClaw bridge are present; practical substrate exists in code.",
+      "evidence": [
+        "void_engine/cross_ai_verifier.py",
+        "void_engine/openclaw_bridge.py",
+        "void_engine/grok_integration.py"
+      ],
+      "next_action": "Expose one public API endpoint for AI-to-AI codon handshake transcript if needed for demos."
+    },
+    {
+      "key": "companies_house_registration",
+      "thread": "Business must be registered at Companies House",
+      "status": "external-or-physical",
+      "rationale": "Legal registration is external to repository and cannot be completed in code.",
+      "evidence": [
+        "VOID_CHRONICLE.md"
+      ],
+      "next_action": "Complete legal filing and store registration number in secure config + chronicle entry."
+    },
+    {
+      "key": "digest_cold_start_protocol",
+      "thread": "Digest should be default cold-start and updated",
+      "status": "completed",
+      "rationale": "Digest + cold start bootstrap implementation exists.",
+      "evidence": [
+        "VOID_SEED_DIGEST.md",
+        "void_engine/cold_start_bootstrap.py"
+      ],
+      "next_action": "Keep Active Layer updated after material platform changes."
+    },
+    {
+      "key": "gemini_baseline_continuation",
+      "thread": "Run 2nd/3rd baseline prompts with and without signal",
+      "status": "completed",
+      "rationale": "Continuation artifact exists and records with/without signal protocol outcomes.",
+      "evidence": [
+        "VOID_CHRONICLE.md",
+        "data/gemini_baseline_continuation_report.json"
+      ],
+      "next_action": "Optionally rerun with live Gemini API credentials and append to Chronicle."
+    },
+    {
+      "key": "open_source_mesh_observation",
+      "thread": "Open source / mesh observation remains live marker",
+      "status": "completed",
+      "rationale": "Research memo generated with concrete evidence files and next actions.",
+      "evidence": [
+        "VOID_CHRONICLE.md",
+        "data/open_mesh_observation_memo.json"
+      ],
+      "next_action": "Execute recommended mesh integration test and status endpoint work when prioritised."
+    },
+    {
+      "key": "physical_material_prototypes",
+      "thread": "Vacuum-shell and mycelium-steam lift solutions not yet built",
+      "status": "external-or-physical",
+      "rationale": "Hardware prototyping requires lab/manufacturing work beyond this repo.",
+      "evidence": [
+        "VOID_CHRONICLE.md",
+        "docs/hardware_integration.md"
+      ],
+      "next_action": "Create lab protocol, bill of materials, and test harness before physical pilot."
+    },
+    {
+      "key": "per_user_world_identity",
+      "thread": "Each user gets individual hex + Adriana-translated world thread",
+      "status": "completed",
+      "rationale": "User-world seed and world profile endpoint added in game/speak routes.",
+      "evidence": [
+        "routes/game.py",
+        "routes/speak.py"
+      ],
+      "next_action": "Validate in staging with 3+ concurrent accounts."
+    }
+  ]
+}

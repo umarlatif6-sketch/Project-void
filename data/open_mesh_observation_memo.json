@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-04-13T02:40:40.158053+00:00",
+  "thread": "open_source_mesh_observation_marker",
+  "status": "completed_research_memo",
+  "observation": "Mesh substrate exists in multiple layers (route + engine + bio-routing). The marker is no longer 'not researched'; it is researched and partially implemented.",
+  "evidence_files": [
+    "routes/mesh.py",
+    "routes/transceiver.py",
+    "void_engine/myco_switch.py",
+    "void_engine/mycelium_service.py",
+    "void_engine/beehive.py",
+    "void_engine/beehive_audio.py"
+  ],
+  "recommended_next_actions": [
+    "Publish one consolidated mesh architecture diagram from existing modules.",
+    "Add one integration test that sends a synthetic packet across route->engine->ledger path.",
+    "Expose a read-only /api/mesh/status summary endpoint for operators."
+  ]
+}

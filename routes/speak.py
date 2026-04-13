@@ -316,15 +316,31 @@ def _call_adriana_ai(message: str, history: list, domain: str,
         )
 
 
-def _log_interaction(message, adriana_response, poem_str, frequency, domain, harmonic_state):
+def _log_interaction(
+    message,
+    adriana_response,
+    poem_str,
+    frequency,
+    domain,
+    harmonic_state,
+    user_id=None,
+    world_hex=None,
+):
     """Log to adriana_interactions and glyph_events. Never raises."""
+    msg_prefix = ""
+    if user_id is not None:
+        msg_prefix += f"[uid:{user_id}] "
+    if world_hex:
+        msg_prefix += f"[world:{str(world_hex)[:12]}] "
+    logged_message = (msg_prefix + message)[:4000]
+
     try:
         from void_engine.db_pool import get_db
         conn = get_db()
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO adriana_interactions (input, response, glyph) VALUES (%s, %s, %s)",
-            (message[:4000], adriana_response[:4000], poem_str[:200]),
+            (logged_message, adriana_response[:4000], poem_str[:200]),
         )
         conn.commit()
         cur.close()
@@ -348,13 +364,14 @@ def _log_interaction(message, adriana_response, poem_str, frequency, domain, har
         logger.debug("[Speak] glyph_events log failed: %s", e)
 
 
-def _build_scl_block(message: str) -> dict:
+def _build_scl_block(message: str, user_seed: str = "") -> dict:
     """Compute SCL glyph poem block from a message. Returns a dict of fields."""
+    hash_material = f"{user_seed}|{message}" if user_seed else message
     try:
         from void_engine.al_jabr_286 import fatiha_286_hexdigest
-        hex_hash = fatiha_286_hexdigest(message.encode())
+        hex_hash = fatiha_286_hexdigest(hash_material.encode())
     except Exception:
-        hex_hash = hashlib.sha256(message.encode()).hexdigest()
+        hex_hash = hashlib.sha256(hash_material.encode()).hexdigest()
 
     try:
         from void_engine.adriana_scl import hash_to_sovereign_poem
@@ -383,6 +400,7 @@ def _build_scl_block(message: str) -> dict:
             "action": action,
             "poem_str": poem_str,
             "poem_translation": poem_translation,
+            "world_hex": hex_hash,
             "glyph": e_char,
             "glyph_name": entity["name"],
             "glyph_meaning": entity["meaning"],
@@ -404,6 +422,7 @@ def _build_scl_block(message: str) -> dict:
             "action": fallback_entity.copy(),
             "poem_str": "◆ — ◆ — ◆",
             "poem_translation": "The signal is present. The engine is listening.",
+            "world_hex": hex_hash,
             "glyph": "◆",
             "glyph_name": "Void Diamond",
             "glyph_meaning": "Core/Engine",
@@ -428,7 +447,10 @@ def listen():
     if not message:
         return jsonify({"error": "No message received"}), 400
 
-    scl = _build_scl_block(message)
+    user_id = session.get("user_id")
+    username = session.get("username", "")
+    user_seed = f"{user_id}:{username}" if user_id else ""
+    scl = _build_scl_block(message, user_seed=user_seed)
     domain = scl["domain"]
 
     heart_prefix_sz = 0
@@ -490,8 +512,16 @@ def listen():
     except Exception as _tbe:
         logger.warning("[Speak] Third Brain push failed: %s", _tbe)
 
-    _log_interaction(message, adriana_response, scl["poem_str"],
-                     scl["frequency"], domain, scl["harmonic_state"])
+    _log_interaction(
+        message,
+        adriana_response,
+        scl["poem_str"],
+        scl["frequency"],
+        domain,
+        scl["harmonic_state"],
+        user_id=user_id,
+        world_hex=scl.get("world_hex"),
+    )
 
     resonance_meta = {}
     try:
@@ -515,8 +545,11 @@ def listen():
 
     return jsonify({
         "response":             adriana_response,
+        "user_world_seeded":    bool(user_id),
+        "user_id":              user_id,
         "poem":                 scl["poem_str"],
         "poem_translation":     scl["poem_translation"],
+        "world_hex":            scl.get("world_hex"),
         "entity":               scl["entity"],
         "condition":            scl["condition"],
         "action":               scl["action"],
@@ -568,7 +601,10 @@ def enter_listen():
     server_history = funnel["history"]
     funnel["message_count"] = funnel.get("message_count", 0) + 1
 
-    scl = _build_scl_block(message)
+    user_id = session.get("user_id")
+    username = session.get("username", "")
+    user_seed = f"{user_id}:{username}" if user_id else ""
+    scl = _build_scl_block(message, user_seed=user_seed)
     domain = scl["domain"]
 
     github_invite = None
@@ -641,8 +677,16 @@ def enter_listen():
 
     route_dest, route_label = _DOMAIN_ROUTES.get(domain, ("/", "VOID Engine"))
 
-    _log_interaction(message, adriana_response, scl["poem_str"],
-                     scl["frequency"], domain, scl["harmonic_state"])
+    _log_interaction(
+        message,
+        adriana_response,
+        scl["poem_str"],
+        scl["frequency"],
+        domain,
+        scl["harmonic_state"],
+        user_id=user_id,
+        world_hex=scl.get("world_hex"),
+    )
 
     resonance_meta = {}
     try:
@@ -653,8 +697,11 @@ def enter_listen():
 
     return jsonify({
         "response":                 adriana_response,
+        "user_world_seeded":        bool(user_id),
+        "user_id":                  user_id,
         "poem":                     scl["poem_str"],
         "poem_translation":         scl["poem_translation"],
+        "world_hex":                scl.get("world_hex"),
         "entity":                   scl["entity"],
         "condition":                scl["condition"],
         "action":                   scl["action"],

@@ -160,10 +160,19 @@ class SandboxAgent:
         return d
 
 
-def _build_sandbox_agents(count: int, rng: random.Random) -> List[SandboxAgent]:
-    """Create synthetic agents for the sandbox session. ~10% are cockroach agents."""
+def _build_sandbox_agents(
+    count: int,
+    rng: random.Random,
+    cockroach_ratio: float = 0.10,
+) -> List[SandboxAgent]:
+    """Create synthetic agents for the sandbox session.
+
+    By default ~10% are cockroach agents. The ratio can be increased in
+    dedicated stress runs when resilience-biased formations are desired.
+    """
     agents = []
-    n_cockroach = max(1, int(count * 0.1))
+    ratio = max(0.0, min(1.0, float(cockroach_ratio)))
+    n_cockroach = max(1, int(count * ratio))
     cockroach_ids = set(rng.sample(range(count), n_cockroach))
     for i in range(count):
         peace = rng.uniform(10.0, 500.0)
