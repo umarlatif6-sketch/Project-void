@@ -5,6 +5,7 @@
 # Usage:
 #   bash scripts/autopilot_cycle.sh
 #   bash scripts/autopilot_cycle.sh --threshold 0.30 --store-db true
+#   bash scripts/autopilot_cycle.sh --team-role founder
 
 set -euo pipefail
 
@@ -12,6 +13,7 @@ cd "$(dirname "$(dirname "$(readlink -f "$0")")")"
 
 THRESHOLD="0.30"
 STORE_DB="true"
+TEAM_ROLE="all"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -23,6 +25,10 @@ while [[ $# -gt 0 ]]; do
       STORE_DB="${2:-true}"
       shift 2
       ;;
+    --team-role)
+      TEAM_ROLE="${2:-all}"
+      shift 2
+      ;;
     *)
       echo "Unknown argument: $1"
       exit 1
@@ -30,10 +36,16 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ "$TEAM_ROLE" != "all" && "$TEAM_ROLE" != "founder" && "$TEAM_ROLE" != "operator" && "$TEAM_ROLE" != "research" ]]; then
+  echo "Invalid --team-role value: $TEAM_ROLE"
+  echo "Allowed values: all, founder, operator, research"
+  exit 1
+fi
+
 echo "============================================================"
 echo "AUTOPILOT CYCLE START"
 echo "============================================================"
-echo "threshold=$THRESHOLD store_db=$STORE_DB"
+echo "threshold=$THRESHOLD store_db=$STORE_DB team_role=$TEAM_ROLE"
 echo
 
 run_store_db_arg=()
@@ -174,8 +186,8 @@ python3 scripts/build_integration_web.py
 # 6) Universal resonance-weaver baseline (same theory, different story)
 python3 scripts/build_resonance_weaver_baseline.py
 
-# 7) Team-facing one-page state card
-python3 scripts/build_team_state_card.py
+# 7) Team-facing one-page state card (role-aware)
+python3 scripts/build_team_state_card.py --role "$TEAM_ROLE"
 
 echo
 echo "============================================================"

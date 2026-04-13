@@ -52,12 +52,20 @@ In the right panel:
 bash scripts/autopilot_cycle.sh --threshold 0.30 --store-db true
 ```
 
+Role-specific card generation:
+
+```bash
+bash scripts/autopilot_cycle.sh --threshold 0.30 --store-db true --team-role founder
+bash scripts/autopilot_cycle.sh --threshold 0.30 --store-db true --team-role operator
+bash scripts/autopilot_cycle.sh --threshold 0.30 --store-db true --team-role research
+```
+
 This runs story-world + public-source ingestion, builds chronicles, and writes:
 - `docs/AUTOPILOT_CYCLE_SUMMARY.md`
-- `docs/TEAM_SYSTEM_STATE_CARD.md`
-- `docs/TEAM_SYSTEM_STATE_CARD_FOUNDER.md`
-- `docs/TEAM_SYSTEM_STATE_CARD_OPERATOR.md`
-- `docs/TEAM_SYSTEM_STATE_CARD_RESEARCH.md`
+- `docs/TEAM_SYSTEM_STATE_CARD.md` (when `--team-role all`)
+- `docs/TEAM_SYSTEM_STATE_CARD_FOUNDER.md` (when `--team-role all|founder`)
+- `docs/TEAM_SYSTEM_STATE_CARD_OPERATOR.md` (when `--team-role all|operator`)
+- `docs/TEAM_SYSTEM_STATE_CARD_RESEARCH.md` (when `--team-role all|research`)
 
 ## If You Disconnect
 
