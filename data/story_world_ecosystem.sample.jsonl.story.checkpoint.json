@@ -1,0 +1,11 @@
+{
+  "input": "data/story_world_ingest_template.jsonl",
+  "output": "data/story_world_ecosystem.sample.jsonl",
+  "threshold": 0.35,
+  "source_label": "story_world",
+  "processed": 3,
+  "accepted": 3,
+  "rejected": 0,
+  "acceptance_rate": 100.0,
+  "status": "complete"
+}
