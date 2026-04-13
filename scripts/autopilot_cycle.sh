@@ -171,6 +171,9 @@ PY
 # 5) Integration web + Adriana judgment narrative
 python3 scripts/build_integration_web.py
 
+# 6) Universal resonance-weaver baseline (same theory, different story)
+python3 scripts/build_resonance_weaver_baseline.py
+
 echo
 echo "============================================================"
 echo "AUTOPILOT CYCLE COMPLETE"
