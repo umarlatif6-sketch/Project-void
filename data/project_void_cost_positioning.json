@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-04-13T03:04:33.336606+00:00",
+  "headline": {
+    "actual_tooling_spend_gbp": 1326.5,
+    "token_reduction_pct": 82.35,
+    "project_void_token_baseline_ratio": 0.1765
+  },
+  "three_way_comparison": {
+    "old_method": {
+      "build_cost_gbp": {
+        "low": 25000.0,
+        "mid": 80000.0,
+        "high": 250000.0
+      },
+      "ongoing_cost_profile": "People-heavy: engineers, designers, coordination overhead, handoff loss, agency or contractor burn.",
+      "token_cost_profile": "Low direct token cost, high human labor cost.",
+      "what_you_get": "Slower delivery, more fragmentation, less continuity, more reinterpretation between roles."
+    },
+    "new_method": {
+      "build_cost_gbp": 1326.5,
+      "ongoing_cost_profile": "Subscription stack keeps accumulating across AI tools and platforms.",
+      "token_cost_profile": "High token baseline because context is repeatedly reloaded and continuity is lost.",
+      "what_you_get": "Fast iteration, but memory loss and model drift increase spend and reduce coherence."
+    },
+    "project_void": {
+      "build_cost_gbp": 1326.5,
+      "ongoing_cost_profile": "Same modern tool substrate, but used through Chronicle, codons, pair-locking, and continuity infrastructure.",
+      "token_cost_profile": "About 17.65% of the normal token baseline.",
+      "what_you_get": "Continuity, compression, auditable reasoning, sovereign world identity, resilience logic, and lower recurring token burn."
+    }
+  },
+  "old_method_cost_equivalents": {
+    "versus_old_low": {
+      "old_cost_gbp": 25000.0,
+      "multiple_more_expensive": 18.85,
+      "pct_more_expensive": 94.69
+    },
+    "versus_old_mid": {
+      "old_cost_gbp": 80000.0,
+      "multiple_more_expensive": 60.31,
+      "pct_more_expensive": 98.34
+    },
+    "versus_old_high": {
+      "old_cost_gbp": 250000.0,
+      "multiple_more_expensive": 188.47,
+      "pct_more_expensive": 99.47
+    }
+  },
+  "token_examples": [
+    {
+      "normal_token_spend_gbp": 100.0,
+      "project_void_token_spend_gbp": 17.65,
+      "monthly_savings_gbp": 82.35
+    },
+    {
+      "normal_token_spend_gbp": 500.0,
+      "project_void_token_spend_gbp": 88.25,
+      "monthly_savings_gbp": 411.75
+    },
+    {
+      "normal_token_spend_gbp": 1000.0,
+      "project_void_token_spend_gbp": 176.5,
+      "monthly_savings_gbp": 823.5
+    },
+    {
+      "normal_token_spend_gbp": 10000.0,
+      "project_void_token_spend_gbp": 1765.0,
+      "monthly_savings_gbp": 8235.0
+    }
+  ],
+  "investor_paragraph": "For roughly 1.3K GBP in tooling spend, Project VOID produced what would normally require a far larger R&D budget: a functioning continuity stack, measurable token-cost compression, multi-agent resilience logic, auditable reports, and user-specific sovereign world generation. This is not a consumer AI spend pattern. It is a capital-efficient infrastructure build that demonstrates unusually high output per pound deployed.",
+  "negotiation_version": "What cost about 1.3K GBP to force into existence here would likely cost 25K to 250K GBP through the old method, depending on whether you used freelancers, a small startup team, or an R&D agency. The value is not the chat tools. The value is the continuity architecture, the measured savings, and the fact that the system already runs.",
+  "one_minute_spoken_script": "I spent about thirteen hundred pounds across the modern AI tool stack. If I had built this the old way, it likely would have cost between twenty-five thousand and two hundred fifty thousand pounds depending on the team structure. But the more important difference is not just build cost. The normal new method keeps paying for forgetting, because every session reloads context and burns tokens again. Project VOID changes that. It remembers. It compresses. It reduces token spend by over eighty-two percent in the modeled case while producing user-specific world identity, agent resilience logic, and an auditable continuity trail. So this is not just cheaper software development. It is a third category: infrastructure that pays back its own memory.",
+  "short_lines": [
+    "Old method pays for labor.",
+    "New method pays for forgetting.",
+    "Project VOID pays once, then remembers."
+  ]
+}
