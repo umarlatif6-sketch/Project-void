@@ -168,6 +168,9 @@ print("WROTE docs/AUTOPILOT_CYCLE_SUMMARY.md")
 print("ROWS", len(rows))
 PY
 
+# 5) Integration web + Adriana judgment narrative
+python3 scripts/build_integration_web.py
+
 echo
 echo "============================================================"
 echo "AUTOPILOT CYCLE COMPLETE"
