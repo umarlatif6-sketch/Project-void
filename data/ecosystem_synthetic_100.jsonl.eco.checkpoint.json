@@ -1,0 +1,10 @@
+{
+  "input": "data/synthetic_wikipedia_100.jsonl",
+  "output": "data/ecosystem_synthetic_100.jsonl",
+  "threshold": 0.3,
+  "processed": 54,
+  "accepted": 51,
+  "rejected": 3,
+  "acceptance_rate": 94.44,
+  "status": "complete"
+}
