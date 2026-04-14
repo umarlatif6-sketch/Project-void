@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOID Codex - Markdown to ECA</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <style>
+    :root {
+      --bg: #0b1113;
+      --panel: #111d20;
+      --ink: #d5eadf;
+      --muted: #8eb5a2;
+      --line: #20403b;
+      --accent: #ffd27a;
+      --accent-2: #65e5c2;
+      --danger: #ff8d8d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 600px at 20% -20%, #1f3e39 0%, transparent 65%), var(--bg);
+      color: var(--ink);
+      font-family: "IBM Plex Mono", "Courier New", monospace;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 18px 48px; }
+    .hero {
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,210,122,0.08), rgba(101,229,194,0.08));
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .hero h1 { margin: 0 0 8px; color: var(--accent); font-size: 24px; letter-spacing: 0.6px; }
+    .hero p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 14px;
+      min-height: 260px;
+    }
+    .panel h2 { margin: 0 0 10px; color: var(--accent-2); font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+    textarea {
+      width: 100%;
+      min-height: 240px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      background: #0a1618;
+      color: var(--ink);
+      padding: 10px;
+      font: inherit;
+      line-height: 1.45;
+    }
+    .btn-row { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+    button {
+      border: 1px solid var(--line);
+      background: #16332f;
+      color: var(--ink);
+      padding: 8px 12px;
+      cursor: pointer;
+      font: inherit;
+    }
+    button.primary { background: #274d45; color: #ecfff7; }
+    .status { margin-top: 10px; color: var(--muted); font-size: 12px; }
+    .status.error { color: var(--danger); }
+    .stats {
+      border: 1px dashed var(--line);
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .preview {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      background: #0b1517;
+      max-height: 180px;
+      overflow: auto;
+      padding: 8px;
+      font-size: 12px;
+    }
+    .preview-row { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .preview-row:last-child { border-bottom: none; }
+    .top-links { margin-bottom: 12px; font-size: 12px; }
+    .top-links a { color: var(--muted); text-decoration: none; margin-right: 14px; }
+    .top-links a:hover { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      textarea { min-height: 200px; }
+    }
+  </style>
+</head>
+<body>
+  {% include 'nav.html' ignore missing %}
+  <div class="wrap">
+    <div class="top-links">
+      <a href="/script">VOID Script Reference</a>
+      <a href="/library">Library</a>
+    </div>
+
+    <div class="hero">
+      <h1>VOID CODEX ENGINE</h1>
+      <p>Lossless markdown to Entity·Condition·Action codex stream and back. This is a machine codec on top of VOID Script v2.0, not just a display format.</p>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Markdown Input</h2>
+        <textarea id="markdownInput" placeholder="# Heading\n\n- list item\n- another item\n\nA paragraph for codex conversion."></textarea>
+        <div class="btn-row">
+          <button class="primary" id="encodeBtn">Encode to Codex</button>
+          <button id="clearMdBtn">Clear</button>
+        </div>
+        <div id="encodeStatus" class="status"></div>
+        <div id="encodeStats" class="stats" hidden></div>
+        <div id="encodePreview" class="preview" hidden></div>
+      </section>
+
+      <section class="panel">
+        <h2>Codex Stream</h2>
+        <textarea id="codexInput" placeholder="αΑ◆ βΓ⚡ ..."></textarea>
+        <div class="btn-row">
+          <button class="primary" id="decodeBtn">Decode to Markdown</button>
+          <button id="clearCodexBtn">Clear</button>
+        </div>
+        <div id="decodeStatus" class="status"></div>
+        <div id="decodeStats" class="stats" hidden></div>
+        <div id="decodePreview" class="preview" hidden></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const mdInput = document.getElementById('markdownInput');
+    const codexInput = document.getElementById('codexInput');
+    const encodeBtn = document.getElementById('encodeBtn');
+    const decodeBtn = document.getElementById('decodeBtn');
+    const clearMdBtn = document.getElementById('clearMdBtn');
+    const clearCodexBtn = document.getElementById('clearCodexBtn');
+
+    const encodeStatus = document.getElementById('encodeStatus');
+    const decodeStatus = document.getElementById('decodeStatus');
+    const encodeStats = document.getElementById('encodeStats');
+    const decodeStats = document.getElementById('decodeStats');
+    const encodePreview = document.getElementById('encodePreview');
+    const decodePreview = document.getElementById('decodePreview');
+
+    function setStatus(el, text, isError) {
+      el.textContent = text || '';
+      el.className = isError ? 'status error' : 'status';
+    }
+
+    function renderPreview(el, rows) {
+      if (!rows || !rows.length) {
+        el.hidden = true;
+        el.innerHTML = '';
+        return;
+      }
+      el.hidden = false;
+      el.innerHTML = rows.map(r => '<div class="preview-row">L' + r.line + ' [' + r.type + '] ' + (r.value || '') + '</div>').join('');
+    }
+
+    encodeBtn.addEventListener('click', async () => {
+      setStatus(encodeStatus, 'Encoding...', false);
+      encodeStats.hidden = true;
+      try {
+        const res = await fetch('/api/codex/encode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ markdown: mdInput.value })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || 'Encode failed');
+        }
+
+        codexInput.value = data.encoded.codon_stream;
+        setStatus(encodeStatus, 'Encoded successfully.', false);
+        encodeStats.hidden = false;
+        encodeStats.textContent =
+          'Triplets: ' + data.encoded.codon_count + '\n' +
+          'Raw bytes: ' + data.encoded.raw_bytes + '\n' +
+          'Compressed bytes: ' + data.encoded.compressed_bytes + '\n' +
+          'Format: ' + data.encoded.header.format + ' (base ' + data.encoded.header.base + ')\n' +
+          'CRC32: ' + data.encoded.header.crc32;
+        renderPreview(encodePreview, data.structure_preview || []);
+      } catch (err) {
+        setStatus(encodeStatus, err.message || 'Encode failed', true);
+      }
+    });
+
+    decodeBtn.addEventListener('click', async () => {
+      setStatus(decodeStatus, 'Decoding...', false);
+      decodeStats.hidden = true;
+      try {
+        const res = await fetch('/api/codex/decode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ codex: codexInput.value })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || 'Decode failed');
+        }
+
+        mdInput.value = data.decoded.markdown;
+        setStatus(decodeStatus, 'Decoded successfully.', false);
+        decodeStats.hidden = false;
+        decodeStats.textContent =
+          'Triplets scanned: ' + data.decoded.triplets_used + '\n' +
+          'Raw bytes: ' + data.decoded.raw_bytes + '\n' +
+          'Compressed bytes: ' + data.decoded.compressed_bytes + '\n' +
+          'CRC32: ' + data.decoded.crc32;
+        renderPreview(decodePreview, data.structure_preview || []);
+      } catch (err) {
+        setStatus(decodeStatus, err.message || 'Decode failed', true);
+      }
+    });
+
+    clearMdBtn.addEventListener('click', () => {
+      mdInput.value = '';
+      encodeStats.hidden = true;
+      renderPreview(encodePreview, []);
+      setStatus(encodeStatus, '', false);
+    });
+
+    clearCodexBtn.addEventListener('click', () => {
+      codexInput.value = '';
+      decodeStats.hidden = true;
+      renderPreview(decodePreview, []);
+      setStatus(decodeStatus, '', false);
+    });
+  </script>
+</body>
+</html>
