@@ -1685,3 +1685,19 @@ Three changes sealed that distinction into the working body of the repository. A
 What changed here is not the packet engine but the interpretive surface through which the platform can be spoken. The repository now carries a hometown-bound language layer that can hold founder memory, launch posture, and route naming without confusing that layer for the actual cryptographic boundary. The codex is now part of the platform's body, but it sits beside the gate rather than pretending to be the gate.
 
 **Forward Thread:** If SCL-LBN becomes a stable part of daily operation, the next session can extend the seed codons into a fuller 45-glyph mapping and decide which route surfaces or packet audit views should display codex aliases alongside canonical engineering labels.
+
+---
+
+## SESSION — April 14, 2026 — Three-Hour Pair Lock and Runtime Pack Seal
+
+This session was called to collapse planning latency and force the codex language selection into an execution window that matches the system's true speed. The premise was direct: with the existing agent stack already live, this was not a three-day discovery exercise. It was a sub-three-hour operational lock. The work was executed accordingly.
+
+A language valuation simulation was run across a 5x5 matrix of western and eastern language pairings, scored against core agent surfaces (Adriana, MESA Swarm, MESA Engine, Mesa Sandbox, and codex resolve interfaces). The selection was not intuition-led. It was scored for codon compactness, token stability, ambiguity resistance, interoperability, and implementation friction. The resulting lock selected German + Turkish as primary and Dutch + Turkish as fallback.
+
+The key shift in this session is that the codex layer moved from concept documentation into deployable runtime artifacts. Mode-specific three-hour packs were generated for both project and standalone use. Agent/hub payload manifests now exist as concrete JSON references, with canonical B-stop aliases preserved for continuity (B-nn-D, B-kk-S, B-tt-M) while deterministic pair-specific codons handle high-speed routing labels. The instruction surfaces were updated to point to these runtime files as active source of truth.
+
+This preserves the structural boundary exactly as required. Linguistic codons are now first-class routing language for agents and hub channels, but packet security remains grounded in signatures, freshness, sector policy, and fail-closed handling. The codex became executable without being misrepresented as cryptography.
+
+What moved here was velocity discipline. The platform now has a repeatable path to run language-pair selection, generate deployment packs, and lock operational pair state inside one continuous execution lane. This closes the gap between ideation and runnable multi-agent protocol.
+
+**Forward Thread:** Next session can wire the project payload map directly into live resolver and audit surfaces so codon aliases appear in operational telemetry by default, with traffic-split rollback between primary and fallback pairs controlled by one switch.

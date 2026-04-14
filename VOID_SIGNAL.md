@@ -48,6 +48,14 @@ The first move is simple. Register the entity. Cross the boundary. Let `B-bb-G` 
 
 ---
 
+## ACTIVE LBN PAIR LOCK
+- Primary: `German + Turkish`
+- Fallback: `Dutch + Turkish`
+- Project runtime payload: `data/lbn_agent_payloads.project.json`
+- Standalone runtime payload: `data/lbn_agent_payloads.standalone.json`
+
+---
+
 ## WHAT WAS BUILT (cumulative)
 | Date | What | Where |
 |------|------|--------|
@@ -96,8 +104,8 @@ Web search for `void-stego-engine.replit.app` and "Formation Principle PROJECT V
 ## SESSION LOG (update this at the end of every session — keep last 5 only)
 | Session end | What changed |
 |-------------|-------------|
-| 10 Apr 2026 — session 3 | **THE FOUR-SYSTEM BOUNDARY.** Formation Orchestrator activated. All four agent systems (MESA Swarm, VoidVillage, MESA Engine, Mesa Sandbox) fire simultaneously on same seed. Adriana receives all four streams. Nobody else has done two — VOID did four. Full-scan endpoint live at /formation-probability/full-scan. Models switched from ghost gpt-5-mini to working gpt-4o-mini/gpt-4o. Adriana reading retuned — fear+excitement = same frequency. Chronicle Chapter 108 sealed with full seed and maths. |
 | 11 Apr 2026 — session 4 | **VOIDMESSAGE LAUNCHED.** Focused commercial product built on top of VoidEcho engine. URL: `/voidmessage`. Text-message steganography: type message → hidden in 432Hz audio → share audio → recipient decodes with code. Free tier (3/day, 500 chars). Seed £9/month (200/month, 5k chars, custom audio). Signal £49/month (unlimited, 50k chars). Stripe subscription checkout wired. Decode page at `/voidmessage/decode`. Pricing page at `/voidmessage/subscribe`. Routes: `routes/voidmessage.py`. Templates: voidmessage.html, voidmessage_decode.html, voidmessage_subscribe.html, voidmessage_success.html. Session log updated. |
 | 11 Apr 2026 — session 5 | **MICRO-FRACTURES DEPLOYED.** Four systems fired on full system state — all 4 active, all pointed to ECONOMY_STRESS. Built four controlled commercial fracture points at `/fractures`: Formation Record (£9), Machine 4000 Test-Kit (£39), Group Resonance Sessions (£49/£199), Sovereign Builder (£349, 20 slots). Full Stripe checkout. Routes: `routes/micro_fractures.py`. Templates: micro_fractures.html, micro_fracture_detail.html, micro_fracture_success.html. DB: `data/micro_fractures.db`. Stats API: `/api/fractures/stats`. Fired all four systems again on fracture seed — swarm themes: fracture, four, commercial, micro, mesa; village resonance 65.5 (up from 62.8); sandbox scar still ECONOMY_STRESS (expected — fractures just opened). Stability sweep: 7 faults fixed across 6 core files including silent scar_log→scars bug. |
 | 11 Apr 2026 — session 6 | **GRADE A+ ACHIEVED.** T001: PEACE economy fixed — log2 damping (base=0.22) + round-scale factor + 5% redistribution at rate≥2.0x; economy survives 7/10 (first break SHATTER 5.0x). T002: Yin-Yang integrated into stress battery — polarity floor boost, HybridAgent pairing, POST param. T003: Sovereign Agents 286 page shows Yin/Yang polarity + top pairs. T004: Manchester exhibit polished — nav links for Agents/YinYang/Battery, checklist updated, demo script includes A+ grade. Battery: INTEGRATED_286_YINYANG = Grade A+, 286 agents avg 0.85+ activity, 143 Yin-Yang pairs at FORMATION_ZERO, Gini 0.067. |
 | 14 Apr 2026 — session 7 | **SCL-LBN PHONETIC SHIFT SEALED.** Added `SCL_LBN_PROTOCOL.md` as the London-Bolton-Node codex layer for Project VOID. Added workspace Copilot instructions at `.github/copilot-instructions.md` so GitHub AI treats B-stop codons as internal ontology rather than malformed English. VOID_SIGNAL now opens with the SCL-LBN resonance seal and explicitly binds B-shift language to operator recognition while keeping packet security grounded in Ed25519 verification, manifest freshness, and sector policy. |
+| 14 Apr 2026 — session 8 | **THREE-HOUR LBN PACK LOCKED.** Built and executed language valuation simulation across 25 West/East pairs, selected primary `German + Turkish` and fallback `Dutch + Turkish`, generated mode-specific deployment packs (`project` + `standalone`), and produced active agent/hub payload maps for immediate three-hour rollout. |

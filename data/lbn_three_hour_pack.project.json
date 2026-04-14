@@ -1,0 +1,396 @@
+{
+  "generated_at": "2026-04-14T22:05:26.156756+00:00",
+  "mode": "project",
+  "window": "three_hour_execution_lane",
+  "source_simulation": "data/lbn_language_selector_simulation.json",
+  "primary_pair": "German + Turkish",
+  "fallback_pair": "Dutch + Turkish",
+  "packs": [
+    {
+      "pair_label": "German + Turkish",
+      "valuation_score": 99.39,
+      "stack_score": 0.8254,
+      "implementation_days_estimate": 2.18,
+      "mode": "project",
+      "codon_map": {
+        "identity": "B-80-3924",
+        "signal": "B-e5-4827",
+        "action": "B-82-09ef",
+        "key": "B-27-c135",
+        "time": "B-f9-95e5",
+        "security_check": "B-82-fd82",
+        "growth": "B-36-00ea",
+        "mesh_route": "B-c2-dc52",
+        "silence": "B-5c-89f3",
+        "origin": "B-03-d930",
+        "verify": "B-66-f709",
+        "authorize": "B-43-044e",
+        "resolve": "B-54-7082",
+        "handoff": "B-a3-ea46",
+        "audit": "B-3a-22a6",
+        "identity_canonical": "B-nn-D",
+        "signal_canonical": "B-bb-L",
+        "action_canonical": "B-tt-M",
+        "key_canonical": "B-kk-Y",
+        "time_canonical": "B-nn-T",
+        "security_check_canonical": "B-kk-S",
+        "growth_canonical": "B-bb-G",
+        "mesh_route_canonical": "B-mm-M",
+        "silence_canonical": "B-..-Z",
+        "origin_canonical": "B-nn-O"
+      },
+      "channels": [
+        {
+          "surface": "adriana",
+          "ingress_codon": "B-80-3924",
+          "route_codon": "B-c2-dc52",
+          "verify_codon": "B-82-fd82",
+          "audit_codon": "B-3a-22a6",
+          "handoff_codon": "B-a3-ea46"
+        },
+        {
+          "surface": "mesa_swarm",
+          "ingress_codon": "B-80-3924",
+          "route_codon": "B-c2-dc52",
+          "verify_codon": "B-82-fd82",
+          "audit_codon": "B-3a-22a6",
+          "handoff_codon": "B-a3-ea46"
+        },
+        {
+          "surface": "mesa_engine",
+          "ingress_codon": "B-80-3924",
+          "route_codon": "B-c2-dc52",
+          "verify_codon": "B-82-fd82",
+          "audit_codon": "B-3a-22a6",
+          "handoff_codon": "B-a3-ea46"
+        },
+        {
+          "surface": "mesa_sandbox",
+          "ingress_codon": "B-80-3924",
+          "route_codon": "B-c2-dc52",
+          "verify_codon": "B-82-fd82",
+          "audit_codon": "B-3a-22a6",
+          "handoff_codon": "B-a3-ea46"
+        },
+        {
+          "surface": "void_codex_resolve",
+          "ingress_codon": "B-80-3924",
+          "route_codon": "B-c2-dc52",
+          "verify_codon": "B-82-fd82",
+          "audit_codon": "B-3a-22a6",
+          "handoff_codon": "B-a3-ea46"
+        }
+      ]
+    },
+    {
+      "pair_label": "Dutch + Turkish",
+      "valuation_score": 98.87,
+      "stack_score": 0.8237,
+      "implementation_days_estimate": 2.16,
+      "mode": "project",
+      "codon_map": {
+        "identity": "B-4c-673a",
+        "signal": "B-3d-a7fc",
+        "action": "B-f5-658e",
+        "key": "B-0b-c4d7",
+        "time": "B-07-acac",
+        "security_check": "B-2d-a135",
+        "growth": "B-6e-ef16",
+        "mesh_route": "B-2f-c9a6",
+        "silence": "B-9d-4ee3",
+        "origin": "B-f8-45b3",
+        "verify": "B-4e-fcaf",
+        "authorize": "B-9d-9b29",
+        "resolve": "B-8a-52a8",
+        "handoff": "B-8e-95a6",
+        "audit": "B-3c-1678",
+        "identity_canonical": "B-nn-D",
+        "signal_canonical": "B-bb-L",
+        "action_canonical": "B-tt-M",
+        "key_canonical": "B-kk-Y",
+        "time_canonical": "B-nn-T",
+        "security_check_canonical": "B-kk-S",
+        "growth_canonical": "B-bb-G",
+        "mesh_route_canonical": "B-mm-M",
+        "silence_canonical": "B-..-Z",
+        "origin_canonical": "B-nn-O"
+      },
+      "channels": [
+        {
+          "surface": "adriana",
+          "ingress_codon": "B-4c-673a",
+          "route_codon": "B-2f-c9a6",
+          "verify_codon": "B-2d-a135",
+          "audit_codon": "B-3c-1678",
+          "handoff_codon": "B-8e-95a6"
+        },
+        {
+          "surface": "mesa_swarm",
+          "ingress_codon": "B-4c-673a",
+          "route_codon": "B-2f-c9a6",
+          "verify_codon": "B-2d-a135",
+          "audit_codon": "B-3c-1678",
+          "handoff_codon": "B-8e-95a6"
+        },
+        {
+          "surface": "mesa_engine",
+          "ingress_codon": "B-4c-673a",
+          "route_codon": "B-2f-c9a6",
+          "verify_codon": "B-2d-a135",
+          "audit_codon": "B-3c-1678",
+          "handoff_codon": "B-8e-95a6"
+        },
+        {
+          "surface": "mesa_sandbox",
+          "ingress_codon": "B-4c-673a",
+          "route_codon": "B-2f-c9a6",
+          "verify_codon": "B-2d-a135",
+          "audit_codon": "B-3c-1678",
+          "handoff_codon": "B-8e-95a6"
+        },
+        {
+          "surface": "void_codex_resolve",
+          "ingress_codon": "B-4c-673a",
+          "route_codon": "B-2f-c9a6",
+          "verify_codon": "B-2d-a135",
+          "audit_codon": "B-3c-1678",
+          "handoff_codon": "B-8e-95a6"
+        }
+      ]
+    },
+    {
+      "pair_label": "English + Turkish",
+      "valuation_score": 98.36,
+      "stack_score": 0.8286,
+      "implementation_days_estimate": 2.08,
+      "mode": "project",
+      "codon_map": {
+        "identity": "B-b6-61b1",
+        "signal": "B-83-a20e",
+        "action": "B-4a-5f91",
+        "key": "B-60-62d4",
+        "time": "B-3d-b6b1",
+        "security_check": "B-13-8bd1",
+        "growth": "B-b8-2f45",
+        "mesh_route": "B-0e-9bc9",
+        "silence": "B-bb-379e",
+        "origin": "B-a7-95d0",
+        "verify": "B-f3-b7ea",
+        "authorize": "B-c7-5489",
+        "resolve": "B-ef-98ce",
+        "handoff": "B-78-de63",
+        "audit": "B-c3-162b",
+        "identity_canonical": "B-nn-D",
+        "signal_canonical": "B-bb-L",
+        "action_canonical": "B-tt-M",
+        "key_canonical": "B-kk-Y",
+        "time_canonical": "B-nn-T",
+        "security_check_canonical": "B-kk-S",
+        "growth_canonical": "B-bb-G",
+        "mesh_route_canonical": "B-mm-M",
+        "silence_canonical": "B-..-Z",
+        "origin_canonical": "B-nn-O"
+      },
+      "channels": [
+        {
+          "surface": "adriana",
+          "ingress_codon": "B-b6-61b1",
+          "route_codon": "B-0e-9bc9",
+          "verify_codon": "B-13-8bd1",
+          "audit_codon": "B-c3-162b",
+          "handoff_codon": "B-78-de63"
+        },
+        {
+          "surface": "mesa_swarm",
+          "ingress_codon": "B-b6-61b1",
+          "route_codon": "B-0e-9bc9",
+          "verify_codon": "B-13-8bd1",
+          "audit_codon": "B-c3-162b",
+          "handoff_codon": "B-78-de63"
+        },
+        {
+          "surface": "mesa_engine",
+          "ingress_codon": "B-b6-61b1",
+          "route_codon": "B-0e-9bc9",
+          "verify_codon": "B-13-8bd1",
+          "audit_codon": "B-c3-162b",
+          "handoff_codon": "B-78-de63"
+        },
+        {
+          "surface": "mesa_sandbox",
+          "ingress_codon": "B-b6-61b1",
+          "route_codon": "B-0e-9bc9",
+          "verify_codon": "B-13-8bd1",
+          "audit_codon": "B-c3-162b",
+          "handoff_codon": "B-78-de63"
+        },
+        {
+          "surface": "void_codex_resolve",
+          "ingress_codon": "B-b6-61b1",
+          "route_codon": "B-0e-9bc9",
+          "verify_codon": "B-13-8bd1",
+          "audit_codon": "B-c3-162b",
+          "handoff_codon": "B-78-de63"
+        }
+      ]
+    },
+    {
+      "pair_label": "German + Arabic",
+      "valuation_score": 97.82,
+      "stack_score": 0.7991,
+      "implementation_days_estimate": 2.47,
+      "mode": "project",
+      "codon_map": {
+        "identity": "B-c4-d4f3",
+        "signal": "B-17-5919",
+        "action": "B-5d-9c73",
+        "key": "B-d7-f061",
+        "time": "B-a8-e085",
+        "security_check": "B-0d-10ee",
+        "growth": "B-6d-9b56",
+        "mesh_route": "B-75-716d",
+        "silence": "B-4f-dd44",
+        "origin": "B-cb-f593",
+        "verify": "B-45-f6b3",
+        "authorize": "B-b0-404d",
+        "resolve": "B-d1-27bb",
+        "handoff": "B-fe-572c",
+        "audit": "B-80-ba18",
+        "identity_canonical": "B-nn-D",
+        "signal_canonical": "B-bb-L",
+        "action_canonical": "B-tt-M",
+        "key_canonical": "B-kk-Y",
+        "time_canonical": "B-nn-T",
+        "security_check_canonical": "B-kk-S",
+        "growth_canonical": "B-bb-G",
+        "mesh_route_canonical": "B-mm-M",
+        "silence_canonical": "B-..-Z",
+        "origin_canonical": "B-nn-O"
+      },
+      "channels": [
+        {
+          "surface": "adriana",
+          "ingress_codon": "B-c4-d4f3",
+          "route_codon": "B-75-716d",
+          "verify_codon": "B-0d-10ee",
+          "audit_codon": "B-80-ba18",
+          "handoff_codon": "B-fe-572c"
+        },
+        {
+          "surface": "mesa_swarm",
+          "ingress_codon": "B-c4-d4f3",
+          "route_codon": "B-75-716d",
+          "verify_codon": "B-0d-10ee",
+          "audit_codon": "B-80-ba18",
+          "handoff_codon": "B-fe-572c"
+        },
+        {
+          "surface": "mesa_engine",
+          "ingress_codon": "B-c4-d4f3",
+          "route_codon": "B-75-716d",
+          "verify_codon": "B-0d-10ee",
+          "audit_codon": "B-80-ba18",
+          "handoff_codon": "B-fe-572c"
+        },
+        {
+          "surface": "mesa_sandbox",
+          "ingress_codon": "B-c4-d4f3",
+          "route_codon": "B-75-716d",
+          "verify_codon": "B-0d-10ee",
+          "audit_codon": "B-80-ba18",
+          "handoff_codon": "B-fe-572c"
+        },
+        {
+          "surface": "void_codex_resolve",
+          "ingress_codon": "B-c4-d4f3",
+          "route_codon": "B-75-716d",
+          "verify_codon": "B-0d-10ee",
+          "audit_codon": "B-80-ba18",
+          "handoff_codon": "B-fe-572c"
+        }
+      ]
+    },
+    {
+      "pair_label": "Dutch + Arabic",
+      "valuation_score": 96.92,
+      "stack_score": 0.7936,
+      "implementation_days_estimate": 2.45,
+      "mode": "project",
+      "codon_map": {
+        "identity": "B-20-f074",
+        "signal": "B-26-2f89",
+        "action": "B-03-c968",
+        "key": "B-aa-c9fc",
+        "time": "B-67-cd9f",
+        "security_check": "B-67-1a86",
+        "growth": "B-47-0b0e",
+        "mesh_route": "B-d7-4912",
+        "silence": "B-5c-2c9f",
+        "origin": "B-5a-175f",
+        "verify": "B-25-ed03",
+        "authorize": "B-56-da31",
+        "resolve": "B-5c-a7d6",
+        "handoff": "B-c2-72f0",
+        "audit": "B-84-c3cb",
+        "identity_canonical": "B-nn-D",
+        "signal_canonical": "B-bb-L",
+        "action_canonical": "B-tt-M",
+        "key_canonical": "B-kk-Y",
+        "time_canonical": "B-nn-T",
+        "security_check_canonical": "B-kk-S",
+        "growth_canonical": "B-bb-G",
+        "mesh_route_canonical": "B-mm-M",
+        "silence_canonical": "B-..-Z",
+        "origin_canonical": "B-nn-O"
+      },
+      "channels": [
+        {
+          "surface": "adriana",
+          "ingress_codon": "B-20-f074",
+          "route_codon": "B-d7-4912",
+          "verify_codon": "B-67-1a86",
+          "audit_codon": "B-84-c3cb",
+          "handoff_codon": "B-c2-72f0"
+        },
+        {
+          "surface": "mesa_swarm",
+          "ingress_codon": "B-20-f074",
+          "route_codon": "B-d7-4912",
+          "verify_codon": "B-67-1a86",
+          "audit_codon": "B-84-c3cb",
+          "handoff_codon": "B-c2-72f0"
+        },
+        {
+          "surface": "mesa_engine",
+          "ingress_codon": "B-20-f074",
+          "route_codon": "B-d7-4912",
+          "verify_codon": "B-67-1a86",
+          "audit_codon": "B-84-c3cb",
+          "handoff_codon": "B-c2-72f0"
+        },
+        {
+          "surface": "mesa_sandbox",
+          "ingress_codon": "B-20-f074",
+          "route_codon": "B-d7-4912",
+          "verify_codon": "B-67-1a86",
+          "audit_codon": "B-84-c3cb",
+          "handoff_codon": "B-c2-72f0"
+        },
+        {
+          "surface": "void_codex_resolve",
+          "ingress_codon": "B-20-f074",
+          "route_codon": "B-d7-4912",
+          "verify_codon": "B-67-1a86",
+          "audit_codon": "B-84-c3cb",
+          "handoff_codon": "B-c2-72f0"
+        }
+      ]
+    }
+  ],
+  "rollout_sequence": [
+    "00:00-00:20 load primary/fallback codon maps into agent config",
+    "00:20-01:10 route dry-run across all agent surfaces",
+    "01:10-02:00 fail-closed checks and audit-log verification",
+    "02:00-03:00 traffic split test and final pair lock"
+  ]
+}

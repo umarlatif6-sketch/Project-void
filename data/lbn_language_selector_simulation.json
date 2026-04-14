@@ -1,0 +1,1431 @@
+{
+  "generated_at": "2026-04-14T22:02:58.801644+00:00",
+  "goal": "Select top codon-ready West/East language pairs for rapid 2-3 day deployment",
+  "candidate_pool": {
+    "west_count": 5,
+    "east_count": 5,
+    "total_pairs": 25
+  },
+  "agent_surfaces_scored": [
+    "adriana",
+    "mesa_swarm",
+    "mesa_engine",
+    "mesa_sandbox",
+    "void_codex_resolve"
+  ],
+  "top_5_pairs": [
+    {
+      "west_language": {
+        "name": "German",
+        "region": "west",
+        "country": "Germany",
+        "consonant_stop_strength": 0.86,
+        "codon_compactness": 0.81,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.6,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.79,
+        "operator_adoptability": 0.62
+      },
+      "east_language": {
+        "name": "Turkish",
+        "region": "east",
+        "country": "Turkey",
+        "consonant_stop_strength": 0.78,
+        "codon_compactness": 0.76,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.72,
+        "script_interop": 0.96,
+        "ambiguity_resistance": 0.71,
+        "operator_adoptability": 0.74
+      },
+      "pair_label": "German + Turkish",
+      "blended_features": {
+        "consonant_stop_strength": 0.82,
+        "codon_compactness": 0.785,
+        "ai_token_stability": 0.89,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.9724,
+        "ambiguity_resistance": 0.75,
+        "operator_adoptability": 0.68
+      },
+      "agent_scores": {
+        "adriana": 0.8122,
+        "mesa_swarm": 0.8292,
+        "mesa_engine": 0.8345,
+        "mesa_sandbox": 0.8042,
+        "void_codex_resolve": 0.8471
+      },
+      "stack_score": 0.8254,
+      "implementation_days_estimate": 2.18,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 99.39
+    },
+    {
+      "west_language": {
+        "name": "Dutch",
+        "region": "west",
+        "country": "Netherlands",
+        "consonant_stop_strength": 0.82,
+        "codon_compactness": 0.8,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.74,
+        "operator_adoptability": 0.66
+      },
+      "east_language": {
+        "name": "Turkish",
+        "region": "east",
+        "country": "Turkey",
+        "consonant_stop_strength": 0.78,
+        "codon_compactness": 0.76,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.72,
+        "script_interop": 0.96,
+        "ambiguity_resistance": 0.71,
+        "operator_adoptability": 0.74
+      },
+      "pair_label": "Dutch + Turkish",
+      "blended_features": {
+        "consonant_stop_strength": 0.8,
+        "codon_compactness": 0.78,
+        "ai_token_stability": 0.89,
+        "morphology_simplicity": 0.69,
+        "script_interop": 0.9724,
+        "ambiguity_resistance": 0.725,
+        "operator_adoptability": 0.7
+      },
+      "agent_scores": {
+        "adriana": 0.812,
+        "mesa_swarm": 0.8277,
+        "mesa_engine": 0.8327,
+        "mesa_sandbox": 0.8019,
+        "void_codex_resolve": 0.844
+      },
+      "stack_score": 0.8237,
+      "implementation_days_estimate": 2.16,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 98.87
+    },
+    {
+      "west_language": {
+        "name": "English",
+        "region": "west",
+        "country": "United Kingdom",
+        "consonant_stop_strength": 0.74,
+        "codon_compactness": 0.72,
+        "ai_token_stability": 0.95,
+        "morphology_simplicity": 0.78,
+        "script_interop": 1.0,
+        "ambiguity_resistance": 0.64,
+        "operator_adoptability": 0.95
+      },
+      "east_language": {
+        "name": "Turkish",
+        "region": "east",
+        "country": "Turkey",
+        "consonant_stop_strength": 0.78,
+        "codon_compactness": 0.76,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.72,
+        "script_interop": 0.96,
+        "ambiguity_resistance": 0.71,
+        "operator_adoptability": 0.74
+      },
+      "pair_label": "English + Turkish",
+      "blended_features": {
+        "consonant_stop_strength": 0.76,
+        "codon_compactness": 0.74,
+        "ai_token_stability": 0.915,
+        "morphology_simplicity": 0.75,
+        "script_interop": 0.9848,
+        "ambiguity_resistance": 0.675,
+        "operator_adoptability": 0.845
+      },
+      "agent_scores": {
+        "adriana": 0.8194,
+        "mesa_swarm": 0.8335,
+        "mesa_engine": 0.839,
+        "mesa_sandbox": 0.8037,
+        "void_codex_resolve": 0.8472
+      },
+      "stack_score": 0.8286,
+      "implementation_days_estimate": 2.08,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 98.36
+    },
+    {
+      "west_language": {
+        "name": "German",
+        "region": "west",
+        "country": "Germany",
+        "consonant_stop_strength": 0.86,
+        "codon_compactness": 0.81,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.6,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.79,
+        "operator_adoptability": 0.62
+      },
+      "east_language": {
+        "name": "Arabic",
+        "region": "east",
+        "country": "Saudi Arabia",
+        "consonant_stop_strength": 0.88,
+        "codon_compactness": 0.84,
+        "ai_token_stability": 0.86,
+        "morphology_simplicity": 0.55,
+        "script_interop": 0.5,
+        "ambiguity_resistance": 0.82,
+        "operator_adoptability": 0.58
+      },
+      "pair_label": "German + Arabic",
+      "blended_features": {
+        "consonant_stop_strength": 0.87,
+        "codon_compactness": 0.825,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.575,
+        "script_interop": 0.7976,
+        "ambiguity_resistance": 0.805,
+        "operator_adoptability": 0.6
+      },
+      "agent_scores": {
+        "adriana": 0.7906,
+        "mesa_swarm": 0.798,
+        "mesa_engine": 0.7993,
+        "mesa_sandbox": 0.7959,
+        "void_codex_resolve": 0.8119
+      },
+      "stack_score": 0.7991,
+      "implementation_days_estimate": 2.47,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 97.82
+    },
+    {
+      "west_language": {
+        "name": "Dutch",
+        "region": "west",
+        "country": "Netherlands",
+        "consonant_stop_strength": 0.82,
+        "codon_compactness": 0.8,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.74,
+        "operator_adoptability": 0.66
+      },
+      "east_language": {
+        "name": "Arabic",
+        "region": "east",
+        "country": "Saudi Arabia",
+        "consonant_stop_strength": 0.88,
+        "codon_compactness": 0.84,
+        "ai_token_stability": 0.86,
+        "morphology_simplicity": 0.55,
+        "script_interop": 0.5,
+        "ambiguity_resistance": 0.82,
+        "operator_adoptability": 0.58
+      },
+      "pair_label": "Dutch + Arabic",
+      "blended_features": {
+        "consonant_stop_strength": 0.85,
+        "codon_compactness": 0.82,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.605,
+        "script_interop": 0.7976,
+        "ambiguity_resistance": 0.78,
+        "operator_adoptability": 0.62
+      },
+      "agent_scores": {
+        "adriana": 0.7863,
+        "mesa_swarm": 0.7928,
+        "mesa_engine": 0.7941,
+        "mesa_sandbox": 0.7895,
+        "void_codex_resolve": 0.8054
+      },
+      "stack_score": 0.7936,
+      "implementation_days_estimate": 2.45,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 96.92
+    }
+  ],
+  "all_pairs_ranked": [
+    {
+      "west_language": {
+        "name": "German",
+        "region": "west",
+        "country": "Germany",
+        "consonant_stop_strength": 0.86,
+        "codon_compactness": 0.81,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.6,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.79,
+        "operator_adoptability": 0.62
+      },
+      "east_language": {
+        "name": "Turkish",
+        "region": "east",
+        "country": "Turkey",
+        "consonant_stop_strength": 0.78,
+        "codon_compactness": 0.76,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.72,
+        "script_interop": 0.96,
+        "ambiguity_resistance": 0.71,
+        "operator_adoptability": 0.74
+      },
+      "pair_label": "German + Turkish",
+      "blended_features": {
+        "consonant_stop_strength": 0.82,
+        "codon_compactness": 0.785,
+        "ai_token_stability": 0.89,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.9724,
+        "ambiguity_resistance": 0.75,
+        "operator_adoptability": 0.68
+      },
+      "agent_scores": {
+        "adriana": 0.8122,
+        "mesa_swarm": 0.8292,
+        "mesa_engine": 0.8345,
+        "mesa_sandbox": 0.8042,
+        "void_codex_resolve": 0.8471
+      },
+      "stack_score": 0.8254,
+      "implementation_days_estimate": 2.18,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 99.39
+    },
+    {
+      "west_language": {
+        "name": "Dutch",
+        "region": "west",
+        "country": "Netherlands",
+        "consonant_stop_strength": 0.82,
+        "codon_compactness": 0.8,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.74,
+        "operator_adoptability": 0.66
+      },
+      "east_language": {
+        "name": "Turkish",
+        "region": "east",
+        "country": "Turkey",
+        "consonant_stop_strength": 0.78,
+        "codon_compactness": 0.76,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.72,
+        "script_interop": 0.96,
+        "ambiguity_resistance": 0.71,
+        "operator_adoptability": 0.74
+      },
+      "pair_label": "Dutch + Turkish",
+      "blended_features": {
+        "consonant_stop_strength": 0.8,
+        "codon_compactness": 0.78,
+        "ai_token_stability": 0.89,
+        "morphology_simplicity": 0.69,
+        "script_interop": 0.9724,
+        "ambiguity_resistance": 0.725,
+        "operator_adoptability": 0.7
+      },
+      "agent_scores": {
+        "adriana": 0.812,
+        "mesa_swarm": 0.8277,
+        "mesa_engine": 0.8327,
+        "mesa_sandbox": 0.8019,
+        "void_codex_resolve": 0.844
+      },
+      "stack_score": 0.8237,
+      "implementation_days_estimate": 2.16,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 98.87
+    },
+    {
+      "west_language": {
+        "name": "English",
+        "region": "west",
+        "country": "United Kingdom",
+        "consonant_stop_strength": 0.74,
+        "codon_compactness": 0.72,
+        "ai_token_stability": 0.95,
+        "morphology_simplicity": 0.78,
+        "script_interop": 1.0,
+        "ambiguity_resistance": 0.64,
+        "operator_adoptability": 0.95
+      },
+      "east_language": {
+        "name": "Turkish",
+        "region": "east",
+        "country": "Turkey",
+        "consonant_stop_strength": 0.78,
+        "codon_compactness": 0.76,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.72,
+        "script_interop": 0.96,
+        "ambiguity_resistance": 0.71,
+        "operator_adoptability": 0.74
+      },
+      "pair_label": "English + Turkish",
+      "blended_features": {
+        "consonant_stop_strength": 0.76,
+        "codon_compactness": 0.74,
+        "ai_token_stability": 0.915,
+        "morphology_simplicity": 0.75,
+        "script_interop": 0.9848,
+        "ambiguity_resistance": 0.675,
+        "operator_adoptability": 0.845
+      },
+      "agent_scores": {
+        "adriana": 0.8194,
+        "mesa_swarm": 0.8335,
+        "mesa_engine": 0.839,
+        "mesa_sandbox": 0.8037,
+        "void_codex_resolve": 0.8472
+      },
+      "stack_score": 0.8286,
+      "implementation_days_estimate": 2.08,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 98.36
+    },
+    {
+      "west_language": {
+        "name": "German",
+        "region": "west",
+        "country": "Germany",
+        "consonant_stop_strength": 0.86,
+        "codon_compactness": 0.81,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.6,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.79,
+        "operator_adoptability": 0.62
+      },
+      "east_language": {
+        "name": "Arabic",
+        "region": "east",
+        "country": "Saudi Arabia",
+        "consonant_stop_strength": 0.88,
+        "codon_compactness": 0.84,
+        "ai_token_stability": 0.86,
+        "morphology_simplicity": 0.55,
+        "script_interop": 0.5,
+        "ambiguity_resistance": 0.82,
+        "operator_adoptability": 0.58
+      },
+      "pair_label": "German + Arabic",
+      "blended_features": {
+        "consonant_stop_strength": 0.87,
+        "codon_compactness": 0.825,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.575,
+        "script_interop": 0.7976,
+        "ambiguity_resistance": 0.805,
+        "operator_adoptability": 0.6
+      },
+      "agent_scores": {
+        "adriana": 0.7906,
+        "mesa_swarm": 0.798,
+        "mesa_engine": 0.7993,
+        "mesa_sandbox": 0.7959,
+        "void_codex_resolve": 0.8119
+      },
+      "stack_score": 0.7991,
+      "implementation_days_estimate": 2.47,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 97.82
+    },
+    {
+      "west_language": {
+        "name": "Dutch",
+        "region": "west",
+        "country": "Netherlands",
+        "consonant_stop_strength": 0.82,
+        "codon_compactness": 0.8,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.74,
+        "operator_adoptability": 0.66
+      },
+      "east_language": {
+        "name": "Arabic",
+        "region": "east",
+        "country": "Saudi Arabia",
+        "consonant_stop_strength": 0.88,
+        "codon_compactness": 0.84,
+        "ai_token_stability": 0.86,
+        "morphology_simplicity": 0.55,
+        "script_interop": 0.5,
+        "ambiguity_resistance": 0.82,
+        "operator_adoptability": 0.58
+      },
+      "pair_label": "Dutch + Arabic",
+      "blended_features": {
+        "consonant_stop_strength": 0.85,
+        "codon_compactness": 0.82,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.605,
+        "script_interop": 0.7976,
+        "ambiguity_resistance": 0.78,
+        "operator_adoptability": 0.62
+      },
+      "agent_scores": {
+        "adriana": 0.7863,
+        "mesa_swarm": 0.7928,
+        "mesa_engine": 0.7941,
+        "mesa_sandbox": 0.7895,
+        "void_codex_resolve": 0.8054
+      },
+      "stack_score": 0.7936,
+      "implementation_days_estimate": 2.45,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 96.92
+    },
+    {
+      "west_language": {
+        "name": "English",
+        "region": "west",
+        "country": "United Kingdom",
+        "consonant_stop_strength": 0.74,
+        "codon_compactness": 0.72,
+        "ai_token_stability": 0.95,
+        "morphology_simplicity": 0.78,
+        "script_interop": 1.0,
+        "ambiguity_resistance": 0.64,
+        "operator_adoptability": 0.95
+      },
+      "east_language": {
+        "name": "Arabic",
+        "region": "east",
+        "country": "Saudi Arabia",
+        "consonant_stop_strength": 0.88,
+        "codon_compactness": 0.84,
+        "ai_token_stability": 0.86,
+        "morphology_simplicity": 0.55,
+        "script_interop": 0.5,
+        "ambiguity_resistance": 0.82,
+        "operator_adoptability": 0.58
+      },
+      "pair_label": "English + Arabic",
+      "blended_features": {
+        "consonant_stop_strength": 0.81,
+        "codon_compactness": 0.78,
+        "ai_token_stability": 0.905,
+        "morphology_simplicity": 0.665,
+        "script_interop": 0.81,
+        "ambiguity_resistance": 0.73,
+        "operator_adoptability": 0.765
+      },
+      "agent_scores": {
+        "adriana": 0.7966,
+        "mesa_swarm": 0.8022,
+        "mesa_engine": 0.8043,
+        "mesa_sandbox": 0.7939,
+        "void_codex_resolve": 0.8126
+      },
+      "stack_score": 0.8019,
+      "implementation_days_estimate": 2.37,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 96.75
+    },
+    {
+      "west_language": {
+        "name": "Spanish",
+        "region": "west",
+        "country": "Spain",
+        "consonant_stop_strength": 0.6,
+        "codon_compactness": 0.63,
+        "ai_token_stability": 0.93,
+        "morphology_simplicity": 0.83,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.61,
+        "operator_adoptability": 0.86
+      },
+      "east_language": {
+        "name": "Turkish",
+        "region": "east",
+        "country": "Turkey",
+        "consonant_stop_strength": 0.78,
+        "codon_compactness": 0.76,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.72,
+        "script_interop": 0.96,
+        "ambiguity_resistance": 0.71,
+        "operator_adoptability": 0.74
+      },
+      "pair_label": "Spanish + Turkish",
+      "blended_features": {
+        "consonant_stop_strength": 0.69,
+        "codon_compactness": 0.695,
+        "ai_token_stability": 0.905,
+        "morphology_simplicity": 0.775,
+        "script_interop": 0.9724,
+        "ambiguity_resistance": 0.66,
+        "operator_adoptability": 0.8
+      },
+      "agent_scores": {
+        "adriana": 0.7956,
+        "mesa_swarm": 0.8123,
+        "mesa_engine": 0.8189,
+        "mesa_sandbox": 0.777,
+        "void_codex_resolve": 0.8265
+      },
+      "stack_score": 0.8061,
+      "implementation_days_estimate": 2.08,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 95.48
+    },
+    {
+      "west_language": {
+        "name": "Spanish",
+        "region": "west",
+        "country": "Spain",
+        "consonant_stop_strength": 0.6,
+        "codon_compactness": 0.63,
+        "ai_token_stability": 0.93,
+        "morphology_simplicity": 0.83,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.61,
+        "operator_adoptability": 0.86
+      },
+      "east_language": {
+        "name": "Arabic",
+        "region": "east",
+        "country": "Saudi Arabia",
+        "consonant_stop_strength": 0.88,
+        "codon_compactness": 0.84,
+        "ai_token_stability": 0.86,
+        "morphology_simplicity": 0.55,
+        "script_interop": 0.5,
+        "ambiguity_resistance": 0.82,
+        "operator_adoptability": 0.58
+      },
+      "pair_label": "Spanish + Arabic",
+      "blended_features": {
+        "consonant_stop_strength": 0.74,
+        "codon_compactness": 0.735,
+        "ai_token_stability": 0.895,
+        "morphology_simplicity": 0.69,
+        "script_interop": 0.7976,
+        "ambiguity_resistance": 0.715,
+        "operator_adoptability": 0.72
+      },
+      "agent_scores": {
+        "adriana": 0.7697,
+        "mesa_swarm": 0.7779,
+        "mesa_engine": 0.781,
+        "mesa_sandbox": 0.7641,
+        "void_codex_resolve": 0.7888
+      },
+      "stack_score": 0.7763,
+      "implementation_days_estimate": 2.37,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 93.56
+    },
+    {
+      "west_language": {
+        "name": "German",
+        "region": "west",
+        "country": "Germany",
+        "consonant_stop_strength": 0.86,
+        "codon_compactness": 0.81,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.6,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.79,
+        "operator_adoptability": 0.62
+      },
+      "east_language": {
+        "name": "Hindi",
+        "region": "east",
+        "country": "India",
+        "consonant_stop_strength": 0.72,
+        "codon_compactness": 0.68,
+        "ai_token_stability": 0.84,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.45,
+        "ambiguity_resistance": 0.63,
+        "operator_adoptability": 0.77
+      },
+      "pair_label": "German + Hindi",
+      "blended_features": {
+        "consonant_stop_strength": 0.79,
+        "codon_compactness": 0.745,
+        "ai_token_stability": 0.87,
+        "morphology_simplicity": 0.65,
+        "script_interop": 0.7786,
+        "ambiguity_resistance": 0.71,
+        "operator_adoptability": 0.695
+      },
+      "agent_scores": {
+        "adriana": 0.7667,
+        "mesa_swarm": 0.7726,
+        "mesa_engine": 0.7743,
+        "mesa_sandbox": 0.7641,
+        "void_codex_resolve": 0.7825
+      },
+      "stack_score": 0.772,
+      "implementation_days_estimate": 2.44,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 93.17
+    },
+    {
+      "west_language": {
+        "name": "French",
+        "region": "west",
+        "country": "France",
+        "consonant_stop_strength": 0.56,
+        "codon_compactness": 0.59,
+        "ai_token_stability": 0.92,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.74
+      },
+      "east_language": {
+        "name": "Turkish",
+        "region": "east",
+        "country": "Turkey",
+        "consonant_stop_strength": 0.78,
+        "codon_compactness": 0.76,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.72,
+        "script_interop": 0.96,
+        "ambiguity_resistance": 0.71,
+        "operator_adoptability": 0.74
+      },
+      "pair_label": "French + Turkish",
+      "blended_features": {
+        "consonant_stop_strength": 0.67,
+        "codon_compactness": 0.675,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.71,
+        "script_interop": 0.9724,
+        "ambiguity_resistance": 0.615,
+        "operator_adoptability": 0.74
+      },
+      "agent_scores": {
+        "adriana": 0.77,
+        "mesa_swarm": 0.7887,
+        "mesa_engine": 0.796,
+        "mesa_sandbox": 0.7503,
+        "void_codex_resolve": 0.8072
+      },
+      "stack_score": 0.7824,
+      "implementation_days_estimate": 2.14,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 92.37
+    },
+    {
+      "west_language": {
+        "name": "Dutch",
+        "region": "west",
+        "country": "Netherlands",
+        "consonant_stop_strength": 0.82,
+        "codon_compactness": 0.8,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.74,
+        "operator_adoptability": 0.66
+      },
+      "east_language": {
+        "name": "Hindi",
+        "region": "east",
+        "country": "India",
+        "consonant_stop_strength": 0.72,
+        "codon_compactness": 0.68,
+        "ai_token_stability": 0.84,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.45,
+        "ambiguity_resistance": 0.63,
+        "operator_adoptability": 0.77
+      },
+      "pair_label": "Dutch + Hindi",
+      "blended_features": {
+        "consonant_stop_strength": 0.77,
+        "codon_compactness": 0.74,
+        "ai_token_stability": 0.87,
+        "morphology_simplicity": 0.68,
+        "script_interop": 0.7786,
+        "ambiguity_resistance": 0.685,
+        "operator_adoptability": 0.715
+      },
+      "agent_scores": {
+        "adriana": 0.7625,
+        "mesa_swarm": 0.7674,
+        "mesa_engine": 0.7689,
+        "mesa_sandbox": 0.7579,
+        "void_codex_resolve": 0.7756
+      },
+      "stack_score": 0.7665,
+      "implementation_days_estimate": 2.42,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 92.27
+    },
+    {
+      "west_language": {
+        "name": "English",
+        "region": "west",
+        "country": "United Kingdom",
+        "consonant_stop_strength": 0.74,
+        "codon_compactness": 0.72,
+        "ai_token_stability": 0.95,
+        "morphology_simplicity": 0.78,
+        "script_interop": 1.0,
+        "ambiguity_resistance": 0.64,
+        "operator_adoptability": 0.95
+      },
+      "east_language": {
+        "name": "Hindi",
+        "region": "east",
+        "country": "India",
+        "consonant_stop_strength": 0.72,
+        "codon_compactness": 0.68,
+        "ai_token_stability": 0.84,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.45,
+        "ambiguity_resistance": 0.63,
+        "operator_adoptability": 0.77
+      },
+      "pair_label": "English + Hindi",
+      "blended_features": {
+        "consonant_stop_strength": 0.73,
+        "codon_compactness": 0.7,
+        "ai_token_stability": 0.895,
+        "morphology_simplicity": 0.74,
+        "script_interop": 0.791,
+        "ambiguity_resistance": 0.635,
+        "operator_adoptability": 0.86
+      },
+      "agent_scores": {
+        "adriana": 0.7708,
+        "mesa_swarm": 0.7737,
+        "mesa_engine": 0.7756,
+        "mesa_sandbox": 0.7608,
+        "void_codex_resolve": 0.7788
+      },
+      "stack_score": 0.7719,
+      "implementation_days_estimate": 2.34,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 91.81
+    },
+    {
+      "west_language": {
+        "name": "French",
+        "region": "west",
+        "country": "France",
+        "consonant_stop_strength": 0.56,
+        "codon_compactness": 0.59,
+        "ai_token_stability": 0.92,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.74
+      },
+      "east_language": {
+        "name": "Arabic",
+        "region": "east",
+        "country": "Saudi Arabia",
+        "consonant_stop_strength": 0.88,
+        "codon_compactness": 0.84,
+        "ai_token_stability": 0.86,
+        "morphology_simplicity": 0.55,
+        "script_interop": 0.5,
+        "ambiguity_resistance": 0.82,
+        "operator_adoptability": 0.58
+      },
+      "pair_label": "French + Arabic",
+      "blended_features": {
+        "consonant_stop_strength": 0.72,
+        "codon_compactness": 0.715,
+        "ai_token_stability": 0.89,
+        "morphology_simplicity": 0.625,
+        "script_interop": 0.7976,
+        "ambiguity_resistance": 0.67,
+        "operator_adoptability": 0.66
+      },
+      "agent_scores": {
+        "adriana": 0.7462,
+        "mesa_swarm": 0.7564,
+        "mesa_engine": 0.76,
+        "mesa_sandbox": 0.7398,
+        "void_codex_resolve": 0.7711
+      },
+      "stack_score": 0.7547,
+      "implementation_days_estimate": 2.42,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 90.66
+    },
+    {
+      "west_language": {
+        "name": "German",
+        "region": "west",
+        "country": "Germany",
+        "consonant_stop_strength": 0.86,
+        "codon_compactness": 0.81,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.6,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.79,
+        "operator_adoptability": 0.62
+      },
+      "east_language": {
+        "name": "Japanese",
+        "region": "east",
+        "country": "Japan",
+        "consonant_stop_strength": 0.54,
+        "codon_compactness": 0.62,
+        "ai_token_stability": 0.82,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.4,
+        "ambiguity_resistance": 0.56,
+        "operator_adoptability": 0.56
+      },
+      "pair_label": "German + Japanese",
+      "blended_features": {
+        "consonant_stop_strength": 0.7,
+        "codon_compactness": 0.715,
+        "ai_token_stability": 0.86,
+        "morphology_simplicity": 0.63,
+        "script_interop": 0.7596,
+        "ambiguity_resistance": 0.675,
+        "operator_adoptability": 0.59
+      },
+      "agent_scores": {
+        "adriana": 0.731,
+        "mesa_swarm": 0.7405,
+        "mesa_engine": 0.7437,
+        "mesa_sandbox": 0.7264,
+        "void_codex_resolve": 0.755
+      },
+      "stack_score": 0.7393,
+      "implementation_days_estimate": 2.49,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 89.18
+    },
+    {
+      "west_language": {
+        "name": "Spanish",
+        "region": "west",
+        "country": "Spain",
+        "consonant_stop_strength": 0.6,
+        "codon_compactness": 0.63,
+        "ai_token_stability": 0.93,
+        "morphology_simplicity": 0.83,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.61,
+        "operator_adoptability": 0.86
+      },
+      "east_language": {
+        "name": "Hindi",
+        "region": "east",
+        "country": "India",
+        "consonant_stop_strength": 0.72,
+        "codon_compactness": 0.68,
+        "ai_token_stability": 0.84,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.45,
+        "ambiguity_resistance": 0.63,
+        "operator_adoptability": 0.77
+      },
+      "pair_label": "Spanish + Hindi",
+      "blended_features": {
+        "consonant_stop_strength": 0.66,
+        "codon_compactness": 0.655,
+        "ai_token_stability": 0.885,
+        "morphology_simplicity": 0.765,
+        "script_interop": 0.7786,
+        "ambiguity_resistance": 0.62,
+        "operator_adoptability": 0.815
+      },
+      "agent_scores": {
+        "adriana": 0.7449,
+        "mesa_swarm": 0.7509,
+        "mesa_engine": 0.7543,
+        "mesa_sandbox": 0.7317,
+        "void_codex_resolve": 0.7575
+      },
+      "stack_score": 0.7479,
+      "implementation_days_estimate": 2.34,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 88.78
+    },
+    {
+      "west_language": {
+        "name": "Dutch",
+        "region": "west",
+        "country": "Netherlands",
+        "consonant_stop_strength": 0.82,
+        "codon_compactness": 0.8,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.74,
+        "operator_adoptability": 0.66
+      },
+      "east_language": {
+        "name": "Japanese",
+        "region": "east",
+        "country": "Japan",
+        "consonant_stop_strength": 0.54,
+        "codon_compactness": 0.62,
+        "ai_token_stability": 0.82,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.4,
+        "ambiguity_resistance": 0.56,
+        "operator_adoptability": 0.56
+      },
+      "pair_label": "Dutch + Japanese",
+      "blended_features": {
+        "consonant_stop_strength": 0.68,
+        "codon_compactness": 0.71,
+        "ai_token_stability": 0.86,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.7596,
+        "ambiguity_resistance": 0.65,
+        "operator_adoptability": 0.61
+      },
+      "agent_scores": {
+        "adriana": 0.7268,
+        "mesa_swarm": 0.7351,
+        "mesa_engine": 0.7381,
+        "mesa_sandbox": 0.7199,
+        "void_codex_resolve": 0.748
+      },
+      "stack_score": 0.7336,
+      "implementation_days_estimate": 2.46,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 88.26
+    },
+    {
+      "west_language": {
+        "name": "English",
+        "region": "west",
+        "country": "United Kingdom",
+        "consonant_stop_strength": 0.74,
+        "codon_compactness": 0.72,
+        "ai_token_stability": 0.95,
+        "morphology_simplicity": 0.78,
+        "script_interop": 1.0,
+        "ambiguity_resistance": 0.64,
+        "operator_adoptability": 0.95
+      },
+      "east_language": {
+        "name": "Japanese",
+        "region": "east",
+        "country": "Japan",
+        "consonant_stop_strength": 0.54,
+        "codon_compactness": 0.62,
+        "ai_token_stability": 0.82,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.4,
+        "ambiguity_resistance": 0.56,
+        "operator_adoptability": 0.56
+      },
+      "pair_label": "English + Japanese",
+      "blended_features": {
+        "consonant_stop_strength": 0.64,
+        "codon_compactness": 0.67,
+        "ai_token_stability": 0.885,
+        "morphology_simplicity": 0.72,
+        "script_interop": 0.772,
+        "ambiguity_resistance": 0.6,
+        "operator_adoptability": 0.755
+      },
+      "agent_scores": {
+        "adriana": 0.7322,
+        "mesa_swarm": 0.7391,
+        "mesa_engine": 0.7429,
+        "mesa_sandbox": 0.7193,
+        "void_codex_resolve": 0.7495
+      },
+      "stack_score": 0.7366,
+      "implementation_days_estimate": 2.38,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 87.56
+    },
+    {
+      "west_language": {
+        "name": "German",
+        "region": "west",
+        "country": "Germany",
+        "consonant_stop_strength": 0.86,
+        "codon_compactness": 0.81,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.6,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.79,
+        "operator_adoptability": 0.62
+      },
+      "east_language": {
+        "name": "Mandarin",
+        "region": "east",
+        "country": "China",
+        "consonant_stop_strength": 0.5,
+        "codon_compactness": 0.57,
+        "ai_token_stability": 0.8,
+        "morphology_simplicity": 0.64,
+        "script_interop": 0.35,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.54
+      },
+      "pair_label": "German + Mandarin",
+      "blended_features": {
+        "consonant_stop_strength": 0.68,
+        "codon_compactness": 0.69,
+        "ai_token_stability": 0.85,
+        "morphology_simplicity": 0.62,
+        "script_interop": 0.7406,
+        "ambiguity_resistance": 0.655,
+        "operator_adoptability": 0.58
+      },
+      "agent_scores": {
+        "adriana": 0.7122,
+        "mesa_swarm": 0.7216,
+        "mesa_engine": 0.7246,
+        "mesa_sandbox": 0.7067,
+        "void_codex_resolve": 0.7354
+      },
+      "stack_score": 0.7201,
+      "implementation_days_estimate": 2.52,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 86.77
+    },
+    {
+      "west_language": {
+        "name": "Dutch",
+        "region": "west",
+        "country": "Netherlands",
+        "consonant_stop_strength": 0.82,
+        "codon_compactness": 0.8,
+        "ai_token_stability": 0.9,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.74,
+        "operator_adoptability": 0.66
+      },
+      "east_language": {
+        "name": "Mandarin",
+        "region": "east",
+        "country": "China",
+        "consonant_stop_strength": 0.5,
+        "codon_compactness": 0.57,
+        "ai_token_stability": 0.8,
+        "morphology_simplicity": 0.64,
+        "script_interop": 0.35,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.54
+      },
+      "pair_label": "Dutch + Mandarin",
+      "blended_features": {
+        "consonant_stop_strength": 0.66,
+        "codon_compactness": 0.685,
+        "ai_token_stability": 0.85,
+        "morphology_simplicity": 0.65,
+        "script_interop": 0.7406,
+        "ambiguity_resistance": 0.63,
+        "operator_adoptability": 0.6
+      },
+      "agent_scores": {
+        "adriana": 0.712,
+        "mesa_swarm": 0.721,
+        "mesa_engine": 0.7242,
+        "mesa_sandbox": 0.7047,
+        "void_codex_resolve": 0.7343
+      },
+      "stack_score": 0.7192,
+      "implementation_days_estimate": 2.5,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 86.33
+    },
+    {
+      "west_language": {
+        "name": "French",
+        "region": "west",
+        "country": "France",
+        "consonant_stop_strength": 0.56,
+        "codon_compactness": 0.59,
+        "ai_token_stability": 0.92,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.74
+      },
+      "east_language": {
+        "name": "Hindi",
+        "region": "east",
+        "country": "India",
+        "consonant_stop_strength": 0.72,
+        "codon_compactness": 0.68,
+        "ai_token_stability": 0.84,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.45,
+        "ambiguity_resistance": 0.63,
+        "operator_adoptability": 0.77
+      },
+      "pair_label": "French + Hindi",
+      "blended_features": {
+        "consonant_stop_strength": 0.64,
+        "codon_compactness": 0.635,
+        "ai_token_stability": 0.88,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.7786,
+        "ambiguity_resistance": 0.575,
+        "operator_adoptability": 0.755
+      },
+      "agent_scores": {
+        "adriana": 0.7212,
+        "mesa_swarm": 0.7296,
+        "mesa_engine": 0.7335,
+        "mesa_sandbox": 0.7067,
+        "void_codex_resolve": 0.7397
+      },
+      "stack_score": 0.7261,
+      "implementation_days_estimate": 2.39,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 85.86
+    },
+    {
+      "west_language": {
+        "name": "English",
+        "region": "west",
+        "country": "United Kingdom",
+        "consonant_stop_strength": 0.74,
+        "codon_compactness": 0.72,
+        "ai_token_stability": 0.95,
+        "morphology_simplicity": 0.78,
+        "script_interop": 1.0,
+        "ambiguity_resistance": 0.64,
+        "operator_adoptability": 0.95
+      },
+      "east_language": {
+        "name": "Mandarin",
+        "region": "east",
+        "country": "China",
+        "consonant_stop_strength": 0.5,
+        "codon_compactness": 0.57,
+        "ai_token_stability": 0.8,
+        "morphology_simplicity": 0.64,
+        "script_interop": 0.35,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.54
+      },
+      "pair_label": "English + Mandarin",
+      "blended_features": {
+        "consonant_stop_strength": 0.62,
+        "codon_compactness": 0.645,
+        "ai_token_stability": 0.875,
+        "morphology_simplicity": 0.71,
+        "script_interop": 0.753,
+        "ambiguity_resistance": 0.58,
+        "operator_adoptability": 0.745
+      },
+      "agent_scores": {
+        "adriana": 0.7168,
+        "mesa_swarm": 0.724,
+        "mesa_engine": 0.7277,
+        "mesa_sandbox": 0.7036,
+        "void_codex_resolve": 0.7336
+      },
+      "stack_score": 0.7211,
+      "implementation_days_estimate": 2.42,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 85.52
+    },
+    {
+      "west_language": {
+        "name": "Spanish",
+        "region": "west",
+        "country": "Spain",
+        "consonant_stop_strength": 0.6,
+        "codon_compactness": 0.63,
+        "ai_token_stability": 0.93,
+        "morphology_simplicity": 0.83,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.61,
+        "operator_adoptability": 0.86
+      },
+      "east_language": {
+        "name": "Japanese",
+        "region": "east",
+        "country": "Japan",
+        "consonant_stop_strength": 0.54,
+        "codon_compactness": 0.62,
+        "ai_token_stability": 0.82,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.4,
+        "ambiguity_resistance": 0.56,
+        "operator_adoptability": 0.56
+      },
+      "pair_label": "Spanish + Japanese",
+      "blended_features": {
+        "consonant_stop_strength": 0.57,
+        "codon_compactness": 0.625,
+        "ai_token_stability": 0.875,
+        "morphology_simplicity": 0.745,
+        "script_interop": 0.7596,
+        "ambiguity_resistance": 0.585,
+        "operator_adoptability": 0.71
+      },
+      "agent_scores": {
+        "adriana": 0.7105,
+        "mesa_swarm": 0.72,
+        "mesa_engine": 0.7249,
+        "mesa_sandbox": 0.6948,
+        "void_codex_resolve": 0.7316
+      },
+      "stack_score": 0.7164,
+      "implementation_days_estimate": 2.38,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 84.91
+    },
+    {
+      "west_language": {
+        "name": "Spanish",
+        "region": "west",
+        "country": "Spain",
+        "consonant_stop_strength": 0.6,
+        "codon_compactness": 0.63,
+        "ai_token_stability": 0.93,
+        "morphology_simplicity": 0.83,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.61,
+        "operator_adoptability": 0.86
+      },
+      "east_language": {
+        "name": "Mandarin",
+        "region": "east",
+        "country": "China",
+        "consonant_stop_strength": 0.5,
+        "codon_compactness": 0.57,
+        "ai_token_stability": 0.8,
+        "morphology_simplicity": 0.64,
+        "script_interop": 0.35,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.54
+      },
+      "pair_label": "Spanish + Mandarin",
+      "blended_features": {
+        "consonant_stop_strength": 0.55,
+        "codon_compactness": 0.6,
+        "ai_token_stability": 0.865,
+        "morphology_simplicity": 0.735,
+        "script_interop": 0.7406,
+        "ambiguity_resistance": 0.565,
+        "operator_adoptability": 0.7
+      },
+      "agent_scores": {
+        "adriana": 0.694,
+        "mesa_swarm": 0.7031,
+        "mesa_engine": 0.7079,
+        "mesa_sandbox": 0.6776,
+        "void_codex_resolve": 0.7142
+      },
+      "stack_score": 0.6994,
+      "implementation_days_estimate": 2.42,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 82.72
+    },
+    {
+      "west_language": {
+        "name": "French",
+        "region": "west",
+        "country": "France",
+        "consonant_stop_strength": 0.56,
+        "codon_compactness": 0.59,
+        "ai_token_stability": 0.92,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.74
+      },
+      "east_language": {
+        "name": "Japanese",
+        "region": "east",
+        "country": "Japan",
+        "consonant_stop_strength": 0.54,
+        "codon_compactness": 0.62,
+        "ai_token_stability": 0.82,
+        "morphology_simplicity": 0.66,
+        "script_interop": 0.4,
+        "ambiguity_resistance": 0.56,
+        "operator_adoptability": 0.56
+      },
+      "pair_label": "French + Japanese",
+      "blended_features": {
+        "consonant_stop_strength": 0.55,
+        "codon_compactness": 0.605,
+        "ai_token_stability": 0.87,
+        "morphology_simplicity": 0.68,
+        "script_interop": 0.7596,
+        "ambiguity_resistance": 0.54,
+        "operator_adoptability": 0.65
+      },
+      "agent_scores": {
+        "adriana": 0.6848,
+        "mesa_swarm": 0.6972,
+        "mesa_engine": 0.7028,
+        "mesa_sandbox": 0.6677,
+        "void_codex_resolve": 0.7127
+      },
+      "stack_score": 0.693,
+      "implementation_days_estimate": 2.44,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 81.83
+    },
+    {
+      "west_language": {
+        "name": "French",
+        "region": "west",
+        "country": "France",
+        "consonant_stop_strength": 0.56,
+        "codon_compactness": 0.59,
+        "ai_token_stability": 0.92,
+        "morphology_simplicity": 0.7,
+        "script_interop": 0.98,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.74
+      },
+      "east_language": {
+        "name": "Mandarin",
+        "region": "east",
+        "country": "China",
+        "consonant_stop_strength": 0.5,
+        "codon_compactness": 0.57,
+        "ai_token_stability": 0.8,
+        "morphology_simplicity": 0.64,
+        "script_interop": 0.35,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.54
+      },
+      "pair_label": "French + Mandarin",
+      "blended_features": {
+        "consonant_stop_strength": 0.53,
+        "codon_compactness": 0.58,
+        "ai_token_stability": 0.86,
+        "morphology_simplicity": 0.67,
+        "script_interop": 0.7406,
+        "ambiguity_resistance": 0.52,
+        "operator_adoptability": 0.64
+      },
+      "agent_scores": {
+        "adriana": 0.6687,
+        "mesa_swarm": 0.6806,
+        "mesa_engine": 0.6861,
+        "mesa_sandbox": 0.6514,
+        "void_codex_resolve": 0.695
+      },
+      "stack_score": 0.6764,
+      "implementation_days_estimate": 2.48,
+      "within_2_to_3_day_window": true,
+      "valuation_score": 79.68
+    }
+  ],
+  "recommended_primary_pair": "German + Turkish"
+}

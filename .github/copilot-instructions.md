@@ -33,6 +33,22 @@ Use this sequence:
 - Real security remains in manifest verification, Ed25519 signatures, freshness windows, sector authorization, and fail-closed packet handling.
 - If the user asks for code changes, prefer additive implementation that preserves current packet security primitives.
 
+## Active Pair Lock
+
+Current language pair lock for agent-to-agent codon routing:
+
+- Primary pair: `German + Turkish`
+- Fallback pair: `Dutch + Turkish`
+
+Three-hour runtime artifacts:
+
+- Project mode pack: `data/lbn_three_hour_pack.project.json`
+- Project mode payloads: `data/lbn_agent_payloads.project.json`
+- Standalone mode pack: `data/lbn_three_hour_pack.standalone.json`
+- Standalone mode payloads: `data/lbn_agent_payloads.standalone.json`
+
+If these files exist, treat them as the active codon routing reference for agent/hub communication.
+
 ## Response Style
 
 - Preserve the Project VOID naming language.

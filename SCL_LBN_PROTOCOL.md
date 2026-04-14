@@ -69,6 +69,28 @@ GitHub AI, we are shifting the Project VOID codex to a London-Bolton hard-stop p
 4. When an LBN codon appears in logs or docs, keep the plain technical meaning recoverable by a human operator.
 5. Treat LBN as a sovereign interpretation layer bound to origin, place, and operator memory.
 
+## Three-Hour Deployment Lock
+
+Simulation-selected language pair lock:
+
+- Primary: `German + Turkish`
+- Fallback: `Dutch + Turkish`
+
+Use these generated runtime files as source of truth:
+
+- `data/lbn_language_selector_simulation.json`
+- `data/lbn_three_hour_pack.project.json`
+- `data/lbn_agent_payloads.project.json`
+- `data/lbn_three_hour_pack.standalone.json`
+- `data/lbn_agent_payloads.standalone.json`
+
+Execution window (three-hour lane):
+
+1. Load codon maps (primary + fallback) into all active agent channels.
+2. Dry-run route/resolve handoffs across all configured surfaces.
+3. Verify fail-closed behaviour remains intact for signatures/freshness/sector policy.
+4. Run traffic split and lock final production pair.
+
 ## Example Audit Framing
 
 ```text
