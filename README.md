@@ -134,6 +134,11 @@ Required values:
 - `SESSION_SECRET` — application session secret
 - `DATABASE_URL` — PostgreSQL DSN for production/testing
 
+Packet security values (required when `VOID_PACKET_SECURITY_ENFORCE=true`):
+- `VOID_PACKET_SIGNING_KEY_ID`
+- `VOID_PACKET_SIGNING_PRIVATE_KEY`
+- `VOID_PACKET_VERIFY_KEYS_JSON`
+
 Optional but recommended for extended features:
 - `AI_INTEGRATIONS_OPENAI_API_KEY`
 - `AI_INTEGRATIONS_OPENAI_BASE_URL`
@@ -161,6 +166,25 @@ curl http://127.0.0.1:5000/health
 ```bash
 gunicorn -c gunicorn.conf.py app:app
 ```
+
+### Packet Security Key Management
+
+Generate an initial signing key and env block:
+
+```bash
+python3 scripts/packet_key_manager.py generate --key-id k1
+```
+
+Rotate to a new signing key while retaining old verifier keys:
+
+```bash
+python3 scripts/packet_key_manager.py rotate --key-id k2 --existing-keyset '{"k1":"<public_key_hex>"}'
+```
+
+In production, set:
+- `VOID_PACKET_SECURITY_ENFORCE=true`
+- `VOID_PACKET_REQUIRE_SECTOR_POLICY=true`
+- `VOID_PACKET_MAX_AGE_SECONDS` to your replay window
 
 > Note: `ffmpeg` is required for the Z-Axis video carrier routes.
 

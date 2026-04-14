@@ -33,6 +33,26 @@ if not _secret:
     logger.error("FATAL: SESSION_SECRET environment variable is not set")
     raise RuntimeError("SESSION_SECRET environment variable is required")
 
+try:
+    from void_engine.packet_security import read_packet_security_config, validate_packet_security_config
+
+    _packet_security_cfg = read_packet_security_config()
+    _packet_security_errors = validate_packet_security_config(_packet_security_cfg)
+    if _packet_security_errors:
+        for _err in _packet_security_errors:
+            logger.error("FATAL: %s", _err)
+        raise RuntimeError("Packet security configuration invalid in enforced mode")
+    if _packet_security_cfg.enforce:
+        logger.info(
+            "Packet security enforce mode enabled (key_id=%s, require_sector_policy=%s, max_age=%ss)",
+            _packet_security_cfg.signing_key_id,
+            _packet_security_cfg.require_sector_policy,
+            _packet_security_cfg.max_age_seconds,
+        )
+except Exception as _packet_security_exc:
+    logger.error("FATAL: packet security bootstrap failed: %s", _packet_security_exc)
+    raise
+
 app.secret_key = _secret
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
