@@ -205,10 +205,15 @@ for kind, path_str in payload_paths:
             "description": f"Autopilot cycle: {p.name}"
         })
 
+dt = __import__('datetime')
+now_utc = dt.datetime.now(tz=dt.timezone.utc)
+
 resonance_info = {
     "entries": len(rows),
     "clusters": len(ordered),
-    "timestamp": __import__('datetime').datetime.now(tz=__import__('datetime').timezone.utc).isoformat()
+  "timestamp": now_utc.isoformat(),
+  "allowed_sectors": ["founder", "operator", "research"],
+  "expires_at": (now_utc + dt.timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ"),
 }
 
 manifest = build_packet_manifest(
