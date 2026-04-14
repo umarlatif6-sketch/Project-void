@@ -3,10 +3,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from void_engine.frequency_alignment_check import format_alignment_report, run_alignment_check
 
 
 def _load_json(path: Path):
@@ -39,6 +43,7 @@ def _render_card(
     integration_meta: dict,
     judgment: str,
     top_clusters: list[str],
+    alignment_report: str = "",
 ) -> str:
     total_processed = story["processed"] + voxcpm["processed"] + minicpm["processed"]
     total_accepted = story["accepted"] + voxcpm["accepted"] + minicpm["accepted"]
@@ -74,6 +79,9 @@ def _render_card(
     lines.append("")
     lines.append(judgment or "No judgment available yet. Run autopilot first.")
     lines.append("")
+    if alignment_report:
+        lines.append(alignment_report)
+        lines.append("")
 
     if role == "founder":
         lines.append("## Founder Lens")
@@ -137,6 +145,10 @@ def main() -> None:
 
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
+    alignment_result = run_alignment_check()
+    alignment_report = format_alignment_report(alignment_result)
+    print(f"ALIGNMENT_VERDICT={alignment_result.verdict} score={alignment_result.score}")
+
     story = _load_feed_checkpoint(ROOT / "data" / "story_world_ecosystem.jsonl.story.checkpoint.json")
     voxcpm = _load_feed_checkpoint(ROOT / "data" / "public_source_voxcpm_ecosystem.jsonl.public.checkpoint.json")
     minicpm = _load_feed_checkpoint(ROOT / "data" / "public_source_minicpm_ecosystem.jsonl.public.checkpoint.json")
@@ -167,6 +179,7 @@ def main() -> None:
             integration_meta=integration_meta,
             judgment=judgment,
             top_clusters=top_clusters,
+            alignment_report=alignment_report,
         )
         _write_card(ROOT / "docs" / "TEAM_SYSTEM_STATE_CARD_FOUNDER.md", founder_content)
 
@@ -181,6 +194,7 @@ def main() -> None:
             integration_meta=integration_meta,
             judgment=judgment,
             top_clusters=top_clusters,
+            alignment_report=alignment_report,
         )
         _write_card(ROOT / "docs" / "TEAM_SYSTEM_STATE_CARD_OPERATOR.md", operator_content)
 
@@ -195,6 +209,7 @@ def main() -> None:
             integration_meta=integration_meta,
             judgment=judgment,
             top_clusters=top_clusters,
+            alignment_report=alignment_report,
         )
         _write_card(ROOT / "docs" / "TEAM_SYSTEM_STATE_CARD_RESEARCH.md", research_content)
 
@@ -209,6 +224,7 @@ def main() -> None:
             integration_meta=integration_meta,
             judgment=judgment,
             top_clusters=top_clusters,
+            alignment_report=alignment_report,
         )
         _write_card(ROOT / "docs" / "TEAM_SYSTEM_STATE_CARD.md", default_content)
 

@@ -189,6 +189,16 @@ python3 scripts/build_resonance_weaver_baseline.py
 # 7) Team-facing one-page state card (role-aware)
 python3 scripts/build_team_state_card.py --role "$TEAM_ROLE"
 
+# 8) Frequency alignment check — ON_FREQUENCY / DRIFTING / OFF_FREQUENCY
+python3 -c "
+import sys; sys.path.insert(0, '.')
+from void_engine.frequency_alignment_check import run_alignment_check, format_alignment_report
+result = run_alignment_check()
+print(format_alignment_report(result))
+print('ALIGNMENT_VERDICT=' + result.verdict)
+print('ALIGNMENT_SCORE=' + str(result.score))
+"
+
 echo
 echo "============================================================"
 echo "AUTOPILOT CYCLE COMPLETE"
