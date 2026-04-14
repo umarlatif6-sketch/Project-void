@@ -209,6 +209,42 @@ def encode_moment():
     })
 
 
+@z_axis_bp.route("/api/z-axis/live-card", methods=["GET"])
+def live_card():
+    """Generate a visitor-specific live formation card for initial page render."""
+    from datetime import datetime, timezone
+    from void_engine.z_axis_encoder import encode_resonance_moment, fatiha_286_hexdigest
+
+    now = datetime.now(timezone.utc)
+    context = {
+        "event": "z_axis_live_entry",
+        "path": request.path,
+        "remote_addr": request.headers.get("X-Forwarded-For", request.remote_addr or "unknown"),
+        "user_agent": request.user_agent.string[:180] if request.user_agent else "unknown",
+        "timestamp": now.isoformat(),
+        "minute_slot": now.strftime("%Y-%m-%dT%H:%MZ"),
+    }
+    formation_hash = fatiha_286_hexdigest(json.dumps(context, default=str).encode("utf-8"))
+
+    try:
+        png_bytes = encode_resonance_moment(context, formation_hash)
+    except Exception as e:
+        logger.error("[Z-Axis] Live card encode failed: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({
+        "status": "encoded",
+        "type": "z_axis_live_entry",
+        "formation_hash": formation_hash,
+        "image_size_bytes": len(png_bytes),
+        "image_b64": base64.b64encode(png_bytes).decode("ascii"),
+        "context": {
+            "timestamp": context["timestamp"],
+            "minute_slot": context["minute_slot"],
+        },
+    })
+
+
 @z_axis_bp.route("/api/z-axis/encode-agent", methods=["POST"])
 def encode_agent():
     from void_engine.z_axis_encoder import encode_for_agent_immortality, fatiha_286_hexdigest
@@ -404,6 +440,12 @@ footer p{font-size:9px;color:#333;letter-spacing:3px}
 </header>
 
 <div style="text-align:center;padding:10px 0"><a href="/z-axis/video" style="color:#c0955a;text-decoration:none;font-size:11px;letter-spacing:3px">VIDEO CARRIER &rarr; GIGABYTE-SCALE</a></div>
+
+<div class="result-zone show" id="liveCardZone" style="margin-bottom:16px">
+  <h3>LIVE ENTRY FORMATION CARD</h3>
+  <div class="result-img" id="liveCardImg">Loading live card...</div>
+  <div class="result-meta" id="liveCardMeta">This card auto-registers entry context and refreshes over time.</div>
+</div>
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('encode',this)">ENCODE</button>
@@ -751,7 +793,32 @@ function formatSize(bytes){
   return bytes+' B';
 }
 
+async function loadLiveCard(){
+  const imgEl=document.getElementById('liveCardImg');
+  const metaEl=document.getElementById('liveCardMeta');
+  if(!imgEl||!metaEl)return;
+  try{
+    const res=await fetch('/api/z-axis/live-card');
+    const d=await res.json();
+    if(d.error){
+      imgEl.textContent='Live card unavailable';
+      metaEl.textContent='Error: '+d.error;
+      return;
+    }
+    imgEl.innerHTML='<img src="data:image/png;base64,'+d.image_b64+'" alt="Live Entry Formation Card">';
+    metaEl.innerHTML=
+      'Formation Hash: <span>'+d.formation_hash+'</span><br>'+
+      'Generated: <span>'+((d.context&&d.context.timestamp)||'unknown')+'</span><br>'+
+      'Refresh Slot: <span>'+((d.context&&d.context.minute_slot)||'unknown')+'</span>';
+  }catch(e){
+    imgEl.textContent='Live card unavailable';
+    metaEl.textContent='Error: '+e.message;
+  }
+}
+
 calcCapacity();
+loadLiveCard();
+setInterval(loadLiveCard, 60000);
 </script>
 </body>
 </html>"""

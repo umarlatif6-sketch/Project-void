@@ -43,7 +43,7 @@ from void_engine.pairing_bw19_286 import (
 logger = logging.getLogger(__name__)
 
 Z_LAYERS = 9999
-LAYER_OPACITY = 0.003
+LAYER_OPACITY = 0.012
 MAGIC = b"ZVOD"
 HEADER_SIZE = 48
 PARITY_BLOCK = 255
@@ -176,7 +176,8 @@ def _parse_header(header_bytes: bytes) -> Tuple[int, int, str]:
 
 def _generate_formation_image(formation_hash: str, width: int = DEFAULT_WIDTH,
                                height: int = DEFAULT_HEIGHT) -> Image.Image:
-    img = Image.new("RGBA", (width, height), (5, 5, 5, 255))
+    # Keep dark aesthetic, but avoid near-black cards that appear blank on load.
+    img = Image.new("RGBA", (width, height), (18, 16, 14, 255))
     pixels = np.array(img, dtype=np.float64)
 
     freq = 432.0 + (_hash_to_seed(formation_hash, 0) % 14800) / 100.0
@@ -207,15 +208,15 @@ def _generate_formation_image(formation_hash: str, width: int = DEFAULT_WIDTH,
         r0 = int(formation_hash[(z * 3) % len(formation_hash)], 16)
         g0 = int(formation_hash[(z * 3 + 1) % len(formation_hash)], 16)
         b0 = int(formation_hash[(z * 3 + 2) % len(formation_hash)], 16)
-        cr = 140 + r0 * 7
-        cg = 100 + g0 * 5
-        cb = 50 + b0 * 4
+        cr = 150 + r0 * 6
+        cg = 115 + g0 * 5
+        cb = 70 + b0 * 4
 
         val = (np.sin(n * nx_grid * np.pi + phase) * np.sin(m * ny_grid * np.pi + phase)
                + np.sin(m * nx_grid * np.pi + phase) * np.sin(n * ny_grid * np.pi + phase))
         abs_val = np.abs(val)
         mask = abs_val < 0.08
-        a = LAYER_OPACITY * (1 + abs_val * 3) * mask
+        a = LAYER_OPACITY * (1.2 + abs_val * 3.4) * mask
 
         for ci, cc in enumerate([cr, cg, cb]):
             region = pixels[margin_y:margin_y + region_h:step, margin_x:margin_x + region_w:step, ci]
