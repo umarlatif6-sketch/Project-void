@@ -1084,7 +1084,11 @@ _ENGLISH_TEMPLATES_BY_ROLE = {
 def _init_adriana_report_tables():
     """Ensure agent intelligence report tables and void_config table exist."""
     from void_engine.db_pool import get_db
-    conn = get_db()
+    try:
+        conn = get_db()
+    except Exception as e:
+        logger.warning("adriana_report_tables db unavailable: %s", e)
+        return
     try:
         cur = conn.cursor()
         cur.execute("""

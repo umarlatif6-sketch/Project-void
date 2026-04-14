@@ -44,7 +44,11 @@ def _startup_migrations():
         return
 
     from routes.auth import _ensure_columns
-    _ensure_columns()
+    try:
+        _ensure_columns()
+    except Exception as e:
+        logger.warning("Startup migrations skipped: auth schema bootstrap unavailable (%s)", e)
+        return
     try:
         from void_engine.blueprint_nft import seed_initial_collection
         seed_initial_collection()

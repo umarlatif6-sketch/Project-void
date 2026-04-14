@@ -17,7 +17,7 @@ Coverage:
 
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
@@ -103,7 +103,7 @@ class TestSendAgentMessageValidation:
     """Tests for send_agent_message input validation (no live DB required)."""
 
     def _send(self, plain_text, sender=1, recipient=2):
-        mock_conn, mock_cursor = _make_mock_conn([(999, datetime.utcnow())])
+        mock_conn, mock_cursor = _make_mock_conn([(999, datetime.now(timezone.utc))])
         with patch("void_engine.mesa_engine._init_message_tables"), \
              patch("void_engine.db_pool.get_db", return_value=mock_conn):
             return send_agent_message(sender, 10, recipient, 20, plain_text)

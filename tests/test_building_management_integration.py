@@ -8,7 +8,7 @@ data into formation cards, and verifying authenticity.
 
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List
 from void_engine.building_management import BuildingComplex, BuildingZone
 from void_engine.al_jabr_286 import fatiha_286_hexdigest
@@ -148,7 +148,7 @@ class BuildingSensorNetwork:
         
         for zone_id in self.sensors.keys():
             zone = self.complex.zones[zone_id]
-            timestamp = datetime.utcnow().isoformat()
+            timestamp = datetime.now(timezone.utc).isoformat()
             formation_hash = zone.derive_formation_hash(timestamp)
             card = zone.create_formation_card(
                 hvac_mode="cooling",
