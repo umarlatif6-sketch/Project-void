@@ -26,6 +26,11 @@ from void_engine.resonance_packet import (
     sign_packet_manifest,
     verify_packet_manifest,
 )
+from void_engine.lbn_runtime import (
+    extract_lbn_context,
+    lbn_validation_enabled,
+    validate_lbn_context,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +133,25 @@ def codex_packet_build():
     if isinstance(expires_at, str) and expires_at.strip():
         resonance["expires_at"] = expires_at.strip()
 
+    # Optional LBN context for runtime codon validation/audit enrichment.
+    lbn_ctx = extract_lbn_context(data, {})
+    if any(lbn_ctx.values()):
+        resonance["lbn"] = lbn_ctx
+
+    strict_lbn = lbn_validation_enabled()
+    lbn_status = validate_lbn_context(lbn_ctx, strict=strict_lbn)
+    if strict_lbn and not lbn_status.get("ok"):
+        _append_audit(
+            action="packet_build",
+            status="denied",
+            packet_id="unknown",
+            details={
+                "reason": lbn_status.get("reason"),
+                "lbn": lbn_status,
+            },
+        )
+        return jsonify({"ok": False, "error": "LBN validation failed", "details": lbn_status}), 403
+
     if not isinstance(payloads, list) or not payloads:
         return jsonify({"ok": False, "error": "Provide payloads[] with kind/path or kind/hex"}), 400
 
@@ -150,12 +174,14 @@ def codex_packet_build():
             details={
                 "payload_count": manifest.get("payload_count", 0),
                 "signed": bool(manifest.get("signature")),
+                "lbn": lbn_status,
             },
         )
         return jsonify({
             "ok": True,
             "manifest": manifest,
             "door_markdown": door,
+            "lbn": lbn_status,
         })
     except Exception as exc:
         logger.error("Codex packet build failed: %s", exc)
@@ -186,11 +212,26 @@ def codex_packet_resolve():
         sector = (request.headers.get("X-VOID-Sector") or request.args.get("sector") or "").strip().lower()
         strict_sector = (os.getenv("VOID_PACKET_REQUIRE_SECTOR_POLICY") or "false").strip().lower() == "true"
 
+        strict_lbn = lbn_validation_enabled()
+        lbn_ctx = extract_lbn_context(data, manifest)
+        lbn_status = validate_lbn_context(lbn_ctx, strict=strict_lbn)
+        if strict_lbn and not lbn_status.get("ok"):
+            _append_audit(
+                "packet_resolve",
+                "denied",
+                packet_id,
+                {
+                    "reason": lbn_status.get("reason"),
+                    "lbn": lbn_status,
+                },
+            )
+            return jsonify({"ok": False, "error": "LBN validation failed", "details": lbn_status}), 403
+
         # Replay protection: reject stale manifests.
         max_age_seconds = int((os.getenv("VOID_PACKET_MAX_AGE_SECONDS") or "86400").strip())
         freshness = check_manifest_freshness(manifest, max_age_seconds=max_age_seconds)
         if not freshness.get("ok"):
-            _append_audit("packet_resolve", "denied", packet_id, {"reason": freshness.get("reason")})
+            _append_audit("packet_resolve", "denied", packet_id, {"reason": freshness.get("reason"), "lbn": lbn_status})
             return jsonify({"ok": False, "error": "Manifest freshness check failed", "details": freshness}), 403
 
         # Signature verification when keyring is configured.
@@ -198,16 +239,16 @@ def codex_packet_resolve():
         if verify_keys:
             sig_status = verify_packet_manifest(manifest, public_keys=verify_keys)
             if not sig_status.get("ok"):
-                _append_audit("packet_resolve", "denied", packet_id, {"reason": sig_status.get("reason")})
+                _append_audit("packet_resolve", "denied", packet_id, {"reason": sig_status.get("reason"), "lbn": lbn_status})
                 return jsonify({"ok": False, "error": "Manifest signature verification failed", "details": sig_status}), 403
 
         # Sector authorization policy.
         sector_status = is_sector_authorized(manifest, sector)
         if strict_sector and sector_status.get("reason") == "open_policy":
-            _append_audit("packet_resolve", "denied", packet_id, {"reason": "missing_sector_policy"})
+            _append_audit("packet_resolve", "denied", packet_id, {"reason": "missing_sector_policy", "lbn": lbn_status})
             return jsonify({"ok": False, "error": "Sector policy required but missing"}), 403
         if not sector_status.get("ok"):
-            _append_audit("packet_resolve", "denied", packet_id, {"reason": sector_status.get("reason")})
+            _append_audit("packet_resolve", "denied", packet_id, {"reason": sector_status.get("reason"), "lbn": lbn_status})
             return jsonify({"ok": False, "error": "Sector unauthorized", "details": sector_status}), 403
 
         resolved = resolve_packet_paths(manifest)
@@ -219,12 +260,14 @@ def codex_packet_resolve():
                 "sector": sector,
                 "resolved_count": len(resolved),
                 "freshness_age_seconds": freshness.get("age_seconds"),
+                "lbn": lbn_status,
             },
         )
         return jsonify({"ok": True, "resolved": resolved, "count": len(resolved), "security": {
             "freshness": freshness,
             "sector": sector_status,
             "signature_verified": bool(verify_keys),
+            "lbn": lbn_status,
         }})
     except Exception as exc:
         logger.error("Codex packet resolve failed: %s", exc)

@@ -1701,3 +1701,19 @@ This preserves the structural boundary exactly as required. Linguistic codons ar
 What moved here was velocity discipline. The platform now has a repeatable path to run language-pair selection, generate deployment packs, and lock operational pair state inside one continuous execution lane. This closes the gap between ideation and runnable multi-agent protocol.
 
 **Forward Thread:** Next session can wire the project payload map directly into live resolver and audit surfaces so codon aliases appear in operational telemetry by default, with traffic-split rollback between primary and fallback pairs controlled by one switch.
+
+---
+
+## SESSION — April 14, 2026 — Live Pair Switch, Validator Gate, Audit Enrichment
+
+This session completed the hardening layer that was still implied but not yet wired into runtime. The codex system could already generate ranked language packs and payload maps; this pass moved that output into enforceable packet behaviour.
+
+A dedicated runtime helper was introduced to load the active payload map, select mode and route via environment switch, parse LBN context from packet requests, and validate codon/function alignment against the currently active pair map. The resolver path now supports explicit live controls for project versus standalone mode and primary versus fallback route without structural edits. The pair lock can be flipped at runtime.
+
+The critical boundary condition was preserved: codex language remains routing ontology, not cryptographic substitute. When LBN validation is enabled, unknown codons or mismatched function/codon pairs fail closed at packet build/resolve. Signature, freshness, and sector policy checks remain unchanged and still gate packet acceptance at the cryptographic boundary.
+
+Audit trails were strengthened in the same move. Packet audit events now carry LBN validation context, including active pair metadata, selected route, canonical alias references, and mismatch reasons where relevant. This gives operators both the codex lens and canonical engineering trace in one event stream.
+
+What changed here is operational control density. The system can now select pair maps, enforce codon contracts, flip routes, and emit enriched forensic context from one runtime surface, which is the exact control profile required for rapid lane execution under live conditions.
+
+**Forward Thread:** Next session can expose a tiny admin/runtime status endpoint for LBN mode/route/validation state so operators can verify active lock and fallback posture instantly before traffic changes.

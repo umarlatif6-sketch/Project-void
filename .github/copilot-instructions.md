@@ -49,6 +49,13 @@ Three-hour runtime artifacts:
 
 If these files exist, treat them as the active codon routing reference for agent/hub communication.
 
+Live runtime switches:
+
+- `VOID_LBN_MODE=project|standalone`
+- `VOID_LBN_ACTIVE_ROUTE=primary|fallback`
+- `VOID_LBN_VALIDATE=true|false`
+- `VOID_LBN_PAYLOAD_PATH=/absolute/path/to/override.json`
+
 ## Response Style
 
 - Preserve the Project VOID naming language.

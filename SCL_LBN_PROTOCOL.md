@@ -91,6 +91,15 @@ Execution window (three-hour lane):
 3. Verify fail-closed behaviour remains intact for signatures/freshness/sector policy.
 4. Run traffic split and lock final production pair.
 
+Environment switches for live runtime control:
+
+- `VOID_LBN_MODE=project|standalone` (default: `project`)
+- `VOID_LBN_ACTIVE_ROUTE=primary|fallback` (default: `primary`)
+- `VOID_LBN_VALIDATE=true|false` (default: `false`)
+- `VOID_LBN_PAYLOAD_PATH=/absolute/path/to/payload.json` (optional override)
+
+When `VOID_LBN_VALIDATE=true`, packet build/resolve will fail closed on unknown or mismatched LBN codons against the active payload map.
+
 ## Example Audit Framing
 
 ```text
