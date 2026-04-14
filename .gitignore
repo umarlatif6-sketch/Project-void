@@ -113,3 +113,29 @@ data/void_dev.db
 data/void_dev.db-journal
 openclaw/
 output_audio/locus/
+
+# Proprietary operating data — keep local unless explicitly curated for release
+exports/
+inquiries/
+uploads/
+input_files/
+data/vm_passphrases.json
+data/*.checkpoint.json
+data/*.story.checkpoint.json
+data/*.public.checkpoint.json
+data/*_ecosystem.jsonl
+data/*_template.jsonl
+data/integration_web.json
+data/resonance_weaver_baseline.json
+data/next_steps_execution_pack.json
+data/open_mesh_observation_memo.json
+data/project_void_cost_positioning.json
+
+# Generated intelligence reports — derived from proprietary data
+docs/AUTOPILOT_CYCLE_SUMMARY.md
+docs/INTEGRATION_WEB_REPORT.md
+docs/RESONANCE_WEAVER_BASELINE.md
+docs/STORY_WORLD_CHRONICLE*.md
+docs/PUBLIC_SOURCE_*_CHRONICLE.md
+docs/STORY_WORLD_WEEKLY_SUMMARY.md
+docs/TEAM_SYSTEM_STATE_CARD*.md
