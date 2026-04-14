@@ -140,6 +140,9 @@ Optional but recommended for extended features:
 - `OPENAI_API_KEY`
 - `STRIPE_API_KEY`
 - `STRIPE_WEBHOOK_SECRET`
+- `TTS_PROVIDER` (`auto`, `openai`, `elevenlabs`, `elevenlabs_oss`)
+- `ELEVENLABS_BASE_URL` (supports self-hosted/open-source compatible endpoints)
+- `TTS_ELEVENLABS_VOICE` (default voice id for ElevenLabs-compatible providers)
 
 3. Start the app locally:
 
@@ -217,6 +220,8 @@ Optional but recommended for full functionality:
 - `AI_INTEGRATIONS_OPENAI_API_KEY`: For AI codon generation
 - `STRIPE_API_KEY`: For payment processing
 - `ELEVENLABS_API_KEY`: For voice synthesis
+- `TTS_PROVIDER`: Unified TTS backend selector (`auto`, `openai`, `elevenlabs`, `elevenlabs_oss`)
+- `ELEVENLABS_BASE_URL`: Base URL for ElevenLabs-compatible servers (cloud or self-hosted)
 
 ### Production Deployment
 

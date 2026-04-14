@@ -421,33 +421,9 @@ def _get_segment_path(slug: str) -> str:
 
 
 def _tts_to_mp3_bytes(text: str) -> bytes:
-    from openai import OpenAI
-    client = OpenAI()
-    words = text.split()
-    chunks = []
-    current = []
-    current_len = 0
-    for word in words:
-        word_len = len(word) + 1
-        if current_len + word_len > 4000:
-            chunks.append(" ".join(current))
-            current = [word]
-            current_len = len(word)
-        else:
-            current.append(word)
-            current_len += word_len
-    if current:
-        chunks.append(" ".join(current))
-    audio_bytes = b""
-    for chunk in chunks:
-        response = client.audio.speech.create(
-            model="tts-1",
-            voice="fable",
-            input=chunk,
-            response_format="mp3",
-        )
-        audio_bytes += response.content
-    return audio_bytes
+    from void_engine.tts_provider import synthesize_long_text_mp3
+
+    return synthesize_long_text_mp3(text, voice="fable")
 
 
 def _mp3_to_wav_16bit(mp3_bytes: bytes, wav_path: str):

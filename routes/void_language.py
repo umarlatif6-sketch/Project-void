@@ -238,3 +238,31 @@ def get_languages():
         "languages": SUPPORTED_LANGUAGES,
         "current": current,
     })
+
+
+@void_language_bp.route("/api/tts/health")
+def tts_health():
+    """
+    Inspect current unified TTS configuration.
+
+    Query params:
+      - probe=1  -> run a live synthesis probe
+      - voice=<voice_id_or_name> -> override voice for probe
+      - provider=<auto|openai|elevenlabs|elevenlabs_oss> -> provider override
+    """
+    provider = request.args.get("provider", "").strip() or None
+    voice = request.args.get("voice", "").strip() or None
+    do_probe = request.args.get("probe", "0").strip() in {"1", "true", "yes"}
+
+    from void_engine.tts_provider import get_tts_runtime_info, run_tts_probe
+
+    info = get_tts_runtime_info(provider=provider)
+    payload = {"ok": True, "tts": info}
+
+    if do_probe:
+        payload["probe"] = run_tts_probe(provider=provider, voice=voice)
+        if not payload["probe"].get("ok"):
+            payload["ok"] = False
+            return jsonify(payload), 503
+
+    return jsonify(payload)

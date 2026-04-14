@@ -377,7 +377,7 @@ Text to translate:
 
 def text_to_speech(text: str, language: str = "en") -> bytes:
     """
-    Convert text to speech using OpenAI TTS.
+    Convert text to speech using the configured unified TTS provider.
     Returns the audio bytes (MP3).
     """
     LANGUAGE_VOICE_MAP = {
@@ -403,15 +403,10 @@ def text_to_speech(text: str, language: str = "en") -> bytes:
     voice, _ = LANGUAGE_VOICE_MAP.get(lang_key, ("alloy", "en"))
 
     try:
-        client = _get_openai_client()
         safe_text = text[:4000]
+        from void_engine.tts_provider import synthesize_long_text_mp3
 
-        response = client.audio.speech.create(
-            model="tts-1",
-            voice=voice,
-            input=safe_text,
-        )
-        return response.content
+        return synthesize_long_text_mp3(safe_text, voice=voice)
     except Exception as e:
         logger.error("TTS failed for language '%s': %s", language, e)
         raise

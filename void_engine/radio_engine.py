@@ -3,7 +3,7 @@ VOID Radio Engine — Podcast Audio Layer
 
 Generates two-host podcast episodes from Chronicle entries using:
   - OpenAI for conversational script generation (NotebookLM pattern)
-  - ElevenLabs multilingual_v2 for per-line TTS rendering
+    - Unified TTS provider for per-line rendering (OpenAI or ElevenLabs-compatible)
   - pydub for audio concatenation with 350ms gaps
   - ffmpeg for loudness normalisation to -16 LUFS
   - audio_stega.encode_message for steganographic VoidEcho encoding
@@ -17,7 +17,6 @@ import os
 import json
 import logging
 import subprocess
-import tempfile
 import time
 from pathlib import Path
 from typing import List, Dict
@@ -31,8 +30,6 @@ VOICE_GEORGE = "JBFqnCBsd6RMkjVDRZzb"
 VOICE_RACHEL = "21m00Tcm4TlvDq8ikWAM"
 GAP_MS = 350
 
-ELEVENLABS_TTS_URL = "https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-
 
 def _get_openai_client():
     from openai import OpenAI
@@ -41,13 +38,6 @@ def _get_openai_client():
     if base_url:
         return OpenAI(api_key=api_key, base_url=base_url)
     return OpenAI(api_key=api_key)
-
-
-def _get_elevenlabs_key() -> str:
-    key = os.environ.get("ELEVENLABS_API_KEY", "")
-    if not key:
-        raise RuntimeError("ELEVENLABS_API_KEY is not set")
-    return key
 
 
 def generate_script(entries: List[Dict], episode_title: str) -> List[Dict]:
@@ -122,48 +112,25 @@ No stage directions, no markdown. Pure JSON array."""
     return script
 
 
-def _render_line_elevenlabs(text: str, voice_id: str, api_key: str) -> bytes:
+def _render_line_tts(text: str, voice_id: str) -> bytes:
     """
-    Render a single line of text via ElevenLabs TTS (multilingual_v2).
+    Render a single line of text via the configured TTS provider.
     Returns MP3 bytes.
     """
-    import urllib.request
-    url = ELEVENLABS_TTS_URL.format(voice_id=voice_id)
-    payload = json.dumps({
-        "text": text,
-        "model_id": "eleven_multilingual_v2",
-        "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.8,
-            "style": 0.0,
-            "use_speaker_boost": True,
-        }
-    }).encode("utf-8")
+    from void_engine.tts_provider import synthesize_mp3
 
-    req = urllib.request.Request(
-        url,
-        data=payload,
-        headers={
-            "xi-api-key": api_key,
-            "Content-Type": "application/json",
-            "Accept": "audio/mpeg",
-        },
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return resp.read()
+    return synthesize_mp3(text, voice=voice_id)
 
 
 def render_audio(script: List[Dict], episode_slug: str) -> Path:
     """
-    Render each script line via ElevenLabs, concatenate with 350ms gaps,
+    Render each script line via the configured TTS provider, concatenate with 350ms gaps,
     normalise to -16 LUFS via ffmpeg, and save as episode.mp3.
 
     Returns path to the normalised episode.mp3.
     """
     from pydub import AudioSegment
 
-    api_key = _get_elevenlabs_key()
     gap = AudioSegment.silent(duration=GAP_MS)
     segments = []
 
@@ -180,7 +147,7 @@ def render_audio(script: List[Dict], episode_slug: str) -> Path:
 
         for attempt in range(3):
             try:
-                mp3_bytes = _render_line_elevenlabs(text, voice_id, api_key)
+                mp3_bytes = _render_line_tts(text, voice_id)
                 seg = AudioSegment.from_file(io.BytesIO(mp3_bytes), format="mp3")
                 segments.append(seg)
                 segments.append(gap)
@@ -289,7 +256,7 @@ def seed_radio_brief_into_chronicle() -> None:
         body = (
             "VOID Radio is a two-host podcast generation and broadcast layer within PROJECT VOID.\n\n"
             "The system produces conversational episodes from Chronicle chapters using two AI voices — "
-            "George (Explainer) and Rachel (Questioner) — rendered through ElevenLabs multilingual_v2 TTS.\n\n"
+            "George (Explainer) and Rachel (Questioner) — rendered through the configured unified TTS backend.\n\n"
             "Each episode follows the NotebookLM broadcast pattern:\n"
             "  Cold open → Setup → 3-5 thematic segments → Takeaways → Outro\n\n"
             "Audio is concatenated with 350ms gaps between turns, then loudness-normalised to -16 LUFS "
@@ -300,6 +267,7 @@ def seed_radio_brief_into_chronicle() -> None:
             "Medium is the message. The story IS the signal.\n\n"
             "Route: /radio\n"
             "Voices: George (JBFqnCBsd6RMkjVDRZzb) / Rachel (21m00Tcm4TlvDq8ikWAM)\n"
+            "TTS Backend: TTS_PROVIDER (OpenAI or ElevenLabs-compatible)\n"
             "Carrier: VoidEcho 432 Hz spectrogram\n"
             "HEX_DIGEST: RADIO_BRIEF_0x432_BROADCAST"
         )
