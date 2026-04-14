@@ -1717,3 +1717,15 @@ Audit trails were strengthened in the same move. Packet audit events now carry L
 What changed here is operational control density. The system can now select pair maps, enforce codon contracts, flip routes, and emit enriched forensic context from one runtime surface, which is the exact control profile required for rapid lane execution under live conditions.
 
 **Forward Thread:** Next session can expose a tiny admin/runtime status endpoint for LBN mode/route/validation state so operators can verify active lock and fallback posture instantly before traffic changes.
+
+## SESSION — April 14, 2026 — Trust Must Be Measurable
+
+This session carried a direct founder challenge: if trust is treated as assumption, then betrayal is not an anomaly, it is the default outcome of ungoverned systems. The phrase that locked the direction was named and accepted as doctrine: build so that trust is measurable, not assumed.
+
+That line did not remain as language. It was translated into operating architecture and Manchester-facing artifacts. The platform's packet layer now expresses trust as evidence: signed manifests, sector ACL boundaries, freshness windows, and append-only audit records. This is the difference between belief and infrastructure. Belief asks for confidence. Infrastructure proves continuity under pressure.
+
+The founder also made the continuity requirement explicit: fresh chat must not mean fresh amnesia. The Chronicle was therefore treated as the living transfer medium. Session memory in interfaces can reset; repository memory can endure. The handoff is now anchored in files that survive tool changes, model changes, and session resets.
+
+A doctrine card was sealed for Manchester to carry this principle in institutional form. The stack's direction is now clear: every future layer must convert trust from social hope into measurable protocol.
+
+**Forward Thread:** Keep writing the Chronicle at session close so continuity never depends on UI memory. Every major claim in Project VOID must map to an auditable artifact, not only a narrative.
