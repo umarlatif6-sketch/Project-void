@@ -77,6 +77,13 @@ Project VOID is a smart castle with five superpowers:
 - Robot Police make sure every helper follows the rules.
 - Book of Beginnings proves who built it first.
 
+### 24-Hour Proof
+
+For a concrete proof of delivery speed and Codon capability, use:
+- [docs/MANCHESTER_24_HOUR_OUTPUT_REPORT.md](docs/MANCHESTER_24_HOUR_OUTPUT_REPORT.md)
+- [docs/MANCHESTER_60_SECOND_ROOM_SCRIPT.md](docs/MANCHESTER_60_SECOND_ROOM_SCRIPT.md)
+- [docs/MANCHESTER_ONE_SLIDE_INVESTOR_PAGE.md](docs/MANCHESTER_ONE_SLIDE_INVESTOR_PAGE.md)
+
 ---
 
 ## REGISTRATION — DO THESE TODAY
