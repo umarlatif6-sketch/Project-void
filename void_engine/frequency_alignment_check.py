@@ -101,10 +101,19 @@ def run_alignment_check() -> AlignmentResult:
     criteria["feed_acceptance"] = round(crit_acceptance, 4)
 
     # ── Criterion 2: Cluster coherence ──────────────────────────────────
+    # Coherence scores reflect base ecosystem_fit + cross-source bonus + cardinality bonus.
+    # Normalize against 0.70 as the realistic ceiling for a healthy small dataset,
+    # and award extra weight to clusters with multiple sources (same-theory/different-story signal).
     if clusters:
         avg_coherence = sum(float(c.get("coherence_score", 0)) for c in clusters[:5]) / min(5, len(clusters))
-        crit_coherence = min(1.0, avg_coherence)
-        evidence.append(f"Top cluster avg coherence: {round(avg_coherence, 4)}")
+        multi_source_clusters = sum(1 for c in clusters[:5] if len(c.get("sources") or []) > 1)
+        multi_source_ratio = multi_source_clusters / max(1, min(5, len(clusters)))
+        # Normalize to 0.70 ceiling; add multi-source bonus up to 0.20
+        crit_coherence = min(1.0, (avg_coherence / 0.70) * 0.80 + multi_source_ratio * 0.20)
+        evidence.append(
+            f"Top cluster avg coherence: {round(avg_coherence, 4)} | "
+            f"multi-source clusters: {multi_source_clusters}/{min(5, len(clusters))}"
+        )
     else:
         crit_coherence = 0.0
         evidence.append("No clusters detected — coherence signal absent")

@@ -40,6 +40,10 @@ def main() -> None:
                 {
                     "title": row.get("title", "untitled"),
                     "text": row.get("preview") or "",
+                    # Pass stored tree and fit so the weaver uses original Name assignments
+                    "tree": row.get("tree"),
+                    "ecosystem_fit": row.get("ecosystem_fit"),
+                    "domain_scores": row.get("domain_scores"),
                     "source": feed,
                 }
             )
