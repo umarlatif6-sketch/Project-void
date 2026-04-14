@@ -109,11 +109,15 @@ if ensure_input_or_skip "data/public_source_minicpm_template.jsonl" "public-sour
     --title "Public Source Chronicle"
 fi
 
-# 4) Unified markdown summary (single glance)
+# 4) Unified markdown summary (single glance) + hexadecimal packet door
 python3 - <<'PY'
 import json
 from collections import defaultdict
 from pathlib import Path
+import sys
+
+sys.path.insert(0, '.')
+from void_engine.resonance_packet import build_packet_manifest, build_markdown_door
 
 inputs = [
     ("story_world", Path("data/story_world_ecosystem.jsonl")),
@@ -175,8 +179,63 @@ out.append("")
 out.append("- Open /knowledge-tree and use Signals Navigator with source=All signal feeds.")
 out.append("- Filter by perspective to extract forward scenarios quickly.")
 
-Path("docs/AUTOPILOT_CYCLE_SUMMARY.md").write_text("\n".join(out), encoding="utf-8")
-print("WROTE docs/AUTOPILOT_CYCLE_SUMMARY.md")
+markdown_text = "\n".join(out)
+
+# Build packet manifest with all generated payloads
+payloads = []
+payload_paths = [
+    ("text", "docs/STORY_WORLD_CHRONICLE.md"),
+    ("text", "docs/PUBLIC_SOURCE_VOXCPM_CHRONICLE.md"),
+    ("text", "docs/PUBLIC_SOURCE_MINICPM_CHRONICLE.md"),
+    ("text", "data/story_world_ecosystem.jsonl"),
+    ("text", "data/public_source_voxcpm_ecosystem.jsonl"),
+    ("text", "data/public_source_minicpm_ecosystem.jsonl"),
+    ("text", "docs/INTEGRATION_WEB_MANIFEST.md"),
+    ("text", "docs/RESONANCE_WEAVER_BASELINE.md"),
+    ("text", "docs/TEAM_STATE_CARD.md"),
+]
+
+for kind, path_str in payload_paths:
+    p = Path(path_str)
+    if p.exists():
+        payloads.append({
+            "kind": kind,
+            "path": path_str,
+            "size_bytes": p.stat().st_size,
+            "description": f"Autopilot cycle: {p.name}"
+        })
+
+resonance_info = {
+    "entries": len(rows),
+    "clusters": len(ordered),
+    "timestamp": __import__('datetime').datetime.now(tz=__import__('datetime').timezone.utc).isoformat()
+}
+
+manifest = build_packet_manifest(
+    title="AUTOPILOT_CYCLE_MANIFEST",
+    markdown=markdown_text,
+    payloads=payloads,
+    resonance=resonance_info,
+    codec_version="RPK1"
+)
+
+# Generate markdown door embedding manifest as JSON comment
+door_markdown = build_markdown_door(manifest, heading="## Packet Door Index")
+
+# Prepend door to summary markdown
+final_markdown = door_markdown + "\n\n" + markdown_text
+
+# Write summary with embedded door
+Path("docs/AUTOPILOT_CYCLE_SUMMARY.md").write_text(final_markdown, encoding="utf-8")
+
+# Write manifest as separate JSON file for machine access
+manifest_path = Path("docs/AUTOPILOT_CYCLE_MANIFEST.json")
+manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+print("WROTE docs/AUTOPILOT_CYCLE_SUMMARY.md (with embedded packet door)")
+print("WROTE docs/AUTOPILOT_CYCLE_MANIFEST.json")
+print("MANIFEST_ID=" + manifest.get("packet_id", "unknown"))
+print("PAYLOAD_COUNT=" + str(len(manifest.get("payload_hexes", []))))
 print("ROWS", len(rows))
 PY
 
