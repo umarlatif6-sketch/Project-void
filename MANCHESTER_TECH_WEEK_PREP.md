@@ -15,6 +15,70 @@ This is the right room.
 
 ---
 
+## ONE-PAGE EXECUTIVE SUMMARY (MANCHESTER HANDOUT)
+
+### PROJECT VOID: THE SOVEREIGN INTELLIGENCE STACK
+
+Founder: Umar L.  
+Phase: Manchester Launch 2026  
+Focus: Sovereign AI, Autonomous Governance, Acoustic Steganography
+
+### The Problem: The AI Complexity Tax
+
+Enterprise AI is hitting a hard limit. Token spend rises with complexity, privacy collapses in centralized cloud systems, and model drift degrades institutional memory over time. Most systems optimize for speed, not sovereignty.
+
+### The Solution: A Fail-Closed Sovereign Stack
+
+Project VOID is a decentralized intelligence architecture designed for integrity, resilience, and cost control. It combines cognitive compression, cryptographic provenance, signed inter-agent manifests, and off-grid transmission methods into one operating stack that can run without cloud dependency.
+
+### Five Institutional-Grade IP Clusters
+
+1. Al-Jabr Protocol (Computational Mathematics)
+- Draft: Frequency-aligned cryptographic framework using BW19-P286 curve logic and deterministic packet anchoring.
+- Moat: Structural resonance integrity for packet continuity and origin protection.
+- Market value: Cybersecurity, AI governance, regulated infrastructure.
+
+2. SCL: Cognitive Compression Language (Human-Machine Interface)
+- Draft: Codon-based semantic compression layer (Entity, Condition, Action primitives).
+- Moat: Language-as-infrastructure that reduces token overhead and execution drift in multi-agent operations.
+- Market value: Enterprise AI efficiency, edge inference, autonomous operations.
+
+3. VoidEcho Biological Steganography (Transmission Security)
+- Draft: Encrypted payload embedding in natural acoustic carriers via LSB-shift and recursive phase alignment.
+- Moat: Dark-mesh communication substrate hidden beneath standard network detection surfaces.
+- Market value: Defense, private communications, sovereign networking.
+
+4. MESA Swarm Architecture (Autonomous Governance)
+- Draft: Decentralized orchestration with sector ACL enforcement, Ed25519 packet validation, replay windows, and local audit logs.
+- Moat: Trust-minimized autonomy that remains operational under central-service failure.
+- Market value: Smart infrastructure, autonomous robotics, financial automation.
+
+5. The Chronicle Temporal Ledger (Data Provenance)
+- Draft: Append-only provenance ledger tracking genesis-to-live system evolution and artifact lineage.
+- Moat: Proof-of-origin and historical continuity that strengthens ownership and defensibility.
+- Market value: Legal-tech, compliance archives, IP defense.
+
+### Manchester 2026 Strategic Objectives
+
+- Incorporation: Launch PROJECT VOID LTD as UK entity.
+- Demonstration: Live document-to-audio-to-data decode in under 45 seconds.
+- Integration: Position GriDul and packet-door stack for local industrial and cybersecurity pilots.
+
+### Closing Line
+
+We do not just build AI agents. We build the sovereign frequency that protects agent memory, communication, and origin.
+
+### Child Version (30-Second Story)
+
+Project VOID is a smart castle with five superpowers:
+- Magic Math keeps everything safe.
+- Short-Talk Language helps robots think faster and cheaper.
+- Secret Song hides messages in nature sounds.
+- Robot Police make sure every helper follows the rules.
+- Book of Beginnings proves who built it first.
+
+---
+
 ## REGISTRATION — DO THESE TODAY
 
 ### 1. DTX Manchester (Main Floor) — FREE

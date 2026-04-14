@@ -4,6 +4,9 @@
   Total files: 67
 ══════════════════════════════════════════════════════════════════════
 
+FIRST PARAGRAPH — MANCHESTER 2026 EXECUTIVE POSITION
+Project VOID is a fail-closed sovereign intelligence stack built to reduce AI operating cost, preserve data integrity, and protect communication origin across decentralized agents. It combines Al-Jabr cryptographic anchoring, cognitive compression codons, biological steganographic transmission, sector-governed swarm orchestration, and append-only chronicle provenance into one venture-ready architecture for institutional deployment.
+
 ══════════════════════════════════════════════════════════════════════
 FILE: main.py
 ══════════════════════════════════════════════════════════════════════
