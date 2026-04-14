@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project VOID | Public Demo Hub</title>
+  <style>
+    :root {
+      --bg: #f6f2e8;
+      --card: #fffaf0;
+      --ink: #1b1b1b;
+      --muted: #5f5b52;
+      --accent: #1a5d48;
+      --line: #ded2b9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(26, 93, 72, 0.15), transparent 35%),
+        radial-gradient(circle at 90% 85%, rgba(155, 96, 42, 0.14), transparent 30%),
+        var(--bg);
+    }
+    .wrap {
+      width: min(980px, calc(100vw - 28px));
+      margin: 24px auto;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: 0 20px 60px rgba(24, 20, 10, 0.12);
+      padding: 28px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+    }
+    .sub {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.45;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      padding: 14px;
+      background: #fffdf7;
+    }
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .card p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    a:hover { text-decoration: underline; }
+    .footer {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .wrap { margin: 12px auto; padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Project VOID Public Demo Hub</h1>
+    <p class="sub">
+      Public, no-domain view of the Manchester materials and pitch assets.
+      Use this page as the stable link for attendees and partners.
+    </p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>One-Slide Handout</h2>
+        <p>Visual one-page handout for room conversations.</p>
+        <a href="MANCHESTER_ONE_SLIDE_HANDOUT.html">Open handout</a>
+      </article>
+
+      <article class="card">
+        <h2>24-Hour Output Report</h2>
+        <p>Execution proof and institutional-equivalent framing.</p>
+        <a href="MANCHESTER_24_HOUR_OUTPUT_REPORT.md">Open report</a>
+      </article>
+
+      <article class="card">
+        <h2>60-Second Room Script</h2>
+        <p>Spoken version for fast positioning in live conversations.</p>
+        <a href="MANCHESTER_60_SECOND_ROOM_SCRIPT.md">Open script</a>
+      </article>
+
+      <article class="card">
+        <h2>Cybersecurity Wedge</h2>
+        <p>Primary entry strategy and buyer framing.</p>
+        <a href="MANCHESTER_CYBERSECURITY_WEDGE.md">Open wedge brief</a>
+      </article>
+
+      <article class="card">
+        <h2>Demo Runbook</h2>
+        <p>Step-by-step live flow for reliable room execution.</p>
+        <a href="MANCHESTER_DEMO_RUNBOOK.md">Open runbook</a>
+      </article>
+
+      <article class="card">
+        <h2>Buyer Opening Lines</h2>
+        <p>Opening lines by audience type and sector.</p>
+        <a href="MANCHESTER_BUYER_OPENING_LINES.md">Open lines</a>
+      </article>
+    </section>
+
+    <p class="footer">
+      Project VOID | Manchester Launch 2026
+    </p>
+  </main>
+</body>
+</html>
