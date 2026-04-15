@@ -17,6 +17,24 @@ jobs:
       - name: Checkout World State
         uses: actions/checkout@v4
 
+      - name: Enforce Scoped Input Surface
+        shell: bash
+        run: |
+          # Fail closed if this push touched files outside the approved signal surface.
+          allowed_regex='^(HEAR_ME\.txt|\.void-protocol\.json)$'
+          changed_files=$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA")
+
+          echo "Changed files in trigger commit:"
+          echo "$changed_files"
+
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            if ! [[ "$f" =~ $allowed_regex ]]; then
+              echo "Blocked: out-of-scope trigger file detected -> $f"
+              exit 1
+            fi
+          done <<< "$changed_files"
+
       - name: Detect Signal
         id: detect
         shell: bash
@@ -90,6 +108,17 @@ jobs:
             echo "Impulse Packet:"
             cat AGENT_PACKET.txt
           } > AGENT_LOG.md
+
+          # Fail closed if any modified file is outside the approved output surface.
+          allowed_outputs_regex='^(AGENT_LOG\.md|AGENT_PACKET\.txt|AGENT_PACKET_DECODING\.json)$'
+          modified_files=$(git status --porcelain | awk '{print $2}')
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            if ! [[ "$f" =~ $allowed_outputs_regex ]]; then
+              echo "Blocked: out-of-scope output modification detected -> $f"
+              exit 1
+            fi
+          done <<< "$modified_files"
 
           git add AGENT_LOG.md AGENT_PACKET.txt AGENT_PACKET_DECODING.json
           git commit -m "Reaper-01: Signal received" || echo "No file changes to commit"
