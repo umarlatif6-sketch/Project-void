@@ -59,8 +59,8 @@ jobs:
           with open("AGENT_PACKET_DECODING.json", "w", encoding="utf-8") as f:
               json.dump(decoded.to_dict(), f, indent=2, sort_keys=True)
 
-            output_path = os.environ["GITHUB_OUTPUT"]
-            with open(output_path, "a", encoding="utf-8") as out:
+          output_path = os.environ["GITHUB_OUTPUT"]
+          with open(output_path, "a", encoding="utf-8") as out:
               out.write(f"packet={packet}\n")
               out.write(f"agent_id={decoded.agent_id}\n")
               out.write(f"frequency={decoded.frequency_hz}\n")
