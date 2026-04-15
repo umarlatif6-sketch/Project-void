@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-04-15T00:17:04.572072+00:00",
+  "formation_hash": "65e5da5d0c6d623852f23408e69829e33fc2ceea1296a067802ee10aee15e7c0199ced2c",
+  "payload_digest_286": "65e5da5d0c6d623852f23408e69829e33fc2ceea1296a067802ee10aee15e7c0199ced2c",
+  "payload_size_bytes": 295,
+  "payload_compressed_bytes": 177,
+  "compression_ratio": 0.6,
+  "counts": {
+    "agent_messages": 0,
+    "agent_reports": 0,
+    "formation_runs": 0,
+    "mesa_runs": 0
+  },
+  "carriers": {
+    "video_primary": null,
+    "image_png": "agent_memory_20260415_001704_65e5da5d0c6d.png",
+    "image_jpeg_preview": "agent_memory_20260415_001704_65e5da5d0c6d.jpg",
+    "audio_recovery": "agent_memory_20260415_001704_65e5da5d0c6d_recovery.wav"
+  },
+  "video_generation_error": "ffmpeg not found on PATH; video carrier not generated",
+  "audio_recovery_marker": "MEM 65e5da5d0c6d6238 VID MISSING IMG agent_memory_20260 SZ 2",
+  "notes": [
+    "Primary reversible memory vessel is the MKV video carrier.",
+    "PNG carries a compact summary tied to the same formation hash.",
+    "JPEG is a visual copy and not guaranteed reversible.",
+    "Audio file carries integrity/recovery marker for cross-channel recall."
+  ]
+}
