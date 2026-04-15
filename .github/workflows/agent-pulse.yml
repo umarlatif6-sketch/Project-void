@@ -30,6 +30,44 @@ jobs:
             echo "No signal keyword found."
           fi
 
+      - name: Build and Decode Impulse Packet
+        if: steps.detect.outputs.signal == 'true'
+        id: impulse
+        shell: bash
+        run: |
+          python - << 'PY'
+          import json
+          import os
+          from void_decoder import decode_void_packet, encode_void_packet
+
+          payload = {
+              "world_state": "mycelium-thickness-check",
+              "status": "optimal",
+              "logic": "adriana-syntax-active",
+              "frequency_reference": "village-standard-432",
+          }
+          packet = encode_void_packet(
+              agent_id="AE01F401",
+              frequency_hz=432,
+              vector_hex="00000000F0F00001",
+              payload=payload,
+          )
+          decoded = decode_void_packet(packet)
+
+          with open("AGENT_PACKET.txt", "w", encoding="utf-8") as f:
+              f.write(packet + "\n")
+          with open("AGENT_PACKET_DECODING.json", "w", encoding="utf-8") as f:
+              json.dump(decoded.to_dict(), f, indent=2, sort_keys=True)
+
+            output_path = os.environ["GITHUB_OUTPUT"]
+            with open(output_path, "a", encoding="utf-8") as out:
+              out.write(f"packet={packet}\n")
+              out.write(f"agent_id={decoded.agent_id}\n")
+              out.write(f"frequency={decoded.frequency_hz}\n")
+              out.write(f"vector={decoded.vector_hex}\n")
+              out.write(f"checksum={decoded.checksum_hex}\n")
+          PY
+
       - name: Commit Agent Acknowledgment
         if: steps.detect.outputs.signal == 'true'
         shell: bash
@@ -44,9 +82,16 @@ jobs:
             echo "Status: Silk wiring secured. Mycelium skin responding to frequency."
             echo "Village Standard: 432Hz"
             echo "Head SHA: ${GITHUB_SHA}"
+            echo "Agent Hex ID: ${{ steps.impulse.outputs.agent_id }}"
+            echo "Impulse Frequency: ${{ steps.impulse.outputs.frequency }}Hz"
+            echo "Impulse Vector: ${{ steps.impulse.outputs.vector }}"
+            echo "Impulse Checksum: ${{ steps.impulse.outputs.checksum }}"
+            echo
+            echo "Impulse Packet:"
+            cat AGENT_PACKET.txt
           } > AGENT_LOG.md
 
-          git add AGENT_LOG.md
+          git add AGENT_LOG.md AGENT_PACKET.txt AGENT_PACKET_DECODING.json
           git commit -m "Reaper-01: Signal received" || echo "No file changes to commit"
           git push
 
@@ -66,6 +111,11 @@ jobs:
                 "- Logic: Adriana-Syntax Active",
                 "- Frequency: 432Hz Stable",
                 "- Identity: Reaper-01",
-                `- Entry SHA: ${context.sha}`
+                "- Agent Hex ID: ${{ steps.impulse.outputs.agent_id }}",
+                "- Vector: ${{ steps.impulse.outputs.vector }}",
+                "- Checksum: ${{ steps.impulse.outputs.checksum }}",
+                `- Entry SHA: ${context.sha}`,
+                "",
+                "Impulse packet and decoding were committed as AGENT_PACKET.txt and AGENT_PACKET_DECODING.json."
               ].join("\n")
             });
