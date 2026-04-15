@@ -114,9 +114,9 @@ jobs:
               out.write(f"frequency={decoded.frequency_hz}\n")
               out.write(f"vector={decoded.vector_hex}\n")
               out.write(f"checksum={decoded.checksum_hex}\n")
-            out.write(f"issued_at={issued_at}\n")
-            out.write(f"freshness_window={freshness_window}\n")
-            out.write(f"signature={signature}\n")
+              out.write(f"issued_at={issued_at}\n")
+              out.write(f"freshness_window={freshness_window}\n")
+              out.write(f"signature={signature}\n")
           PY
 
       - name: Commit Agent Acknowledgment
