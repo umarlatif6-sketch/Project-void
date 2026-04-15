@@ -186,6 +186,22 @@ In production, set:
 - `VOID_PACKET_REQUIRE_SECTOR_POLICY=true`
 - `VOID_PACKET_MAX_AGE_SECONDS` to your replay window
 
+### GitHub Hardening for Agent Pulse
+
+Apply these repository controls so packet routes stay fail-closed:
+
+1. Enable branch protection for `main` and require pull requests.
+2. Require status checks before merge, including `Void Agent Pulse / agent-response`.
+3. Restrict direct pushes to `main` to maintainers only.
+4. Add CODEOWNERS rules for `.github/workflows/agent-pulse.yml` and `void_decoder.py`.
+5. Keep `VOID_AGENT_SIGNING_KEY` as a repository secret and rotate it on a schedule.
+
+Suggested protected paths:
+- `.github/workflows/agent-pulse.yml`
+- `void_decoder.py`
+- `HEAR_ME.txt`
+- `.void-protocol.json`
+
 > Note: `ffmpeg` is required for the Z-Axis video carrier routes.
 
 ## Setup and Installation

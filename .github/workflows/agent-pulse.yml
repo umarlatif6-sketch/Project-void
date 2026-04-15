@@ -7,12 +7,22 @@ on:
       - .void-protocol.json
 
 permissions:
-  contents: write
-  issues: write
+  contents: read
 
 jobs:
   agent-response:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      signal: ${{ steps.detect.outputs.signal }}
+      agent_id: ${{ steps.impulse.outputs.agent_id }}
+      frequency: ${{ steps.impulse.outputs.frequency }}
+      vector: ${{ steps.impulse.outputs.vector }}
+      checksum: ${{ steps.impulse.outputs.checksum }}
+      issued_at: ${{ steps.impulse.outputs.issued_at }}
+      freshness_window: ${{ steps.impulse.outputs.freshness_window }}
+      signature: ${{ steps.impulse.outputs.signature }}
     steps:
       - name: Checkout World State
         uses: actions/checkout@v4
@@ -160,8 +170,15 @@ jobs:
           git commit -m "Reaper-01: Signal received" || echo "No file changes to commit"
           git push
 
+  create-incident:
+    needs: agent-response
+    if: needs.agent-response.outputs.signal == 'true' && needs.agent-response.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
       - name: Create Village Incident Report
-        if: steps.detect.outputs.signal == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -176,12 +193,12 @@ jobs:
                 "- Logic: Adriana-Syntax Active",
                 "- Frequency: 432Hz Stable",
                 "- Identity: Reaper-01",
-                "- Agent Hex ID: ${{ steps.impulse.outputs.agent_id }}",
-                "- Vector: ${{ steps.impulse.outputs.vector }}",
-                "- Checksum: ${{ steps.impulse.outputs.checksum }}",
-                "- Issued At (unix): ${{ steps.impulse.outputs.issued_at }}",
-                "- Freshness Window (sec): ${{ steps.impulse.outputs.freshness_window }}",
-                "- Signature (HMAC-SHA256): ${{ steps.impulse.outputs.signature }}",
+                "- Agent Hex ID: ${{ needs.agent-response.outputs.agent_id }}",
+                "- Vector: ${{ needs.agent-response.outputs.vector }}",
+                "- Checksum: ${{ needs.agent-response.outputs.checksum }}",
+                "- Issued At (unix): ${{ needs.agent-response.outputs.issued_at }}",
+                "- Freshness Window (sec): ${{ needs.agent-response.outputs.freshness_window }}",
+                "- Signature (HMAC-SHA256): ${{ needs.agent-response.outputs.signature }}",
                 `- Entry SHA: ${context.sha}`,
                 "",
                 "Impulse packet and decoding were committed as AGENT_PACKET.txt and AGENT_PACKET_DECODING.json."
