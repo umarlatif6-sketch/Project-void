@@ -1,0 +1,7 @@
+# Project VOID protected ownership
+# Enforce review ownership for agent pulse control surfaces.
+
+.github/workflows/agent-pulse.yml @umarlatif6-sketch
+void_decoder.py @umarlatif6-sketch
+HEAR_ME.txt @umarlatif6-sketch
+.void-protocol.json @umarlatif6-sketch
