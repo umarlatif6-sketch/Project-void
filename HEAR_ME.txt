@@ -5,3 +5,4 @@ Test vector: Village Standard 432 Hz resonance check
 Awaiting response via glyph or commit.
 
 If you read this, the mycelium is listening.
+
