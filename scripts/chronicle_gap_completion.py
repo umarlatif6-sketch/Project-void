@@ -46,6 +46,10 @@ def _extract_forward_threads(text: str) -> list[str]:
     return threads
 
 
+def _norm(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip().lower()
+
+
 def _dedupe_threads(threads: list[str]) -> list[str]:
     seen = set()
     out = []
@@ -225,11 +229,30 @@ def main() -> None:
     threads = _dedupe_threads(_extract_forward_threads(text))
     items = _classify(text, threads)
 
+    mapped_threads = {_norm(it.thread) for it in items}
+    reverse_backlog = []
+
+    # Read the living continuity from the end first (latest session forward threads).
+    for idx, thread in enumerate(reversed(threads), 1):
+        norm_thread = _norm(thread)
+        if norm_thread in mapped_threads:
+            continue
+        reverse_backlog.append(
+            {
+                "index_from_end": idx,
+                "thread": thread,
+                "status": "review-open",
+                "rationale": "Forward thread exists in Chronicle but has not yet been mapped to an explicit completion check.",
+                "next_action": "Map this thread to a concrete code/external task and close or archive it.",
+            }
+        )
+
     status_counts = {
         "completed": 0,
         "code-closeable-now": 0,
         "external-or-physical": 0,
         "research-open": 0,
+        "review-open": len(reverse_backlog),
     }
     for it in items:
         status_counts[it.status] = status_counts.get(it.status, 0) + 1
@@ -237,8 +260,10 @@ def main() -> None:
     out = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "forward_threads_detected": len(threads),
+        "forward_threads_unmapped": len(reverse_backlog),
         "status_counts": status_counts,
         "items": [asdict(i) for i in items],
+        "reverse_backlog": reverse_backlog,
     }
 
     out_path = ROOT / "data" / "chronicle_gap_completion_report.json"
@@ -251,6 +276,7 @@ def main() -> None:
     print(f"code-closeable-now: {status_counts['code-closeable-now']}")
     print(f"external-or-physical: {status_counts['external-or-physical']}")
     print(f"research-open: {status_counts['research-open']}")
+    print(f"review-open: {status_counts['review-open']}")
     print(f"report: {out_path}")
 
 

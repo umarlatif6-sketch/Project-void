@@ -15,14 +15,17 @@ mesa_bp = Blueprint("mesa", __name__)
 @login_required
 def mesa_village():
     from void_engine.mesa_engine import get_latest_run, get_run_history, get_user_owned_agent
+    from void_engine.formation_probability import get_latest_full_scan_run
     latest = get_latest_run()
     history = get_run_history(10)
+    formation_latest = get_latest_full_scan_run()
     user_id = session.get("user_id")
     my_agent = get_user_owned_agent(user_id) if user_id else None
     return render_template(
         "mesa_village.html",
         latest=latest,
         history=history,
+        formation_latest=formation_latest,
         my_agent=my_agent,
     )
 

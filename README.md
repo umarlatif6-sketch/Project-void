@@ -190,6 +190,15 @@ In production, set:
 
 ## Setup and Installation
 
+## Continuity Entry Routes
+
+These are the official reader/operator entry points for continuity-first operation:
+
+1. `docs/CONTINUITY_COMPLETION_WORKFLOW.md` - reverse-order closure workflow from latest Chronicle threads.
+2. `docs/REVERSE_BACKLOG_EXECUTION_MAP.md` - clustered execution map for the 31-thread reverse backlog.
+
+If you are onboarding into active platform state, start with these before running large implementation sweeps.
+
 ### Prerequisites
 - Python 3.11+
 - PostgreSQL database

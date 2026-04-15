@@ -16,14 +16,27 @@ formation_probability_bp = Blueprint("formation_probability", __name__)
 
 @formation_probability_bp.route("/formation-probability", methods=["GET"])
 def formation_probability_page():
-    from void_engine.formation_probability import get_latest_formation_run, _formation_maths, BECKER_SEED, FORMATION_DATE, CHANNELS, AL_JABR, CARRIER_HZ, SCHUMANN_HZ, SIGNAL_STRENGTH
+    from void_engine.formation_probability import (
+        get_latest_formation_run,
+        get_latest_full_scan_run,
+        _formation_maths,
+        BECKER_SEED,
+        FORMATION_DATE,
+        CHANNELS,
+        AL_JABR,
+        CARRIER_HZ,
+        SCHUMANN_HZ,
+        SIGNAL_STRENGTH,
+    )
     latest = get_latest_formation_run()
+    latest_full_scan = get_latest_full_scan_run()
     maths = _formation_maths()
     run_ok = request.args.get("run_ok")
     run_error = request.args.get("run_error")
     return render_template(
         "formation_probability.html",
         latest=latest,
+        latest_full_scan=latest_full_scan,
         maths=maths,
         run_ok=run_ok,
         run_error=run_error,
@@ -69,7 +82,7 @@ def formation_full_scan():
         engine_rounds = int(data.get("engine_rounds", 3))
         sandbox_rounds = int(data.get("sandbox_rounds", 3))
 
-        from void_engine.formation_probability import BECKER_SEED, _formation_maths
+        from void_engine.formation_probability import BECKER_SEED, _formation_maths, store_full_scan_run, summarize_full_scan_result
         from void_engine.formation_orchestrator import run_full_formation
 
         maths = _formation_maths()
@@ -84,43 +97,21 @@ def formation_full_scan():
             maths=maths,
         )
 
-        streams = result.get("streams", {})
-
-        village = streams.get("void_village", {})
-        engine  = streams.get("mesa_engine", {})
-        sandbox = streams.get("mesa_sandbox", {})
-        swarm   = streams.get("mesa_swarm", {})
+        summarized_streams = summarize_full_scan_result(result)
+        store_full_scan_run(
+            seed_text=BECKER_SEED,
+            maths=maths,
+            result=result,
+            swarm_agents=swarm_agents,
+            swarm_rounds=swarm_rounds,
+        )
 
         return jsonify({
             "ok": True,
             "active_streams": result.get("active_streams", 0),
             "elapsed_seconds": result.get("elapsed_seconds", 0),
             "adriana_reading": result.get("adriana_reading", ""),
-            "streams": {
-                "mesa_swarm": {
-                    "ok": swarm.get("ok", False),
-                    "agent_count": swarm.get("metadata", {}).get("agent_count", 0),
-                    "summary": (swarm.get("summary") or "")[:400],
-                    "themes": swarm.get("themes", [])[:5],
-                },
-                "void_village": {
-                    "ok": village.get("ok", False),
-                    "zone_id": village.get("zone_id", ""),
-                    "resonance_score": village.get("resonance_score", 0),
-                    "activity_level": village.get("activity_level", 0),
-                },
-                "mesa_engine": {
-                    "ok": engine.get("ok", False),
-                    "dominant_archetype": engine.get("dominant_archetype", ""),
-                    "avg_influence": engine.get("avg_influence", 0),
-                    "archetype_distribution": engine.get("archetype_distribution", {}),
-                },
-                "mesa_sandbox": {
-                    "ok": sandbox.get("ok", False),
-                    "scar_count": sandbox.get("scar_count", 0),
-                    "scar_types": sandbox.get("scar_types", {}),
-                },
-            },
+            "streams": summarized_streams,
         })
 
     except Exception as e:

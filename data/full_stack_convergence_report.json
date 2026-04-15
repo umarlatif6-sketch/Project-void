@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-13T02:24:57.486547+00:00",
+  "generated_at": "2026-04-15T00:31:05.517846+00:00",
   "run_type": "full_stack_convergence_test",
   "cold_start": {
     "seed_source": "VOID_SEED_DIGEST.md",
     "chronicle_sessions": 5,
-    "linked_paths": 2,
-    "linked_context": 2,
+    "linked_paths": 6,
+    "linked_context": 5,
     "recent_git_activity": 12,
     "message_codons": 5,
     "codon_chain": "\u03c1\u00b7\u0391\u00b7\u221e | \u03c3\u00b7\u03a0\u00b7\u2b21 | \u03bc\u00b7\u03a6\u00b7\u2600 | \u03b8\u00b7\u0392\u00b7\u2600 | \u03b4\u00b7\u0398\u00b7\ud83c\udf0a",

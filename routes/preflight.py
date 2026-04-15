@@ -9,6 +9,8 @@ Routes:
 """
 
 import logging
+import os
+from pathlib import Path
 from datetime import datetime, timezone
 from flask import Blueprint, render_template, jsonify
 
@@ -86,6 +88,105 @@ def _resolve_day_status(condition: bool) -> str:
     return "READY" if condition else "PENDING"
 
 
+def _get_lbn_runtime_status() -> dict:
+    """Return active SCL-LBN runtime routing status for operator checks."""
+    try:
+        from void_engine.lbn_runtime import load_active_payload, lbn_validation_enabled
+
+        active = load_active_payload()
+        mode = (active.get("mode") or "project").strip().lower()
+        route = (active.get("route") or "primary").strip().lower()
+
+        root = Path(__file__).resolve().parents[1]
+        project_pack = root / "data" / "lbn_three_hour_pack.project.json"
+        project_payload = root / "data" / "lbn_agent_payloads.project.json"
+        standalone_pack = root / "data" / "lbn_three_hour_pack.standalone.json"
+        standalone_payload = root / "data" / "lbn_agent_payloads.standalone.json"
+
+        return {
+            "ok": bool(active.get("ok")),
+            "mode": mode,
+            "route": route,
+            "validate": bool(lbn_validation_enabled()),
+            "active_pair": active.get("active_pair"),
+            "primary_pair": active.get("primary_pair"),
+            "fallback_pair": active.get("fallback_pair"),
+            "payload_path": active.get("path"),
+            "payload_reason": active.get("reason"),
+            "channels": active.get("channels", []),
+            "channel_count": len(active.get("channels", [])),
+            "codon_count": len(active.get("codon_map", {}) or {}),
+            "codon_alias_preview": {
+                key: value
+                for key, value in list((active.get("codon_map", {}) or {}).items())[:10]
+                if isinstance(key, str)
+            },
+            "switches": {
+                "VOID_LBN_MODE": os.getenv("VOID_LBN_MODE") or "project",
+                "VOID_LBN_ACTIVE_ROUTE": os.getenv("VOID_LBN_ACTIVE_ROUTE") or "primary",
+                "VOID_LBN_VALIDATE": os.getenv("VOID_LBN_VALIDATE") or "false",
+                "VOID_LBN_PAYLOAD_PATH": os.getenv("VOID_LBN_PAYLOAD_PATH") or "",
+            },
+            "artifact_presence": {
+                "project_pack": project_pack.exists(),
+                "project_payload": project_payload.exists(),
+                "standalone_pack": standalone_pack.exists(),
+                "standalone_payload": standalone_payload.exists(),
+            },
+        }
+
+
+def _get_lbn_payload_map() -> dict:
+    """Return active payload codon map for audit and resolver telemetry surfaces."""
+    try:
+        from void_engine.lbn_runtime import load_active_payload
+
+        active = load_active_payload()
+        codon_map = active.get("codon_map", {}) or {}
+
+        functions = {
+            key: value
+            for key, value in codon_map.items()
+            if isinstance(key, str) and not key.endswith("_canonical")
+        }
+        canonical_aliases = {
+            key: value
+            for key, value in codon_map.items()
+            if isinstance(key, str) and key.endswith("_canonical")
+        }
+
+        return {
+            "ok": bool(active.get("ok")),
+            "mode": active.get("mode"),
+            "route": active.get("route"),
+            "active_pair": active.get("active_pair"),
+            "payload_path": active.get("path"),
+            "functions": functions,
+            "canonical_aliases": canonical_aliases,
+            "function_count": len(functions),
+            "canonical_alias_count": len(canonical_aliases),
+        }
+    except Exception as e:
+        logger.warning("Could not fetch LBN payload map: %s", e)
+        return {
+            "ok": False,
+            "error": str(e),
+            "functions": {},
+            "canonical_aliases": {},
+            "function_count": 0,
+            "canonical_alias_count": 0,
+        }
+    except Exception as e:
+        logger.warning("Could not fetch LBN runtime status: %s", e)
+        return {
+            "ok": False,
+            "mode": "project",
+            "route": "primary",
+            "validate": False,
+            "error": str(e),
+        }
+
+
 @preflight_bp.route("/preflight")
 def preflight_page():
     wav = _get_last_wav_export()
@@ -113,3 +214,17 @@ def api_founder_key_status_shim():
     """Public JSON shim for Day 2 card status polling."""
     status = _get_founder_key_status()
     return jsonify({"ok": True, **status})
+
+
+@preflight_bp.route("/api/lbn/runtime-status")
+def api_lbn_runtime_status():
+    """Public JSON status endpoint for active LBN route lock and artifact readiness."""
+    status = _get_lbn_runtime_status()
+    return jsonify(status)
+
+
+@preflight_bp.route("/api/lbn/payload-map")
+def api_lbn_payload_map():
+    """Public JSON payload-map endpoint for codon resolver and telemetry overlays."""
+    payload_map = _get_lbn_payload_map()
+    return jsonify(payload_map)

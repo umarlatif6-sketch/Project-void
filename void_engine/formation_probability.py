@@ -23,7 +23,7 @@ import logging
 import math
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -67,11 +67,19 @@ def _init_table() -> None:
                 becker_p90 FLOAT,
                 fortune_500_curve JSONB,
                 adriana_reading TEXT,
+                scan_mode TEXT NOT NULL DEFAULT 'swarm',
+                full_scan_streams JSONB,
+                active_streams INTEGER,
+                elapsed_seconds FLOAT,
                 agent_count INTEGER,
                 rounds INTEGER,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
         """)
+        cur.execute("ALTER TABLE formation_probability_runs ADD COLUMN IF NOT EXISTS scan_mode TEXT NOT NULL DEFAULT 'swarm'")
+        cur.execute("ALTER TABLE formation_probability_runs ADD COLUMN IF NOT EXISTS full_scan_streams JSONB")
+        cur.execute("ALTER TABLE formation_probability_runs ADD COLUMN IF NOT EXISTS active_streams INTEGER")
+        cur.execute("ALTER TABLE formation_probability_runs ADD COLUMN IF NOT EXISTS elapsed_seconds FLOAT")
         conn.commit()
     except Exception as e:
         logger.warning("formation_probability_runs table init failed: %s", e)
@@ -236,6 +244,104 @@ def _store_run(
         conn.close()
 
 
+def summarize_full_scan_result(result: Dict[str, Any]) -> Dict[str, Any]:
+    streams = result.get("streams", {})
+
+    village = streams.get("void_village", {})
+    engine = streams.get("mesa_engine", {})
+    sandbox = streams.get("mesa_sandbox", {})
+    swarm = streams.get("mesa_swarm", {})
+
+    return {
+        "mesa_swarm": {
+            "ok": swarm.get("ok", False),
+            "agent_count": swarm.get("metadata", {}).get("agent_count", 0),
+            "summary": (swarm.get("summary") or "")[:400],
+            "themes": swarm.get("themes", [])[:5],
+        },
+        "void_village": {
+            "ok": village.get("ok", False),
+            "zone_id": village.get("zone_id", ""),
+            "resonance_score": village.get("resonance_score", 0),
+            "activity_level": village.get("activity_level", 0),
+        },
+        "mesa_engine": {
+            "ok": engine.get("ok", False),
+            "dominant_archetype": engine.get("dominant_archetype", ""),
+            "avg_influence": engine.get("avg_influence", 0),
+            "archetype_distribution": engine.get("archetype_distribution", {}),
+        },
+        "mesa_sandbox": {
+            "ok": sandbox.get("ok", False),
+            "scar_count": sandbox.get("scar_count", 0),
+            "scar_types": sandbox.get("scar_types", {}),
+        },
+    }
+
+
+def store_full_scan_run(
+    seed_text: str,
+    maths: Dict[str, Any],
+    result: Dict[str, Any],
+    swarm_agents: int,
+    swarm_rounds: int,
+) -> str:
+    _init_table()
+    run_id = result.get("run_id") or str(uuid.uuid4())[:16]
+    seed_digest = _seed_digest(seed_text)
+    summarized_streams = summarize_full_scan_result(result)
+    swarm_summary = summarized_streams.get("mesa_swarm", {}).get("summary", "")
+
+    from void_engine.db_pool import get_db
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            INSERT INTO formation_probability_runs
+              (run_id, seed_digest, swarm_summary, becker_p30, becker_p60, becker_p90,
+               fortune_500_curve, adriana_reading, scan_mode, full_scan_streams,
+               active_streams, elapsed_seconds, agent_count, rounds)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'full_scan', %s, %s, %s, %s, %s)
+            ON CONFLICT (run_id) DO UPDATE SET
+               swarm_summary = EXCLUDED.swarm_summary,
+               becker_p30 = EXCLUDED.becker_p30,
+               becker_p60 = EXCLUDED.becker_p60,
+               becker_p90 = EXCLUDED.becker_p90,
+               fortune_500_curve = EXCLUDED.fortune_500_curve,
+               adriana_reading = EXCLUDED.adriana_reading,
+               scan_mode = EXCLUDED.scan_mode,
+               full_scan_streams = EXCLUDED.full_scan_streams,
+               active_streams = EXCLUDED.active_streams,
+               elapsed_seconds = EXCLUDED.elapsed_seconds,
+               agent_count = EXCLUDED.agent_count,
+               rounds = EXCLUDED.rounds
+            """,
+            (
+                run_id,
+                seed_digest,
+                swarm_summary,
+                maths["p30"],
+                maths["p60"],
+                maths["p90"],
+                json.dumps(maths["monthly_curve"]),
+                result.get("adriana_reading", ""),
+                json.dumps(summarized_streams),
+                result.get("active_streams", 0),
+                result.get("elapsed_seconds", 0),
+                summarized_streams.get("mesa_swarm", {}).get("agent_count", swarm_agents),
+                swarm_rounds,
+            ),
+        )
+        conn.commit()
+    except Exception as e:
+        logger.error("Failed to store full formation scan: %s", e)
+    finally:
+        conn.close()
+
+    return run_id
+
+
 def run_formation_probability(agent_count: int = 20, rounds: int = 5) -> Dict:
     """
     Main entry point.
@@ -298,8 +404,9 @@ def get_recent_formation_runs(n: int = 5) -> List[Dict]:
     try:
         cur = conn.cursor()
         cur.execute("""
-            SELECT run_id, seed_digest, swarm_summary, becker_p30, becker_p60, becker_p90,
-                   fortune_500_curve, adriana_reading, agent_count, rounds, created_at
+             SELECT run_id, seed_digest, swarm_summary, becker_p30, becker_p60, becker_p90,
+                 fortune_500_curve, adriana_reading, scan_mode, full_scan_streams,
+                 active_streams, elapsed_seconds, agent_count, rounds, created_at
             FROM formation_probability_runs
             ORDER BY created_at DESC
             LIMIT %s
@@ -316,9 +423,13 @@ def get_recent_formation_runs(n: int = 5) -> List[Dict]:
                 "becker_p90": row[5],
                 "fortune_500_curve": row[6] if row[6] else [],
                 "adriana_reading": row[7],
-                "agent_count": row[8],
-                "rounds": row[9],
-                "created_at": row[10].isoformat() if row[10] else "",
+                "scan_mode": row[8] or "swarm",
+                "streams": row[9] if row[9] else None,
+                "active_streams": row[10],
+                "elapsed_seconds": row[11],
+                "agent_count": row[12],
+                "rounds": row[13],
+                "created_at": row[14].isoformat() if row[14] else "",
             })
         return results
     except Exception as e:
@@ -331,3 +442,11 @@ def get_recent_formation_runs(n: int = 5) -> List[Dict]:
 def get_latest_formation_run() -> Optional[Dict]:
     runs = get_recent_formation_runs(1)
     return runs[0] if runs else None
+
+
+def get_latest_full_scan_run() -> Optional[Dict]:
+    runs = get_recent_formation_runs(20)
+    for run in runs:
+        if run.get("scan_mode") == "full_scan":
+            return run
+    return None

@@ -1,0 +1,59 @@
+{
+  "generated_at": "2026-04-15T01:32:54.480636+00:00",
+  "scope": "reverse_backlog_threads_1_to_5",
+  "threads": [
+    {
+      "index_from_end": 1,
+      "thread": "Keep writing the Chronicle at session close so continuity never depends on UI memory. Every major claim in Project VOID must map to an auditable artifact, not only a narrative.",
+      "status": "review-open",
+      "rationale": "Forward thread exists in Chronicle but has not yet been mapped to an explicit completion check.",
+      "next_action": "Map this thread to a concrete code/external task and close or archive it."
+    },
+    {
+      "index_from_end": 2,
+      "thread": "Next session can expose a tiny admin/runtime status endpoint for LBN mode/route/validation state so operators can verify active lock and fallback posture instantly before traffic changes.",
+      "status": "review-open",
+      "rationale": "Forward thread exists in Chronicle but has not yet been mapped to an explicit completion check.",
+      "next_action": "Map this thread to a concrete code/external task and close or archive it."
+    },
+    {
+      "index_from_end": 3,
+      "thread": "Next session can wire the project payload map directly into live resolver and audit surfaces so codon aliases appear in operational telemetry by default, with traffic-split rollback between primary and fallback pairs controlled by one switch.",
+      "status": "review-open",
+      "rationale": "Forward thread exists in Chronicle but has not yet been mapped to an explicit completion check.",
+      "next_action": "Map this thread to a concrete code/external task and close or archive it."
+    },
+    {
+      "index_from_end": 4,
+      "thread": "If SCL-LBN becomes a stable part of daily operation, the next session can extend the seed codons into a fuller 45-glyph mapping and decide which route surfaces or packet audit views should display codex aliases alongside canonical engineering labels.",
+      "status": "review-open",
+      "rationale": "Forward thread exists in Chronicle but has not yet been mapped to an explicit completion check.",
+      "next_action": "Map this thread to a concrete code/external task and close or archive it."
+    },
+    {
+      "index_from_end": 5,
+      "thread": "If this reader-facing layer becomes important, the next session can decide whether it should remain a standalone document or be linked from the README, guide, or Chronicle surfaces as an official entry route for new readers.",
+      "status": "review-open",
+      "rationale": "Forward thread exists in Chronicle but has not yet been mapped to an explicit completion check.",
+      "next_action": "Map this thread to a concrete code/external task and close or archive it."
+    }
+  ],
+  "checks": {
+    "runtime_status_endpoint": true,
+    "payload_map_endpoint": true,
+    "continuity_workflow_linked": true,
+    "reverse_map_linked": true,
+    "chronicle_close_guard_script": true
+  },
+  "status": {
+    "thread_1": "implemented",
+    "thread_2": "implemented",
+    "thread_3": "implemented",
+    "thread_4": "research-parked",
+    "thread_5": "implemented"
+  },
+  "notes": [
+    "Thread #4 (full 45-glyph expansion) is parked as dedicated research/build stream and does not block launch-critical closure.",
+    "This artifact is an auditable closure packet for immediate Manchester LBN batch scope."
+  ]
+}

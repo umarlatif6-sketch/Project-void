@@ -109,6 +109,37 @@
         .mv-pred-desc { font-size: 12px; color: var(--void-text); line-height: 1.5; }
         .mv-pred-conf { font-size: 10px; color: var(--void-muted); margin-left: auto; white-space: nowrap; }
 
+        .mv-formation {
+            margin-top: 18px;
+            background: linear-gradient(180deg, rgba(96,165,250,0.08), rgba(10,12,20,0.92));
+            border: 1px solid rgba(96,165,250,0.18);
+            border-radius: 8px;
+            padding: 18px;
+        }
+        .mv-stream-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .mv-stream-card {
+            background: rgba(26,30,42,0.6);
+            border: 1px solid var(--void-border);
+            border-radius: 6px;
+            padding: 12px;
+        }
+        .mv-stream-name { color: var(--void-blue); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+        .mv-stream-copy { color: var(--void-text); font-size: 12px; line-height: 1.5; }
+        .mv-adriana-box {
+            background: rgba(167,139,250,0.08);
+            border: 1px solid rgba(167,139,250,0.2);
+            border-radius: 6px;
+            padding: 14px;
+        }
+        .mv-adriana-name { color: var(--void-violet); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+        .mv-adriana-box p { color: var(--void-text); font-size: 12px; line-height: 1.6; margin-bottom: 10px; }
+        .mv-adriana-box p:last-child { margin-bottom: 0; }
+
         .mv-anomalies { margin-top: 16px; }
         .mv-anomaly {
             display: inline-flex; align-items: center; gap: 6px;
@@ -305,6 +336,68 @@
                 <span class="mv-pred-conf">conf: {{ "%.0f"|format((pred.confidence or 0) * 100) }}%</span>
             </div>
             {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if formation_latest and formation_latest.adriana_reading %}
+        <div class="mv-section-title" style="margin-top:16px;">Four-System Formation</div>
+        <div class="mv-formation">
+            <div class="mv-stream-grid">
+                <div class="mv-stream-card">
+                    <div class="mv-stream-name">MESA Swarm</div>
+                    {% set swarm_stream = formation_latest.streams["mesa_swarm"] if formation_latest.streams else {} %}
+                    <div class="mv-stream-copy">Agents: {{ swarm_stream.agent_count or '—' }}</div>
+                    <div class="mv-stream-copy">Themes: {{ (swarm_stream.themes or [])|join(', ') or '—' }}</div>
+                    <div class="mv-stream-copy">{{ (swarm_stream.summary or 'Community opinion field and adoption charge.')[:140] }}</div>
+                </div>
+                <div class="mv-stream-card">
+                    <div class="mv-stream-name">Void Village</div>
+                    {% set village_stream = formation_latest.streams["void_village"] if formation_latest.streams else {} %}
+                    <div class="mv-stream-copy">Zone: {{ village_stream.zone_id or '—' }}</div>
+                    <div class="mv-stream-copy">Resonance: {{ "%.1f"|format(village_stream.resonance_score or 0) }} / 100</div>
+                    <div class="mv-stream-copy">Activity: {{ "%.2f"|format(village_stream.activity_level or 0) }}</div>
+                </div>
+                <div class="mv-stream-card">
+                    <div class="mv-stream-name">MESA Engine</div>
+                    {% set engine_stream = formation_latest.streams["mesa_engine"] if formation_latest.streams else {} %}
+                    <div class="mv-stream-copy">Dominant: {{ engine_stream.dominant_archetype or '—' }}</div>
+                    <div class="mv-stream-copy">Avg influence: {{ engine_stream.avg_influence or '—' }}</div>
+                    <div class="mv-stream-copy">
+                        {% if engine_stream.archetype_distribution %}
+                            {% for key, value in engine_stream.archetype_distribution.items() %}
+                                {{ key }}: {{ value }}{% if not loop.last %} · {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            Sovereign archetype distribution and memory depth.
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mv-stream-card">
+                    <div class="mv-stream-name">Mesa Sandbox</div>
+                    {% set sandbox_stream = formation_latest.streams["mesa_sandbox"] if formation_latest.streams else {} %}
+                    <div class="mv-stream-copy">Scars: {{ sandbox_stream.scar_count or 0 }}</div>
+                    <div class="mv-stream-copy">
+                        {% if sandbox_stream.scar_types %}
+                            {% for key, value in sandbox_stream.scar_types.items() %}
+                                {{ key }}: {{ value }}{% if not loop.last %} · {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            Chronicle scar pattern and mirror-world echo.
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="mv-adriana-box">
+                <div class="mv-adriana-name">Adriana Unified Reading</div>
+                {% if formation_latest.active_streams is not none or formation_latest.elapsed_seconds is not none %}
+                <p>{{ formation_latest.active_streams or 0 }}/4 streams active · {{ formation_latest.elapsed_seconds or 0 }}s</p>
+                {% endif %}
+                {% for para in formation_latest.adriana_reading.split('\n\n') %}
+                    {% if para.strip() %}
+                    <p>{{ para.strip() }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
         {% endif %}
 

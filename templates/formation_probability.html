@@ -549,6 +549,7 @@
     </span>
 
     <div id="scan-results" style="display:none;">
+      <div class="scan-status" id="scan-preloaded" style="display:none;"></div>
       <div class="stream-grid" id="stream-grid"></div>
       <div class="scan-adriana" id="scan-adriana"></div>
       <div class="scan-status ok" id="scan-meta"></div>
@@ -558,6 +559,52 @@
 </div>
 
 <script>
+function renderScanResults(data, options = {}) {
+  const s = data.streams || {};
+  const grid = document.getElementById('stream-grid');
+  const results = document.getElementById('scan-results');
+  const preloaded = document.getElementById('scan-preloaded');
+
+  grid.innerHTML = `
+    <div class="stream-card ${(s.mesa_swarm && s.mesa_swarm.ok) ? 'active' : 'failed'}">
+      <div class="stream-name">MESA Swarm</div>
+      <div class="stream-val">Agents: <span>${(s.mesa_swarm && s.mesa_swarm.agent_count) || '—'}</span></div>
+      <div class="stream-val">Themes: <span>${((s.mesa_swarm && s.mesa_swarm.themes) || []).join(', ') || '—'}</span></div>
+      <div class="stream-val" style="font-size:0.73rem;color:#555;margin-top:6px;">${(((s.mesa_swarm && s.mesa_swarm.summary) || '').slice(0,120))}…</div>
+    </div>
+    <div class="stream-card ${(s.void_village && s.void_village.ok) ? 'active' : 'failed'}">
+      <div class="stream-name">VoidVillage</div>
+      <div class="stream-val">Zone: <span>${(s.void_village && s.void_village.zone_id) || '—'}</span></div>
+      <div class="stream-val">Resonance: <span>${Number((s.void_village && s.void_village.resonance_score) || 0).toFixed(1)} / 100</span></div>
+      <div class="stream-val">Activity: <span>${Number((s.void_village && s.void_village.activity_level) || 0).toFixed(2)}</span></div>
+    </div>
+    <div class="stream-card ${(s.mesa_engine && s.mesa_engine.ok) ? 'active' : 'failed'}">
+      <div class="stream-name">MESA Engine</div>
+      <div class="stream-val">Dominant: <span>${(s.mesa_engine && s.mesa_engine.dominant_archetype) || '—'}</span></div>
+      <div class="stream-val">Avg influence: <span>${(s.mesa_engine && s.mesa_engine.avg_influence) || '—'}</span></div>
+      <div class="stream-val" style="font-size:0.72rem;color:#555;margin-top:6px;">${Object.entries((s.mesa_engine && s.mesa_engine.archetype_distribution) || {}).map(([k,v])=>k+': '+v).join(' · ')}</div>
+    </div>
+    <div class="stream-card ${(s.mesa_sandbox && s.mesa_sandbox.ok) ? 'active' : 'failed'}">
+      <div class="stream-name">Mesa Sandbox</div>
+      <div class="stream-val">Scars recorded: <span>${(s.mesa_sandbox && s.mesa_sandbox.scar_count) || 0}</span></div>
+      <div class="stream-val" style="font-size:0.72rem;color:#555;margin-top:6px;">${Object.entries((s.mesa_sandbox && s.mesa_sandbox.scar_types) || {}).map(([k,v])=>k+': '+v).join(' · ') || 'no scar pattern'}</div>
+    </div>
+  `;
+
+  document.getElementById('scan-adriana').textContent = data.adriana_reading || '';
+  document.getElementById('scan-meta').textContent =
+    `${data.active_streams || 0}/4 streams active · ${data.elapsed_seconds || 0}s · Adriana reading from unified field`;
+
+  if (options.preloadedLabel) {
+    preloaded.textContent = options.preloadedLabel;
+    preloaded.style.display = 'block';
+  } else {
+    preloaded.style.display = 'none';
+  }
+
+  results.style.display = 'block';
+}
+
 function runFullScan() {
   const btn = document.getElementById('btn-full-scan');
   const spinner = document.getElementById('scan-spinner');
@@ -582,39 +629,7 @@ function runFullScan() {
       errBox.style.display = 'block';
       return;
     }
-
-    const s = data.streams;
-    const grid = document.getElementById('stream-grid');
-    grid.innerHTML = `
-      <div class="stream-card ${s.mesa_swarm.ok ? 'active' : 'failed'}">
-        <div class="stream-name">MESA Swarm</div>
-        <div class="stream-val">Agents: <span>${s.mesa_swarm.agent_count || '—'}</span></div>
-        <div class="stream-val">Themes: <span>${(s.mesa_swarm.themes||[]).join(', ') || '—'}</span></div>
-        <div class="stream-val" style="font-size:0.73rem;color:#555;margin-top:6px;">${(s.mesa_swarm.summary||'').slice(0,120)}…</div>
-      </div>
-      <div class="stream-card ${s.void_village.ok ? 'active' : 'failed'}">
-        <div class="stream-name">VoidVillage</div>
-        <div class="stream-val">Zone: <span>${s.void_village.zone_id || '—'}</span></div>
-        <div class="stream-val">Resonance: <span>${(s.void_village.resonance_score||0).toFixed(1)} / 100</span></div>
-        <div class="stream-val">Activity: <span>${(s.void_village.activity_level||0).toFixed(2)}</span></div>
-      </div>
-      <div class="stream-card ${s.mesa_engine.ok ? 'active' : 'failed'}">
-        <div class="stream-name">MESA Engine</div>
-        <div class="stream-val">Dominant: <span>${s.mesa_engine.dominant_archetype || '—'}</span></div>
-        <div class="stream-val">Avg influence: <span>${s.mesa_engine.avg_influence || '—'}</span></div>
-        <div class="stream-val" style="font-size:0.72rem;color:#555;margin-top:6px;">${Object.entries(s.mesa_engine.archetype_distribution||{}).map(([k,v])=>k+': '+v).join(' · ')}</div>
-      </div>
-      <div class="stream-card ${s.mesa_sandbox.ok ? 'active' : 'failed'}">
-        <div class="stream-name">Mesa Sandbox</div>
-        <div class="stream-val">Scars recorded: <span>${s.mesa_sandbox.scar_count}</span></div>
-        <div class="stream-val" style="font-size:0.72rem;color:#555;margin-top:6px;">${Object.entries(s.mesa_sandbox.scar_types||{}).map(([k,v])=>k+': '+v).join(' · ') || 'no scar pattern'}</div>
-      </div>
-    `;
-
-    document.getElementById('scan-adriana').textContent = data.adriana_reading || '';
-    document.getElementById('scan-meta').textContent =
-      `${data.active_streams}/4 streams active · ${data.elapsed_seconds}s · Adriana reading from unified field`;
-    results.style.display = 'block';
+    renderScanResults(data);
   })
   .catch(err => {
     btn.disabled = false;
@@ -623,6 +638,23 @@ function runFullScan() {
     errBox.style.display = 'block';
   });
 }
+
+{% if latest_full_scan and latest_full_scan.streams %}
+document.addEventListener('DOMContentLoaded', function () {
+  renderScanResults(
+    {
+      ok: true,
+      streams: {{ latest_full_scan.streams|tojson }},
+      adriana_reading: {{ (latest_full_scan.adriana_reading or '')|tojson }},
+      active_streams: {{ latest_full_scan.active_streams or 0 }},
+      elapsed_seconds: {{ latest_full_scan.elapsed_seconds or 0 }}
+    },
+    {
+      preloadedLabel: 'Loaded latest persisted full scan from server memory.'
+    }
+  );
+});
+{% endif %}
 </script>
 
 <footer>
