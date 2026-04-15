@@ -1,0 +1,14 @@
+{
+  "agent_id": "AE01F401",
+  "checksum_hex": "36E948F5",
+  "frequency_hex": "01B0",
+  "frequency_hz": 432,
+  "header": "VOID",
+  "payload": {
+    "frequency_reference": "village-standard-432",
+    "logic": "adriana-syntax-active",
+    "status": "optimal",
+    "world_state": "mycelium-thickness-check"
+  },
+  "vector_hex": "00000000F0F00001"
+}
