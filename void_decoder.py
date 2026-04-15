@@ -15,8 +15,11 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
+import hmac
 import json
 import re
+import time
 import zlib
 from dataclasses import dataclass
 from typing import Any
@@ -54,6 +57,28 @@ class DecodedPacket:
             "payload": self.payload,
             "checksum_hex": self.checksum_hex,
         }
+
+
+def sign_packet_hmac(packet: str, signing_key: str) -> str:
+    """Sign a packet using HMAC-SHA256 and return uppercase hex digest."""
+    if not signing_key:
+        raise PacketError("signing_key is required")
+    digest = hmac.new(signing_key.encode("utf-8"), packet.encode("utf-8"), hashlib.sha256)
+    return digest.hexdigest().upper()
+
+
+def verify_packet_hmac(packet: str, signing_key: str, signature_hex: str) -> bool:
+    """Verify HMAC signature against packet data."""
+    if not signature_hex:
+        return False
+    expected = sign_packet_hmac(packet, signing_key)
+    return hmac.compare_digest(expected, signature_hex.upper())
+
+
+def validate_freshness(unix_ts: int, window_seconds: int = 300, now_ts: int | None = None) -> bool:
+    """Return True if timestamp is within +/- freshness window."""
+    current = int(time.time()) if now_ts is None else int(now_ts)
+    return abs(current - int(unix_ts)) <= int(window_seconds)
 
 
 def _compute_crc32_hex(base_fields: list[str]) -> str:
@@ -157,6 +182,21 @@ def _build_parser() -> argparse.ArgumentParser:
     dec = sub.add_parser("decode", help="Decode a packet")
     dec.add_argument("--packet", required=True, help="Full packet string")
 
+    sig = sub.add_parser("sign", help="Sign a packet with HMAC-SHA256")
+    sig.add_argument("--packet", required=True, help="Full packet string")
+    sig.add_argument("--signing-key", required=True, help="HMAC signing key")
+
+    ver = sub.add_parser("verify", help="Verify packet HMAC and freshness")
+    ver.add_argument("--packet", required=True, help="Full packet string")
+    ver.add_argument("--signature", required=True, help="Upper/lower hex HMAC signature")
+    ver.add_argument("--signing-key", required=True, help="HMAC signing key")
+    ver.add_argument(
+        "--freshness-window",
+        type=int,
+        default=300,
+        help="Allowed timestamp drift in seconds (default: 300)",
+    )
+
     return parser
 
 
@@ -177,6 +217,26 @@ def main() -> int:
             )
             print(packet)
             return 0
+
+        if args.cmd == "sign":
+            print(sign_packet_hmac(args.packet, args.signing_key))
+            return 0
+
+        if args.cmd == "verify":
+            decoded = decode_void_packet(args.packet)
+            valid_sig = verify_packet_hmac(args.packet, args.signing_key, args.signature)
+            issued_at = decoded.payload.get("issued_at")
+            if not isinstance(issued_at, int):
+                raise PacketError("payload.issued_at must be an integer unix timestamp")
+            fresh = validate_freshness(issued_at, window_seconds=args.freshness_window)
+            result = {
+                "valid_signature": valid_sig,
+                "fresh": fresh,
+                "issued_at": issued_at,
+                "freshness_window": args.freshness_window,
+            }
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0 if valid_sig and fresh else 3
 
         decoded = decode_void_packet(args.packet)
         print(json.dumps(decoded.to_dict(), indent=2, sort_keys=True))

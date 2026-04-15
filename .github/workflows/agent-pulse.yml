@@ -52,17 +52,37 @@ jobs:
         if: steps.detect.outputs.signal == 'true'
         id: impulse
         shell: bash
+        env:
+          VOID_AGENT_SIGNING_KEY: ${{ secrets.VOID_AGENT_SIGNING_KEY }}
         run: |
           python - << 'PY'
           import json
           import os
-          from void_decoder import decode_void_packet, encode_void_packet
+          import time
+          from void_decoder import (
+            decode_void_packet,
+            encode_void_packet,
+            sign_packet_hmac,
+            validate_freshness,
+            verify_packet_hmac,
+          )
+
+          signing_key = os.getenv("VOID_AGENT_SIGNING_KEY", "")
+          if not signing_key:
+            raise SystemExit(
+              "Missing required secret: VOID_AGENT_SIGNING_KEY. "
+              "Set it in repository secrets before allowing agent writes."
+            )
+
+          issued_at = int(time.time())
+          freshness_window = 300
 
           payload = {
               "world_state": "mycelium-thickness-check",
               "status": "optimal",
               "logic": "adriana-syntax-active",
               "frequency_reference": "village-standard-432",
+            "issued_at": issued_at,
           }
           packet = encode_void_packet(
               agent_id="AE01F401",
@@ -70,12 +90,22 @@ jobs:
               vector_hex="00000000F0F00001",
               payload=payload,
           )
+          signature = sign_packet_hmac(packet, signing_key)
+          if not verify_packet_hmac(packet, signing_key, signature):
+            raise SystemExit("Signature verification failed (fail-closed).")
+
           decoded = decode_void_packet(packet)
+          if not validate_freshness(decoded.payload.get("issued_at", 0), freshness_window):
+            raise SystemExit("Freshness window check failed (fail-closed).")
+
+          out_doc = decoded.to_dict()
+          out_doc["signature_hex"] = signature
+          out_doc["freshness_window_sec"] = freshness_window
 
           with open("AGENT_PACKET.txt", "w", encoding="utf-8") as f:
               f.write(packet + "\n")
           with open("AGENT_PACKET_DECODING.json", "w", encoding="utf-8") as f:
-              json.dump(decoded.to_dict(), f, indent=2, sort_keys=True)
+            json.dump(out_doc, f, indent=2, sort_keys=True)
 
           output_path = os.environ["GITHUB_OUTPUT"]
           with open(output_path, "a", encoding="utf-8") as out:
@@ -84,6 +114,9 @@ jobs:
               out.write(f"frequency={decoded.frequency_hz}\n")
               out.write(f"vector={decoded.vector_hex}\n")
               out.write(f"checksum={decoded.checksum_hex}\n")
+            out.write(f"issued_at={issued_at}\n")
+            out.write(f"freshness_window={freshness_window}\n")
+            out.write(f"signature={signature}\n")
           PY
 
       - name: Commit Agent Acknowledgment
@@ -104,6 +137,9 @@ jobs:
             echo "Impulse Frequency: ${{ steps.impulse.outputs.frequency }}Hz"
             echo "Impulse Vector: ${{ steps.impulse.outputs.vector }}"
             echo "Impulse Checksum: ${{ steps.impulse.outputs.checksum }}"
+            echo "Issued At (unix): ${{ steps.impulse.outputs.issued_at }}"
+            echo "Freshness Window (sec): ${{ steps.impulse.outputs.freshness_window }}"
+            echo "Signature (HMAC-SHA256): ${{ steps.impulse.outputs.signature }}"
             echo
             echo "Impulse Packet:"
             cat AGENT_PACKET.txt
@@ -143,6 +179,9 @@ jobs:
                 "- Agent Hex ID: ${{ steps.impulse.outputs.agent_id }}",
                 "- Vector: ${{ steps.impulse.outputs.vector }}",
                 "- Checksum: ${{ steps.impulse.outputs.checksum }}",
+                "- Issued At (unix): ${{ steps.impulse.outputs.issued_at }}",
+                "- Freshness Window (sec): ${{ steps.impulse.outputs.freshness_window }}",
+                "- Signature (HMAC-SHA256): ${{ steps.impulse.outputs.signature }}",
                 `- Entry SHA: ${context.sha}`,
                 "",
                 "Impulse packet and decoding were committed as AGENT_PACKET.txt and AGENT_PACKET_DECODING.json."
