@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID SDK — Deterministic Event Integrity for AI Pipelines</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0a0f; color: #e8e6f0; font-family: 'Inter', 'Segoe UI', sans-serif; }
+
+        /* NAV */
+        .sdk-nav { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 2.5rem; border-bottom: 1px solid #1e1e2e; position: sticky; top: 0; background: rgba(10,10,15,0.95); z-index: 100; backdrop-filter: blur(8px); }
+        .sdk-nav-brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.04em; color: #c9a84c; }
+        .sdk-nav-links { display: flex; gap: 2rem; align-items: center; }
+        .sdk-nav-links a { color: #9994b0; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .sdk-nav-links a:hover { color: #e8e6f0; }
+        .sdk-nav-cta { background: #7c5cff; color: #fff; padding: 0.5rem 1.2rem; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 0.88rem; transition: background 0.2s; }
+        .sdk-nav-cta:hover { background: #6a4de0; color: #fff; }
+
+        /* HERO */
+        .sdk-hero { text-align: center; padding: 5rem 2rem 4rem; max-width: 760px; margin: 0 auto; }
+        .sdk-badge { display: inline-block; background: #1a1a2e; border: 1px solid #2a2a4a; color: #7c5cff; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; padding: 0.3rem 0.9rem; border-radius: 20px; margin-bottom: 1.8rem; text-transform: uppercase; }
+        .sdk-hero h1 { font-size: 2.8rem; font-weight: 800; line-height: 1.18; color: #fff; margin-bottom: 1.2rem; }
+        .sdk-hero h1 span { color: #c9a84c; }
+        .sdk-hero p { font-size: 1.15rem; color: #9994b0; line-height: 1.7; margin-bottom: 2.4rem; }
+        .sdk-hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn-primary { background: #7c5cff; color: #fff; padding: 0.8rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: background 0.2s; }
+        .btn-primary:hover { background: #6a4de0; }
+        .btn-secondary { background: transparent; color: #c9a84c; border: 1px solid #c9a84c; padding: 0.8rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; }
+        .btn-secondary:hover { background: #c9a84c22; }
+
+        /* PROOF STRIP */
+        .proof-strip { display: flex; justify-content: center; gap: 3rem; padding: 2.5rem 2rem; border-top: 1px solid #1e1e2e; border-bottom: 1px solid #1e1e2e; flex-wrap: wrap; }
+        .proof-item { text-align: center; }
+        .proof-number { font-size: 2.1rem; font-weight: 800; color: #c9a84c; }
+        .proof-label { font-size: 0.8rem; color: #6e6a80; margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* CONNECTORS */
+        .connectors { max-width: 960px; margin: 4rem auto; padding: 0 2rem; }
+        .section-label { text-align: center; font-size: 0.78rem; font-weight: 700; color: #7c5cff; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.8rem; }
+        .section-title { text-align: center; font-size: 1.9rem; font-weight: 800; margin-bottom: 0.7rem; color: #fff; }
+        .section-sub { text-align: center; color: #9994b0; font-size: 1rem; margin-bottom: 3rem; }
+        .connector-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .connector-card { background: #111120; border: 1px solid #1e1e2e; border-radius: 12px; padding: 1.8rem; transition: border-color 0.2s; }
+        .connector-card:hover { border-color: #7c5cff44; }
+        .connector-icon { font-size: 1.8rem; margin-bottom: 1rem; }
+        .connector-card h3 { font-size: 1.05rem; font-weight: 700; color: #e8e6f0; margin-bottom: 0.5rem; }
+        .connector-card p { font-size: 0.88rem; color: #6e6a80; line-height: 1.6; margin-bottom: 1.2rem; }
+        .connector-card code { display: block; background: #0d0d1a; border: 1px solid #1e1e2e; border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.78rem; color: #7c5cff; font-family: 'Fira Code', 'Courier New', monospace; line-height: 1.5; }
+
+        /* ROI BLOCK */
+        .roi-block { background: linear-gradient(135deg, #111120 0%, #0d0d1a 100%); border: 1px solid #2a2a4a; border-radius: 16px; max-width: 760px; margin: 3rem auto; padding: 3rem 2.5rem; text-align: center; }
+        .roi-block h2 { font-size: 1.6rem; font-weight: 800; color: #c9a84c; margin-bottom: 0.5rem; }
+        .roi-block p { color: #9994b0; font-size: 0.95rem; margin-bottom: 2rem; }
+        .roi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .roi-stat { }
+        .roi-num { font-size: 1.8rem; font-weight: 800; color: #fff; }
+        .roi-desc { font-size: 0.78rem; color: #6e6a80; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+        /* CTA */
+        .sdk-cta { text-align: center; padding: 5rem 2rem; }
+        .sdk-cta h2 { font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.7rem; }
+        .sdk-cta p { color: #9994b0; font-size: 1rem; margin-bottom: 2rem; }
+
+        /* FOOTER */
+        .sdk-footer { border-top: 1px solid #1e1e2e; padding: 2rem; text-align: center; color: #3a3650; font-size: 0.8rem; }
+        .sdk-footer a { color: #6e6a80; text-decoration: none; margin: 0 0.7rem; }
+        .sdk-footer a:hover { color: #9994b0; }
+    </style>
+</head>
+<body>
+    <nav class="sdk-nav">
+        <div class="sdk-nav-brand">&#9670; VOID SDK</div>
+        <div class="sdk-nav-links">
+            <a href="/sdk/docs">Docs</a>
+            <a href="/sdk/enterprise">Enterprise</a>
+            <a href="/pricing">Pricing</a>
+            <a href="https://github.com/umarlatif6-sketch/Project-void" target="_blank">GitHub</a>
+        </div>
+        <a href="/sdk/pilot" class="sdk-nav-cta">Start Free Pilot</a>
+    </nav>
+
+    <!-- HERO -->
+    <section class="sdk-hero">
+        <div class="sdk-badge">✦ Conformance V1 — Now Available</div>
+        <h1>Deterministic Event Integrity<br>for <span>AI Pipelines</span></h1>
+        <p>One integration. Every event stamped, verifiable, and exportable.<br>
+        Drop into Flask in 3 lines. Webhook-guard any downstream. Export to any warehouse.</p>
+        <div class="sdk-hero-actions">
+            <a href="/sdk/pilot" class="btn-primary">Start 30-Day Integrity Pilot →</a>
+            <a href="/sdk/enterprise" class="btn-secondary">Enterprise Page</a>
+        </div>
+    </section>
+
+    <!-- PROOF STRIP -->
+    <div class="proof-strip">
+        <div class="proof-item">
+            <div class="proof-number">82.35%</div>
+            <div class="proof-label">Proven Cost Reduction</div>
+        </div>
+        <div class="proof-item">
+            <div class="proof-number">$385K</div>
+            <div class="proof-label">Annual Savings / 10K Users</div>
+        </div>
+        <div class="proof-item">
+            <div class="proof-number">286-bit</div>
+            <div class="proof-label">Sovereign Hash Depth</div>
+        </div>
+        <div class="proof-item">
+            <div class="proof-number">3 Lines</div>
+            <div class="proof-label">Flask Drop-In</div>
+        </div>
+    </div>
+
+    <!-- CONNECTORS -->
+    <section class="connectors">
+        <div class="section-label">Three Surfaces</div>
+        <h2 class="section-title">Plug In Where You Are</h2>
+        <p class="section-sub">No rip-and-replace. VOID wraps your existing stack.</p>
+        <div class="connector-grid">
+            <div class="connector-card">
+                <div class="connector-icon">⚗️</div>
+                <h3>Flask Drop-In</h3>
+                <p>Integrity stamping on every route. Registers in your app factory. Works in 3 lines.</p>
+                <code>from void_sdk import VoidFlask<br>void = VoidFlask()<br>void.init_app(app)</code>
+            </div>
+            <div class="connector-card">
+                <div class="connector-icon">🛡️</div>
+                <h3>Webhook Guard</h3>
+                <p>Every outbound event carries a deterministic digest. Receivers verify with one call.</p>
+                <code>payload = sdk.webhook_payload(event)<br>sdk.send_webhook(url, payload)</code>
+            </div>
+            <div class="connector-card">
+                <div class="connector-icon">📦</div>
+                <h3>Warehouse Export</h3>
+                <p>Push verified event records to BigQuery, Snowflake, or any JSONL/CSV pipeline.</p>
+                <code>exporter = VoidWarehouseExporter(sdk)<br>exporter.export(records, "output.jsonl")</code>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI BLOCK -->
+    <div class="roi-block">
+        <h2>The Numbers Behind the Pitch</h2>
+        <p>Harness-validated baseline. 82.35% proven reduction in verified deployments.</p>
+        <div class="roi-grid">
+            <div class="roi-stat">
+                <div class="roi-num">$32.1K</div>
+                <div class="roi-desc">Monthly savings / 10K users</div>
+            </div>
+            <div class="roi-stat">
+                <div class="roi-num">$385K</div>
+                <div class="roi-desc">Annual modeled</div>
+            </div>
+            <div class="roi-stat">
+                <div class="roi-num">$21M</div>
+                <div class="roi-desc">Harness-scaled annual</div>
+            </div>
+        </div>
+        <a href="/sdk/roi" class="btn-secondary">Run your numbers →</a>
+    </div>
+
+    <!-- CTA -->
+    <section class="sdk-cta">
+        <h2>30-Day Integrity Pilot</h2>
+        <p>Free. Full access. Your data stays sovereign. No lock-in.</p>
+        <a href="/sdk/pilot" class="btn-primary">Request Pilot Access →</a>
+    </section>
+
+    <footer class="sdk-footer">
+        <p>Project VOID &mdash; Al-Jabr 286 &mdash; Conformance V1</p>
+        <p style="margin-top:0.7rem;">
+            <a href="/sdk/enterprise">Enterprise</a>
+            <a href="/void-engine-sdk/CONFORMANCE_V1">Conformance Spec</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/proof">Proof</a>
+            <a href="/chronicle">Chronicle</a>
+        </p>
+    </footer>
+</body>
+</html>

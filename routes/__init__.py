@@ -115,6 +115,7 @@ from routes.convergence import convergence_bp
 from routes.resonance_weaver import resonance_weaver_bp
 from routes.void_codex import void_codex_bp
 from routes.wake import wake_bp
+from routes.sdk_landing import sdk_landing_bp
 from void_engine.stealth_cloak import stealth_bp
 
 
@@ -236,4 +237,5 @@ def register_blueprints(app):
     app.register_blueprint(resonance_weaver_bp)
     app.register_blueprint(void_codex_bp)
     app.register_blueprint(wake_bp)
+    app.register_blueprint(sdk_landing_bp)
     app.register_blueprint(stealth_bp)

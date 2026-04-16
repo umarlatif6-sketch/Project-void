@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID SDK Enterprise — Deterministic Event Integrity at Scale</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0a0f; color: #e8e6f0; font-family: 'Inter', 'Segoe UI', sans-serif; line-height: 1.6; }
+
+        /* NAV */
+        .sdk-nav { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 2.5rem; border-bottom: 1px solid #1e1e2e; position: sticky; top: 0; background: rgba(10,10,15,0.96); z-index: 100; backdrop-filter: blur(8px); }
+        .sdk-nav-brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.04em; color: #c9a84c; }
+        .sdk-nav-links { display: flex; gap: 2rem; align-items: center; }
+        .sdk-nav-links a { color: #9994b0; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .sdk-nav-links a:hover { color: #e8e6f0; }
+        .sdk-nav-cta { background: #c9a84c; color: #0a0a0f; padding: 0.5rem 1.4rem; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 0.88rem; transition: background 0.2s; }
+        .sdk-nav-cta:hover { background: #b8943a; }
+
+        /* HERO */
+        .ent-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; max-width: 1100px; margin: 0 auto; padding: 5rem 2.5rem 4rem; align-items: center; }
+        .ent-hero-left h1 { font-size: 2.6rem; font-weight: 800; line-height: 1.18; color: #fff; margin-bottom: 1.2rem; }
+        .ent-hero-left h1 span { color: #c9a84c; }
+        .ent-hero-left p { font-size: 1.05rem; color: #9994b0; margin-bottom: 1.8rem; }
+        .ent-hero-actions { display: flex; flex-direction: column; gap: 0.8rem; align-items: flex-start; }
+        .btn-gold { background: #c9a84c; color: #0a0a0f; padding: 0.85rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.95rem; display: inline-block; transition: background 0.2s; }
+        .btn-gold:hover { background: #b8943a; }
+        .btn-outline { background: transparent; color: #9994b0; border: 1px solid #2a2a4a; padding: 0.75rem 1.8rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; display: inline-block; transition: all 0.2s; }
+        .btn-outline:hover { border-color: #7c5cff; color: #e8e6f0; }
+        .ent-hero-right { background: #111120; border: 1px solid #1e1e2e; border-radius: 14px; padding: 2rem; }
+        .ent-hero-right h3 { font-size: 0.8rem; font-weight: 700; color: #7c5cff; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.2rem; }
+        .stat-row { display: flex; justify-content: space-between; align-items: baseline; padding: 0.65rem 0; border-bottom: 1px solid #1a1a2e; }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-label { font-size: 0.88rem; color: #6e6a80; }
+        .stat-val { font-size: 1.1rem; font-weight: 700; color: #c9a84c; }
+
+        /* PROBLEM */
+        .section { max-width: 1000px; margin: 0 auto; padding: 4rem 2.5rem; }
+        .section-eyebrow { font-size: 0.75rem; font-weight: 700; color: #7c5cff; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.6rem; }
+        .section-h2 { font-size: 1.9rem; font-weight: 800; color: #fff; margin-bottom: 1rem; }
+        .section-body { color: #9994b0; font-size: 1rem; max-width: 680px; margin-bottom: 2.5rem; }
+        .problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+        .problem-card { background: #0d0d18; border: 1px solid #1a1a2e; border-left: 3px solid #ff4444; border-radius: 10px; padding: 1.4rem; }
+        .problem-card h4 { font-size: 0.95rem; font-weight: 700; color: #e8e6f0; margin-bottom: 0.4rem; }
+        .problem-card p { font-size: 0.85rem; color: #6e6a80; line-height: 1.5; }
+
+        /* SOLUTION */
+        .solution-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .solution-card { background: #111120; border: 1px solid #1e1e2e; border-radius: 12px; padding: 1.8rem; }
+        .solution-card:hover { border-color: #c9a84c44; }
+        .sol-icon { font-size: 1.8rem; margin-bottom: 1rem; }
+        .solution-card h3 { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+        .solution-card p { font-size: 0.88rem; color: #6e6a80; line-height: 1.6; }
+        .sol-tag { display: inline-block; background: #1a1a2e; color: #7c5cff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; padding: 0.2rem 0.6rem; border-radius: 4px; margin-top: 0.8rem; text-transform: uppercase; }
+
+        /* HOW IT WORKS */
+        .how-section { background: #0d0d18; border-top: 1px solid #1e1e2e; border-bottom: 1px solid #1e1e2e; }
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; max-width: 1000px; margin: 0 auto; padding: 3.5rem 2.5rem; }
+        .step { padding: 1rem 1.5rem; position: relative; }
+        .step:not(:last-child)::after { content: '→'; position: absolute; right: -0.2rem; top: 1.6rem; color: #2a2a4a; font-size: 1.2rem; }
+        .step-num { font-size: 0.7rem; font-weight: 700; color: #7c5cff; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .step h4 { font-size: 0.95rem; font-weight: 700; color: #e8e6f0; margin-bottom: 0.3rem; }
+        .step p { font-size: 0.82rem; color: #6e6a80; line-height: 1.5; }
+
+        /* ROI */
+        .roi-section { background: linear-gradient(135deg, #111120 0%, #0d0d1a 100%); border: 1px solid #2a2a4a; border-radius: 16px; max-width: 920px; margin: 2rem auto; padding: 3.5rem 3rem; }
+        .roi-header { text-align: center; margin-bottom: 2.5rem; }
+        .roi-header h2 { font-size: 1.6rem; font-weight: 800; color: #c9a84c; margin-bottom: 0.5rem; }
+        .roi-header p { color: #9994b0; font-size: 0.95rem; }
+        .roi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1.5rem; text-align: center; margin-bottom: 2.5rem; }
+        .roi-stat .roi-num { font-size: 2rem; font-weight: 800; color: #fff; }
+        .roi-stat .roi-label { font-size: 0.75rem; color: #6e6a80; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.2rem; }
+        .roi-source { text-align: center; font-size: 0.78rem; color: #3a3650; font-style: italic; }
+
+        /* CONFORMANCE */
+        .conform-section { max-width: 1000px; margin: 0 auto; padding: 4rem 2.5rem; }
+        .conform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+        .conform-left h2 { font-size: 1.7rem; font-weight: 800; color: #fff; margin-bottom: 1rem; }
+        .conform-left p { color: #9994b0; font-size: 0.95rem; margin-bottom: 1.5rem; }
+        .conform-right code { display: block; background: #0d0d1a; border: 1px solid #1e1e2e; border-radius: 10px; padding: 1.5rem; font-size: 0.82rem; color: #c9a84c; font-family: 'Fira Code', 'Courier New', monospace; line-height: 1.8; white-space: pre; overflow-x: auto; }
+        .conform-checks { list-style: none; }
+        .conform-checks li { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.5rem 0; border-bottom: 1px solid #1a1a2e; font-size: 0.88rem; color: #9994b0; }
+        .conform-checks li:last-child { border-bottom: none; }
+        .check-icon { color: #c9a84c; font-size: 0.9rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+        /* FAQ */
+        .faq-section { max-width: 760px; margin: 0 auto; padding: 4rem 2.5rem; }
+        .faq-item { border-bottom: 1px solid #1a1a2e; padding: 1.5rem 0; }
+        .faq-q { font-size: 1rem; font-weight: 700; color: #e8e6f0; margin-bottom: 0.6rem; }
+        .faq-a { font-size: 0.9rem; color: #6e6a80; line-height: 1.7; }
+        .faq-a code { background: #1a1a2e; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.82rem; color: #7c5cff; }
+
+        /* FINAL CTA */
+        .ent-cta { text-align: center; padding: 5rem 2rem; background: #0d0d18; border-top: 1px solid #1e1e2e; }
+        .ent-cta h2 { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.7rem; }
+        .ent-cta p { color: #9994b0; font-size: 1rem; margin-bottom: 2.5rem; max-width: 540px; margin-left: auto; margin-right: auto; }
+        .ent-cta-grid { display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap; }
+
+        .sdk-footer { border-top: 1px solid #1e1e2e; padding: 2rem; text-align: center; color: #3a3650; font-size: 0.8rem; }
+        .sdk-footer a { color: #6e6a80; text-decoration: none; margin: 0 0.7rem; }
+        .sdk-footer a:hover { color: #9994b0; }
+
+        @media (max-width: 720px) {
+            .ent-hero { grid-template-columns: 1fr; }
+            .conform-grid { grid-template-columns: 1fr; }
+            .roi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sdk-nav">
+        <div class="sdk-nav-brand">&#9670; VOID SDK &mdash; Enterprise</div>
+        <div class="sdk-nav-links">
+            <a href="/sdk">Overview</a>
+            <a href="/sdk/docs">Docs</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/proof">Proof</a>
+        </div>
+        <a href="/sdk/pilot" class="sdk-nav-cta">Request Pilot →</a>
+    </nav>
+
+    <!-- HERO -->
+    <section style="background: #0d0d18; border-bottom: 1px solid #1e1e2e;">
+        <div class="ent-hero">
+            <div class="ent-hero-left">
+                <div style="font-size:0.75rem; font-weight:700; color:#7c5cff; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.8rem;">For CTOs &amp; Platform Architects</div>
+                <h1>Event Integrity That<br><span>Scales With Your Pipeline</span></h1>
+                <p>VOID SDK embeds deterministic event stamping, webhook verification, and warehouse export directly into your existing Flask infrastructure — zero schema migration, zero vendor lock-in.</p>
+                <div class="ent-hero-actions">
+                    <a href="/sdk/pilot" class="btn-gold">Request 30-Day Integrity Pilot →</a>
+                    <a href="/void-engine-sdk/CONFORMANCE_V1" class="btn-outline">Review Conformance Spec V1</a>
+                </div>
+            </div>
+            <div class="ent-hero-right">
+                <h3>Proven at Scale</h3>
+                <div class="stat-row">
+                    <span class="stat-label">Cost reduction (Harness-validated)</span>
+                    <span class="stat-val">82.35%</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Annual savings / 10,000 users</span>
+                    <span class="stat-val">$385,200</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Harness-scaled annual savings</span>
+                    <span class="stat-val">$21,000,000</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Hash depth (Al-Jabr 286)</span>
+                    <span class="stat-val">286-bit</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Lines to drop into Flask</span>
+                    <span class="stat-val">3</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Conformance spec</span>
+                    <span class="stat-val">V1 — Public</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROBLEM -->
+    <section class="section">
+        <div class="section-eyebrow">The Problem</div>
+        <h2 class="section-h2">AI Pipelines Are Flying Blind on Event Integrity</h2>
+        <p class="section-body">Every AI workflow writes events. Almost none of them verify what was written, when, or whether it was tampered with in transit. You end up debugging ghosts.</p>
+        <div class="problem-grid">
+            <div class="problem-card">
+                <h4>Tampered Webhooks</h4>
+                <p>Downstream consumers receive events with no digest. Any MITM or misconfigured proxy silently corrupts your audit trail.</p>
+            </div>
+            <div class="problem-card">
+                <h4>Warehouse Drift</h4>
+                <p>Batch exports accumulate without provenance. By the time you query them, you can't tell which records were clean at write time.</p>
+            </div>
+            <div class="problem-card">
+                <h4>Session Blind Spots</h4>
+                <p>Request-level signing stops at the HTTP boundary. AI agent actions that span multiple API calls have no verifiable lineage.</p>
+            </div>
+            <div class="problem-card">
+                <h4>Compliance Gaps</h4>
+                <p>Regulators ask for event integrity proofs. You have logs. Logs are not proofs. The gap is expensive to close at audit time.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOLUTION -->
+    <section class="section" style="padding-top:0;">
+        <div class="section-eyebrow">The Solution</div>
+        <h2 class="section-h2">Three Connector Surfaces. One Integrity Layer.</h2>
+        <p class="section-body">VOID SDK wraps your existing Flask stack with deterministic stamping at every exit point — request, webhook, and warehouse.</p>
+        <div class="solution-grid">
+            <div class="solution-card">
+                <div class="sol-icon">⚗️</div>
+                <h3>Flask Drop-In</h3>
+                <p>Attaches to your app factory. Stamps every response with a per-request 286-bit digest derived from payload + session + timestamp. No schema changes.</p>
+                <span class="sol-tag">3-line integration</span>
+            </div>
+            <div class="solution-card">
+                <div class="sol-icon">🛡️</div>
+                <h3>Webhook Guard</h3>
+                <p>Wraps outbound event delivery. Each payload carries a <code style="color:#c9a84c;background:#1a1a2e;padding:0.1rem 0.3rem;border-radius:3px;font-size:0.78rem;">void_digest</code> field. Receivers verify with a single stdlib call — no secret sharing required.</p>
+                <span class="sol-tag">stdlib only — zero extra deps</span>
+            </div>
+            <div class="solution-card">
+                <div class="sol-icon">📦</div>
+                <h3>Warehouse Export</h3>
+                <p>Verified records export as JSONL or CSV with digest and spec version embedded. Drop straight into BigQuery, Snowflake, or S3-based pipelines.</p>
+                <span class="sol-tag">JSONL / CSV</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-section">
+        <div style="text-align:center; padding-top:3.5rem;">
+            <div class="section-eyebrow">How It Works</div>
+            <h2 class="section-h2" style="margin-bottom:0;">Four Steps. Deterministic Every Time.</h2>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">Step 01</div>
+                <h4>Event Fires</h4>
+                <p>Your Flask route handles a request. VOID intercepts at the response layer.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">Step 02</div>
+                <h4>Al-Jabr 286 Stamps</h4>
+                <p>Payload + session + timestamp are hashed to a 286-bit deterministic digest via Fatiha layers.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">Step 03</div>
+                <h4>Digest Delivered</h4>
+                <p>The digest rides on the response header or webhook payload. Nothing extra to deploy.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">Step 04</div>
+                <h4>Receiver Verifies</h4>
+                <p>Any downstream consumer recomputes the digest and compares. Pass or fail, deterministic.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI -->
+    <section class="section">
+        <div class="roi-section">
+            <div class="roi-header">
+                <h2>The Business Case</h2>
+                <p>Harness-validated baseline. Run your own numbers at <a href="/sdk/roi" style="color:#7c5cff;">voidsdk.io/roi</a></p>
+            </div>
+            <div class="roi-grid">
+                <div class="roi-stat">
+                    <div class="roi-num">82.35%</div>
+                    <div class="roi-label">Verified cost reduction</div>
+                </div>
+                <div class="roi-stat">
+                    <div class="roi-num">$38.52</div>
+                    <div class="roi-label">Proven per-user annual savings</div>
+                </div>
+                <div class="roi-stat">
+                    <div class="roi-num">$385K</div>
+                    <div class="roi-label">Annual / 10K users (modeled)</div>
+                </div>
+                <div class="roi-stat">
+                    <div class="roi-num">$21M</div>
+                    <div class="roi-label">Harness-scaled annual</div>
+                </div>
+            </div>
+            <p class="roi-source">Baseline reduction figure sourced from Harness enterprise deployment data. Modeled savings use $38.52 per-user annual constant. Your numbers will vary — use the ROI calculator for a custom projection.</p>
+        </div>
+    </section>
+
+    <!-- CONFORMANCE -->
+    <section class="conform-section">
+        <div class="section-eyebrow">Trust Layer</div>
+        <h2 class="section-h2">Conformance V1 — Public Spec</h2>
+        <div class="conform-grid">
+            <div class="conform-left">
+                <p>VOID SDK publishes a public conformance contract. Your team can audit, verify, and extend it. No black-box integrity claims.</p>
+                <ul class="conform-checks">
+                    <li><span class="check-icon">✦</span>Every event carries <code>void_digest</code>, <code>void_spec</code>, <code>void_ts</code>, <code>void_node</code></li>
+                    <li><span class="check-icon">✦</span>Digest is deterministic and recomputable by any receiver</li>
+                    <li><span class="check-icon">✦</span>Warehouse export format is fixed and versioned</li>
+                    <li><span class="check-icon">✦</span>Flask surface must expose <code>/preflight</code> and <code>/wake</code> endpoints</li>
+                    <li><span class="check-icon">✦</span>Minimum codon support: <code>voidecho</code>, <code>adriana</code>, <code>chronicle</code></li>
+                    <li><span class="check-icon">✦</span>Fail-closed on missing digest — no silent pass-through</li>
+                </ul>
+                <div style="margin-top:1.5rem;">
+                    <a href="/void-engine-sdk/CONFORMANCE_V1" class="btn-outline">Read Full Conformance Spec →</a>
+                </div>
+            </div>
+            <div class="conform-right">
+                <code>{
+  "void_digest": "8441353af594aec3...",
+  "void_spec": "void.webhook.v1",
+  "void_ts": 1713225600.0,
+  "void_node": "primary",
+  "event_type": "session.stamped",
+  "payload_hash_depth": 286,
+  "fatiha_layers": [7,4,2,5,4,3,6],
+  "base_freq": 432.0,
+  "verified": true
+}</code>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+        <div class="section-eyebrow">FAQ</div>
+        <h2 class="section-h2">Questions from the CTO Review</h2>
+
+        <div class="faq-item">
+            <div class="faq-q">Does this require a schema migration?</div>
+            <div class="faq-a">No. The digest rides on the response header or the webhook payload envelope. Your database schema is untouched. Warehouse exports write to new files, not existing tables.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">What dependencies does the webhook guard add?</div>
+            <div class="faq-a">Zero new dependencies. <code>build_webhook_payload()</code> and <code>post_webhook_payload()</code> are implemented with Python's stdlib <code>urllib</code> only. The core hash runs on <code>hashlib</code> and <code>hmac</code>.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Is the hash reversible or claimable as a standard?</div>
+            <div class="faq-a">No. Al-Jabr 286 is a deterministic, one-way digest function. VOID does not claim to be an HTTP-equivalent web standard. Conformance V1 defines an integration contract for VOID-compatible systems only.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">How do receivers verify a webhook without a shared secret?</div>
+            <div class="faq-a">The digest is computed deterministically from the payload itself — no shared secret is required for the base verification. For environments that require HMAC-style signing, the SOVEREIGN tier adds a per-node Ed25519 signature layer.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">What does the 30-day pilot include?</div>
+            <div class="faq-a">Full SIGNAL-tier access. Flask drop-in, webhook guard, and warehouse export with up to 500K monthly stamped events. Data stays on your infrastructure. No lock-in — you own the export files. After 30 days, choose a tier or walk away.</div>
+        </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="ent-cta">
+        <h2>Start Your 30-Day Integrity Pilot</h2>
+        <p>Full access. Your infrastructure. Sovereign data. No lock-in. We will onboard you this week.</p>
+        <div class="ent-cta-grid">
+            <a href="/sdk/pilot" class="btn-gold">Request Pilot Access →</a>
+            <a href="/sdk/roi" class="btn-outline">Run Your ROI Numbers</a>
+            <a href="/void-engine-sdk/CONFORMANCE_V1" class="btn-outline">Review the Spec</a>
+        </div>
+    </section>
+
+    <footer class="sdk-footer">
+        <p>Project VOID &mdash; Al-Jabr 286 &mdash; Conformance V1 &mdash; SOVEREIGN by design</p>
+        <p style="margin-top:0.7rem;">
+            <a href="/sdk">SDK Home</a>
+            <a href="/void-engine-sdk/CONFORMANCE_V1">Conformance Spec</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/proof">Proof</a>
+            <a href="/chronicle">Chronicle</a>
+        </p>
+    </footer>
+</body>
+</html>
