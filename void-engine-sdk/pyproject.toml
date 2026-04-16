@@ -21,6 +21,7 @@ all = ["psycopg2-binary>=2.9", "flask>=3.0"]
 Homepage = "https://void-stego-engine.replit.app"
 Paper = "https://umarlatif6-sketch.github.io/void-origin/formation-paper.html"
 Origin = "https://umarlatif6-sketch.github.io/void-origin/"
+Conformance = "https://github.com/umarlatif6-sketch/Project-void/tree/main/void-engine-sdk"
 
 [tool.setuptools.packages.find]
 where = ["."]

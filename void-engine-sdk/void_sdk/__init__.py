@@ -29,6 +29,7 @@ Paper:   https://umarlatif6-sketch.github.io/void-origin/formation-paper.html
 
 from void_sdk.core import VoidSDK
 from void_sdk.flask_ext import VoidFlask
+from void_sdk.connectors import VoidWarehouseExporter, build_webhook_payload, post_webhook_payload
 from void_sdk.hash286 import sign286, formation_score, verify286
 from void_sdk.codons import get_codon, all_codons, codons_for_tier
 from void_sdk.license import validate as validate_license
@@ -40,6 +41,9 @@ __origin__ = "Bolton, England, April 2026"
 __all__ = [
     "VoidSDK",
     "VoidFlask",
+    "VoidWarehouseExporter",
+    "build_webhook_payload",
+    "post_webhook_payload",
     "sign286",
     "formation_score",
     "verify286",

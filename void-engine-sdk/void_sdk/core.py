@@ -32,6 +32,7 @@ from void_sdk.hash286 import sign286, formation_score
 from void_sdk.license import validate, check_limit, check_codon, LicenseState
 from void_sdk.memory import VoidMemory
 from void_sdk.codons import all_codons
+from void_sdk.connectors import VoidWarehouseExporter, build_webhook_payload, post_webhook_payload
 
 
 class VoidSDK:
@@ -156,3 +157,60 @@ class VoidSDK:
     def score(self, text: str) -> float:
         """Return the formation resonance score (0.0–1.0) for arbitrary text."""
         return formation_score(text)
+
+    def webhook_payload(
+        self,
+        entity: str,
+        condition: str,
+        action: str,
+        codon: str,
+        meta: Optional[dict] = None,
+    ) -> dict:
+        """Build a connector-friendly payload without mutating the memory store."""
+        ts = time.time()
+        raw = f"entity:{entity} | condition:{condition} | action:{action} | codon:{codon}"
+        return build_webhook_payload(
+            entity=entity,
+            condition=condition,
+            action=action,
+            codon=codon,
+            meta=meta or {},
+            digest=sign286(raw, ts),
+            formation=formation_score(raw),
+            tier=self.license.tier,
+            ts=ts,
+        )
+
+    def send_webhook(
+        self,
+        url: str,
+        entity: str,
+        condition: str,
+        action: str,
+        codon: str,
+        meta: Optional[dict] = None,
+        timeout: float = 5.0,
+        headers: Optional[dict[str, str]] = None,
+    ) -> dict:
+        """Post a normalized VOID event payload to an external webhook endpoint."""
+        payload = self.webhook_payload(
+            entity=entity,
+            condition=condition,
+            action=action,
+            codon=codon,
+            meta=meta,
+        )
+        return post_webhook_payload(url, payload, timeout=timeout, headers=headers)
+
+    def export_records(
+        self,
+        fmt: str = "jsonl",
+        entity: Optional[str] = None,
+        codon: Optional[str] = None,
+        limit: int = 1000,
+        file_path: Optional[str] = None,
+    ) -> dict:
+        """Export recalled events to JSONL or CSV for warehouse and BI pipelines."""
+        records = self.recall(entity=entity, codon=codon, limit=limit)
+        exporter = VoidWarehouseExporter()
+        return exporter.export(records, fmt=fmt, file_path=file_path)

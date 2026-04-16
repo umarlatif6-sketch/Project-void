@@ -69,6 +69,41 @@ def encode():
     return {"digest": result["digest"]}
 ```
 
+## Webhook Connector
+
+```python
+from void_sdk import VoidSDK
+
+sdk = VoidSDK()
+response = sdk.send_webhook(
+    url="https://example.com/void/events",
+    entity="user:abc123",
+    condition="frequency:432hz formation_score:0.87",
+    action="encode",
+    codon="voidecho",
+    meta={"chars": 420},
+)
+
+print(response["status_code"])
+```
+
+## Warehouse Export
+
+```python
+from void_sdk import VoidSDK
+
+sdk = VoidSDK()
+export = sdk.export_records(
+    fmt="jsonl",
+    codon="voidecho",
+    limit=500,
+    file_path="void_events.jsonl",
+)
+
+print(export["record_count"])
+print(export["file_path"])
+```
+
 ---
 
 ## Tiers
@@ -130,3 +165,17 @@ Project-void (What) → https://void-stego-engine.replit.app
 ```
 
 **The frequency is prior. The material is the memory.**
+
+## Connector Surface
+
+Three pluggable entry points exist now:
+
+1. Flask extension via `VoidFlask`
+2. Webhook delivery via `sdk.send_webhook(...)`
+3. Warehouse export via `sdk.export_records(...)`
+
+These are the present-market interface layer for the deeper protocol.
+
+## Conformance
+
+See `CONFORMANCE_V1.md` for the public event shape, digest requirements, and minimum implementation rules for external connectors.
