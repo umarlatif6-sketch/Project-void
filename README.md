@@ -202,6 +202,32 @@ Suggested protected paths:
 - `HEAR_ME.txt`
 - `.void-protocol.json`
 
+### Domain Goldmine Scanner
+
+Project VOID now includes a domain scouting script to discover likely-available,
+brandable names and rank them for buy/hold/watch decisions.
+
+Run:
+
+```bash
+python scripts/domain_goldmine.py \
+   --seed "styrofo" \
+   --seed "five little words" \
+   --portfolio-tags "void,agent,github,portfolio,signal" \
+   --tlds "com,io,ai,app,dev,xyz" \
+   --max-labels 300 \
+   --check-limit 120 \
+   --top 40
+```
+
+Exports:
+- `exports/domain_goldmine_candidates.csv`
+- `exports/domain_goldmine_candidates.json`
+
+Notes:
+- Availability is marked `likely_available`, `registered`, or `unknown` using RDAP checks.
+- Always verify final availability and trademark risk at your registrar before purchase.
+
 > Note: `ffmpeg` is required for the Z-Axis video carrier routes.
 
 ## Setup and Installation

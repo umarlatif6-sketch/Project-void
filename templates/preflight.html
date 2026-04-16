@@ -319,6 +319,39 @@
             letter-spacing: 1px;
         }
         .pf-prob-bars { display: flex; flex-direction: column; gap: 14px; }
+        .pf-health-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+        .pf-health-cell {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+        .pf-health-label {
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .pf-health-val {
+            font-size: 1.2rem;
+            color: #fff;
+            font-weight: 700;
+        }
+        .pf-health-note {
+            font-size: 0.68rem;
+            color: #888;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+        @media (max-width: 780px) {
+            .pf-health-grid { grid-template-columns: 1fr 1fr; }
+        }
         .pf-bar-row { display: flex; flex-direction: column; gap: 5px; }
         .pf-bar-header {
             display: flex;
@@ -582,6 +615,54 @@
             </div>
         </div>
 
+    </div>
+
+    <div class="pf-section">
+        <div class="pf-section-title">◆ Mycelium Health</div>
+        <div class="pf-prob-panel">
+            <div class="pf-card-header" style="margin-bottom: 10px;">
+                <div>
+                    <div class="pf-card-title">Operator Organism Check</div>
+                </div>
+                <div class="pf-status {{ 'ready' if mycelium_health.overall_status == 'pass' else 'pending' if mycelium_health.overall_status == 'warn' else 'check' }}">
+                    <div class="pf-status-dot"></div>
+                    {{ mycelium_health.overall_status | upper }}
+                </div>
+            </div>
+            <p class="pf-card-desc">
+                One command verifies continuity, convergence, thread-state, and foundation integrity.
+                This is the living health read of the organism, not just the sprint room.
+            </p>
+            <div class="pf-health-grid">
+                <div class="pf-health-cell">
+                    <div class="pf-health-label">Pass</div>
+                    <div class="pf-health-val">{{ mycelium_health.summary.pass }}</div>
+                </div>
+                <div class="pf-health-cell">
+                    <div class="pf-health-label">Warn</div>
+                    <div class="pf-health-val">{{ mycelium_health.summary.warn }}</div>
+                </div>
+                <div class="pf-health-cell">
+                    <div class="pf-health-label">Fail</div>
+                    <div class="pf-health-val">{{ mycelium_health.summary.fail }}</div>
+                </div>
+                <div class="pf-health-cell">
+                    <div class="pf-health-label">Report</div>
+                    <div class="pf-health-val">JSON</div>
+                </div>
+            </div>
+            <div class="pf-health-note">
+                Section states:
+                continuity={{ mycelium_health.section_statuses.get('continuity', 'n/a') }},
+                convergence={{ mycelium_health.section_statuses.get('convergence', 'n/a') }},
+                thread_state={{ mycelium_health.section_statuses.get('thread_state', 'n/a') }},
+                foundation={{ mycelium_health.section_statuses.get('foundation', 'n/a') }}.
+            </div>
+            <div class="pf-card-actions" style="margin-top: 16px;">
+                <a href="/api/mycelium/health" class="pf-link-btn teal">→ Mycelium Health JSON</a>
+                <a href="/api/lbn/runtime-status" class="pf-link-btn">→ Runtime Status JSON</a>
+            </div>
+        </div>
     </div>
 
     <!-- PROBABILITY MATRIX -->

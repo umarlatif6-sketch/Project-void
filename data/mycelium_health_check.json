@@ -1,0 +1,102 @@
+{
+  "generated_at": "2026-04-16T03:43:02.261217+00:00",
+  "report_type": "mycelium_health_check",
+  "overall_status": "pass",
+  "summary": {
+    "pass": 14,
+    "warn": 0,
+    "fail": 0
+  },
+  "sections": {
+    "continuity": {
+      "status": "pass",
+      "checks": [
+        {
+          "name": "runtime_status_route",
+          "status": "pass",
+          "detail": "Preflight runtime-status endpoint definition present."
+        },
+        {
+          "name": "payload_map_route",
+          "status": "pass",
+          "detail": "Preflight payload-map endpoint definition present."
+        },
+        {
+          "name": "chronicle_present",
+          "status": "pass",
+          "detail": "Chronicle file exists for continuity inheritance."
+        }
+      ]
+    },
+    "convergence": {
+      "status": "pass",
+      "checks": [
+        {
+          "name": "convergence_report_present",
+          "status": "pass",
+          "detail": "Full stack convergence report is readable."
+        },
+        {
+          "name": "phase_roundtrip_integrity",
+          "status": "pass",
+          "detail": "Hex foundation phase roundtrip matches original message."
+        },
+        {
+          "name": "all_convergence_checkpoints",
+          "status": "pass",
+          "detail": "All convergence checkpoint tasks passed in the latest report."
+        },
+        {
+          "name": "economic_reduction_floor",
+          "status": "pass",
+          "detail": "Mid-tier per-turn reduction remains above 70% conservative floor."
+        },
+        {
+          "name": "cold_start_chain_created",
+          "status": "pass",
+          "detail": "Cold-start packet generated a codon chain in the last convergence run."
+        }
+      ]
+    },
+    "thread_state": {
+      "status": "pass",
+      "checks": [
+        {
+          "name": "legal_threads_open",
+          "status": "pass",
+          "detail": "Legal gate remains explicitly open and blocking swarm activation."
+        },
+        {
+          "name": "swarm_threads_staged",
+          "status": "pass",
+          "detail": "Swarm threads remain staged rather than silently dropped."
+        },
+        {
+          "name": "research_threads_preserved",
+          "status": "pass",
+          "detail": "Research mycelium still marked open, not falsely closed."
+        }
+      ]
+    },
+    "foundation": {
+      "status": "pass",
+      "checks": [
+        {
+          "name": "foundation_module_present",
+          "status": "pass",
+          "detail": "Hex-first void foundation module exists."
+        },
+        {
+          "name": "convergence_harness_present",
+          "status": "pass",
+          "detail": "Full stack convergence harness exists."
+        },
+        {
+          "name": "foundation_import_hook",
+          "status": "pass",
+          "detail": "Convergence harness imports the foundation bridge directly."
+        }
+      ]
+    }
+  }
+}

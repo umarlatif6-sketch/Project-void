@@ -4,9 +4,10 @@ Unified TTS provider for PROJECT VOID.
 Supports:
 - OpenAI-compatible speech API
 - ElevenLabs-compatible text-to-speech API (including self-hosted variants)
+- VoxCPM (OpenBMB) speech synthesis with per-user voice sovereignty
 
 Selection is controlled by environment variables:
-- TTS_PROVIDER=auto|openai|elevenlabs|elevenlabs_oss
+- TTS_PROVIDER=auto|openai|elevenlabs|elevenlabs_oss|voxcpm
 - AI_INTEGRATIONS_OPENAI_API_KEY / OPENAI_API_KEY
 - AI_INTEGRATIONS_OPENAI_BASE_URL
 - TTS_OPENAI_MODEL (default: tts-1)
@@ -14,6 +15,9 @@ Selection is controlled by environment variables:
 - ELEVENLABS_API_KEY
 - ELEVENLABS_BASE_URL (default: https://api.elevenlabs.io/v1)
 - ELEVENLABS_MODEL_ID (default: eleven_multilingual_v2)
+- VOXCPM_BASE_URL (default: http://localhost:8000)
+- VOXCPM_MODEL_PATH (default: checkpoints/checkpoint_step_1000.pth)
+- VOXCPM_SPEAKER_EMBEDDING_DB (path to speaker embedding database)
 """
 
 from __future__ import annotations
@@ -112,7 +116,82 @@ def _synth_elevenlabs(text: str, voice: str) -> bytes:
         return resp.read()
 
 
-def synthesize_mp3(text: str, voice: Optional[str] = None, provider: Optional[str] = None) -> bytes:
+def _synth_voxcpm(text: str, voice: str, user_id: Optional[str] = None) -> bytes:
+    """
+    Synthesize audio using OpenBMB/VoxCPM model.
+    
+    Args:
+        text: Text to synthesize
+        voice: Speaker embedding ID or user-specific voice profile ID
+        user_id: Optional user ID for voice profile lookup from database
+    
+    Returns:
+        MP3 audio bytes
+    """
+    base_url = os.environ.get("VOXCPM_BASE_URL", "http://localhost:8000").rstrip("/")
+    model_path = os.environ.get("VOXCPM_MODEL_PATH", "checkpoints/checkpoint_step_1000.pth").strip()
+    speaker_db = os.environ.get("VOXCPM_SPEAKER_EMBEDDING_DB", "").strip()
+    
+    # If user_id provided, look up voice profile from database
+    speaker_embedding = voice  # default to provided voice
+    if user_id and speaker_db:
+        try:
+            speaker_embedding = _lookup_user_voice_profile(user_id, speaker_db)
+        except Exception as e:
+            logger.warning(f"Failed to lookup user voice profile for {user_id}, using default: {e}")
+            # Fall back to provided voice parameter or Adriana sovereign voice
+            speaker_embedding = voice or os.environ.get("VOXCPM_ADRIANA_VOICE", "adriana_sovereign")
+    
+    url = f"{base_url}/synthesize"
+    payload = json.dumps({
+        "text": text,
+        "speaker_embedding": speaker_embedding,
+        "model_path": model_path,
+        "language": "en",
+        "prosody_speed": 1.0,
+    }).encode("utf-8")
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "audio/mpeg",
+    }
+    
+    req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return resp.read()
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"VoxCPM synthesis failed: {e}")
+
+
+def _lookup_user_voice_profile(user_id: str, speaker_db_path: str) -> str:
+    """
+    Lookup user's unique voice profile from database.
+    
+    This enables voice sovereignty: each user agent has persistent voice identity.
+    
+    Args:
+        user_id: User identifier
+        speaker_db_path: Path to speaker embedding database (JSON or database)
+    
+    Returns:
+        Speaker embedding ID for user
+    """
+    try:
+        if speaker_db_path.endswith(".json"):
+            with open(speaker_db_path, "r") as f:
+                profiles = json.load(f)
+                return profiles.get(user_id, os.environ.get("VOXCPM_DEFAULT_VOICE", "default_speaker"))
+        else:
+            # Could be extended to support database lookups
+            logger.warning(f"Speaker DB format not recognized: {speaker_db_path}")
+            return os.environ.get("VOXCPM_DEFAULT_VOICE", "default_speaker")
+    except FileNotFoundError:
+        logger.warning(f"Speaker database not found: {speaker_db_path}")
+        return os.environ.get("VOXCPM_DEFAULT_VOICE", "default_speaker")
+
+
+def synthesize_mp3(text: str, voice: Optional[str] = None, provider: Optional[str] = None, user_id: Optional[str] = None) -> bytes:
     provider_norm = _normalise_provider(provider)
     if provider_norm == "auto":
         provider_norm = _pick_auto_provider()
@@ -131,6 +210,10 @@ def synthesize_mp3(text: str, voice: Optional[str] = None, provider: Optional[st
             chosen_voice = voice or os.environ.get("TTS_ELEVENLABS_VOICE", "")
         return _synth_elevenlabs(text, chosen_voice)
 
+    if provider_norm == "voxcpm":
+        chosen_voice = voice or os.environ.get("VOXCPM_DEFAULT_VOICE", "default_speaker")
+        return _synth_voxcpm(text, chosen_voice, user_id=user_id)
+
     raise RuntimeError(f"Unsupported TTS_PROVIDER: {provider_norm}")
 
 
@@ -138,6 +221,7 @@ def synthesize_long_text_mp3(
     text: str,
     voice: Optional[str] = None,
     provider: Optional[str] = None,
+    user_id: Optional[str] = None,
     max_chars: int = 3800,
 ) -> bytes:
     words = text.split()
@@ -161,7 +245,7 @@ def synthesize_long_text_mp3(
 
     audio_bytes = b""
     for chunk in chunks:
-        audio_bytes += synthesize_mp3(chunk, voice=voice, provider=provider)
+        audio_bytes += synthesize_mp3(chunk, voice=voice, provider=provider, user_id=user_id)
     return audio_bytes
 
 
@@ -179,11 +263,15 @@ def get_tts_runtime_info(provider: Optional[str] = None) -> dict:
         "elevenlabs_base_url": os.environ.get("ELEVENLABS_BASE_URL", "https://api.elevenlabs.io/v1").strip() or "https://api.elevenlabs.io/v1",
         "elevenlabs_model_id": os.environ.get("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2").strip() or "eleven_multilingual_v2",
         "elevenlabs_default_voice": os.environ.get("TTS_ELEVENLABS_VOICE", "").strip(),
+        "voxcpm_base_url": os.environ.get("VOXCPM_BASE_URL", "http://localhost:8000").strip() or "http://localhost:8000",
+        "voxcpm_model_path": os.environ.get("VOXCPM_MODEL_PATH", "checkpoints/checkpoint_step_1000.pth").strip(),
+        "voxcpm_speaker_db": bool(os.environ.get("VOXCPM_SPEAKER_EMBEDDING_DB", "").strip()),
         "has_openai_key": bool(
             (os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY", "").strip())
             or (os.environ.get("OPENAI_API_KEY", "").strip())
         ),
         "has_elevenlabs_key": bool(os.environ.get("ELEVENLABS_API_KEY", "").strip()),
+        "voxcpm_available": bool(os.environ.get("VOXCPM_BASE_URL", "").strip()),
     }
 
 

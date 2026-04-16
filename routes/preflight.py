@@ -134,6 +134,15 @@ def _get_lbn_runtime_status() -> dict:
                 "standalone_payload": standalone_payload.exists(),
             },
         }
+    except Exception as e:
+        logger.warning("Could not fetch LBN runtime status: %s", e)
+        return {
+            "ok": False,
+            "mode": "project",
+            "route": "primary",
+            "validate": False,
+            "error": str(e),
+        }
 
 
 def _get_lbn_payload_map() -> dict:
@@ -176,14 +185,33 @@ def _get_lbn_payload_map() -> dict:
             "function_count": 0,
             "canonical_alias_count": 0,
         }
+
+
+def _get_mycelium_health() -> dict:
+    """Return the latest organism health summary for operators."""
+    try:
+        from scripts.mycelium_health_check import build_report
+
+        report = build_report()
+        summary = report.get("summary", {})
+        return {
+            "ok": True,
+            "overall_status": report.get("overall_status", "warn"),
+            "summary": summary,
+            "report_type": report.get("report_type", "mycelium_health_check"),
+            "section_statuses": {
+                key: value.get("status")
+                for key, value in report.get("sections", {}).items()
+            },
+        }
     except Exception as e:
-        logger.warning("Could not fetch LBN runtime status: %s", e)
+        logger.warning("Could not build mycelium health report: %s", e)
         return {
             "ok": False,
-            "mode": "project",
-            "route": "primary",
-            "validate": False,
+            "overall_status": "fail",
+            "summary": {"pass": 0, "warn": 0, "fail": 1},
             "error": str(e),
+            "section_statuses": {},
         }
 
 
@@ -192,6 +220,7 @@ def preflight_page():
     wav = _get_last_wav_export()
     founder_key = _get_founder_key_status()
     patent = _get_patent_status()
+    mycelium_health = _get_mycelium_health()
 
     day1_status = _resolve_day_status(wav["found"])
     day2_status = _resolve_day_status(founder_key.get("key_active", False))
@@ -203,6 +232,7 @@ def preflight_page():
         wav=wav,
         founder_key=founder_key,
         patent=patent,
+        mycelium_health=mycelium_health,
         day1_status=day1_status,
         day2_status=day2_status,
         day3_status=day3_status,
@@ -228,3 +258,9 @@ def api_lbn_payload_map():
     """Public JSON payload-map endpoint for codon resolver and telemetry overlays."""
     payload_map = _get_lbn_payload_map()
     return jsonify(payload_map)
+
+
+@preflight_bp.route("/api/mycelium/health")
+def api_mycelium_health():
+    """Public JSON endpoint for the organism health summary."""
+    return jsonify(_get_mycelium_health())
