@@ -32,6 +32,9 @@
 | HEX | Hexadecimal substrate — the layer beneath all digital information |
 | VTX | Vortex Wallet / VTX economy token |
 | PCE | PEACE token |
+| VXP | VoxCPM voice sovereignty layer |
+| MHC | Mycelium Health Check — organism proof report |
+| GJR | Ghajini Rail — Seed + Chronicle + Codons + Digest + hex capture continuity path |
 | CDM | Cognitive Decentralised Mycelium network |
 | IV | Inner Voice — electrode hardware channel (Ag/AgCl + ADS1299 + ESP32-S3) |
 | QS | QiSync — sovereign biometric hardware channel |
@@ -122,6 +125,8 @@ MN1: GDL≠GMN. MN2: naming=ontology≠branding. MN3: philosophy=system≠decora
 **§18** Hardware: fixed=VS432+AJ+SW. Open=chassis/substrate/acoustic. MVB=£660. Docs: MRB/RMW/CRH.
 
 **§19** Dead ends: PPT→GGN (infinite>bounded). VSC=standalone. Rental/PCE-yield=deprioritised. Not failures.
+
+**§20** GJR: continuity assumes reset. CHR=what happened. Seed=what PV is. Codons=compressed re-entry. Digest=short cold-start. Hex capture=deep review preservation. Codon=gap between matchbox and ignition. Re-enter via identity → last five CHR entries → active proof artifacts (MHC, convergence, scars, audit) → repo memory facts.
 
 ---
 
