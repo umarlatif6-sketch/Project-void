@@ -1,0 +1,66 @@
+name: Runtime Gate
+
+"on":
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - 'library/**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Seed CI Environment
+        shell: bash
+        run: |
+          cp .env.example .env
+          python - <<'PY'
+          from pathlib import Path
+
+          env_path = Path('.env')
+          text = env_path.read_text(encoding='utf-8')
+          text = text.replace(
+              'SESSION_SECRET=supersecretreplacewithreal',
+              'SESSION_SECRET=ci-session-secret'
+          )
+          env_path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Validate Compose Surface
+        shell: bash
+        run: docker compose config
+
+      - name: Build Runtime Image
+        shell: bash
+        run: docker compose build web
+
+      - name: Smoke Test Core Stack
+        shell: bash
+        run: bash scripts/smoke_test.sh --no-build --timeout 240
+
+      - name: Smoke Test Proxy Surface
+        shell: bash
+        run: bash scripts/smoke_test.sh --proxy --no-build --timeout 240
+
+      - name: Dump Logs On Failure
+        if: failure()
+        shell: bash
+        run: docker compose --profile proxy logs --tail=120 || true
+
+      - name: Tear Down Stack
+        if: always()
+        shell: bash
+        run: docker compose --profile proxy down --remove-orphans -v

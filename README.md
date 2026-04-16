@@ -167,6 +167,110 @@ curl http://127.0.0.1:5000/health
 gunicorn -c gunicorn.conf.py app:app
 ```
 
+### Docker Runtime
+
+Project VOID now ships with a root Docker runtime for the main Flask app and a local PostgreSQL sidecar.
+
+1. Copy the environment sample and set at minimum `SESSION_SECRET`:
+
+```bash
+cp .env.example .env
+```
+
+2. Start the stack:
+
+```bash
+docker compose up --build
+```
+
+To run with the optional Nginx front door:
+
+```bash
+docker compose --profile proxy up --build
+```
+
+3. Verify the web container is healthy:
+
+```bash
+curl http://127.0.0.1:5000/health
+```
+
+4. Run one-off scripts inside the same containerized environment:
+
+```bash
+docker compose run --rm --profile ops ops python scripts/void_roi_calculator.py --users 10000 --monthly-calls 2000000
+```
+
+5. Run the one-command proof-of-life check:
+
+```bash
+bash scripts/smoke_test.sh
+```
+
+Use the proxy surface instead of the direct web port:
+
+```bash
+bash scripts/smoke_test.sh --proxy
+```
+
+Runtime surfaces:
+- `init` — one-shot schema/seed bootstrap container run before the web app
+- `web` — Flask + Gunicorn application container
+- `db` — PostgreSQL 16 container with persisted volume
+- `ops` — optional shell/script container for benchmarks, exports, and maintenance jobs
+- `proxy` — optional Nginx reverse proxy on port `8080`
+
+### Operator Flow
+
+Use this as the standard day-to-day Docker path for Project VOID.
+
+Start the core stack:
+
+```bash
+docker compose up --build
+```
+
+Start the stack with the Nginx front door:
+
+```bash
+docker compose --profile proxy up --build
+```
+
+Watch the boot chain:
+
+```bash
+docker compose logs -f db init web
+```
+
+Watch the proxy layer too:
+
+```bash
+docker compose --profile proxy logs -f proxy web
+```
+
+Stop the stack but keep the database volume:
+
+```bash
+docker compose down
+```
+
+Reset the full local runtime, including Postgres data:
+
+```bash
+docker compose down -v
+```
+
+Run a one-off operation in the boxed runtime:
+
+```bash
+docker compose run --rm --profile ops ops python scripts/void_roi_calculator.py --users 10000 --monthly-calls 2000000
+```
+
+Readiness rule:
+- `init` must complete successfully.
+- `web` must return `200` on `/health`.
+- `wake` must respond before the stack is treated as operational.
+
 ### Packet Security Key Management
 
 Generate an initial signing key and env block:
