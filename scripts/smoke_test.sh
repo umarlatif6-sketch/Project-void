@@ -98,6 +98,18 @@ curl -fsS "${base_url}/wake" > "$wake_payload"
 grep -q 'ghajini_tattoo\|genesis_seal\|seed_digest' "$wake_payload"
 rm -f "$wake_payload"
 
+echo "[void-smoke] Checking /preflight"
+preflight_payload="$(mktemp)"
+curl -fsS "${base_url}/preflight" > "$preflight_payload"
+grep -q 'Pre-Flight Check' "$preflight_payload"
+rm -f "$preflight_payload"
+
+echo "[void-smoke] Checking /sdk"
+sdk_payload="$(mktemp)"
+curl -fsS "${base_url}/sdk" > "$sdk_payload"
+grep -q 'Deterministic Event Integrity' "$sdk_payload"
+rm -f "$sdk_payload"
+
 echo "[void-smoke] PASS"
 if [[ "$keep_running" -eq 1 ]]; then
   echo "[void-smoke] Stack left running by request"
