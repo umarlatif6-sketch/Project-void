@@ -10,7 +10,6 @@ The tattoo is immutable. What changes is the proof artifacts around it.
 """
 
 import json
-import os
 from pathlib import Path
 from flask import Blueprint, jsonify
 
@@ -98,6 +97,7 @@ def wake():
             "3. Read last 5 Chronicle entries (motion)",
             "4. Check convergence_report.json (proof)",
             "5. Check mycelium_health_check.json (organism state)",
+            "6. Load /memories/repo/project_void_notes.md (local ops facts)",
         ],
         "status": "ready",
         "message": "Session reset. Resuming from invariant anchor."
