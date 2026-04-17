@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adjacentkey-protocol"
+version = "0.1.0"
+description = "Keyboard adjacency protocol for AI/human communication"
+authors = [
+    {name = "Project VOID"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.7"
