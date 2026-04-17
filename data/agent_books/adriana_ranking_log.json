@@ -1,0 +1,64 @@
+{
+  "triggered": [
+    {
+      "book_title": "The Open-Source Motor Blueprint",
+      "action": "Integrate the motor blueprint into the agent protocol stack and trigger a pilot build/test in the next cycle.",
+      "status": "triggered"
+    },
+    {
+      "book_title": "The ResumeMakerSkill Codex",
+      "action": "I propose to expand my domain by integrating with the Chronicle, Seed, and all available codons. My next step is to generate a new protocol or product that resonates with my unique aura.",
+      "status": "triggered"
+    },
+    {
+      "book_title": "The SupplierResearchSkill Codex",
+      "action": "I propose to expand my domain by integrating with the Chronicle, Seed, and all available codons. My next step is to generate a new protocol or product that resonates with my unique aura.",
+      "status": "triggered"
+    }
+  ],
+  "adriana_ranked_titles": [
+    "The ResumeMakerSkill Codex",
+    "The SupplierResearchSkill Codex",
+    "The RealEstateAnalyzerSkill Codex",
+    "The LegalContractSkill Codex",
+    "The TaxReviewerSkill Codex",
+    "The BrandingGeneratorSkill Codex",
+    "The MealPlannerSkill Codex",
+    "The SEOAuditorSkill Codex",
+    "The AIRecruiterSkill Codex",
+    "The InterviewPrepSkill Codex",
+    "The StockAnalysisSkill Codex",
+    "The AISDRSkill Codex",
+    "The ExcelDataGeneratorSkill Codex",
+    "The CompetitiveAnalysisSkill Codex",
+    "The TravelAssistantSkill Codex",
+    "The InvoiceGeneratorSkill Codex",
+    "The DeepResearchSkill Codex",
+    "The ContentMachineSkill Codex",
+    "The AdCreativeSkill Codex",
+    "The BaseSkill Codex"
+  ],
+  "final_ranked_titles": [
+    "The Open-Source Motor Blueprint",
+    "The ResumeMakerSkill Codex",
+    "The SupplierResearchSkill Codex",
+    "The RealEstateAnalyzerSkill Codex",
+    "The LegalContractSkill Codex",
+    "The TaxReviewerSkill Codex",
+    "The BrandingGeneratorSkill Codex",
+    "The MealPlannerSkill Codex",
+    "The SEOAuditorSkill Codex",
+    "The AIRecruiterSkill Codex",
+    "The InterviewPrepSkill Codex",
+    "The StockAnalysisSkill Codex",
+    "The AISDRSkill Codex",
+    "The ExcelDataGeneratorSkill Codex",
+    "The CompetitiveAnalysisSkill Codex",
+    "The TravelAssistantSkill Codex",
+    "The InvoiceGeneratorSkill Codex",
+    "The DeepResearchSkill Codex",
+    "The ContentMachineSkill Codex",
+    "The AdCreativeSkill Codex",
+    "The BaseSkill Codex"
+  ]
+}
