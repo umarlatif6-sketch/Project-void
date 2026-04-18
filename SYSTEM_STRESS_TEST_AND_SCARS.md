@@ -464,4 +464,48 @@ This converts the scars into an execution order the repo can actually carry.
 
 ---
 
+## AL-JABR 286 TRIAGE OVERLAY
+
+This overlay classifies the scars through the Al-Jabr repair law so future sessions do not confuse active fractures, quarantines, and superseded concerns.
+
+### Recoverable
+- Voice profile access control
+- Atomic consent checks
+- Fail-closed fallback storage
+- Cost model reconciliation
+- Character profile transparency
+- Founder dependency extraction into standing orders
+- Pilot measurement and compression proof
+
+These pieces still carry valid structure. They need recomposition, proof, and sealing, not abandonment.
+
+### Quarantined
+- CSI phase-shift interpreted as biological health without causal proof
+- CSI UDP spoofing risk until signature verification is enforced
+- Distributed-consensus claims without conflict-resolution machinery
+- 1,000-node suppression assumptions without real-world proof
+
+These remain visible because they affect system trust. They are not ready for reintegration into stronger claims until measured evidence exists.
+
+### Superseded or Reframed
+- Raw additive savings headline across overlapping cost vectors
+- Any reading of 286 as a discard-only gate
+
+These should remain in the record as part of the learning path, but they should not drive current operator language or future pitch surfaces.
+
+### False Join Risk
+- Treating coherent compression as equivalent to full empathic understanding
+- Treating substrate disturbance as the same thing as organism health
+- Treating distributed copies as consensus
+
+These are dangerous because they appear coherent while silently introducing drift. They must not be recomposed into production claims.
+
+### 286 Repair Order For This Register
+1. Recover the P0 and P1 engineering items that already have clear acceptance signals.
+2. Keep the biological, consensus, and suppression assumptions quarantined until they have proof surfaces.
+3. Strip superseded pitch language from active operator use.
+4. Explicitly mark false joins whenever a future document tries to turn analogy into proof.
+
+---
+
 **Audit Status:** COMPLETE (but system is not production-ready yet)

@@ -11,7 +11,7 @@ Standing order compliance:
 
 from typing import Optional, Tuple
 from enum import Enum
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 import logging
 
 logger = logging.getLogger(__name__)
@@ -171,7 +171,7 @@ class VoiceConsentPolicy:
             Consent request record with token and expiration
         """
         consent_token = self._generate_consent_token(user_id, voice_id)
-        expires_at = datetime.utcnow() + timedelta(hours=24)
+        expires_at = datetime.now(UTC) + timedelta(hours=24)
 
         consent_request = {
             "user_id": user_id,
@@ -179,7 +179,7 @@ class VoiceConsentPolicy:
             "voice_name": voice_name,
             "reason": reason,
             "consent_token": consent_token,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "expires_at": expires_at.isoformat(),
             "status": "pending",
             "ip_address": ip_address,
@@ -251,7 +251,7 @@ class VoiceConsentPolicy:
         Returns:
             True if consent is still valid, False if expired
         """
-        age = datetime.utcnow() - consent_timestamp
+        age = datetime.now(UTC) - consent_timestamp
         is_valid = age < timedelta(days=self.consent_ttl_days)
 
         if not is_valid:
@@ -298,7 +298,7 @@ class VoiceConsentPolicy:
         import secrets
 
         nonce = secrets.token_hex(16)
-        data = f"{user_id}:{voice_id}:{datetime.utcnow().isoformat()}:{nonce}"
+        data = f"{user_id}:{voice_id}:{datetime.now(UTC).isoformat()}:{nonce}"
         token = hashlib.sha256(data.encode()).hexdigest()
         return token
 
@@ -312,7 +312,7 @@ class VoiceConsentPolicy:
     ):
         """Log consent check for audit trail."""
         log_entry = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "user_id": user_id,
             "voice_id": voice_id,
             "check_type": check_type,

@@ -28,7 +28,16 @@ import os
 import urllib.request
 from typing import Optional
 
+from void_engine.voice_consent_policy import get_consent_policy
+from void_engine.voice_profile_schema import (
+    VoiceProfileAccessError,
+    VoiceProfileStorageUnavailable,
+    get_voice_profile_manager,
+)
+
 logger = logging.getLogger(__name__)
+
+LEGACY_JSON_SPEAKER_DB_ENV = "VOXCPM_ALLOW_LEGACY_JSON_SPEAKER_DB"
 
 
 def _normalise_provider(provider: Optional[str]) -> str:
@@ -116,7 +125,62 @@ def _synth_elevenlabs(text: str, voice: str) -> bytes:
         return resp.read()
 
 
-def _synth_voxcpm(text: str, voice: str, user_id: Optional[str] = None) -> bytes:
+def _lookup_user_voice_profile_legacy(user_id: str, speaker_db_path: str) -> str:
+    with open(speaker_db_path, "r", encoding="utf-8") as handle:
+        profiles = json.load(handle)
+    if user_id not in profiles:
+        raise RuntimeError(f"No legacy voice profile found for {user_id}")
+    return profiles[user_id]
+
+
+def _resolve_voxcpm_speaker_embedding(
+    voice: str,
+    user_id: Optional[str],
+    authenticated_user: Optional[str],
+    speaker_db_path: str,
+    originating_context: str,
+) -> str:
+    if not user_id:
+        return voice
+
+    caller = authenticated_user or user_id
+    consent_manager = get_voice_profile_manager()
+    speaker_embedding = voice
+
+    try:
+        stored_embedding = consent_manager.get_speaker_embedding_id(user_id, authenticated_user=caller)
+        if stored_embedding:
+            speaker_embedding = stored_embedding
+    except (VoiceProfileAccessError, VoiceProfileStorageUnavailable) as exc:
+        raise RuntimeError(f"Voice profile resolution denied for {user_id}: {exc}") from exc
+
+    if (
+        speaker_embedding == voice
+        and speaker_db_path.endswith(".json")
+        and os.environ.get(LEGACY_JSON_SPEAKER_DB_ENV, "false").strip().lower() == "true"
+        and caller == user_id
+    ):
+        speaker_embedding = _lookup_user_voice_profile_legacy(user_id, speaker_db_path)
+
+    authorized, risk, reason = get_consent_policy().check_voice_synthesis_authorization(
+        user_id=user_id,
+        target_voice_id=speaker_embedding,
+        originating_context=originating_context,
+        consent_manager=consent_manager,
+    )
+    if not authorized:
+        raise RuntimeError(f"Voice synthesis blocked for {user_id}: {reason} ({risk.value})")
+
+    return speaker_embedding
+
+
+def _synth_voxcpm(
+    text: str,
+    voice: str,
+    user_id: Optional[str] = None,
+    authenticated_user: Optional[str] = None,
+    originating_context: str = "console",
+) -> bytes:
     """
     Synthesize audio using OpenBMB/VoxCPM model.
     
@@ -132,15 +196,13 @@ def _synth_voxcpm(text: str, voice: str, user_id: Optional[str] = None) -> bytes
     model_path = os.environ.get("VOXCPM_MODEL_PATH", "checkpoints/checkpoint_step_1000.pth").strip()
     speaker_db = os.environ.get("VOXCPM_SPEAKER_EMBEDDING_DB", "").strip()
     
-    # If user_id provided, look up voice profile from database
-    speaker_embedding = voice  # default to provided voice
-    if user_id and speaker_db:
-        try:
-            speaker_embedding = _lookup_user_voice_profile(user_id, speaker_db)
-        except Exception as e:
-            logger.warning(f"Failed to lookup user voice profile for {user_id}, using default: {e}")
-            # Fall back to provided voice parameter or Adriana sovereign voice
-            speaker_embedding = voice or os.environ.get("VOXCPM_ADRIANA_VOICE", "adriana_sovereign")
+    speaker_embedding = _resolve_voxcpm_speaker_embedding(
+        voice=voice,
+        user_id=user_id,
+        authenticated_user=authenticated_user,
+        speaker_db_path=speaker_db,
+        originating_context=originating_context,
+    )
     
     url = f"{base_url}/synthesize"
     payload = json.dumps({
@@ -164,34 +226,14 @@ def _synth_voxcpm(text: str, voice: str, user_id: Optional[str] = None) -> bytes
         raise RuntimeError(f"VoxCPM synthesis failed: {e}")
 
 
-def _lookup_user_voice_profile(user_id: str, speaker_db_path: str) -> str:
-    """
-    Lookup user's unique voice profile from database.
-    
-    This enables voice sovereignty: each user agent has persistent voice identity.
-    
-    Args:
-        user_id: User identifier
-        speaker_db_path: Path to speaker embedding database (JSON or database)
-    
-    Returns:
-        Speaker embedding ID for user
-    """
-    try:
-        if speaker_db_path.endswith(".json"):
-            with open(speaker_db_path, "r") as f:
-                profiles = json.load(f)
-                return profiles.get(user_id, os.environ.get("VOXCPM_DEFAULT_VOICE", "default_speaker"))
-        else:
-            # Could be extended to support database lookups
-            logger.warning(f"Speaker DB format not recognized: {speaker_db_path}")
-            return os.environ.get("VOXCPM_DEFAULT_VOICE", "default_speaker")
-    except FileNotFoundError:
-        logger.warning(f"Speaker database not found: {speaker_db_path}")
-        return os.environ.get("VOXCPM_DEFAULT_VOICE", "default_speaker")
-
-
-def synthesize_mp3(text: str, voice: Optional[str] = None, provider: Optional[str] = None, user_id: Optional[str] = None) -> bytes:
+def synthesize_mp3(
+    text: str,
+    voice: Optional[str] = None,
+    provider: Optional[str] = None,
+    user_id: Optional[str] = None,
+    authenticated_user: Optional[str] = None,
+    originating_context: str = "console",
+) -> bytes:
     provider_norm = _normalise_provider(provider)
     if provider_norm == "auto":
         provider_norm = _pick_auto_provider()
@@ -212,7 +254,13 @@ def synthesize_mp3(text: str, voice: Optional[str] = None, provider: Optional[st
 
     if provider_norm == "voxcpm":
         chosen_voice = voice or os.environ.get("VOXCPM_DEFAULT_VOICE", "default_speaker")
-        return _synth_voxcpm(text, chosen_voice, user_id=user_id)
+        return _synth_voxcpm(
+            text,
+            chosen_voice,
+            user_id=user_id,
+            authenticated_user=authenticated_user,
+            originating_context=originating_context,
+        )
 
     raise RuntimeError(f"Unsupported TTS_PROVIDER: {provider_norm}")
 
@@ -222,6 +270,8 @@ def synthesize_long_text_mp3(
     voice: Optional[str] = None,
     provider: Optional[str] = None,
     user_id: Optional[str] = None,
+    authenticated_user: Optional[str] = None,
+    originating_context: str = "console",
     max_chars: int = 3800,
 ) -> bytes:
     words = text.split()
@@ -245,7 +295,14 @@ def synthesize_long_text_mp3(
 
     audio_bytes = b""
     for chunk in chunks:
-        audio_bytes += synthesize_mp3(chunk, voice=voice, provider=provider, user_id=user_id)
+        audio_bytes += synthesize_mp3(
+            chunk,
+            voice=voice,
+            provider=provider,
+            user_id=user_id,
+            authenticated_user=authenticated_user,
+            originating_context=originating_context,
+        )
     return audio_bytes
 
 
@@ -266,6 +323,7 @@ def get_tts_runtime_info(provider: Optional[str] = None) -> dict:
         "voxcpm_base_url": os.environ.get("VOXCPM_BASE_URL", "http://localhost:8000").strip() or "http://localhost:8000",
         "voxcpm_model_path": os.environ.get("VOXCPM_MODEL_PATH", "checkpoints/checkpoint_step_1000.pth").strip(),
         "voxcpm_speaker_db": bool(os.environ.get("VOXCPM_SPEAKER_EMBEDDING_DB", "").strip()),
+        "voxcpm_legacy_json_allowed": os.environ.get(LEGACY_JSON_SPEAKER_DB_ENV, "false").strip().lower() == "true",
         "has_openai_key": bool(
             (os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY", "").strip())
             or (os.environ.get("OPENAI_API_KEY", "").strip())

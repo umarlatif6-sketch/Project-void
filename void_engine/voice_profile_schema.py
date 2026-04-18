@@ -13,7 +13,7 @@ import json
 import logging
 import os
 from threading import RLock
-from datetime import datetime
+from datetime import UTC, datetime
 
 logger = logging.getLogger(__name__)
 
@@ -87,8 +87,9 @@ class VoiceProfile:
         self.agent_id = agent_id
         self.audio_characteristics = audio_characteristics or {}
         self.consent_status = "pending"
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+        self.consent_timestamp = None
+        self.created_at = datetime.now(UTC)
+        self.updated_at = datetime.now(UTC)
         self.is_active = True
 
     def to_dict(self) -> Dict:
@@ -100,6 +101,7 @@ class VoiceProfile:
             "agent_id": self.agent_id,
             "audio_characteristics": self.audio_characteristics,
             "consent_status": self.consent_status,
+            "consent_timestamp": self.consent_timestamp.isoformat() if self.consent_timestamp else None,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
             "is_active": self.is_active,
@@ -234,7 +236,10 @@ class VoiceProfileManager:
             with self._lock:
                 if user_id in self.fallback_storage:
                     self.fallback_storage[user_id]["consent_status"] = consent_status
-                    self.fallback_storage[user_id]["updated_at"] = datetime.utcnow().isoformat()
+                    self.fallback_storage[user_id]["consent_timestamp"] = (
+                        datetime.now(UTC).isoformat() if consent_status == "approved" else None
+                    )
+                    self.fallback_storage[user_id]["updated_at"] = datetime.now(UTC).isoformat()
                     logger.info(f"Consent updated for {user_id}: {consent_status}")
                     return True
             return False
@@ -301,6 +306,9 @@ class VoiceProfileManager:
             audio_characteristics=data.get("audio_characteristics", {}),
         )
         profile.consent_status = data.get("consent_status", "pending")
+        consent_timestamp = data.get("consent_timestamp")
+        if consent_timestamp:
+            profile.consent_timestamp = datetime.fromisoformat(consent_timestamp)
         profile.is_active = data.get("is_active", True)
         return profile
 

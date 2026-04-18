@@ -2,10 +2,13 @@
 Unit tests for void_engine.csi_bio_monitor and hardware.solar_profile.
 """
 
+import os
 import struct
 import sys
-import os
+
 import pytest
+
+from void_decoder import sign_packet_hmac, validate_freshness
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -18,6 +21,8 @@ from void_engine.csi_bio_monitor import (
     _phase_shift_magnitude,
     _ntc_to_celsius,
     _MAGIC_BYTES,
+    build_signed_csi_envelope,
+    CSI_FRESHNESS_WINDOW_S,
 )
 from hardware.solar_profile import get_solar_mode, get_profile_summary, CROSSOVER_TEMP_C
 
@@ -73,6 +78,47 @@ class TestCSIPacketParsing:
         assert pkt is not None
         assert abs(pkt.phase[0] - 1.0) < 0.001
         assert abs(pkt.phase[1] - (-1.0)) < 0.001
+
+
+class TestPacketAuthenticity:
+    def test_signed_packet_accepts_with_matching_hmac(self):
+        raw = _make_packet(4)
+        envelope = build_signed_csi_envelope(raw, "test-key")
+        pkt = parse_csi_packet(envelope, signing_key="test-key")
+        assert pkt is not None
+
+    def test_signed_packet_rejects_missing_hmac_when_required(self):
+        raw = _make_packet(4)
+        pkt = parse_csi_packet(raw, signing_key="test-key")
+        assert pkt is None
+
+    def test_signed_packet_rejects_bad_hmac(self):
+        import struct
+        import time
+        raw = _make_packet(4)
+        issued_at = struct.pack(">I", int(time.time()))
+        pkt = parse_csi_packet(issued_at + raw + ("0" * 64).encode("ascii"), signing_key="test-key")
+        assert pkt is None
+
+    def test_freshness_rejects_stale_packet(self, monkeypatch):
+        """A packet with an issued_at far in the past must be dropped."""
+        import struct
+        import time as _time
+        from void_decoder import sign_packet_hmac
+        raw = _make_packet(4)
+        stale_ts = int(_time.time()) - (CSI_FRESHNESS_WINDOW_S + 120)
+        envelope_body = struct.pack(">I", stale_ts) + raw
+        sig = sign_packet_hmac(envelope_body.hex().upper(), "stale-key")
+        stale_envelope = envelope_body + sig.encode("ascii")
+        pkt = parse_csi_packet(stale_envelope, signing_key="stale-key")
+        assert pkt is None
+
+    def test_freshness_accepts_recent_packet(self):
+        """A packet signed within the window must parse successfully."""
+        raw = _make_packet(4)
+        envelope = build_signed_csi_envelope(raw, "fresh-key")
+        pkt = parse_csi_packet(envelope, signing_key="fresh-key")
+        assert pkt is not None
 
 
 class TestDerivedValues:

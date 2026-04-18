@@ -287,28 +287,30 @@ Cost reduction: 99.4%
 
 ## PART 9: REVENUE IMPACT
 
+The figures below are illustrative commercial scenarios, not forecasts or booked revenue.
+
 ### Package A: VoxCPM Signal Navigator (Software-only)
 - Market size: 10,000 small teams
 - License: $99/month/team
-- Revenue: $119.88M/year
+- Illustrative annual revenue at full scenario uptake: $119.88M/year
 - COGS (inference @ VOID rates): $4.8M/year
-- **Gross margin: 95.99%**
+- **Illustrative gross margin: 95.99%**
 
 ### Package B: Sovereign Runtime Layer
 - Market size: 1,000 enterprises  
 - License: $49,999/year/enterprise
-- Revenue: $49.999M/year
+- Illustrative annual revenue at full scenario uptake: $49.999M/year
 - COGS (hardware + ops): $8.2M/year
-- **Gross margin: 83.6%**
+- **Illustrative gross margin: 83.6%**
 
 ### Package C: MRB-4000 Pilot Node
 - Market size: 500 institutions
 - Hardware + 2yr support: $2,999/node
-- Revenue: $1.5M/year
+- Illustrative annual revenue at full scenario uptake: $1.5M/year
 - COGS (hardware): $500/node = $250K/year
-- **Gross margin: 83.3%**
+- **Illustrative gross margin: 83.3%**
 
-### **Combined Annual Revenue (Year 1): $171.4M**
+### **Combined Illustrative Annual Revenue Scenario: $171.4M**
 
 ---
 

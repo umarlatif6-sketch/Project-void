@@ -1,0 +1,121 @@
+:root {
+  --ink: #f3f4f1;
+  --sky: #8ec9ff;
+  --rose: #ffb7a6;
+  --bg0: #0c0f17;
+  --bg1: #1a2338;
+  --bg2: #232f4a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at top left, #243251, var(--bg0) 55%),
+    linear-gradient(140deg, var(--bg1), var(--bg2));
+  min-height: 100vh;
+}
+
+.shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+.hero {
+  margin-bottom: 1rem;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: 0.03em;
+}
+
+.hero p {
+  margin: 0.5rem 0 0;
+  color: #d4dcf9;
+}
+
+.card {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(10, 17, 32, 0.55);
+}
+
+.grid {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0.6rem 0;
+}
+
+.grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+input,
+select,
+button {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(33, 45, 75, 0.8);
+  color: var(--ink);
+  padding: 0.6rem;
+}
+
+button {
+  cursor: pointer;
+  background: linear-gradient(120deg, var(--sky), var(--rose));
+  color: #102;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.list {
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  margin: 0.35rem 0;
+  padding: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.status {
+  color: #c6ffcf;
+}
+
+.state {
+  margin-top: 0.8rem;
+  min-height: 220px;
+  overflow: auto;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: rgba(4, 8, 18, 0.72);
+}
+
+@media (max-width: 800px) {
+  .grid.two,
+  .grid.three {
+    grid-template-columns: 1fr;
+  }
+}

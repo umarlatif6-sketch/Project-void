@@ -207,6 +207,20 @@ docker compose run --rm --profile ops ops python scripts/void_roi_calculator.py 
 bash scripts/smoke_test.sh
 ```
 
+6. Run ORYX repair-state smoke proof (recoverable + quarantined):
+
+```bash
+/home/codespace/.python/current/bin/python scripts/oryx_repair_state_smoke.py --mode both
+```
+
+The script writes a structured artifact to `data/oryx_repair_state_smoke.json`.
+
+7. Enforce artifact integrity (fails if either required scenario is missing):
+
+```bash
+/home/codespace/.python/current/bin/python scripts/check_oryx_repair_state_smoke_artifact.py
+```
+
 Use the proxy surface instead of the direct web port:
 
 ```bash

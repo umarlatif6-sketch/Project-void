@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORYX Creator Editor</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <h1>ORYX Creator Editor</h1>
+      <p>Build worlds, launch agents, tune collaborator permissions, and monitor live activity.</p>
+    </header>
+
+    <section class="card">
+      <h2>Auth</h2>
+      <div class="grid two">
+        <input id="email" placeholder="email" />
+        <input id="password" type="password" placeholder="password (min 8)" />
+      </div>
+      <div class="actions">
+        <button id="register">Register</button>
+        <button id="login">Login</button>
+      </div>
+      <p id="authStatus" class="status"></p>
+    </section>
+
+    <section class="card">
+      <h2>World Dashboard</h2>
+      <div class="actions">
+        <button id="refreshSummary">Refresh Summary</button>
+      </div>
+      <p id="worldRepairState" class="status"></p>
+      <pre id="worldSummary" class="state"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Create World</h2>
+      <div class="grid three">
+        <input id="worldName" placeholder="World name" value="My Oryx World" />
+        <select id="template">
+          <option value="sunsteel_frontier">Sunsteel Frontier</option>
+          <option value="veilrunner_city">Veilrunner City</option>
+          <option value="starfold_reaches">Starfold Reaches</option>
+        </select>
+        <input id="companyName" placeholder="Company name" value="ORYX Studios" />
+      </div>
+      <div class="actions">
+        <button id="createWorld">Create</button>
+        <button id="refreshWorlds">Refresh Worlds</button>
+      </div>
+      <ul id="worldList" class="list"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Collaborators</h2>
+      <p>Add editor or viewer access to a selected world. Owner access stays implicit.</p>
+      <div class="grid three">
+        <input id="collaboratorEmail" placeholder="collaborator email" />
+        <select id="collaboratorRole">
+          <option value="editor">editor</option>
+          <option value="viewer">viewer</option>
+        </select>
+        <button id="addCollaborator">Add / Update</button>
+      </div>
+      <div class="actions">
+        <button id="refreshCollaborators">Refresh Collaborators</button>
+        <button id="removeCollaborator">Remove Collaborator</button>
+      </div>
+      <ul id="collaboratorList" class="list"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Feature Permissions</h2>
+      <p>Override role defaults for a selected collaborator.</p>
+      <div class="grid two">
+        <input id="permissionEmail" placeholder="collaborator email for overrides" />
+        <button id="savePermissions">Save Permission Overrides</button>
+      </div>
+      <div class="grid three">
+        <label><input id="permView" type="checkbox" checked /> can_view_world</label>
+        <label><input id="permStep" type="checkbox" /> can_step_world</label>
+        <label><input id="permAgents" type="checkbox" /> can_manage_agents</label>
+        <label><input id="permQuests" type="checkbox" /> can_manage_quests</label>
+        <label><input id="permStream" type="checkbox" /> can_manage_stream</label>
+        <button id="refreshPermissions">Refresh Permissions</button>
+      </div>
+      <ul id="permissionList" class="list"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Invites</h2>
+      <p>Create expiring role invites, accept an invite token, or revoke a pending invite.</p>
+      <div class="grid three">
+        <select id="inviteRole">
+          <option value="editor">editor</option>
+          <option value="viewer">viewer</option>
+        </select>
+        <input id="inviteExpiryHours" value="72" placeholder="expiry hours" />
+        <button id="createInvite">Create Invite</button>
+      </div>
+      <div class="actions">
+        <button id="refreshInvites">Refresh Invites</button>
+        <button id="copyInviteLink">Copy Share Link</button>
+      </div>
+      <div class="grid two">
+        <input id="acceptInviteToken" placeholder="invite token to accept" />
+        <button id="acceptInvite">Accept Invite</button>
+      </div>
+      <div class="grid two">
+        <input id="revokeInviteToken" placeholder="invite token to revoke" />
+        <button id="revokeInvite">Revoke Invite</button>
+      </div>
+      <p id="inviteStatus" class="status"></p>
+      <ul id="inviteList" class="list"></ul>
+    </section>
+
+    <section class="card">
+      <h2>World Actions</h2>
+      <div class="grid three">
+        <input id="selectedWorldId" placeholder="World ID" />
+        <input id="steps" placeholder="Steps" value="1" />
+        <button id="stepWorld">Step World</button>
+      </div>
+      <div class="grid two">
+        <input id="agentName" placeholder="Agent name" value="Runner" />
+        <input id="agentBehavior" placeholder="Behavior" value="explore" />
+      </div>
+      <div class="actions">
+        <button id="addAgent">Add Agent</button>
+      </div>
+      <div class="grid two">
+        <input id="questText" placeholder="Quest text" value="Secure the eastern relic gate." />
+        <button id="addQuest">Inject Quest</button>
+      </div>
+      <h3>Realtime Multiplayer Stream</h3>
+      <div class="grid three">
+        <input id="streamMs" value="1000" placeholder="Interval ms" />
+        <input id="streamSteps" value="1" placeholder="Steps per tick" />
+        <button id="joinWorldRoom">Join World Room</button>
+      </div>
+      <div class="actions">
+        <button id="startStream">Start Stream</button>
+        <button id="stopStream">Stop Stream</button>
+      </div>
+      <p id="streamStatus" class="status"></p>
+      <pre id="worldState" class="state"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Audit Log</h2>
+      <div class="grid three">
+        <input id="auditActionFilter" placeholder="filter by action" />
+        <input id="auditActorFilter" placeholder="filter by actor email" />
+        <select id="auditRepairStateFilter">
+          <option value="">all repair states</option>
+          <option value="aligned">aligned</option>
+          <option value="recoverable">recoverable</option>
+          <option value="quarantined">quarantined</option>
+        </select>
+      </div>
+      <div class="actions">
+        <button id="clearAuditFilters">Clear Filters</button>
+      </div>
+      <div class="grid three">
+        <input id="auditPageSize" value="10" placeholder="page size" />
+        <input id="auditOffset" value="0" placeholder="offset" />
+        <button id="applyAuditPaging">Apply Paging</button>
+      </div>
+      <div class="actions">
+        <button id="prevAuditPage">Previous Page</button>
+        <button id="nextAuditPage">Next Page</button>
+        <button id="refreshAudit">Refresh Audit Log</button>
+      </div>
+      <p id="auditMeta" class="status"></p>
+      <ul id="auditList" class="list"></ul>
+    </section>
+  </main>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+  <script src="app.js"></script>
+</body>
+</html>

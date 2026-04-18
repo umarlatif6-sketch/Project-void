@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-PROJECT VOID is not competing in a single market. It is a five-layer sovereign stack, and each layer exists in a different competitive landscape. The critical finding is this: **no single competitor touches more than one layer simultaneously.** The field is fragmented into silos — acoustic data companies, privacy messengers, smart city infrastructure firms, biocomputing labs, and steganography tools — and none of them are connected. PROJECT VOID is the only platform that vertically integrates all five. That is not a marketing claim; it is what the research confirms.
+PROJECT VOID is not competing in a single market. It is a five-layer sovereign stack, and each layer exists in a different competitive landscape. The critical finding from this public-source review is this: **we did not identify a single competitor that clearly spans more than one of these layers in the same way.** The field appears fragmented into silos — acoustic data companies, privacy messengers, smart city infrastructure firms, biocomputing labs, and steganography tools. Based on the sources reviewed, PROJECT VOID appears unusually cross-layer in how it combines these elements. Treat that as a current research finding, not a permanent market fact.
 
 The three strongest competitive "radiators" in the space — the entities whose work is closest and whose orbit PROJECT VOID should track closely — are:
 
@@ -30,13 +30,13 @@ The three strongest competitive "radiators" in the space — the entities whose 
 | **Meshtastic** | LoRa RF (915 MHz) | Kilometres | Off-grid text / GPS mesh | Open-source community |
 | **EvoLogics** | 10.5 kHz acoustic | Kilometres (underwater) | AUV swarm networking (ocean) | Commercial hardware vendor |
 
-### Where PROJECT VOID Has No Competitor
+### Where PROJECT VOID Appears Differentiated
 
 The entire commercial "data-over-sound" industry (LISNR, ToneTag, Trillbit) is built for **proximity payments** — distances of <50 metres, operating in the ultrasonic band (18kHz+) to remain inaudible. They are point-to-point. They have no mesh. They have no multi-hop routing. They have no encryption sovereignty.
 
 Meshtastic proves the demand exists for off-grid multi-hop mesh — it has a large active community, nodes are cheap ($25-70), and it is used by emergency responders globally. But Meshtastic uses LoRa radio (licensed band, RF-scannable, jammable). It is text-only. It cannot carry audio, files, or steganographic payloads.
 
-**The gap PROJECT VOID occupies**: a multi-hop, long-range, spectrum-free mesh that uses ubiquitous audio hardware, is invisible to RF scanning, carries arbitrary payloads, and authenticates with a sovereign hash. This combination does not exist in the commercial field.
+**The gap PROJECT VOID appears to target**: a multi-hop, long-range, spectrum-free mesh that uses ubiquitous audio hardware, aims to reduce RF dependence, carries arbitrary payloads, and authenticates with a sovereign hash. We did not identify this exact combination in the reviewed commercial field.
 
 ### Sources
 - LISNR: https://lisnr.com  
@@ -147,7 +147,7 @@ SB RAS does DAS over fibre — expensive, cable-locked. PROJECT VOID does it wir
 **PROJECT VOID** is a sovereign acoustic communications stack  
 **that** transmits, encrypts, and conceals arbitrary data payloads through audio hardware, authenticated by a sovereign hash, on commodity £85 hardware  
 **Unlike** Meshtastic (RF-dependent, text-only), Briar (smartphone-dependent, short range), or any Smart Cities infrastructure player (cloud/5G dependent)  
-**PROJECT VOID** is the only platform where transport, cryptography, steganography, language, and hardware are all built without dependency on any external authority.
+**PROJECT VOID** is positioned as a platform that combines transport, cryptography, steganography, language, and hardware with reduced dependency on external authorities. In this public-source review, we did not identify another platform described in quite the same combination.
 
 ---
 

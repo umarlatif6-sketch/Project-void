@@ -665,3 +665,115 @@ def log_session_tokens(input_tokens: int, output_tokens: int,
         conn.close()
     except Exception as exc:
         logger.debug("[CodonHeart] Token log write failed: %s", exc)
+
+
+# ── Character profile transparency ────────────────────────────────────────────
+
+def export_character_profile(visitor_key: Optional[str] = None) -> dict:
+    """
+    Return the full character profile state for a visitor.
+
+    Includes:
+      - All stored session codons (codon_text, glyph_seq, window_index, created_at)
+      - The current third_brain_buffer message window (messages, window_index)
+      - Codon count and buffer message count
+      - The visitor_key (caller must confirm ownership before exposing to a user)
+
+    Best-effort — returns empty structure on any DB error, never raises.
+    """
+    _ensure_schema()
+    if visitor_key is None:
+        visitor_key = _get_visitor_key()
+
+    profile: dict = {
+        "visitor_key": visitor_key,
+        "codons": [],
+        "buffer_messages": [],
+        "buffer_window_index": 0,
+        "codon_count": 0,
+        "buffer_message_count": 0,
+    }
+
+    try:
+        from void_engine.db_pool import get_db
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT codon_text, glyph_seq, window_index, created_at FROM session_codons "
+            "WHERE visitor_key = %s ORDER BY created_at ASC",
+            (visitor_key,),
+        )
+        rows = cur.fetchall()
+        profile["codons"] = [
+            {
+                "codon_text": r[0],
+                "glyph_seq": r[1],
+                "window_index": r[2],
+                "created_at": str(r[3]),
+            }
+            for r in rows
+        ]
+        profile["codon_count"] = len(profile["codons"])
+
+        cur.execute(
+            "SELECT messages_json, window_index FROM third_brain_buffer WHERE visitor_key = %s",
+            (visitor_key,),
+        )
+        buf_row = cur.fetchone()
+        if buf_row:
+            try:
+                messages = json.loads(buf_row[0] or "[]")
+            except (TypeError, ValueError):
+                messages = []
+            profile["buffer_messages"] = messages
+            profile["buffer_window_index"] = buf_row[1]
+            profile["buffer_message_count"] = len(messages)
+
+        cur.close()
+        conn.close()
+    except Exception as exc:
+        logger.debug("[CodonHeart] export_character_profile failed: %s", exc)
+
+    return profile
+
+
+def delete_character_profile(visitor_key: Optional[str] = None) -> dict:
+    """
+    Permanently delete all character profile data for a visitor.
+
+    Removes:
+      - All rows in session_codons for this visitor_key
+      - The third_brain_buffer row for this visitor_key
+
+    Returns a summary dict with ``codons_deleted`` and ``buffer_cleared``.
+    Best-effort — logs errors but never raises.
+    """
+    _ensure_schema()
+    if visitor_key is None:
+        visitor_key = _get_visitor_key()
+
+    result = {"visitor_key": visitor_key, "codons_deleted": 0, "buffer_cleared": False}
+
+    try:
+        from void_engine.db_pool import get_db
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("DELETE FROM session_codons WHERE visitor_key = %s", (visitor_key,))
+        result["codons_deleted"] = cur.rowcount if cur.rowcount is not None else 0
+
+        cur.execute("DELETE FROM third_brain_buffer WHERE visitor_key = %s", (visitor_key,))
+        result["buffer_cleared"] = (cur.rowcount or 0) > 0
+
+        conn.commit()
+        cur.close()
+        conn.close()
+        logger.info(
+            "[CodonHeart] Character profile deleted for %s: codons=%d buffer_cleared=%s",
+            visitor_key[:20], result["codons_deleted"], result["buffer_cleared"],
+        )
+    except Exception as exc:
+        logger.error("[CodonHeart] delete_character_profile failed: %s", exc)
+
+    return result

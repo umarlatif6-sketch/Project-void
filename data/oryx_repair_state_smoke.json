@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-04-17T23:34:20.920978+00:00",
+  "ok": true,
+  "mode": "both",
+  "scenarios": [
+    {
+      "scenario": "recoverable",
+      "ok": true,
+      "world_id": "297bdcd56da5",
+      "summary_repair_state": "recoverable",
+      "issue_codes": [
+        "recent_repair_events"
+      ],
+      "audit_total": 1,
+      "audit_actions": [
+        "invite_revoked"
+      ],
+      "audit_states": [
+        "recoverable"
+      ]
+    },
+    {
+      "scenario": "quarantined",
+      "ok": true,
+      "world_id": "0c755042a8a8",
+      "summary_repair_state": "quarantined",
+      "issue_codes": [
+        "owner_missing"
+      ]
+    }
+  ]
+}

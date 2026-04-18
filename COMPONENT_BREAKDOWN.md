@@ -99,7 +99,7 @@ Send a secret message inside a song. No one knows it's there.
 1. **Unique technology** (not many competitors)
 2. **Multiple markets** (security, privacy, covert comms, art)
 3. **High margins** (low compute cost)
-4. **Defensible IP** (patent-worthy)
+4. **Defensible IP** (potentially protectable, subject to counsel review)
 
 ### Why It's Harder
 1. **Regulatory questions** (export controls on crypto)
@@ -219,7 +219,7 @@ Think: Decentralized internet that grows like a plant.
 1. **Huge market** (IoT, edge computing, decentralization)
 2. **High margins** (once built, scales infinitely)
 3. **Strategic value** (VCs love mesh networking)
-4. **Defensible** (patent-worthy, hard to copy)
+4. **Defensible** (potentially protectable, differentiated, and harder to copy)
 
 ### Why It's Harder
 1. **Highest effort** (production hardening required)

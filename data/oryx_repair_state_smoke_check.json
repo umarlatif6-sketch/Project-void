@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "artifact": "data/oryx_repair_state_smoke.json",
+  "required_scenarios": [
+    "quarantined",
+    "recoverable"
+  ],
+  "present_scenarios": [
+    "quarantined",
+    "recoverable"
+  ],
+  "extra_scenarios": [],
+  "issue_count": 0,
+  "issues": []
+}

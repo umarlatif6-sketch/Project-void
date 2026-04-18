@@ -22,6 +22,8 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
+from void_decoder import verify_packet_hmac, validate_freshness
+
 logger = logging.getLogger(__name__)
 
 # ── ESP32 CSI packet format ────────────────────────────────────────────────
@@ -38,6 +40,15 @@ DEFAULT_UDP_HOST = "0.0.0.0"
 DEFAULT_UDP_PORT = 5286
 SOCKET_TIMEOUT_S = 0.1
 MAX_SUBCARRIERS = 64
+CSI_HMAC_HEX_LENGTH = 64
+CSI_HMAC_ENV_KEY = "VOID_CSI_HMAC_KEY"
+# Replay window in seconds.  Packets older than this are dropped.
+CSI_FRESHNESS_WINDOW_S = int(os.getenv("VOID_CSI_FRESHNESS_WINDOW", "60"))
+# Wire format for signed + time-stamped CSI envelope:
+#   4 bytes  issued_at   (big-endian uint32 unix timestamp)
+#   N bytes  CSI payload (magic + subcarriers …)
+#   64 bytes HMAC-SHA256 hex signature over (issued_at || payload)
+CSI_ISSUED_AT_LENGTH = 4
 
 
 @dataclass
@@ -48,34 +59,76 @@ class CSIPacket:
     timestamp: float
 
 
-def parse_csi_packet(data: bytes) -> Optional[CSIPacket]:
-    """Parse a raw UDP payload into a CSIPacket.  Returns None on malformed input."""
+def build_signed_csi_envelope(payload: bytes, signing_key: str) -> bytes:
+    """Prepend a 4-byte issued_at timestamp to *payload* and append an HMAC signature.
+
+    The full wire format is:  issued_at (4 BE bytes) || payload || HMAC hex (64 ASCII bytes).
+    Import ``sign_packet_hmac`` from ``void_decoder`` when calling this.
+    """
+    import struct as _struct
+    from void_decoder import sign_packet_hmac
+    issued_at = int(time.time())
+    envelope_body = _struct.pack(">I", issued_at) + payload
+    sig = sign_packet_hmac(envelope_body.hex().upper(), signing_key)
+    return envelope_body + sig.encode("ascii")
+
+
+def _split_signed_csi_packet(data: bytes, signing_key: str) -> Optional[bytes]:
+    """Verify HMAC and freshness; return the inner CSI payload or None."""
+    if not signing_key:
+        return data
+    # Minimum: 4 (issued_at) + 6 (smallest valid CSI) + 64 (HMAC)
+    if len(data) <= CSI_ISSUED_AT_LENGTH + CSI_HMAC_HEX_LENGTH:
+        return None
+    envelope_body = data[:-(CSI_HMAC_HEX_LENGTH)]
+    signature = data[-CSI_HMAC_HEX_LENGTH:]
     try:
-        if len(data) < 6:
+        signature_hex = signature.decode("ascii")
+    except UnicodeDecodeError:
+        return None
+    if not verify_packet_hmac(envelope_body.hex().upper(), signing_key, signature_hex):
+        return None
+    # Extract 4-byte big-endian timestamp and check freshness
+    import struct as _struct
+    issued_at = _struct.unpack(">I", envelope_body[:CSI_ISSUED_AT_LENGTH])[0]
+    if not validate_freshness(issued_at, window_seconds=CSI_FRESHNESS_WINDOW_S):
+        logger.warning(
+            "CSIBioMonitor: dropped stale CSI packet issued_at=%d (window=%ds)",
+            issued_at, CSI_FRESHNESS_WINDOW_S,
+        )
+        return None
+    return envelope_body[CSI_ISSUED_AT_LENGTH:]
+
+
+def parse_csi_packet(data: bytes, signing_key: str = "") -> Optional[CSIPacket]:
+    """Parse a raw UDP payload into a CSIPacket. Returns None on malformed or unauthenticated input."""
+    try:
+        payload = _split_signed_csi_packet(data, signing_key)
+        if payload is None or len(payload) < 6:
             return None
-        if data[:4] != _MAGIC_BYTES:
+        if payload[:4] != _MAGIC_BYTES:
             return None
-        n = data[4]
+        n = payload[4]
         if n == 0 or n > MAX_SUBCARRIERS:
             return None
         expected_len = 4 + 1 + n * 2 + n * 2 + 2
-        if len(data) < expected_len:
+        if len(payload) != expected_len:
             return None
 
         offset = 5
         amplitudes = []
         for i in range(n):
-            raw = struct.unpack_from(">H", data, offset + i * 2)[0]
+            raw = struct.unpack_from(">H", payload, offset + i * 2)[0]
             amplitudes.append(raw / 1000.0)
 
         offset += n * 2
         phases = []
         for i in range(n):
-            raw = struct.unpack_from(">h", data, offset + i * 2)[0]
+            raw = struct.unpack_from(">h", payload, offset + i * 2)[0]
             phases.append(raw / 1000.0)
 
         offset += n * 2
-        ntc_raw = struct.unpack_from(">H", data, offset)[0]
+        ntc_raw = struct.unpack_from(">H", payload, offset)[0]
 
         return CSIPacket(amplitude=amplitudes, phase=phases, ntc_raw=ntc_raw, timestamp=time.time())
     except Exception as exc:
@@ -149,10 +202,11 @@ class CSIBioMonitor:
     """
 
     def __init__(self, host: str = DEFAULT_UDP_HOST, port: int = DEFAULT_UDP_PORT,
-                 timeout: float = SOCKET_TIMEOUT_S):
+                 timeout: float = SOCKET_TIMEOUT_S, signing_key: Optional[str] = None):
         self._host = host
         self._port = port
         self._timeout = timeout
+        self._signing_key = signing_key if signing_key is not None else os.getenv(CSI_HMAC_ENV_KEY, "").strip()
         self._sock: Optional[socket.socket] = None
         self._last_packet: Optional[CSIPacket] = None
         self._packet_count = 0
@@ -185,11 +239,14 @@ class CSIBioMonitor:
 
         try:
             data, _ = self._sock.recvfrom(4096)
-            packet = parse_csi_packet(data)
+            packet = parse_csi_packet(data, signing_key=self._signing_key)
             if packet:
                 self._last_packet = packet
                 self._packet_count += 1
                 return derive_sensor_state_from_packet(packet)
+            if self._signing_key:
+                self._error_count += 1
+                logger.warning("CSIBioMonitor: dropped unauthenticated or malformed CSI packet")
         except socket.timeout:
             pass
         except Exception as exc:
