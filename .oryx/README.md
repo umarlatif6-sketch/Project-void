@@ -19,6 +19,7 @@ ORYX is aimed at being a lower-cost creator platform where studios, communities,
 - docs/company_blueprint.md: separate company and platform model
 - docs/creator_platform.md: creator-engine roadmap and API model
 - docs/repair_doctrine.md: creator-side repair law for broken workflows, permissions, and world integrity
+- docs/unreal_parity_roadmap.md: phased roadmap to approach fuller game-engine capability over time
 - frontend/: reserved for the creator dashboard and world editor
 
 ## Quick Start

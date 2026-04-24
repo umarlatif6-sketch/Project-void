@@ -18,6 +18,9 @@ FEATURE_KEYS = [
     "can_manage_agents",
     "can_manage_quests",
     "can_manage_stream",
+    "can_manage_collaborators",
+    "can_manage_invites",
+    "can_manage_permissions",
 ]
 
 RECOVERABLE_AUDIT_ACTIONS = {
@@ -45,6 +48,9 @@ ROLE_DEFAULTS: dict[str, dict[str, bool]] = {
         "can_manage_agents": True,
         "can_manage_quests": True,
         "can_manage_stream": True,
+        "can_manage_collaborators": True,
+        "can_manage_invites": True,
+        "can_manage_permissions": True,
     },
     "editor": {
         "can_view_world": True,
@@ -52,6 +58,9 @@ ROLE_DEFAULTS: dict[str, dict[str, bool]] = {
         "can_manage_agents": True,
         "can_manage_quests": True,
         "can_manage_stream": True,
+        "can_manage_collaborators": False,
+        "can_manage_invites": False,
+        "can_manage_permissions": False,
     },
     "viewer": {
         "can_view_world": True,
@@ -59,6 +68,9 @@ ROLE_DEFAULTS: dict[str, dict[str, bool]] = {
         "can_manage_agents": False,
         "can_manage_quests": False,
         "can_manage_stream": False,
+        "can_manage_collaborators": False,
+        "can_manage_invites": False,
+        "can_manage_permissions": False,
     },
 }
 
@@ -128,6 +140,9 @@ class AuthStore:
                     can_manage_agents INTEGER,
                     can_manage_quests INTEGER,
                     can_manage_stream INTEGER,
+                    can_manage_collaborators INTEGER,
+                    can_manage_invites INTEGER,
+                    can_manage_permissions INTEGER,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE(world_id, user_id),
                     FOREIGN KEY(user_id) REFERENCES users(id)
@@ -180,6 +195,14 @@ class AuthStore:
             conn.execute("ALTER TABLE world_invites ADD COLUMN used_at DATETIME")
         if 'revoked_at' not in invite_columns:
             conn.execute("ALTER TABLE world_invites ADD COLUMN revoked_at DATETIME")
+
+        feature_columns = {row['name'] for row in conn.execute("PRAGMA table_info(world_feature_permissions)").fetchall()}
+        if 'can_manage_collaborators' not in feature_columns:
+            conn.execute("ALTER TABLE world_feature_permissions ADD COLUMN can_manage_collaborators INTEGER")
+        if 'can_manage_invites' not in feature_columns:
+            conn.execute("ALTER TABLE world_feature_permissions ADD COLUMN can_manage_invites INTEGER")
+        if 'can_manage_permissions' not in feature_columns:
+            conn.execute("ALTER TABLE world_feature_permissions ADD COLUMN can_manage_permissions INTEGER")
 
         audit_columns = {row['name'] for row in conn.execute("PRAGMA table_info(world_audit_log)").fetchall()}
         if 'repair_state' not in audit_columns:
@@ -275,7 +298,8 @@ class AuthStore:
         with self._connect() as conn:
             row = conn.execute(
                 """
-                SELECT can_view_world, can_step_world, can_manage_agents, can_manage_quests, can_manage_stream
+                SELECT can_view_world, can_step_world, can_manage_agents, can_manage_quests, can_manage_stream,
+                       can_manage_collaborators, can_manage_invites, can_manage_permissions
                 FROM world_feature_permissions
                 WHERE world_id = ? AND user_id = ?
                 """,
@@ -352,14 +376,20 @@ class AuthStore:
                     can_manage_agents,
                     can_manage_quests,
                     can_manage_stream,
+                    can_manage_collaborators,
+                    can_manage_invites,
+                    can_manage_permissions,
                     updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
                 ON CONFLICT(world_id, user_id) DO UPDATE SET
                     can_view_world = excluded.can_view_world,
                     can_step_world = excluded.can_step_world,
                     can_manage_agents = excluded.can_manage_agents,
                     can_manage_quests = excluded.can_manage_quests,
                     can_manage_stream = excluded.can_manage_stream,
+                    can_manage_collaborators = excluded.can_manage_collaborators,
+                    can_manage_invites = excluded.can_manage_invites,
+                    can_manage_permissions = excluded.can_manage_permissions,
                     updated_at = CURRENT_TIMESTAMP
                 """,
                 (
@@ -370,6 +400,9 @@ class AuthStore:
                     self._as_db_bool(values["can_manage_agents"]),
                     self._as_db_bool(values["can_manage_quests"]),
                     self._as_db_bool(values["can_manage_stream"]),
+                    self._as_db_bool(values["can_manage_collaborators"]),
+                    self._as_db_bool(values["can_manage_invites"]),
+                    self._as_db_bool(values["can_manage_permissions"]),
                 ),
             )
             conn.commit()

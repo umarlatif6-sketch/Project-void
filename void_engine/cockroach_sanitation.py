@@ -316,3 +316,57 @@ def run_sanitation_demo(zones: Optional[List[str]] = None,
         "network_status": status,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
+
+
+def run_dual_track_demo(zones: Optional[List[str]] = None,
+                        waste_per_zone: float = 80.0,
+                        cockroaches_per_bin: int = 6,
+                        dark_rounds: int = 5) -> Dict:
+    """Run both systems separately: sanitation track and agent-control track."""
+    if zones is None:
+        zones = [
+            "supermarket_organic",
+            "meat_processing",
+            "food_storage",
+            "restaurant_waste",
+            "market_stall",
+        ]
+
+    sanitation_track = run_sanitation_demo(
+        zones=zones,
+        waste_per_zone=waste_per_zone,
+        cockroaches_per_bin=cockroaches_per_bin,
+        dark_rounds=dark_rounds,
+    )
+
+    waste_map = {
+        zone: float(
+            sanitation_track.get("cycle_result", {})
+            .get("bin_results", {})
+            .get(zone, {})
+            .get("deposit", {})
+            .get("deposited", waste_per_zone)
+        )
+        for zone in zones
+    }
+
+    from void_engine.cockroach_agent_control import run_agent_piloted_cycle
+
+    agent_control_track = run_agent_piloted_cycle(
+        zones=zones,
+        waste_map=waste_map,
+        base_dark_rounds=dark_rounds,
+        base_cockroaches=cockroaches_per_bin,
+    )
+
+    return {
+        "demo": "cockroach_dual_track",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "zones": zones,
+        "sanitation_track": sanitation_track,
+        "agent_control_track": agent_control_track,
+        "bridge_note": (
+            "Systems are separated: sanitation handles bin physics, "
+            "agent-control layer pilots sanitation parameters in simulation."
+        ),
+    }

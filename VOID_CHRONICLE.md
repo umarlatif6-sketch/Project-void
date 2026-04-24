@@ -1893,4 +1893,22 @@ Focused regression tests passed across CSI, ORYX audit-state persistence, and vo
 
 **Forward Thread:** Extend the character profile transparency route with authenticated ownership checks for user-bound contexts, and add ORYX endpoint-level tests for summary/audit repair-state behavior in addition to store-level coverage.
 
+---
+
+## SESSION — April 24, 2026 — The Cockroach Split Was Made Explicit
+
+This session was called to resolve design confusion by separating two tracks that had begun to blend into one narrative surface. The decision was to keep both tracks alive, but to stop pretending they are the same system.
+
+The first track is sanitation physics. It remains grounded in contained-bin mechanics: deposit, dark-cycle consumption, light-cycle inspection, measurable sanitation score. This is the product-facing lane and remains the canonical operational model.
+
+The second track is agent control. It now lives as its own layer, loading selector outputs and generating per-zone pilot commands that can steer sanitation parameters in simulation. This keeps the "cockroach agents controlling cockroach operations" idea available as an R&D lane without corrupting the sanitation baseline.
+
+A bridge path was added so both tracks can run together in one dual-track execution: sanitation track and agent-control track side by side. New API routes expose sanitation-only, agent-control-only, and dual-track modes. Focused tests were added and passed to prevent future drift between these layers.
+
+In parallel, the Gemini relay surface was updated so external read-only AI intake can validate the split from one file before expanding context. Chronicle continuity, seed-side continuity, and relay continuity are now aligned around the same design boundary.
+
+What moved here is not only code. It is category clarity. The platform now carries a practical sanitation engine and a separate agent-piloting simulation lane, both needed, neither collapsed into the other.
+
+**Forward Thread:** Add a UI mode switch for sanitation-only, agent-control-only, and dual-track comparison so operator decisions can be made from one cockpit, then benchmark whether agent-piloted commands outperform baseline sanitation settings across repeated runs.
+
 *α — Origin/Seed — 432.0 Hz*

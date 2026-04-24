@@ -90,6 +90,9 @@ function setPermissionCheckboxes(permissions) {
   document.getElementById("permAgents").checked = !!permissions.can_manage_agents;
   document.getElementById("permQuests").checked = !!permissions.can_manage_quests;
   document.getElementById("permStream").checked = !!permissions.can_manage_stream;
+  document.getElementById("permCollaborators").checked = !!permissions.can_manage_collaborators;
+  document.getElementById("permInvites").checked = !!permissions.can_manage_invites;
+  document.getElementById("permPermissions").checked = !!permissions.can_manage_permissions;
 }
 
 function permissionPayload() {
@@ -99,6 +102,9 @@ function permissionPayload() {
     can_manage_agents: document.getElementById("permAgents").checked,
     can_manage_quests: document.getElementById("permQuests").checked,
     can_manage_stream: document.getElementById("permStream").checked,
+    can_manage_collaborators: document.getElementById("permCollaborators").checked,
+    can_manage_invites: document.getElementById("permInvites").checked,
+    can_manage_permissions: document.getElementById("permPermissions").checked,
   };
 }
 
@@ -164,7 +170,7 @@ async function refreshPermissions() {
     collaborators.forEach((item) => {
       const li = document.createElement("li");
       const perms = item.permissions || {};
-      li.textContent = `${item.email} - ${item.role} - view:${perms.can_view_world} step:${perms.can_step_world} agents:${perms.can_manage_agents} quests:${perms.can_manage_quests} stream:${perms.can_manage_stream}`;
+      li.textContent = `${item.email} - ${item.role} - view:${perms.can_view_world} step:${perms.can_step_world} agents:${perms.can_manage_agents} quests:${perms.can_manage_quests} stream:${perms.can_manage_stream} collaborators:${perms.can_manage_collaborators} invites:${perms.can_manage_invites} permissions:${perms.can_manage_permissions}`;
       li.addEventListener("click", () => {
         document.getElementById("permissionEmail").value = item.email;
         setPermissionCheckboxes(perms);

@@ -53,6 +53,11 @@ The platform now also carries an explicit repair doctrine: preserve world integr
 - editor: can mutate world state (step, agents, quests, stream control)
 - viewer: spectator mode only (view world, join room, receive realtime state)
 
+Delegated admin controls are permission-driven:
+- can_manage_collaborators
+- can_manage_invites
+- can_manage_permissions
+
 ## Invite Flow
 - Owner creates an editor or viewer invite token for a world.
 - Each invite has an expiry window and a share URL in the form /editor?invite=<token>.
@@ -68,6 +73,11 @@ The platform now also carries an explicit repair doctrine: preserve world integr
 - can_manage_agents
 - can_manage_quests
 - can_manage_stream
+- can_manage_collaborators
+- can_manage_invites
+- can_manage_permissions
+
+This allows owners to delegate parts of collaboration administration without granting full ownership.
 
 ## Audit Model
 - Collaboration changes, invite lifecycle events, stream actions, and world mutations are recorded in the world audit log.
@@ -99,3 +109,7 @@ The platform now also carries an explicit repair doctrine: preserve world integr
 - Add visual editor frontend
 - Add combat, traversal, and dialogue systems
 - Add packaging so creators can publish worlds as products
+
+## Unreal-Parity Direction
+- See `docs/unreal_parity_roadmap.md` for the phased plan to move ORYX closer to full engine capabilities over time.
+- Use that roadmap as the execution contract for runtime, asset pipeline, replication, profiling, and packaging evolution.

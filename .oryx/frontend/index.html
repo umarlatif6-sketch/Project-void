@@ -73,7 +73,7 @@
 
     <section class="card">
       <h2>Feature Permissions</h2>
-      <p>Override role defaults for a selected collaborator.</p>
+      <p>Override role defaults for a selected collaborator, including delegated collaboration controls.</p>
       <div class="grid two">
         <input id="permissionEmail" placeholder="collaborator email for overrides" />
         <button id="savePermissions">Save Permission Overrides</button>
@@ -84,6 +84,9 @@
         <label><input id="permAgents" type="checkbox" /> can_manage_agents</label>
         <label><input id="permQuests" type="checkbox" /> can_manage_quests</label>
         <label><input id="permStream" type="checkbox" /> can_manage_stream</label>
+        <label><input id="permCollaborators" type="checkbox" /> can_manage_collaborators</label>
+        <label><input id="permInvites" type="checkbox" /> can_manage_invites</label>
+        <label><input id="permPermissions" type="checkbox" /> can_manage_permissions</label>
         <button id="refreshPermissions">Refresh Permissions</button>
       </div>
       <ul id="permissionList" class="list"></ul>

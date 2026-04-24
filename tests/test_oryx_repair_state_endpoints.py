@@ -85,6 +85,50 @@ def _provision_world_with_repair_event(client):
     return token, world_id
 
 
+def _provision_world_with_editor(client):
+    client.post(
+        "/api/auth/register",
+        json={"email": "owner-collab@example.com", "password": "strongpass123"},
+    )
+    owner_login = client.post(
+        "/api/auth/login",
+        json={"email": "owner-collab@example.com", "password": "strongpass123"},
+    )
+    owner_token = owner_login.get_json()["token"]
+
+    client.post(
+        "/api/auth/register",
+        json={"email": "editor-collab@example.com", "password": "strongpass123"},
+    )
+    editor_login = client.post(
+        "/api/auth/login",
+        json={"email": "editor-collab@example.com", "password": "strongpass123"},
+    )
+    editor_token = editor_login.get_json()["token"]
+
+    world_response = client.post(
+        "/api/worlds",
+        headers=_auth_headers(owner_token),
+        json={"name": "Collab Delegation World", "template": "sunsteel_frontier"},
+    )
+    world_id = world_response.get_json()["world"]["id"]
+
+    invite_response = client.post(
+        f"/api/worlds/{world_id}/invites",
+        headers=_auth_headers(owner_token),
+        json={"role": "editor", "expires_in_hours": 24},
+    )
+    invite_token = invite_response.get_json()["token"]
+    accept_response = client.post(
+        "/api/invites/accept",
+        headers=_auth_headers(editor_token),
+        json={"token": invite_token},
+    )
+    assert accept_response.status_code == 200
+
+    return owner_token, editor_token, world_id
+
+
 def test_world_summary_surfaces_recoverable_repair_state(oryx_client):
     token, world_id = _provision_world_with_repair_event(oryx_client)
 
@@ -177,6 +221,85 @@ def test_world_audit_forbids_unassigned_user(oryx_client):
     response = oryx_client.get(
         f"/api/worlds/{world_id}/audit?repair_state=recoverable",
         headers=_auth_headers(outsider_token),
+    )
+
+    assert response.status_code == 403
+    assert response.get_json()["error"] == "Forbidden"
+
+
+def test_editor_cannot_manage_invites_without_override(oryx_client):
+    _, editor_token, world_id = _provision_world_with_editor(oryx_client)
+
+    response = oryx_client.post(
+        f"/api/worlds/{world_id}/invites",
+        headers=_auth_headers(editor_token),
+        json={"role": "viewer", "expires_in_hours": 24},
+    )
+
+    assert response.status_code == 403
+    assert response.get_json()["error"] == "Forbidden"
+
+
+def test_owner_can_delegate_collaboration_admin_permissions(oryx_client):
+    owner_token, editor_token, world_id = _provision_world_with_editor(oryx_client)
+
+    permissions_response = oryx_client.post(
+        f"/api/worlds/{world_id}/permissions",
+        headers=_auth_headers(owner_token),
+        json={
+            "email": "editor-collab@example.com",
+            "can_manage_collaborators": True,
+            "can_manage_invites": True,
+            "can_manage_permissions": False,
+        },
+    )
+    assert permissions_response.status_code == 200
+
+    create_invite_response = oryx_client.post(
+        f"/api/worlds/{world_id}/invites",
+        headers=_auth_headers(editor_token),
+        json={"role": "viewer", "expires_in_hours": 24},
+    )
+    assert create_invite_response.status_code == 201
+
+    invite_token = create_invite_response.get_json()["token"]
+    revoke_response = oryx_client.post(
+        f"/api/worlds/{world_id}/invites/revoke",
+        headers=_auth_headers(editor_token),
+        json={"token": invite_token},
+    )
+    assert revoke_response.status_code == 200
+
+    oryx_client.post(
+        "/api/auth/register",
+        json={"email": "viewer-collab@example.com", "password": "strongpass123"},
+    )
+
+    add_collaborator_response = oryx_client.post(
+        f"/api/worlds/{world_id}/collaborators",
+        headers=_auth_headers(editor_token),
+        json={"email": "viewer-collab@example.com", "role": "viewer"},
+    )
+    assert add_collaborator_response.status_code == 201
+
+    remove_collaborator_response = oryx_client.post(
+        f"/api/worlds/{world_id}/collaborators/remove",
+        headers=_auth_headers(editor_token),
+        json={"email": "viewer-collab@example.com"},
+    )
+    assert remove_collaborator_response.status_code == 200
+
+
+def test_editor_cannot_manage_permissions_without_override(oryx_client):
+    _, editor_token, world_id = _provision_world_with_editor(oryx_client)
+
+    response = oryx_client.post(
+        f"/api/worlds/{world_id}/permissions",
+        headers=_auth_headers(editor_token),
+        json={
+            "email": "editor-collab@example.com",
+            "can_manage_collaborators": True,
+        },
     )
 
     assert response.status_code == 403

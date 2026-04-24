@@ -307,8 +307,8 @@ def create_app() -> Flask:
                 return jsonify({"error": "Forbidden"}), 403
             return jsonify(auth.list_collaborators(world_id))
 
-        if not _is_world_owner(user_id, world_id):
-            return jsonify({"error": "Only owner can manage collaborators."}), 403
+        if not _has_permission(user_id, world_id, "can_manage_collaborators"):
+            return jsonify({"error": "Forbidden"}), 403
 
         payload = request.get_json(silent=True) or {}
         email = str(payload.get("email", "")).strip().lower()
@@ -329,8 +329,8 @@ def create_app() -> Flask:
             user_id = _require_user_id()
         except PermissionError:
             return jsonify({"error": "Unauthorized"}), 401
-        if not _is_world_owner(user_id, world_id):
-            return jsonify({"error": "Only owner can manage collaborators."}), 403
+        if not _has_permission(user_id, world_id, "can_manage_collaborators"):
+            return jsonify({"error": "Forbidden"}), 403
 
         payload = request.get_json(silent=True) or {}
         email = str(payload.get("email", "")).strip().lower()
@@ -355,8 +355,8 @@ def create_app() -> Flask:
                 return jsonify({"error": "Forbidden"}), 403
             return jsonify(auth.list_collaborators(world_id))
 
-        if not _is_world_owner(user_id, world_id):
-            return jsonify({"error": "Only owner can manage feature permissions."}), 403
+        if not _has_permission(user_id, world_id, "can_manage_permissions"):
+            return jsonify({"error": "Forbidden"}), 403
 
         payload = request.get_json(silent=True) or {}
         email = str(payload.get("email", "")).strip().lower()
@@ -376,8 +376,8 @@ def create_app() -> Flask:
             user_id = _require_user_id()
         except PermissionError:
             return jsonify({"error": "Unauthorized"}), 401
-        if not _is_world_owner(user_id, world_id):
-            return jsonify({"error": "Only owner can manage invites."}), 403
+        if not _has_permission(user_id, world_id, "can_manage_invites"):
+            return jsonify({"error": "Forbidden"}), 403
 
         if request.method == "GET":
             return jsonify(auth.list_invites(world_id, base_url=_base_url()))
@@ -398,8 +398,8 @@ def create_app() -> Flask:
             user_id = _require_user_id()
         except PermissionError:
             return jsonify({"error": "Unauthorized"}), 401
-        if not _is_world_owner(user_id, world_id):
-            return jsonify({"error": "Only owner can manage invites."}), 403
+        if not _has_permission(user_id, world_id, "can_manage_invites"):
+            return jsonify({"error": "Forbidden"}), 403
 
         payload = request.get_json(silent=True) or {}
         token = str(payload.get("token", "")).strip()
