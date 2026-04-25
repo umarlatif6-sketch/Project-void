@@ -17,12 +17,12 @@ TEST_OUTPUT="$(${TEST_CMD[@]} 2>&1)"
 TEST_EXIT=$?
 set -e
 
-PASS_COUNT=$(printf "%s" "$TEST_OUTPUT" | grep -Eo '[0-9]+ passed' | head -n1 | awk '{print $1}')
+PASS_COUNT=$(printf "%s" "$TEST_OUTPUT" | grep -Eo '[0-9]+ passed' | head -n1 | awk '{print $1}' || true)
 if [[ -z "${PASS_COUNT:-}" ]]; then
   PASS_COUNT="0"
 fi
 
-FAIL_COUNT=$(printf "%s" "$TEST_OUTPUT" | grep -Eo '[0-9]+ failed' | head -n1 | awk '{print $1}')
+FAIL_COUNT=$(printf "%s" "$TEST_OUTPUT" | grep -Eo '[0-9]+ failed' | head -n1 | awk '{print $1}' || true)
 if [[ -z "${FAIL_COUNT:-}" ]]; then
   FAIL_COUNT="0"
 fi
