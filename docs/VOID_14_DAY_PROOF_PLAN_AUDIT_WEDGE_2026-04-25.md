@@ -36,6 +36,37 @@ Day 2
 - Finalize acceptance criteria for filters and repair-state semantics.
 - Define exact KPI measurement protocol.
 
+### Day 2 Lock (Completed Criteria)
+- Filter contract acceptance:
+	- `action` filter returns only exact action matches.
+	- `actor_email` filter is case-normalized to lowercase.
+	- `repair_state` filter returns only one of `aligned`, `recoverable`, `quarantined`.
+	- Pagination uses bounded `limit` and non-negative `offset`.
+- Authorization acceptance:
+	- Unauthenticated access to audit endpoints returns HTTP 401.
+	- Unassigned users receive HTTP 403 for summary and audit endpoints.
+- Evidence acceptance:
+	- Proofboard suite must remain green (current baseline: 13 passed, 0 failed).
+
+### Day 2 KPI Protocol (Locked)
+- Scenario count: 3 minimum scenarios (`s1`, `s2`, `s3`) each run in `baseline` and `post_wedge` mode.
+- Timing formula:
+	- `duration_seconds = end_ts_utc - start_ts_utc` (UTC timestamps).
+	- KPI 1 (% reduction) = `((avg_baseline_duration - avg_post_duration) / avg_baseline_duration) * 100`.
+- Query formula:
+	- KPI 2 (% fewer queries) = `((avg_baseline_queries - avg_post_queries) / avg_baseline_queries) * 100`.
+- Unauthorized formula:
+	- KPI 3 (%) = `(sum_unauthorized_successes / sum_unauthorized_attempts) * 100`.
+	- Target remains exactly `0`.
+- Filter correctness formula:
+	- Per scenario = `(filter_returned_count / filter_expected_count) * 100`.
+	- KPI 4 = mean across all scenarios.
+- Stability formula:
+	- KPI 5 (%) = `(successful_runs / total_runs) * 100` for the proofboard test command.
+
+Data capture template:
+- `data/void_proofboard/day2_kpi_measurement_template.csv`
+
 Day 3
 - Validate existing endpoint behavior for action, actor_email, repair_state, paging.
 - Log defects only in this wedge.
