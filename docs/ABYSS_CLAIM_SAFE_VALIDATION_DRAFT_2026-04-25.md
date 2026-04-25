@@ -71,6 +71,29 @@ Required outputs per band:
 3. Drift behavior over repeated cycles.
 4. Recovery time after excursion.
 
+## 2026 External Benchmark Envelope (Comparator Only)
+These values are external comparators for target-setting and should not be presented as Abyss in-house results unless reproduced under your own protocol.
+
+### Electromagnetic/RCS comparator envelope
+- Broadband absorber literature in 2026 reports high absorption efficiencies approaching 99% in wide frequency windows (reported ranges can span approximately 4 GHz to 300 GHz depending on architecture). (Literature-supported comparator)
+- Reported peak reflection-loss values in advanced porous doped-carbon systems can reach around -72 dB in specific setups. (Literature-supported comparator)
+- Review-room usage: treat these as ceiling references when defining Abyss band-specific pass/fail targets.
+
+### Hydrodynamic comparator envelope
+- Literature reports large drag-reduction peaks in specific passive patterning configurations, while conventional hull add-ons often produce much smaller single-digit-to-low-double-digit gains depending on operating regime. (Literature-supported comparator)
+- Sodium alginate behavior under low salinity conditions can show early-stage drag-reduction enhancement before higher-salinity inhibition dominates in stronger turbulence. (Literature-supported comparator)
+- Review-room usage: bind all drag claims to explicit salinity, Reynolds range, and exposure duration.
+
+### Bio-electrochemical comparator envelope
+- Advanced catalyst architectures in microbial fuel cell literature report peak power densities on the order of several hundred mW/m^2, including values near 703 mW/m^2 in selected studies. (Literature-supported comparator)
+- Anthocyanin-mediated systems have reported long-duration stability windows, including multi-hundred-hour operation in controlled contexts. (Literature-supported comparator)
+- Review-room usage: treat as benchmark targets until Abyss-specific longevity testing reproduces similar behavior.
+
+### Self-healing and autonomous design comparator envelope
+- Diels-Alder graphene-composite literature reports high healing efficiencies, in some cases approaching full recovery under controlled lab conditions. (Literature-supported comparator)
+- The broader R&D trend is shifting toward design-build-deploy loops and AI-assisted material reverse design for adaptive metamaterials and biohybrid systems. (Literature-supported comparator)
+- Review-room usage: keep these as trajectory indicators, not direct Abyss performance claims.
+
 ## Manuscript Language Rules (External Use)
 Use:
 - "candidate"
@@ -92,6 +115,10 @@ Avoid:
 | Self-healing retention after cycles | Literature-supported | Composite literature | Repeated abrasion-heal test | >= predefined recovery threshold |
 | RCS reduction in selected bands | Hypothesis | Metasurface literature | Chamber measurement vs control | >= predefined dB reduction |
 | Salinity-resilient antifouling | Hypothesis | Marine materials literature | Long-duration saline exposure test | Meets fouling/corrosion limits |
+| RCS absorption ceiling alignment | Literature-supported | 2026 comparator studies | Band-labeled chamber campaign | Meets declared absorption and RL target in stated band |
+| Bio-electrochemical power density target | Literature-supported | MFC catalyst literature | Controlled fuel-cell bench test | Reaches declared mW/m^2 target with repeatability |
+| Long-duration voltage stability | Literature-supported | Anthocyanin/EET literature | Multi-day stability protocol | Maintains voltage in declared tolerance window |
+| Healing efficiency benchmark transfer | Literature-supported | Diels-Alder nanocomposite literature | Repeated damage-repair cycle test | Sustains declared recovery over N cycles |
 
 ## Works Cited Handling Note
 The source list provided is suitable as a discovery pool. Before submission, classify each citation as:
@@ -100,3 +127,5 @@ The source list provided is suitable as a discovery pool. Before submission, cla
 3. Repository or secondary source
 
 Only elevate claims to "literature-supported" when backed by peer-reviewed or clearly citable primary results that match your stated operating conditions.
+
+For review-room integrity, attach citation IDs directly to each numeric comparator in the benchmark envelope and include any known uncertainty, bandwidth limits, and test-condition caveats.
