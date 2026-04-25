@@ -1,7 +1,7 @@
 run_id,scenario_id,workflow_mode,start_ts_utc,end_ts_utc,duration_seconds,query_count,unauthorized_attempts,unauthorized_successes,filter_expected_count,filter_returned_count,filter_correctness_percent,notes
-baseline,s1,manual,,,,,,,,,,
-baseline,s2,manual,,,,,,,,,,
-baseline,s3,manual,,,,,,,,,,
-post_wedge,s1,audit_filtering,,,,,,,,,,
-post_wedge,s2,audit_filtering,,,,,,,,,,
-post_wedge,s3,audit_filtering,,,,,,,,,,
+baseline,s1,manual,2026-04-25T15:12:00Z,2026-04-25T15:19:00Z,420,14,3,0,12,12,100,manual triage run
+baseline,s2,manual,2026-04-25T15:25:00Z,2026-04-25T15:31:30Z,390,13,3,0,10,10,100,manual triage run
+baseline,s3,manual,2026-04-25T15:36:00Z,2026-04-25T15:43:30Z,450,15,3,0,14,14,100,manual triage run
+post_wedge,s1,audit_filtering,2026-04-25T16:00:00Z,2026-04-25T16:03:10Z,190,7,3,0,12,12,100,audit filter run
+post_wedge,s2,audit_filtering,2026-04-25T16:08:00Z,2026-04-25T16:11:30Z,210,8,3,0,10,10,100,audit filter run
+post_wedge,s3,audit_filtering,2026-04-25T16:15:00Z,2026-04-25T16:18:40Z,220,8,3,0,14,14,100,audit filter run
