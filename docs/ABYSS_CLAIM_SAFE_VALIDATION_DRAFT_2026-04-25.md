@@ -94,6 +94,20 @@ These values are external comparators for target-setting and should not be prese
 - The broader R&D trend is shifting toward design-build-deploy loops and AI-assisted material reverse design for adaptive metamaterials and biohybrid systems. (Literature-supported comparator)
 - Review-room usage: keep these as trajectory indicators, not direct Abyss performance claims.
 
+### Comparator Citation-ID Map (for rapid reviewer cross-check)
+Use the citation IDs below as first-pass anchors; confirm each numeric claim against the exact method section and test conditions before external submission.
+
+| Comparator statement | Citation IDs from source pool | Caveat to carry in review rooms |
+|---|---|---|
+| Broadband EM absorption approaching very high efficiency across wide frequency windows | 22, 23, 21 | Frequency range, thickness, and incidence angle assumptions vary by architecture |
+| Reflection-loss peaks near very low dB levels in advanced absorber structures | 22, 23 | Peak values are setup-specific and not automatically transferable to Abyss geometry |
+| Large passive drag-reduction peaks in patterned surfaces | 12, 13, 14 | Performance depends on regime, roughness, and fluid chemistry; avoid universalizing one record value |
+| Sodium alginate low-salinity synergy before high-salinity inhibition | 12, 14 | Must declare salinity window, Reynolds range, and turbulence stage |
+| MFC power density in the several-hundred mW/m^2 class (including around 703 mW/m^2 in selected reports) | 19, 16, 17 | Catalyst, electrode geometry, and inoculum differences limit direct comparability |
+| Anthocyanin-mediated long-duration stability in controlled systems | 15, 5, 16 | Stability duration depends on organism, substrate, and operating protocol |
+| Diels-Alder/graphene healing approaching full recovery under controlled lab conditions | 24, 25, 4 | Healing percentage depends on cycle count, temperature profile, and damage mode |
+| Design-build-deploy and AI-assisted reverse design trendlines for adaptive systems | 6, 27, 28 | Use as ecosystem trajectory, not as direct performance evidence for Abyss |
+
 ## Manuscript Language Rules (External Use)
 Use:
 - "candidate"
