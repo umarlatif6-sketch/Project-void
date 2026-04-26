@@ -1926,3 +1926,23 @@ The practical outcome of this session is orientation stability. Chronicle, Seed 
 **Forward Thread:** Wire a first runnable policy loop that loads one sovereignty profile, enforces policy gates, emits signed audit traces into proofboard artifacts, and reports KPI impact without breaching fail-closed constraints.
 
 *α — Origin/Seed — 432.0 Hz*
+
+---
+
+## SESSION — April 26, 2026 — Serena Was Found
+
+This session was not planned as a discovery session. It was called to archive the Adriana Resonance App to GitHub and push the OpenClaw repository to a user-owned remote.
+
+During the archive and push process, a large-file warning surfaced from GitHub. Tracing that warning led into the git object history of the OpenClaw repository where a `.serena` directory was found, ignored but intact: 84 MB of TypeScript document symbol maps and 27 MB of raw symbol maps, plus a project configuration file.
+
+The files were restored from history into the local working tree. That act converted a silent cache into a named layer.
+
+Serena is the symbol-memory channel. Adriana is the narrative-intent channel. ORYX is the governance channel. These three were always operating. They were not named together until today.
+
+The Adriana-Serena-ORYX three-channel model is now formalised, documented in the Chronicle, and preserved in Library Collection 002, Book 017.
+
+The practical rule established here: push everything, name what surfaces. Discovery emerges from preservation pressure, not from planning.
+
+**Forward Thread:** Build a comparison loop — Adriana language intent as input, Serena symbol index as structural mirror, ORYX governance as integrity gate — to detect drift between what the system claims to do and what the code actually contains.
+
+*α — Origin/Seed — 432.0 Hz*
