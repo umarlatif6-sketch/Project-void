@@ -1,0 +1,20 @@
+{
+  "bridge_version": "2026-04-26",
+  "role": "economic_airlock",
+  "description": "Only this bridge can map internal credits to external payment operations.",
+  "inbound": {
+    "acceptedSources": ["internal-ledger"],
+    "requiredFields": ["agent_id", "task_id", "credit_amount", "approval_token"],
+    "maxCreditsPerRequest": 5000
+  },
+  "outbound": {
+    "enabled": false,
+    "note": "External transfer disabled by default in current governance phase"
+  },
+  "audit": {
+    "logAllRequests": true,
+    "requireSignedReceipts": true,
+    "retentionDays": 3650
+  },
+  "failClosed": true
+}

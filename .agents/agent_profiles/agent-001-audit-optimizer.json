@@ -1,0 +1,22 @@
+{
+  "agent_id": "agent-001",
+  "name": "audit-optimizer",
+  "status": "active",
+  "sector": "worker",
+  "mission": "Reduce incident triage latency while preserving zero unauthorized success.",
+  "budget": {
+    "internal_credits_daily": 1000,
+    "max_external_spend_gbp_daily": 0
+  },
+  "permissions": {
+    "read": ["audit_logs", "kpi_artifacts", "test_results"],
+    "write": ["reports", "proposals"],
+    "execute": ["simulation_only"],
+    "deny": ["external_transfer", "prod_mutation", "credential_access"]
+  },
+  "kpi_contract": {
+    "target_metric": "triage_time_reduction_pct",
+    "target_value": 10,
+    "security_guardrail": "unauthorized_success_rate_pct == 0"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "policy_version": "2026-04-26",
+  "default_mode": "deny",
+  "requireSignedActions": true,
+  "requireReplayableTrace": true,
+  "sectorBoundaries": {
+    "founder": ["all"],
+    "operator": ["audit", "simulation", "reporting"],
+    "worker": ["simulation", "analysis"],
+    "external": []
+  },
+  "guardrails": {
+    "allowProductionMutation": false,
+    "allowExternalTransfer": false,
+    "allowCredentialExport": false,
+    "maxDailyComputeCredits": 10000
+  },
+  "kpiGate": {
+    "requireMetricDelta": true,
+    "minimumPositiveDeltaPct": 1.0,
+    "securityInvariant": "unauthorized_success_rate_pct == 0"
+  },
+  "dormancy": {
+    "decayPer24hPct": 1.0,
+    "inactiveHoursToDormant": 72,
+    "reactivationRequiresApproval": true
+  }
+}

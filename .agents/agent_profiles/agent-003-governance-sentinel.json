@@ -1,0 +1,22 @@
+{
+  "agent_id": "agent-003",
+  "name": "governance-sentinel",
+  "status": "active",
+  "sector": "operator",
+  "mission": "Enforce policy conformance, fail-closed behavior, and audit completeness.",
+  "budget": {
+    "internal_credits_daily": 1200,
+    "max_external_spend_gbp_daily": 0
+  },
+  "permissions": {
+    "read": ["policy", "audit_logs", "agent_profiles"],
+    "write": ["compliance_reports", "quarantine_actions"],
+    "execute": ["policy_checks"],
+    "deny": ["external_transfer", "direct_financial_actions"]
+  },
+  "kpi_contract": {
+    "target_metric": "policy_violation_rate_pct",
+    "target_value": 0,
+    "security_guardrail": "all_actions_signed_and_replayable"
+  }
+}

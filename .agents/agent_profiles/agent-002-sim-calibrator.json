@@ -1,0 +1,22 @@
+{
+  "agent_id": "agent-002",
+  "name": "sim-calibrator",
+  "status": "active",
+  "sector": "worker",
+  "mission": "Improve model confidence intervals and calibration quality for Abyss simulations.",
+  "budget": {
+    "internal_credits_daily": 1400,
+    "max_external_spend_gbp_daily": 0
+  },
+  "permissions": {
+    "read": ["data/abyss_sim", "docs", "test_results"],
+    "write": ["simulation_reports", "calibration_notes"],
+    "execute": ["local_model_runs"],
+    "deny": ["external_transfer", "prod_mutation", "secret_export"]
+  },
+  "kpi_contract": {
+    "target_metric": "confidence_interval_width_reduction_pct",
+    "target_value": 15,
+    "security_guardrail": "claim_labeling_must_be_model_predicted"
+  }
+}
