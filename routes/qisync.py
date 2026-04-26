@@ -49,7 +49,12 @@ _PHONE_TRUST_WEIGHT = 0.5  # 50 % of CSI confidence weight for phone inputs
 _MAX_PHONE_STABLE_TICKS = 200  # ~3.3 min at 1 Hz — enough for a real session
 _MAX_INGRESS_JSON_BYTES = 4096
 _MAX_SESSION_ID_LENGTH = 64
-_ALLOWED_TICK_KEYS = {"session_id", "stable", "confidence", "chew_delta"}
+_ALLOWED_TICK_KEYS = {"session_id", "stable", "confidence", "chew_delta", "client_ts", "nonce"}
+
+# Freshness / replay-protection
+_TICK_FRESHNESS_WINDOW_S = 30   # client_ts must be within ±30s of server time
+_TICK_NONCE_MAX = 512           # max nonces held per session before rotation
+_seen_tick_nonces: Dict[str, set] = {}  # session_key -> set of accepted nonces
 
 
 def _coerce_int(value, default: int) -> int:
@@ -106,6 +111,7 @@ def _prune_sessions():
              if now - rec["start_time"] > _SESSION_MAX_AGE]
     for sid in stale:
         _ACTIVE_SESSIONS.pop(sid, None)
+        _seen_tick_nonces.pop(sid, None)
 
 
 def _session_key(user_id, session_id: str) -> str:
@@ -470,6 +476,26 @@ def qisync_tick():
         return jsonify({"error": "session already ended"}), 409
 
     now = time.time()
+
+    # ── Freshness check ──────────────────────────────────────────────────────
+    client_ts = data.get("client_ts")
+    if client_ts is not None:
+        client_ts_f = _coerce_float(client_ts, default=-1.0)
+        if client_ts_f < 0 or abs(now - client_ts_f) > _TICK_FRESHNESS_WINDOW_S:
+            return jsonify({"error": "tick timestamp out of freshness window"}), 400
+
+    # ── Replay-nonce check ───────────────────────────────────────────────────
+    nonce = data.get("nonce")
+    if nonce is not None:
+        nonce_str = str(nonce)[:128]
+        seen = _seen_tick_nonces.setdefault(key, set())
+        if nonce_str in seen:
+            return jsonify({"error": "duplicate tick nonce rejected"}), 409
+        seen.add(nonce_str)
+        # Rotate oldest nonces to cap memory
+        if len(seen) > _TICK_NONCE_MAX:
+            _seen_tick_nonces[key] = set(list(seen)[_TICK_NONCE_MAX // 2 :])
+
     elapsed = now - rec["start_time"]
 
     # Rate-limit: silently ignore ticks that arrive too quickly

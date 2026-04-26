@@ -357,8 +357,8 @@ def run_single_bin():
     return jsonify(result)
 
 
-  @cockroach_sanitation_bp.route("/api/cockroach/dual-track", methods=["POST"])
-  def run_dual_track():
+@cockroach_sanitation_bp.route("/api/cockroach/dual-track", methods=["POST"])
+def run_dual_track():
     data = request.get_json(silent=True) or {}
 
     zone_count = int(data.get("zones", 5))
@@ -372,25 +372,25 @@ def run_single_bin():
     dark_rounds = max(1, min(10, dark_rounds))
 
     zone_names = [
-      "supermarket_organic", "meat_processing", "food_storage",
-      "restaurant_waste", "market_stall", "bakery_residue",
-      "deli_counter", "cold_storage", "fish_market", "produce_dock",
-      "catering_facility", "street_food_station",
+        "supermarket_organic", "meat_processing", "food_storage",
+        "restaurant_waste", "market_stall", "bakery_residue",
+        "deli_counter", "cold_storage", "fish_market", "produce_dock",
+        "catering_facility", "street_food_station",
     ][:zone_count]
 
     from void_engine.cockroach_sanitation import run_dual_track_demo
 
     result = run_dual_track_demo(
-      zones=zone_names,
-      waste_per_zone=waste,
-      cockroaches_per_bin=cockroaches,
-      dark_rounds=dark_rounds,
+        zones=zone_names,
+        waste_per_zone=waste,
+        cockroaches_per_bin=cockroaches,
+        dark_rounds=dark_rounds,
     )
     return jsonify(result)
 
 
-  @cockroach_sanitation_bp.route("/api/cockroach/agent-control", methods=["POST"])
-  def run_agent_control_only():
+@cockroach_sanitation_bp.route("/api/cockroach/agent-control", methods=["POST"])
+def run_agent_control_only():
     data = request.get_json(silent=True) or {}
 
     zone_count = int(data.get("zones", 5))
@@ -404,10 +404,10 @@ def run_single_bin():
     dark_rounds = max(1, min(10, dark_rounds))
 
     zone_names = [
-      "supermarket_organic", "meat_processing", "food_storage",
-      "restaurant_waste", "market_stall", "bakery_residue",
-      "deli_counter", "cold_storage", "fish_market", "produce_dock",
-      "catering_facility", "street_food_station",
+        "supermarket_organic", "meat_processing", "food_storage",
+        "restaurant_waste", "market_stall", "bakery_residue",
+        "deli_counter", "cold_storage", "fish_market", "produce_dock",
+        "catering_facility", "street_food_station",
     ][:zone_count]
 
     waste_map = {z: waste for z in zone_names}
@@ -415,9 +415,9 @@ def run_single_bin():
     from void_engine.cockroach_agent_control import run_agent_piloted_cycle
 
     result = run_agent_piloted_cycle(
-      zones=zone_names,
-      waste_map=waste_map,
-      base_dark_rounds=dark_rounds,
-      base_cockroaches=cockroaches,
+        zones=zone_names,
+        waste_map=waste_map,
+        base_dark_rounds=dark_rounds,
+        base_cockroaches=cockroaches,
     )
     return jsonify(result)

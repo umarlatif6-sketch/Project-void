@@ -174,3 +174,56 @@ def test_list_and_count_filter_on_persisted_repair_state(tmp_path: Path) -> None
 
 def test_audit_repair_state_for_action_defaults_to_aligned() -> None:
     assert audit_repair_state_for_action("unknown_action") == "aligned"
+
+
+def test_list_audit_log_returns_empty_for_unknown_repair_state(tmp_path: Path) -> None:
+    """Filtering on a non-existent repair_state value returns an empty list."""
+    db_path = tmp_path / "oryx_unknown_state.db"
+    store = AuthStore(db_path)
+
+    store.log_event(world_id="w3", action="stream_tick", target_type="world")
+
+    result = store.list_audit_log("w3", limit=50, repair_state="nonexistent_state")
+    assert result == []
+
+
+def test_count_audit_log_returns_zero_for_unknown_repair_state(tmp_path: Path) -> None:
+    """count_audit_log returns 0 when no rows match the given repair_state."""
+    db_path = tmp_path / "oryx_count_zero.db"
+    store = AuthStore(db_path)
+
+    store.log_event(world_id="w4", action="stream_tick", target_type="world")
+
+    count = store.count_audit_log("w4", repair_state="nonexistent_state")
+    assert count == 0
+
+
+def test_list_audit_log_limit_is_respected(tmp_path: Path) -> None:
+    """list_audit_log honours the limit parameter and does not return more rows."""
+    db_path = tmp_path / "oryx_limit.db"
+    store = AuthStore(db_path)
+
+    for i in range(10):
+        store.log_event(world_id="w5", action="stream_tick", target_type="world")
+
+    rows = store.list_audit_log("w5", limit=3)
+    assert len(rows) <= 3
+
+
+def test_repair_state_defaults_correctly_per_action(tmp_path: Path) -> None:
+    """Verify default repair_state values for known action types via log_event."""
+    db_path = tmp_path / "oryx_defaults.db"
+    store = AuthStore(db_path)
+
+    store.log_event(world_id="w6", action="invite_revoked", target_type="invite")
+    store.log_event(world_id="w6", action="manual_review", target_type="world",
+                    repair_state="quarantined")
+    store.log_event(world_id="w6", action="stream_tick", target_type="world")
+
+    all_rows = store.list_audit_log("w6", limit=50)
+    states = {row["action"]: row["repair_state"] for row in all_rows}
+
+    assert states["stream_tick"] == "aligned"
+    assert states["manual_review"] == "quarantined"
+    # invite_revoked defaults to recoverable per the action map
+    assert states["invite_revoked"] == "recoverable"
