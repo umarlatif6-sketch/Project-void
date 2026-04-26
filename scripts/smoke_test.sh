@@ -6,13 +6,15 @@ build_flag="--build"
 keep_running=0
 use_proxy=0
 timeout_seconds="180"
+run_oryx=0
 
 usage() {
   cat <<'EOF'
-Usage: scripts/smoke_test.sh [--proxy] [--keep-running] [--no-build] [--timeout SECONDS]
+Usage: scripts/smoke_test.sh [--proxy] [--keep-running] [--no-build] [--timeout SECONDS] [--oryx]
 
 Boots the Project VOID Docker stack, waits for the selected HTTP surface,
 checks /health and /wake, then tears the stack down unless --keep-running is set.
+If --oryx is provided, also runs ORYX repair-state smoke and artifact checks.
 EOF
 }
 
@@ -33,6 +35,10 @@ while [[ $# -gt 0 ]]; do
     --timeout)
       timeout_seconds="${2:-}"
       shift 2
+      ;;
+    --oryx)
+      run_oryx=1
+      shift
       ;;
     -h|--help)
       usage
@@ -109,6 +115,14 @@ sdk_payload="$(mktemp)"
 curl -fsS "${base_url}/sdk" > "$sdk_payload"
 grep -q 'Deterministic Event Integrity' "$sdk_payload"
 rm -f "$sdk_payload"
+
+if [[ "$run_oryx" -eq 1 ]]; then
+  echo "[void-smoke] Running ORYX repair-state smoke flows"
+  python3 scripts/oryx_repair_state_smoke.py --mode both --persist-db
+
+  echo "[void-smoke] Validating ORYX smoke artifact"
+  python3 scripts/check_oryx_repair_state_smoke_artifact.py
+fi
 
 echo "[void-smoke] PASS"
 if [[ "$keep_running" -eq 1 ]]; then

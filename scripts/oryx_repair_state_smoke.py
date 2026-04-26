@@ -71,8 +71,8 @@ def _create_world(client, *, token: str, name: str) -> str:
     return world_response.get_json()["world"]["id"]
 
 
-def _run_recoverable_scenario(client) -> dict:
-    owner_token = _register_and_login(client, email="owner@example.com")
+def _run_recoverable_scenario(client, *, run_tag: str) -> dict:
+    owner_token = _register_and_login(client, email=f"owner_{run_tag}@example.com")
     world_id = _create_world(client, token=owner_token, name="Repair Smoke World")
 
     invite_response = client.post(
@@ -120,9 +120,9 @@ def _run_recoverable_scenario(client) -> dict:
     }
 
 
-def _run_quarantined_scenario(client, *, db_path: Path) -> dict:
-    owner_token = _register_and_login(client, email="owner-q@example.com")
-    editor_token = _register_and_login(client, email="editor-q@example.com")
+def _run_quarantined_scenario(client, *, db_path: Path, run_tag: str) -> dict:
+    owner_token = _register_and_login(client, email=f"owner_q_{run_tag}@example.com")
+    editor_token = _register_and_login(client, email=f"editor_q_{run_tag}@example.com")
     world_id = _create_world(client, token=owner_token, name="Quarantine Smoke World")
 
     invite_response = client.post(
@@ -194,7 +194,54 @@ def _parse_args() -> argparse.Namespace:
         default="both",
         help="Which repair-state scenario to run.",
     )
+    parser.add_argument(
+        "--persist-db",
+        action="store_true",
+        help="Persist smoke-test SQLite DB to data/oryx_repair_state_smoke.db instead of temp storage.",
+    )
+    parser.add_argument(
+        "--db-path",
+        default="",
+        help="Optional explicit SQLite path when --persist-db is enabled.",
+    )
     return parser.parse_args()
+
+
+def _resolve_db_path(args: argparse.Namespace, temp_dir: Path) -> Path:
+    if not args.persist_db:
+        return temp_dir / "oryx.db"
+    if args.db_path:
+        db_path = Path(args.db_path).expanduser().resolve()
+    else:
+        db_path = REPO_ROOT / "data" / "oryx_repair_state_smoke.db"
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    return db_path
+
+
+def _collect_persistence_summary(db_path: Path) -> dict:
+    if not db_path.exists():
+        return {
+            "db_path": str(db_path),
+            "exists": False,
+            "audit_log_rows": 0,
+            "repair_state_counts": {},
+        }
+
+    with sqlite3.connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        total_row = conn.execute("SELECT COUNT(*) AS total FROM world_audit_log").fetchone()
+        state_rows = conn.execute(
+            "SELECT repair_state, COUNT(*) AS count FROM world_audit_log GROUP BY repair_state"
+        ).fetchall()
+
+    return {
+        "db_path": str(db_path),
+        "exists": True,
+        "audit_log_rows": int(total_row["total"] if total_row else 0),
+        "repair_state_counts": {
+            str(row["repair_state"]): int(row["count"]) for row in state_rows if row["repair_state"]
+        },
+    }
 
 
 def main() -> int:
@@ -204,7 +251,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="oryx-repair-smoke-") as temp_dir_name:
         temp_dir = Path(temp_dir_name)
         data_dir = temp_dir / "oryx_data"
-        db_path = temp_dir / "oryx.db"
+        db_path = _resolve_db_path(args, temp_dir)
 
         module.OryxEngine = lambda _path: OryxEngine(data_dir)
         module.AuthStore = lambda _path: AuthStore(db_path)
@@ -214,14 +261,15 @@ def main() -> int:
 
         with app.test_client() as client:
             scenario_results = []
+            run_tag = uuid.uuid4().hex[:10]
 
             if args.mode in {"recoverable", "both"}:
-                recoverable = _run_recoverable_scenario(client)
+                recoverable = _run_recoverable_scenario(client, run_tag=run_tag)
                 _validate_recoverable(recoverable)
                 scenario_results.append(recoverable)
 
             if args.mode in {"quarantined", "both"}:
-                quarantined = _run_quarantined_scenario(client, db_path=db_path)
+                quarantined = _run_quarantined_scenario(client, db_path=db_path, run_tag=run_tag)
                 _validate_quarantined(quarantined)
                 scenario_results.append(quarantined)
 
@@ -230,6 +278,7 @@ def main() -> int:
         "ok": True,
         "mode": args.mode,
         "scenarios": scenario_results,
+        "persistence": _collect_persistence_summary(db_path),
     }
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     REPORT_PATH.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

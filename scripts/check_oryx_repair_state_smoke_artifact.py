@@ -16,6 +16,7 @@ ARTIFACT_PATH = ROOT / "data" / "oryx_repair_state_smoke.json"
 REPORT_PATH = ROOT / "data" / "oryx_repair_state_smoke_check.json"
 
 REQUIRED_SCENARIOS = {"recoverable", "quarantined"}
+REQUIRED_REPAIR_STATES = {"recoverable"}
 
 
 def main() -> int:
@@ -49,11 +50,36 @@ def main() -> int:
 
     extra = sorted(name for name in scenario_names if name and name not in REQUIRED_SCENARIOS)
 
+    persistence = payload.get("persistence") if isinstance(payload, dict) else None
+    repair_state_counts = {}
+    if not isinstance(persistence, dict):
+        issues.append("Artifact missing 'persistence' summary.")
+    else:
+        raw_counts = persistence.get("repair_state_counts")
+        if not isinstance(raw_counts, dict):
+            issues.append("Persistence summary missing 'repair_state_counts' map.")
+        else:
+            repair_state_counts = {
+                str(k).strip().lower(): int(v)
+                for k, v in raw_counts.items()
+                if str(k).strip()
+            }
+
+    audit_log_rows = int(persistence.get("audit_log_rows", 0)) if isinstance(persistence, dict) else 0
+    if audit_log_rows < 1:
+        issues.append("Persistence summary has zero audit_log_rows.")
+
+    missing_states = sorted(state for state in REQUIRED_REPAIR_STATES if repair_state_counts.get(state, 0) < 1)
+    if missing_states:
+        issues.append(f"Required persisted repair states missing or zero-count: {', '.join(missing_states)}")
+
     report = {
         "ok": not issues,
         "artifact": str(ARTIFACT_PATH.relative_to(ROOT)).replace("\\", "/"),
         "required_scenarios": sorted(REQUIRED_SCENARIOS),
         "present_scenarios": sorted(scenario_names),
+        "required_repair_states": sorted(REQUIRED_REPAIR_STATES),
+        "persisted_repair_state_counts": repair_state_counts,
         "extra_scenarios": extra,
         "issue_count": len(issues),
         "issues": issues,

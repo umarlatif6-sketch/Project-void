@@ -47,6 +47,57 @@ _PHONE_TRUST_WEIGHT = 0.5  # 50 % of CSI confidence weight for phone inputs
 # Per-session cap on the number of phone-reported stable ticks (prevents
 # saturating stance_score via pure phone farming regardless of session length)
 _MAX_PHONE_STABLE_TICKS = 200  # ~3.3 min at 1 Hz — enough for a real session
+_MAX_INGRESS_JSON_BYTES = 4096
+_MAX_SESSION_ID_LENGTH = 64
+_ALLOWED_TICK_KEYS = {"session_id", "stable", "confidence", "chew_delta"}
+
+
+def _coerce_int(value, default: int) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_float(value, default: float) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_bool(value, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"1", "true", "yes", "on"}:
+            return True
+        if lowered in {"0", "false", "no", "off", ""}:
+            return False
+    return default
+
+
+def _validate_tick_payload_keys(data: dict) -> Optional[str]:
+    unexpected = sorted(k for k in data.keys() if k not in _ALLOWED_TICK_KEYS)
+    if unexpected:
+        return f"unexpected fields in tick payload: {', '.join(unexpected)}"
+    return None
+
+
+def _is_valid_session_id(session_id: str) -> bool:
+    if not isinstance(session_id, str):
+        return False
+    session_id = session_id.strip()
+    if not session_id or len(session_id) > _MAX_SESSION_ID_LENGTH:
+        return False
+    try:
+        uuid.UUID(session_id)
+    except (ValueError, AttributeError, TypeError):
+        return False
+    return True
 
 
 def _prune_sessions():
@@ -312,10 +363,14 @@ def qisync_session_start():
     if not user_id:
         return jsonify({"error": "authentication required"}), 401
 
+    content_len = request.content_length or 0
+    if content_len > _MAX_INGRESS_JSON_BYTES:
+        return jsonify({"error": "request payload too large"}), 413
+
     data = request.get_json(silent=True) or {}
     stance = data.get("stance", "mabu")
     mode = data.get("mode", "csi")
-    target_sec = int(data.get("target_sec", 300))
+    target_sec = _coerce_int(data.get("target_sec", 300), 300)
 
     if stance not in VALID_STANCES:
         stance = "mabu"
@@ -391,10 +446,21 @@ def qisync_tick():
     if not user_id:
         return jsonify({"error": "authentication required"}), 401
 
+    content_len = request.content_length or 0
+    if content_len > _MAX_INGRESS_JSON_BYTES:
+        return jsonify({"error": "request payload too large"}), 413
+
     data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return jsonify({"error": "invalid JSON payload"}), 400
+
+    payload_key_error = _validate_tick_payload_keys(data)
+    if payload_key_error:
+        return jsonify({"error": payload_key_error}), 400
+
     session_id = data.get("session_id")
-    if not session_id:
-        return jsonify({"error": "session_id required"}), 400
+    if not _is_valid_session_id(session_id):
+        return jsonify({"error": "valid session_id required"}), 400
 
     key = _session_key(user_id, session_id)
     rec = _ACTIVE_SESSIONS.get(key)
@@ -450,9 +516,9 @@ def qisync_tick():
                             detected_stance != "neutral" and confidence > 0.0)
 
     if mode == "phone" or (mode == "both" and not csi_reading_obtained):
-        client_stable = bool(data.get("stable", False))
-        client_conf = max(0.0, min(1.0, float(data.get("confidence", 0.0))))
-        client_chew = max(0, min(_MAX_CHEW_DELTA_PER_TICK, int(data.get("chew_delta", 0))))
+        client_stable = _coerce_bool(data.get("stable", False), default=False)
+        client_conf = max(0.0, min(1.0, _coerce_float(data.get("confidence", 0.0), 0.0)))
+        client_chew = max(0, min(_MAX_CHEW_DELTA_PER_TICK, _coerce_int(data.get("chew_delta", 0), 0)))
 
         # Enforce per-session phone stable-tick cap to limit farming
         phone_capped = (client_stable and
@@ -501,10 +567,14 @@ def qisync_session_end():
     if not user_id:
         return jsonify({"error": "authentication required"}), 401
 
+    content_len = request.content_length or 0
+    if content_len > _MAX_INGRESS_JSON_BYTES:
+        return jsonify({"error": "request payload too large"}), 413
+
     data = request.get_json(silent=True) or {}
     session_id = data.get("session_id")
-    if not session_id:
-        return jsonify({"error": "session_id required"}), 400
+    if not _is_valid_session_id(session_id):
+        return jsonify({"error": "valid session_id required"}), 400
 
     key = _session_key(user_id, session_id)
     rec = _ACTIVE_SESSIONS.get(key)

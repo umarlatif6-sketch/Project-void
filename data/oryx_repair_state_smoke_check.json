@@ -9,6 +9,13 @@
     "quarantined",
     "recoverable"
   ],
+  "required_repair_states": [
+    "recoverable"
+  ],
+  "persisted_repair_state_counts": {
+    "aligned": 10,
+    "recoverable": 2
+  },
   "extra_scenarios": [],
   "issue_count": 0,
   "issues": []
