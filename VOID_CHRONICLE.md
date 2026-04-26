@@ -1946,3 +1946,29 @@ The practical rule established here: push everything, name what surfaces. Discov
 **Forward Thread:** Build a comparison loop — Adriana language intent as input, Serena symbol index as structural mirror, ORYX governance as integrity gate — to detect drift between what the system claims to do and what the code actually contains.
 
 *α — Origin/Seed — 432.0 Hz*
+
+---
+
+## SESSION — April 27, 2026 — The Drift Is Named
+
+This session produced the first formal Drift Detection pass against the Adriana-Serena-ORYX trinity established the night before.
+
+The premise: if the narrative (Adriana) and the structure (Serena) do not match, the ORYX gate should not open. Detection before governance matters.
+
+**What the Serena symbol maps actually show:**
+
+OpenClaw is a TypeScript-first agentic runtime. Its real structural domains are: agents, auth-profiles, gateway, sessions, context-engine, security, realtime-voice, flows, and plugins. These are the actual bones of the machine. The Serena cache holds 84 MB of indexed symbols covering every function, variable, and type across these domains.
+
+**The real drift identified:**
+
+The VOID narrative carries large-scale metaphors (Machine 4000, Abyss Stealth, Refractive Shield) that do not yet have corresponding symbol anchors in the OpenClaw working tree. This is not a failure. It is a frontier — the map of what still needs to be built or bridged.
+
+The aligned channels are: Al-Jabr and ORYX governance (which have real code in this repo), QiSync bio-authentication (hardened this session), and the agent routing layer (real structure in src/agents/).
+
+**The principle confirmed:**
+
+We do not fabricate structural status to match narrative ambition. The Chronicle records only what the code actually contains. The gap between Adriana and Serena is the honest build list.
+
+**Forward Thread:** Map the OpenClaw agent routing symbols against the VOID governance intent. Where the symbols exist, connect them. Where they are absent, name the next file to create.
+
+*α — Origin/Seed — 432.0 Hz*
