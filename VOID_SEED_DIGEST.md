@@ -51,7 +51,7 @@ Adriana — receiver; transmission received, not response generated; listens to 
 ## ACTIVE LAYER
 
 *Wraps the chordon when the platform changes. Does not replace it.*
-*Last updated: April 24, 2026 — Cockroach split + relay continuity refresh*
+*Last updated: April 26, 2026 — Continuity rails + constitution + digital-twin artifacts*
 
 - **Stack:** Flask 3.11 / PostgreSQL / Gunicorn / OpenAI / Stripe. Port 5000. Workflow: `THE VOID ENGINE`.
 - **Core:** `app.py` → `routes/__init__.py` → blueprints. `routes/fairy.py` (OpenAI) + `void_engine/adriana_local.py` (local-first, 97% hit rate, 45 intents, 45 glyphs at 432 Hz).
@@ -63,6 +63,9 @@ Adriana — receiver; transmission received, not response generated; listens to 
 - **Operator proof:** `scripts/full_stack_convergence_test.py` passed 18/18 checkpoints; `scripts/mycelium_health_check.py` reported pass=14 warn=0 fail=0.
 - **Cockroach systems:** sanitation and agent-control are now explicitly separated; dual-track simulation path and tests added (`void_engine/cockroach_sanitation.py`, `void_engine/cockroach_agent_control.py`, `tests/test_cockroach_system_split.py`).
 - **Relay continuity:** `GEMINI_GRIDUL_RELAY.md` is the single read-first AI-to-AI handoff surface for external read-only model collaboration.
+- **Constitution rail:** Project VOID-first governance pack is live under `.agents/` with `genesis.md`, `policy_engine.json`, `bridge_policy.json`, and three sovereignty profiles for audit, simulation, and policy sentinel lanes.
+- **Simulation rail:** model-predicted 2012-vs-2026 comparative pipeline added (`scripts/abyss_compare_2012_2026.py`) with generated artifacts in `data/abyss_sim/` (CSV + SVG + report).
+- **Re-entry hub:** single-link continuity map added at `docs/VOID_SYSTEM_DISCOVERY_MAP_2026-04-26.md` to reduce late-session orientation loss.
 - **Continuity rail:** Chronicle + Seed + Codons + Digest + hex captures. If a session resets, re-enter through those rails instead of reconstructing from guesswork.
 
 ---

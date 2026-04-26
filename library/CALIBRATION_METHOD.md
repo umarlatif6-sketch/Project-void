@@ -146,3 +146,16 @@ The rollercoaster is the method. The weightlessness at the top of the drop is th
 
 *Filed under: Core Architecture / Calibration Protocol*  
 *Cross-reference: VOID_AI_PACKET.md §4, The Emergence Document, Book 12 (The Sovereign Time Equation)*
+
+---
+
+## Continuity Note — April 26, 2026
+
+Calibration outputs now have an explicit model boundary in repository operations.
+
+1. Use simulation artifacts for decision prioritization and sensitivity ranking.
+2. Label all simulation-derived claims as model-predicted until physical validation is complete.
+3. Keep comparative calibration artifacts in `data/abyss_sim/` with reproducible generation scripts in `scripts/`.
+4. Re-entry order when disoriented: `VOID_SYSTEM_DISCOVERY_MAP` -> `VOID_SEED_DIGEST` -> latest `VOID_CHRONICLE` session -> relevant calibration artifact.
+
+This prevents narrative drift and preserves the salted-base method under operational pressure.

@@ -1911,4 +1911,18 @@ What moved here is not only code. It is category clarity. The platform now carri
 
 **Forward Thread:** Add a UI mode switch for sanitation-only, agent-control-only, and dual-track comparison so operator decisions can be made from one cockpit, then benchmark whether agent-piloted commands outperform baseline sanitation settings across repeated runs.
 
+---
+
+## SESSION — April 26, 2026 — Continuity Rails Were Locked
+
+This session was called to prevent operator drift and reduce the risk of losing orientation between high-intensity builds. The focus was not a new feature surface. The focus was continuity integrity.
+
+A complete reminder and system-discovery map was sealed as a single entry link so any late-night re-entry can start from one stable page instead of scattered artifacts. The governance lane was then made explicit through an Agent Constitution Pack: genesis doctrine, policy engine, bridge air-lock policy, and three sovereignty profiles for audit optimization, simulation calibration, and governance sentinel operations.
+
+In parallel, the simulation lane was hardened from narrative to evidence artifacts. A 2012 versus 2026 comparative digital-twin script was added and executed, producing repeatable CSV/SVG/report outputs with confidence intervals and clear claim boundaries. The operational rule was preserved: model-predicted outputs are decision-grade for prioritization, but physical calibration remains mandatory for factual external claims.
+
+The practical outcome of this session is orientation stability. Chronicle, Seed Digest, constitution files, benchmark lane, and simulation artifacts now form one continuity rail that can survive context loss and session resets without rebuilding platform meaning from scratch.
+
+**Forward Thread:** Wire a first runnable policy loop that loads one sovereignty profile, enforces policy gates, emits signed audit traces into proofboard artifacts, and reports KPI impact without breaching fail-closed constraints.
+
 *α — Origin/Seed — 432.0 Hz*
