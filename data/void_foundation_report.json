@@ -1,0 +1,159 @@
+{
+  "source": "/workspaces/Project-void/data/chronicle.db",
+  "entries": 33,
+  "token_vocab_size": 54,
+  "top_tokens": [
+    {
+      "token": "monitor",
+      "count": 28
+    },
+    {
+      "token": "slm",
+      "count": 24
+    },
+    {
+      "token": "peace",
+      "count": 15
+    },
+    {
+      "token": "qdr",
+      "count": 14
+    },
+    {
+      "token": "gdh",
+      "count": 14
+    },
+    {
+      "token": "qsb",
+      "count": 14
+    },
+    {
+      "token": "power",
+      "count": 14
+    },
+    {
+      "token": "reserves",
+      "count": 14
+    },
+    {
+      "token": "nutrition",
+      "count": 14
+    },
+    {
+      "token": "audit",
+      "count": 14
+    },
+    {
+      "token": "wallet",
+      "count": 14
+    },
+    {
+      "token": "balance",
+      "count": 14
+    },
+    {
+      "token": "achieve",
+      "count": 14
+    },
+    {
+      "token": "safety",
+      "count": 14
+    },
+    {
+      "token": "trk",
+      "count": 13
+    },
+    {
+      "token": "mesh",
+      "count": 12
+    },
+    {
+      "token": "zhr",
+      "count": 10
+    },
+    {
+      "token": "ktm",
+      "count": 10
+    },
+    {
+      "token": "jdr",
+      "count": 10
+    },
+    {
+      "token": "sovereign",
+      "count": 7
+    }
+  ],
+  "signals": {
+    "popularity_hub": {
+      "token_count": 54,
+      "pearson_frequency_vs_neighbor_frequency": 0.8926,
+      "interpretation": "positive hub clustering"
+    },
+    "burst_dynamics": {
+      "tokens_evaluated": 29,
+      "mean_burst_cv": 1.9511,
+      "top_bursty_tokens": [
+        {
+          "token": "slm",
+          "cv": 3.9221
+        },
+        {
+          "token": "peace",
+          "cv": 3.6055
+        },
+        {
+          "token": "trk",
+          "cv": 2.5908
+        },
+        {
+          "token": "balance",
+          "cv": 2.3278
+        },
+        {
+          "token": "safety",
+          "cv": 2.3278
+        },
+        {
+          "token": "nutrition",
+          "cv": 2.3278
+        },
+        {
+          "token": "wallet",
+          "cv": 2.3278
+        },
+        {
+          "token": "reserves",
+          "cv": 2.3278
+        },
+        {
+          "token": "achieve",
+          "cv": 2.3278
+        },
+        {
+          "token": "monitor",
+          "cv": 2.3278
+        },
+        {
+          "token": "audit",
+          "cv": 2.3278
+        },
+        {
+          "token": "gdh",
+          "cv": 2.3278
+        }
+      ],
+      "interpretation": "bursty arrivals present"
+    },
+    "taylors_law": {
+      "points": 54,
+      "slope": 1.9756,
+      "r2": 0.9979,
+      "interpretation": "Taylor-like scaling present"
+    }
+  },
+  "conclusion": {
+    "aligned_with_universal_pattern": true,
+    "note": "This is an internal chronicle/codon-proxy test, not a 22-language corpus replication."
+  }
+}
