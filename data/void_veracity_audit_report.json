@@ -1,0 +1,84 @@
+{
+  "protocol": "VOID_VERACITY_PROTOCOL",
+  "standing_date": "2026-04-28",
+  "overall_verified": false,
+  "checks": [
+    {
+      "name": "statistical_truth",
+      "passed": true,
+      "details": {
+        "taylor": {
+          "slope": 1.9756,
+          "target": 1.9756,
+          "tolerance": 0.15,
+          "in_band": true,
+          "r2": 0.9979,
+          "min_r2": 0.99
+        },
+        "hub_clustering": {
+          "pearson": 0.8926,
+          "min_required": 0.85
+        },
+        "burst_dynamics": {
+          "cv": 1.9511,
+          "min_required": 1.5
+        }
+      }
+    },
+    {
+      "name": "structural_truth",
+      "passed": false,
+      "details": {
+        "serena_document_symbols": {
+          "path": "openclaw/.serena/cache/typescript/document_symbols.pkl",
+          "exists": true,
+          "size_bytes": 87265471,
+          "min_expected_bytes": 73400320
+        },
+        "serena_raw_symbols": {
+          "path": "openclaw/.serena/cache/typescript/raw_document_symbols.pkl",
+          "exists": true
+        },
+        "required_symbol_phrases": {
+          "mie void": [],
+          "ionic phase matching": []
+        }
+      }
+    },
+    {
+      "name": "resonance_truth",
+      "passed": true,
+      "details": {
+        "al_jabr_anchor": {
+          "bit_depth": 286,
+          "expected_bit_depth": 286,
+          "base_frequency": 432.0,
+          "expected_base_frequency": 432.0
+        },
+        "infrasonic_2_3hz_references": {
+          "2.3 hz": [
+            "UNIFIED_SIMULATION_DIRECTIVE.md",
+            "VOID_VERACITY_PROTOCOL.md",
+            "data/void_veracity_audit_report.json",
+            "scripts/veracity_protocol_audit.py"
+          ],
+          "2.3hz": [
+            "data/void_veracity_audit_report.json",
+            "scripts/veracity_protocol_audit.py"
+          ],
+          "2.3-hz": [
+            "data/void_veracity_audit_report.json",
+            "scripts/veracity_protocol_audit.py"
+          ],
+          "2.3 hz infrasonic": [
+            "UNIFIED_SIMULATION_DIRECTIVE.md",
+            "VOID_VERACITY_PROTOCOL.md",
+            "data/void_veracity_audit_report.json",
+            "scripts/veracity_protocol_audit.py"
+          ]
+        },
+        "forbidden_goliath_dependency_hits": []
+      }
+    }
+  ]
+}
