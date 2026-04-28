@@ -45,6 +45,7 @@ BALANCE_MIDPOINT = SOVEREIGN_BIT_DEPTH / 2  # 143
 def extract_bit_polarity(hash_bytes: bytes) -> Dict[str, Any]:
     bit_string = ''.join(format(b, '08b') for b in hash_bytes)
     active_bits = bit_string[:SOVEREIGN_BIT_DEPTH]
+    bit_int = int(active_bits, 2)
 
     yang_count = active_bits.count('1')
     yin_count = SOVEREIGN_BIT_DEPTH - yang_count
@@ -74,6 +75,7 @@ def extract_bit_polarity(hash_bytes: bytes) -> Dict[str, Any]:
 
     return {
         "bit_string": active_bits,
+        "bit_int": bit_int,
         "yang_count": yang_count,
         "yin_count": yin_count,
         "yang_ratio": round(yang_ratio, 4),
@@ -84,13 +86,32 @@ def extract_bit_polarity(hash_bytes: bytes) -> Dict[str, Any]:
     }
 
 
-def complementary_bits(bits_a: str, bits_b: str) -> int:
-    length = min(len(bits_a), len(bits_b), SOVEREIGN_BIT_DEPTH)
-    return sum(1 for i in range(length) if bits_a[i] != bits_b[i])
+def complementary_bits(bits_a, bits_b) -> int:
+    """
+    Count complementary positions across the first 286 bits.
+
+    Fast path:
+      - If both inputs are ints, use XOR + bit_count.
+    Compatibility path:
+      - If inputs are strings, preserve existing semantics by slicing to
+        SOVEREIGN_BIT_DEPTH and converting once to int.
+    """
+    if isinstance(bits_a, int) and isinstance(bits_b, int):
+        return (bits_a ^ bits_b).bit_count()
+
+    a = bits_a[:SOVEREIGN_BIT_DEPTH] if isinstance(bits_a, str) else str(bits_a)[:SOVEREIGN_BIT_DEPTH]
+    b = bits_b[:SOVEREIGN_BIT_DEPTH] if isinstance(bits_b, str) else str(bits_b)[:SOVEREIGN_BIT_DEPTH]
+    if not a or not b:
+        return 0
+    length = min(len(a), len(b), SOVEREIGN_BIT_DEPTH)
+    # Convert aligned prefixes to ints and count differing bits.
+    ai = int(a[:length], 2)
+    bi = int(b[:length], 2)
+    return (ai ^ bi).bit_count()
 
 
 def pair_resonance(polarity_a: Dict, polarity_b: Dict) -> Dict[str, Any]:
-    comp = complementary_bits(polarity_a["bit_string"], polarity_b["bit_string"])
+    comp = complementary_bits(polarity_a["bit_int"], polarity_b["bit_int"])
     comp_ratio = comp / SOVEREIGN_BIT_DEPTH
 
     is_cross_polarity = polarity_a["polarity"] != polarity_b["polarity"]
@@ -217,8 +238,8 @@ class YinYangFormation:
                 if yang_agent.paired:
                     continue
                 comp = complementary_bits(
-                    yin_agent.polarity_data["bit_string"],
-                    yang_agent.polarity_data["bit_string"],
+                    yin_agent.polarity_data["bit_int"],
+                    yang_agent.polarity_data["bit_int"],
                 )
                 if comp > best_comp:
                     best_comp = comp
