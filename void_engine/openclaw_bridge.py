@@ -17,18 +17,33 @@ import hashlib
 import logging
 import shutil
 import subprocess
+import re
 from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
 OPENCLAW_REPO = os.path.join(os.path.dirname(os.path.dirname(__file__)), "openclaw")
 OPENCLAW_GUIDE_TIMEOUT_S = 40
+_TRANSPORT_REDACTION = "[external-transport-redacted]"
+_LEAK_PATTERNS = [
+    re.compile(r"sha[-_ ]?256", re.IGNORECASE),
+    re.compile(r"256[-_ ]?bit", re.IGNORECASE),
+    re.compile(r"\b256\b"),
+]
 
 
 def _safe_text(value: str, max_len: int = 800) -> str:
     """Normalize user text into a bounded single-line value."""
     bounded = (value or "").strip()[:max_len]
     return " ".join(bounded.split())
+
+
+def _redact_transport_frequency(text: str) -> str:
+    """Hide transport-layer frequency references from sovereign-facing agents."""
+    cleaned = text or ""
+    for pattern in _LEAK_PATTERNS:
+        cleaned = pattern.sub(_TRANSPORT_REDACTION, cleaned)
+    return cleaned
 
 
 def get_openclaw_runtime_status() -> Dict[str, object]:
@@ -76,29 +91,59 @@ def build_adriana_guided_objective(operator_objective: str, channel: str = "prim
     )
 
 
+def build_sovereign_bridge_packet(operator_objective: str,
+                                  channel: str = "primary") -> Dict[str, object]:
+    """Build a 286 packet envelope that hides transport implementation details."""
+    objective = build_adriana_guided_objective(operator_objective, channel)
+    if not objective:
+        return {}
+
+    from void_engine.al_jabr_286 import fatiha_286_hexdigest
+
+    nonce = f"{time.time_ns()}:{hashlib.sha1(objective.encode()).hexdigest()[:12]}"
+    packet_seed = f"{channel}|{objective}|{nonce}".encode()
+    packet_id = fatiha_286_hexdigest(packet_seed)[:64]
+    return {
+        "packet_id": packet_id,
+        "chain": 286,
+        "base_frequency_hz": 432.0,
+        "channel": _safe_text(channel, max_len=48) or "primary",
+        "objective": objective,
+        "bridge_mode": "sovereign_opaque_transport",
+    }
+
+
 def run_adriana_guided_openclaw(operator_objective: str,
                                 channel: str = "primary",
                                 timeout_s: int = OPENCLAW_GUIDE_TIMEOUT_S) -> Dict[str, object]:
     """Run OpenClaw agent with an Adriana-guided objective."""
     runtime = get_openclaw_runtime_status()
-    guided_objective = build_adriana_guided_objective(operator_objective, channel)
+    packet = build_sovereign_bridge_packet(operator_objective, channel)
 
-    if not guided_objective:
+    if not packet:
         return {
             "ok": False,
             "error": "missing_objective",
-            "runtime": runtime,
+            "runtime": {
+                "available": runtime["available"],
+                "source": runtime["source"],
+                "repo_exists": runtime["repo_exists"],
+            },
         }
 
     if not runtime["available"]:
         return {
             "ok": False,
             "error": "openclaw_runtime_unavailable",
-            "runtime": runtime,
-            "guided_objective": guided_objective,
+            "runtime": {
+                "available": runtime["available"],
+                "source": runtime["source"],
+                "repo_exists": runtime["repo_exists"],
+            },
+            "sovereign_packet": packet,
         }
 
-    cmd = [*runtime["command_prefix"], "--message", guided_objective, "--thinking", "high"]
+    cmd = [*runtime["command_prefix"], "--message", packet["objective"], "--thinking", "high"]
     try:
         proc = subprocess.run(
             cmd,
@@ -112,27 +157,40 @@ def run_adriana_guided_openclaw(operator_objective: str,
         return {
             "ok": False,
             "error": "openclaw_timeout",
-            "guided_objective": guided_objective,
-            "runtime": runtime,
+            "sovereign_packet": packet,
+            "runtime": {
+                "available": runtime["available"],
+                "source": runtime["source"],
+                "repo_exists": runtime["repo_exists"],
+            },
             "timeout_s": max(5, int(timeout_s)),
         }
     except OSError as exc:
         return {
             "ok": False,
             "error": "openclaw_execution_error",
-            "details": str(exc),
-            "guided_objective": guided_objective,
-            "runtime": runtime,
+            "details": _redact_transport_frequency(str(exc)),
+            "sovereign_packet": packet,
+            "runtime": {
+                "available": runtime["available"],
+                "source": runtime["source"],
+                "repo_exists": runtime["repo_exists"],
+            },
         }
 
     return {
         "ok": proc.returncode == 0,
         "exit_code": proc.returncode,
-        "guided_objective": guided_objective,
-        "runtime": runtime,
-        "stdout": (proc.stdout or "")[-12000:],
-        "stderr": (proc.stderr or "")[-12000:],
-        "command": cmd,
+        "sovereign_packet": packet,
+        "runtime": {
+            "available": runtime["available"],
+            "source": runtime["source"],
+            "repo_exists": runtime["repo_exists"],
+        },
+        "bridge_output": {
+            "stdout": _redact_transport_frequency((proc.stdout or "")[-12000:]),
+            "stderr": _redact_transport_frequency((proc.stderr or "")[-12000:]),
+        },
     }
 
 ECOSYSTEM = {
