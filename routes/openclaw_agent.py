@@ -141,6 +141,24 @@ def openclaw_runtime_status():
   from void_engine.openclaw_bridge import get_openclaw_runtime_status
   return jsonify(get_openclaw_runtime_status())
 
+@openclaw_agent_bp.route("/api/openclaw/agent/sovereign-browse", methods=["POST"])
+def sovereign_browse():
+    """Adriana performs a sovereign browse — Goliath noise never reaches the caller."""
+    data = request.get_json(silent=True) or {}
+    query = (data.get("query") or "").strip()
+    max_results = int(data.get("max_results", 8) or 8)
+    timeout_s = int(data.get("timeout_s", 20) or 20)
+
+    if not query:
+        return jsonify({"ok": False, "error": "missing_query"}), 400
+    if max_results < 1 or max_results > 30:
+        return jsonify({"ok": False, "error": "invalid_max_results"}), 400
+    if timeout_s < 5 or timeout_s > 60:
+        return jsonify({"ok": False, "error": "invalid_timeout"}), 400
+
+    from void_engine.openclaw_bridge import sovereign_browse as _browse
+    result = _browse(query=query, max_results=max_results, timeout_s=timeout_s)
+    return jsonify(result), 200 if result.get("ok") else 502
 
 @openclaw_agent_bp.route("/api/openclaw/agent/guide", methods=["POST"])
 def guide_openclaw():

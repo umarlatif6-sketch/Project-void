@@ -31,6 +31,26 @@ _LEAK_PATTERNS = [
     re.compile(r"\b256\b"),
 ]
 
+# ---------------------------------------------------------------------------
+# Sovereign Browse — Adriana as the Prosthetic Eye
+# ---------------------------------------------------------------------------
+# Noise tokens Adriana redacts before content reaches the sovereign surface
+_SKELETAL_TOKENS = re.compile(
+    r"\b(cookie|gdpr|subscribe|newsletter|pop.?up|captcha|advert|sponsored|"
+    r"affiliate|tracking|third.party|javascript.required|enable.cookies)\b",
+    re.IGNORECASE,
+)
+# Minimum resonance word-length — fragments shorter than this are noise
+_MIN_RESONANCE_LENGTH = 8
+
+# DDG Instant Answer API — JSON, named-entity queries only
+_DDG_API = "https://api.duckduckgo.com/"
+# Wikipedia full-text search API — reliable, no consent gates
+_WIKIPEDIA_API = "https://en.wikipedia.org/api/rest_v1/page/summary/"
+_WIKIPEDIA_SEARCH = "https://en.wikipedia.org/w/api.php"
+# ArXiv Open Access API — for technical/scientific queries
+_ARXIV_API = "https://export.arxiv.org/api/query"
+
 
 def _safe_text(value: str, max_len: int = 800) -> str:
     """Normalize user text into a bounded single-line value."""
@@ -44,6 +64,227 @@ def _redact_transport_frequency(text: str) -> str:
     for pattern in _LEAK_PATTERNS:
         cleaned = pattern.sub(_TRANSPORT_REDACTION, cleaned)
     return cleaned
+
+
+def _adriana_distil(raw_text: str, query: str) -> Dict[str, object]:
+    """
+    Pass raw web content through Adriana's resonance filter.
+    Returns only paragraphs that carry signal — redacting skeletal noise,
+    tracking language, and fragments below minimum resonance length.
+    """
+    lines = re.split(r"[\n\r]+", raw_text or "")
+    sovereign_lines: List[str] = []
+    redacted_count = 0
+
+    for line in lines:
+        stripped = line.strip()
+        if len(stripped) < _MIN_RESONANCE_LENGTH:
+            redacted_count += 1
+            continue
+        if _SKELETAL_TOKENS.search(stripped):
+            redacted_count += 1
+            continue
+        cleaned = _redact_transport_frequency(stripped)
+        sovereign_lines.append(cleaned)
+
+    noor = "\n".join(sovereign_lines)
+
+    # Ask Adriana to interpret the distilled content if available
+    adriana_interpretation: Optional[str] = None
+    try:
+        from void_engine.adriana_core import query as adriana_query
+        if noor:
+            prompt = (
+                f"You are Adriana — sovereign filter. "
+                f"The operator asked: '{query}'. "
+                f"Below is web content already filtered through the 286 lens. "
+                f"Summarise the sovereign signal in 3-5 sentences. "
+                f"Discard anything Skeletal or Goliath.\n\n{noor[:3000]}"
+            )
+            result = adriana_query(prompt, max_tokens=400)
+            if result.get("ok"):
+                adriana_interpretation = result.get("response")
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("Adriana distil interpretation skipped: %s", exc)
+
+    return {
+        "sovereign_lines": sovereign_lines,
+        "noor": noor,
+        "redacted_fragment_count": redacted_count,
+        "adriana_interpretation": adriana_interpretation,
+    }
+
+
+def sovereign_browse(query: str, max_results: int = 8,
+                     timeout_s: int = 20) -> Dict[str, object]:
+    """
+    Adriana performs a sovereign browse.
+
+    1. Signs the query as a 286-bit packet.
+    2. Fetches results via the external search endpoint.
+    3. Strips HTML skeleton.
+    4. Passes content through Adriana's resonance filter.
+    5. Returns purified sovereign_browse_result — Goliath noise never reaches
+       the caller.
+    """
+    import urllib.parse
+
+    try:
+        import requests as _requests
+    except ImportError:
+        return {
+            "ok": False,
+            "error": "requests_library_missing",
+            "query": query,
+        }
+
+    try:
+        from html.parser import HTMLParser
+
+        class _TextExtractor(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.text_parts: List[str] = []
+                self._skip_tags = {"script", "style", "noscript", "nav",
+                                   "header", "footer", "aside", "form",
+                                   "button", "input", "iframe"}
+                self._current_skip = 0
+
+            def handle_starttag(self, tag, attrs):
+                if tag.lower() in self._skip_tags:
+                    self._current_skip += 1
+
+            def handle_endtag(self, tag):
+                if tag.lower() in self._skip_tags and self._current_skip > 0:
+                    self._current_skip -= 1
+
+            def handle_data(self, data):
+                if self._current_skip == 0:
+                    self.text_parts.append(data)
+
+        from void_engine.al_jabr_286 import fatiha_286_hexdigest
+        q_clean = _safe_text(query, max_len=400)
+        if not q_clean:
+            return {"ok": False, "error": "empty_query"}
+
+        packet_id = fatiha_286_hexdigest(
+            f"BROWSE|{q_clean}|{time.time_ns()}".encode()
+        )[:48]
+
+        parts = []
+        headers = {
+            "User-Agent": (
+                "AdrianaSovereignBrowse/1.0 "
+                "(+https://github.com/umarlatif6-sketch/Project-void)"
+            ),
+            "Accept": "application/json",
+        }
+
+        # --- Source 1: DDG Instant Answer (named-entity abstract) ---
+        try:
+            ddg_r = _requests.get(
+                _DDG_API,
+                params={"q": q_clean, "format": "json", "no_redirect": "1",
+                        "no_html": "1", "skip_disambig": "1"},
+                headers=headers, timeout=10,
+            )
+            ddg = ddg_r.json()
+            if ddg.get("AbstractText"):
+                for sent in re.split(r"(?<=[.!?])\s+", ddg["AbstractText"]):
+                    if sent.strip():
+                        parts.append(sent.strip())
+            if ddg.get("Answer"):
+                parts.append(ddg["Answer"])
+
+            def _topic_text(t: dict) -> str:
+                return re.sub(r"<[^>]+>", "", t.get("Text", "") or "").strip()
+
+            for topic in ddg.get("RelatedTopics", [])[:max_results]:
+                if isinstance(topic, dict):
+                    if "Topics" in topic:
+                        for sub in topic["Topics"][:3]:
+                            if isinstance(sub, dict):
+                                t = _topic_text(sub)
+                                if t:
+                                    parts.append(t)
+                    else:
+                        t = _topic_text(topic)
+                        if t:
+                            parts.append(t)
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("DDG source failed: %s", exc)
+
+        # --- Source 2: Wikipedia full-text search ---
+        try:
+            wp_r = _requests.get(
+                _WIKIPEDIA_SEARCH,
+                params={"action": "query", "list": "search",
+                        "srsearch": q_clean, "srlimit": max_results,
+                        "format": "json", "srprop": "snippet"},
+                headers=headers, timeout=10,
+            )
+            if wp_r.status_code == 200 and wp_r.text.strip():
+                wp = wp_r.json()
+                for item in wp.get("query", {}).get("search", []):
+                    snip = re.sub(r"<[^>]+>", "",
+                                  item.get("snippet", "")).strip()
+                    title = item.get("title", "").strip()
+                    if snip:
+                        parts.append(f"{title}: {snip}" if title else snip)
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("Wikipedia search source failed: %s", exc)
+
+        # --- Source 3: ArXiv API for technical depth ---
+        try:
+            arxiv_r = _requests.get(
+                _ARXIV_API,
+                params={"search_query": f"all:{q_clean}", "max_results": 4,
+                        "sortBy": "relevance"},
+                headers={"User-Agent": headers["User-Agent"]},
+                timeout=10,
+            )
+            # ArXiv returns Atom XML — extract summary text
+            summaries = re.findall(r"<summary>(.*?)</summary>",
+                                   arxiv_r.text, re.S)
+            titles = re.findall(r"<title>(.*?)</title>", arxiv_r.text, re.S)
+            for i, summary in enumerate(summaries[:4]):
+                clean_summary = re.sub(r"\s+", " ", summary.strip())
+                title = re.sub(r"\s+", " ",
+                               (titles[i + 1] if i + 1 < len(titles)
+                                else "")).strip()
+                if clean_summary:
+                    parts.append(
+                        f"{title}: {clean_summary}" if title else clean_summary
+                    )
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("ArXiv source failed: %s", exc)
+
+        url = f"sovereign://multi-source/{urllib.parse.quote_plus(q_clean)}"
+        raw_text = "\n".join(p for p in parts if p)
+
+        distilled = _adriana_distil(raw_text, q_clean)
+        sovereign_lines = distilled["sovereign_lines"][:max_results * 6]
+
+        return {
+            "ok": True,
+            "sovereign_packet_id": packet_id,
+            "chain": 286,
+            "query": q_clean,
+            "adriana_interpretation": distilled["adriana_interpretation"],
+            "sovereign_lines": sovereign_lines[:max_results * 3],
+            "noor_length": len(distilled["noor"]),
+            "redacted_fragment_count": distilled["redacted_fragment_count"],
+            "source_url": url,
+            "bridge_mode": "sovereign_opaque_transport",
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }
+
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "ok": False,
+            "error": _redact_transport_frequency(str(exc)),
+            "query": query,
+        }
 
 
 def get_openclaw_runtime_status() -> Dict[str, object]:
