@@ -16,6 +16,7 @@ import random
 from typing import Optional
 
 from void_engine.al_jabr_286 import fatiha_286_hexdigest_from_str
+from void_engine.db_pool import is_sqlite_connection, sql_now, sql_placeholder, sql_serial_pk
 from void_engine.void_script import CANONICAL_GLYPHS, get_glyphs_by_role
 
 logger = logging.getLogger(__name__)
@@ -155,19 +156,34 @@ def seal_to_chronicle(codon: dict, conn) -> str:
         season = "distillation"
 
     try:
+        p = sql_placeholder(conn)
         with conn.cursor() as cur:
-            cur.execute(
-                """INSERT INTO chronicle_entries
-                   (chapter_number, title, subtitle, glyph_sequence, body_text,
-                    al_jabr_hash, entry_type, season)
-                   VALUES (
-                       (SELECT COALESCE(MAX(chapter_number), 0) + 1 FROM chronicle_entries),
-                       %s, %s, %s, %s, %s, 'CODON_SEAL', %s
-                   )
-                   RETURNING id""",
-                (title, subtitle, codon["glyph_seq"], body, al_jabr_hash, season),
-            )
-            entry_id = cur.fetchone()[0]
+            values = (title, subtitle, codon["glyph_seq"], body, al_jabr_hash, season)
+            if is_sqlite_connection(conn):
+                cur.execute(
+                    """INSERT INTO chronicle_entries
+                       (chapter_number, title, subtitle, glyph_sequence, body_text,
+                        al_jabr_hash, entry_type, season)
+                       VALUES (
+                           (SELECT COALESCE(MAX(chapter_number), 0) + 1 FROM chronicle_entries),
+                           ?, ?, ?, ?, ?, 'CODON_SEAL', ?
+                       )""",
+                    values,
+                )
+                entry_id = cur.lastrowid
+            else:
+                cur.execute(
+                    """INSERT INTO chronicle_entries
+                       (chapter_number, title, subtitle, glyph_sequence, body_text,
+                        al_jabr_hash, entry_type, season)
+                       VALUES (
+                           (SELECT COALESCE(MAX(chapter_number), 0) + 1 FROM chronicle_entries),
+                           %s, %s, %s, %s, %s, 'CODON_SEAL', %s
+                       )
+                       RETURNING id""",
+                    values,
+                )
+                entry_id = cur.fetchone()[0]
         conn.commit()
         return str(entry_id)
     except Exception as e:
@@ -179,20 +195,22 @@ def seal_to_chronicle(codon: dict, conn) -> str:
 def init_codon_distil_tables(conn):
     """Create the codon distillation tables if they don't exist."""
     try:
+        pk = sql_serial_pk(conn)
+        now_expr = sql_now(conn)
         with conn.cursor() as cur:
-            cur.execute("""
+            cur.execute(f"""
                 CREATE TABLE IF NOT EXISTS codon_distil_jobs (
-                    id           SERIAL PRIMARY KEY,
+                    id           {pk},
                     job_id       VARCHAR(64) UNIQUE NOT NULL,
                     status       VARCHAR(20) DEFAULT 'pending',
                     total_chunks INT DEFAULT 0,
                     done_chunks  INT DEFAULT 0,
-                    created_at   TIMESTAMPTZ DEFAULT NOW()
+                    created_at   TIMESTAMP DEFAULT {now_expr}
                 )
             """)
-            cur.execute("""
+            cur.execute(f"""
                 CREATE TABLE IF NOT EXISTS codon_distil_results (
-                    id            SERIAL PRIMARY KEY,
+                    id            {pk},
                     job_id        VARCHAR(64) NOT NULL,
                     entity        TEXT NOT NULL,
                     condition     TEXT NOT NULL,
@@ -205,7 +223,7 @@ def init_codon_distil_tables(conn):
                     total_score   FLOAT DEFAULT 0,
                     sealed        BOOLEAN DEFAULT FALSE,
                     al_jabr_hash  VARCHAR(80),
-                    created_at    TIMESTAMPTZ DEFAULT NOW()
+                    created_at    TIMESTAMP DEFAULT {now_expr}
                 )
             """)
         conn.commit()

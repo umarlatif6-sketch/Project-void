@@ -1,0 +1,54 @@
+name: Veracity Guard
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/veracity_protocol_audit.py
+      - VOID_VERACITY_PROTOCOL.md
+      - UNIFIED_SIMULATION_DIRECTIVE.md
+      - void_engine/al_jabr_286.py
+      - openclaw/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - scripts/veracity_protocol_audit.py
+      - VOID_VERACITY_PROTOCOL.md
+      - UNIFIED_SIMULATION_DIRECTIVE.md
+      - void_engine/al_jabr_286.py
+      - openclaw/**
+
+permissions:
+  contents: read
+
+jobs:
+  veracity-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Minimal Audit Dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy
+
+      - name: Run Veracity Protocol Audit
+        shell: bash
+        run: python scripts/veracity_protocol_audit.py
+
+      - name: Upload Veracity Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: void-veracity-audit-report
+          path: data/void_veracity_audit_report.json

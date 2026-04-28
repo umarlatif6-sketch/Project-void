@@ -23,7 +23,7 @@ import logging
 from datetime import datetime, timezone
 from flask import Blueprint, render_template, request, jsonify, Response, session, redirect
 
-from void_engine.db_pool import get_db
+from void_engine.db_pool import get_db, sql_now, sql_placeholder, sql_serial_pk
 
 logger = logging.getLogger(__name__)
 
@@ -86,13 +86,15 @@ def _get_db_conn():
 def _ensure_table():
     conn = _get_db_conn()
     try:
+        pk = sql_serial_pk(conn)
+        now_expr = sql_now(conn)
         with conn.cursor() as cur:
-            cur.execute("""
+            cur.execute(f"""
                 CREATE TABLE IF NOT EXISTS void_council_messages (
-                    id          SERIAL PRIMARY KEY,
+                    id          {pk},
                     voice_key   VARCHAR(32)  NOT NULL,
                     content     TEXT         NOT NULL,
-                    created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+                    created_at  TIMESTAMP    NOT NULL DEFAULT {now_expr}
                 )
             """)
         conn.commit()
@@ -107,13 +109,14 @@ def _get_messages(after_id=0, limit=100):
     conn = _get_db_conn()
     rows = []
     try:
+        p = sql_placeholder(conn)
         with conn.cursor() as cur:
             cur.execute(
-                """SELECT id, voice_key, content, created_at
+                f"""SELECT id, voice_key, content, created_at
                    FROM void_council_messages
-                   WHERE id > %s
+                   WHERE id > {p}
                    ORDER BY id ASC
-                   LIMIT %s""",
+                   LIMIT {p}""",
                 (after_id, limit),
             )
             rows = cur.fetchall()
@@ -124,6 +127,14 @@ def _get_messages(after_id=0, limit=100):
     result = []
     for row in rows:
         voice_key = row[1]
+        ts_raw = row[3]
+        if hasattr(ts_raw, "strftime"):
+            ts_value = ts_raw.strftime("%H:%M")
+        elif isinstance(ts_raw, str) and len(ts_raw) >= 16:
+            # SQLite commonly returns YYYY-MM-DD HH:MM:SS(.sss)
+            ts_value = ts_raw[11:16]
+        else:
+            ts_value = ""
         voice = VOICES.get(voice_key, {
             "display": voice_key.upper(),
             "subtitle": "",
@@ -138,7 +149,7 @@ def _get_messages(after_id=0, limit=100):
             "color":    voice["color"],
             "glyph":    voice["glyph"],
             "content":  row[2],
-            "ts":       row[3].strftime("%H:%M") if row[3] else "",
+            "ts":       ts_value,
         })
     return result
 
@@ -152,12 +163,20 @@ def _post_message(voice_key, content):
     conn = _get_db_conn()
     msg_id = None
     try:
+        p = sql_placeholder(conn)
         with conn.cursor() as cur:
-            cur.execute(
-                "INSERT INTO void_council_messages (voice_key, content) VALUES (%s, %s) RETURNING id",
-                (voice_key, content),
-            )
-            msg_id = cur.fetchone()[0]
+            if p == "?":
+                cur.execute(
+                    "INSERT INTO void_council_messages (voice_key, content) VALUES (?, ?)",
+                    (voice_key, content),
+                )
+                msg_id = cur.lastrowid
+            else:
+                cur.execute(
+                    "INSERT INTO void_council_messages (voice_key, content) VALUES (%s, %s) RETURNING id",
+                    (voice_key, content),
+                )
+                msg_id = cur.fetchone()[0]
         conn.commit()
     except Exception as exc:
         logger.error("post_message error: %s", exc)
@@ -172,7 +191,7 @@ def _seed_if_empty():
     count = 0
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(*) FROM void_council_messages")
+            cur.execute(f"SELECT COUNT(*) FROM void_council_messages")
             count = cur.fetchone()[0]
     except Exception:
         pass

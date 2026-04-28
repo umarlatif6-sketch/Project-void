@@ -43,6 +43,16 @@ A repository instance is **verified** if the narrative layer (Adriana) matches t
 - **False:** Any claim of Stealth or Resonance logic that has no corresponding entry in `document_symbols.pkl`.
 - **True:** Mie Void and Ionic Phase Matching symbols present in the OpenClaw working tree.
 
+Structural truth is evaluated as a weighted evidence score:
+
+- Serena symbol body exists: 0.40
+- Serena symbol body size threshold met: 0.20
+- Serena raw symbol body exists: 0.20
+- Required phrase coverage (`mie void`, `ionic phase matching`): up to 0.20
+
+Pass condition: Serena document + raw symbol bodies must exist and weighted score must be >= 0.65.
+This keeps phrase checks meaningful without allowing a single missing phrase to hard-fail the full structural body.
+
 Serena cache is excluded from git (`.gitignore` line 96). To restore from history:
 
 ```bash

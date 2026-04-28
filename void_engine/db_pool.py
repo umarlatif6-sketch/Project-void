@@ -2,6 +2,7 @@ import os
 import logging
 import threading
 import sqlite3
+from contextlib import contextmanager
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +70,22 @@ class _PooledConn:
         else:
             setattr(object.__getattribute__(self, "_real_conn"), name, value)
 
+    @contextmanager
+    def cursor(self, *args, **kwargs):
+        """
+        Provide a context-managed cursor API compatible with both psycopg2 and
+        sqlite3. sqlite3 cursors are not context managers by default.
+        """
+        real = object.__getattribute__(self, "_real_conn")
+        cur = real.cursor(*args, **kwargs)
+        try:
+            yield cur
+        finally:
+            try:
+                cur.close()
+            except Exception:
+                pass
+
     def close(self):
         real = object.__getattribute__(self, "_real_conn")
         if object.__getattribute__(self, "_is_sqlite"):
@@ -132,3 +149,28 @@ def get_db() -> _PooledConn:
                 except Exception:
                     pass
     raise RuntimeError("Could not obtain a live database connection after 3 attempts")
+
+
+def is_sqlite_connection(conn) -> bool:
+    """Return True when the pooled connection wraps a sqlite backend."""
+    try:
+        return bool(getattr(conn, "_is_sqlite", False))
+    except Exception:
+        return False
+
+
+def sql_placeholder(conn) -> str:
+    """Parameter placeholder token for this connection backend."""
+    return "?" if is_sqlite_connection(conn) else "%s"
+
+
+def sql_now(conn) -> str:
+    """Current timestamp expression for this connection backend."""
+    return "CURRENT_TIMESTAMP" if is_sqlite_connection(conn) else "NOW()"
+
+
+def sql_serial_pk(conn) -> str:
+    """Primary key DDL fragment for this connection backend."""
+    if is_sqlite_connection(conn):
+        return "INTEGER PRIMARY KEY AUTOINCREMENT"
+    return "SERIAL PRIMARY KEY"

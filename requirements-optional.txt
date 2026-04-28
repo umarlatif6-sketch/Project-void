@@ -1,0 +1,3 @@
+# Optional voice stack extras for non-3.12 runtimes.
+# Keep these separate from core runtime requirements so base installs stay deterministic.
+TTS

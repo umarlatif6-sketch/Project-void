@@ -28,7 +28,7 @@ from void_engine.codon_distil import (
     score_codon,
     seal_to_chronicle,
 )
-from void_engine.db_pool import get_db
+from void_engine.db_pool import get_db, is_sqlite_connection, sql_placeholder
 
 logger = logging.getLogger(__name__)
 
@@ -88,11 +88,12 @@ def _get_openai_client():
 def _create_job(job_id: str, total_chunks: int):
     conn = get_db()
     try:
+        p = sql_placeholder(conn)
         with conn.cursor() as cur:
             cur.execute(
-                """INSERT INTO codon_distil_jobs (job_id, status, total_chunks, done_chunks)
-                   VALUES (%s, 'running', %s, 0)
-                   ON CONFLICT (job_id) DO UPDATE SET status='running', total_chunks=%s, done_chunks=0""",
+                f"""INSERT INTO codon_distil_jobs (job_id, status, total_chunks, done_chunks)
+                   VALUES ({p}, 'running', {p}, 0)
+                   ON CONFLICT (job_id) DO UPDATE SET status='running', total_chunks={p}, done_chunks=0""",
                 (job_id, total_chunks, total_chunks),
             )
         conn.commit()
@@ -106,9 +107,10 @@ def _create_job(job_id: str, total_chunks: int):
 def _update_job(job_id: str, done_chunks: int, status: str = "running"):
     conn = get_db()
     try:
+        p = sql_placeholder(conn)
         with conn.cursor() as cur:
             cur.execute(
-                "UPDATE codon_distil_jobs SET done_chunks=%s, status=%s WHERE job_id=%s",
+                f"UPDATE codon_distil_jobs SET done_chunks={p}, status={p} WHERE job_id={p}",
                 (done_chunks, status, job_id),
             )
         conn.commit()
@@ -122,28 +124,40 @@ def _update_job(job_id: str, done_chunks: int, status: str = "running"):
 def _save_codon(job_id: str, codon: dict):
     conn = get_db()
     try:
+        p = sql_placeholder(conn)
         with conn.cursor() as cur:
-            cur.execute(
-                """INSERT INTO codon_distil_results
-                   (job_id, entity, condition, action, glyph_seq, story_excerpt,
-                    resonance, clarity, story_score, total_score, al_jabr_hash)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                   RETURNING id""",
-                (
-                    job_id,
-                    codon["entity"],
-                    codon["condition"],
-                    codon["action"],
-                    codon["glyph_seq"],
-                    codon["story_excerpt"],
-                    codon["resonance"],
-                    codon["clarity"],
-                    codon["story_score"],
-                    codon["total_score"],
-                    codon["al_jabr_hash"],
-                ),
+            values = (
+                job_id,
+                codon["entity"],
+                codon["condition"],
+                codon["action"],
+                codon["glyph_seq"],
+                codon["story_excerpt"],
+                codon["resonance"],
+                codon["clarity"],
+                codon["story_score"],
+                codon["total_score"],
+                codon["al_jabr_hash"],
             )
-            row_id = cur.fetchone()[0]
+            if is_sqlite_connection(conn):
+                cur.execute(
+                    """INSERT INTO codon_distil_results
+                       (job_id, entity, condition, action, glyph_seq, story_excerpt,
+                        resonance, clarity, story_score, total_score, al_jabr_hash)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    values,
+                )
+                row_id = cur.lastrowid
+            else:
+                cur.execute(
+                    """INSERT INTO codon_distil_results
+                       (job_id, entity, condition, action, glyph_seq, story_excerpt,
+                        resonance, clarity, story_score, total_score, al_jabr_hash)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                       RETURNING id""",
+                    values,
+                )
+                row_id = cur.fetchone()[0]
         conn.commit()
         return row_id
     except Exception as e:
@@ -158,12 +172,13 @@ def _get_codons(job_id: str) -> list[dict]:
     conn = get_db()
     rows = []
     try:
+        p = sql_placeholder(conn)
         with conn.cursor() as cur:
             cur.execute(
                 """SELECT id, entity, condition, action, glyph_seq, story_excerpt,
                           resonance, clarity, story_score, total_score, sealed, al_jabr_hash
                    FROM codon_distil_results
-                   WHERE job_id = %s
+                   WHERE job_id = """ + p + """
                    ORDER BY total_score DESC""",
                 (job_id,),
             )
@@ -194,9 +209,10 @@ def _get_codons(job_id: str) -> list[dict]:
 def _get_job_status(job_id: str) -> dict | None:
     conn = get_db()
     try:
+        p = sql_placeholder(conn)
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT status, total_chunks, done_chunks FROM codon_distil_jobs WHERE job_id=%s",
+                f"SELECT status, total_chunks, done_chunks FROM codon_distil_jobs WHERE job_id={p}",
                 (job_id,),
             )
             row = cur.fetchone()
@@ -440,11 +456,12 @@ def api_seal():
 
     conn = get_db()
     try:
+        p = sql_placeholder(conn)
         with conn.cursor() as cur:
             cur.execute(
                 """SELECT id, job_id, entity, condition, action, glyph_seq,
                           story_excerpt, resonance, clarity, story_score, total_score, sealed
-                   FROM codon_distil_results WHERE id=%s""",
+                   FROM codon_distil_results WHERE id=""" + p,
                 (codon_id,),
             )
             row = cur.fetchone()
@@ -477,7 +494,7 @@ def api_seal():
                 f"{codon['entity']}|{codon['condition']}|{codon['action']}|{codon['glyph_seq']}"
             )
             cur.execute(
-                "UPDATE codon_distil_results SET sealed=TRUE, al_jabr_hash=%s WHERE id=%s",
+                f"UPDATE codon_distil_results SET sealed=TRUE, al_jabr_hash={p} WHERE id={p}",
                 (al_jabr_hash, codon_id),
             )
         conn.commit()
