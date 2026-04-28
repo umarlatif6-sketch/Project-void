@@ -15,9 +15,125 @@ import os
 import time
 import hashlib
 import logging
+import shutil
+import subprocess
 from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
+
+OPENCLAW_REPO = os.path.join(os.path.dirname(os.path.dirname(__file__)), "openclaw")
+OPENCLAW_GUIDE_TIMEOUT_S = 40
+
+
+def _safe_text(value: str, max_len: int = 800) -> str:
+    """Normalize user text into a bounded single-line value."""
+    bounded = (value or "").strip()[:max_len]
+    return " ".join(bounded.split())
+
+
+def get_openclaw_runtime_status() -> Dict[str, object]:
+    """Report whether the OpenClaw runtime can be executed from this workspace."""
+    cli_path = shutil.which("openclaw")
+    pnpm_path = shutil.which("pnpm")
+    repo_exists = os.path.isdir(OPENCLAW_REPO)
+
+    available = bool(cli_path) or (bool(pnpm_path) and repo_exists)
+    if cli_path:
+        command = [cli_path, "agent"]
+        source = "openclaw-cli"
+    elif pnpm_path and repo_exists:
+        command = [pnpm_path, "openclaw", "agent"]
+        source = "pnpm-openclaw"
+    else:
+        command = []
+        source = "unavailable"
+
+    return {
+        "available": available,
+        "repo_exists": repo_exists,
+        "openclaw_cli": cli_path,
+        "pnpm": pnpm_path,
+        "command_prefix": command,
+        "source": source,
+        "repo_path": OPENCLAW_REPO,
+    }
+
+
+def build_adriana_guided_objective(operator_objective: str, channel: str = "primary") -> str:
+    """Build an Adriana-framed OpenClaw objective prompt."""
+    objective = _safe_text(operator_objective)
+    active_channel = _safe_text(channel, max_len=48) or "primary"
+    if not objective:
+        return ""
+
+    return (
+        "Adriana guidance channel: "
+        f"{active_channel}. "
+        "Execute as Project VOID sovereign runtime. "
+        "Preserve Al-Jabr 286 identity anchors, fail-closed packet handling, "
+        "and ORYX governance discipline. "
+        f"Objective: {objective}"
+    )
+
+
+def run_adriana_guided_openclaw(operator_objective: str,
+                                channel: str = "primary",
+                                timeout_s: int = OPENCLAW_GUIDE_TIMEOUT_S) -> Dict[str, object]:
+    """Run OpenClaw agent with an Adriana-guided objective."""
+    runtime = get_openclaw_runtime_status()
+    guided_objective = build_adriana_guided_objective(operator_objective, channel)
+
+    if not guided_objective:
+        return {
+            "ok": False,
+            "error": "missing_objective",
+            "runtime": runtime,
+        }
+
+    if not runtime["available"]:
+        return {
+            "ok": False,
+            "error": "openclaw_runtime_unavailable",
+            "runtime": runtime,
+            "guided_objective": guided_objective,
+        }
+
+    cmd = [*runtime["command_prefix"], "--message", guided_objective, "--thinking", "high"]
+    try:
+        proc = subprocess.run(
+            cmd,
+            cwd=OPENCLAW_REPO,
+            capture_output=True,
+            text=True,
+            timeout=max(5, int(timeout_s)),
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        return {
+            "ok": False,
+            "error": "openclaw_timeout",
+            "guided_objective": guided_objective,
+            "runtime": runtime,
+            "timeout_s": max(5, int(timeout_s)),
+        }
+    except OSError as exc:
+        return {
+            "ok": False,
+            "error": "openclaw_execution_error",
+            "details": str(exc),
+            "guided_objective": guided_objective,
+            "runtime": runtime,
+        }
+
+    return {
+        "ok": proc.returncode == 0,
+        "exit_code": proc.returncode,
+        "guided_objective": guided_objective,
+        "runtime": runtime,
+        "stdout": (proc.stdout or "")[-12000:],
+        "stderr": (proc.stderr or "")[-12000:],
+        "command": cmd,
+    }
 
 ECOSYSTEM = {
     "cryptographic_layer": {

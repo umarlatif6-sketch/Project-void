@@ -136,6 +136,38 @@ _PROXY_METHODS = {
 }
 
 
+@openclaw_agent_bp.route("/api/openclaw/agent/runtime", methods=["GET"])
+def openclaw_runtime_status():
+  from void_engine.openclaw_bridge import get_openclaw_runtime_status
+  return jsonify(get_openclaw_runtime_status())
+
+
+@openclaw_agent_bp.route("/api/openclaw/agent/guide", methods=["POST"])
+def guide_openclaw():
+  """Adriana-guided OpenClaw execution bridge."""
+  data = request.get_json(silent=True) or {}
+  objective = (data.get("objective") or "").strip()
+  channel = (data.get("channel") or "primary").strip().lower()[:48]
+  timeout_s = int(data.get("timeout_s", 40) or 40)
+
+  if not objective:
+    return jsonify({"ok": False, "error": "missing_objective"}), 400
+  if timeout_s < 5 or timeout_s > 120:
+    return jsonify({"ok": False, "error": "invalid_timeout"}), 400
+
+  from void_engine.openclaw_bridge import run_adriana_guided_openclaw
+  result = run_adriana_guided_openclaw(
+    operator_objective=objective,
+    channel=channel,
+    timeout_s=timeout_s,
+  )
+
+  status = 200 if result.get("ok") else 503
+  if result.get("error") == "missing_objective":
+    status = 400
+  return jsonify(result), status
+
+
 @openclaw_agent_bp.route("/api/openclaw/agent/query/<endpoint>", methods=["GET", "POST"])
 def proxy_query(endpoint):
     if endpoint not in _PROXY_METHODS:
