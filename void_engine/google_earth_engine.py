@@ -1,6 +1,7 @@
 import logging
 import os
 import threading
+import concurrent.futures
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
 
@@ -43,6 +44,19 @@ ANOMALY_THRESHOLDS_DEFAULT: Dict[str, Dict[str, float]] = {
         "warning_low": 0.22,
         "critical_low": 0.15,
         "warning_high": 0.85,
+    },
+}
+
+GEE_DATASET_CATALOG: Dict[str, Dict[str, str]] = {
+    "ndvi_sentinel2": {
+        "id": "COPERNICUS/S2_SR_HARMONIZED",
+        "metric": "NDVI",
+        "notes": "10m optical surface reflectance for vegetation health.",
+    },
+    "water_storage_grace": {
+        "id": "NASA/GRACE/MASS_GRIDS/LAND",
+        "metric": "lwe_thickness_csr",
+        "notes": "Terrestrial water storage anomaly proxy for regional groundwater stress.",
     },
 }
 
@@ -234,6 +248,13 @@ def get_district_presets(country: str = "Pakistan") -> Dict[str, Any]:
     }
 
 
+def get_dataset_catalog() -> Dict[str, Any]:
+    return {
+        "ok": True,
+        "catalog": GEE_DATASET_CATALOG,
+    }
+
+
 def evaluate_anomaly_thresholds(
     *,
     water_trend_slope_cm_per_year: float | None = None,
@@ -416,4 +437,95 @@ def compute_water_table_trend(
         "trend_intercept_cm": float(intercept),
         "trend_direction": trend_direction,
         "samples": samples,
+    }
+
+
+def run_gee_exploration_orchestration(
+    *,
+    start_date: str,
+    end_date: str,
+    district_keys: list[str] | None = None,
+    include_ndvi: bool = True,
+    include_water_trend: bool = True,
+) -> Dict[str, Any]:
+    presets = DISTRICT_PRESETS_PAKISTAN
+    selected_keys = district_keys or list(presets.keys())
+    selected = {k: presets[k] for k in selected_keys if k in presets}
+
+    if not selected:
+        return {
+            "ok": False,
+            "error": "no_valid_district_keys",
+            "available_keys": list(presets.keys()),
+        }
+
+    def _explore_one(item: tuple[str, Dict[str, Any]]) -> Dict[str, Any]:
+        key, preset = item
+        lat = float(preset["center"]["lat"])
+        lon = float(preset["center"]["lon"])
+        buffer_m = int(preset.get("buffer_m", 30000))
+
+        result: Dict[str, Any] = {
+            "district_key": key,
+            "label": preset.get("label", key),
+            "country": preset.get("country", "Pakistan"),
+            "center": {"lat": lat, "lon": lon},
+        }
+
+        if include_ndvi:
+            try:
+                result["ndvi"] = compute_ndvi_snapshot(
+                    lat=lat,
+                    lon=lon,
+                    start_date=start_date,
+                    end_date=end_date,
+                    buffer_m=buffer_m,
+                    max_cloud_pct=20.0,
+                    scale=10,
+                )
+            except Exception as exc:  # noqa: BLE001
+                result["ndvi"] = {"ok": False, "error": str(exc)}
+
+        if include_water_trend:
+            try:
+                result["water_trend"] = compute_water_table_trend(
+                    start_date=start_date,
+                    end_date=end_date,
+                    lat=lat,
+                    lon=lon,
+                    buffer_m=max(buffer_m, 25000),
+                    scale=30000,
+                )
+            except Exception as exc:  # noqa: BLE001
+                result["water_trend"] = {"ok": False, "error": str(exc)}
+
+        slope = None
+        ndvi_mean = None
+        if isinstance(result.get("water_trend"), dict):
+            slope = result["water_trend"].get("trend_slope_cm_per_year")
+        if isinstance(result.get("ndvi"), dict):
+            ndvi_mean = result["ndvi"].get("ndvi_mean")
+
+        result["anomaly"] = evaluate_anomaly_thresholds(
+            water_trend_slope_cm_per_year=slope,
+            ndvi_mean=ndvi_mean,
+        )
+        return result
+
+    district_results = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(6, len(selected))) as pool:
+        futures = [pool.submit(_explore_one, item) for item in selected.items()]
+        for f in futures:
+            district_results.append(f.result())
+
+    severe = [r for r in district_results if r.get("anomaly", {}).get("severity") in {"warning", "critical"}]
+
+    return {
+        "ok": True,
+        "start_date": start_date,
+        "end_date": end_date,
+        "district_count": len(district_results),
+        "district_results": district_results,
+        "warning_or_critical_count": len(severe),
+        "catalog": GEE_DATASET_CATALOG,
     }

@@ -33,7 +33,13 @@ def test_gee_status_route_returns_payload(client, monkeypatch):
 
     response = client.get("/api/gee/status")
     assert response.status_code == 200
-    assert response.get_json()["configured"] is True
+    payload = response.get_json()
+    assert payload["configured"] is True
+    assert payload["chain"] == 286
+    assert payload["base_frequency_hz"] == 432.0
+    assert payload["bridge_mode"] == "sovereign_opaque_transport"
+    assert payload["sovereign_packet_id"]
+    assert payload["al_jabr_286_hash"]
 
 
 def test_gee_district_presets_defaults_to_pakistan(client):
@@ -43,6 +49,15 @@ def test_gee_district_presets_defaults_to_pakistan(client):
     assert payload["ok"] is True
     assert payload["country"] == "Pakistan"
     assert "lahore" in payload["presets"]
+
+
+def test_gee_dataset_catalog_route(client):
+    response = client.get("/api/gee/datasets")
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert "ndvi_sentinel2" in payload["catalog"]
+    assert payload["chain"] == 286
 
 
 def test_gee_ndvi_requires_authentication(client):
@@ -84,6 +99,7 @@ def test_gee_ndvi_success(client, monkeypatch):
     payload = response.get_json()
     assert payload["ok"] is True
     assert payload["ndvi_mean"] == 0.42
+    assert payload["chain"] == 286
 
 
 def test_gee_ndvi_value_error_maps_to_400(client, monkeypatch):
@@ -97,7 +113,9 @@ def test_gee_ndvi_value_error_maps_to_400(client, monkeypatch):
 
     response = client.post("/api/gee/ndvi", json={"lat": 100, "lon": 0})
     assert response.status_code == 400
-    assert response.get_json()["error"] == "invalid_lat"
+    payload = response.get_json()
+    assert payload["error"] == "invalid_lat"
+    assert payload["chain"] == 286
 
 
 def test_gee_water_table_trend_requires_authentication(client):
@@ -126,6 +144,7 @@ def test_gee_water_table_trend_defaults_to_pakistan(client, monkeypatch):
     payload = response.get_json()
     assert payload["ok"] is True
     assert payload["area"] == "country:Pakistan"
+    assert payload["chain"] == 286
 
 
 def test_gee_water_table_trend_invalid_lat_lon(client):
@@ -157,3 +176,36 @@ def test_gee_anomaly_thresholds_warning_442hz(client):
     payload = response.get_json()
     assert payload["severity"] in {"warning", "critical"}
     assert payload["resonance_alert_hz"] == 442
+    assert payload["chain"] == 286
+
+
+def test_gee_orchestrate_exploration_requires_admin(client):
+    response = client.post("/api/gee/orchestrate-exploration", json={})
+    assert response.status_code == 401
+
+
+def test_gee_orchestrate_exploration_success_without_agents(client, monkeypatch):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+        session["role"] = "admin"
+
+    monkeypatch.setattr(
+        "routes.google_earth_engine.run_gee_exploration_orchestration",
+        lambda **_: {
+            "ok": True,
+            "district_count": 3,
+            "warning_or_critical_count": 1,
+            "district_results": [],
+            "catalog": {},
+        },
+    )
+
+    response = client.post(
+        "/api/gee/orchestrate-exploration",
+        json={"run_agents": False, "run_adriana_synthesis": False},
+    )
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["gee"]["district_count"] == 3
+    assert payload["chain"] == 286
