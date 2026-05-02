@@ -18,6 +18,7 @@ genanki
 python-dotenv
 reportlab
 opencv-python-headless
+earthengine-api
 TTS; python_version < "3.12"
 moviepy==1.0.3
 pydub
