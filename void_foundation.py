@@ -134,6 +134,39 @@ def linear_regression(xs: List[float], ys: List[float]) -> Tuple[float, float]:
     return a, b
 
 
+def calculate_thread_tension(
+    *,
+    moisture_correlation: float,
+    base_tension_newton: float = 14.0,
+    taylor_law_slope: float = 1.9756,
+) -> Dict[str, float | str]:
+    """
+    Convert hydroclimate pressure into target thread tension.
+    Higher moisture correlation increases target tension for heavier weave stability.
+    """
+    corr = max(0.0, min(1.0, float(moisture_correlation)))
+    base = max(1.0, float(base_tension_newton))
+    slope = max(0.1, float(taylor_law_slope))
+
+    gain = 1.0 + (corr ** 2) * ((slope - 1.0) / 2.5)
+    tension = round(base * gain, 4)
+
+    profile = "baseline"
+    if corr >= 0.85:
+        profile = "heavy_weave"
+    elif corr >= 0.6:
+        profile = "stabilized"
+
+    return {
+        "moisture_correlation": round(corr, 4),
+        "base_tension_newton": round(base, 4),
+        "taylor_law_slope": round(slope, 4),
+        "gain": round(gain, 4),
+        "target_tension_newton": tension,
+        "weave_profile": profile,
+    }
+
+
 def popularity_hub_signal(counts: Counter, graph: Dict[str, Counter]) -> Dict:
     freqs = []
     neigh_freqs = []

@@ -1,0 +1,43 @@
+{
+  "spec_version": "1002.1",
+  "codon": "B-bb-G/B-mm-M",
+  "material_composition": {
+    "substrate": "6A Grade Mulberry Silk",
+    "coating": "Ag/Zn ion-vapor conductive trace",
+    "conductivity_target_ohm_per_cm": 0.5,
+    "silk_to_zinc_ratio": {
+      "normal": "70:30",
+      "dry_period": "74:26",
+      "high_humidity": "66:34"
+    }
+  },
+  "geometric_constraints": {
+    "weave_pattern": "Jacquard-Vortex",
+    "taylor_law_slope": 1.9756,
+    "thread_density_threads_per_cm": 85,
+    "stitch_tolerance_mm": 0.4
+  },
+  "resonance_parameters": {
+    "target_frequency_hz": 432,
+    "warning_frequency_hz": 442,
+    "signal_attenuation_limit_db": -3,
+    "sensor_interface": "WiFlexFormer-Alpha"
+  },
+  "rfq_profiles": {
+    "baseline": {
+      "gauge": "standard",
+      "conductive_spool_length_m": 1000,
+      "notes": "Default for stable or unknown moisture load"
+    },
+    "heavy_weave": {
+      "gauge": "heavy",
+      "conductive_spool_length_m": 1200,
+      "notes": "Use when Soan moisture signal exceeds procurement trigger"
+    }
+  },
+  "quality_redlines": {
+    "max_lead_ppm": 0,
+    "max_nickel_ppm": 0,
+    "synthetic_binder_allowed": false
+  }
+}

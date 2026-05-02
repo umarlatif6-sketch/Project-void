@@ -65,6 +65,15 @@ GEE_DATASET_CATALOG: Dict[str, Dict[str, str]] = {
     },
 }
 
+RFQ_POLICY_DEFAULT: Dict[str, Any] = {
+    "target_district_key": "soan_valley",
+    "moisture_correlation_trigger": 0.85,
+    "dry_period_silk_to_zinc_ratio": "74:26",
+    "high_humidity_silk_to_zinc_ratio": "66:34",
+    "baseline_profile": "baseline",
+    "triggered_profile": "heavy_weave",
+}
+
 
 def _wrap_sovereign_payload(payload: dict, objective: str, channel: str = "gee") -> dict:
     envelope = build_sovereign_bridge_packet(objective, channel=channel)
@@ -334,6 +343,58 @@ def evaluate_anomaly_thresholds(
     }, objective="gee anomaly thresholds", channel="gee-engine")
 
 
+def calculate_grace_correlation_proxy(*, water_trend_slope_cm_per_year: float | None) -> float | None:
+    """
+    Build a bounded proxy in [0, 0.99] from GRACE slope magnitude when true
+    correlation is unavailable in the current data lane.
+    """
+    if water_trend_slope_cm_per_year is None:
+        return None
+    magnitude = abs(float(water_trend_slope_cm_per_year))
+    return round(min(0.99, magnitude / 2.0), 4)
+
+
+def trigger_rfq_on_melt(
+    *,
+    district_key: str,
+    grace_correlation: float | None = None,
+    water_trend_slope_cm_per_year: float | None = None,
+    dry_period: bool = False,
+    policy: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
+    cfg = policy or RFQ_POLICY_DEFAULT
+    target_district = str(cfg.get("target_district_key") or "soan_valley")
+    threshold = float(cfg.get("moisture_correlation_trigger", 0.85))
+
+    should_trigger = (
+        district_key == target_district
+        and grace_correlation is not None
+        and grace_correlation >= threshold
+    )
+
+    active_ratio = cfg.get("high_humidity_silk_to_zinc_ratio", "66:34")
+    if dry_period:
+        active_ratio = cfg.get("dry_period_silk_to_zinc_ratio", "74:26")
+
+    profile = cfg.get("triggered_profile", "heavy_weave") if should_trigger else cfg.get("baseline_profile", "baseline")
+
+    return _wrap_sovereign_payload({
+        "ok": True,
+        "district_key": district_key,
+        "grace_correlation": grace_correlation,
+        "water_trend_slope_cm_per_year": water_trend_slope_cm_per_year,
+        "dry_period": dry_period,
+        "rfq_triggered": should_trigger,
+        "rfq_profile": profile,
+        "recommended_silk_to_zinc_ratio": active_ratio,
+        "policy": {
+            "target_district_key": target_district,
+            "moisture_correlation_trigger": threshold,
+        },
+        "rule": "if soan_valley correlation >= threshold then trigger heavy weave RFQ",
+    }, objective="gee silk rfq trigger", channel="gee-engine")
+
+
 def compute_water_table_trend(
     *,
     start_date: str,
@@ -539,6 +600,15 @@ def run_gee_exploration_orchestration(
             water_trend_slope_cm_per_year=slope,
             ndvi_mean=ndvi_mean,
         )
+        grace_corr_proxy = calculate_grace_correlation_proxy(
+            water_trend_slope_cm_per_year=slope,
+        )
+        result["rfq_signal"] = trigger_rfq_on_melt(
+            district_key=key,
+            grace_correlation=grace_corr_proxy,
+            water_trend_slope_cm_per_year=slope,
+            dry_period=bool(slope is not None and slope > 0.05),
+        )
         return result
 
     district_results = []
@@ -548,6 +618,7 @@ def run_gee_exploration_orchestration(
             district_results.append(f.result())
 
     severe = [r for r in district_results if r.get("anomaly", {}).get("severity") in {"warning", "critical"}]
+    rfq_triggered = [r for r in district_results if r.get("rfq_signal", {}).get("rfq_triggered")]
 
     return _wrap_sovereign_payload({
         "ok": True,
@@ -556,5 +627,6 @@ def run_gee_exploration_orchestration(
         "district_count": len(district_results),
         "district_results": district_results,
         "warning_or_critical_count": len(severe),
+        "rfq_trigger_count": len(rfq_triggered),
         "catalog": GEE_DATASET_CATALOG,
     }, objective="gee orchestration engine exploration", channel="gee-engine")

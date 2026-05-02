@@ -12,6 +12,17 @@ For epoch-standard doctrine and compressed operator sync packets:
 2. `CODON_001.md` — compressed synchronization packet for agent/operator handoff.
 3. `SPRINT_10_DAY_ZTM.md` — measurable 10-day execution plan.
 
+## Physical Architecture: Eye + Hand
+
+The repository now includes a physical codon layer for silk logistics, conductive-thread specs, and node routing.
+
+- `infrastructure/supply_chain/silk_supply_chain.md` — end-to-end source/tech/integration/grounding flow.
+- `infrastructure/supply_chain/conductive_thread_specs.json` — machine-readable Ag/Zn and weave constraints.
+- `infrastructure/supply_chain/hangzhou_standard_checklist.md` — intake quality controls for Node-HGH.
+- `infrastructure/supply_chain/silk_water_resonance_whitepaper.md` — GRACE-to-procurement bridge model.
+- `infrastructure/mesh_nodes/silk_road_2_0_mesh.md` — China-Pakistan node topology and transfer law.
+- `infrastructure/mesh_nodes/artisan_mesh.md` — Islamabad/Faisalabad handshake schema.
+
 ---
 
 ## The 10-20-970 Architecture
