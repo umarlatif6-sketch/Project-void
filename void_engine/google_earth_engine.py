@@ -12,6 +12,40 @@ _init_lock = threading.Lock()
 _initialized = False
 _init_error: str | None = None
 
+# API stubs for district geometry and alert thresholds.
+DISTRICT_PRESETS_PAKISTAN: Dict[str, Dict[str, Any]] = {
+    "lahore": {
+        "label": "Lahore District",
+        "country": "Pakistan",
+        "center": {"lat": 31.5204, "lon": 74.3587},
+        "buffer_m": 35000,
+    },
+    "islamabad": {
+        "label": "Islamabad Capital Territory",
+        "country": "Pakistan",
+        "center": {"lat": 33.6844, "lon": 73.0479},
+        "buffer_m": 25000,
+    },
+    "soan_valley": {
+        "label": "Soan Valley",
+        "country": "Pakistan",
+        "center": {"lat": 33.35, "lon": 73.1},
+        "buffer_m": 45000,
+    },
+}
+
+ANOMALY_THRESHOLDS_DEFAULT: Dict[str, Dict[str, float]] = {
+    "water_table_decline_cm_per_year": {
+        "warning": -0.5,
+        "critical": -1.5,
+    },
+    "ndvi_mean": {
+        "warning_low": 0.22,
+        "critical_low": 0.15,
+        "warning_high": 0.85,
+    },
+}
+
 
 def _import_ee():
     try:
@@ -182,6 +216,72 @@ def default_date_window(days: int = 45) -> tuple[str, str]:
     now = datetime.now(timezone.utc).date()
     start = now - timedelta(days=days)
     return start.isoformat(), now.isoformat()
+
+
+def get_district_presets(country: str = "Pakistan") -> Dict[str, Any]:
+    selected_country = (country or "Pakistan").strip() or "Pakistan"
+    if selected_country.lower() != "pakistan":
+        return {
+            "ok": True,
+            "country": selected_country,
+            "presets": {},
+            "message": "no_presets_configured_for_country",
+        }
+    return {
+        "ok": True,
+        "country": "Pakistan",
+        "presets": DISTRICT_PRESETS_PAKISTAN,
+    }
+
+
+def evaluate_anomaly_thresholds(
+    *,
+    water_trend_slope_cm_per_year: float | None = None,
+    ndvi_mean: float | None = None,
+    thresholds: Dict[str, Dict[str, float]] | None = None,
+) -> Dict[str, Any]:
+    """
+    Placeholder alert lane for resonance warning states.
+    442 Hz indicates a warning/critical anomaly pulse.
+    """
+    cfg = thresholds or ANOMALY_THRESHOLDS_DEFAULT
+    alerts = []
+
+    wt = cfg.get("water_table_decline_cm_per_year", {})
+    if water_trend_slope_cm_per_year is not None:
+        if water_trend_slope_cm_per_year <= wt.get("critical", -1.5):
+            alerts.append({
+                "metric": "water_table_decline_cm_per_year",
+                "severity": "critical",
+                "value": water_trend_slope_cm_per_year,
+            })
+        elif water_trend_slope_cm_per_year <= wt.get("warning", -0.5):
+            alerts.append({
+                "metric": "water_table_decline_cm_per_year",
+                "severity": "warning",
+                "value": water_trend_slope_cm_per_year,
+            })
+
+    ndvi_cfg = cfg.get("ndvi_mean", {})
+    if ndvi_mean is not None:
+        if ndvi_mean <= ndvi_cfg.get("critical_low", 0.15):
+            alerts.append({"metric": "ndvi_mean", "severity": "critical", "value": ndvi_mean})
+        elif ndvi_mean <= ndvi_cfg.get("warning_low", 0.22) or ndvi_mean >= ndvi_cfg.get("warning_high", 0.85):
+            alerts.append({"metric": "ndvi_mean", "severity": "warning", "value": ndvi_mean})
+
+    severity = "normal"
+    if any(a["severity"] == "critical" for a in alerts):
+        severity = "critical"
+    elif alerts:
+        severity = "warning"
+
+    return {
+        "ok": True,
+        "severity": severity,
+        "alerts": alerts,
+        "resonance_alert_hz": 442 if severity in {"warning", "critical"} else 432,
+        "thresholds": cfg,
+    }
 
 
 def compute_water_table_trend(

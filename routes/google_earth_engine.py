@@ -6,6 +6,8 @@ from void_engine.google_earth_engine import (
     compute_water_table_trend,
     compute_ndvi_snapshot,
     default_date_window,
+    evaluate_anomaly_thresholds,
+    get_district_presets,
     get_gee_status,
 )
 
@@ -16,6 +18,12 @@ gee_bp = Blueprint("google_earth_engine", __name__)
 @gee_bp.route("/api/gee/status", methods=["GET"])
 def gee_status():
     return jsonify(get_gee_status())
+
+
+@gee_bp.route("/api/gee/district-presets", methods=["GET"])
+def gee_district_presets():
+    country = (request.args.get("country") or "Pakistan").strip() or "Pakistan"
+    return jsonify(get_district_presets(country=country))
 
 
 @gee_bp.route("/api/gee/ndvi", methods=["POST"])
@@ -105,3 +113,23 @@ def gee_water_table_trend():
     except Exception as exc:  # noqa: BLE001
         logger.error("GEE water-table route failed: %s", exc)
         return jsonify({"ok": False, "error": "gee_execution_failed", "detail": str(exc)}), 502
+
+
+@gee_bp.route("/api/gee/anomaly-thresholds", methods=["POST"])
+@login_required
+def gee_anomaly_thresholds():
+    data = request.get_json(silent=True) or {}
+    water_slope = data.get("water_trend_slope_cm_per_year")
+    ndvi_mean = data.get("ndvi_mean")
+
+    try:
+        water_slope = float(water_slope) if water_slope is not None else None
+        ndvi_mean = float(ndvi_mean) if ndvi_mean is not None else None
+    except Exception:  # noqa: BLE001
+        return jsonify({"ok": False, "error": "invalid_numeric_params"}), 400
+
+    result = evaluate_anomaly_thresholds(
+        water_trend_slope_cm_per_year=water_slope,
+        ndvi_mean=ndvi_mean,
+    )
+    return jsonify(result)

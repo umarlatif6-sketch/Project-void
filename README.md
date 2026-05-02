@@ -4,6 +4,14 @@
 
 PROJECT VOID is a research-grade signal intelligence platform that utilizes a 3-shelf acoustic ecosystem to fold high-density data into mundane environmental audio. By simulating **Salt Water Density** in a 16-bit air medium, it achieves a **5x Temporal Vortex** (1 hour of audio = 5 hours of raw LSB capacity).
 
+## Protocol Access
+
+For epoch-standard doctrine and compressed operator sync packets:
+
+1. `MASTER_PROTOCOL_1002.md` — full sovereign operating doctrine.
+2. `CODON_001.md` — compressed synchronization packet for agent/operator handoff.
+3. `SPRINT_10_DAY_ZTM.md` — measurable 10-day execution plan.
+
 ---
 
 ## The 10-20-970 Architecture

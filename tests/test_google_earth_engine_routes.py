@@ -36,6 +36,15 @@ def test_gee_status_route_returns_payload(client, monkeypatch):
     assert response.get_json()["configured"] is True
 
 
+def test_gee_district_presets_defaults_to_pakistan(client):
+    response = client.get("/api/gee/district-presets")
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["country"] == "Pakistan"
+    assert "lahore" in payload["presets"]
+
+
 def test_gee_ndvi_requires_authentication(client):
     response = client.post("/api/gee/ndvi", json={"lat": 51.5, "lon": -0.1})
     assert response.status_code == 401
@@ -129,3 +138,22 @@ def test_gee_water_table_trend_invalid_lat_lon(client):
     )
     assert response.status_code == 400
     assert response.get_json()["error"] == "invalid_lat_lon"
+
+
+def test_gee_anomaly_thresholds_requires_authentication(client):
+    response = client.post("/api/gee/anomaly-thresholds", json={"water_trend_slope_cm_per_year": -0.8})
+    assert response.status_code == 401
+
+
+def test_gee_anomaly_thresholds_warning_442hz(client):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    response = client.post(
+        "/api/gee/anomaly-thresholds",
+        json={"water_trend_slope_cm_per_year": -0.8, "ndvi_mean": 0.2},
+    )
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["severity"] in {"warning", "critical"}
+    assert payload["resonance_alert_hz"] == 442
