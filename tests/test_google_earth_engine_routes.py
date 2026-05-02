@@ -89,3 +89,43 @@ def test_gee_ndvi_value_error_maps_to_400(client, monkeypatch):
     response = client.post("/api/gee/ndvi", json={"lat": 100, "lon": 0})
     assert response.status_code == 400
     assert response.get_json()["error"] == "invalid_lat"
+
+
+def test_gee_water_table_trend_requires_authentication(client):
+    response = client.post("/api/gee/water-table-trend", json={})
+    assert response.status_code == 401
+
+
+def test_gee_water_table_trend_defaults_to_pakistan(client, monkeypatch):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    def _fake_trend(**kwargs):
+        assert kwargs["country"] == "Pakistan"
+        return {
+            "ok": True,
+            "area": "country:Pakistan",
+            "trend_direction": "declining",
+            "trend_slope_cm_per_year": -0.3,
+            "sample_count": 24,
+        }
+
+    monkeypatch.setattr("routes.google_earth_engine.compute_water_table_trend", _fake_trend)
+
+    response = client.post("/api/gee/water-table-trend", json={})
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["area"] == "country:Pakistan"
+
+
+def test_gee_water_table_trend_invalid_lat_lon(client):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    response = client.post(
+        "/api/gee/water-table-trend",
+        json={"lat": "north", "lon": 72.0},
+    )
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "invalid_lat_lon"
