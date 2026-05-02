@@ -2,10 +2,15 @@ import logging
 import os
 import threading
 import concurrent.futures
+import json
+import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
 
 import numpy as np
+
+from void_engine.al_jabr_286 import BASE_FREQ, fatiha_286_hexdigest_from_str
+from void_engine.openclaw_bridge import build_sovereign_bridge_packet
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +64,30 @@ GEE_DATASET_CATALOG: Dict[str, Dict[str, str]] = {
         "notes": "Terrestrial water storage anomaly proxy for regional groundwater stress.",
     },
 }
+
+
+def _wrap_sovereign_payload(payload: dict, objective: str, channel: str = "gee") -> dict:
+    envelope = build_sovereign_bridge_packet(objective, channel=channel)
+    if not envelope:
+        fallback_seed = f"{channel}|{objective}|{time.time_ns()}"
+        envelope = {
+            "packet_id": fatiha_286_hexdigest_from_str(fallback_seed)[:64],
+            "chain": 286,
+            "base_frequency_hz": BASE_FREQ,
+            "bridge_mode": "sovereign_opaque_transport",
+        }
+
+    wrapped = dict(payload)
+    wrapped.setdefault("ok", True)
+    wrapped["sovereign_packet_id"] = envelope.get("packet_id")
+    wrapped["chain"] = envelope.get("chain", 286)
+    wrapped["base_frequency_hz"] = envelope.get("base_frequency_hz", BASE_FREQ)
+    wrapped["bridge_mode"] = envelope.get("bridge_mode", "sovereign_opaque_transport")
+    wrapped["al_jabr_286_hash"] = fatiha_286_hexdigest_from_str(
+        json.dumps(payload, sort_keys=True, default=str)
+    )
+    wrapped["timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    return wrapped
 
 
 def _import_ee():
@@ -181,7 +210,7 @@ def compute_ndvi_snapshot(
 
     count = int(collection.size().getInfo() or 0)
     if count == 0:
-        return {
+        return _wrap_sovereign_payload({
             "ok": True,
             "lat": lat,
             "lon": lon,
@@ -189,7 +218,7 @@ def compute_ndvi_snapshot(
             "end_date": end_date,
             "image_count": 0,
             "message": "no_imagery_for_filters",
-        }
+        }, objective="gee ndvi snapshot", channel="gee-engine")
 
     image = ee.Image(collection.first())
     ndvi = image.normalizedDifference(["B8", "B4"]).rename("NDVI")
@@ -209,7 +238,7 @@ def compute_ndvi_snapshot(
     if date_ms is not None:
         acquired_at = datetime.fromtimestamp(float(date_ms) / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
 
-    return {
+    return _wrap_sovereign_payload({
         "ok": True,
         "lat": lat,
         "lon": lon,
@@ -223,7 +252,7 @@ def compute_ndvi_snapshot(
         "band_math": "(B8 - B4) / (B8 + B4)",
         "buffer_m": buffer_m,
         "scale_m": scale,
-    }
+    }, objective="gee ndvi snapshot", channel="gee-engine")
 
 
 def default_date_window(days: int = 45) -> tuple[str, str]:
@@ -235,24 +264,24 @@ def default_date_window(days: int = 45) -> tuple[str, str]:
 def get_district_presets(country: str = "Pakistan") -> Dict[str, Any]:
     selected_country = (country or "Pakistan").strip() or "Pakistan"
     if selected_country.lower() != "pakistan":
-        return {
+        return _wrap_sovereign_payload({
             "ok": True,
             "country": selected_country,
             "presets": {},
             "message": "no_presets_configured_for_country",
-        }
-    return {
+        }, objective="gee district presets", channel="gee-engine")
+    return _wrap_sovereign_payload({
         "ok": True,
         "country": "Pakistan",
         "presets": DISTRICT_PRESETS_PAKISTAN,
-    }
+    }, objective="gee district presets", channel="gee-engine")
 
 
 def get_dataset_catalog() -> Dict[str, Any]:
-    return {
+    return _wrap_sovereign_payload({
         "ok": True,
         "catalog": GEE_DATASET_CATALOG,
-    }
+    }, objective="gee dataset catalog", channel="gee-engine")
 
 
 def evaluate_anomaly_thresholds(
@@ -296,13 +325,13 @@ def evaluate_anomaly_thresholds(
     elif alerts:
         severity = "warning"
 
-    return {
+    return _wrap_sovereign_payload({
         "ok": True,
         "severity": severity,
         "alerts": alerts,
         "resonance_alert_hz": 442 if severity in {"warning", "critical"} else 432,
         "thresholds": cfg,
-    }
+    }, objective="gee anomaly thresholds", channel="gee-engine")
 
 
 def compute_water_table_trend(
@@ -353,14 +382,14 @@ def compute_water_table_trend(
 
     count = int(collection.size().getInfo() or 0)
     if count == 0:
-        return {
+        return _wrap_sovereign_payload({
             "ok": True,
             "area": area_label,
             "start_date": start_date,
             "end_date": end_date,
             "sample_count": 0,
             "message": "no_grace_samples_for_filters",
-        }
+        }, objective="gee water table trend", channel="gee-engine")
 
     def _sample_to_feature(img):
         stat = img.reduceRegion(
@@ -379,14 +408,14 @@ def compute_water_table_trend(
     rows = features.getInfo().get("features", [])
 
     if not rows:
-        return {
+        return _wrap_sovereign_payload({
             "ok": True,
             "area": area_label,
             "start_date": start_date,
             "end_date": end_date,
             "sample_count": 0,
             "message": "no_valid_grace_samples",
-        }
+        }, objective="gee water table trend", channel="gee-engine")
 
     times = []
     values = []
@@ -404,7 +433,7 @@ def compute_water_table_trend(
         samples.append({"date": t.strftime("%Y-%m-%d"), "lwe_cm": float(val)})
 
     if len(values) < 2:
-        return {
+        return _wrap_sovereign_payload({
             "ok": True,
             "area": area_label,
             "start_date": start_date,
@@ -412,7 +441,7 @@ def compute_water_table_trend(
             "sample_count": len(values),
             "message": "insufficient_samples_for_trend",
             "samples": samples,
-        }
+        }, objective="gee water table trend", channel="gee-engine")
 
     x_years = np.array([(t - times[0]).total_seconds() / (365.25 * 24 * 3600) for t in times], dtype=float)
     y = np.array(values, dtype=float)
@@ -425,7 +454,7 @@ def compute_water_table_trend(
     else:
         trend_direction = "stable"
 
-    return {
+    return _wrap_sovereign_payload({
         "ok": True,
         "area": area_label,
         "start_date": start_date,
@@ -437,7 +466,7 @@ def compute_water_table_trend(
         "trend_intercept_cm": float(intercept),
         "trend_direction": trend_direction,
         "samples": samples,
-    }
+    }, objective="gee water table trend", channel="gee-engine")
 
 
 def run_gee_exploration_orchestration(
@@ -453,11 +482,11 @@ def run_gee_exploration_orchestration(
     selected = {k: presets[k] for k in selected_keys if k in presets}
 
     if not selected:
-        return {
+        return _wrap_sovereign_payload({
             "ok": False,
             "error": "no_valid_district_keys",
             "available_keys": list(presets.keys()),
-        }
+        }, objective="gee orchestration invalid district keys", channel="gee-engine")
 
     def _explore_one(item: tuple[str, Dict[str, Any]]) -> Dict[str, Any]:
         key, preset = item
@@ -520,7 +549,7 @@ def run_gee_exploration_orchestration(
 
     severe = [r for r in district_results if r.get("anomaly", {}).get("severity") in {"warning", "critical"}]
 
-    return {
+    return _wrap_sovereign_payload({
         "ok": True,
         "start_date": start_date,
         "end_date": end_date,
@@ -528,4 +557,4 @@ def run_gee_exploration_orchestration(
         "district_results": district_results,
         "warning_or_critical_count": len(severe),
         "catalog": GEE_DATASET_CATALOG,
-    }
+    }, objective="gee orchestration engine exploration", channel="gee-engine")
