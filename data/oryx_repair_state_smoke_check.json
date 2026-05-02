@@ -13,8 +13,8 @@
     "recoverable"
   ],
   "persisted_repair_state_counts": {
-    "aligned": 10,
-    "recoverable": 2
+    "aligned": 15,
+    "recoverable": 3
   },
   "extra_scenarios": [],
   "issue_count": 0,

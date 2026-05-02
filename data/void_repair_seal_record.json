@@ -1,0 +1,32 @@
+{
+  "record": "void_repair_seal_record",
+  "sealed_at_utc": "2026-05-02T01:51:40.604558+00:00",
+  "scope": {
+    "classify_scar_register": "completed",
+    "map_workflow_fractures": "completed",
+    "carry_repair_law_into_oryx": "completed",
+    "validate_and_seal_record": "completed"
+  },
+  "oryx_validation": {
+    "smoke_ok": true,
+    "integrity_ok": true,
+    "required_scenarios": [
+      "recoverable",
+      "quarantined"
+    ],
+    "persisted_repair_state_counts": {
+      "aligned": 15,
+      "recoverable": 3
+    }
+  },
+  "seal_inputs": {
+    "head_before_seal": "b3dd7e5bc9ad1b5f2c3f54c71b7bc0af67655225",
+    "sha256": {
+      "data/oryx_repair_state_smoke.json": "38bf42e45b7df0eeb3f464654ca62ec9ea8f4b131b46255249f20982e64d3beb",
+      "data/oryx_repair_state_smoke_check.json": "2027359ca3b61e042eff0522ff8680ba6d0e1dbeb4baf281a00a854167fbb5a1",
+      "docs/VOID_WORKFLOW_REPAIR_REGISTER.md": "fb131d9eacf1dd0e1cc66490d6a255d97343f9832e6cb088664f50ef15a5928c",
+      "logic/avicenna_protocol.md": "613abe42367afa8453798fda75d0a23316c854b435eeb8d1c77a3fc4d06f84fb"
+    }
+  },
+  "law": "recover what is true, quarantine what is unsafe, keep superseded forms in memory, and recompose under proof"
+}

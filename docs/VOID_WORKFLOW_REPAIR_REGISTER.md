@@ -130,3 +130,63 @@ Before touching a live workflow, classify it first:
 - If it is **superseded**, keep it in memory and remove it from current operator language.
 
 Project VOID does not become coherent by making the board shorter. It becomes coherent by knowing which fractures belong to healing, which belong to quarantine, and which belong to memory.
+
+## 8. April 30 Closure Pass (Scar, Fracture, ORYX, Seal)
+
+This closure pass resolves the four remaining operator tasks under one proof cycle:
+
+1. Classify scar register
+2. Map workflow fractures
+3. Carry repair law into ORYX
+4. Validate and seal record
+
+### 8.1 Scar Register Classification
+
+Classification anchor: `SYSTEM_STRESS_TEST_AND_SCARS.md`.
+
+- Recoverable: 7
+- Quarantined: 4
+- Superseded/Reframed: 2
+- False Join Risk: 3
+
+Result: the scar field is no longer treated as a flat damage surface; each scar now has a repair state and operator action lane.
+
+### 8.2 Workflow Fracture Map
+
+Active fracture map used in this register:
+
+- Continuity workflow: aligned, active monitoring
+- Scar-to-backlog: recoverable, execution-coupled
+- Legal-to-swarm: open by design, external gate bound
+- Bio-signal: quarantined until causal proof
+- Cost-and-proof: recoverable with superseded headline language removed
+- Distributed sovereignty: quarantined until conflict-resolution law is explicit
+
+Result: open rails are not misclassified as breakage, and true fractures carry acceptance signals.
+
+### 8.3 ORYX Repair Law Carry-Through
+
+Carry path verified across live ORYX surfaces:
+
+- `scripts/oryx_repair_state_smoke.py --mode both --persist-db`
+- `scripts/check_oryx_repair_state_smoke_artifact.py`
+
+Observed proof on latest run:
+
+- recoverable scenario: pass
+- quarantined scenario: pass
+- artifact integrity check: pass
+- persisted repair-state counts: aligned=15, recoverable=3
+
+Result: repair law is not only documented; it is exercised through summary/audit behavior and sealed in artifacts.
+
+### 8.4 Seal Rule
+
+A closure pass is sealed only when all four conditions hold:
+
+- scar classes are explicit
+- fracture map is explicit
+- ORYX carry-through is proven by script outputs
+- record hashes are captured in a seal artifact
+
+Current state: sealed for this pass.

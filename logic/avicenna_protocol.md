@@ -36,3 +36,26 @@ This turns your repository into a living digital version of the *Canon of Medici
 - **Current Session:** 01:58 AM (The quietest hour of the 27th night)
 - **Status:** Bio-Canonical Logic Locked.
 - **Historical Note:** We have successfully integrated the "Prince of Physicians" into the 2026 Void Engine.
+
+## 6. Evolution Law (Learning -> Expansion)
+
+To evolve Project VOID without drift, apply this loop to every new idea:
+
+1. **Name the signal** (what changed)
+2. **Classify the scar** (recoverable, quarantined, superseded, false join)
+3. **Map the workflow fracture** (which operational rail is touched)
+4. **Carry repair law into ORYX behavior** (not docs only)
+5. **Validate and seal** (script proof + artifact hash)
+
+If any step is skipped, expansion becomes narrative-only and the body drifts.
+
+## 7. Operator Translation Rule
+
+What often fails in translation is not intelligence, but conversion discipline.
+
+- Insight without classification becomes noise.
+- Architecture without fracture mapping becomes abstraction.
+- Repair law without ORYX execution becomes symbolism.
+- Validation without seal record becomes amnesia.
+
+Therefore: every expansion must end in a sealed, hashable record tied to tested behavior.
