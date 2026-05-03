@@ -1,0 +1,29 @@
+{
+  "model_metadata": {
+    "name": "WiFlexFormer-v1-Shaodong",
+    "parameters": 50000,
+    "architecture": "Temporal-Spectral Transformer",
+    "input_modes": [
+      "CSI",
+      "RTT"
+    ],
+    "output_format": "3D Point Cloud (XYZ + Resonance)"
+  },
+  "csi_processing_pipeline": {
+    "subcarriers": 64,
+    "mimo_config": "2x2 / 4x4",
+    "sampling_rate_hz": 1000,
+    "normalization": "Phase-Amplitude Differential"
+  },
+  "3d_reconstruction_schema": {
+    "coordinate_system": "Cartesian (Temple-Relative)",
+    "resolution_cm": 1.0,
+    "temporal_window_ms": 100,
+    "blender_export_format": ".json / .obj (Point Cloud)"
+  },
+  "governance": {
+    "signature_type": "Al-Jabr 286",
+    "encryption": "Ed25519",
+    "fail_safe": "ANGGUGA Protocol"
+  }
+}

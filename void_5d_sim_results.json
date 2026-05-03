@@ -1,0 +1,14 @@
+{
+  "simulation_parameters": {
+    "entries": 33,
+    "serena_mass_mb": 111.0,
+    "governance_alpha": 0.8926
+  },
+  "output": {
+    "credibility_score": 10.7568,
+    "reliability_index": 0.8663,
+    "fruition_months": 66.51,
+    "symmetry_lock": true,
+    "probability_of_fruit": 0.9319
+  }
+}
