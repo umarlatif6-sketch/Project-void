@@ -4,6 +4,7 @@ import json
 import time
 import re
 import importlib.util
+import secrets
 from pathlib import Path
 from flask import Blueprint, jsonify, request, session
 
@@ -23,6 +24,10 @@ from void_engine.google_earth_engine import (
     trigger_rfq_on_melt,
 )
 from void_engine.openclaw_bridge import build_sovereign_bridge_packet
+from void_engine.wearable.mycelium_adriana_translator import (
+    load_device_profile_schema,
+    translate_sensor_packet,
+)
 
 logger = logging.getLogger(__name__)
 gee_bp = Blueprint("google_earth_engine", __name__)
@@ -30,6 +35,8 @@ gee_bp = Blueprint("google_earth_engine", __name__)
 _ROOT = Path(__file__).resolve().parents[1]
 _RFQ_AUDIT_LOG_PATH = _ROOT / "data" / "rfq_audit_log.jsonl"
 _ION_RESURRECTION_MODULE_PATH = _ROOT / "infrastructure" / "energy_systems" / "ion_resurrection.py"
+_WEARABLE_AUDIT_LOG_PATH = _ROOT / "data" / "wearable_ingest_audit.jsonl"
+_WEARABLE_INGEST_TOKEN_ENV = "VOID_WEARABLE_INGEST_TOKEN"
 
 _TRANSPORT_REDACTION = "[external-transport-redacted]"
 _LEAK_PATTERNS = [
@@ -100,6 +107,38 @@ def _read_rfq_audit_events(limit: int = 50) -> list[dict]:
     return rows[-limit:]
 
 
+def _extract_wearable_token() -> str:
+    auth_header = request.headers.get("Authorization", "")
+    token = ""
+    if auth_header.lower().startswith("bearer "):
+        token = auth_header[7:].strip()
+    if not token:
+        token = request.headers.get("X-Wearable-Token", "").strip()
+    return token
+
+
+def _append_wearable_audit_event(event: dict) -> None:
+    _WEARABLE_AUDIT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with _WEARABLE_AUDIT_LOG_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(event, sort_keys=True, default=str) + "\n")
+
+
+def _read_wearable_audit_events(limit: int = 50) -> list[dict]:
+    if not _WEARABLE_AUDIT_LOG_PATH.exists():
+        return []
+    rows: list[dict] = []
+    with _WEARABLE_AUDIT_LOG_PATH.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return rows[-max(1, min(limit, 500)):]
+
+
 def _get_ion_resurrection_module():
     if not _ION_RESURRECTION_MODULE_PATH.exists():
         raise FileNotFoundError(f"missing_module: {_ION_RESURRECTION_MODULE_PATH}")
@@ -120,6 +159,139 @@ def _get_ion_resurrection_module():
 def gee_status():
     payload = get_gee_status()
     return _sovereign_response(payload, objective="gee status surface")
+
+
+@gee_bp.route("/api/wearable/device-profile-schema", methods=["GET"])
+@tier_required("journalist")
+def wearable_device_profile_schema():
+    try:
+        schema = load_device_profile_schema()
+        return _sovereign_response(schema, objective="wearable device profile schema", channel="wearable")
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Wearable schema read failed: %s", exc)
+        return _sovereign_response(
+            {"ok": False, "error": "schema_unavailable", "detail": _redact_transport_frequency(str(exc))},
+            objective="wearable schema read error",
+            status=502,
+            channel="wearable",
+        )
+
+
+@gee_bp.route("/api/wearable/ingest", methods=["POST"])
+def wearable_ingest():
+    configured = (os.environ.get(_WEARABLE_INGEST_TOKEN_ENV) or "").strip()
+    if not configured:
+        return _sovereign_response(
+            {"ok": False, "error": "wearable_ingest_not_configured"},
+            objective="wearable ingest not configured",
+            status=503,
+            channel="wearable",
+        )
+
+    presented = _extract_wearable_token()
+    if not presented or not secrets.compare_digest(presented, configured):
+        return _sovereign_response(
+            {"ok": False, "error": "unauthorized"},
+            objective="wearable ingest unauthorized",
+            status=401,
+            channel="wearable",
+        )
+
+    data = request.get_json(silent=True) or {}
+    allowed = {"device_profile", "sensor_values", "timestamp"}
+    extras = sorted(set(data.keys()) - allowed)
+    if extras:
+        return _sovereign_response(
+            {"ok": False, "error": "unexpected_fields", "fields": extras},
+            objective="wearable ingest unexpected fields",
+            status=400,
+            channel="wearable",
+        )
+
+    device_profile = data.get("device_profile")
+    sensor_values = data.get("sensor_values")
+    timestamp = data.get("timestamp")
+
+    if not isinstance(device_profile, dict):
+        return _sovereign_response(
+            {"ok": False, "error": "device_profile_required"},
+            objective="wearable ingest missing profile",
+            status=400,
+            channel="wearable",
+        )
+    if not isinstance(sensor_values, dict):
+        return _sovereign_response(
+            {"ok": False, "error": "sensor_values_required"},
+            objective="wearable ingest missing values",
+            status=400,
+            channel="wearable",
+        )
+
+    try:
+        clean_values = {str(k): float(v) for k, v in sensor_values.items()}
+        ts = float(timestamp) if timestamp is not None else None
+    except Exception:  # noqa: BLE001
+        return _sovereign_response(
+            {"ok": False, "error": "invalid_numeric_payload"},
+            objective="wearable ingest invalid numeric payload",
+            status=400,
+            channel="wearable",
+        )
+
+    translated = translate_sensor_packet(
+        device_profile=device_profile,
+        sensor_values=clean_values,
+        timestamp=ts,
+    )
+    if not translated.get("ok"):
+        return _sovereign_response(
+            translated,
+            objective="wearable ingest translation failure",
+            status=400,
+            channel="wearable",
+        )
+
+    _append_wearable_audit_event({
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "device_id": translated.get("device_id"),
+        "device_type": translated.get("device_type"),
+        "state": translated.get("state"),
+        "codon": translated.get("codon"),
+        "resonance_target_hz": translated.get("resonance_target_hz"),
+        "sovereign_packet_id": translated.get("sovereign_packet_id"),
+    })
+
+    return _sovereign_response(
+        translated,
+        objective=f"wearable ingest {translated.get('device_id')}",
+        channel="wearable",
+    )
+
+
+@gee_bp.route("/api/wearable/audit", methods=["GET"])
+@admin_required
+def wearable_audit():
+    try:
+        limit = int(request.args.get("limit", 50) or 50)
+    except Exception:  # noqa: BLE001
+        return _sovereign_response(
+            {"ok": False, "error": "invalid_limit"},
+            objective="wearable audit invalid limit",
+            status=400,
+            channel="wearable",
+        )
+
+    events = _read_wearable_audit_events(limit=limit)
+    return _sovereign_response(
+        {
+            "ok": True,
+            "event_count": len(events),
+            "events": events,
+            "limit": max(1, min(limit, 500)),
+        },
+        objective="wearable audit read",
+        channel="wearable",
+    )
 
 
 @gee_bp.route("/api/gee/district-presets", methods=["GET"])

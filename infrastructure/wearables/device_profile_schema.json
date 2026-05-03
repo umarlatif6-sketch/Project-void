@@ -1,0 +1,39 @@
+{
+  "schema_version": "1002.1",
+  "profile_type": "wearable_sensor_device",
+  "required_fields": [
+    "device_id",
+    "device_type",
+    "sampling_hz",
+    "channels"
+  ],
+  "device_types": [
+    "eeg_headband",
+    "emg_patch",
+    "gsr_patch",
+    "imu_node",
+    "hybrid_skin_node"
+  ],
+  "channel_schema": {
+    "name": "string",
+    "unit": "string",
+    "min": "number",
+    "max": "number"
+  },
+  "supported_channel_names": [
+    "eeg_alpha",
+    "eeg_beta",
+    "eeg_theta",
+    "eeg_delta",
+    "emg_rms",
+    "gsr_uS",
+    "skin_temp_c",
+    "accel_mag"
+  ],
+  "security": {
+    "ingest_token_env": "VOID_WEARABLE_INGEST_TOKEN",
+    "freshness_window_seconds": 60,
+    "fail_closed_on_unknown_fields": true
+  },
+  "note": "Schema is vendor-agnostic and intended for Mycelium-to-Adriana translation compatibility."
+}

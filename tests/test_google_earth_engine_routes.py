@@ -42,6 +42,32 @@ def test_gee_status_route_returns_payload(client, monkeypatch):
     assert payload["al_jabr_286_hash"]
 
 
+def test_wearable_schema_requires_authentication(client):
+    response = client.get("/api/wearable/device-profile-schema")
+    assert response.status_code == 401
+
+
+def test_wearable_schema_forbidden_for_ghost(client, monkeypatch):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    monkeypatch.setattr("routes.auth._get_effective_tier", lambda _uid: "ghost")
+    response = client.get("/api/wearable/device-profile-schema")
+    assert response.status_code == 403
+
+
+def test_wearable_schema_success(client, monkeypatch):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    monkeypatch.setattr("routes.auth._get_effective_tier", lambda _uid: "journalist")
+    response = client.get("/api/wearable/device-profile-schema")
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["profile_type"] == "wearable_sensor_device"
+    assert payload["chain"] == 286
+
+
 def test_gee_district_presets_defaults_to_pakistan(client):
     response = client.get("/api/gee/district-presets")
     assert response.status_code == 200
@@ -377,6 +403,80 @@ def test_ion_resurrection_sim_success(client, monkeypatch):
     assert payload["ok"] is True
     assert payload["state"] == "RE-ANIMATED"
     assert payload["chain"] == 286
+
+
+def test_wearable_ingest_requires_token_config(client):
+    response = client.post("/api/wearable/ingest", json={})
+    assert response.status_code == 503
+
+
+def test_wearable_ingest_unauthorized(client, monkeypatch):
+    monkeypatch.setenv("VOID_WEARABLE_INGEST_TOKEN", "abc123")
+    response = client.post("/api/wearable/ingest", json={})
+    assert response.status_code == 401
+
+
+def test_wearable_ingest_success(client, monkeypatch, tmp_path):
+    monkeypatch.setenv("VOID_WEARABLE_INGEST_TOKEN", "abc123")
+    monkeypatch.setattr("routes.google_earth_engine._WEARABLE_AUDIT_LOG_PATH", tmp_path / "wearable_log.jsonl")
+
+    profile = {
+        "device_id": "node-001",
+        "device_type": "hybrid_skin_node",
+        "sampling_hz": 128,
+        "channels": [
+            {"name": "eeg_alpha", "unit": "uV", "min": 0.0, "max": 1.0},
+            {"name": "eeg_beta", "unit": "uV", "min": 0.0, "max": 1.0},
+            {"name": "emg_rms", "unit": "mV", "min": 0.0, "max": 2.0},
+            {"name": "gsr_uS", "unit": "uS", "min": 0.0, "max": 20.0},
+        ],
+    }
+    values = {
+        "eeg_alpha": 0.7,
+        "eeg_beta": 0.6,
+        "emg_rms": 0.3,
+        "gsr_uS": 5.0,
+    }
+
+    response = client.post(
+        "/api/wearable/ingest",
+        headers={"Authorization": "Bearer abc123"},
+        json={"device_profile": profile, "sensor_values": values},
+    )
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["device_id"] == "node-001"
+    assert payload["chain"] == 286
+
+
+def test_wearable_audit_requires_admin(client):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+        session["role"] = "user"
+
+    response = client.get("/api/wearable/audit")
+    assert response.status_code == 403
+
+
+def test_wearable_audit_success(client, monkeypatch, tmp_path):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+        session["role"] = "admin"
+
+    log_path = tmp_path / "wearable_audit.jsonl"
+    monkeypatch.setattr("routes.google_earth_engine._WEARABLE_AUDIT_LOG_PATH", log_path)
+    log_path.write_text(
+        "{\"timestamp\":\"2026-05-03T00:00:00Z\",\"device_id\":\"node-001\",\"state\":\"stable\"}\n",
+        encoding="utf-8",
+    )
+
+    response = client.get("/api/wearable/audit?limit=10")
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["event_count"] == 1
+    assert payload["events"][0]["device_id"] == "node-001"
 
 
 def test_gee_orchestrate_exploration_requires_admin(client):

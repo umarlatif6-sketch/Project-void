@@ -34,8 +34,15 @@ Operator endpoint:
 - `GET /api/gee/rfq-audit?limit=50` — admin audit feed for RFQ decision events.
 - `POST /api/energy/ion-resurrection/simulate` — internal simulation API for Machine 4000 ion-resurrection planning. Access tier: journalist or sovereign.
 - `POST /api/gee/mineral-overlay` — SWIR-based hydrothermal alteration screening overlay (reconnaissance only). Access tier: journalist or sovereign.
+- `GET /api/wearable/device-profile-schema` — wearable device profile schema for sensor node interoperability. Access tier: journalist or sovereign.
+- `POST /api/wearable/ingest` — token-secured wearable packet ingest for Mycelium->Adriana translation.
+- `GET /api/wearable/audit?limit=50` — admin audit feed for wearable ingest events.
 
 Pakistan district presets now include Chagai and Gilgit-Baltistan for deeper mineral reconnaissance routing.
+
+Build reference:
+
+- `infrastructure/wearables/WEEK1_BUILD_BLUEPRINT.md` — one-week fast-build plan and web-verified materials list.
 
 ---
 
