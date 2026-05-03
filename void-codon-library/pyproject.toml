@@ -5,11 +5,26 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "void-codon-library"
 version = "0.1.0"
-description = "Standalone Project VOID codon library for platform and SCL-LBN codex lookup."
+description = "Project VOID codon lookup layer. Entity-Condition-Action compression for sovereign AI systems."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
-authors = [{ name = "Umar Latif" }]
+authors = [{ name = "Umar Latif", email = "umar@projectvoid.io" }]
+license = { text = "Proprietary — PROJECT VOID, Umar Latif, Bolton, England" }
+keywords = ["codon", "compression", "sovereign-ai", "project-void", "agent", "SCL-LBN"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/umarlatif6-sketch/Project-void"
+Source = "https://github.com/umarlatif6-sketch/Project-void/tree/main/void-codon-library"
+Origin = "https://umarlatif6-sketch.github.io/void-origin/"
 
 [tool.setuptools.packages.find]
 where = ["."]

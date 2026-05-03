@@ -1,5 +1,9 @@
 # void-codon-library
 
+**Origin:** [Project VOID](https://github.com/umarlatif6-sketch/Project-void) — Bolton, England, 2026.  
+**Author:** Umar Latif  
+**Proof of origin:** [void-origin](https://umarlatif6-sketch.github.io/void-origin/)  
+
 Standalone Project VOID codon library.
 
 This package extracts the codon catalogs that were previously embedded inside broader runtime surfaces and makes them available as a small reusable Python package.
