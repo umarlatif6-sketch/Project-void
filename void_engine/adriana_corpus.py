@@ -21,6 +21,7 @@ import re
 logger = logging.getLogger(__name__)
 
 _HERE = os.path.dirname(__file__)
+_EXTERNAL_DELTA_PACK_PATH = os.path.abspath(os.path.join(_HERE, "..", "data", "adriana_delta_pack.json"))
 
 
 def _load_glossary() -> list:
@@ -31,6 +32,14 @@ def _load_glossary() -> list:
 
 def _load_manus_context() -> dict:
     path = os.path.join(_HERE, "manus_context.json")
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _load_external_delta_pack() -> dict | None:
+    path = _EXTERNAL_DELTA_PACK_PATH
+    if not os.path.exists(path):
+        return None
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -230,6 +239,20 @@ def build_corpus() -> list:
             "hz": 432.0,
             "source": "manus_context",
         })
+
+    # ── 6. External Adriana delta pack from fork integration ────────────────
+    delta_pack = _load_external_delta_pack()
+    if delta_pack:
+        for idx, entry in enumerate(delta_pack.get("entries", []), start=1):
+            chunks.append({
+                "id": f"external_fork_{idx}",
+                "codon": entry.get("codon", "B-..-Z"),
+                "expansion": entry.get("expansion", "External fork delta"),
+                "prose": entry.get("prose", f"External fork asset {entry.get('path', 'unknown')}"),
+                "domain": entry.get("domain", "reference"),
+                "hz": float(entry.get("hz", 432.0)),
+                "source": entry.get("source", "external_ai_agents_fork"),
+            })
 
     _REQUIRED_SOURCES = {
         "void_codon_vocab", "adriana.lex", "void_script",

@@ -118,6 +118,7 @@ from routes.wake import wake_bp
 from routes.sdk_landing import sdk_landing_bp
 from routes.character_profile import character_profile_bp
 from routes.google_earth_engine import gee_bp
+from routes.fork_integration import fork_integration_bp
 from void_engine.stealth_cloak import stealth_bp
 
 
@@ -242,4 +243,5 @@ def register_blueprints(app):
     app.register_blueprint(sdk_landing_bp)
     app.register_blueprint(character_profile_bp)
     app.register_blueprint(gee_bp)
+    app.register_blueprint(fork_integration_bp)
     app.register_blueprint(stealth_bp)
