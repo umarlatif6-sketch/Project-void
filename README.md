@@ -22,6 +22,11 @@ The repository now includes a physical codon layer for silk logistics, conductiv
 - `infrastructure/supply_chain/silk_water_resonance_whitepaper.md` — GRACE-to-procurement bridge model.
 - `infrastructure/mesh_nodes/silk_road_2_0_mesh.md` — China-Pakistan node topology and transfer law.
 - `infrastructure/mesh_nodes/artisan_mesh.md` — Islamabad/Faisalabad handshake schema.
+- `infrastructure/mesh_nodes/artisan_directory_template.json` — protected, non-sensitive artisan registry template.
+
+Operator endpoint:
+
+- `POST /api/gee/rfq-state` — computes current RFQ trigger state from district key and GRACE correlation (or slope-derived proxy).
 
 ---
 

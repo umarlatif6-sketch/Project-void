@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify, request
 from routes.auth import admin_required, login_required
 from void_engine.al_jabr_286 import BASE_FREQ, fatiha_286_hexdigest_from_str
 from void_engine.google_earth_engine import (
+    calculate_grace_correlation_proxy,
     compute_water_table_trend,
     compute_ndvi_snapshot,
     default_date_window,
@@ -16,6 +17,7 @@ from void_engine.google_earth_engine import (
     get_district_presets,
     get_gee_status,
     run_gee_exploration_orchestration,
+    trigger_rfq_on_melt,
 )
 from void_engine.openclaw_bridge import build_sovereign_bridge_packet
 
@@ -201,6 +203,41 @@ def gee_anomaly_thresholds():
         ndvi_mean=ndvi_mean,
     )
     return _sovereign_response(result, objective="gee anomaly threshold evaluation")
+
+
+@gee_bp.route("/api/gee/rfq-state", methods=["POST"])
+@login_required
+def gee_rfq_state():
+    data = request.get_json(silent=True) or {}
+
+    district_key = str(data.get("district_key") or "soan_valley").strip() or "soan_valley"
+    dry_period = bool(data.get("dry_period", False))
+
+    grace_correlation = data.get("grace_correlation")
+    water_slope = data.get("water_trend_slope_cm_per_year")
+
+    try:
+        grace_correlation = float(grace_correlation) if grace_correlation is not None else None
+        water_slope = float(water_slope) if water_slope is not None else None
+    except Exception:  # noqa: BLE001
+        return _sovereign_response(
+            {"ok": False, "error": "invalid_numeric_params"},
+            objective="gee rfq state invalid numeric params",
+            status=400,
+        )
+
+    if grace_correlation is None:
+        grace_correlation = calculate_grace_correlation_proxy(
+            water_trend_slope_cm_per_year=water_slope,
+        )
+
+    result = trigger_rfq_on_melt(
+        district_key=district_key,
+        grace_correlation=grace_correlation,
+        water_trend_slope_cm_per_year=water_slope,
+        dry_period=dry_period,
+    )
+    return _sovereign_response(result, objective=f"gee rfq state {district_key}")
 
 
 @gee_bp.route("/api/gee/orchestrate-exploration", methods=["POST"])

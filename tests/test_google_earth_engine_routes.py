@@ -179,6 +179,42 @@ def test_gee_anomaly_thresholds_warning_442hz(client):
     assert payload["chain"] == 286
 
 
+def test_gee_rfq_state_requires_authentication(client):
+    response = client.post("/api/gee/rfq-state", json={"district_key": "soan_valley"})
+    assert response.status_code == 401
+
+
+def test_gee_rfq_state_success(client, monkeypatch):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    monkeypatch.setattr(
+        "routes.google_earth_engine.calculate_grace_correlation_proxy",
+        lambda **_: 0.9,
+    )
+    monkeypatch.setattr(
+        "routes.google_earth_engine.trigger_rfq_on_melt",
+        lambda **_: {
+            "ok": True,
+            "district_key": "soan_valley",
+            "rfq_triggered": True,
+            "rfq_profile": "heavy_weave",
+            "recommended_silk_to_zinc_ratio": "66:34",
+        },
+    )
+
+    response = client.post(
+        "/api/gee/rfq-state",
+        json={"district_key": "soan_valley", "water_trend_slope_cm_per_year": -1.2},
+    )
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["district_key"] == "soan_valley"
+    assert payload["rfq_triggered"] is True
+    assert payload["chain"] == 286
+
+
 def test_gee_orchestrate_exploration_requires_admin(client):
     response = client.post("/api/gee/orchestrate-exploration", json={})
     assert response.status_code == 401
