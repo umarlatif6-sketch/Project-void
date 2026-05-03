@@ -31,7 +31,25 @@ From `void-codon-library/` run:
 /usr/bin/python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
-## Distribute on PyPI (when ready)
+## Private Distribution (default)
+
+Use token-based install from private GitHub source:
+
+```bash
+GH_TOKEN=<repo_read_token> ./scripts/install_private.sh
+```
+
+This avoids public registry exposure while keeping install automation.
+
+## CI Artifact Build
+
+The repository workflow `.github/workflows/codon-library-private-build.yml` builds and tests the package, then uploads `dist/*` as a private workflow artifact.
+
+## Optional Public Distribution
+
+Only use public publication if you explicitly decide to open distribution.
+
+## Legacy PyPI Path (optional)
 
 The build artifacts are already in `dist/`:
 
@@ -54,7 +72,7 @@ Once published, anyone can install it with:
 pip install void-codon-library
 ```
 
-That is the step that makes it external.
+That is the step that makes it external/public.
 
 ## The Main Positioning Line
 

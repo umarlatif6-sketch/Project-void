@@ -31,6 +31,12 @@ From the repository root:
 pip install -e ./void-codon-library
 ```
 
+Private remote install (token-based, no public registry):
+
+```bash
+GH_TOKEN=<repo_read_token> ./void-codon-library/scripts/install_private.sh
+```
+
 ## Quick Start
 
 ```python
@@ -100,6 +106,16 @@ That document does not claim the package alone creates the efficiency result. It
 ## Handoff
 
 If you need to pass this package to another model or collaborator, start with [CLAUDE_HANDOFF.md](CLAUDE_HANDOFF.md).
+
+## Private Distribution
+
+Default distribution mode is private:
+
+- install from private GitHub source using `scripts/install_private.sh`
+- build wheel/sdist in CI using `.github/workflows/codon-library-private-build.yml`
+- share artifacts only with trusted partners
+
+No public PyPI publication is required to operate this package in production.
 
 ## Scope Boundaries
 
