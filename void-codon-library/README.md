@@ -37,6 +37,12 @@ Private remote install (token-based, no public registry):
 GH_TOKEN=<repo_read_token> ./void-codon-library/scripts/install_private.sh
 ```
 
+Trusted node bootstrap (creates isolated venv + private install + smoke test):
+
+```bash
+GH_TOKEN=<repo_read_token> ./void-codon-library/scripts/bootstrap_private_node.sh
+```
+
 ## Quick Start
 
 ```python
