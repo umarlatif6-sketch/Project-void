@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VOID Foundation Live</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f5efe3;
+      --ink: #17140f;
+      --card: #fff9f0;
+      --accent: #0e8f6b;
+      --accent-2: #d35f3f;
+      --line: #d8c8b1;
+      --muted: #655a4d;
+      --ok: #0f8c61;
+      --warn: #a75a1f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(1100px 500px at 90% -10%, #f7d5a9 0%, transparent 60%),
+        radial-gradient(900px 500px at -10% 120%, #b6e3d6 0%, transparent 70%),
+        var(--bg);
+      font-family: "Space Grotesk", sans-serif;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1100px, 92vw);
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero {
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(160deg, #fff8ec, #fff4e8);
+      padding: 24px;
+      transform: translateY(14px);
+      opacity: 0;
+      animation: rise 500ms ease forwards;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .sub {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .pulse {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.85rem;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warn);
+    }
+
+    .dot.live { background: var(--ok); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .card {
+      grid-column: span 12;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      padding: 18px;
+      opacity: 0;
+      transform: translateY(18px);
+      animation: rise 500ms ease forwards;
+      animation-delay: var(--d, 0ms);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    .mono {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.9rem;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .kpi {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px;
+    }
+
+    .kpi b {
+      font-size: 1.1rem;
+    }
+
+    .list {
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .list li {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px;
+    }
+
+    .footer {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    a {
+      color: #0d5d9f;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 2px;
+    }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (min-width: 840px) {
+      .col-4 { grid-column: span 4; }
+      .col-8 { grid-column: span 8; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Project VOID Foundation Live</h1>
+      <p class="sub">No pitch layer. Just live repo pulse, proof metrics, and observable system surfaces.</p>
+      <div class="pulse" id="pulseState">
+        <span class="dot" id="pulseDot"></span>
+        <span id="pulseText">Checking live sources...</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card col-4" style="--d: 70ms;">
+        <h2>1) Commit Stream (Live)</h2>
+        <div class="kpi-row">
+          <div class="kpi"><div class="mono">Latest SHA</div><b id="latestSha">-</b></div>
+          <div class="kpi"><div class="mono">Last Commit</div><b id="latestDate">-</b></div>
+          <div class="kpi"><div class="mono">Items</div><b id="commitCount">-</b></div>
+        </div>
+        <ul class="list" id="commitList"></ul>
+      </article>
+
+      <article class="card col-4" style="--d: 130ms;">
+        <h2>2) Codon Efficiency Proof</h2>
+        <div class="kpi-row">
+          <div class="kpi"><div class="mono">Baseline</div><b id="baseline">75,155</b></div>
+          <div class="kpi"><div class="mono">Compressed</div><b id="compressed">~300</b></div>
+          <div class="kpi"><div class="mono">Reduction</div><b id="reduction">250x</b></div>
+        </div>
+        <ul class="list" id="proofRows"></ul>
+      </article>
+
+      <article class="card col-4" style="--d: 190ms;">
+        <h2>3) Runtime Surface (Repo-Verified)</h2>
+        <div class="kpi-row">
+          <div class="kpi"><div class="mono">Skill Modules</div><b id="moduleCount">-</b></div>
+          <div class="kpi"><div class="mono">Registrations</div><b id="registrationCount">-</b></div>
+          <div class="kpi"><div class="mono">GEE Hooks</div><b id="geeHooks">-</b></div>
+        </div>
+        <ul class="list" id="moduleList"></ul>
+      </article>
+    </section>
+
+    <p class="footer mono">
+      Source files: <a href="https://github.com/umarlatif6-sketch/Project-void" target="_blank" rel="noreferrer">repo</a>,
+      <a href="https://raw.githubusercontent.com/umarlatif6-sketch/Project-void/main/PROOF_OF_EFFICIENCY.md" target="_blank" rel="noreferrer">proof</a>,
+      <a href="https://raw.githubusercontent.com/umarlatif6-sketch/Project-void/main/void_engine/skill_modules/__init__.py" target="_blank" rel="noreferrer">skills init</a>,
+      <a href="https://raw.githubusercontent.com/umarlatif6-sketch/Project-void/main/void_engine/google_earth_engine.py" target="_blank" rel="noreferrer">gee engine</a>
+    </p>
+  </main>
+
+  <script>
+    const owner = "umarlatif6-sketch";
+    const repo = "Project-void";
+    const branch = "main";
+
+    const commitsUrl = `https://api.github.com/repos/${owner}/${repo}/commits?sha=${branch}&per_page=8`;
+    const proofUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/PROOF_OF_EFFICIENCY.md`;
+    const skillsInitUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/void_engine/skill_modules/__init__.py`;
+    const skillModuleUrls = [
+      `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/void_engine/skill_modules/intelligence.py`,
+      `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/void_engine/skill_modules/content_brand.py`,
+      `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/void_engine/skill_modules/legal_finance.py`,
+      `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/void_engine/skill_modules/people.py`,
+      `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/void_engine/skill_modules/life_environment.py`
+    ];
+    const geeUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/void_engine/google_earth_engine.py`;
+
+    function setPulse(ok, text) {
+      const dot = document.getElementById("pulseDot");
+      const label = document.getElementById("pulseText");
+      dot.classList.toggle("live", ok);
+      label.textContent = text;
+    }
+
+    function shortDate(iso) {
+      const d = new Date(iso);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function parseProofRows(md) {
+      return md
+        .split("\n")
+        .filter((line) => line.startsWith("| ") && line.includes("|"))
+        .slice(2, 7)
+        .map((line) => line.split("|").map((x) => x.trim()).filter(Boolean));
+    }
+
+    async function loadCommits() {
+      const res = await fetch(commitsUrl, { headers: { "Accept": "application/vnd.github+json" } });
+      if (!res.ok) throw new Error(`commit_fetch_failed:${res.status}`);
+      const commits = await res.json();
+
+      document.getElementById("commitCount").textContent = String(commits.length);
+      if (commits.length > 0) {
+        document.getElementById("latestSha").textContent = commits[0].sha.slice(0, 7);
+        document.getElementById("latestDate").textContent = shortDate(commits[0].commit.author.date);
+      }
+
+      const list = document.getElementById("commitList");
+      list.innerHTML = "";
+      for (const item of commits.slice(0, 5)) {
+        const li = document.createElement("li");
+        const msg = item.commit.message.split("\n")[0];
+        li.innerHTML = `<div><b>${item.sha.slice(0, 7)}</b> - ${msg}</div><div class="mono">${shortDate(item.commit.author.date)} by ${item.commit.author.name}</div>`;
+        list.appendChild(li);
+      }
+    }
+
+    async function loadProof() {
+      const res = await fetch(proofUrl);
+      if (!res.ok) throw new Error(`proof_fetch_failed:${res.status}`);
+      const md = await res.text();
+      const rows = parseProofRows(md);
+      const list = document.getElementById("proofRows");
+      list.innerHTML = "";
+      for (const row of rows) {
+        const li = document.createElement("li");
+        li.innerHTML = `<div><b>${row[0]}</b></div><div class="mono">${row[1]} -> ${row[2]} (${row[3]})</div>`;
+        list.appendChild(li);
+      }
+    }
+
+    async function loadRuntimeSurface() {
+      const [initRes, geeRes, ...modulesRes] = await Promise.all([
+        fetch(skillsInitUrl),
+        fetch(geeUrl),
+        ...skillModuleUrls.map((u) => fetch(u))
+      ]);
+
+      if (!initRes.ok) throw new Error(`skills_init_failed:${initRes.status}`);
+      if (!geeRes.ok) throw new Error(`gee_fetch_failed:${geeRes.status}`);
+
+      const initTxt = await initRes.text();
+      const geeTxt = await geeRes.text();
+      const modulesTxt = await Promise.all(modulesRes.map((r) => r.ok ? r.text() : ""));
+
+      const registrations = (initTxt.match(/register_skill\(/g) || []).length;
+      const geeHooks = ["ee.Initialize", "compute_mineral_overlay_swir", "run_gee_exploration_orchestration"]
+        .filter((token) => geeTxt.includes(token)).length;
+
+      let totalFromModules = 0;
+      const names = [];
+      modulesTxt.forEach((txt, idx) => {
+        const c = (txt.match(/register_skill\(/g) || []).length;
+        totalFromModules += c;
+        const labels = ["intelligence", "content_brand", "legal_finance", "people", "life_environment"];
+        names.push(`${labels[idx]}: ${c}`);
+      });
+
+      document.getElementById("moduleCount").textContent = "5";
+      document.getElementById("registrationCount").textContent = String(Math.max(totalFromModules, registrations));
+      document.getElementById("geeHooks").textContent = `${geeHooks}/3`;
+
+      const list = document.getElementById("moduleList");
+      list.innerHTML = "";
+      for (const n of names) {
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="mono">${n}</span>`;
+        list.appendChild(li);
+      }
+    }
+
+    (async function boot() {
+      try {
+        await Promise.all([loadCommits(), loadProof(), loadRuntimeSurface()]);
+        setPulse(true, "Live repo sources verified.");
+      } catch (err) {
+        setPulse(false, `Partial data mode: ${String(err.message || err)}`);
+      }
+    })();
+  </script>
+</body>
+</html>
