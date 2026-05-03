@@ -31,6 +31,31 @@ From `void-codon-library/` run:
 /usr/bin/python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
+## Distribute on PyPI (when ready)
+
+The build artifacts are already in `dist/`:
+
+```
+dist/void_codon_library-0.1.0-py3-none-any.whl
+dist/void_codon_library-0.1.0.tar.gz
+```
+
+To publish:
+
+```bash
+pip install twine
+twine upload dist/*
+# You will need a PyPI account and API token
+```
+
+Once published, anyone can install it with:
+
+```bash
+pip install void-codon-library
+```
+
+That is the step that makes it external.
+
 ## The Main Positioning Line
 
 This is the codon library artifact itself: the lookup layer, not the whole organism.

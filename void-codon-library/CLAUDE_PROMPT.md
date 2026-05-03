@@ -42,4 +42,17 @@ cd Project-void/void-codon-library
 python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
+**The distributable wheel is already built at:**
+
+```
+void-codon-library/dist/void_codon_library-0.1.0-py3-none-any.whl
+void-codon-library/dist/void_codon_library-0.1.0.tar.gz
+```
+
+Once published to PyPI, users install it with:
+
+```bash
+pip install void-codon-library
+```
+
 **Start by reading `catalog.py`.** That is the one file that contains everything the package delivers.
