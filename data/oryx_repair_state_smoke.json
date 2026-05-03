@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-05-02T01:51:40.604558+00:00",
+  "generated_at": "2026-05-02T21:18:15.820624+00:00",
   "ok": true,
   "mode": "both",
   "scenarios": [
     {
       "scenario": "recoverable",
       "ok": true,
-      "world_id": "7d74c8d0046b",
+      "world_id": "d3a5ec834d5a",
       "summary_repair_state": "recoverable",
       "issue_codes": [
         "recent_repair_events"
@@ -22,7 +22,7 @@
     {
       "scenario": "quarantined",
       "ok": true,
-      "world_id": "624b13980705",
+      "world_id": "c29e675894e0",
       "summary_repair_state": "quarantined",
       "issue_codes": [
         "owner_missing"
@@ -32,10 +32,10 @@
   "persistence": {
     "db_path": "/workspaces/Project-void/data/oryx_repair_state_smoke.db",
     "exists": true,
-    "audit_log_rows": 18,
+    "audit_log_rows": 24,
     "repair_state_counts": {
-      "aligned": 15,
-      "recoverable": 3
+      "aligned": 20,
+      "recoverable": 4
     }
   }
 }
