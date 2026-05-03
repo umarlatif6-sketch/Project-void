@@ -118,6 +118,50 @@ def test_gee_ndvi_value_error_maps_to_400(client, monkeypatch):
     assert payload["chain"] == 286
 
 
+def test_gee_mineral_overlay_requires_authentication(client):
+    response = client.post("/api/gee/mineral-overlay", json={"lat": 30.0, "lon": 70.0})
+    assert response.status_code == 401
+
+
+def test_gee_mineral_overlay_forbidden_for_ghost_tier(client, monkeypatch):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    monkeypatch.setattr("routes.auth._get_effective_tier", lambda _uid: "ghost")
+
+    response = client.post("/api/gee/mineral-overlay", json={"lat": 30.0, "lon": 70.0})
+    assert response.status_code == 403
+    payload = response.get_json()
+    assert payload["required_tier"] == "journalist"
+
+
+def test_gee_mineral_overlay_success(client, monkeypatch):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    monkeypatch.setattr("routes.auth._get_effective_tier", lambda _uid: "journalist")
+    monkeypatch.setattr(
+        "routes.google_earth_engine.compute_mineral_overlay_swir",
+        lambda **_: {
+            "ok": True,
+            "hydrothermal_alteration_proxy_score": 0.71,
+            "screening_only": True,
+            "indices": {"clay_index_b11_div_b12": 1.2},
+        },
+    )
+
+    response = client.post(
+        "/api/gee/mineral-overlay",
+        json={"lat": 28.98, "lon": 64.10, "start_date": "2025-01-01", "end_date": "2025-02-01"},
+    )
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["hydrothermal_alteration_proxy_score"] == 0.71
+    assert payload["screening_only"] is True
+    assert payload["chain"] == 286
+
+
 def test_gee_water_table_trend_requires_authentication(client):
     response = client.post("/api/gee/water-table-trend", json={})
     assert response.status_code == 401

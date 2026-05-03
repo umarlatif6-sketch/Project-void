@@ -11,6 +11,7 @@ from routes.auth import admin_required, login_required, tier_required
 from void_engine.al_jabr_286 import BASE_FREQ, fatiha_286_hexdigest_from_str
 from void_engine.google_earth_engine import (
     calculate_grace_correlation_proxy,
+    compute_mineral_overlay_swir,
     compute_water_table_trend,
     compute_ndvi_snapshot,
     default_date_window,
@@ -175,6 +176,63 @@ def gee_ndvi():
         return _sovereign_response(
             {"ok": False, "error": "gee_execution_failed", "detail": _redact_transport_frequency(str(exc))},
             objective="gee ndvi execution error",
+            status=502,
+        )
+
+
+@gee_bp.route("/api/gee/mineral-overlay", methods=["POST"])
+@tier_required("journalist")
+def gee_mineral_overlay():
+    data = request.get_json(silent=True) or {}
+
+    try:
+        lat = float(data.get("lat"))
+        lon = float(data.get("lon"))
+    except Exception:  # noqa: BLE001
+        return _sovereign_response(
+            {"ok": False, "error": "lat_lon_required"},
+            objective="gee mineral overlay invalid input",
+            status=400,
+        )
+
+    start_date = (data.get("start_date") or "").strip()
+    end_date = (data.get("end_date") or "").strip()
+    if not start_date or not end_date:
+        start_date, end_date = default_date_window(180)
+
+    try:
+        buffer_m = int(data.get("buffer_m", 50_000) or 50_000)
+        max_cloud_pct = float(data.get("max_cloud_pct", 20.0) or 20.0)
+        scale = int(data.get("scale", 20) or 20)
+    except Exception:  # noqa: BLE001
+        return _sovereign_response(
+            {"ok": False, "error": "invalid_numeric_params"},
+            objective="gee mineral overlay invalid numeric params",
+            status=400,
+        )
+
+    try:
+        result = compute_mineral_overlay_swir(
+            lat=lat,
+            lon=lon,
+            start_date=start_date,
+            end_date=end_date,
+            buffer_m=buffer_m,
+            max_cloud_pct=max_cloud_pct,
+            scale=scale,
+        )
+        return _sovereign_response(result, objective=f"gee mineral overlay {lat},{lon}")
+    except ValueError as exc:
+        return _sovereign_response(
+            {"ok": False, "error": str(exc)},
+            objective="gee mineral overlay validation error",
+            status=400,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.error("GEE mineral overlay route failed: %s", exc)
+        return _sovereign_response(
+            {"ok": False, "error": "gee_execution_failed", "detail": _redact_transport_frequency(str(exc))},
+            objective="gee mineral overlay execution error",
             status=502,
         )
 
@@ -414,6 +472,7 @@ def gee_orchestrate_exploration():
 
     include_ndvi = bool(data.get("include_ndvi", True))
     include_water_trend = bool(data.get("include_water_trend", True))
+    include_mineral_overlay = bool(data.get("include_mineral_overlay", True))
     run_agents = bool(data.get("run_agents", True))
     run_adriana_synthesis = bool(data.get("run_adriana_synthesis", True))
 
@@ -423,6 +482,7 @@ def gee_orchestrate_exploration():
         district_keys=district_keys,
         include_ndvi=include_ndvi,
         include_water_trend=include_water_trend,
+        include_mineral_overlay=include_mineral_overlay,
     )
 
     if not gee_result.get("ok"):

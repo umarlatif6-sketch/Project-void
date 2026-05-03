@@ -33,6 +33,9 @@ Operator endpoint:
 - `POST /api/gee/rfq-state` — computes current RFQ trigger state from district key and GRACE correlation (or slope-derived proxy). Access tier: journalist or sovereign.
 - `GET /api/gee/rfq-audit?limit=50` — admin audit feed for RFQ decision events.
 - `POST /api/energy/ion-resurrection/simulate` — internal simulation API for Machine 4000 ion-resurrection planning. Access tier: journalist or sovereign.
+- `POST /api/gee/mineral-overlay` — SWIR-based hydrothermal alteration screening overlay (reconnaissance only). Access tier: journalist or sovereign.
+
+Pakistan district presets now include Chagai and Gilgit-Baltistan for deeper mineral reconnaissance routing.
 
 ---
 

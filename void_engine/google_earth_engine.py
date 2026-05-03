@@ -38,6 +38,18 @@ DISTRICT_PRESETS_PAKISTAN: Dict[str, Dict[str, Any]] = {
         "center": {"lat": 33.35, "lon": 73.1},
         "buffer_m": 45000,
     },
+    "chagai": {
+        "label": "Chagai District",
+        "country": "Pakistan",
+        "center": {"lat": 28.98, "lon": 64.10},
+        "buffer_m": 70000,
+    },
+    "gilgit_baltistan": {
+        "label": "Gilgit-Baltistan",
+        "country": "Pakistan",
+        "center": {"lat": 35.92, "lon": 74.31},
+        "buffer_m": 70000,
+    },
 }
 
 ANOMALY_THRESHOLDS_DEFAULT: Dict[str, Dict[str, float]] = {
@@ -62,6 +74,11 @@ GEE_DATASET_CATALOG: Dict[str, Dict[str, str]] = {
         "id": "NASA/GRACE/MASS_GRIDS/LAND",
         "metric": "lwe_thickness_csr",
         "notes": "Terrestrial water storage anomaly proxy for regional groundwater stress.",
+    },
+    "mineral_overlay_sentinel2_swir": {
+        "id": "COPERNICUS/S2_SR_HARMONIZED",
+        "metric": "hydrothermal_alteration_proxy",
+        "notes": "SWIR-visible alteration proxy from clay and ferric indices for screening.",
     },
 }
 
@@ -530,6 +547,110 @@ def compute_water_table_trend(
     }, objective="gee water table trend", channel="gee-engine")
 
 
+def compute_mineral_overlay_swir(
+    *,
+    lat: float,
+    lon: float,
+    start_date: str,
+    end_date: str,
+    buffer_m: int = 50_000,
+    max_cloud_pct: float = 20.0,
+    scale: int = 20,
+) -> Dict[str, Any]:
+    """
+    Compute hydrothermal alteration screening proxies using Sentinel-2 SWIR.
+    This is a reconnaissance layer only and does not confirm ore presence.
+    """
+    if not (-90.0 <= lat <= 90.0):
+        raise ValueError("invalid_lat")
+    if not (-180.0 <= lon <= 180.0):
+        raise ValueError("invalid_lon")
+    if buffer_m < 500 or buffer_m > 250000:
+        raise ValueError("invalid_buffer_m")
+    if max_cloud_pct < 0 or max_cloud_pct > 100:
+        raise ValueError("invalid_max_cloud_pct")
+    if scale < 10 or scale > 120:
+        raise ValueError("invalid_scale")
+
+    _initialize()
+    ee = _import_ee()
+
+    geometry = ee.Geometry.Point([lon, lat]).buffer(buffer_m)
+    collection = (
+        ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+        .filterBounds(geometry)
+        .filterDate(start_date, end_date)
+        .filter(ee.Filter.lte("CLOUDY_PIXEL_PERCENTAGE", max_cloud_pct))
+        .sort("CLOUDY_PIXEL_PERCENTAGE")
+    )
+
+    count = int(collection.size().getInfo() or 0)
+    if count == 0:
+        return _wrap_sovereign_payload({
+            "ok": True,
+            "lat": lat,
+            "lon": lon,
+            "start_date": start_date,
+            "end_date": end_date,
+            "image_count": 0,
+            "message": "no_imagery_for_filters",
+            "screening_only": True,
+        }, objective="gee mineral overlay swir", channel="gee-engine")
+
+    image = ee.Image(collection.first())
+    clay_index = image.select("B11").divide(image.select("B12")).rename("CLAY")
+    ferric_index = image.select("B4").divide(image.select("B2")).rename("FERRIC")
+    swir_ratio = image.select("B12").divide(image.select("B8A")).rename("SWIR")
+
+    stats = ee.Image.cat([clay_index, ferric_index, swir_ratio]).reduceRegion(
+        reducer=ee.Reducer.mean(),
+        geometry=geometry,
+        scale=scale,
+        bestEffort=True,
+        maxPixels=1_000_000_000,
+    ).getInfo() or {}
+
+    clay_mean = stats.get("CLAY")
+    ferric_mean = stats.get("FERRIC")
+    swir_mean = stats.get("SWIR")
+
+    # Conservative screening score from normalized index means.
+    score_components = []
+    if clay_mean is not None:
+        score_components.append(min(1.0, max(0.0, float(clay_mean) / 2.0)))
+    if ferric_mean is not None:
+        score_components.append(min(1.0, max(0.0, float(ferric_mean) / 3.0)))
+    if swir_mean is not None:
+        score_components.append(min(1.0, max(0.0, float(swir_mean) / 2.0)))
+    prospectivity_score = round(float(sum(score_components) / len(score_components)), 4) if score_components else None
+
+    date_ms = image.get("system:time_start").getInfo()
+    acquired_at = None
+    if date_ms is not None:
+        acquired_at = datetime.fromtimestamp(float(date_ms) / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
+
+    return _wrap_sovereign_payload({
+        "ok": True,
+        "lat": lat,
+        "lon": lon,
+        "start_date": start_date,
+        "end_date": end_date,
+        "image_count": count,
+        "acquired_at": acquired_at,
+        "dataset": "COPERNICUS/S2_SR_HARMONIZED",
+        "indices": {
+            "clay_index_b11_div_b12": clay_mean,
+            "ferric_index_b4_div_b2": ferric_mean,
+            "swir_ratio_b12_div_b8a": swir_mean,
+        },
+        "hydrothermal_alteration_proxy_score": prospectivity_score,
+        "screening_only": True,
+        "note": "Remote-sensing screening only; not a reserve or ore confirmation.",
+        "buffer_m": buffer_m,
+        "scale_m": scale,
+    }, objective="gee mineral overlay swir", channel="gee-engine")
+
+
 def run_gee_exploration_orchestration(
     *,
     start_date: str,
@@ -537,6 +658,7 @@ def run_gee_exploration_orchestration(
     district_keys: list[str] | None = None,
     include_ndvi: bool = True,
     include_water_trend: bool = True,
+    include_mineral_overlay: bool = True,
 ) -> Dict[str, Any]:
     presets = DISTRICT_PRESETS_PAKISTAN
     selected_keys = district_keys or list(presets.keys())
@@ -589,6 +711,20 @@ def run_gee_exploration_orchestration(
             except Exception as exc:  # noqa: BLE001
                 result["water_trend"] = {"ok": False, "error": str(exc)}
 
+        if include_mineral_overlay:
+            try:
+                result["mineral_overlay"] = compute_mineral_overlay_swir(
+                    lat=lat,
+                    lon=lon,
+                    start_date=start_date,
+                    end_date=end_date,
+                    buffer_m=max(buffer_m, 50000),
+                    max_cloud_pct=20.0,
+                    scale=20,
+                )
+            except Exception as exc:  # noqa: BLE001
+                result["mineral_overlay"] = {"ok": False, "error": str(exc)}
+
         slope = None
         ndvi_mean = None
         if isinstance(result.get("water_trend"), dict):
@@ -619,6 +755,11 @@ def run_gee_exploration_orchestration(
 
     severe = [r for r in district_results if r.get("anomaly", {}).get("severity") in {"warning", "critical"}]
     rfq_triggered = [r for r in district_results if r.get("rfq_signal", {}).get("rfq_triggered")]
+    mineral_hotspots = [
+        r for r in district_results
+        if isinstance(r.get("mineral_overlay"), dict)
+        and (r["mineral_overlay"].get("hydrothermal_alteration_proxy_score") or 0) >= 0.65
+    ]
 
     return _wrap_sovereign_payload({
         "ok": True,
@@ -628,5 +769,6 @@ def run_gee_exploration_orchestration(
         "district_results": district_results,
         "warning_or_critical_count": len(severe),
         "rfq_trigger_count": len(rfq_triggered),
+        "mineral_hotspot_count": len(mineral_hotspots),
         "catalog": GEE_DATASET_CATALOG,
     }, objective="gee orchestration engine exploration", channel="gee-engine")
