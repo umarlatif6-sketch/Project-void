@@ -262,6 +262,79 @@ def test_gee_rfq_audit_success(client, monkeypatch, tmp_path):
     assert payload["events"][0]["district_key"] == "soan_valley"
 
 
+def test_ion_resurrection_sim_requires_authentication(client):
+    response = client.post("/api/energy/ion-resurrection/simulate", json={})
+    assert response.status_code == 401
+
+
+def test_ion_resurrection_sim_forbidden_for_ghost_tier(client, monkeypatch):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    monkeypatch.setattr("routes.auth._get_effective_tier", lambda _uid: "ghost")
+
+    response = client.post("/api/energy/ion-resurrection/simulate", json={})
+    assert response.status_code == 403
+    payload = response.get_json()
+    assert payload["required_tier"] == "journalist"
+
+
+def test_ion_resurrection_sim_success(client, monkeypatch):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    monkeypatch.setattr("routes.auth._get_effective_tier", lambda _uid: "journalist")
+
+    class _FakeModule:
+        class BatterySample:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+        class EnvironmentProfile:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+        class IonResurrector:
+            def __init__(self, target_frequency_hz=432.0):
+                self.target_frequency_hz = target_frequency_hz
+
+            def execute_protocol(self, **_kwargs):
+                return {
+                    "ok": True,
+                    "state": "RE-ANIMATED",
+                    "drift_score": 0.91,
+                    "target_frequency_hz": 436.2,
+                    "pwm_plan": {"profile": "resurrection_heavy"},
+                }
+
+    monkeypatch.setattr("routes.google_earth_engine._get_ion_resurrection_module", lambda: _FakeModule)
+
+    response = client.post(
+        "/api/energy/ion-resurrection/simulate",
+        json={
+            "district_key": "soan_valley",
+            "water_trend_slope_cm_per_year": -1.1,
+            "sample": {
+                "chemistry": "li_ion",
+                "open_circuit_voltage_v": 2.9,
+                "nominal_voltage_v": 3.7,
+                "internal_resistance_mohm": 210,
+                "state_of_health_pct": 58,
+            },
+            "environment": {
+                "temperature_c": 33,
+                "relative_humidity_pct": 67,
+                "region": "Pakistan",
+            },
+        },
+    )
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["state"] == "RE-ANIMATED"
+    assert payload["chain"] == 286
+
+
 def test_gee_orchestrate_exploration_requires_admin(client):
     response = client.post("/api/gee/orchestrate-exploration", json={})
     assert response.status_code == 401

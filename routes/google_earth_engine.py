@@ -3,6 +3,7 @@ import os
 import json
 import time
 import re
+import importlib.util
 from pathlib import Path
 from flask import Blueprint, jsonify, request, session
 
@@ -27,6 +28,7 @@ gee_bp = Blueprint("google_earth_engine", __name__)
 
 _ROOT = Path(__file__).resolve().parents[1]
 _RFQ_AUDIT_LOG_PATH = _ROOT / "data" / "rfq_audit_log.jsonl"
+_ION_RESURRECTION_MODULE_PATH = _ROOT / "infrastructure" / "energy_systems" / "ion_resurrection.py"
 
 _TRANSPORT_REDACTION = "[external-transport-redacted]"
 _LEAK_PATTERNS = [
@@ -95,6 +97,22 @@ def _read_rfq_audit_events(limit: int = 50) -> list[dict]:
     if limit <= 0:
         return rows
     return rows[-limit:]
+
+
+def _get_ion_resurrection_module():
+    if not _ION_RESURRECTION_MODULE_PATH.exists():
+        raise FileNotFoundError(f"missing_module: {_ION_RESURRECTION_MODULE_PATH}")
+
+    spec = importlib.util.spec_from_file_location(
+        "void_ion_resurrection",
+        _ION_RESURRECTION_MODULE_PATH,
+    )
+    if not spec or not spec.loader:
+        raise RuntimeError("ion_resurrection_module_load_failed")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 @gee_bp.route("/api/gee/status", methods=["GET"])
@@ -307,6 +325,77 @@ def gee_rfq_audit():
         },
         objective="gee rfq audit read",
     )
+
+
+@gee_bp.route("/api/energy/ion-resurrection/simulate", methods=["POST"])
+@tier_required("journalist")
+def ion_resurrection_simulate():
+    data = request.get_json(silent=True) or {}
+
+    sample = data.get("sample") or {}
+    env = data.get("environment") or {}
+
+    try:
+        chemistry = str(sample.get("chemistry") or "li_ion")
+        open_circuit_voltage_v = float(sample.get("open_circuit_voltage_v", 3.0))
+        nominal_voltage_v = float(sample.get("nominal_voltage_v", 3.7))
+        internal_resistance_mohm = float(sample.get("internal_resistance_mohm", 180.0))
+        state_of_health_pct = float(sample.get("state_of_health_pct", 65.0))
+
+        temperature_c = float(env.get("temperature_c", 30.0))
+        relative_humidity_pct = float(env.get("relative_humidity_pct", 60.0))
+        region = str(env.get("region") or "Pakistan")
+
+        target_frequency_hz = float(data.get("target_frequency_hz", 432.0))
+        district_key = str(data.get("district_key") or "soan_valley")
+        water_trend_slope_cm_per_year = data.get("water_trend_slope_cm_per_year")
+        water_trend_slope_cm_per_year = (
+            float(water_trend_slope_cm_per_year)
+            if water_trend_slope_cm_per_year is not None
+            else None
+        )
+    except Exception:  # noqa: BLE001
+        return _sovereign_response(
+            {"ok": False, "error": "invalid_numeric_params"},
+            objective="ion resurrection invalid params",
+            status=400,
+            channel="energy",
+        )
+
+    try:
+        mod = _get_ion_resurrection_module()
+        resurrector = mod.IonResurrector(target_frequency_hz=target_frequency_hz)
+        sample_obj = mod.BatterySample(
+            chemistry=chemistry,
+            open_circuit_voltage_v=open_circuit_voltage_v,
+            nominal_voltage_v=nominal_voltage_v,
+            internal_resistance_mohm=internal_resistance_mohm,
+            state_of_health_pct=state_of_health_pct,
+        )
+        env_obj = mod.EnvironmentProfile(
+            temperature_c=temperature_c,
+            relative_humidity_pct=relative_humidity_pct,
+            region=region,
+        )
+        result = resurrector.execute_protocol(
+            sample=sample_obj,
+            env=env_obj,
+            district_key=district_key,
+            water_trend_slope_cm_per_year=water_trend_slope_cm_per_year,
+        )
+        return _sovereign_response(
+            result,
+            objective=f"ion resurrection simulate {district_key}",
+            channel="energy",
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Ion resurrection simulation failed: %s", exc)
+        return _sovereign_response(
+            {"ok": False, "error": "simulation_failed", "detail": _redact_transport_frequency(str(exc))},
+            objective="ion resurrection simulation error",
+            status=502,
+            channel="energy",
+        )
 
 
 @gee_bp.route("/api/gee/orchestrate-exploration", methods=["POST"])

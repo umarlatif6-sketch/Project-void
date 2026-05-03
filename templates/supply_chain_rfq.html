@@ -191,6 +191,11 @@
         }
         .rfq-ops-status.warn { color: #d97706; }
         .rfq-ops-status.ok { color: #10b981; }
+        .rfq-ops-divider {
+            border-top: 1px solid #1d1d2d;
+            margin: 12px 0;
+            padding-top: 12px;
+        }
 
         /* RFQ DOCUMENT */
         .rfq-doc-wrap {
@@ -350,6 +355,51 @@
             <button id="rfqCheckBtn" class="rfq-ops-btn" type="button">Compute RFQ State</button>
             <div id="rfqStatus" class="rfq-ops-status"></div>
         </div>
+
+        <div class="rfq-ops-divider">
+            <div class="rfq-ops-title">Ion Resurrection Simulation</div>
+            <div class="rfq-ops-grid">
+                <div class="rfq-ops-field">
+                    <label for="ionChemistry">Chemistry</label>
+                    <select id="ionChemistry">
+                        <option value="li_ion" selected>Li-Ion</option>
+                        <option value="lead_acid">Lead-Acid</option>
+                    </select>
+                </div>
+                <div class="rfq-ops-field">
+                    <label for="ionOcv">Open-Circuit Voltage (V)</label>
+                    <input id="ionOcv" type="number" step="0.01" value="2.90">
+                </div>
+                <div class="rfq-ops-field">
+                    <label for="ionNominal">Nominal Voltage (V)</label>
+                    <input id="ionNominal" type="number" step="0.01" value="3.70">
+                </div>
+                <div class="rfq-ops-field">
+                    <label for="ionResistance">Internal Resistance (mOhm)</label>
+                    <input id="ionResistance" type="number" step="0.1" value="210">
+                </div>
+                <div class="rfq-ops-field">
+                    <label for="ionSoh">State of Health (%)</label>
+                    <input id="ionSoh" type="number" step="0.1" value="58">
+                </div>
+                <div class="rfq-ops-field">
+                    <label for="ionTemp">Temperature (C)</label>
+                    <input id="ionTemp" type="number" step="0.1" value="33">
+                </div>
+                <div class="rfq-ops-field">
+                    <label for="ionHumidity">Humidity (%)</label>
+                    <input id="ionHumidity" type="number" step="0.1" value="67">
+                </div>
+                <div class="rfq-ops-field">
+                    <label for="ionSlope">Water Slope (cm/yr)</label>
+                    <input id="ionSlope" type="number" step="0.01" value="-1.10">
+                </div>
+            </div>
+            <div class="rfq-ops-actions">
+                <button id="ionSimBtn" class="rfq-ops-btn" type="button">Run Ion Sim</button>
+                <div id="ionStatus" class="rfq-ops-status"></div>
+            </div>
+        </div>
     </div>
 
     <div class="rfq-doc-wrap">
@@ -425,6 +475,8 @@
             const dryEl = document.getElementById("rfqDry");
             const btn = document.getElementById("rfqCheckBtn");
             const statusEl = document.getElementById("rfqStatus");
+            const ionSimBtn = document.getElementById("ionSimBtn");
+            const ionStatus = document.getElementById("ionStatus");
 
             if (!btn) {
                 return;
@@ -471,6 +523,58 @@
                     statusEl.className = "rfq-ops-status warn";
                 }
             });
+
+            if (ionSimBtn) {
+                ionSimBtn.addEventListener("click", async function () {
+                    ionStatus.textContent = "Running ion simulation...";
+                    ionStatus.className = "rfq-ops-status";
+
+                    const payload = {
+                        district_key: districtEl.value,
+                        water_trend_slope_cm_per_year: Number(document.getElementById("ionSlope").value),
+                        sample: {
+                            chemistry: document.getElementById("ionChemistry").value,
+                            open_circuit_voltage_v: Number(document.getElementById("ionOcv").value),
+                            nominal_voltage_v: Number(document.getElementById("ionNominal").value),
+                            internal_resistance_mohm: Number(document.getElementById("ionResistance").value),
+                            state_of_health_pct: Number(document.getElementById("ionSoh").value),
+                        },
+                        environment: {
+                            temperature_c: Number(document.getElementById("ionTemp").value),
+                            relative_humidity_pct: Number(document.getElementById("ionHumidity").value),
+                            region: "Pakistan",
+                        },
+                    };
+
+                    try {
+                        const response = await fetch("/api/energy/ion-resurrection/simulate", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "same-origin",
+                            body: JSON.stringify(payload),
+                        });
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            ionStatus.textContent = data.error || "Ion simulation failed";
+                            ionStatus.className = "rfq-ops-status warn";
+                            return;
+                        }
+
+                        const line = [
+                            "state=" + String(data.state),
+                            "drift=" + String(data.drift_score),
+                            "freq=" + String(data.target_frequency_hz) + "Hz",
+                            "profile=" + String((data.pwm_plan || {}).profile),
+                        ].join(" | ");
+                        ionStatus.textContent = line;
+                        ionStatus.className = "rfq-ops-status ok";
+                    } catch (err) {
+                        ionStatus.textContent = "network or auth error";
+                        ionStatus.className = "rfq-ops-status warn";
+                    }
+                });
+            }
         })();
     </script>
 </body>
