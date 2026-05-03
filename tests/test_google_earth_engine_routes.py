@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 import sys
+import hashlib
+import json
 
 import pytest
 from flask import Flask
@@ -448,6 +450,80 @@ def test_wearable_ingest_success(client, monkeypatch, tmp_path):
     assert payload["ok"] is True
     assert payload["device_id"] == "node-001"
     assert payload["chain"] == 286
+
+
+def test_wearable_ingest_checksum_mismatch(client, monkeypatch):
+    monkeypatch.setenv("VOID_WEARABLE_INGEST_TOKEN", "abc123")
+
+    profile = {
+        "device_id": "node-001",
+        "device_type": "hybrid_skin_node",
+        "sampling_hz": 128,
+        "channels": [
+            {"name": "eeg_alpha", "unit": "uV", "min": 0.0, "max": 1.0},
+            {"name": "eeg_beta", "unit": "uV", "min": 0.0, "max": 1.0},
+            {"name": "emg_rms", "unit": "mV", "min": 0.0, "max": 2.0},
+            {"name": "gsr_uS", "unit": "uS", "min": 0.0, "max": 20.0},
+        ],
+    }
+    values = {"eeg_alpha": 0.7, "eeg_beta": 0.6, "emg_rms": 0.3, "gsr_uS": 5.0}
+
+    response = client.post(
+        "/api/wearable/ingest",
+        headers={"Authorization": "Bearer abc123"},
+        json={
+            "device_profile": profile,
+            "sensor_values": values,
+            "timestamp": 1234.0,
+            "checksum_sha256": "0" * 64,
+        },
+    )
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "checksum_mismatch"
+
+
+def test_wearable_ingest_checksum_and_retry_success(client, monkeypatch):
+    monkeypatch.setenv("VOID_WEARABLE_INGEST_TOKEN", "abc123")
+
+    profile = {
+        "device_id": "node-001",
+        "device_type": "hybrid_skin_node",
+        "sampling_hz": 128,
+        "channels": [
+            {"name": "eeg_alpha", "unit": "uV", "min": 0.0, "max": 1.0},
+            {"name": "eeg_beta", "unit": "uV", "min": 0.0, "max": 1.0},
+            {"name": "emg_rms", "unit": "mV", "min": 0.0, "max": 2.0},
+            {"name": "gsr_uS", "unit": "uS", "min": 0.0, "max": 20.0},
+        ],
+    }
+    values = {"eeg_alpha": 0.7, "eeg_beta": 0.6, "emg_rms": 0.3, "gsr_uS": 5.0}
+    ts = 1234.0
+    canonical = {
+        "device_profile": profile,
+        "sensor_values": values,
+        "timestamp": ts,
+    }
+    checksum = hashlib.sha256(
+        json.dumps(canonical, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    ).hexdigest()
+
+    response = client.post(
+        "/api/wearable/ingest",
+        headers={"Authorization": "Bearer abc123"},
+        json={
+            "packet_id": "fw-node-001-1",
+            "device_profile": profile,
+            "sensor_values": values,
+            "timestamp": ts,
+            "retry_count": 1,
+            "checksum_sha256": checksum,
+        },
+    )
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["checksum_verified"] is True
+    assert payload["retry_count"] == 1
+    assert payload["packet_id"] == "fw-node-001-1"
 
 
 def test_wearable_audit_requires_admin(client):

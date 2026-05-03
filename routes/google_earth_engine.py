@@ -5,6 +5,7 @@ import time
 import re
 import importlib.util
 import secrets
+import hashlib
 from pathlib import Path
 from flask import Blueprint, jsonify, request, session
 
@@ -139,6 +140,16 @@ def _read_wearable_audit_events(limit: int = 50) -> list[dict]:
     return rows[-max(1, min(limit, 500)):]
 
 
+def _wearable_checksum_payload(*, device_profile: dict, sensor_values: dict, timestamp: float | None) -> str:
+    canonical = {
+        "device_profile": device_profile,
+        "sensor_values": sensor_values,
+        "timestamp": timestamp,
+    }
+    encoded = json.dumps(canonical, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def _get_ion_resurrection_module():
     if not _ION_RESURRECTION_MODULE_PATH.exists():
         raise FileNotFoundError(f"missing_module: {_ION_RESURRECTION_MODULE_PATH}")
@@ -198,7 +209,14 @@ def wearable_ingest():
         )
 
     data = request.get_json(silent=True) or {}
-    allowed = {"device_profile", "sensor_values", "timestamp"}
+    allowed = {
+        "device_profile",
+        "sensor_values",
+        "timestamp",
+        "packet_id",
+        "checksum_sha256",
+        "retry_count",
+    }
     extras = sorted(set(data.keys()) - allowed)
     if extras:
         return _sovereign_response(
@@ -211,6 +229,9 @@ def wearable_ingest():
     device_profile = data.get("device_profile")
     sensor_values = data.get("sensor_values")
     timestamp = data.get("timestamp")
+    packet_id = str(data.get("packet_id") or "").strip()
+    checksum_sha256 = str(data.get("checksum_sha256") or "").strip().lower()
+    retry_count = data.get("retry_count", 0)
 
     if not isinstance(device_profile, dict):
         return _sovereign_response(
@@ -227,9 +248,18 @@ def wearable_ingest():
             channel="wearable",
         )
 
+    if packet_id and (len(packet_id) > 96 or not re.fullmatch(r"[A-Za-z0-9_\-:.]+", packet_id)):
+        return _sovereign_response(
+            {"ok": False, "error": "invalid_packet_id"},
+            objective="wearable ingest invalid packet id",
+            status=400,
+            channel="wearable",
+        )
+
     try:
         clean_values = {str(k): float(v) for k, v in sensor_values.items()}
         ts = float(timestamp) if timestamp is not None else None
+        retry_count = int(retry_count)
     except Exception:  # noqa: BLE001
         return _sovereign_response(
             {"ok": False, "error": "invalid_numeric_payload"},
@@ -237,6 +267,35 @@ def wearable_ingest():
             status=400,
             channel="wearable",
         )
+
+    if retry_count < 0 or retry_count > 10:
+        return _sovereign_response(
+            {"ok": False, "error": "invalid_retry_count"},
+            objective="wearable ingest invalid retry",
+            status=400,
+            channel="wearable",
+        )
+
+    if checksum_sha256:
+        if not re.fullmatch(r"[0-9a-f]{64}", checksum_sha256):
+            return _sovereign_response(
+                {"ok": False, "error": "invalid_checksum_format"},
+                objective="wearable ingest invalid checksum format",
+                status=400,
+                channel="wearable",
+            )
+        expected_checksum = _wearable_checksum_payload(
+            device_profile=device_profile,
+            sensor_values=clean_values,
+            timestamp=ts,
+        )
+        if not secrets.compare_digest(checksum_sha256, expected_checksum):
+            return _sovereign_response(
+                {"ok": False, "error": "checksum_mismatch"},
+                objective="wearable ingest checksum mismatch",
+                status=400,
+                channel="wearable",
+            )
 
     translated = translate_sensor_packet(
         device_profile=device_profile,
@@ -253,6 +312,9 @@ def wearable_ingest():
 
     _append_wearable_audit_event({
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "packet_id": packet_id or None,
+        "retry_count": retry_count,
+        "checksum_present": bool(checksum_sha256),
         "device_id": translated.get("device_id"),
         "device_type": translated.get("device_type"),
         "state": translated.get("state"),
@@ -262,7 +324,12 @@ def wearable_ingest():
     })
 
     return _sovereign_response(
-        translated,
+        {
+            **translated,
+            "packet_id": packet_id or None,
+            "retry_count": retry_count,
+            "checksum_verified": bool(checksum_sha256),
+        },
         objective=f"wearable ingest {translated.get('device_id')}",
         channel="wearable",
     )

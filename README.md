@@ -43,6 +43,8 @@ Pakistan district presets now include Chagai and Gilgit-Baltistan for deeper min
 Build reference:
 
 - `infrastructure/wearables/WEEK1_BUILD_BLUEPRINT.md` — one-week fast-build plan and web-verified materials list.
+- `infrastructure/wearables/FIRMWARE_PACKET_SPEC.md` — edge packet format, checksum canonicalization, and retry policy.
+- `scripts/send_wearable_packet.py` — runnable sender example for immediate endpoint validation.
 
 ---
 
