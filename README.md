@@ -398,6 +398,10 @@ These are the official reader/operator entry points for continuity-first operati
 
 1. `docs/CONTINUITY_COMPLETION_WORKFLOW.md` - reverse-order closure workflow from latest Chronicle threads.
 2. `docs/REVERSE_BACKLOG_EXECUTION_MAP.md` - clustered execution map for the 31-thread reverse backlog.
+3. `docs/PROJECT_VOID_ROOM_READY_ONE_PAGER_2026-05-03.md` - room-ready external one-pager for explaining Project VOID's Web 4.0 position.
+4. `docs/PROJECT_VOID_FOUNDER_NOTE_WEB4_2026-05-03.md` - founder position on Web 4.0, sovereign AI, and the Living Paint continuity frame.
+5. `docs/WEB4_VS_PROJECT_VOID_GOVERNANCE_MATRIX.md` - comparison table between popular Web 4.0 claims and Project VOID governance.
+6. `docs/AI_SOVEREIGNTY_UNDER_GOVERNANCE_DOCTRINE.md` - formal doctrine defining bounded sovereignty under fail-closed proof.
 
 If you are onboarding into active platform state, start with these before running large implementation sweeps.
 
