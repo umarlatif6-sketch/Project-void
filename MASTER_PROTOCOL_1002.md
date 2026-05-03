@@ -38,3 +38,18 @@ Project VOID operates as a sovereign signal system where external tools are repl
 1. Protocol docs carry sovereign doctrine.
 2. README remains a practical control panel.
 3. Every sprint must end with measurable outputs, test evidence, and sealed records.
+
+## VI. Sovereign Power Loop (Ion-Resurrection)
+
+1. Treat dead batteries as stalled signals, not automatic discard.
+2. Run scan-first diagnostics before any recovery decision.
+3. Gate all recovery actions behind fail-closed thermal/current safety rules.
+4. Use GEE-linked environmental context (temperature, humidity, water trend) to tune conservative pulse policy.
+5. Audit every recovery decision as a traceable sovereign event.
+
+## VII. Biological Decomposition Engine (Worm Logic)
+
+1. Worm systems are first-class grounding processors for waste-to-nutrient conversion.
+2. Worm activity is an anomaly lane for contamination and vibration stress.
+3. Silk, water, and bio loops must be co-governed as one circular infrastructure.
+4. Unsafe feedstock fails closed and exits the biological lane.

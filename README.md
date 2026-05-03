@@ -23,6 +23,10 @@ The repository now includes a physical codon layer for silk logistics, conductiv
 - `infrastructure/mesh_nodes/silk_road_2_0_mesh.md` — China-Pakistan node topology and transfer law.
 - `infrastructure/mesh_nodes/artisan_mesh.md` — Islamabad/Faisalabad handshake schema.
 - `infrastructure/mesh_nodes/artisan_directory_template.json` — protected, non-sensitive artisan registry template.
+- `infrastructure/energy_systems/energy_resurrection_schematic.md` — Machine 4000 ion-resurrection architecture and safety scope.
+- `infrastructure/energy_systems/ion_resurrection.py` — simulation control lane for drift scan, PWM planning, and GEE-coupled policy.
+- `infrastructure/energy_systems/duracell_to_void_conversion_table.md` — replacement-vs-resurrection node economics table.
+- `infrastructure/biological_systems/worm_grounding_protocol.md` — biological grounding protocol for decomposition and anomaly sensing.
 
 Operator endpoint:
 
