@@ -184,9 +184,12 @@ def test_gee_rfq_state_requires_authentication(client):
     assert response.status_code == 401
 
 
-def test_gee_rfq_state_success(client, monkeypatch):
+def test_gee_rfq_state_success(client, monkeypatch, tmp_path):
     with client.session_transaction() as session:
         session["user_id"] = 1
+
+    monkeypatch.setattr("routes.auth._get_effective_tier", lambda _uid: "journalist")
+    monkeypatch.setattr("routes.google_earth_engine._RFQ_AUDIT_LOG_PATH", tmp_path / "rfq_state_log.jsonl")
 
     monkeypatch.setattr(
         "routes.google_earth_engine.calculate_grace_correlation_proxy",
@@ -213,6 +216,50 @@ def test_gee_rfq_state_success(client, monkeypatch):
     assert payload["district_key"] == "soan_valley"
     assert payload["rfq_triggered"] is True
     assert payload["chain"] == 286
+
+
+def test_gee_rfq_state_forbidden_for_ghost_tier(client, monkeypatch):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    monkeypatch.setattr("routes.auth._get_effective_tier", lambda _uid: "ghost")
+
+    response = client.post(
+        "/api/gee/rfq-state",
+        json={"district_key": "soan_valley", "water_trend_slope_cm_per_year": -1.2},
+    )
+    assert response.status_code == 403
+    payload = response.get_json()
+    assert payload["required_tier"] == "journalist"
+
+
+def test_gee_rfq_audit_requires_admin(client):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+
+    response = client.get("/api/gee/rfq-audit")
+    assert response.status_code == 403
+
+
+def test_gee_rfq_audit_success(client, monkeypatch, tmp_path):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+        session["role"] = "admin"
+
+    log_path = tmp_path / "rfq_audit_log.jsonl"
+    monkeypatch.setattr("routes.google_earth_engine._RFQ_AUDIT_LOG_PATH", log_path)
+
+    log_path.write_text(
+        "{\"timestamp\":\"2026-05-03T00:00:00Z\",\"district_key\":\"soan_valley\",\"rfq_triggered\":true}\n",
+        encoding="utf-8",
+    )
+
+    response = client.get("/api/gee/rfq-audit?limit=10")
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["event_count"] == 1
+    assert payload["events"][0]["district_key"] == "soan_valley"
 
 
 def test_gee_orchestrate_exploration_requires_admin(client):

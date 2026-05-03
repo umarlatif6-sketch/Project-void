@@ -3,9 +3,10 @@ import os
 import json
 import time
 import re
-from flask import Blueprint, jsonify, request
+from pathlib import Path
+from flask import Blueprint, jsonify, request, session
 
-from routes.auth import admin_required, login_required
+from routes.auth import admin_required, login_required, tier_required
 from void_engine.al_jabr_286 import BASE_FREQ, fatiha_286_hexdigest_from_str
 from void_engine.google_earth_engine import (
     calculate_grace_correlation_proxy,
@@ -23,6 +24,9 @@ from void_engine.openclaw_bridge import build_sovereign_bridge_packet
 
 logger = logging.getLogger(__name__)
 gee_bp = Blueprint("google_earth_engine", __name__)
+
+_ROOT = Path(__file__).resolve().parents[1]
+_RFQ_AUDIT_LOG_PATH = _ROOT / "data" / "rfq_audit_log.jsonl"
 
 _TRANSPORT_REDACTION = "[external-transport-redacted]"
 _LEAK_PATTERNS = [
@@ -66,6 +70,31 @@ def _wrap_sovereign_payload(payload: dict, objective: str, channel: str = "gee")
 
 def _sovereign_response(payload: dict, objective: str, status: int = 200, channel: str = "gee"):
     return jsonify(_wrap_sovereign_payload(payload, objective=objective, channel=channel)), status
+
+
+def _append_rfq_audit_event(event: dict) -> None:
+    _RFQ_AUDIT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with _RFQ_AUDIT_LOG_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(event, sort_keys=True, default=str) + "\n")
+
+
+def _read_rfq_audit_events(limit: int = 50) -> list[dict]:
+    if not _RFQ_AUDIT_LOG_PATH.exists():
+        return []
+
+    rows: list[dict] = []
+    with _RFQ_AUDIT_LOG_PATH.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    if limit <= 0:
+        return rows
+    return rows[-limit:]
 
 
 @gee_bp.route("/api/gee/status", methods=["GET"])
@@ -206,7 +235,7 @@ def gee_anomaly_thresholds():
 
 
 @gee_bp.route("/api/gee/rfq-state", methods=["POST"])
-@login_required
+@tier_required("journalist")
 def gee_rfq_state():
     data = request.get_json(silent=True) or {}
 
@@ -237,7 +266,47 @@ def gee_rfq_state():
         water_trend_slope_cm_per_year=water_slope,
         dry_period=dry_period,
     )
+
+    audit_event = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "user_id": session.get("user_id"),
+        "tier": session.get("tier"),
+        "district_key": district_key,
+        "grace_correlation": grace_correlation,
+        "water_trend_slope_cm_per_year": water_slope,
+        "dry_period": dry_period,
+        "rfq_triggered": result.get("rfq_triggered"),
+        "rfq_profile": result.get("rfq_profile"),
+        "sovereign_packet_id": result.get("sovereign_packet_id"),
+    }
+    _append_rfq_audit_event(audit_event)
+
     return _sovereign_response(result, objective=f"gee rfq state {district_key}")
+
+
+@gee_bp.route("/api/gee/rfq-audit", methods=["GET"])
+@admin_required
+def gee_rfq_audit():
+    try:
+        limit = int(request.args.get("limit", 50) or 50)
+    except Exception:  # noqa: BLE001
+        return _sovereign_response(
+            {"ok": False, "error": "invalid_limit"},
+            objective="gee rfq audit invalid limit",
+            status=400,
+        )
+
+    limit = max(1, min(limit, 500))
+    events = _read_rfq_audit_events(limit=limit)
+    return _sovereign_response(
+        {
+            "ok": True,
+            "limit": limit,
+            "event_count": len(events),
+            "events": events,
+        },
+        objective="gee rfq audit read",
+    )
 
 
 @gee_bp.route("/api/gee/orchestrate-exploration", methods=["POST"])

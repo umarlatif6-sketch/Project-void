@@ -26,7 +26,8 @@ The repository now includes a physical codon layer for silk logistics, conductiv
 
 Operator endpoint:
 
-- `POST /api/gee/rfq-state` — computes current RFQ trigger state from district key and GRACE correlation (or slope-derived proxy).
+- `POST /api/gee/rfq-state` — computes current RFQ trigger state from district key and GRACE correlation (or slope-derived proxy). Access tier: journalist or sovereign.
+- `GET /api/gee/rfq-audit?limit=50` — admin audit feed for RFQ decision events.
 
 ---
 

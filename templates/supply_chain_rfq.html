@@ -127,6 +127,71 @@
         }
         .rfq-print-btn:hover { background: rgba(201,168,76,0.14); }
 
+        .rfq-ops-panel {
+            max-width: 860px;
+            margin: 0 auto 18px;
+            padding: 16px;
+            background: rgba(12,12,18,0.9);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .rfq-ops-title {
+            color: var(--gold);
+            font-size: 0.68rem;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .rfq-ops-grid {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            margin-bottom: 10px;
+        }
+        .rfq-ops-field label {
+            display: block;
+            font-size: 0.62rem;
+            color: #777;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .rfq-ops-field input,
+        .rfq-ops-field select {
+            width: 100%;
+            padding: 8px 10px;
+            background: #090910;
+            border: 1px solid #202033;
+            color: #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.74rem;
+        }
+        .rfq-ops-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .rfq-ops-btn {
+            padding: 8px 14px;
+            border: 1px solid rgba(45,212,191,0.4);
+            background: rgba(45,212,191,0.08);
+            color: var(--teal);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.65rem;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .rfq-ops-status {
+            font-size: 0.72rem;
+            color: #aaa;
+            min-height: 18px;
+        }
+        .rfq-ops-status.warn { color: #d97706; }
+        .rfq-ops-status.ok { color: #10b981; }
+
         /* RFQ DOCUMENT */
         .rfq-doc-wrap {
             max-width: 860px;
@@ -254,6 +319,39 @@
         </div>
     </div>
 
+    <div class="rfq-ops-panel">
+        <div class="rfq-ops-title">Operator RFQ State</div>
+        <div class="rfq-ops-grid">
+            <div class="rfq-ops-field">
+                <label for="rfqDistrict">District</label>
+                <select id="rfqDistrict">
+                    <option value="soan_valley" selected>Soan Valley</option>
+                    <option value="islamabad">Islamabad</option>
+                    <option value="lahore">Lahore</option>
+                </select>
+            </div>
+            <div class="rfq-ops-field">
+                <label for="rfqSlope">Water Slope (cm/yr)</label>
+                <input id="rfqSlope" type="number" step="0.01" value="-1.10">
+            </div>
+            <div class="rfq-ops-field">
+                <label for="rfqCorrelation">GRACE Correlation (optional)</label>
+                <input id="rfqCorrelation" type="number" step="0.01" min="0" max="1" placeholder="auto from slope">
+            </div>
+            <div class="rfq-ops-field">
+                <label for="rfqDry">Dry Period</label>
+                <select id="rfqDry">
+                    <option value="false" selected>false</option>
+                    <option value="true">true</option>
+                </select>
+            </div>
+        </div>
+        <div class="rfq-ops-actions">
+            <button id="rfqCheckBtn" class="rfq-ops-btn" type="button">Compute RFQ State</button>
+            <div id="rfqStatus" class="rfq-ops-status"></div>
+        </div>
+    </div>
+
     <div class="rfq-doc-wrap">
         {% for cat_id, tmpl in templates.items() %}
         <div class="rfq-doc" id="rfq-{{ cat_id }}">
@@ -319,5 +417,61 @@
         {% if not loop.last %}<hr class="rfq-separator">{% endif %}
         {% endfor %}
     </div>
+    <script>
+        (function () {
+            const districtEl = document.getElementById("rfqDistrict");
+            const slopeEl = document.getElementById("rfqSlope");
+            const corrEl = document.getElementById("rfqCorrelation");
+            const dryEl = document.getElementById("rfqDry");
+            const btn = document.getElementById("rfqCheckBtn");
+            const statusEl = document.getElementById("rfqStatus");
+
+            if (!btn) {
+                return;
+            }
+
+            btn.addEventListener("click", async function () {
+                statusEl.textContent = "Checking RFQ state...";
+                statusEl.className = "rfq-ops-status";
+
+                const payload = {
+                    district_key: districtEl.value,
+                    water_trend_slope_cm_per_year: slopeEl.value === "" ? null : Number(slopeEl.value),
+                    dry_period: dryEl.value === "true",
+                };
+
+                if (corrEl.value !== "") {
+                    payload.grace_correlation = Number(corrEl.value);
+                }
+
+                try {
+                    const response = await fetch("/api/gee/rfq-state", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "same-origin",
+                        body: JSON.stringify(payload),
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        statusEl.textContent = data.error || "RFQ request failed";
+                        statusEl.className = "rfq-ops-status warn";
+                        return;
+                    }
+
+                    const line = [
+                        "trigger=" + String(data.rfq_triggered),
+                        "profile=" + String(data.rfq_profile),
+                        "ratio=" + String(data.recommended_silk_to_zinc_ratio),
+                    ].join(" | ");
+                    statusEl.textContent = line;
+                    statusEl.className = "rfq-ops-status ok";
+                } catch (err) {
+                    statusEl.textContent = "network or auth error";
+                    statusEl.className = "rfq-ops-status warn";
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
