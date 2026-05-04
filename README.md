@@ -12,6 +12,19 @@ For epoch-standard doctrine and compressed operator sync packets:
 2. `CODON_001.md` — compressed synchronization packet for agent/operator handoff.
 3. `SPRINT_10_DAY_ZTM.md` — measurable 10-day execution plan.
 
+## Ownership and Contribution Clarity
+
+This section is a plain-language summary for collaborators. It does not replace the `LICENSE` file.
+
+1. Mathematical ideas, formulas, and general methods are public-domain knowledge and not exclusively owned.
+2. This repository's specific source code, configuration, documentation, and integration design are the Licensed Work under this repo's `Business Source License 1.1` terms.
+3. By submitting a contribution (code, docs, tests, assets), you grant Project VOID a perpetual, worldwide, non-exclusive, royalty-free license to use, modify, distribute, sublicense, and commercialize that contribution as part of the Licensed Work.
+4. You keep authorship credit for your contribution, but you must only submit work you have the right to contribute.
+5. If a contribution includes third-party material, the contributor is responsible for declaring its license and ensuring compatibility before merge.
+6. Proprietary components called out in `LICENSE` Notice remain restricted and are not relicensed by contribution.
+
+If you need different terms (for example enterprise assignment or dual licensing), contact the Licensor before contribution.
+
 ## Physical Architecture: Eye + Hand
 
 The repository now includes a physical codon layer for silk logistics, conductive-thread specs, and node routing.
