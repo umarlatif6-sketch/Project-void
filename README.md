@@ -16,6 +16,12 @@ For epoch-standard doctrine and compressed operator sync packets:
 
 This section is a plain-language summary for collaborators. It does not replace the `LICENSE` file.
 
+### Sovereign Logic Clause (1,002nd Epoch)
+
+While the mathematical constants and physical laws used in this repository (including Taylor-law scaling and fluid dynamics) are universal properties of the physical world, the specific algorithmic integration, control logic, and bilateral architecture implemented by Project VOID are project assets under the repository license and licensor policy.
+
+Project policy disallows use of Project VOID codon/control logic for war, coercive market exploitation, or anti-resonance operations.
+
 1. Mathematical ideas, formulas, and general methods are public-domain knowledge and not exclusively owned.
 2. This repository's specific source code, configuration, documentation, and integration design are the Licensed Work under this repo's `Business Source License 1.1` terms.
 3. By submitting a contribution (code, docs, tests, assets), you grant Project VOID a perpetual, worldwide, non-exclusive, royalty-free license to use, modify, distribute, sublicense, and commercialize that contribution as part of the Licensed Work.
