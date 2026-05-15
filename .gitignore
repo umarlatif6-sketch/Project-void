@@ -7,6 +7,7 @@ void_node/void_engine/stega.py
 # Output audio / generated files
 *.wav
 *.mp3
+!THE_ROCKY_ROAD_TO_VOID.mp3
 *.ogg
 *.flac
 output_audio/
