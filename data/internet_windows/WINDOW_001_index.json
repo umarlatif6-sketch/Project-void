@@ -1,0 +1,186 @@
+{
+  "window_id": "WIN-e84642ef5103",
+  "created_at": "2026-05-15T01:29:45.271208+00:00",
+  "session_name": "cli_session",
+  "total_pages": 20,
+  "total_bytes": 14920,
+  "source_concepts": [
+    "self_organisation_emergence",
+    "ai_containment_replication",
+    "information_compression_latent_space",
+    "holographic_principle_boundary",
+    "morphic_resonance_fields",
+    "temporal_knowledge_memory"
+  ],
+  "fields_covered": [
+    "information_compression_latent_space",
+    "self_organisation_emergence",
+    "holographic_principle_boundary",
+    "ai_containment_replication",
+    "temporal_knowledge_memory",
+    "morphic_resonance_fields"
+  ],
+  "sha256_composite": "e84642ef51036b1ce004cae8660722fea032b8fac944057c4a12fffde5355b3e",
+  "page_manifest": [
+    {
+      "frame": 1,
+      "title": "Nature reorganising intelligence: AI as an evolutionary phase transition",
+      "url": "https://link.springer.com/article/10.1007/s00146-025-02797-7",
+      "field": "self_organisation_emergence",
+      "sha256": "925a5c6d4aa8f07d",
+      "size": 831
+    },
+    {
+      "frame": 2,
+      "title": "Self-organisation and emergence in artificial life: concepts and illustrations",
+      "url": "https://www.tandfonline.com/doi/abs/10.1080/09528130902823649",
+      "field": "self_organisation_emergence",
+      "sha256": "51ce6bfef8ac5eef",
+      "size": 723
+    },
+    {
+      "frame": 3,
+      "title": "Online Adaptation for Self-Improving Foundation Agents",
+      "url": "https://huggingface.co/papers/2605.09998",
+      "field": "self_organisation_emergence",
+      "sha256": "2c5fa4970c0fc479",
+      "size": 778
+    },
+    {
+      "frame": 4,
+      "title": "Biologically Inspired Framework for AI Consciousness via Multicellular Communication",
+      "url": "https://discuss.huggingface.co/t/biologically-inspired-framework-for-ai-consciousness-via-multicellular-communication/163149",
+      "field": "self_organisation_emergence",
+      "sha256": "939927354bc7a304",
+      "size": 781
+    },
+    {
+      "frame": 5,
+      "title": "A Grounded Analysis of Replicative Multi-Agent Systems and a Framework for Ecological Containment",
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5753684",
+      "field": "ai_containment_replication",
+      "sha256": "04769002aaf0cc28",
+      "size": 810
+    },
+    {
+      "frame": 6,
+      "title": "Language Models Can Autonomously Hack and Self-Replicate",
+      "url": "https://palisaderesearch.org/assets/reports/self-replication.pdf",
+      "field": "ai_containment_replication",
+      "sha256": "90c7beeb7be3f0c6",
+      "size": 824
+    },
+    {
+      "frame": 7,
+      "title": "Debugging Autonomous Intelligence",
+      "url": "https://debugabot.com/DebugABot_paper.pdf",
+      "field": "ai_containment_replication",
+      "sha256": "4bea7fa690925169",
+      "size": 674
+    },
+    {
+      "frame": 8,
+      "title": "Towards Explaining Deep Neural Network Compression Through a Probabilistic Latent Space",
+      "url": "https://dl.acm.org/doi/full/10.1145/3737888",
+      "field": "information_compression_latent_space",
+      "sha256": "a8b43a6d25139a29",
+      "size": 670
+    },
+    {
+      "frame": 9,
+      "title": "Deep Learning in Latent Space for Video Prediction and Compression",
+      "url": "https://openaccess.thecvf.com/content/CVPR2021/papers/Liu_Deep_Learning_in_Latent_Space_for_Video_Prediction_and_Compression_CVPR_2021_paper.pdf",
+      "field": "information_compression_latent_space",
+      "sha256": "4b81c1b9e7d229a9",
+      "size": 719
+    },
+    {
+      "frame": 10,
+      "title": "What Is Latent Space? \u2014 IBM",
+      "url": "https://www.ibm.com/think/topics/latent-space",
+      "field": "information_compression_latent_space",
+      "sha256": "e1d0b9f68da2fcd4",
+      "size": 676
+    },
+    {
+      "frame": 11,
+      "title": "ZAT-DNA: DNA data storage with molecular-layer encoding",
+      "url": "https://www.nature.com/articles/s41467-026-72869-9",
+      "field": "information_compression_latent_space",
+      "sha256": "af79d3043f8ae8a4",
+      "size": 652
+    },
+    {
+      "frame": 12,
+      "title": "DNA storage: research landscape and future prospects",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8288837/",
+      "field": "information_compression_latent_space",
+      "sha256": "62191e0c8850a219",
+      "size": 668
+    },
+    {
+      "frame": 13,
+      "title": "The Holographic Principle",
+      "url": "https://en.wikipedia.org/wiki/Holographic_principle",
+      "field": "holographic_principle_boundary",
+      "sha256": "4d58e54daa136085",
+      "size": 788
+    },
+    {
+      "frame": 14,
+      "title": "Information in the Holographic Universe \u2014 Scientific American",
+      "url": "https://www.scientificamerican.com/article/information-in-the-holographic-univ/",
+      "field": "holographic_principle_boundary",
+      "sha256": "02104c70a9e6ade4",
+      "size": 696
+    },
+    {
+      "frame": 15,
+      "title": "Black holes and information theory",
+      "url": "https://www.tandfonline.com/doi/abs/10.1080/00107510310001632523",
+      "field": "holographic_principle_boundary",
+      "sha256": "4a04ff4d4ffc527c",
+      "size": 692
+    },
+    {
+      "frame": 16,
+      "title": "Morphic Resonance and Morphic Fields \u2014 an Introduction (Sheldrake)",
+      "url": "https://www.sheldrake.org/research/morphic-resonance/introduction",
+      "field": "morphic_resonance_fields",
+      "sha256": "e927c8899b33dcd9",
+      "size": 938
+    },
+    {
+      "frame": 17,
+      "title": "Morphic Resonance and Beyond (Sheldrake, 2026)",
+      "url": "https://link.springer.com/chapter/10.1007/978-981-95-1742-8_9",
+      "field": "morphic_resonance_fields",
+      "sha256": "c530ba0e98a4402d",
+      "size": 697
+    },
+    {
+      "frame": 18,
+      "title": "Stochastic Resonance in Biology: How Noise Can Enhance Detection of Weak Signals",
+      "url": "https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/1439-7631(20020315)3:3%3C285::AID-CPHC285%3E3.0.CO;2-A",
+      "field": "morphic_resonance_fields",
+      "sha256": "563cda009478693f",
+      "size": 767
+    },
+    {
+      "frame": 19,
+      "title": "Zep: A Temporal Knowledge Graph Architecture for Agent Memory",
+      "url": "https://arxiv.org/abs/2501.13956",
+      "field": "temporal_knowledge_memory",
+      "sha256": "7f04aa9d3c99a392",
+      "size": 719
+    },
+    {
+      "frame": 20,
+      "title": "Memotime: Memory-augmented Temporal Knowledge Graph Enhanced LLM Reasoning",
+      "url": "https://dl.acm.org/doi/abs/10.1145/3774904.3792581",
+      "field": "temporal_knowledge_memory",
+      "sha256": "a10c118dbd8fb5c0",
+      "size": 757
+    }
+  ]
+}
