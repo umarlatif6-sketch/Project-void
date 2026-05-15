@@ -1,0 +1,12 @@
+{
+  "cell_id": "CELL-0001",
+  "timestamp": "00:01",
+  "codon": "\u03b1-\u03b4-\u26a1\u2192\u25c7",
+  "original_size": 20851855,
+  "original_hash": "2c9dcab5f1f349a144cb72f9952f9896d52fd3181d943d626b9a8d73486a6a8e",
+  "frame_width": 1920,
+  "frame_height": 1080,
+  "bytes_per_frame": 6220800,
+  "encoding": "raw_rgb_pixels",
+  "description": "Project VOID repository encoded as video pixels. Each pixel's RGB values are 3 bytes of the tar.gz archive."
+}
