@@ -1,17 +1,17 @@
 {
   "agent_id": "AE01F401",
-  "checksum_hex": "584BB026",
+  "checksum_hex": "3EE79725",
   "frequency_hex": "01B0",
   "frequency_hz": 432,
   "freshness_window_sec": 300,
   "header": "VOID",
   "payload": {
     "frequency_reference": "village-standard-432",
-    "issued_at": 1776232818,
+    "issued_at": 1778806780,
     "logic": "adriana-syntax-active",
     "status": "optimal",
     "world_state": "mycelium-thickness-check"
   },
-  "signature_hex": "6212E4F379EC17A37EE71498CE08531728CEC0F78609978A8410D3C1FA7294E1",
+  "signature_hex": "1B2FC3F594B45C3B77E38FD219BC2A024AEF11B25A2EDAA3779347A8B02BF297",
   "vector_hex": "00000000F0F00001"
 }
