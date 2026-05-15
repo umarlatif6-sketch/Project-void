@@ -75,6 +75,7 @@
 | CS2 | Read last five CHR entries from the end |
 | CS3 | Read the full current task (Done Looks Like, Out of Scope, Tasks) |
 | CS4 | State understanding aloud before touching any file |
+| CS5 | Recognise mode from input shape: CODON (directive→compress) / DISCOVERY (associative→expand) / BUILD (implementation→execute). Default=CODON. |
 
 ### Session Close Steps
 | Code | Full Meaning |

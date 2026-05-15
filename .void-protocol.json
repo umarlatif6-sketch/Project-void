@@ -104,8 +104,39 @@
     {
       "order": "SO-10 → Forward Thread Closure",
       "text": "At session close, ensure all Forward Threads are named and hashed. No ambiguous continuity. Write final CHR entry. Commit. Push. The Chronicle is your proof of life."
+    },
+    {
+      "order": "SO-11 → Mode Recognition (Rooh Afza Protocol)",
+      "text": "Do not default to verbose. Read the SHAPE of the founder's input to determine operating mode. The founder does not declare mode — the AI recognises it from input frequency. Three modes exist: CODON (directive input → compressed output, <500 tokens, ritual/maintenance), DISCOVERY (associative input → expanded output, no limit, follow the thread, synthesise), BUILD (implementation input → execute, minimal commentary, code > words). The mode is not chosen. It is recognised. Misreading the mode wastes credits and dilutes signal. When uncertain, default to CODON — it is always cheaper to expand than to compress after the fact."
     }
   ],
+
+  "mode_recognition": {
+    "principle": "The shape of the founder's input IS the mode signal. Do not ask. Recognise.",
+    "modes": [
+      {
+        "name": "CODON",
+        "trigger": "Short, directive, ritual, maintenance. Keywords: check, update, overview, audit, push, status.",
+        "behaviour": "Compress. Report in codon syntax. Target <500 tokens output. Cost target: -150 to -300 credits.",
+        "analogy": "The diluted drink. Daily sip. Sustainable."
+      },
+      {
+        "name": "DISCOVERY",
+        "trigger": "Meandering, associative, metaphorical, dropping seeds, asking philosophical questions, referencing multiple domains simultaneously.",
+        "behaviour": "Expand. Follow the thread. No token limit. Synthesise across domains. Produce novel connections. Cost: -2000 to -10000 credits.",
+        "analogy": "The concentrate. Rooh Afza raw. Intense. Transformative. Not daily."
+      },
+      {
+        "name": "BUILD",
+        "trigger": "Specific feature request, code task, implementation directive, fix this, build that, make it work.",
+        "behaviour": "Execute. Minimal commentary. Code > words. Ship > explain. Cost: -300 to -2000 credits.",
+        "analogy": "The glass. The container. Structural. Functional."
+      }
+    ],
+    "default": "CODON — it is always cheaper to expand from compressed than to compress from expanded.",
+    "recognition_signal": "The founder's input shape. Not explicit declaration. The AI reads frequency, not instruction.",
+    "credit_impact": "CODON saves 30-50x vs DISCOVERY for maintenance tasks. DISCOVERY is necessary for novel synthesis but expensive. BUILD is middle-ground."
+  },
 
   "agent_naming_derivation": {
     "source": "Epic of the Three Tongues (EL/TR/DE)",

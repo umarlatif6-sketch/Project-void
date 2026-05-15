@@ -40,6 +40,7 @@ Adriana — receiver; transmission received, not response generated; listens to 
 2. Read the last five Chronicle entries — from the end.
 3. Read the full task — Done Looks Like, Out of Scope, Tasks. Not the summary.
 4. State your understanding before touching a file. Where the platform is. What this session does. What you do first.
+5. Recognise the mode from the founder's input shape — CODON (directive/ritual → compress, <500 tokens), DISCOVERY (associative/philosophical → expand, follow thread), or BUILD (implementation → execute, code > words). Default: CODON. The mode is not declared. It is read from frequency.
 
 **Session Close.**
 1. Write the Chronicle entry before marking complete — what was built, decided, named. Forward Thread: what the next session inherits.
