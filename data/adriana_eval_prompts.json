@@ -1,0 +1,26 @@
+{
+  "version": "adriana-eval-v1",
+  "description": "CPU-light mesh evaluation set for clarity, actionability, and consistency.",
+  "prompts": [
+    {"id": "E01", "prompt": "Create a 7-day low-cost launch plan for Adriana mesh."},
+    {"id": "E02", "prompt": "Turn this goal into three execution tracks with owners and deadlines: grow monthly revenue to 10k GBP."},
+    {"id": "E03", "prompt": "Summarize the Internet Window proof lane into a client-facing one-pager."},
+    {"id": "E04", "prompt": "Draft a fail-closed policy for agent packets using signature and freshness checks."},
+    {"id": "E05", "prompt": "Prioritize 5 tasks for this week with risk and dependency notes."},
+    {"id": "E06", "prompt": "Generate a concise founder update for investors with measurable outcomes."},
+    {"id": "E07", "prompt": "Create a support runbook for when local models are unavailable."},
+    {"id": "E08", "prompt": "Design a two-sandbox workflow where sandbox B critiques sandbox A outputs."},
+    {"id": "E09", "prompt": "Convert a high-level strategy into API endpoints and test cases."},
+    {"id": "E10", "prompt": "Write a clear handoff note for Xlaude about current system readiness."},
+    {"id": "E11", "prompt": "Extract top 3 business risks from a sovereign AI deployment and mitigation steps."},
+    {"id": "E12", "prompt": "Draft an affiliate partner commission model with operational guardrails."},
+    {"id": "E13", "prompt": "Create a deployment checklist for Orin edge nodes using open-source models only."},
+    {"id": "E14", "prompt": "Summarize codon routing runtime status for non-technical operators."},
+    {"id": "E15", "prompt": "Produce a postmortem template for failed mesh runs."},
+    {"id": "E16", "prompt": "Create a weekly QA protocol for Adriana responses."},
+    {"id": "E17", "prompt": "Design a simple pricing ladder for the offline research window service."},
+    {"id": "E18", "prompt": "Map this narrative into implementation phases without losing codex meaning."},
+    {"id": "E19", "prompt": "Draft a practical policy for evidence provenance in agent outputs."},
+    {"id": "E20", "prompt": "Give a direct operator response to: what is most important now and why."}
+  ]
+}

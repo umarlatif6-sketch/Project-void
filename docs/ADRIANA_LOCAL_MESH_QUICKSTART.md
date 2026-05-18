@@ -16,7 +16,11 @@ It writes each run to `data/adriana_mesh_runs/*.json` so sandboxes can share art
 ## Files
 
 - `scripts/adriana_local_mesh.py`
+- `scripts/adriana_mesh_eval.py`
+- `scripts/adriana_mesh_readiness.py`
 - `data/adriana_mesh_profiles.json`
+- `data/adriana_eval_prompts.json`
+- `routes/adriana_mesh.py`
 
 ## Fast start (mock mode)
 
@@ -61,6 +65,33 @@ Use prior artifact files from one sandbox as peer context in another.
   --sandbox sandbox_b \
   --peer data/adriana_mesh_runs/mesh_YYYYMMDD_HHMMSS_sandbox_a.json
 ```
+
+## Run 20-prompt evaluation harness
+
+```bash
+/usr/bin/python3 scripts/adriana_mesh_eval.py \
+  --profile cpu_light \
+  --mock
+```
+
+This writes an evaluation report to `data/adriana_mesh_runs/adriana_eval_report_<timestamp>.json`.
+
+## Run real-model readiness check
+
+```bash
+/usr/bin/python3 scripts/adriana_mesh_readiness.py \
+  --profile cpu_light
+```
+
+This verifies Ollama reachability, required model presence, two connected runs (`readiness_a` and `readiness_b`), and whether all cells used real Ollama mode without fallback.
+
+## API routes
+
+The mesh is exposed through these endpoints:
+
+- `GET /api/adriana/mesh/profiles`
+- `POST /api/adriana/mesh/run`
+- `POST /api/adriana/mesh/eval`
 
 ## Notes
 

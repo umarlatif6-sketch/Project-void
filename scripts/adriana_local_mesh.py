@@ -28,6 +28,19 @@ DEFAULT_PROFILES = ROOT / "data" / "adriana_mesh_profiles.json"
 DEFAULT_OUT_DIR = ROOT / "data" / "adriana_mesh_runs"
 
 
+def load_profile_bundle(profiles_path: Path, profile_name: str) -> Dict[str, Any]:
+    profiles = load_json(profiles_path)
+    profile = profiles.get(profile_name)
+    if not isinstance(profile, dict):
+        raise ValueError(f"unknown_profile: {profile_name}")
+
+    cells = profile.get("cells")
+    if not isinstance(cells, dict):
+        raise ValueError("invalid_profile_cells")
+
+    return {"profiles": profiles, "profile": profile, "cells": cells}
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -159,6 +172,126 @@ def run_cell(
     }
 
 
+def run_mesh(
+    *,
+    prompt: str,
+    profile_name: str = "cpu_light",
+    profiles_path: Path = DEFAULT_PROFILES,
+    out_dir: Path = DEFAULT_OUT_DIR,
+    ollama_url: str = "http://127.0.0.1:11434",
+    timeout_s: int = 60,
+    sandbox: str = "sandbox_a",
+    peer_inputs: List[Path] | None = None,
+    force_mock: bool = False,
+    write_artifact: bool = True,
+) -> Dict[str, Any]:
+    if not prompt or not str(prompt).strip():
+        raise ValueError("missing_prompt")
+
+    bundle = load_profile_bundle(Path(profiles_path), profile_name)
+    cells = bundle["cells"]
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    peer_files = [Path(p) for p in (peer_inputs or [])]
+    peer_context = compact_peer_context(peer_files)
+
+    prompt_map = build_prompts(
+        user_prompt=prompt,
+        peer_context=peer_context,
+        router_out="",
+        research_out="",
+        voice_out="",
+    )
+
+    router = run_cell(
+        cell_name="router",
+        cell_cfg=dict(cells.get("router") or {}),
+        prompt=prompt_map["router"],
+        ollama_url=ollama_url,
+        timeout_s=timeout_s,
+        force_mock=force_mock,
+    )
+
+    prompt_map = build_prompts(
+        user_prompt=prompt,
+        peer_context=peer_context,
+        router_out=router["output"],
+        research_out="",
+        voice_out="",
+    )
+    research = run_cell(
+        cell_name="research",
+        cell_cfg=dict(cells.get("research") or {}),
+        prompt=prompt_map["research"],
+        ollama_url=ollama_url,
+        timeout_s=timeout_s,
+        force_mock=force_mock,
+    )
+
+    prompt_map = build_prompts(
+        user_prompt=prompt,
+        peer_context=peer_context,
+        router_out=router["output"],
+        research_out=research["output"],
+        voice_out="",
+    )
+    voice = run_cell(
+        cell_name="voice",
+        cell_cfg=dict(cells.get("voice") or {}),
+        prompt=prompt_map["voice"],
+        ollama_url=ollama_url,
+        timeout_s=timeout_s,
+        force_mock=force_mock,
+    )
+
+    critic = run_cell(
+        cell_name="critic",
+        cell_cfg=dict(cells.get("critic") or {}),
+        prompt=build_prompts(
+            user_prompt=prompt,
+            peer_context=peer_context,
+            router_out=router["output"],
+            research_out=research["output"],
+            voice_out=voice["output"],
+        )["critic"],
+        ollama_url=ollama_url,
+        timeout_s=timeout_s,
+        force_mock=force_mock,
+    )
+
+    artifact = {
+        "ok": True,
+        "run_id": run_id(),
+        "generated_at": utc_now(),
+        "sandbox": sandbox,
+        "profile": profile_name,
+        "ollama_url": ollama_url,
+        "mock": bool(force_mock),
+        "prompt": prompt,
+        "peer_inputs": [str(p) for p in peer_files],
+        "stages": {
+            "router": router,
+            "research": research,
+            "voice": voice,
+            "critic": critic,
+        },
+        "final": {
+            "response": voice.get("output", ""),
+            "verdict": critic.get("output", ""),
+        },
+    }
+
+    out_path = out_dir / f"{artifact['run_id']}_{sandbox}.json"
+    artifact["artifact_path"] = str(out_path)
+
+    if write_artifact:
+        out_path.write_text(json.dumps(artifact, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    return artifact
+
+
 def build_prompts(
     *,
     user_prompt: str,
@@ -245,114 +378,25 @@ def main() -> int:
     parser.add_argument("--mock", action="store_true", help="Force mock mode for all cells")
     args = parser.parse_args()
 
-    profiles = load_json(Path(args.profiles))
-    profile = profiles.get(args.profile)
-    if not isinstance(profile, dict):
-        print(f"error: unknown_profile: {args.profile}", file=sys.stderr)
+    try:
+        artifact = run_mesh(
+            prompt=args.prompt,
+            profile_name=args.profile,
+            profiles_path=Path(args.profiles),
+            out_dir=Path(args.out_dir),
+            ollama_url=args.ollama_url,
+            timeout_s=args.timeout,
+            sandbox=args.sandbox,
+            peer_inputs=[Path(p) for p in args.peer],
+            force_mock=bool(args.mock),
+            write_artifact=True,
+        )
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
         return 2
-
-    cells = profile.get("cells")
-    if not isinstance(cells, dict):
-        print("error: invalid_profile_cells", file=sys.stderr)
-        return 2
-
-    out_dir = Path(args.out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    peer_files = [Path(p) for p in args.peer]
-    peer_context = compact_peer_context(peer_files)
-
-    prompt_map = build_prompts(
-        user_prompt=args.prompt,
-        peer_context=peer_context,
-        router_out="",
-        research_out="",
-        voice_out="",
-    )
-
-    router = run_cell(
-        cell_name="router",
-        cell_cfg=dict(cells.get("router") or {}),
-        prompt=prompt_map["router"],
-        ollama_url=args.ollama_url,
-        timeout_s=args.timeout,
-        force_mock=args.mock,
-    )
-
-    prompt_map = build_prompts(
-        user_prompt=args.prompt,
-        peer_context=peer_context,
-        router_out=router["output"],
-        research_out="",
-        voice_out="",
-    )
-    research = run_cell(
-        cell_name="research",
-        cell_cfg=dict(cells.get("research") or {}),
-        prompt=prompt_map["research"],
-        ollama_url=args.ollama_url,
-        timeout_s=args.timeout,
-        force_mock=args.mock,
-    )
-
-    prompt_map = build_prompts(
-        user_prompt=args.prompt,
-        peer_context=peer_context,
-        router_out=router["output"],
-        research_out=research["output"],
-        voice_out="",
-    )
-    voice = run_cell(
-        cell_name="voice",
-        cell_cfg=dict(cells.get("voice") or {}),
-        prompt=prompt_map["voice"],
-        ollama_url=args.ollama_url,
-        timeout_s=args.timeout,
-        force_mock=args.mock,
-    )
-
-    critic = run_cell(
-        cell_name="critic",
-        cell_cfg=dict(cells.get("critic") or {}),
-        prompt=build_prompts(
-            user_prompt=args.prompt,
-            peer_context=peer_context,
-            router_out=router["output"],
-            research_out=research["output"],
-            voice_out=voice["output"],
-        )["critic"],
-        ollama_url=args.ollama_url,
-        timeout_s=args.timeout,
-        force_mock=args.mock,
-    )
-
-    artifact = {
-        "ok": True,
-        "run_id": run_id(),
-        "generated_at": utc_now(),
-        "sandbox": args.sandbox,
-        "profile": args.profile,
-        "ollama_url": args.ollama_url,
-        "mock": bool(args.mock),
-        "prompt": args.prompt,
-        "peer_inputs": [str(p) for p in peer_files],
-        "stages": {
-            "router": router,
-            "research": research,
-            "voice": voice,
-            "critic": critic,
-        },
-        "final": {
-            "response": voice.get("output", ""),
-            "verdict": critic.get("output", ""),
-        },
-    }
-
-    out_path = out_dir / f"{artifact['run_id']}_{args.sandbox}.json"
-    out_path.write_text(json.dumps(artifact, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print("Adriana local mesh run complete")
-    print(f"artifact: {out_path}")
+    print(f"artifact: {artifact['artifact_path']}")
     print("final_response:")
     print(artifact["final"]["response"])
     print("critic_verdict:")
