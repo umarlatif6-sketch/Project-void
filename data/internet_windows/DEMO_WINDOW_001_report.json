@@ -1,0 +1,118 @@
+{
+  "ok": true,
+  "generated_at": "2026-05-18T03:13:59Z",
+  "input": "/workspaces/Project-void/data/resonance_web/session_001_results.json",
+  "video": "/workspaces/Project-void/data/internet_windows/DEMO_WINDOW_001.mkv",
+  "index": "/workspaces/Project-void/data/internet_windows/DEMO_WINDOW_001_index.json",
+  "video_size_bytes": 25222,
+  "source_concepts": [
+    "force can only be visited",
+    "containment cell crystallisation",
+    "state encoded as video",
+    "the distraction is the architecture"
+  ],
+  "integrity": {
+    "window_id": "WIN-e89100f2ebd5",
+    "pages_decoded": 19,
+    "composite_hash": "e89100f2ebd56b42ccb39251f60f0c94aef8e2922cab242d66816725b0a360f1",
+    "hash_match": true,
+    "pages": [
+      {
+        "page": 0,
+        "title": "Estimation of the radial force on the tokamak vess",
+        "intact": true
+      },
+      {
+        "page": 1,
+        "title": "Pilgrimage beyond the officially sacred: Understan",
+        "intact": true
+      },
+      {
+        "page": 2,
+        "title": "Geographies of pilgrimage: Meaningful movements an",
+        "intact": true
+      },
+      {
+        "page": 3,
+        "title": "Potential energy is not stored in the object itsel",
+        "intact": true
+      },
+      {
+        "page": 4,
+        "title": "Interpretation of Potential Energy as Field Proper",
+        "intact": true
+      },
+      {
+        "page": 5,
+        "title": "Selective nucleation and self-organized crystalliz",
+        "intact": true
+      },
+      {
+        "page": 6,
+        "title": "Pathways to self-organization: crystallization via",
+        "intact": true
+      },
+      {
+        "page": 7,
+        "title": "Capturing the Moment of Emergence of Crystal Nucle",
+        "intact": true
+      },
+      {
+        "page": 8,
+        "title": "Self-Organizing Matter group - Dr. Wim Noorduin",
+        "intact": true
+      },
+      {
+        "page": 9,
+        "title": "Self-organisation processes in the chemistry of ma",
+        "intact": true
+      },
+      {
+        "page": 10,
+        "title": "Secure data transmission using video Steganography",
+        "intact": true
+      },
+      {
+        "page": 11,
+        "title": "Video steganography: recent advances and challenge",
+        "intact": true
+      },
+      {
+        "page": 12,
+        "title": "Video steganography techniques: taxonomy, challeng",
+        "intact": true
+      },
+      {
+        "page": 13,
+        "title": "Steganography in Video Files",
+        "intact": true
+      },
+      {
+        "page": 14,
+        "title": "The Architecture of Creativity: Toward a Causal Th",
+        "intact": true
+      },
+      {
+        "page": 15,
+        "title": "Concept generation via lateral thinking in archite",
+        "intact": true
+      },
+      {
+        "page": 16,
+        "title": "Consequential creativity: Student competency and l",
+        "intact": true
+      },
+      {
+        "page": 17,
+        "title": "Creativity in Architecture—A Review on Effective P",
+        "intact": true
+      },
+      {
+        "page": 18,
+        "title": "Self-Organisation of Prediction Models",
+        "intact": true
+      }
+    ],
+    "all_pages_intact": true
+  }
+}
