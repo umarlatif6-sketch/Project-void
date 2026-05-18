@@ -10,19 +10,23 @@ Entity · Condition · Action — every event stamped with an Al-Jabr 286 hash a
 
 ## Install
 
+From this repository (local development):
+
 ```bash
-pip install void-engine-sdk
+pip install -e ./void-engine-sdk
 ```
 
 With Flask support:
 ```bash
-pip install "void-engine-sdk[flask]"
+pip install -e "./void-engine-sdk[flask]"
 ```
 
 With PostgreSQL (MEMORY/SOVEREIGN tiers):
 ```bash
-pip install "void-engine-sdk[all]"
+pip install -e "./void-engine-sdk[all]"
 ```
+
+**Note:** `void-engine-sdk` is currently distributed as a local/private package. Future PyPI distribution is planned.
 
 ---
 

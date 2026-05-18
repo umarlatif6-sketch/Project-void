@@ -23,8 +23,11 @@ A protocol and Python package for encoding/decoding human typing patterns (adjac
 - **Personalized AI:** Each user/agent has an independent signature/profile for optimal decoding
 
 ## Quickstart
+
+From the Project VOID repository:
+
 ```bash
-pip install adjacentkey-protocol
+pip install -e ./adjacentkey-protocol
 adjacentkey encode "what am i saying how are you" --direction right
 adjacentkey decode "ejsy sm o dsuomh jpe str upi movr" --direction right
 ```
