@@ -1,10 +1,10 @@
 {
   "ok": true,
-  "generated_at": "2026-05-18T03:13:59Z",
+  "generated_at": "2026-05-18T03:28:31Z",
   "input": "/workspaces/Project-void/data/resonance_web/session_001_results.json",
   "video": "/workspaces/Project-void/data/internet_windows/DEMO_WINDOW_001.mkv",
   "index": "/workspaces/Project-void/data/internet_windows/DEMO_WINDOW_001_index.json",
-  "video_size_bytes": 25222,
+  "video_size_bytes": 25207,
   "source_concepts": [
     "force can only be visited",
     "containment cell crystallisation",
