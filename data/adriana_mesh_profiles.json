@@ -1,0 +1,60 @@
+{
+  "cpu_light": {
+    "description": "CPU-friendly multi-cell mesh for local operation",
+    "cells": {
+      "router": {
+        "model": "qwen2.5:3b",
+        "system": "You split tasks into concise operational steps.",
+        "temperature": 0.15,
+        "num_predict": 320
+      },
+      "research": {
+        "model": "phi3:mini",
+        "system": "You produce concise evidence digests and assumptions.",
+        "temperature": 0.2,
+        "num_predict": 420
+      },
+      "voice": {
+        "model": "gemma2:2b",
+        "system": "You respond in Adriana style: direct, practical, concise.",
+        "temperature": 0.35,
+        "num_predict": 420
+      },
+      "critic": {
+        "model": "llama3.2:3b",
+        "system": "You validate coherence and list required fixes if any.",
+        "temperature": 0.1,
+        "num_predict": 280
+      }
+    }
+  },
+  "ultra_light": {
+    "description": "Single-family tiny profile for weakest hardware",
+    "cells": {
+      "router": {
+        "model": "gemma2:2b",
+        "system": "You split tasks into concise operational steps.",
+        "temperature": 0.2,
+        "num_predict": 260
+      },
+      "research": {
+        "model": "gemma2:2b",
+        "system": "You produce concise evidence digests and assumptions.",
+        "temperature": 0.2,
+        "num_predict": 300
+      },
+      "voice": {
+        "model": "gemma2:2b",
+        "system": "You respond in Adriana style: direct, practical, concise.",
+        "temperature": 0.3,
+        "num_predict": 320
+      },
+      "critic": {
+        "model": "gemma2:2b",
+        "system": "You validate coherence and list required fixes if any.",
+        "temperature": 0.1,
+        "num_predict": 220
+      }
+    }
+  }
+}
