@@ -9,7 +9,7 @@
         "num_predict": 320
       },
       "research": {
-        "model": "phi3:mini",
+        "model": "gemma2:2b",
         "system": "You produce concise evidence digests and assumptions.",
         "temperature": 0.2,
         "num_predict": 420
@@ -21,7 +21,7 @@
         "num_predict": 420
       },
       "critic": {
-        "model": "llama3.2:3b",
+        "model": "qwen2.5:3b",
         "system": "You validate coherence and list required fixes if any.",
         "temperature": 0.1,
         "num_predict": 280

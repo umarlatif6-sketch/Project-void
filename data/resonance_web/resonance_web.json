@@ -8,7 +8,7 @@
   },
   "threads": [
     {
-      "thread_id": "a402d74ecfcf64af",
+      "thread_id": "7f124e8ca73bd0a6",
       "source_concept": "containment resonance",
       "search_angle": "manus_search",
       "url": "https://example.com/membrane",
@@ -16,8 +16,8 @@
       "snippet": "Boundary, oscillation, and resonant confinement in biological membranes.",
       "resonance_score": 0.5,
       "field": "general",
-      "discovered_at": "2026-05-18T03:28:25.621688+00:00",
-      "hex_signature": "a402d74ecfcf64af"
+      "discovered_at": "2026-05-18T21:29:36.903719+00:00",
+      "hex_signature": "7f124e8ca73bd0a6"
     }
   ],
   "connections": []

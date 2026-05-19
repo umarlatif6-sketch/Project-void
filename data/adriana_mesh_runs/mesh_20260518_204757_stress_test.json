@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "run_id": "mesh_20260518_204757",
+  "generated_at": "2026-05-18T20:47:57Z",
+  "sandbox": "stress_test",
+  "profile": "cpu_light",
+  "ollama_url": "http://127.0.0.1:11434",
+  "mock": true,
+  "prompt": "Stress test: execute all core pathways and report readiness",
+  "peer_inputs": [],
+  "stages": {
+    "router": {
+      "cell": "router",
+      "model": "qwen2.5:3b",
+      "mode": "mock",
+      "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+    },
+    "research": {
+      "cell": "research",
+      "model": "phi3:mini",
+      "mode": "mock",
+      "output": "Evidence digest: You are the research cell. User intent: Stress test: execute all core pathways and report readiness Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short evidence diges"
+    },
+    "voice": {
+      "cell": "voice",
+      "model": "gemma2:2b",
+      "mode": "mock",
+      "output": "Adriana response: You are Adriana voice cell. User intent: Stress test: execute all core pathways and report readiness Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evidence d"
+    },
+    "critic": {
+      "cell": "critic",
+      "model": "llama3.2:3b",
+      "mode": "mock",
+      "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+    }
+  },
+  "final": {
+    "response": "Adriana response: You are Adriana voice cell. User intent: Stress test: execute all core pathways and report readiness Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evidence d",
+    "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+  },
+  "artifact_path": "/workspaces/Project-void/data/adriana_mesh_runs/mesh_20260518_204757_stress_test.json"
+}

@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "generated_at": "2026-05-18T21:39:45Z",
+  "profile": "cpu_light",
+  "ollama_url": "http://127.0.0.1:11434",
+  "readiness_ok": false,
+  "checks": {
+    "ollama_reachable": true,
+    "required_models": [
+      "gemma2:2b",
+      "llama3.2:3b",
+      "phi3:mini",
+      "qwen2.5:3b"
+    ],
+    "installed_models": [
+      "gemma2:2b",
+      "llama3.2:3b",
+      "phi3:mini",
+      "qwen2.5:3b"
+    ],
+    "missing_models": [],
+    "all_cells_used_ollama": false
+  },
+  "runs": {
+    "a": {
+      "artifact_path": "/workspaces/Project-void/data/adriana_mesh_runs/mesh_20260518_213505_readiness_a.json",
+      "modes": [
+        "ollama",
+        "mock_fallback:HTTPError",
+        "ollama",
+        "ollama"
+      ]
+    },
+    "b": {
+      "artifact_path": "/workspaces/Project-void/data/adriana_mesh_runs/mesh_20260518_213945_readiness_b.json",
+      "modes": [
+        "ollama",
+        "mock_fallback:HTTPError",
+        "ollama",
+        "ollama"
+      ]
+    }
+  },
+  "notes": ""
+}
