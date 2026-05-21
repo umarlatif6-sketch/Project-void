@@ -194,6 +194,27 @@ This is the short-form verification cycle for the Mesh Agent Governance layer: a
 ## Stop Condition
 - Stop expanding the system if evidence quality drops, validation fails twice in a row, or the operator cannot explain the next step in one sentence.
 
+## Operator Board (1-Page)
+
+Use this as the daily control surface for the Reality Gate.
+
+| Process | Checklist | Evidence |
+|---|---|---|
+| Aggregate | [ ] Pull current docs, routes, scripts, and memories | Source list is current |
+| Synthesize | [ ] Produce one narrow change only | Diff stays bounded |
+| Select | [ ] Choose keep / discard / defer | Decision is recorded |
+| Execute | [ ] Run the smallest meaningful validation | Test or runtime artifact |
+| Chronicle | [ ] Write the result and residual risk | Entry is reviewable |
+
+## Agent Handoff Summary
+
+When passing the system to the next agent, include only these five items:
+1. Current branch and repo state.
+2. One-sentence goal for the next cycle.
+3. Files, routes, or docs touched in the last cycle.
+4. Verified evidence produced so far.
+5. One explicit risk or open question.
+
 ---
 # Vocal Resonance Pipeline
 
