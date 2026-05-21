@@ -665,6 +665,56 @@
         </div>
     </div>
 
+    <div class="pf-section">
+        <div class="pf-section-title">◆ Governance Continuity</div>
+        <div class="pf-prob-panel">
+            <div class="pf-card-header" style="margin-bottom: 10px;">
+                <div>
+                    <div class="pf-card-title">Runtime Bootstrap Guard</div>
+                </div>
+                <div class="pf-status {{ 'ready' if governance_status.ok else 'check' if governance_status.enforce else 'pending' }}">
+                    <div class="pf-status-dot"></div>
+                    {{ 'READY' if governance_status.ok else 'BLOCKED' if governance_status.enforce else 'WARN' }}
+                </div>
+            </div>
+            <p class="pf-card-desc">
+                Startup validates RecursiveMAS contract, continuity chordon contract, timeline passport,
+                and required continuity rails before execution.
+            </p>
+            <div class="pf-health-grid">
+                <div class="pf-health-cell">
+                    <div class="pf-health-label">Enforce</div>
+                    <div class="pf-health-val">{{ 'ON' if governance_status.enforce else 'OFF' }}</div>
+                </div>
+                <div class="pf-health-cell">
+                    <div class="pf-health-label">Recursive Contract</div>
+                    <div class="pf-health-val">{{ governance_status.recursive_contract or 'n/a' }}</div>
+                </div>
+                <div class="pf-health-cell">
+                    <div class="pf-health-label">Continuity Contract</div>
+                    <div class="pf-health-val">{{ governance_status.continuity_contract or 'n/a' }}</div>
+                </div>
+                <div class="pf-health-cell">
+                    <div class="pf-health-label">Missing Sources</div>
+                    <div class="pf-health-val">{{ governance_status.missing_sources | length }}</div>
+                </div>
+            </div>
+            <div class="pf-health-note">
+                {% if governance_status.errors and governance_status.errors|length > 0 %}
+                    {% for err in governance_status.errors %}
+                        {{ err }}{% if not loop.last %}<br>{% endif %}
+                    {% endfor %}
+                {% else %}
+                    Governance continuity bootstrap is clean.
+                {% endif %}
+            </div>
+            <div class="pf-card-actions" style="margin-top: 16px;">
+                <a href="/api/governance/runtime-status" class="pf-link-btn teal">→ Governance Runtime JSON</a>
+                <a href="/api/lbn/runtime-status" class="pf-link-btn">→ LBN Runtime JSON</a>
+            </div>
+        </div>
+    </div>
+
     <!-- PROBABILITY MATRIX -->
     <div class="pf-section">
         <div class="pf-section-title">◆ 83.2% Success Probability Matrix</div>

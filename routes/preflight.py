@@ -13,7 +13,7 @@ import os
 import json
 from pathlib import Path
 from datetime import datetime, timezone
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, current_app
 
 logger = logging.getLogger(__name__)
 
@@ -344,12 +344,29 @@ def _get_mycelium_health() -> dict:
         }
 
 
+def _get_governance_runtime_status() -> dict:
+    """Return startup governance continuity enforcement status."""
+    status = current_app.config.get("GOVERNANCE_BOOTSTRAP_STATUS")
+    if isinstance(status, dict):
+        return status
+
+    return {
+        "ok": False,
+        "enforce": True,
+        "errors": ["Governance bootstrap status not initialized"],
+        "recursive_contract": None,
+        "continuity_contract": None,
+        "missing_sources": [],
+    }
+
+
 @preflight_bp.route("/preflight")
 def preflight_page():
     wav = _get_last_wav_export()
     founder_key = _get_founder_key_status()
     patent = _get_patent_status()
     mycelium_health = _get_mycelium_health()
+    governance_status = _get_governance_runtime_status()
 
     day1_status = _resolve_day_status(wav["found"])
     day2_status = _resolve_day_status(founder_key.get("key_active", False))
@@ -362,6 +379,7 @@ def preflight_page():
         founder_key=founder_key,
         patent=patent,
         mycelium_health=mycelium_health,
+        governance_status=governance_status,
         day1_status=day1_status,
         day2_status=day2_status,
         day3_status=day3_status,
@@ -399,3 +417,9 @@ def api_mycelium_health():
 def api_lbn_handshake_transcript():
     """Public transcript endpoint for replayable four-agent codon handshakes."""
     return jsonify(_get_lbn_handshake_transcript())
+
+
+@preflight_bp.route("/api/governance/runtime-status")
+def api_governance_runtime_status():
+    """Public JSON endpoint for governance continuity bootstrap state."""
+    return jsonify(_get_governance_runtime_status())

@@ -1,0 +1,47 @@
+{
+  "contract": "recursive_mas.v1",
+  "status": "active",
+  "cognitive_head": {
+    "name": "RecursiveMAS",
+    "path": "core/recursive_mas",
+    "primary_transport": "latent_embedding.v1",
+    "fallback_transport": "codon_text_bridge.v1"
+  },
+  "roles": [
+    "router",
+    "research",
+    "voice",
+    "critic",
+    "planner",
+    "auditor",
+    "operator_bridge"
+  ],
+  "required_agent_fields": [
+    "agent_id",
+    "role",
+    "input_schema",
+    "output_schema",
+    "capabilities",
+    "safety_mode",
+    "latency_target_ms",
+    "freshness_window_s"
+  ],
+  "runtime_entrypoints": {
+    "mesh_profiles": "/api/adriana/mesh/profiles",
+    "mesh_run": "/api/adriana/mesh/run",
+    "mesh_eval": "/api/adriana/mesh/eval",
+    "mesh_readiness": "/api/adriana/mesh/readiness",
+    "mesh_artifacts": "/api/adriana/mesh/artifacts",
+    "health": "/api/mycelium/health"
+  },
+  "fail_closed": {
+    "require_readiness": true,
+    "require_freshness_window": true,
+    "reject_unknown_contract": true
+  },
+  "discovery": {
+    "human_overview": "README.md",
+    "head_docs": "core/recursive_mas/README.md",
+    "agent_contract": "core/recursive_mas/AGENT_CONTRACT.md"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "contract": "continuity_chordon.v1",
+  "status": "active",
+  "purpose": "Unify RecursiveMAS cognition with Seed/Chronicle continuity and LBN codon ontology.",
+  "sources": {
+    "seed_core": "VOID_SEED.md",
+    "seed_digest": "VOID_SEED_DIGEST.md",
+    "chronicle": "VOID_CHRONICLE.md",
+    "codon_protocol": "SCL_LBN_PROTOCOL.md",
+    "sync_packet": "CODON_001.md",
+    "timeline_passport": "manifest/timeline_passport.json"
+  },
+  "read_order": [
+    "manifest/timeline_passport.json",
+    "VOID_SEED_DIGEST.md",
+    "VOID_SEED.md",
+    "VOID_CHRONICLE.md:last_5_entries",
+    "SCL_LBN_PROTOCOL.md",
+    "CODON_001.md"
+  ],
+  "continuity_checks": {
+    "require_forward_thread": true,
+    "require_session_close_entry": true,
+    "require_fail_closed_on_unknown_codon": false,
+    "require_seed_digest_alignment": true
+  },
+  "recursive_to_codon_bridge": {
+    "origin_anchor": "B-nn-O",
+    "identity_node": "B-nn-D",
+    "security_gate": "B-kk-S",
+    "mesh_route": "B-mm-M",
+    "execution_pulse": "B-tt-A",
+    "growth_mode": "B-bb-G",
+    "silence_hidden_layer": "B-..-Z"
+  },
+  "synergy_lanes": {
+    "recursive_mas": [
+      "route",
+      "verify",
+      "critic",
+      "handoff"
+    ],
+    "codon_system": [
+      "semantic_compression",
+      "operator_memory",
+      "ontology_lock"
+    ],
+    "combined_effect": [
+      "faster inter-agent alignment",
+      "lower intent drift",
+      "stronger continuity under session resets"
+    ]
+  },
+  "runtime_entrypoints": {
+    "mesh_readiness": "/api/adriana/mesh/readiness",
+    "mesh_run": "/api/adriana/mesh/run",
+    "health": "/api/mycelium/health"
+  },
+  "discovery": {
+    "human_protocol": "core/recursive_mas/SEED_CHRONICLE_PROTOCOL.md",
+    "timeline_protocol": "core/recursive_mas/TIMELINE_PASSPORT.md",
+    "loader": "core/recursive_mas/continuity_loader.py",
+    "root_overview": "README.md"
+  }
+}

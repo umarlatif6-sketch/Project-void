@@ -1,5 +1,6 @@
 import os
 import logging
+from pathlib import Path
 from flask import Flask, render_template, request, session
 
 from void_engine.startup_bootstrap import (
@@ -41,6 +42,27 @@ try:
         )
 except Exception as _packet_security_exc:
     logger.error("FATAL: packet security bootstrap failed: %s", _packet_security_exc)
+    raise
+
+try:
+    from core.recursive_mas.bootstrap_guard import run_governance_bootstrap
+
+    _governance_status = run_governance_bootstrap(Path(__file__).resolve().parent)
+    app.config["GOVERNANCE_BOOTSTRAP_STATUS"] = _governance_status
+    if not _governance_status.get("ok", False):
+        for _err in _governance_status.get("errors", []):
+            logger.error("GOVERNANCE: %s", _err)
+        if _governance_status.get("enforce", True):
+            raise RuntimeError("Governance continuity bootstrap failed in enforce mode")
+        logger.warning("Governance continuity bootstrap failed, continuing with enforcement disabled")
+    else:
+        logger.info(
+            "Governance bootstrap passed (recursive=%s continuity=%s)",
+            _governance_status.get("recursive_contract"),
+            _governance_status.get("continuity_contract"),
+        )
+except Exception as _governance_exc:
+    logger.error("FATAL: governance bootstrap failed: %s", _governance_exc)
     raise
 
 app.secret_key = _secret
