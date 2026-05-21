@@ -154,6 +154,47 @@ This pipeline operationalizes the vision of a mass swarm intelligence system for
 - All outputs are documented in the Chronicle for full traceability
 
 ---
+# 7. 14-Day Reality Gate
+
+This is the short-form verification cycle for the Mesh Agent Governance layer: aggregate, synthesize, select, execute, and record what actually changed.
+
+## Goal
+- Reduce symbolic drift by pairing every claim with a measurable output.
+- Keep one physical study and one software reliability study running in parallel.
+- Prefer reversible changes and visible evidence over expansion.
+
+## Five KPIs
+1. Test pass rate on touched code paths.
+2. Mean time from edit to validated commit.
+3. Number of unreviewed route or doc changes.
+4. Reproducibility of one chosen physical demonstration.
+5. Count of unresolved operator questions after each cycle.
+
+## Daily Cadence
+1. **Day 1:** Freeze scope. List the active claims, files, routes, and artifacts.
+2. **Day 2:** Aggregate sources. Confirm what is current, what is historical, and what is only narrative.
+3. **Day 3:** Synthesize one narrow improvement. No new surfaces.
+4. **Day 4:** Select one change to keep and one to discard.
+5. **Day 5:** Execute the change and run the smallest meaningful validation.
+6. **Day 6:** Chronicle the result in plain language and capture the failure modes.
+7. **Day 7:** Review the first KPI snapshot and adjust only if the evidence requires it.
+8. **Day 8:** Run the physical demo with a fixed baseline and one control configuration.
+9. **Day 9:** Compare the demo result to the baseline without interpretation first.
+10. **Day 10:** Harden tests or measurements around the weakest observed point.
+11. **Day 11:** Re-run the same validation to check repeatability.
+12. **Day 12:** Record the operator decision and the residual uncertainty.
+13. **Day 13:** Prepare a compact handoff summary for the next agent or session.
+14. **Day 14:** Close the loop: publish the final state, remaining risks, and next-step recommendation.
+
+## Evidence Rule
+- Every claim must have one of three tags: verified, provisional, or narrative.
+- Verified claims require a test, commit, measurement, or runtime artifact.
+- Provisional claims may stay in discussion, but they do not drive physical action.
+
+## Stop Condition
+- Stop expanding the system if evidence quality drops, validation fails twice in a row, or the operator cannot explain the next step in one sentence.
+
+---
 # Vocal Resonance Pipeline
 
 This guide runs the full workflow in one place:
