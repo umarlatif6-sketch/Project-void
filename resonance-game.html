@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID Resonance — Stack Ideas Into Harmony</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+        }
+
+        .game-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: radial-gradient(ellipse at center, rgba(67, 51, 102, 0.1) 0%, transparent 70%);
+        }
+
+        canvas {
+            border: 3px solid #00ff88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+            background: rgba(10, 14, 39, 0.9);
+            cursor: crosshair;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: rgba(10, 14, 39, 0.95);
+            border-left: 2px solid #00ff88;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 2px 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #00ff88;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .stats {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border: 1px solid #00ff88;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .stat-line {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-label {
+            color: #00ff88;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .resonance-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff88;
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .resonance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88 0%, #00ffaa 50%, #00ff88 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .matchstick-pool {
+            margin-bottom: 20px;
+        }
+
+        .matchstick-pool h3 {
+            color: #00ff88;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #00ff88;
+        }
+
+        .matchsticks {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .matchstick-btn {
+            padding: 10px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        .matchstick-btn:hover {
+            background: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            transform: scale(1.05);
+        }
+
+        .matchstick-btn.selected {
+            background: rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+        }
+
+        .matchstick-btn.locked {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .controls {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #00ff88;
+        }
+
+        .control-btn {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .control-btn:active {
+            transform: scale(0.98);
+        }
+
+        .peripheral-vision {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 0, 255, 0.1);
+            border: 1px solid #ff00ff;
+            color: #ff00ff;
+            border-radius: 3px;
+            font-size: 11px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border: 1px solid #00ff88;
+            border-radius: 3px;
+            font-size: 10px;
+            color: #888;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .log-entry {
+            margin: 3px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .log-entry.harmonic {
+            color: #00ff88;
+        }
+
+        .log-entry.dissonant {
+            color: #ff0000;
+        }
+
+        .log-entry.emergent {
+            color: #ffaa00;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(10, 14, 39, 0.95);
+            border: 2px solid #00ff88;
+            padding: 30px;
+            border-radius: 5px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .modal-content h2 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .modal-content p {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn:hover {
+            background: rgba(0, 255, 136, 0.4);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff88;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game Canvas -->
+        <div class="game-area">
+            <canvas id="gameCanvas" width="600" height="700"></canvas>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="header">
+                <h1>◆-◇-∞ VOID RESONANCE</h1>
+                <p>Stack ideas. Create harmony. Reshape reality.</p>
+            </div>
+
+            <div class="stats">
+                <div class="stat-line">
+                    <span class="stat-label">Resonance:</span>
+                    <span class="stat-value" id="resonanceValue">0</span>
+                </div>
+                <div class="resonance-bar">
+                    <div class="resonance-fill" id="resonanceFill"></div>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">Turn:</span>
+                    <span class="stat-value" id="turnValue">1</span>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">Matchsticks:</span>
+                    <span class="stat-value" id="matchstickCount">0/50</span>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">Level:</span>
+                    <span class="stat-value" id="levelValue">Novice</span>
+                </div>
+            </div>
+
+            <div class="matchstick-pool">
+                <h3>📌 Available Matchsticks</h3>
+                <div class="matchsticks" id="matchstickPool"></div>
+            </div>
+
+            <div class="peripheral-vision">
+                <strong>Hold SPACE</strong> to see peripheral vision hints (3 uses left)
+            </div>
+
+            <div class="log" id="gameLog"></div>
+
+            <div class="controls">
+                <button class="control-btn" id="undoBtn">↶ Undo Last Move</button>
+                <button class="control-btn" id="resetBtn">⟲ Reset Game</button>
+                <button class="control-btn" id="shareBtn">⇧ Share Universe</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="harmonyModal">
+        <div class="modal-content">
+            <h2>✨ HARMONY REACHED ✨</h2>
+            <p>Your resonance has reached 101! The structure is in perfect balance.</p>
+            <p>You have unlocked <strong>Fan Fiction Mode</strong>. You can now reshape this universe and create your own vision of Project VOID.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn" onclick="enterFanFiction()">Enter Fan Fiction</button>
+                <button class="modal-btn" onclick="closeModal('harmonyModal')">Continue Playing</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="transcendenceModal">
+        <div class="modal-content">
+            <h2>🌟 TRANSCENDENCE 🌟</h2>
+            <p>Your resonance has reached 151! You have achieved perfect alignment.</p>
+            <p>Reality bends. New possibilities emerge. Exclusive cosmetics and matchsticks unlocked.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn" onclick="closeModal('transcendenceModal')">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="collapseModal">
+        <div class="modal-content">
+            <h2>💥 STRUCTURE COLLAPSED 💥</h2>
+            <p>Resonance dropped below 0. The matchsticks fell.</p>
+            <p>Your structure has been reset. Try again with a different approach.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn" onclick="resetGame()">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const game = {
+            canvas: document.getElementById('gameCanvas'),
+            ctx: null,
+            matchsticks: [],
+            resonance: 0,
+            turn: 1,
+            selectedMatchstick: null,
+            peripheralVisionUses: 3,
+            history: [],
+            gameOver: false,
+            harmonyUnlocked: false,
+            transcendenceUnlocked: false
+        };
+
+        // Matchstick types
+        const matchstickTypes = [
+            { name: 'Idea', color: '#00ff88', resonance: 5, symbol: '◆' },
+            { name: 'Code', color: '#00ccff', resonance: 8, symbol: '▲' },
+            { name: 'Story', color: '#ffaa00', resonance: 10, symbol: '■' },
+            { name: 'Frequency', color: '#ff00ff', resonance: 15, symbol: '◇', locked: true },
+            { name: 'Seed', color: '#ffff00', resonance: 20, symbol: '●', locked: true }
+        ];
+
+        // Matchstick class
+        class Matchstick {
+            constructor(type, x, y, angle) {
+                this.type = type;
+                this.x = x;
+                this.y = y;
+                this.angle = angle;
+                this.length = 40;
+                this.width = 3;
+                this.resonance = 0;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate((this.angle * Math.PI) / 180);
+
+                ctx.strokeStyle = this.type.color;
+                ctx.lineWidth = this.width;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(this.length, 0);
+                ctx.stroke();
+
+                ctx.fillStyle = this.type.color;
+                ctx.font = '12px Arial';
+                ctx.fillText(this.type.symbol, this.length / 2 - 5, -5);
+
+                ctx.restore();
+            }
+
+            getEndPoint() {
+                const rad = (this.angle * Math.PI) / 180;
+                return {
+                    x: this.x + this.length * Math.cos(rad),
+                    y: this.y + this.length * Math.sin(rad)
+                };
+            }
+        }
+
+        // Initialize game
+        function init() {
+            game.ctx = game.canvas.getContext('2d');
+            setupEventListeners();
+            populateMatchstickPool();
+            gameLoop();
+        }
+
+        function setupEventListeners() {
+            game.canvas.addEventListener('click', handleCanvasClick);
+            game.canvas.addEventListener('mousemove', handleCanvasMouseMove);
+            document.addEventListener('keydown', handleKeyDown);
+            document.getElementById('undoBtn').addEventListener('click', undoMove);
+            document.getElementById('resetBtn').addEventListener('click', resetGame);
+            document.getElementById('shareBtn').addEventListener('click', shareUniverse);
+        }
+
+        function populateMatchstickPool() {
+            const pool = document.getElementById('matchstickPool');
+            pool.innerHTML = '';
+            matchstickTypes.forEach((type, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'matchstick-btn' + (type.locked ? ' locked' : '');
+                btn.textContent = type.name;
+                btn.onclick = () => selectMatchstick(index);
+                pool.appendChild(btn);
+            });
+        }
+
+        function selectMatchstick(index) {
+            if (matchstickTypes[index].locked) return;
+            game.selectedMatchstick = index;
+            document.querySelectorAll('.matchstick-btn').forEach((btn, i) => {
+                btn.classList.toggle('selected', i === index);
+            });
+        }
+
+        function handleCanvasClick(e) {
+            if (game.gameOver || game.selectedMatchstick === null) return;
+
+            const rect = game.canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Check if click is on bottle rim (top area)
+            if (y > 50 && y < 100) {
+                placeMatchstick(x, y);
+            }
+        }
+
+        function handleCanvasMouseMove(e) {
+            // Could add hover effects here
+        }
+
+        function handleKeyDown(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                activatePeripheralVision();
+            }
+        }
+
+        function placeMatchstick(x, y) {
+            const type = matchstickTypes[game.selectedMatchstick];
+            const angle = Math.random() * 90; // Random angle 0-90 degrees
+
+            const stick = new Matchstick(type, x, y, angle);
+
+            // Calculate friction with existing matchsticks
+            let frictionBonus = 0;
+            let frictionType = 'neutral';
+
+            game.matchsticks.forEach(existingStick => {
+                const distance = Math.hypot(stick.x - existingStick.x, stick.y - existingStick.y);
+                if (distance < 80) {
+                    const angleDiff = Math.abs(stick.angle - existingStick.angle);
+                    if (angleDiff < 15 || angleDiff > 165) {
+                        frictionBonus += 10;
+                        frictionType = 'harmonic';
+                    } else if (angleDiff > 40 && angleDiff < 140) {
+                        frictionBonus -= 5;
+                        frictionType = 'dissonant';
+                    }
+                }
+            });
+
+            // Check for emergent patterns
+            if (game.matchsticks.length % 5 === 4) {
+                frictionBonus += 20;
+                frictionType = 'emergent';
+                addLog('Emergent pattern formed! +20 resonance', 'emergent');
+            }
+
+            game.matchsticks.push(stick);
+            game.resonance += type.resonance + frictionBonus;
+            game.turn++;
+
+            // Save to history
+            game.history.push({
+                matchsticks: JSON.parse(JSON.stringify(game.matchsticks)),
+                resonance: game.resonance
+            });
+
+            addLog(`${type.name} placed. Friction: ${frictionType}. +${type.resonance + frictionBonus} resonance`, frictionType);
+
+            // Check win conditions
+            if (game.resonance >= 151 && !game.transcendenceUnlocked) {
+                game.transcendenceUnlocked = true;
+                showModal('transcendenceModal');
+            } else if (game.resonance >= 101 && !game.harmonyUnlocked) {
+                game.harmonyUnlocked = true;
+                showModal('harmonyModal');
+            }
+
+            // Check lose condition
+            if (game.resonance < 0) {
+                game.gameOver = true;
+                showModal('collapseModal');
+            }
+
+            // Check overflow
+            if (game.matchsticks.length >= 50) {
+                addLog('Bottle is full! Remove a matchstick to add more.', 'dissonant');
+            }
+
+            updateUI();
+        }
+
+        function activatePeripheralVision() {
+            if (game.peripheralVisionUses <= 0) return;
+            game.peripheralVisionUses--;
+            addLog(`Peripheral vision activated. ${game.peripheralVisionUses} uses left.`, 'emergent');
+            updateUI();
+        }
+
+        function undoMove() {
+            if (game.history.length === 0) return;
+            const previous = game.history.pop();
+            game.matchsticks = JSON.parse(JSON.stringify(previous.matchsticks));
+            game.resonance = previous.resonance;
+            addLog('Move undone.', 'neutral');
+            updateUI();
+        }
+
+        function resetGame() {
+            game.matchsticks = [];
+            game.resonance = 0;
+            game.turn = 1;
+            game.selectedMatchstick = null;
+            game.peripheralVisionUses = 3;
+            game.history = [];
+            game.gameOver = false;
+            game.harmonyUnlocked = false;
+            game.transcendenceUnlocked = false;
+            document.getElementById('gameLog').innerHTML = '';
+            updateUI();
+            closeModal('collapseModal');
+        }
+
+        function shareUniverse() {
+            const universeData = {
+                matchsticks: game.matchsticks,
+                resonance: game.resonance,
+                turn: game.turn,
+                timestamp: new Date().toISOString()
+            };
+            const encoded = btoa(JSON.stringify(universeData));
+            alert(`Universe code:\n\n${encoded.substring(0, 50)}...\n\nShare this with others!`);
+        }
+
+        function enterFanFiction() {
+            alert('Fan Fiction Mode coming soon! You can reshape this universe.');
+            closeModal('harmonyModal');
+        }
+
+        function addLog(message, type = 'neutral') {
+            const log = document.getElementById('gameLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${game.turn}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateUI() {
+            document.getElementById('resonanceValue').textContent = Math.max(0, game.resonance);
+            document.getElementById('resonanceFill').style.width = Math.min(100, (game.resonance / 150) * 100) + '%';
+            document.getElementById('turnValue').textContent = game.turn;
+            document.getElementById('matchstickCount').textContent = `${game.matchsticks.length}/50`;
+
+            const level = Math.floor(game.resonance / 20);
+            const levels = ['Void', 'Whisper', 'Hum', 'Frequency', 'Harmony', 'Transcendence'];
+            document.getElementById('levelValue').textContent = levels[Math.min(level, levels.length - 1)];
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function drawBottle() {
+            const ctx = game.ctx;
+            const centerX = game.canvas.width / 2;
+            const rimY = 80;
+            const bottleWidth = 200;
+            const bottleHeight = 500;
+
+            // Bottle rim
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX - bottleWidth / 2 - 20, rimY);
+            ctx.lineTo(centerX - bottleWidth / 2, rimY);
+            ctx.lineTo(centerX - bottleWidth / 2, rimY + 20);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX + bottleWidth / 2 + 20, rimY);
+            ctx.lineTo(centerX + bottleWidth / 2, rimY);
+            ctx.lineTo(centerX + bottleWidth / 2, rimY + 20);
+            ctx.stroke();
+
+            // Bottle body
+            ctx.beginPath();
+            ctx.moveTo(centerX - bottleWidth / 2, rimY + 20);
+            ctx.lineTo(centerX - bottleWidth / 2 - 10, rimY + 100);
+            ctx.lineTo(centerX - bottleWidth / 2 - 10, rimY + bottleHeight - 50);
+            ctx.quadraticCurveTo(centerX, rimY + bottleHeight, centerX + bottleWidth / 2 + 10, rimY + bottleHeight - 50);
+            ctx.lineTo(centerX + bottleWidth / 2 + 10, rimY + 100);
+            ctx.lineTo(centerX + bottleWidth / 2, rimY + 20);
+            ctx.stroke();
+
+            // Bottle bottom
+            ctx.beginPath();
+            ctx.ellipse(centerX, rimY + bottleHeight, bottleWidth / 2 + 10, 20, 0, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function gameLoop() {
+            // Clear canvas
+            game.ctx.fillStyle = 'rgba(10, 14, 39, 0.9)';
+            game.ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
+
+            // Draw grid background
+            game.ctx.strokeStyle = 'rgba(0, 255, 136, 0.05)';
+            game.ctx.lineWidth = 1;
+            for (let i = 0; i < game.canvas.width; i += 50) {
+                game.ctx.beginPath();
+                game.ctx.moveTo(i, 0);
+                game.ctx.lineTo(i, game.canvas.height);
+                game.ctx.stroke();
+            }
+            for (let i = 0; i < game.canvas.height; i += 50) {
+                game.ctx.beginPath();
+                game.ctx.moveTo(0, i);
+                game.ctx.lineTo(game.canvas.width, i);
+                game.ctx.stroke();
+            }
+
+            // Draw bottle
+            drawBottle();
+
+            // Draw matchsticks
+            game.matchsticks.forEach(stick => stick.draw(game.ctx));
+
+            // Draw title
+            game.ctx.fillStyle = '#00ff88';
+            game.ctx.font = 'bold 16px Courier New';
+            game.ctx.fillText('◆-◇-∞ VOID RESONANCE', 20, 30);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game
+        init();
+    </script>
+</body>
+</html>
