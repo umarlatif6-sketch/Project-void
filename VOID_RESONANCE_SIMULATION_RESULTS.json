@@ -1,0 +1,4234 @@
+{
+  "timestamp": "2026-05-23T16:58:18.877170",
+  "codon": "\u25c6-\u25c7-\u221e",
+  "simulation_type": "VOID Resonance Game Simulation",
+  "num_games": 10,
+  "statistics": {
+    "total_games": 10,
+    "avg_resonance": 874.6,
+    "max_resonance": 1301,
+    "min_resonance": 361,
+    "avg_turns": 28.8,
+    "avg_matchsticks": 28.8,
+    "harmony_unlocked_count": 10,
+    "harmony_unlock_rate": 100.0,
+    "transcendence_count": 10,
+    "transcendence_rate": 100.0,
+    "collapse_count": 0,
+    "collapse_rate": 0.0
+  },
+  "games": [
+    {
+      "game_id": 1,
+      "final_resonance": 661,
+      "final_tier": "Transcendence",
+      "total_turns": 27,
+      "total_matchsticks": 27,
+      "harmony_unlocked": true,
+      "transcendence_unlocked": true,
+      "game_over": false,
+      "matchsticks": [
+        {
+          "type": "Code",
+          "x": 275.46463175414965,
+          "y": 95.37649115384264,
+          "angle": 48.054054009890876,
+          "resonance": 8
+        },
+        {
+          "type": "Story",
+          "x": 330.0363984681973,
+          "y": 84.18736251533136,
+          "angle": 65.98952924642852,
+          "resonance": 10
+        },
+        {
+          "type": "Frequency",
+          "x": 376.94726017119274,
+          "y": 83.49861220022052,
+          "angle": 2.857985196167898,
+          "resonance": 10
+        },
+        {
+          "type": "Story",
+          "x": 310.5083659062358,
+          "y": 88.588662940522,
+          "angle": 67.17569455725605,
+          "resonance": 15
+        },
+        {
+          "type": "Story",
+          "x": 343.7881906382753,
+          "y": 99.14369165629779,
+          "angle": 31.429866882800084,
+          "resonance": 30
+        },
+        {
+          "type": "Frequency",
+          "x": 276.0678988193629,
+          "y": 93.83275444318821,
+          "angle": 12.323442287764228,
+          "resonance": 5
+        },
+        {
+          "type": "Seed",
+          "x": 363.4445531024099,
+          "y": 81.72923414011262,
+          "angle": 76.5441212765113,
+          "resonance": 30
+        },
+        {
+          "type": "Story",
+          "x": 303.364393642295,
+          "y": 82.05687811339516,
+          "angle": 42.83859901064863,
+          "resonance": 30
+        },
+        {
+          "type": "Seed",
+          "x": 266.50367115783365,
+          "y": 85.94181848333825,
+          "angle": 58.95966005076388,
+          "resonance": 45
+        },
+        {
+          "type": "Frequency",
+          "x": 221.3956703066588,
+          "y": 94.85733700986164,
+          "angle": 42.26457494081481,
+          "resonance": 45
+        },
+        {
+          "type": "Code",
+          "x": 234.33181833212942,
+          "y": 86.30153109485457,
+          "angle": 9.293949281666642,
+          "resonance": 8
+        },
+        {
+          "type": "Code",
+          "x": 359.0837760049883,
+          "y": 84.08370794232378,
+          "angle": 77.08734815917383,
+          "resonance": 28
+        },
+        {
+          "type": "Code",
+          "x": 285.1144438904955,
+          "y": 88.83675002389143,
+          "angle": 36.46942531413132,
+          "resonance": 38
+        },
+        {
+          "type": "Code",
+          "x": 373.4877206331662,
+          "y": 89.59791091099967,
+          "angle": 79.75571412639422,
+          "resonance": 38
+        },
+        {
+          "type": "Code",
+          "x": 347.0257722388189,
+          "y": 94.85927966796183,
+          "angle": 35.490791120741726,
+          "resonance": 53
+        },
+        {
+          "type": "Code",
+          "x": 229.57433301664977,
+          "y": 92.18751807788279,
+          "angle": 4.412033963484811,
+          "resonance": 18
+        },
+        {
+          "type": "Story",
+          "x": 238.41198577071538,
+          "y": 80.72677710692838,
+          "angle": 6.800884187589968,
+          "resonance": 25
+        },
+        {
+          "type": "Seed",
+          "x": 309.80477251625575,
+          "y": 90.40787355723205,
+          "angle": 78.71369255079196,
+          "resonance": 35
+        },
+        {
+          "type": "Frequency",
+          "x": 348.74295992807276,
+          "y": 98.09514978398192,
+          "angle": 6.708071287665801,
+          "resonance": 0
+        },
+        {
+          "type": "Story",
+          "x": 262.35842121648864,
+          "y": 81.54086506858742,
+          "angle": 70.44315722327129,
+          "resonance": 50
+        },
+        {
+          "type": "Seed",
+          "x": 230.3967815725635,
+          "y": 87.96377253268516,
+          "angle": 36.5739513289711,
+          "resonance": 55
+        },
+        {
+          "type": "Idea",
+          "x": 284.8834140982003,
+          "y": 97.71717397918201,
+          "angle": 81.34645894653556,
+          "resonance": 0
+        },
+        {
+          "type": "Story",
+          "x": 265.243943741641,
+          "y": 86.62113706327403,
+          "angle": 66.46973795525643,
+          "resonance": 50
+        },
+        {
+          "type": "Story",
+          "x": 242.80921913243643,
+          "y": 88.76225396623695,
+          "angle": 8.316371920683723,
+          "resonance": 20
+        },
+        {
+          "type": "Idea",
+          "x": 230.795248284292,
+          "y": 94.28527540593142,
+          "angle": 29.33300432646084,
+          "resonance": 50
+        },
+        {
+          "type": "Story",
+          "x": 270.6653820633928,
+          "y": 99.38590632156263,
+          "angle": 88.16614956285865,
+          "resonance": -40
+        },
+        {
+          "type": "Frequency",
+          "x": 371.6259454035562,
+          "y": 98.17085186017151,
+          "angle": 12.49282742713752,
+          "resonance": 5
+        }
+      ],
+      "history": [
+        {
+          "turn": 1,
+          "matchsticks": 1,
+          "resonance": 8,
+          "tier": "Void"
+        },
+        {
+          "turn": 2,
+          "matchsticks": 2,
+          "resonance": 18,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 3,
+          "matchsticks": 3,
+          "resonance": 28,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 4,
+          "matchsticks": 4,
+          "resonance": 43,
+          "tier": "Hum"
+        },
+        {
+          "turn": 5,
+          "matchsticks": 5,
+          "resonance": 73,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 6,
+          "matchsticks": 6,
+          "resonance": 78,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 7,
+          "matchsticks": 7,
+          "resonance": 108,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 8,
+          "matchsticks": 8,
+          "resonance": 138,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 9,
+          "matchsticks": 9,
+          "resonance": 183,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 10,
+          "matchsticks": 10,
+          "resonance": 228,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 11,
+          "matchsticks": 11,
+          "resonance": 236,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 12,
+          "matchsticks": 12,
+          "resonance": 264,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 13,
+          "matchsticks": 13,
+          "resonance": 302,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 14,
+          "matchsticks": 14,
+          "resonance": 340,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 15,
+          "matchsticks": 15,
+          "resonance": 393,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 16,
+          "matchsticks": 16,
+          "resonance": 411,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 17,
+          "matchsticks": 17,
+          "resonance": 436,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 18,
+          "matchsticks": 18,
+          "resonance": 471,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 19,
+          "matchsticks": 19,
+          "resonance": 471,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 20,
+          "matchsticks": 20,
+          "resonance": 521,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 21,
+          "matchsticks": 21,
+          "resonance": 576,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 22,
+          "matchsticks": 22,
+          "resonance": 576,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 23,
+          "matchsticks": 23,
+          "resonance": 626,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 24,
+          "matchsticks": 24,
+          "resonance": 646,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 25,
+          "matchsticks": 25,
+          "resonance": 696,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 26,
+          "matchsticks": 26,
+          "resonance": 656,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 27,
+          "matchsticks": 27,
+          "resonance": 661,
+          "tier": "Transcendence"
+        }
+      ],
+      "log": [
+        "[Turn 1] Code placed. Friction: neutral. +8 resonance (Total: 8)",
+        "[Turn 2] Story placed. Friction: neutral. +10 resonance (Total: 18)",
+        "[Turn 3] Frequency placed. Friction: dissonant. +10 resonance (Total: 28)",
+        "[Turn 4] Story placed. Friction: dissonant. +15 resonance (Total: 43)",
+        "[Turn 5] Story placed. Friction: emergent. +30 resonance (Total: 73)",
+        "[Turn 6] Frequency placed. Friction: dissonant. +5 resonance (Total: 78)",
+        "[Turn 7] Seed placed. Friction: dissonant. +30 resonance (Total: 108)",
+        "[Turn 7] \u2728 HARMONY REACHED! \u2728",
+        "[Turn 8] Story placed. Friction: harmonic. +30 resonance (Total: 138)",
+        "[Turn 9] Seed placed. Friction: dissonant. +45 resonance (Total: 183)",
+        "[Turn 9] \ud83c\udf1f TRANSCENDENCE REACHED! \ud83c\udf1f",
+        "[Turn 10] Frequency placed. Friction: emergent. +45 resonance (Total: 228)",
+        "[Turn 11] Code placed. Friction: dissonant. +8 resonance (Total: 236)",
+        "[Turn 12] Code placed. Friction: harmonic. +28 resonance (Total: 264)",
+        "[Turn 13] Code placed. Friction: dissonant. +38 resonance (Total: 302)",
+        "[Turn 14] Code placed. Friction: harmonic. +38 resonance (Total: 340)",
+        "[Turn 15] Code placed. Friction: emergent. +53 resonance (Total: 393)",
+        "[Turn 16] Code placed. Friction: harmonic. +18 resonance (Total: 411)",
+        "[Turn 17] Story placed. Friction: harmonic. +25 resonance (Total: 436)",
+        "[Turn 18] Seed placed. Friction: dissonant. +35 resonance (Total: 471)",
+        "[Turn 19] Frequency placed. Friction: dissonant. +0 resonance (Total: 471)",
+        "[Turn 20] Story placed. Friction: emergent. +50 resonance (Total: 521)",
+        "[Turn 21] Seed placed. Friction: dissonant. +55 resonance (Total: 576)",
+        "[Turn 22] Idea placed. Friction: dissonant. +0 resonance (Total: 576)",
+        "[Turn 23] Story placed. Friction: harmonic. +50 resonance (Total: 626)",
+        "[Turn 24] Story placed. Friction: dissonant. +20 resonance (Total: 646)",
+        "[Turn 25] Idea placed. Friction: emergent. +50 resonance (Total: 696)",
+        "[Turn 26] Story placed. Friction: dissonant. +-40 resonance (Total: 656)",
+        "[Turn 27] Frequency placed. Friction: harmonic. +5 resonance (Total: 661)"
+      ]
+    },
+    {
+      "game_id": 2,
+      "final_resonance": 512,
+      "final_tier": "Transcendence",
+      "total_turns": 21,
+      "total_matchsticks": 21,
+      "harmony_unlocked": true,
+      "transcendence_unlocked": true,
+      "game_over": false,
+      "matchsticks": [
+        {
+          "type": "Idea",
+          "x": 349.3225009561079,
+          "y": 90.20792308951603,
+          "angle": 35.74372142681607,
+          "resonance": 5
+        },
+        {
+          "type": "Seed",
+          "x": 306.4733842363985,
+          "y": 88.27079923525969,
+          "angle": 81.11194035911042,
+          "resonance": 15
+        },
+        {
+          "type": "Story",
+          "x": 351.18378575046916,
+          "y": 88.61185223633765,
+          "angle": 10.341115177074059,
+          "resonance": 5
+        },
+        {
+          "type": "Code",
+          "x": 352.60286767686625,
+          "y": 93.50569458604485,
+          "angle": 77.33052883915013,
+          "resonance": 8
+        },
+        {
+          "type": "Story",
+          "x": 238.7136744016815,
+          "y": 93.19598437835882,
+          "angle": 3.787594995000678,
+          "resonance": 25
+        },
+        {
+          "type": "Seed",
+          "x": 321.3549321758931,
+          "y": 95.43265930214515,
+          "angle": 43.13009461913025,
+          "resonance": 30
+        },
+        {
+          "type": "Frequency",
+          "x": 348.6014346474601,
+          "y": 91.93189235032193,
+          "angle": 41.213545926674975,
+          "resonance": 35
+        },
+        {
+          "type": "Code",
+          "x": 282.32360067226705,
+          "y": 82.53443675161533,
+          "angle": 20.08933984320634,
+          "resonance": 8
+        },
+        {
+          "type": "Seed",
+          "x": 291.65931945127704,
+          "y": 94.36332589367184,
+          "angle": 84.96263041746893,
+          "resonance": 10
+        },
+        {
+          "type": "Story",
+          "x": 277.19464562618725,
+          "y": 85.42219535645405,
+          "angle": 72.01048210172289,
+          "resonance": 45
+        },
+        {
+          "type": "Seed",
+          "x": 273.6711767762511,
+          "y": 97.82688819127874,
+          "angle": 28.317813063850934,
+          "resonance": 40
+        },
+        {
+          "type": "Frequency",
+          "x": 248.02322811292294,
+          "y": 87.18731995163768,
+          "angle": 72.97425397152976,
+          "resonance": 30
+        },
+        {
+          "type": "Story",
+          "x": 314.9719373312846,
+          "y": 93.59281801405392,
+          "angle": 9.736905453136862,
+          "resonance": 15
+        },
+        {
+          "type": "Code",
+          "x": 242.53261197750058,
+          "y": 86.03496484115739,
+          "angle": 83.00251370543019,
+          "resonance": 28
+        },
+        {
+          "type": "Idea",
+          "x": 330.31600584662897,
+          "y": 93.979704811495,
+          "angle": 39.064748878537024,
+          "resonance": 55
+        },
+        {
+          "type": "Frequency",
+          "x": 221.86495112160836,
+          "y": 88.88029594119786,
+          "angle": 47.80955984116464,
+          "resonance": 10
+        },
+        {
+          "type": "Code",
+          "x": 234.6293206562189,
+          "y": 89.984502417862,
+          "angle": 61.42667320765817,
+          "resonance": 28
+        },
+        {
+          "type": "Story",
+          "x": 339.64972119285994,
+          "y": 98.7617671840733,
+          "angle": 50.70768398927965,
+          "resonance": 40
+        },
+        {
+          "type": "Frequency",
+          "x": 231.0018273148634,
+          "y": 96.98940457100298,
+          "angle": 32.548045351802955,
+          "resonance": 15
+        },
+        {
+          "type": "Story",
+          "x": 317.4163682103872,
+          "y": 97.11432032360354,
+          "angle": 65.50142156162113,
+          "resonance": 50
+        },
+        {
+          "type": "Idea",
+          "x": 369.31214495049244,
+          "y": 81.47240284545137,
+          "angle": 23.201895282486593,
+          "resonance": 15
+        }
+      ],
+      "history": [
+        {
+          "turn": 1,
+          "matchsticks": 1,
+          "resonance": 5,
+          "tier": "Void"
+        },
+        {
+          "turn": 2,
+          "matchsticks": 2,
+          "resonance": 20,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 3,
+          "matchsticks": 3,
+          "resonance": 25,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 4,
+          "matchsticks": 4,
+          "resonance": 33,
+          "tier": "Hum"
+        },
+        {
+          "turn": 5,
+          "matchsticks": 5,
+          "resonance": 58,
+          "tier": "Hum"
+        },
+        {
+          "turn": 6,
+          "matchsticks": 6,
+          "resonance": 88,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 7,
+          "matchsticks": 7,
+          "resonance": 123,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 8,
+          "matchsticks": 8,
+          "resonance": 131,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 9,
+          "matchsticks": 9,
+          "resonance": 141,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 10,
+          "matchsticks": 10,
+          "resonance": 186,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 11,
+          "matchsticks": 11,
+          "resonance": 226,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 12,
+          "matchsticks": 12,
+          "resonance": 256,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 13,
+          "matchsticks": 13,
+          "resonance": 271,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 14,
+          "matchsticks": 14,
+          "resonance": 299,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 15,
+          "matchsticks": 15,
+          "resonance": 354,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 16,
+          "matchsticks": 16,
+          "resonance": 364,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 17,
+          "matchsticks": 17,
+          "resonance": 392,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 18,
+          "matchsticks": 18,
+          "resonance": 432,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 19,
+          "matchsticks": 19,
+          "resonance": 447,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 20,
+          "matchsticks": 20,
+          "resonance": 497,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 21,
+          "matchsticks": 21,
+          "resonance": 512,
+          "tier": "Transcendence"
+        }
+      ],
+      "log": [
+        "[Turn 1] Idea placed. Friction: neutral. +5 resonance (Total: 5)",
+        "[Turn 2] Seed placed. Friction: dissonant. +15 resonance (Total: 20)",
+        "[Turn 3] Story placed. Friction: dissonant. +5 resonance (Total: 25)",
+        "[Turn 4] Code placed. Friction: dissonant. +8 resonance (Total: 33)",
+        "[Turn 5] Story placed. Friction: emergent. +25 resonance (Total: 58)",
+        "[Turn 6] Seed placed. Friction: harmonic. +30 resonance (Total: 88)",
+        "[Turn 7] Frequency placed. Friction: harmonic. +35 resonance (Total: 123)",
+        "[Turn 7] \u2728 HARMONY REACHED! \u2728",
+        "[Turn 8] Code placed. Friction: dissonant. +8 resonance (Total: 131)",
+        "[Turn 9] Seed placed. Friction: dissonant. +10 resonance (Total: 141)",
+        "[Turn 10] Story placed. Friction: emergent. +45 resonance (Total: 186)",
+        "[Turn 10] \ud83c\udf1f TRANSCENDENCE REACHED! \ud83c\udf1f",
+        "[Turn 11] Seed placed. Friction: dissonant. +40 resonance (Total: 226)",
+        "[Turn 12] Frequency placed. Friction: dissonant. +30 resonance (Total: 256)",
+        "[Turn 13] Story placed. Friction: dissonant. +15 resonance (Total: 271)",
+        "[Turn 14] Code placed. Friction: dissonant. +28 resonance (Total: 299)",
+        "[Turn 15] Idea placed. Friction: emergent. +55 resonance (Total: 354)",
+        "[Turn 16] Frequency placed. Friction: dissonant. +10 resonance (Total: 364)",
+        "[Turn 17] Code placed. Friction: harmonic. +28 resonance (Total: 392)",
+        "[Turn 18] Story placed. Friction: harmonic. +40 resonance (Total: 432)",
+        "[Turn 19] Frequency placed. Friction: dissonant. +15 resonance (Total: 447)",
+        "[Turn 20] Story placed. Friction: emergent. +50 resonance (Total: 497)",
+        "[Turn 21] Idea placed. Friction: dissonant. +15 resonance (Total: 512)"
+      ]
+    },
+    {
+      "game_id": 3,
+      "final_resonance": 1166,
+      "final_tier": "Transcendence",
+      "total_turns": 31,
+      "total_matchsticks": 31,
+      "harmony_unlocked": true,
+      "transcendence_unlocked": true,
+      "game_over": false,
+      "matchsticks": [
+        {
+          "type": "Code",
+          "x": 378.0971428101602,
+          "y": 88.19233150447,
+          "angle": 73.4862787196846,
+          "resonance": 8
+        },
+        {
+          "type": "Story",
+          "x": 364.02441688653414,
+          "y": 94.02598625777127,
+          "angle": 33.32581936098401,
+          "resonance": 5
+        },
+        {
+          "type": "Code",
+          "x": 295.84578389131235,
+          "y": 93.4687068537099,
+          "angle": 28.54506530021296,
+          "resonance": 18
+        },
+        {
+          "type": "Code",
+          "x": 252.27864294864114,
+          "y": 91.92903855399605,
+          "angle": 11.501023692488706,
+          "resonance": 8
+        },
+        {
+          "type": "Story",
+          "x": 331.5935376335034,
+          "y": 92.15258403872447,
+          "angle": 10.880146173637698,
+          "resonance": 35
+        },
+        {
+          "type": "Story",
+          "x": 250.7832564566823,
+          "y": 90.13572188419106,
+          "angle": 62.863174323077175,
+          "resonance": 5
+        },
+        {
+          "type": "Code",
+          "x": 332.2857011565341,
+          "y": 87.59808321883834,
+          "angle": 79.74549526208985,
+          "resonance": 3
+        },
+        {
+          "type": "Story",
+          "x": 318.5461337856739,
+          "y": 97.63781065057479,
+          "angle": 17.308796372796227,
+          "resonance": 25
+        },
+        {
+          "type": "Code",
+          "x": 313.5326358376035,
+          "y": 97.76087623890822,
+          "angle": 75.43936962271553,
+          "resonance": 13
+        },
+        {
+          "type": "Seed",
+          "x": 277.15082339602486,
+          "y": 82.53130832430556,
+          "angle": 34.64609069817556,
+          "resonance": 40
+        },
+        {
+          "type": "Idea",
+          "x": 330.1017592776751,
+          "y": 88.19819839854141,
+          "angle": 41.84521730312023,
+          "resonance": 35
+        },
+        {
+          "type": "Code",
+          "x": 367.6305496916169,
+          "y": 95.22052027866077,
+          "angle": 15.335208257644103,
+          "resonance": 23
+        },
+        {
+          "type": "Frequency",
+          "x": 368.16989780214533,
+          "y": 90.06244121542673,
+          "angle": 12.144590123224578,
+          "resonance": 30
+        },
+        {
+          "type": "Story",
+          "x": 316.27703484377946,
+          "y": 99.830772436027,
+          "angle": 36.45633376659219,
+          "resonance": 45
+        },
+        {
+          "type": "Frequency",
+          "x": 300.0799343534468,
+          "y": 82.22416121725895,
+          "angle": 54.33589938634336,
+          "resonance": 40
+        },
+        {
+          "type": "Seed",
+          "x": 248.8005154949021,
+          "y": 83.64585387210339,
+          "angle": 46.008106630975526,
+          "resonance": 50
+        },
+        {
+          "type": "Idea",
+          "x": 227.3484635705064,
+          "y": 90.36780312633937,
+          "angle": 44.21791182411183,
+          "resonance": 35
+        },
+        {
+          "type": "Story",
+          "x": 251.14616043257857,
+          "y": 95.29305496981769,
+          "angle": 42.727613352014714,
+          "resonance": 80
+        },
+        {
+          "type": "Code",
+          "x": 225.06290305474494,
+          "y": 97.77069565491946,
+          "angle": 67.48970221128269,
+          "resonance": 23
+        },
+        {
+          "type": "Story",
+          "x": 238.01018297249138,
+          "y": 89.51139410676305,
+          "angle": 32.17878789930669,
+          "resonance": 85
+        },
+        {
+          "type": "Idea",
+          "x": 344.4079524331528,
+          "y": 88.38237939408359,
+          "angle": 67.37910006807651,
+          "resonance": 25
+        },
+        {
+          "type": "Code",
+          "x": 373.33918258465144,
+          "y": 95.275968908729,
+          "angle": 53.304146739749335,
+          "resonance": 28
+        },
+        {
+          "type": "Story",
+          "x": 302.4571542578576,
+          "y": 96.97888806334367,
+          "angle": 19.373818907040146,
+          "resonance": 60
+        },
+        {
+          "type": "Code",
+          "x": 355.55993928336363,
+          "y": 97.39784655136222,
+          "angle": 3.8514275261322553,
+          "resonance": 18
+        },
+        {
+          "type": "Frequency",
+          "x": 224.57360895747917,
+          "y": 82.13663022591382,
+          "angle": 38.28400134354929,
+          "resonance": 95
+        },
+        {
+          "type": "Code",
+          "x": 340.8391347834636,
+          "y": 84.7486698067827,
+          "angle": 17.20636668831527,
+          "resonance": 58
+        },
+        {
+          "type": "Seed",
+          "x": 229.70352362673344,
+          "y": 96.61245779474807,
+          "angle": 33.05745135245087,
+          "resonance": 100
+        },
+        {
+          "type": "Seed",
+          "x": 318.88500349630726,
+          "y": 83.90258507429367,
+          "angle": 45.71067982839771,
+          "resonance": 95
+        },
+        {
+          "type": "Story",
+          "x": 324.86605981347304,
+          "y": 91.95300947578568,
+          "angle": 68.40559220214315,
+          "resonance": 30
+        },
+        {
+          "type": "Code",
+          "x": 320.1001945678893,
+          "y": 99.33570747004562,
+          "angle": 89.72476765314568,
+          "resonance": -32
+        },
+        {
+          "type": "Code",
+          "x": 311.93392988798115,
+          "y": 84.00410406824089,
+          "angle": 18.576350719333448,
+          "resonance": 83
+        }
+      ],
+      "history": [
+        {
+          "turn": 1,
+          "matchsticks": 1,
+          "resonance": 8,
+          "tier": "Void"
+        },
+        {
+          "turn": 2,
+          "matchsticks": 2,
+          "resonance": 13,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 3,
+          "matchsticks": 3,
+          "resonance": 31,
+          "tier": "Hum"
+        },
+        {
+          "turn": 4,
+          "matchsticks": 4,
+          "resonance": 39,
+          "tier": "Hum"
+        },
+        {
+          "turn": 5,
+          "matchsticks": 5,
+          "resonance": 74,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 6,
+          "matchsticks": 6,
+          "resonance": 79,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 7,
+          "matchsticks": 7,
+          "resonance": 82,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 8,
+          "matchsticks": 8,
+          "resonance": 107,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 9,
+          "matchsticks": 9,
+          "resonance": 120,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 10,
+          "matchsticks": 10,
+          "resonance": 160,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 11,
+          "matchsticks": 11,
+          "resonance": 195,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 12,
+          "matchsticks": 12,
+          "resonance": 218,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 13,
+          "matchsticks": 13,
+          "resonance": 248,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 14,
+          "matchsticks": 14,
+          "resonance": 293,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 15,
+          "matchsticks": 15,
+          "resonance": 333,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 16,
+          "matchsticks": 16,
+          "resonance": 383,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 17,
+          "matchsticks": 17,
+          "resonance": 418,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 18,
+          "matchsticks": 18,
+          "resonance": 498,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 19,
+          "matchsticks": 19,
+          "resonance": 521,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 20,
+          "matchsticks": 20,
+          "resonance": 606,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 21,
+          "matchsticks": 21,
+          "resonance": 631,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 22,
+          "matchsticks": 22,
+          "resonance": 659,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 23,
+          "matchsticks": 23,
+          "resonance": 719,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 24,
+          "matchsticks": 24,
+          "resonance": 737,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 25,
+          "matchsticks": 25,
+          "resonance": 832,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 26,
+          "matchsticks": 26,
+          "resonance": 890,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 27,
+          "matchsticks": 27,
+          "resonance": 990,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 28,
+          "matchsticks": 28,
+          "resonance": 1085,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 29,
+          "matchsticks": 29,
+          "resonance": 1115,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 30,
+          "matchsticks": 30,
+          "resonance": 1083,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 31,
+          "matchsticks": 31,
+          "resonance": 1166,
+          "tier": "Transcendence"
+        }
+      ],
+      "log": [
+        "[Turn 1] Code placed. Friction: neutral. +8 resonance (Total: 8)",
+        "[Turn 2] Story placed. Friction: dissonant. +5 resonance (Total: 13)",
+        "[Turn 3] Code placed. Friction: harmonic. +18 resonance (Total: 31)",
+        "[Turn 4] Code placed. Friction: neutral. +8 resonance (Total: 39)",
+        "[Turn 5] Story placed. Friction: emergent. +35 resonance (Total: 74)",
+        "[Turn 6] Story placed. Friction: dissonant. +5 resonance (Total: 79)",
+        "[Turn 7] Code placed. Friction: dissonant. +3 resonance (Total: 82)",
+        "[Turn 8] Story placed. Friction: dissonant. +25 resonance (Total: 107)",
+        "[Turn 8] \u2728 HARMONY REACHED! \u2728",
+        "[Turn 9] Code placed. Friction: dissonant. +13 resonance (Total: 120)",
+        "[Turn 10] Seed placed. Friction: emergent. +40 resonance (Total: 160)",
+        "[Turn 10] \ud83c\udf1f TRANSCENDENCE REACHED! \ud83c\udf1f",
+        "[Turn 11] Idea placed. Friction: harmonic. +35 resonance (Total: 195)",
+        "[Turn 12] Code placed. Friction: dissonant. +23 resonance (Total: 218)",
+        "[Turn 13] Frequency placed. Friction: harmonic. +30 resonance (Total: 248)",
+        "[Turn 14] Story placed. Friction: harmonic. +45 resonance (Total: 293)",
+        "[Turn 15] Frequency placed. Friction: emergent. +40 resonance (Total: 333)",
+        "[Turn 16] Seed placed. Friction: harmonic. +50 resonance (Total: 383)",
+        "[Turn 17] Idea placed. Friction: harmonic. +35 resonance (Total: 418)",
+        "[Turn 18] Story placed. Friction: harmonic. +80 resonance (Total: 498)",
+        "[Turn 19] Code placed. Friction: harmonic. +23 resonance (Total: 521)",
+        "[Turn 20] Story placed. Friction: emergent. +85 resonance (Total: 606)",
+        "[Turn 21] Idea placed. Friction: harmonic. +25 resonance (Total: 631)",
+        "[Turn 22] Code placed. Friction: harmonic. +28 resonance (Total: 659)",
+        "[Turn 23] Story placed. Friction: dissonant. +60 resonance (Total: 719)",
+        "[Turn 24] Code placed. Friction: dissonant. +18 resonance (Total: 737)",
+        "[Turn 25] Frequency placed. Friction: emergent. +95 resonance (Total: 832)",
+        "[Turn 26] Code placed. Friction: harmonic. +58 resonance (Total: 890)",
+        "[Turn 27] Seed placed. Friction: harmonic. +100 resonance (Total: 990)",
+        "[Turn 28] Seed placed. Friction: dissonant. +95 resonance (Total: 1085)",
+        "[Turn 29] Story placed. Friction: dissonant. +30 resonance (Total: 1115)",
+        "[Turn 30] Code placed. Friction: emergent. +-32 resonance (Total: 1083)",
+        "[Turn 31] Code placed. Friction: dissonant. +83 resonance (Total: 1166)"
+      ]
+    },
+    {
+      "game_id": 4,
+      "final_resonance": 1013,
+      "final_tier": "Transcendence",
+      "total_turns": 37,
+      "total_matchsticks": 37,
+      "harmony_unlocked": true,
+      "transcendence_unlocked": true,
+      "game_over": false,
+      "matchsticks": [
+        {
+          "type": "Story",
+          "x": 299.19932133971093,
+          "y": 82.74362386241506,
+          "angle": 27.611184481426545,
+          "resonance": 10
+        },
+        {
+          "type": "Seed",
+          "x": 300.1494018964587,
+          "y": 96.03541531002348,
+          "angle": 78.95531720585167,
+          "resonance": 15
+        },
+        {
+          "type": "Story",
+          "x": 273.4121668497594,
+          "y": 97.66073194711731,
+          "angle": 45.1300444816228,
+          "resonance": 10
+        },
+        {
+          "type": "Code",
+          "x": 356.97207841689686,
+          "y": 90.39837027930938,
+          "angle": 7.248643947234786,
+          "resonance": 3
+        },
+        {
+          "type": "Code",
+          "x": 284.3599824090787,
+          "y": 87.60091564532385,
+          "angle": 66.38315753391106,
+          "resonance": 33
+        },
+        {
+          "type": "Idea",
+          "x": 348.89417793042077,
+          "y": 98.03178386157497,
+          "angle": 77.87996593827248,
+          "resonance": 15
+        },
+        {
+          "type": "Idea",
+          "x": 253.87146464163067,
+          "y": 97.10909359979863,
+          "angle": 0.5008928454375616,
+          "resonance": -10
+        },
+        {
+          "type": "Idea",
+          "x": 343.3025450837964,
+          "y": 96.64342381559118,
+          "angle": 56.82667242895767,
+          "resonance": 20
+        },
+        {
+          "type": "Seed",
+          "x": 244.51144703585328,
+          "y": 82.5267969024236,
+          "angle": 12.386444148288525,
+          "resonance": 20
+        },
+        {
+          "type": "Frequency",
+          "x": 276.6208466944248,
+          "y": 95.57594833546295,
+          "angle": 52.06988894633151,
+          "resonance": 60
+        },
+        {
+          "type": "Seed",
+          "x": 228.9252603727969,
+          "y": 98.19001277489858,
+          "angle": 22.243157294343405,
+          "resonance": 30
+        },
+        {
+          "type": "Frequency",
+          "x": 349.76517050848497,
+          "y": 96.96443811371371,
+          "angle": 76.0211037761135,
+          "resonance": 35
+        },
+        {
+          "type": "Seed",
+          "x": 268.26718737802514,
+          "y": 92.82118941938826,
+          "angle": 89.28427009954132,
+          "resonance": 5
+        },
+        {
+          "type": "Idea",
+          "x": 291.91405059996526,
+          "y": 83.47991240497308,
+          "angle": 17.556717258744204,
+          "resonance": 20
+        },
+        {
+          "type": "Story",
+          "x": 242.18325117139452,
+          "y": 92.97041816653694,
+          "angle": 66.80086421914321,
+          "resonance": 40
+        },
+        {
+          "type": "Code",
+          "x": 312.2317280152706,
+          "y": 90.6815498445584,
+          "angle": 85.46965661736186,
+          "resonance": 18
+        },
+        {
+          "type": "Idea",
+          "x": 233.05134675016038,
+          "y": 85.02379351895779,
+          "angle": 38.767155685022615,
+          "resonance": 20
+        },
+        {
+          "type": "Frequency",
+          "x": 365.48946384709245,
+          "y": 97.73425549245442,
+          "angle": 40.62049291068425,
+          "resonance": 20
+        },
+        {
+          "type": "Story",
+          "x": 276.79805142392144,
+          "y": 99.51722374153535,
+          "angle": 57.85307385535639,
+          "resonance": 45
+        },
+        {
+          "type": "Frequency",
+          "x": 230.70694962623423,
+          "y": 90.72862962061436,
+          "angle": 0.9726450621410054,
+          "resonance": 20
+        },
+        {
+          "type": "Idea",
+          "x": 353.0880779375788,
+          "y": 86.72778047175345,
+          "angle": 42.32528605931733,
+          "resonance": 40
+        },
+        {
+          "type": "Seed",
+          "x": 227.83775457856837,
+          "y": 92.86098946113546,
+          "angle": 43.312309506394435,
+          "resonance": 45
+        },
+        {
+          "type": "Seed",
+          "x": 360.53539098315,
+          "y": 89.82705834874787,
+          "angle": 62.454664316749295,
+          "resonance": 40
+        },
+        {
+          "type": "Frequency",
+          "x": 336.1635509707416,
+          "y": 86.64753056370898,
+          "angle": 86.34649244403728,
+          "resonance": 35
+        },
+        {
+          "type": "Frequency",
+          "x": 229.4579418110727,
+          "y": 82.66672243867183,
+          "angle": 73.18694393509074,
+          "resonance": 35
+        },
+        {
+          "type": "Code",
+          "x": 329.3920685025839,
+          "y": 92.34849130119632,
+          "angle": 73.64215807497666,
+          "resonance": 58
+        },
+        {
+          "type": "Story",
+          "x": 365.70715402347827,
+          "y": 90.50865433544051,
+          "angle": 47.03883392250993,
+          "resonance": 40
+        },
+        {
+          "type": "Code",
+          "x": 336.6123512192399,
+          "y": 97.04746105887641,
+          "angle": 33.60773980701884,
+          "resonance": 23
+        },
+        {
+          "type": "Story",
+          "x": 262.93675871815583,
+          "y": 90.58117785836001,
+          "angle": 86.28735571148734,
+          "resonance": 20
+        },
+        {
+          "type": "Frequency",
+          "x": 282.63293929039025,
+          "y": 87.37079312317793,
+          "angle": 34.22080881213512,
+          "resonance": 70
+        },
+        {
+          "type": "Frequency",
+          "x": 221.17587939096785,
+          "y": 96.63589920439333,
+          "angle": 1.3310032518792025,
+          "resonance": -5
+        },
+        {
+          "type": "Frequency",
+          "x": 256.7617974524245,
+          "y": 80.55345640677132,
+          "angle": 3.882993669145598,
+          "resonance": 5
+        },
+        {
+          "type": "Frequency",
+          "x": 348.51853177948556,
+          "y": 89.19706617326574,
+          "angle": 30.121867077838196,
+          "resonance": 45
+        },
+        {
+          "type": "Code",
+          "x": 273.2538778674072,
+          "y": 95.06352160940514,
+          "angle": 84.33228928552661,
+          "resonance": 33
+        },
+        {
+          "type": "Frequency",
+          "x": 252.39078113864815,
+          "y": 93.8451795606599,
+          "angle": 20.53500539874488,
+          "resonance": 40
+        },
+        {
+          "type": "Frequency",
+          "x": 315.80431178822414,
+          "y": 94.88934870788833,
+          "angle": 12.81277952210102,
+          "resonance": 15
+        },
+        {
+          "type": "Idea",
+          "x": 306.24190705090507,
+          "y": 81.59700194346507,
+          "angle": 25.401201411991813,
+          "resonance": 45
+        }
+      ],
+      "history": [
+        {
+          "turn": 1,
+          "matchsticks": 1,
+          "resonance": 10,
+          "tier": "Void"
+        },
+        {
+          "turn": 2,
+          "matchsticks": 2,
+          "resonance": 25,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 3,
+          "matchsticks": 3,
+          "resonance": 35,
+          "tier": "Hum"
+        },
+        {
+          "turn": 4,
+          "matchsticks": 4,
+          "resonance": 38,
+          "tier": "Hum"
+        },
+        {
+          "turn": 5,
+          "matchsticks": 5,
+          "resonance": 71,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 6,
+          "matchsticks": 6,
+          "resonance": 86,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 7,
+          "matchsticks": 7,
+          "resonance": 76,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 8,
+          "matchsticks": 8,
+          "resonance": 96,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 9,
+          "matchsticks": 9,
+          "resonance": 116,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 10,
+          "matchsticks": 10,
+          "resonance": 176,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 11,
+          "matchsticks": 11,
+          "resonance": 206,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 12,
+          "matchsticks": 12,
+          "resonance": 241,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 13,
+          "matchsticks": 13,
+          "resonance": 246,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 14,
+          "matchsticks": 14,
+          "resonance": 266,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 15,
+          "matchsticks": 15,
+          "resonance": 306,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 16,
+          "matchsticks": 16,
+          "resonance": 324,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 17,
+          "matchsticks": 17,
+          "resonance": 344,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 18,
+          "matchsticks": 18,
+          "resonance": 364,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 19,
+          "matchsticks": 19,
+          "resonance": 409,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 20,
+          "matchsticks": 20,
+          "resonance": 429,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 21,
+          "matchsticks": 21,
+          "resonance": 469,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 22,
+          "matchsticks": 22,
+          "resonance": 514,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 23,
+          "matchsticks": 23,
+          "resonance": 554,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 24,
+          "matchsticks": 24,
+          "resonance": 589,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 25,
+          "matchsticks": 25,
+          "resonance": 624,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 26,
+          "matchsticks": 26,
+          "resonance": 682,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 27,
+          "matchsticks": 27,
+          "resonance": 722,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 28,
+          "matchsticks": 28,
+          "resonance": 745,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 29,
+          "matchsticks": 29,
+          "resonance": 765,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 30,
+          "matchsticks": 30,
+          "resonance": 835,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 31,
+          "matchsticks": 31,
+          "resonance": 830,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 32,
+          "matchsticks": 32,
+          "resonance": 835,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 33,
+          "matchsticks": 33,
+          "resonance": 880,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 34,
+          "matchsticks": 34,
+          "resonance": 913,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 35,
+          "matchsticks": 35,
+          "resonance": 953,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 36,
+          "matchsticks": 36,
+          "resonance": 968,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 37,
+          "matchsticks": 37,
+          "resonance": 1013,
+          "tier": "Transcendence"
+        }
+      ],
+      "log": [
+        "[Turn 1] Story placed. Friction: neutral. +10 resonance (Total: 10)",
+        "[Turn 2] Seed placed. Friction: dissonant. +15 resonance (Total: 25)",
+        "[Turn 3] Story placed. Friction: neutral. +10 resonance (Total: 35)",
+        "[Turn 4] Code placed. Friction: dissonant. +3 resonance (Total: 38)",
+        "[Turn 5] Code placed. Friction: emergent. +33 resonance (Total: 71)",
+        "[Turn 6] Idea placed. Friction: harmonic. +15 resonance (Total: 86)",
+        "[Turn 7] Idea placed. Friction: dissonant. +-10 resonance (Total: 76)",
+        "[Turn 8] Idea placed. Friction: harmonic. +20 resonance (Total: 96)",
+        "[Turn 9] Seed placed. Friction: harmonic. +20 resonance (Total: 116)",
+        "[Turn 9] \u2728 HARMONY REACHED! \u2728",
+        "[Turn 10] Frequency placed. Friction: emergent. +60 resonance (Total: 176)",
+        "[Turn 10] \ud83c\udf1f TRANSCENDENCE REACHED! \ud83c\udf1f",
+        "[Turn 11] Seed placed. Friction: harmonic. +30 resonance (Total: 206)",
+        "[Turn 12] Frequency placed. Friction: harmonic. +35 resonance (Total: 241)",
+        "[Turn 13] Seed placed. Friction: dissonant. +5 resonance (Total: 246)",
+        "[Turn 14] Idea placed. Friction: dissonant. +20 resonance (Total: 266)",
+        "[Turn 15] Story placed. Friction: emergent. +40 resonance (Total: 306)",
+        "[Turn 16] Code placed. Friction: dissonant. +18 resonance (Total: 324)",
+        "[Turn 17] Idea placed. Friction: dissonant. +20 resonance (Total: 344)",
+        "[Turn 18] Frequency placed. Friction: dissonant. +20 resonance (Total: 364)",
+        "[Turn 19] Story placed. Friction: harmonic. +45 resonance (Total: 409)",
+        "[Turn 20] Frequency placed. Friction: emergent. +20 resonance (Total: 429)",
+        "[Turn 21] Idea placed. Friction: harmonic. +40 resonance (Total: 469)",
+        "[Turn 22] Seed placed. Friction: dissonant. +45 resonance (Total: 514)",
+        "[Turn 23] Seed placed. Friction: dissonant. +40 resonance (Total: 554)",
+        "[Turn 24] Frequency placed. Friction: dissonant. +35 resonance (Total: 589)",
+        "[Turn 25] Frequency placed. Friction: emergent. +35 resonance (Total: 624)",
+        "[Turn 26] Code placed. Friction: harmonic. +58 resonance (Total: 682)",
+        "[Turn 27] Story placed. Friction: harmonic. +40 resonance (Total: 722)",
+        "[Turn 28] Code placed. Friction: harmonic. +23 resonance (Total: 745)",
+        "[Turn 29] Story placed. Friction: dissonant. +20 resonance (Total: 765)",
+        "[Turn 30] Frequency placed. Friction: emergent. +70 resonance (Total: 835)",
+        "[Turn 31] Frequency placed. Friction: dissonant. +-5 resonance (Total: 830)",
+        "[Turn 32] Frequency placed. Friction: harmonic. +5 resonance (Total: 835)",
+        "[Turn 33] Frequency placed. Friction: harmonic. +45 resonance (Total: 880)",
+        "[Turn 34] Code placed. Friction: dissonant. +33 resonance (Total: 913)",
+        "[Turn 35] Frequency placed. Friction: emergent. +40 resonance (Total: 953)",
+        "[Turn 36] Frequency placed. Friction: harmonic. +15 resonance (Total: 968)",
+        "[Turn 37] Idea placed. Friction: harmonic. +45 resonance (Total: 1013)"
+      ]
+    },
+    {
+      "game_id": 5,
+      "final_resonance": 927,
+      "final_tier": "Transcendence",
+      "total_turns": 31,
+      "total_matchsticks": 31,
+      "harmony_unlocked": true,
+      "transcendence_unlocked": true,
+      "game_over": false,
+      "matchsticks": [
+        {
+          "type": "Story",
+          "x": 257.3995048642209,
+          "y": 85.69269260480523,
+          "angle": 83.60057280937839,
+          "resonance": 10
+        },
+        {
+          "type": "Frequency",
+          "x": 261.8972107609685,
+          "y": 96.02732031972793,
+          "angle": 18.16186848660979,
+          "resonance": 10
+        },
+        {
+          "type": "Story",
+          "x": 352.20821079883916,
+          "y": 90.54348172164418,
+          "angle": 51.94129476733329,
+          "resonance": 10
+        },
+        {
+          "type": "Story",
+          "x": 247.44204231340527,
+          "y": 85.68685842740082,
+          "angle": 11.96575292944361,
+          "resonance": 15
+        },
+        {
+          "type": "Seed",
+          "x": 302.4759140410482,
+          "y": 84.06799214994669,
+          "angle": 20.752358458859796,
+          "resonance": 55
+        },
+        {
+          "type": "Idea",
+          "x": 238.14579457792522,
+          "y": 96.27378335780878,
+          "angle": 79.27992951851455,
+          "resonance": 0
+        },
+        {
+          "type": "Story",
+          "x": 336.18484794971187,
+          "y": 92.13728336773147,
+          "angle": 32.29942732206982,
+          "resonance": 25
+        },
+        {
+          "type": "Seed",
+          "x": 367.5327766464651,
+          "y": 85.8863641085753,
+          "angle": 7.405622067663141,
+          "resonance": 25
+        },
+        {
+          "type": "Code",
+          "x": 376.1076501697046,
+          "y": 93.40569702289956,
+          "angle": 70.1156385558766,
+          "resonance": -2
+        },
+        {
+          "type": "Frequency",
+          "x": 255.2559246691638,
+          "y": 90.63329385635825,
+          "angle": 67.84626342247996,
+          "resonance": 30
+        },
+        {
+          "type": "Idea",
+          "x": 325.2241149046728,
+          "y": 97.14302756585467,
+          "angle": 33.18069158933567,
+          "resonance": 20
+        },
+        {
+          "type": "Code",
+          "x": 284.9677791485984,
+          "y": 93.39740105083591,
+          "angle": 81.7420579290352,
+          "resonance": 13
+        },
+        {
+          "type": "Story",
+          "x": 346.9743458426963,
+          "y": 98.30122651745214,
+          "angle": 4.394665311498432,
+          "resonance": 5
+        },
+        {
+          "type": "Story",
+          "x": 355.03164120948765,
+          "y": 93.400872189454,
+          "angle": 57.65034044797893,
+          "resonance": 20
+        },
+        {
+          "type": "Frequency",
+          "x": 301.51376211540406,
+          "y": 89.01567921674987,
+          "angle": 18.02517115484158,
+          "resonance": 70
+        },
+        {
+          "type": "Story",
+          "x": 316.49677834665346,
+          "y": 89.46928913059072,
+          "angle": 26.452180015050047,
+          "resonance": 45
+        },
+        {
+          "type": "Story",
+          "x": 314.2549382413017,
+          "y": 99.663105646737,
+          "angle": 18.133953498523216,
+          "resonance": 65
+        },
+        {
+          "type": "Seed",
+          "x": 357.72206381548347,
+          "y": 81.53105915265941,
+          "angle": 9.237136786277587,
+          "resonance": 50
+        },
+        {
+          "type": "Idea",
+          "x": 355.3625848173524,
+          "y": 83.08135408794026,
+          "angle": 37.928599644366564,
+          "resonance": 40
+        },
+        {
+          "type": "Seed",
+          "x": 223.72786290506127,
+          "y": 96.3113907101131,
+          "angle": 3.024484088679389,
+          "resonance": 30
+        },
+        {
+          "type": "Frequency",
+          "x": 316.6845440201558,
+          "y": 82.56887020714021,
+          "angle": 74.34353977637106,
+          "resonance": 10
+        },
+        {
+          "type": "Code",
+          "x": 344.30753361301737,
+          "y": 85.37469785170501,
+          "angle": 4.713628860349434,
+          "resonance": 33
+        },
+        {
+          "type": "Seed",
+          "x": 292.35819596617745,
+          "y": 80.96403044385663,
+          "angle": 61.20146546038315,
+          "resonance": 10
+        },
+        {
+          "type": "Idea",
+          "x": 328.65946517470104,
+          "y": 95.9335103702412,
+          "angle": 21.61761922834602,
+          "resonance": 70
+        },
+        {
+          "type": "Seed",
+          "x": 238.96319235219892,
+          "y": 93.39661153050196,
+          "angle": 43.99886173268957,
+          "resonance": 35
+        },
+        {
+          "type": "Seed",
+          "x": 272.40982779617684,
+          "y": 86.02138354869275,
+          "angle": 55.92943783199399,
+          "resonance": 40
+        },
+        {
+          "type": "Story",
+          "x": 327.91666178733766,
+          "y": 82.54015394957153,
+          "angle": 56.889693670671704,
+          "resonance": 50
+        },
+        {
+          "type": "Idea",
+          "x": 253.97836111534474,
+          "y": 84.24417666149044,
+          "angle": 9.254041495154166,
+          "resonance": 35
+        },
+        {
+          "type": "Code",
+          "x": 358.1315866401709,
+          "y": 90.1753859901644,
+          "angle": 41.88921183470114,
+          "resonance": 48
+        },
+        {
+          "type": "Idea",
+          "x": 274.4668110809291,
+          "y": 99.0837789475522,
+          "angle": 24.292893742847458,
+          "resonance": 90
+        },
+        {
+          "type": "Idea",
+          "x": 374.2934204534664,
+          "y": 97.42102960975113,
+          "angle": 75.56475991277658,
+          "resonance": -30
+        }
+      ],
+      "history": [
+        {
+          "turn": 1,
+          "matchsticks": 1,
+          "resonance": 10,
+          "tier": "Void"
+        },
+        {
+          "turn": 2,
+          "matchsticks": 2,
+          "resonance": 20,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 3,
+          "matchsticks": 3,
+          "resonance": 30,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 4,
+          "matchsticks": 4,
+          "resonance": 45,
+          "tier": "Hum"
+        },
+        {
+          "turn": 5,
+          "matchsticks": 5,
+          "resonance": 100,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 6,
+          "matchsticks": 6,
+          "resonance": 100,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 7,
+          "matchsticks": 7,
+          "resonance": 125,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 8,
+          "matchsticks": 8,
+          "resonance": 150,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 9,
+          "matchsticks": 9,
+          "resonance": 148,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 10,
+          "matchsticks": 10,
+          "resonance": 178,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 11,
+          "matchsticks": 11,
+          "resonance": 198,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 12,
+          "matchsticks": 12,
+          "resonance": 211,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 13,
+          "matchsticks": 13,
+          "resonance": 216,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 14,
+          "matchsticks": 14,
+          "resonance": 236,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 15,
+          "matchsticks": 15,
+          "resonance": 306,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 16,
+          "matchsticks": 16,
+          "resonance": 351,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 17,
+          "matchsticks": 17,
+          "resonance": 416,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 18,
+          "matchsticks": 18,
+          "resonance": 466,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 19,
+          "matchsticks": 19,
+          "resonance": 506,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 20,
+          "matchsticks": 20,
+          "resonance": 536,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 21,
+          "matchsticks": 21,
+          "resonance": 546,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 22,
+          "matchsticks": 22,
+          "resonance": 579,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 23,
+          "matchsticks": 23,
+          "resonance": 589,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 24,
+          "matchsticks": 24,
+          "resonance": 659,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 25,
+          "matchsticks": 25,
+          "resonance": 694,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 26,
+          "matchsticks": 26,
+          "resonance": 734,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 27,
+          "matchsticks": 27,
+          "resonance": 784,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 28,
+          "matchsticks": 28,
+          "resonance": 819,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 29,
+          "matchsticks": 29,
+          "resonance": 867,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 30,
+          "matchsticks": 30,
+          "resonance": 957,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 31,
+          "matchsticks": 31,
+          "resonance": 927,
+          "tier": "Transcendence"
+        }
+      ],
+      "log": [
+        "[Turn 1] Story placed. Friction: neutral. +10 resonance (Total: 10)",
+        "[Turn 2] Frequency placed. Friction: dissonant. +10 resonance (Total: 20)",
+        "[Turn 3] Story placed. Friction: neutral. +10 resonance (Total: 30)",
+        "[Turn 4] Story placed. Friction: harmonic. +15 resonance (Total: 45)",
+        "[Turn 5] Seed placed. Friction: emergent. +55 resonance (Total: 100)",
+        "[Turn 6] Idea placed. Friction: dissonant. +0 resonance (Total: 100)",
+        "[Turn 7] Story placed. Friction: harmonic. +25 resonance (Total: 125)",
+        "[Turn 7] \u2728 HARMONY REACHED! \u2728",
+        "[Turn 8] Seed placed. Friction: harmonic. +25 resonance (Total: 150)",
+        "[Turn 9] Code placed. Friction: dissonant. +-2 resonance (Total: 148)",
+        "[Turn 10] Frequency placed. Friction: emergent. +30 resonance (Total: 178)",
+        "[Turn 10] \ud83c\udf1f TRANSCENDENCE REACHED! \ud83c\udf1f",
+        "[Turn 11] Idea placed. Friction: harmonic. +20 resonance (Total: 198)",
+        "[Turn 12] Code placed. Friction: dissonant. +13 resonance (Total: 211)",
+        "[Turn 13] Story placed. Friction: dissonant. +5 resonance (Total: 216)",
+        "[Turn 14] Story placed. Friction: dissonant. +20 resonance (Total: 236)",
+        "[Turn 15] Frequency placed. Friction: emergent. +70 resonance (Total: 306)",
+        "[Turn 16] Story placed. Friction: harmonic. +45 resonance (Total: 351)",
+        "[Turn 17] Story placed. Friction: harmonic. +65 resonance (Total: 416)",
+        "[Turn 18] Seed placed. Friction: harmonic. +50 resonance (Total: 466)",
+        "[Turn 19] Idea placed. Friction: harmonic. +40 resonance (Total: 506)",
+        "[Turn 20] Seed placed. Friction: emergent. +30 resonance (Total: 536)",
+        "[Turn 21] Frequency placed. Friction: dissonant. +10 resonance (Total: 546)",
+        "[Turn 22] Code placed. Friction: dissonant. +33 resonance (Total: 579)",
+        "[Turn 23] Seed placed. Friction: dissonant. +10 resonance (Total: 589)",
+        "[Turn 24] Idea placed. Friction: dissonant. +70 resonance (Total: 659)",
+        "[Turn 25] Seed placed. Friction: emergent. +35 resonance (Total: 694)",
+        "[Turn 26] Seed placed. Friction: harmonic. +40 resonance (Total: 734)",
+        "[Turn 27] Story placed. Friction: harmonic. +50 resonance (Total: 784)",
+        "[Turn 28] Idea placed. Friction: dissonant. +35 resonance (Total: 819)",
+        "[Turn 29] Code placed. Friction: harmonic. +48 resonance (Total: 867)",
+        "[Turn 30] Idea placed. Friction: emergent. +90 resonance (Total: 957)",
+        "[Turn 31] Idea placed. Friction: dissonant. +-30 resonance (Total: 927)"
+      ]
+    },
+    {
+      "game_id": 6,
+      "final_resonance": 1207,
+      "final_tier": "Transcendence",
+      "total_turns": 32,
+      "total_matchsticks": 32,
+      "harmony_unlocked": true,
+      "transcendence_unlocked": true,
+      "game_over": false,
+      "matchsticks": [
+        {
+          "type": "Frequency",
+          "x": 288.32632669528283,
+          "y": 93.65541852207866,
+          "angle": 43.7107849654499,
+          "resonance": 15
+        },
+        {
+          "type": "Story",
+          "x": 227.96253993631962,
+          "y": 99.66309906695457,
+          "angle": 67.82738408888478,
+          "resonance": 10
+        },
+        {
+          "type": "Seed",
+          "x": 273.2291725437312,
+          "y": 99.06660279491946,
+          "angle": 47.592957156632266,
+          "resonance": 30
+        },
+        {
+          "type": "Seed",
+          "x": 308.9517444912054,
+          "y": 90.01714132814482,
+          "angle": 26.5404602152706,
+          "resonance": 20
+        },
+        {
+          "type": "Frequency",
+          "x": 231.25835966891842,
+          "y": 94.73656588192198,
+          "angle": 52.10962818068506,
+          "resonance": 55
+        },
+        {
+          "type": "Story",
+          "x": 298.0556793816661,
+          "y": 99.1782887857011,
+          "angle": 47.62337555683921,
+          "resonance": 40
+        },
+        {
+          "type": "Idea",
+          "x": 274.1685791835182,
+          "y": 82.59609861969481,
+          "angle": 38.6848587974799,
+          "resonance": 55
+        },
+        {
+          "type": "Idea",
+          "x": 245.7076867741912,
+          "y": 89.3458071117309,
+          "angle": 71.65447721896231,
+          "resonance": 10
+        },
+        {
+          "type": "Idea",
+          "x": 223.3097202773587,
+          "y": 93.20044029475345,
+          "angle": 21.543816899892356,
+          "resonance": -5
+        },
+        {
+          "type": "Code",
+          "x": 225.77663416200772,
+          "y": 95.31043850594757,
+          "angle": 45.19066048952584,
+          "resonance": 78
+        },
+        {
+          "type": "Frequency",
+          "x": 352.5963317567664,
+          "y": 92.4774383430861,
+          "angle": 44.59946544935536,
+          "resonance": 55
+        },
+        {
+          "type": "Frequency",
+          "x": 260.56845857697283,
+          "y": 99.46434986628068,
+          "angle": 70.56390203174152,
+          "resonance": 25
+        },
+        {
+          "type": "Story",
+          "x": 223.32789663338417,
+          "y": 91.54330038590746,
+          "angle": 36.8672228735432,
+          "resonance": 60
+        },
+        {
+          "type": "Code",
+          "x": 303.3749587657169,
+          "y": 80.95485034258583,
+          "angle": 12.990888949952218,
+          "resonance": 3
+        },
+        {
+          "type": "Idea",
+          "x": 258.8789793131732,
+          "y": 83.10286532932346,
+          "angle": 0.4493129921499317,
+          "resonance": -5
+        },
+        {
+          "type": "Seed",
+          "x": 238.6269049076724,
+          "y": 86.24672989272923,
+          "angle": 2.83272785706141,
+          "resonance": 0
+        },
+        {
+          "type": "Frequency",
+          "x": 270.78824854414825,
+          "y": 95.039766575466,
+          "angle": 70.77641189059017,
+          "resonance": 20
+        },
+        {
+          "type": "Story",
+          "x": 355.1871760600047,
+          "y": 99.51352654637498,
+          "angle": 31.429697789673046,
+          "resonance": 40
+        },
+        {
+          "type": "Story",
+          "x": 371.56706881112416,
+          "y": 96.193045823817,
+          "angle": 63.84607979467699,
+          "resonance": 5
+        },
+        {
+          "type": "Seed",
+          "x": 256.1042349319319,
+          "y": 86.29373719079504,
+          "angle": 33.66919655625092,
+          "resonance": 120
+        },
+        {
+          "type": "Frequency",
+          "x": 220.1645051536288,
+          "y": 84.46791998055149,
+          "angle": 3.392122834570505,
+          "resonance": -10
+        },
+        {
+          "type": "Seed",
+          "x": 371.68222832548224,
+          "y": 94.70424853871789,
+          "angle": 84.77091517000562,
+          "resonance": 0
+        },
+        {
+          "type": "Seed",
+          "x": 368.15321326931553,
+          "y": 83.47049848876415,
+          "angle": 77.94852464468025,
+          "resonance": 25
+        },
+        {
+          "type": "Code",
+          "x": 316.63765499158586,
+          "y": 82.0684167845604,
+          "angle": 21.000403284267676,
+          "resonance": 18
+        },
+        {
+          "type": "Seed",
+          "x": 363.5820214732797,
+          "y": 93.83926993579325,
+          "angle": 24.70467847973066,
+          "resonance": 70
+        },
+        {
+          "type": "Code",
+          "x": 258.7940146629375,
+          "y": 89.7954593294816,
+          "angle": 48.78689192349546,
+          "resonance": 63
+        },
+        {
+          "type": "Frequency",
+          "x": 340.7725866477988,
+          "y": 91.44008478713266,
+          "angle": 34.90672932659961,
+          "resonance": 95
+        },
+        {
+          "type": "Story",
+          "x": 329.4889585625016,
+          "y": 99.04279101784292,
+          "angle": 29.14101831139543,
+          "resonance": 70
+        },
+        {
+          "type": "Story",
+          "x": 295.2306080035244,
+          "y": 98.79599133671081,
+          "angle": 61.756208856525696,
+          "resonance": 70
+        },
+        {
+          "type": "Seed",
+          "x": 273.11657042475827,
+          "y": 95.60947851412124,
+          "angle": 13.211543154320127,
+          "resonance": 85
+        },
+        {
+          "type": "Seed",
+          "x": 318.0553416074041,
+          "y": 93.93307538263285,
+          "angle": 73.37985077107145,
+          "resonance": 45
+        },
+        {
+          "type": "Seed",
+          "x": 359.78888228852986,
+          "y": 83.2833384390458,
+          "angle": 15.78654430030155,
+          "resonance": 45
+        }
+      ],
+      "history": [
+        {
+          "turn": 1,
+          "matchsticks": 1,
+          "resonance": 15,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 2,
+          "matchsticks": 2,
+          "resonance": 25,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 3,
+          "matchsticks": 3,
+          "resonance": 55,
+          "tier": "Hum"
+        },
+        {
+          "turn": 4,
+          "matchsticks": 4,
+          "resonance": 75,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 5,
+          "matchsticks": 5,
+          "resonance": 130,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 6,
+          "matchsticks": 6,
+          "resonance": 170,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 7,
+          "matchsticks": 7,
+          "resonance": 225,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 8,
+          "matchsticks": 8,
+          "resonance": 235,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 9,
+          "matchsticks": 9,
+          "resonance": 230,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 10,
+          "matchsticks": 10,
+          "resonance": 308,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 11,
+          "matchsticks": 11,
+          "resonance": 363,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 12,
+          "matchsticks": 12,
+          "resonance": 388,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 13,
+          "matchsticks": 13,
+          "resonance": 448,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 14,
+          "matchsticks": 14,
+          "resonance": 451,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 15,
+          "matchsticks": 15,
+          "resonance": 446,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 16,
+          "matchsticks": 16,
+          "resonance": 446,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 17,
+          "matchsticks": 17,
+          "resonance": 466,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 18,
+          "matchsticks": 18,
+          "resonance": 506,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 19,
+          "matchsticks": 19,
+          "resonance": 511,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 20,
+          "matchsticks": 20,
+          "resonance": 631,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 21,
+          "matchsticks": 21,
+          "resonance": 621,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 22,
+          "matchsticks": 22,
+          "resonance": 621,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 23,
+          "matchsticks": 23,
+          "resonance": 646,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 24,
+          "matchsticks": 24,
+          "resonance": 664,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 25,
+          "matchsticks": 25,
+          "resonance": 734,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 26,
+          "matchsticks": 26,
+          "resonance": 797,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 27,
+          "matchsticks": 27,
+          "resonance": 892,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 28,
+          "matchsticks": 28,
+          "resonance": 962,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 29,
+          "matchsticks": 29,
+          "resonance": 1032,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 30,
+          "matchsticks": 30,
+          "resonance": 1117,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 31,
+          "matchsticks": 31,
+          "resonance": 1162,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 32,
+          "matchsticks": 32,
+          "resonance": 1207,
+          "tier": "Transcendence"
+        }
+      ],
+      "log": [
+        "[Turn 1] Frequency placed. Friction: neutral. +15 resonance (Total: 15)",
+        "[Turn 2] Story placed. Friction: neutral. +10 resonance (Total: 25)",
+        "[Turn 3] Seed placed. Friction: harmonic. +30 resonance (Total: 55)",
+        "[Turn 4] Seed placed. Friction: neutral. +20 resonance (Total: 75)",
+        "[Turn 5] Frequency placed. Friction: emergent. +55 resonance (Total: 130)",
+        "[Turn 5] \u2728 HARMONY REACHED! \u2728",
+        "[Turn 6] Story placed. Friction: harmonic. +40 resonance (Total: 170)",
+        "[Turn 6] \ud83c\udf1f TRANSCENDENCE REACHED! \ud83c\udf1f",
+        "[Turn 7] Idea placed. Friction: harmonic. +55 resonance (Total: 225)",
+        "[Turn 8] Idea placed. Friction: dissonant. +10 resonance (Total: 235)",
+        "[Turn 9] Idea placed. Friction: dissonant. +-5 resonance (Total: 230)",
+        "[Turn 10] Code placed. Friction: emergent. +78 resonance (Total: 308)",
+        "[Turn 11] Frequency placed. Friction: harmonic. +55 resonance (Total: 363)",
+        "[Turn 12] Frequency placed. Friction: dissonant. +25 resonance (Total: 388)",
+        "[Turn 13] Story placed. Friction: harmonic. +60 resonance (Total: 448)",
+        "[Turn 14] Code placed. Friction: dissonant. +3 resonance (Total: 451)",
+        "[Turn 15] Idea placed. Friction: emergent. +-5 resonance (Total: 446)",
+        "[Turn 16] Seed placed. Friction: harmonic. +0 resonance (Total: 446)",
+        "[Turn 17] Frequency placed. Friction: dissonant. +20 resonance (Total: 466)",
+        "[Turn 18] Story placed. Friction: harmonic. +40 resonance (Total: 506)",
+        "[Turn 19] Story placed. Friction: dissonant. +5 resonance (Total: 511)",
+        "[Turn 20] Seed placed. Friction: emergent. +120 resonance (Total: 631)",
+        "[Turn 21] Frequency placed. Friction: dissonant. +-10 resonance (Total: 621)",
+        "[Turn 22] Seed placed. Friction: dissonant. +0 resonance (Total: 621)",
+        "[Turn 23] Seed placed. Friction: harmonic. +25 resonance (Total: 646)",
+        "[Turn 24] Code placed. Friction: dissonant. +18 resonance (Total: 664)",
+        "[Turn 25] Seed placed. Friction: emergent. +70 resonance (Total: 734)",
+        "[Turn 26] Code placed. Friction: dissonant. +63 resonance (Total: 797)",
+        "[Turn 27] Frequency placed. Friction: harmonic. +95 resonance (Total: 892)",
+        "[Turn 28] Story placed. Friction: harmonic. +70 resonance (Total: 962)",
+        "[Turn 29] Story placed. Friction: harmonic. +70 resonance (Total: 1032)",
+        "[Turn 30] Seed placed. Friction: emergent. +85 resonance (Total: 1117)",
+        "[Turn 31] Seed placed. Friction: dissonant. +45 resonance (Total: 1162)",
+        "[Turn 32] Seed placed. Friction: dissonant. +45 resonance (Total: 1207)"
+      ]
+    },
+    {
+      "game_id": 7,
+      "final_resonance": 638,
+      "final_tier": "Transcendence",
+      "total_turns": 26,
+      "total_matchsticks": 26,
+      "harmony_unlocked": true,
+      "transcendence_unlocked": true,
+      "game_over": false,
+      "matchsticks": [
+        {
+          "type": "Story",
+          "x": 277.7324247023419,
+          "y": 83.55371194777408,
+          "angle": 61.548158630406704,
+          "resonance": 10
+        },
+        {
+          "type": "Idea",
+          "x": 295.9578353172617,
+          "y": 87.34093468867783,
+          "angle": 84.295431065954,
+          "resonance": 5
+        },
+        {
+          "type": "Code",
+          "x": 357.2601869883247,
+          "y": 98.22009392120238,
+          "angle": 38.57533936929132,
+          "resonance": 3
+        },
+        {
+          "type": "Seed",
+          "x": 295.62106147946866,
+          "y": 80.49653552193578,
+          "angle": 1.1890071788023282,
+          "resonance": 10
+        },
+        {
+          "type": "Code",
+          "x": 377.12191395633783,
+          "y": 96.15188782744967,
+          "angle": 87.38940749243818,
+          "resonance": 23
+        },
+        {
+          "type": "Idea",
+          "x": 293.60963031609697,
+          "y": 82.24161478236577,
+          "angle": 12.432859149968928,
+          "resonance": 5
+        },
+        {
+          "type": "Code",
+          "x": 264.17977388563924,
+          "y": 83.12243874901435,
+          "angle": 47.686111219264596,
+          "resonance": 13
+        },
+        {
+          "type": "Story",
+          "x": 323.9772332778438,
+          "y": 85.97182034013315,
+          "angle": 14.180689419864118,
+          "resonance": 15
+        },
+        {
+          "type": "Story",
+          "x": 247.93452474907934,
+          "y": 92.54419027829081,
+          "angle": 69.55888448728187,
+          "resonance": 15
+        },
+        {
+          "type": "Code",
+          "x": 329.4346150066578,
+          "y": 94.35466361752178,
+          "angle": 78.71078007933946,
+          "resonance": 28
+        },
+        {
+          "type": "Code",
+          "x": 246.14485782009274,
+          "y": 88.6131115285596,
+          "angle": 81.77097092180055,
+          "resonance": 13
+        },
+        {
+          "type": "Code",
+          "x": 326.6948149898625,
+          "y": 84.80808360157417,
+          "angle": 82.56195429473212,
+          "resonance": 28
+        },
+        {
+          "type": "Story",
+          "x": 374.7497166834098,
+          "y": 84.87492678776329,
+          "angle": 74.38903851600769,
+          "resonance": 40
+        },
+        {
+          "type": "Code",
+          "x": 266.91785425906943,
+          "y": 84.53854082113715,
+          "angle": 68.0902144199609,
+          "resonance": 43
+        },
+        {
+          "type": "Seed",
+          "x": 267.10925245904,
+          "y": 82.86206015571787,
+          "angle": 15.77081923760411,
+          "resonance": 35
+        },
+        {
+          "type": "Seed",
+          "x": 230.51288841743002,
+          "y": 83.32832683673746,
+          "angle": 58.19908822412883,
+          "resonance": 45
+        },
+        {
+          "type": "Seed",
+          "x": 223.00496447051916,
+          "y": 94.28526638875796,
+          "angle": 87.00072766905011,
+          "resonance": 25
+        },
+        {
+          "type": "Idea",
+          "x": 378.7126286950784,
+          "y": 98.56625587653959,
+          "angle": 55.46244762549992,
+          "resonance": 0
+        },
+        {
+          "type": "Code",
+          "x": 332.19516606813374,
+          "y": 97.96615140891812,
+          "angle": 39.12553272016986,
+          "resonance": 13
+        },
+        {
+          "type": "Code",
+          "x": 346.5496244613715,
+          "y": 97.7232975829834,
+          "angle": 24.611174392397764,
+          "resonance": 43
+        },
+        {
+          "type": "Code",
+          "x": 373.5887448016007,
+          "y": 83.67268604799614,
+          "angle": 61.35706916211723,
+          "resonance": 13
+        },
+        {
+          "type": "Seed",
+          "x": 364.98040745815433,
+          "y": 85.31562808782834,
+          "angle": 49.6514674236172,
+          "resonance": 55
+        },
+        {
+          "type": "Idea",
+          "x": 372.23583410477795,
+          "y": 83.55628012306323,
+          "angle": 66.63419026708591,
+          "resonance": 25
+        },
+        {
+          "type": "Story",
+          "x": 309.45360162042107,
+          "y": 83.40636679328583,
+          "angle": 87.62231567028195,
+          "resonance": 35
+        },
+        {
+          "type": "Code",
+          "x": 247.35702765113078,
+          "y": 80.59978427886729,
+          "angle": 87.16524068788658,
+          "resonance": 58
+        },
+        {
+          "type": "Frequency",
+          "x": 336.4846964316316,
+          "y": 94.02485630191987,
+          "angle": 36.12935302886403,
+          "resonance": 40
+        }
+      ],
+      "history": [
+        {
+          "turn": 1,
+          "matchsticks": 1,
+          "resonance": 10,
+          "tier": "Void"
+        },
+        {
+          "turn": 2,
+          "matchsticks": 2,
+          "resonance": 15,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 3,
+          "matchsticks": 3,
+          "resonance": 18,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 4,
+          "matchsticks": 4,
+          "resonance": 28,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 5,
+          "matchsticks": 5,
+          "resonance": 51,
+          "tier": "Hum"
+        },
+        {
+          "turn": 6,
+          "matchsticks": 6,
+          "resonance": 56,
+          "tier": "Hum"
+        },
+        {
+          "turn": 7,
+          "matchsticks": 7,
+          "resonance": 69,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 8,
+          "matchsticks": 8,
+          "resonance": 84,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 9,
+          "matchsticks": 9,
+          "resonance": 99,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 10,
+          "matchsticks": 10,
+          "resonance": 127,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 11,
+          "matchsticks": 11,
+          "resonance": 140,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 12,
+          "matchsticks": 12,
+          "resonance": 168,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 13,
+          "matchsticks": 13,
+          "resonance": 208,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 14,
+          "matchsticks": 14,
+          "resonance": 251,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 15,
+          "matchsticks": 15,
+          "resonance": 286,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 16,
+          "matchsticks": 16,
+          "resonance": 331,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 17,
+          "matchsticks": 17,
+          "resonance": 356,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 18,
+          "matchsticks": 18,
+          "resonance": 356,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 19,
+          "matchsticks": 19,
+          "resonance": 369,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 20,
+          "matchsticks": 20,
+          "resonance": 412,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 21,
+          "matchsticks": 21,
+          "resonance": 425,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 22,
+          "matchsticks": 22,
+          "resonance": 480,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 23,
+          "matchsticks": 23,
+          "resonance": 505,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 24,
+          "matchsticks": 24,
+          "resonance": 540,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 25,
+          "matchsticks": 25,
+          "resonance": 598,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 26,
+          "matchsticks": 26,
+          "resonance": 638,
+          "tier": "Transcendence"
+        }
+      ],
+      "log": [
+        "[Turn 1] Story placed. Friction: neutral. +10 resonance (Total: 10)",
+        "[Turn 2] Idea placed. Friction: neutral. +5 resonance (Total: 15)",
+        "[Turn 3] Code placed. Friction: dissonant. +3 resonance (Total: 18)",
+        "[Turn 4] Seed placed. Friction: dissonant. +10 resonance (Total: 28)",
+        "[Turn 5] Code placed. Friction: emergent. +23 resonance (Total: 51)",
+        "[Turn 6] Idea placed. Friction: harmonic. +5 resonance (Total: 56)",
+        "[Turn 7] Code placed. Friction: dissonant. +13 resonance (Total: 69)",
+        "[Turn 8] Story placed. Friction: harmonic. +15 resonance (Total: 84)",
+        "[Turn 9] Story placed. Friction: dissonant. +15 resonance (Total: 99)",
+        "[Turn 10] Code placed. Friction: emergent. +28 resonance (Total: 127)",
+        "[Turn 10] \u2728 HARMONY REACHED! \u2728",
+        "[Turn 11] Code placed. Friction: harmonic. +13 resonance (Total: 140)",
+        "[Turn 12] Code placed. Friction: harmonic. +28 resonance (Total: 168)",
+        "[Turn 12] \ud83c\udf1f TRANSCENDENCE REACHED! \ud83c\udf1f",
+        "[Turn 13] Story placed. Friction: harmonic. +40 resonance (Total: 208)",
+        "[Turn 14] Code placed. Friction: harmonic. +43 resonance (Total: 251)",
+        "[Turn 15] Seed placed. Friction: emergent. +35 resonance (Total: 286)",
+        "[Turn 16] Seed placed. Friction: dissonant. +45 resonance (Total: 331)",
+        "[Turn 17] Seed placed. Friction: dissonant. +25 resonance (Total: 356)",
+        "[Turn 18] Idea placed. Friction: dissonant. +0 resonance (Total: 356)",
+        "[Turn 19] Code placed. Friction: dissonant. +13 resonance (Total: 369)",
+        "[Turn 20] Code placed. Friction: emergent. +43 resonance (Total: 412)",
+        "[Turn 21] Code placed. Friction: harmonic. +13 resonance (Total: 425)",
+        "[Turn 22] Seed placed. Friction: harmonic. +55 resonance (Total: 480)",
+        "[Turn 23] Idea placed. Friction: harmonic. +25 resonance (Total: 505)",
+        "[Turn 24] Story placed. Friction: dissonant. +35 resonance (Total: 540)",
+        "[Turn 25] Code placed. Friction: emergent. +58 resonance (Total: 598)",
+        "[Turn 26] Frequency placed. Friction: dissonant. +40 resonance (Total: 638)"
+      ]
+    },
+    {
+      "game_id": 8,
+      "final_resonance": 361,
+      "final_tier": "Transcendence",
+      "total_turns": 20,
+      "total_matchsticks": 20,
+      "harmony_unlocked": true,
+      "transcendence_unlocked": true,
+      "game_over": false,
+      "matchsticks": [
+        {
+          "type": "Frequency",
+          "x": 309.4592134882461,
+          "y": 81.85927264845411,
+          "angle": 88.3260025492848,
+          "resonance": 15
+        },
+        {
+          "type": "Idea",
+          "x": 371.7264741225166,
+          "y": 98.67486817386009,
+          "angle": 32.373504057982366,
+          "resonance": 0
+        },
+        {
+          "type": "Idea",
+          "x": 232.9294852094966,
+          "y": 86.70787514395663,
+          "angle": 13.022954700522575,
+          "resonance": 0
+        },
+        {
+          "type": "Frequency",
+          "x": 221.99389262652556,
+          "y": 97.17584705330407,
+          "angle": 11.568450459889954,
+          "resonance": 25
+        },
+        {
+          "type": "Frequency",
+          "x": 246.14106663570033,
+          "y": 82.37026718558877,
+          "angle": 70.40221223159087,
+          "resonance": 25
+        },
+        {
+          "type": "Code",
+          "x": 340.5617221310308,
+          "y": 86.39291917613699,
+          "angle": 41.10317163419105,
+          "resonance": 13
+        },
+        {
+          "type": "Code",
+          "x": 342.900557625771,
+          "y": 93.24245451828041,
+          "angle": 43.17346805961841,
+          "resonance": 23
+        },
+        {
+          "type": "Frequency",
+          "x": 272.57442580675325,
+          "y": 97.8392720804722,
+          "angle": 25.324372682400035,
+          "resonance": 25
+        },
+        {
+          "type": "Code",
+          "x": 293.40497610294204,
+          "y": 99.05407440938903,
+          "angle": 79.69169188747263,
+          "resonance": 8
+        },
+        {
+          "type": "Code",
+          "x": 226.67940170798613,
+          "y": 87.32195901054902,
+          "angle": 58.17425815846581,
+          "resonance": 28
+        },
+        {
+          "type": "Code",
+          "x": 326.3786289940498,
+          "y": 81.31126218894228,
+          "angle": 62.004880610615196,
+          "resonance": 8
+        },
+        {
+          "type": "Idea",
+          "x": 220.2777970468457,
+          "y": 99.95145106379559,
+          "angle": 52.863896532397675,
+          "resonance": 10
+        },
+        {
+          "type": "Seed",
+          "x": 225.66619650152901,
+          "y": 94.25296943139213,
+          "angle": 70.79802183257328,
+          "resonance": 35
+        },
+        {
+          "type": "Frequency",
+          "x": 355.2043722569317,
+          "y": 89.5415724675938,
+          "angle": 31.65970768015244,
+          "resonance": 35
+        },
+        {
+          "type": "Seed",
+          "x": 336.14997337423307,
+          "y": 84.93583824687245,
+          "angle": 9.065668912277472,
+          "resonance": 25
+        },
+        {
+          "type": "Story",
+          "x": 311.67481909779076,
+          "y": 82.03858505798227,
+          "angle": 0.12856330397193694,
+          "resonance": 0
+        },
+        {
+          "type": "Idea",
+          "x": 342.3113055303414,
+          "y": 80.80863612028928,
+          "angle": 17.344402483371375,
+          "resonance": 20
+        },
+        {
+          "type": "Idea",
+          "x": 369.49413470298566,
+          "y": 88.76388387362041,
+          "angle": 85.63830339207598,
+          "resonance": -10
+        },
+        {
+          "type": "Code",
+          "x": 269.2028174709352,
+          "y": 87.28439831805075,
+          "angle": 24.841185451774805,
+          "resonance": 28
+        },
+        {
+          "type": "Code",
+          "x": 354.4007278776562,
+          "y": 93.10005398924156,
+          "angle": 19.7373331553277,
+          "resonance": 48
+        }
+      ],
+      "history": [
+        {
+          "turn": 1,
+          "matchsticks": 1,
+          "resonance": 15,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 2,
+          "matchsticks": 2,
+          "resonance": 15,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 3,
+          "matchsticks": 3,
+          "resonance": 15,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 4,
+          "matchsticks": 4,
+          "resonance": 40,
+          "tier": "Hum"
+        },
+        {
+          "turn": 5,
+          "matchsticks": 5,
+          "resonance": 65,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 6,
+          "matchsticks": 6,
+          "resonance": 78,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 7,
+          "matchsticks": 7,
+          "resonance": 101,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 8,
+          "matchsticks": 8,
+          "resonance": 126,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 9,
+          "matchsticks": 9,
+          "resonance": 134,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 10,
+          "matchsticks": 10,
+          "resonance": 162,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 11,
+          "matchsticks": 11,
+          "resonance": 170,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 12,
+          "matchsticks": 12,
+          "resonance": 180,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 13,
+          "matchsticks": 13,
+          "resonance": 215,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 14,
+          "matchsticks": 14,
+          "resonance": 250,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 15,
+          "matchsticks": 15,
+          "resonance": 275,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 16,
+          "matchsticks": 16,
+          "resonance": 275,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 17,
+          "matchsticks": 17,
+          "resonance": 295,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 18,
+          "matchsticks": 18,
+          "resonance": 285,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 19,
+          "matchsticks": 19,
+          "resonance": 313,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 20,
+          "matchsticks": 20,
+          "resonance": 361,
+          "tier": "Transcendence"
+        }
+      ],
+      "log": [
+        "[Turn 1] Frequency placed. Friction: neutral. +15 resonance (Total: 15)",
+        "[Turn 2] Idea placed. Friction: dissonant. +0 resonance (Total: 15)",
+        "[Turn 3] Idea placed. Friction: dissonant. +0 resonance (Total: 15)",
+        "[Turn 4] Frequency placed. Friction: harmonic. +25 resonance (Total: 40)",
+        "[Turn 5] Frequency placed. Friction: emergent. +25 resonance (Total: 65)",
+        "[Turn 6] Code placed. Friction: harmonic. +13 resonance (Total: 78)",
+        "[Turn 7] Code placed. Friction: harmonic. +23 resonance (Total: 101)",
+        "[Turn 7] \u2728 HARMONY REACHED! \u2728",
+        "[Turn 8] Frequency placed. Friction: dissonant. +25 resonance (Total: 126)",
+        "[Turn 9] Code placed. Friction: dissonant. +8 resonance (Total: 134)",
+        "[Turn 10] Code placed. Friction: emergent. +28 resonance (Total: 162)",
+        "[Turn 10] \ud83c\udf1f TRANSCENDENCE REACHED! \ud83c\udf1f",
+        "[Turn 11] Code placed. Friction: neutral. +8 resonance (Total: 170)",
+        "[Turn 12] Idea placed. Friction: harmonic. +10 resonance (Total: 180)",
+        "[Turn 13] Seed placed. Friction: harmonic. +35 resonance (Total: 215)",
+        "[Turn 14] Frequency placed. Friction: dissonant. +35 resonance (Total: 250)",
+        "[Turn 15] Seed placed. Friction: emergent. +25 resonance (Total: 275)",
+        "[Turn 16] Story placed. Friction: harmonic. +0 resonance (Total: 275)",
+        "[Turn 17] Idea placed. Friction: harmonic. +20 resonance (Total: 295)",
+        "[Turn 18] Idea placed. Friction: dissonant. +-10 resonance (Total: 285)",
+        "[Turn 19] Code placed. Friction: harmonic. +28 resonance (Total: 313)",
+        "[Turn 20] Code placed. Friction: emergent. +48 resonance (Total: 361)"
+      ]
+    },
+    {
+      "game_id": 9,
+      "final_resonance": 960,
+      "final_tier": "Transcendence",
+      "total_turns": 30,
+      "total_matchsticks": 30,
+      "harmony_unlocked": true,
+      "transcendence_unlocked": true,
+      "game_over": false,
+      "matchsticks": [
+        {
+          "type": "Frequency",
+          "x": 353.34223766962134,
+          "y": 80.42041536644304,
+          "angle": 28.920867388358,
+          "resonance": 15
+        },
+        {
+          "type": "Code",
+          "x": 364.23154178412506,
+          "y": 97.59469881760197,
+          "angle": 73.46143132049728,
+          "resonance": 3
+        },
+        {
+          "type": "Seed",
+          "x": 298.9227219191313,
+          "y": 95.61805670402866,
+          "angle": 89.2241906005767,
+          "resonance": 15
+        },
+        {
+          "type": "Idea",
+          "x": 335.36803318298917,
+          "y": 98.01657720155885,
+          "angle": 22.909036906991563,
+          "resonance": 5
+        },
+        {
+          "type": "Frequency",
+          "x": 346.9562426076269,
+          "y": 87.7092350872192,
+          "angle": 12.298275878649367,
+          "resonance": 35
+        },
+        {
+          "type": "Story",
+          "x": 221.95988076316974,
+          "y": 84.44768415857324,
+          "angle": 11.316755894303933,
+          "resonance": 5
+        },
+        {
+          "type": "Idea",
+          "x": 222.01817065823786,
+          "y": 97.18985243169232,
+          "angle": 9.620276798568089,
+          "resonance": 10
+        },
+        {
+          "type": "Seed",
+          "x": 333.85159088436694,
+          "y": 98.2540867512713,
+          "angle": 53.99908429496505,
+          "resonance": 15
+        },
+        {
+          "type": "Idea",
+          "x": 379.13936005477973,
+          "y": 82.67135155368044,
+          "angle": 23.085173730282797,
+          "resonance": 30
+        },
+        {
+          "type": "Story",
+          "x": 260.76774224209,
+          "y": 96.94530060078698,
+          "angle": 28.879780168650836,
+          "resonance": 35
+        },
+        {
+          "type": "Idea",
+          "x": 227.07696529692225,
+          "y": 92.64596966227205,
+          "angle": 23.178931339700934,
+          "resonance": 30
+        },
+        {
+          "type": "Story",
+          "x": 283.3049814409073,
+          "y": 99.29397273334514,
+          "angle": 37.35765679005432,
+          "resonance": 45
+        },
+        {
+          "type": "Code",
+          "x": 268.0775755444565,
+          "y": 87.28121249127258,
+          "angle": 17.718833837683526,
+          "resonance": 63
+        },
+        {
+          "type": "Story",
+          "x": 221.76026762953546,
+          "y": 98.60536567936427,
+          "angle": 83.49706393051558,
+          "resonance": -10
+        },
+        {
+          "type": "Code",
+          "x": 292.63290764244914,
+          "y": 91.99266854850194,
+          "angle": 65.09063145608806,
+          "resonance": 18
+        },
+        {
+          "type": "Story",
+          "x": 345.538939263037,
+          "y": 84.4317178390956,
+          "angle": 82.88867425905929,
+          "resonance": 0
+        },
+        {
+          "type": "Story",
+          "x": 291.5060794224965,
+          "y": 96.5025447813259,
+          "angle": 16.4888504297643,
+          "resonance": 65
+        },
+        {
+          "type": "Frequency",
+          "x": 278.2044625072932,
+          "y": 80.65083988602869,
+          "angle": 28.504932482686563,
+          "resonance": 70
+        },
+        {
+          "type": "Idea",
+          "x": 299.6161720939162,
+          "y": 83.92187172849746,
+          "angle": 36.465719461751235,
+          "resonance": 60
+        },
+        {
+          "type": "Story",
+          "x": 243.68437963455153,
+          "y": 91.20139868501302,
+          "angle": 22.133580939329875,
+          "resonance": 95
+        },
+        {
+          "type": "Seed",
+          "x": 355.293999607558,
+          "y": 97.13399109883858,
+          "angle": 64.50392542553264,
+          "resonance": 30
+        },
+        {
+          "type": "Idea",
+          "x": 359.4688744939363,
+          "y": 88.79561918079284,
+          "angle": 50.8783950830891,
+          "resonance": 55
+        },
+        {
+          "type": "Story",
+          "x": 346.43300389399604,
+          "y": 88.95225905552809,
+          "angle": 48.819281198697,
+          "resonance": 45
+        },
+        {
+          "type": "Seed",
+          "x": 229.23503360776556,
+          "y": 99.0447981553931,
+          "angle": 40.0085741023844,
+          "resonance": 50
+        },
+        {
+          "type": "Code",
+          "x": 231.0948177448069,
+          "y": 88.39996596554965,
+          "angle": 88.9005579588307,
+          "resonance": -7
+        },
+        {
+          "type": "Frequency",
+          "x": 318.62703114625265,
+          "y": 84.93402903479168,
+          "angle": 44.47697568115535,
+          "resonance": 60
+        },
+        {
+          "type": "Code",
+          "x": 237.6530255799865,
+          "y": 84.32922379397954,
+          "angle": 10.575034920161967,
+          "resonance": 48
+        },
+        {
+          "type": "Story",
+          "x": 220.81742300130665,
+          "y": 91.39610670647276,
+          "angle": 0.749369647517466,
+          "resonance": 20
+        },
+        {
+          "type": "Story",
+          "x": 288.03380890850804,
+          "y": 90.3125590936902,
+          "angle": 53.8590526607155,
+          "resonance": 55
+        },
+        {
+          "type": "Story",
+          "x": 365.3845539977059,
+          "y": 97.96281669608945,
+          "angle": 4.093975888101844,
+          "resonance": 0
+        }
+      ],
+      "history": [
+        {
+          "turn": 1,
+          "matchsticks": 1,
+          "resonance": 15,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 2,
+          "matchsticks": 2,
+          "resonance": 18,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 3,
+          "matchsticks": 3,
+          "resonance": 33,
+          "tier": "Hum"
+        },
+        {
+          "turn": 4,
+          "matchsticks": 4,
+          "resonance": 38,
+          "tier": "Hum"
+        },
+        {
+          "turn": 5,
+          "matchsticks": 5,
+          "resonance": 73,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 6,
+          "matchsticks": 6,
+          "resonance": 78,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 7,
+          "matchsticks": 7,
+          "resonance": 88,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 8,
+          "matchsticks": 8,
+          "resonance": 103,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 9,
+          "matchsticks": 9,
+          "resonance": 133,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 10,
+          "matchsticks": 10,
+          "resonance": 168,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 11,
+          "matchsticks": 11,
+          "resonance": 198,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 12,
+          "matchsticks": 12,
+          "resonance": 243,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 13,
+          "matchsticks": 13,
+          "resonance": 306,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 14,
+          "matchsticks": 14,
+          "resonance": 296,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 15,
+          "matchsticks": 15,
+          "resonance": 314,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 16,
+          "matchsticks": 16,
+          "resonance": 314,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 17,
+          "matchsticks": 17,
+          "resonance": 379,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 18,
+          "matchsticks": 18,
+          "resonance": 449,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 19,
+          "matchsticks": 19,
+          "resonance": 509,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 20,
+          "matchsticks": 20,
+          "resonance": 604,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 21,
+          "matchsticks": 21,
+          "resonance": 634,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 22,
+          "matchsticks": 22,
+          "resonance": 689,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 23,
+          "matchsticks": 23,
+          "resonance": 734,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 24,
+          "matchsticks": 24,
+          "resonance": 784,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 25,
+          "matchsticks": 25,
+          "resonance": 777,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 26,
+          "matchsticks": 26,
+          "resonance": 837,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 27,
+          "matchsticks": 27,
+          "resonance": 885,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 28,
+          "matchsticks": 28,
+          "resonance": 905,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 29,
+          "matchsticks": 29,
+          "resonance": 960,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 30,
+          "matchsticks": 30,
+          "resonance": 960,
+          "tier": "Transcendence"
+        }
+      ],
+      "log": [
+        "[Turn 1] Frequency placed. Friction: neutral. +15 resonance (Total: 15)",
+        "[Turn 2] Code placed. Friction: dissonant. +3 resonance (Total: 18)",
+        "[Turn 3] Seed placed. Friction: dissonant. +15 resonance (Total: 33)",
+        "[Turn 4] Idea placed. Friction: dissonant. +5 resonance (Total: 38)",
+        "[Turn 5] Frequency placed. Friction: emergent. +35 resonance (Total: 73)",
+        "[Turn 6] Story placed. Friction: dissonant. +5 resonance (Total: 78)",
+        "[Turn 7] Idea placed. Friction: harmonic. +10 resonance (Total: 88)",
+        "[Turn 8] Seed placed. Friction: dissonant. +15 resonance (Total: 103)",
+        "[Turn 8] \u2728 HARMONY REACHED! \u2728",
+        "[Turn 9] Idea placed. Friction: harmonic. +30 resonance (Total: 133)",
+        "[Turn 10] Story placed. Friction: emergent. +35 resonance (Total: 168)",
+        "[Turn 10] \ud83c\udf1f TRANSCENDENCE REACHED! \ud83c\udf1f",
+        "[Turn 11] Idea placed. Friction: harmonic. +30 resonance (Total: 198)",
+        "[Turn 12] Story placed. Friction: harmonic. +45 resonance (Total: 243)",
+        "[Turn 13] Code placed. Friction: harmonic. +63 resonance (Total: 306)",
+        "[Turn 14] Story placed. Friction: dissonant. +-10 resonance (Total: 296)",
+        "[Turn 15] Code placed. Friction: emergent. +18 resonance (Total: 314)",
+        "[Turn 16] Story placed. Friction: dissonant. +0 resonance (Total: 314)",
+        "[Turn 17] Story placed. Friction: dissonant. +65 resonance (Total: 379)",
+        "[Turn 18] Frequency placed. Friction: harmonic. +70 resonance (Total: 449)",
+        "[Turn 19] Idea placed. Friction: harmonic. +60 resonance (Total: 509)",
+        "[Turn 20] Story placed. Friction: emergent. +95 resonance (Total: 604)",
+        "[Turn 21] Seed placed. Friction: dissonant. +30 resonance (Total: 634)",
+        "[Turn 22] Idea placed. Friction: harmonic. +55 resonance (Total: 689)",
+        "[Turn 23] Story placed. Friction: harmonic. +45 resonance (Total: 734)",
+        "[Turn 24] Seed placed. Friction: harmonic. +50 resonance (Total: 784)",
+        "[Turn 25] Code placed. Friction: emergent. +-7 resonance (Total: 777)",
+        "[Turn 26] Frequency placed. Friction: harmonic. +60 resonance (Total: 837)",
+        "[Turn 27] Code placed. Friction: dissonant. +48 resonance (Total: 885)",
+        "[Turn 28] Story placed. Friction: harmonic. +20 resonance (Total: 905)",
+        "[Turn 29] Story placed. Friction: dissonant. +55 resonance (Total: 960)",
+        "[Turn 30] Story placed. Friction: emergent. +0 resonance (Total: 960)"
+      ]
+    },
+    {
+      "game_id": 10,
+      "final_resonance": 1301,
+      "final_tier": "Transcendence",
+      "total_turns": 33,
+      "total_matchsticks": 33,
+      "harmony_unlocked": true,
+      "transcendence_unlocked": true,
+      "game_over": false,
+      "matchsticks": [
+        {
+          "type": "Frequency",
+          "x": 315.9243229221901,
+          "y": 91.22075280189561,
+          "angle": 19.854589321821294,
+          "resonance": 15
+        },
+        {
+          "type": "Story",
+          "x": 317.24536871140435,
+          "y": 95.33802006336985,
+          "angle": 3.067005777518552,
+          "resonance": 10
+        },
+        {
+          "type": "Idea",
+          "x": 341.3036024524862,
+          "y": 87.885822314643,
+          "angle": 48.329947032828514,
+          "resonance": 0
+        },
+        {
+          "type": "Code",
+          "x": 346.93382740456343,
+          "y": 83.13075046428406,
+          "angle": 63.28668515262719,
+          "resonance": 8
+        },
+        {
+          "type": "Story",
+          "x": 360.79415853107446,
+          "y": 88.53818491129142,
+          "angle": 33.76970145607452,
+          "resonance": 50
+        },
+        {
+          "type": "Frequency",
+          "x": 250.79116205663226,
+          "y": 86.80916891713007,
+          "angle": 69.24937674605944,
+          "resonance": 5
+        },
+        {
+          "type": "Frequency",
+          "x": 346.3100564626919,
+          "y": 81.62021394083725,
+          "angle": 84.12724727126978,
+          "resonance": 0
+        },
+        {
+          "type": "Code",
+          "x": 352.66396611503586,
+          "y": 81.85489394881044,
+          "angle": 22.99094210630753,
+          "resonance": 18
+        },
+        {
+          "type": "Story",
+          "x": 363.64413099864026,
+          "y": 93.7748216830478,
+          "angle": 66.45798125991854,
+          "resonance": 5
+        },
+        {
+          "type": "Story",
+          "x": 303.7680483925827,
+          "y": 97.61233721677141,
+          "angle": 34.59724446011872,
+          "resonance": 65
+        },
+        {
+          "type": "Code",
+          "x": 278.9060545146592,
+          "y": 83.61362636094144,
+          "angle": 43.15704064601472,
+          "resonance": 18
+        },
+        {
+          "type": "Frequency",
+          "x": 350.3053743488192,
+          "y": 82.70291701294471,
+          "angle": 23.185889976167182,
+          "resonance": 40
+        },
+        {
+          "type": "Idea",
+          "x": 346.87217178073,
+          "y": 83.14421394937442,
+          "angle": 30.006827867117803,
+          "resonance": 60
+        },
+        {
+          "type": "Story",
+          "x": 260.7179913377238,
+          "y": 85.4590242029565,
+          "angle": 34.15228962809226,
+          "resonance": 40
+        },
+        {
+          "type": "Story",
+          "x": 309.3466392872042,
+          "y": 82.00263103504055,
+          "angle": 72.0590296961744,
+          "resonance": 45
+        },
+        {
+          "type": "Story",
+          "x": 376.0735758777825,
+          "y": 85.84579962997641,
+          "angle": 73.98620560612976,
+          "resonance": 20
+        },
+        {
+          "type": "Seed",
+          "x": 278.7928950673959,
+          "y": 89.58758183482989,
+          "angle": 11.592344658663091,
+          "resonance": 40
+        },
+        {
+          "type": "Idea",
+          "x": 255.46808724052818,
+          "y": 86.88559289019109,
+          "angle": 47.54277835093279,
+          "resonance": 30
+        },
+        {
+          "type": "Story",
+          "x": 254.5826136343305,
+          "y": 96.14209616798092,
+          "angle": 10.260499722028197,
+          "resonance": 30
+        },
+        {
+          "type": "Code",
+          "x": 348.33965839211214,
+          "y": 94.07403743458703,
+          "angle": 40.60880286214676,
+          "resonance": 73
+        },
+        {
+          "type": "Idea",
+          "x": 339.4347125356957,
+          "y": 87.88878150731247,
+          "angle": 14.41963163867775,
+          "resonance": 30
+        },
+        {
+          "type": "Code",
+          "x": 294.6871596780267,
+          "y": 82.09161250421941,
+          "angle": 31.718054812077973,
+          "resonance": 88
+        },
+        {
+          "type": "Frequency",
+          "x": 376.69010554164527,
+          "y": 82.75958939579436,
+          "angle": 60.39382368622411,
+          "resonance": 50
+        },
+        {
+          "type": "Idea",
+          "x": 311.1787921082069,
+          "y": 98.10287650855477,
+          "angle": 47.70211566480967,
+          "resonance": 80
+        },
+        {
+          "type": "Code",
+          "x": 373.56088250841265,
+          "y": 95.80256858874638,
+          "angle": 70.12133273294658,
+          "resonance": 58
+        },
+        {
+          "type": "Code",
+          "x": 252.78411509766528,
+          "y": 95.98086872925393,
+          "angle": 9.598288699479191,
+          "resonance": 38
+        },
+        {
+          "type": "Seed",
+          "x": 253.47541192135174,
+          "y": 92.6530607289422,
+          "angle": 71.10880357899416,
+          "resonance": 15
+        },
+        {
+          "type": "Frequency",
+          "x": 341.3195500308606,
+          "y": 91.40178161751899,
+          "angle": 66.96387615849461,
+          "resonance": 45
+        },
+        {
+          "type": "Idea",
+          "x": 317.829236256288,
+          "y": 80.4674723308487,
+          "angle": 52.29288783854725,
+          "resonance": 75
+        },
+        {
+          "type": "Story",
+          "x": 339.37813702683707,
+          "y": 98.22625019814936,
+          "angle": 27.999803766419674,
+          "resonance": 110
+        },
+        {
+          "type": "Story",
+          "x": 252.48457392241068,
+          "y": 93.17385124789348,
+          "angle": 28.391121885331522,
+          "resonance": 45
+        },
+        {
+          "type": "Seed",
+          "x": 321.2274559260927,
+          "y": 82.45381513406517,
+          "angle": 83.2688938959443,
+          "resonance": -5
+        },
+        {
+          "type": "Idea",
+          "x": 273.8866914861534,
+          "y": 89.84550136712923,
+          "angle": 21.214760699755445,
+          "resonance": 100
+        }
+      ],
+      "history": [
+        {
+          "turn": 1,
+          "matchsticks": 1,
+          "resonance": 15,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 2,
+          "matchsticks": 2,
+          "resonance": 25,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 3,
+          "matchsticks": 3,
+          "resonance": 25,
+          "tier": "Whisper"
+        },
+        {
+          "turn": 4,
+          "matchsticks": 4,
+          "resonance": 33,
+          "tier": "Hum"
+        },
+        {
+          "turn": 5,
+          "matchsticks": 5,
+          "resonance": 83,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 6,
+          "matchsticks": 6,
+          "resonance": 88,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 7,
+          "matchsticks": 7,
+          "resonance": 88,
+          "tier": "Frequency"
+        },
+        {
+          "turn": 8,
+          "matchsticks": 8,
+          "resonance": 106,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 9,
+          "matchsticks": 9,
+          "resonance": 111,
+          "tier": "Harmony"
+        },
+        {
+          "turn": 10,
+          "matchsticks": 10,
+          "resonance": 176,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 11,
+          "matchsticks": 11,
+          "resonance": 194,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 12,
+          "matchsticks": 12,
+          "resonance": 234,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 13,
+          "matchsticks": 13,
+          "resonance": 294,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 14,
+          "matchsticks": 14,
+          "resonance": 334,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 15,
+          "matchsticks": 15,
+          "resonance": 379,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 16,
+          "matchsticks": 16,
+          "resonance": 399,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 17,
+          "matchsticks": 17,
+          "resonance": 439,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 18,
+          "matchsticks": 18,
+          "resonance": 469,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 19,
+          "matchsticks": 19,
+          "resonance": 499,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 20,
+          "matchsticks": 20,
+          "resonance": 572,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 21,
+          "matchsticks": 21,
+          "resonance": 602,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 22,
+          "matchsticks": 22,
+          "resonance": 690,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 23,
+          "matchsticks": 23,
+          "resonance": 740,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 24,
+          "matchsticks": 24,
+          "resonance": 820,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 25,
+          "matchsticks": 25,
+          "resonance": 878,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 26,
+          "matchsticks": 26,
+          "resonance": 916,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 27,
+          "matchsticks": 27,
+          "resonance": 931,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 28,
+          "matchsticks": 28,
+          "resonance": 976,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 29,
+          "matchsticks": 29,
+          "resonance": 1051,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 30,
+          "matchsticks": 30,
+          "resonance": 1161,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 31,
+          "matchsticks": 31,
+          "resonance": 1206,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 32,
+          "matchsticks": 32,
+          "resonance": 1201,
+          "tier": "Transcendence"
+        },
+        {
+          "turn": 33,
+          "matchsticks": 33,
+          "resonance": 1301,
+          "tier": "Transcendence"
+        }
+      ],
+      "log": [
+        "[Turn 1] Frequency placed. Friction: neutral. +15 resonance (Total: 15)",
+        "[Turn 2] Story placed. Friction: neutral. +10 resonance (Total: 25)",
+        "[Turn 3] Idea placed. Friction: dissonant. +0 resonance (Total: 25)",
+        "[Turn 4] Code placed. Friction: harmonic. +8 resonance (Total: 33)",
+        "[Turn 5] Story placed. Friction: emergent. +50 resonance (Total: 83)",
+        "[Turn 6] Frequency placed. Friction: dissonant. +5 resonance (Total: 88)",
+        "[Turn 7] Frequency placed. Friction: dissonant. +0 resonance (Total: 88)",
+        "[Turn 8] Code placed. Friction: dissonant. +18 resonance (Total: 106)",
+        "[Turn 8] \u2728 HARMONY REACHED! \u2728",
+        "[Turn 9] Story placed. Friction: dissonant. +5 resonance (Total: 111)",
+        "[Turn 10] Story placed. Friction: emergent. +65 resonance (Total: 176)",
+        "[Turn 10] \ud83c\udf1f TRANSCENDENCE REACHED! \ud83c\udf1f",
+        "[Turn 11] Code placed. Friction: harmonic. +18 resonance (Total: 194)",
+        "[Turn 12] Frequency placed. Friction: harmonic. +40 resonance (Total: 234)",
+        "[Turn 13] Idea placed. Friction: harmonic. +60 resonance (Total: 294)",
+        "[Turn 14] Story placed. Friction: harmonic. +40 resonance (Total: 334)",
+        "[Turn 15] Story placed. Friction: emergent. +45 resonance (Total: 379)",
+        "[Turn 16] Story placed. Friction: harmonic. +20 resonance (Total: 399)",
+        "[Turn 17] Seed placed. Friction: dissonant. +40 resonance (Total: 439)",
+        "[Turn 18] Idea placed. Friction: harmonic. +30 resonance (Total: 469)",
+        "[Turn 19] Story placed. Friction: harmonic. +30 resonance (Total: 499)",
+        "[Turn 20] Code placed. Friction: emergent. +73 resonance (Total: 572)",
+        "[Turn 21] Idea placed. Friction: harmonic. +30 resonance (Total: 602)",
+        "[Turn 22] Code placed. Friction: harmonic. +88 resonance (Total: 690)",
+        "[Turn 23] Frequency placed. Friction: dissonant. +50 resonance (Total: 740)",
+        "[Turn 24] Idea placed. Friction: harmonic. +80 resonance (Total: 820)",
+        "[Turn 25] Code placed. Friction: emergent. +58 resonance (Total: 878)",
+        "[Turn 26] Code placed. Friction: harmonic. +38 resonance (Total: 916)",
+        "[Turn 27] Seed placed. Friction: dissonant. +15 resonance (Total: 931)",
+        "[Turn 28] Frequency placed. Friction: harmonic. +45 resonance (Total: 976)",
+        "[Turn 29] Idea placed. Friction: harmonic. +75 resonance (Total: 1051)",
+        "[Turn 30] Story placed. Friction: emergent. +110 resonance (Total: 1161)",
+        "[Turn 31] Story placed. Friction: dissonant. +45 resonance (Total: 1206)",
+        "[Turn 32] Seed placed. Friction: dissonant. +-5 resonance (Total: 1201)",
+        "[Turn 33] Idea placed. Friction: dissonant. +100 resonance (Total: 1301)"
+      ]
+    }
+  ]
+}
