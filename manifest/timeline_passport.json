@@ -1,0 +1,37 @@
+{
+  "passport": "timeline_passport.v1",
+  "status": "active",
+  "purpose": "Deterministic chronology re-entry for RecursiveMAS + codon continuity.",
+  "sequence": [
+    "VOID_SEED_DIGEST.md",
+    "VOID_SEED.md:conditional",
+    "VOID_CHRONICLE.md:last_5_entries_newest_first",
+    "SCL_LBN_PROTOCOL.md",
+    "CODON_001.md"
+  ],
+  "stop_gates": {
+    "identity_gate": true,
+    "history_gate": true,
+    "codon_gate": true,
+    "safety_gate": true
+  },
+  "output_card": [
+    "active_mission",
+    "inherited_forward_thread",
+    "security_posture",
+    "route_mode",
+    "first_concrete_action"
+  ],
+  "codon_anchors": {
+    "origin": "B-nn-O",
+    "identity": "B-nn-D",
+    "security": "B-kk-S",
+    "mesh": "B-mm-M",
+    "action": "B-tt-A"
+  },
+  "discovery": {
+    "human_protocol": "core/recursive_mas/TIMELINE_PASSPORT.md",
+    "continuity_contract": "manifest/continuity_chordon_contract.json",
+    "agent_contract": "manifest/recursive_mas_contract.json"
+  }
+}

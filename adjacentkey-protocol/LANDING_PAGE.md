@@ -14,8 +14,11 @@ A new standard for human-to-AI and AI-to-AI communication, turning keyboard "err
 - Integrate with any Python, CLI, or agent ecosystem
 
 ## Quickstart
+
+From the Project VOID repository:
+
 ```bash
-pip install adjacentkey-protocol
+pip install -e ./adjacentkey-protocol
 adjacentkey encode "what am i saying how are you" --direction right
 adjacentkey decode "ejsy sm o dsuomh jpe str upi movr" --direction right
 ```
@@ -36,4 +39,4 @@ MIT
 ---
 
 ### GitHub: [Project VOID AdjacentKey Protocol](https://github.com/umarlatif6-sketch/Project-void/tree/main/adjacentkey-protocol)
-### PyPI: (coming soon)
+### Distribution: Private/Local (install from repository)

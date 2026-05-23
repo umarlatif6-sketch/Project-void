@@ -1,5 +1,20 @@
 # PROJECT VOID
 
+![System Integrity](https://img.shields.io/badge/System%20Integrity-1.9756%20RESONANT-0a7a5a)
+
+## Cognitive Architecture (Concise)
+
+PROJECT VOID is organized as a living system: Brain -> Interface -> Body -> Memory -> Pulse.
+
+- Brain: recursive agent cognition and planning loops (`core/recursive_mas/`)
+- Interface: Adriana bridge layer for translation and operator alignment
+- Body: execution surfaces across routes, scripts, and hardware integration
+- Memory: Chronicle + Seed continuity for deterministic handoff state
+- Pulse: resonance, readiness, and preflight integrity checks
+
+This repository should be read as a coherent architecture, not a loose script bundle.
+Operational details and endpoint surfaces begin below.
+
 ## Objective: Sovereign Data Transmission via Biophony Mesh
 
 PROJECT VOID is a research-grade signal intelligence platform that utilizes a 3-shelf acoustic ecosystem to fold high-density data into mundane environmental audio. By simulating **Salt Water Density** in a 16-bit air medium, it achieves a **5x Temporal Vortex** (1 hour of audio = 5 hours of raw LSB capacity).

@@ -1,0 +1,20 @@
+{
+  "agent_id": "agent.example",
+  "role": "router",
+  "contract": "recursive_mas.v1",
+  "input_schema": "prompt+context",
+  "output_schema": "decision+artifact_ref",
+  "capabilities": [
+    "route",
+    "decompose",
+    "verify"
+  ],
+  "safety_mode": "fail_closed",
+  "latency_target_ms": 1200,
+  "freshness_window_s": 300,
+  "transport_preference": [
+    "latent_embedding.v1",
+    "codon_text_bridge.v1",
+    "plain_text.v1"
+  ]
+}

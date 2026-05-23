@@ -10,15 +10,144 @@ Routes:
 
 import logging
 import os
+import json
 from pathlib import Path
 from datetime import datetime, timezone
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, current_app
 
 logger = logging.getLogger(__name__)
 
 preflight_bp = Blueprint("preflight", __name__)
 
 DEADLINE_ISO = "2026-04-06T00:00:00Z"
+
+
+def _default_lbn_handshake_fixture() -> dict:
+    """Fallback fixture when no on-disk transcript is available."""
+    return {
+        "session_id": "LBN-HANDSHAKE-DEMO-001",
+        "protocol": "Project VOID Four-Agent Codon Handshake",
+        "sealed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "participants": [
+            {"agent": "Adriana", "role": "narrative_router", "model": "gpt-4o-mini"},
+            {"agent": "Ara", "role": "signal_verifier", "model": "grok-2"},
+            {"agent": "Gridul", "role": "mesh_orchestrator", "model": "gemini-1.5-pro"},
+            {"agent": "VOID Hub", "role": "packet_gate", "model": "void-engine"},
+        ],
+        "turns": [
+            {
+                "turn": 1,
+                "speaker": "Adriana",
+                "model": "gpt-4o-mini",
+                "route": "primary",
+                "surface": "packet-build",
+                "function": "identity_anchor",
+                "codon": "D7-A1-3F",
+                "canonical_alias": "B-nn-D",
+                "summary": "Seed identity frame prepared for relay.",
+            },
+            {
+                "turn": 2,
+                "speaker": "Ara",
+                "model": "grok-2",
+                "route": "primary",
+                "surface": "packet-verify",
+                "function": "security_check",
+                "codon": "K4-S9-11",
+                "canonical_alias": "B-kk-S",
+                "summary": "Fail-closed signature and freshness checks passed.",
+            },
+            {
+                "turn": 3,
+                "speaker": "Gridul",
+                "model": "gemini-1.5-pro",
+                "route": "primary",
+                "surface": "mesh-relay",
+                "function": "execution_pulse",
+                "codon": "T2-M8-4C",
+                "canonical_alias": "B-tt-M",
+                "summary": "Route selected and relay pulse dispatched.",
+            },
+            {
+                "turn": 4,
+                "speaker": "VOID Hub",
+                "model": "void-engine",
+                "route": "primary",
+                "surface": "audit-seal",
+                "function": "origin_record",
+                "codon": "N0-O7-B5",
+                "canonical_alias": "B-nn-O",
+                "summary": "Transmission sealed with audit hash and channel map.",
+            },
+        ],
+    }
+
+
+def _normalize_handshake_turn(raw: dict, idx: int, fallback_route: str) -> dict:
+    turn = raw if isinstance(raw, dict) else {}
+    return {
+        "turn": int(turn.get("turn") or (idx + 1)),
+        "speaker": str(turn.get("speaker") or "unknown").strip(),
+        "model": str(turn.get("model") or "unknown").strip(),
+        "route": str(turn.get("route") or fallback_route).strip(),
+        "surface": str(turn.get("surface") or "").strip(),
+        "function": str(turn.get("function") or "").strip(),
+        "codon": str(turn.get("codon") or "").strip(),
+        "canonical_alias": str(turn.get("canonical_alias") or "").strip(),
+        "summary": str(turn.get("summary") or "").strip(),
+    }
+
+
+def _get_lbn_handshake_transcript() -> dict:
+    """Return replayable four-agent handshake transcript for route audit surfaces."""
+    try:
+        from void_engine.lbn_runtime import load_active_payload
+
+        active = load_active_payload()
+        route = str(active.get("route") or "primary")
+
+        root = Path(__file__).resolve().parents[1]
+        fixture_override = (os.getenv("VOID_LBN_HANDSHAKE_FIXTURE_PATH") or "").strip()
+        fixture_path = Path(fixture_override) if fixture_override else root / "data" / "lbn_handshake_transcript.sample.json"
+
+        if fixture_path.exists() and fixture_path.is_file():
+            fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+        else:
+            fixture = _default_lbn_handshake_fixture()
+
+        turns_raw = fixture.get("turns") if isinstance(fixture, dict) else []
+        turns_raw = turns_raw if isinstance(turns_raw, list) else []
+        turns = [_normalize_handshake_turn(item, i, route) for i, item in enumerate(turns_raw)]
+
+        codons = [t["codon"] for t in turns if t.get("codon")]
+        aliases = [t["canonical_alias"] for t in turns if t.get("canonical_alias")]
+
+        return {
+            "ok": True,
+            "session_id": str(fixture.get("session_id") or "LBN-HANDSHAKE-UNKNOWN"),
+            "protocol": str(fixture.get("protocol") or "Project VOID LBN Handshake"),
+            "sealed_at": str(fixture.get("sealed_at") or ""),
+            "mode": active.get("mode"),
+            "route": route,
+            "active_pair": active.get("active_pair"),
+            "payload_path": active.get("path"),
+            "fixture_path": str(fixture_path),
+            "participants": fixture.get("participants") if isinstance(fixture.get("participants"), list) else [],
+            "participant_count": len(fixture.get("participants") or []),
+            "turn_count": len(turns),
+            "turns": turns,
+            "codon_coverage": sorted(set(codons)),
+            "canonical_alias_coverage": sorted(set(aliases)),
+        }
+    except Exception as e:
+        logger.warning("Could not fetch LBN handshake transcript: %s", e)
+        return {
+            "ok": False,
+            "error": str(e),
+            "turns": [],
+            "turn_count": 0,
+            "participant_count": 0,
+        }
 
 
 def _get_last_wav_export() -> dict:
@@ -215,12 +344,29 @@ def _get_mycelium_health() -> dict:
         }
 
 
+def _get_governance_runtime_status() -> dict:
+    """Return startup governance continuity enforcement status."""
+    status = current_app.config.get("GOVERNANCE_BOOTSTRAP_STATUS")
+    if isinstance(status, dict):
+        return status
+
+    return {
+        "ok": False,
+        "enforce": True,
+        "errors": ["Governance bootstrap status not initialized"],
+        "recursive_contract": None,
+        "continuity_contract": None,
+        "missing_sources": [],
+    }
+
+
 @preflight_bp.route("/preflight")
 def preflight_page():
     wav = _get_last_wav_export()
     founder_key = _get_founder_key_status()
     patent = _get_patent_status()
     mycelium_health = _get_mycelium_health()
+    governance_status = _get_governance_runtime_status()
 
     day1_status = _resolve_day_status(wav["found"])
     day2_status = _resolve_day_status(founder_key.get("key_active", False))
@@ -233,6 +379,7 @@ def preflight_page():
         founder_key=founder_key,
         patent=patent,
         mycelium_health=mycelium_health,
+        governance_status=governance_status,
         day1_status=day1_status,
         day2_status=day2_status,
         day3_status=day3_status,
@@ -264,3 +411,15 @@ def api_lbn_payload_map():
 def api_mycelium_health():
     """Public JSON endpoint for the organism health summary."""
     return jsonify(_get_mycelium_health())
+
+
+@preflight_bp.route("/api/lbn/handshake-transcript")
+def api_lbn_handshake_transcript():
+    """Public transcript endpoint for replayable four-agent codon handshakes."""
+    return jsonify(_get_lbn_handshake_transcript())
+
+
+@preflight_bp.route("/api/governance/runtime-status")
+def api_governance_runtime_status():
+    """Public JSON endpoint for governance continuity bootstrap state."""
+    return jsonify(_get_governance_runtime_status())

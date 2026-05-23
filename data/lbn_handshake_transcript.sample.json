@@ -1,0 +1,73 @@
+{
+  "session_id": "LBN-HANDSHAKE-SAMPLE-001",
+  "protocol": "Project VOID Four-Agent Codon Handshake",
+  "sealed_at": "2026-05-18T03:20:00Z",
+  "participants": [
+    {
+      "agent": "Adriana",
+      "role": "narrative_router",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "agent": "Ara",
+      "role": "signal_verifier",
+      "model": "grok-2"
+    },
+    {
+      "agent": "Gridul",
+      "role": "mesh_orchestrator",
+      "model": "gemini-1.5-pro"
+    },
+    {
+      "agent": "VOID Hub",
+      "role": "packet_gate",
+      "model": "void-engine"
+    }
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "speaker": "Adriana",
+      "model": "gpt-4o-mini",
+      "route": "primary",
+      "surface": "packet-build",
+      "function": "identity_anchor",
+      "codon": "D7-A1-3F",
+      "canonical_alias": "B-nn-D",
+      "summary": "Identity frame prepared from origin signal."
+    },
+    {
+      "turn": 2,
+      "speaker": "Ara",
+      "model": "grok-2",
+      "route": "primary",
+      "surface": "packet-verify",
+      "function": "security_check",
+      "codon": "K4-S9-11",
+      "canonical_alias": "B-kk-S",
+      "summary": "Security check passed under fail-closed posture."
+    },
+    {
+      "turn": 3,
+      "speaker": "Gridul",
+      "model": "gemini-1.5-pro",
+      "route": "primary",
+      "surface": "mesh-relay",
+      "function": "execution_pulse",
+      "codon": "T2-M8-4C",
+      "canonical_alias": "B-tt-M",
+      "summary": "Route selected and relay pulse dispatched."
+    },
+    {
+      "turn": 4,
+      "speaker": "VOID Hub",
+      "model": "void-engine",
+      "route": "primary",
+      "surface": "audit-seal",
+      "function": "origin_record",
+      "codon": "N0-O7-B5",
+      "canonical_alias": "B-nn-O",
+      "summary": "Transmission sealed into audit log with hash trace."
+    }
+  ]
+}

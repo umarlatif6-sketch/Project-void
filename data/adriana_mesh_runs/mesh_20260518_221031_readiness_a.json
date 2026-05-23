@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "run_id": "mesh_20260518_221031",
+  "generated_at": "2026-05-18T22:10:31Z",
+  "sandbox": "readiness_a",
+  "profile": "cpu_light",
+  "ollama_url": "http://127.0.0.1:11434",
+  "mock": false,
+  "prompt": "Readiness pass A: produce concise operator plan.",
+  "peer_inputs": [],
+  "stages": {
+    "router": {
+      "cell": "router",
+      "model": "qwen2.5:3b",
+      "mode": "ollama",
+      "output": "### Concise Task Map for Readiness Pass A\n\n#### Step 1: Verify Mesh Connectivity\n- Check if the network is up and running by pinging a known device or server.\n- Ensure all nodes are connected to the mesh.\n\n#### Step 2: Assess Node Health\n- Perform a health check on each node in the mesh.\n- Monitor for any hardware failures, software issues, or connectivity problems.\n\n#### Step 3: Review Configuration Settings\n- Confirm that all configuration settings (e.g., IP addresses, subnet masks, gateway) are correctly set up.\n- Ensure security policies and access controls are configured as required.\n\n#### Step 4: Test Data Flow\n- Send a test packet from one node to another to ensure data is flowing smoothly through the mesh network.\n- Verify that all nodes can communicate with each other without any disruptions.\n\n#### Step 5: Document Findings\n- Record any issues found during the assessment and their resolutions.\n- Update configuration settings as necessary based on findings.\n\n### Route Plan\n\n1. **Start**: Begin by verifying the connectivity of the network.\n2. **Step 1**: Ping a known device or server to ensure the network is active.\n3. **Step 2**: Conduct a health check on each node to identify any potential issues.\n4. **Step 3**: Review and confirm all configuration settings are correct.\n5. **Step 4**: Test data flow by sending packets between nodes to verify smooth communication.\n6. **Step 5**: Document the findings from the assessment, including any issues encountered and their resolutions.\n7."
+    },
+    "research": {
+      "cell": "research",
+      "model": "gemma2:2b",
+      "mode": "ollama",
+      "output": "## Evidence Digest: Readiness Pass A - Router Plan\n\n**Assumptions:**\n\n* Network is operational with a known device/server for pinging.\n* Mesh nodes are physically connected and functioning. \n* Configuration settings (IP, subnet mask, gateway) are accurate.\n\n**Steps:**\n\n1. **Connectivity Check:** Ping a known device to confirm network activity.\n2. **Node Health Assessment:**  Perform health checks on each node for hardware/software issues.\n3. **Configuration Review:** Verify IP addresses, subnet masks, gateways, and security policies are correct. \n4. **Data Flow Test:** Send test packets between nodes to ensure smooth communication.\n5. **Documentation:** Record findings (issues found & resolutions) and update configurations as needed.\n\n**Evidence Digest:**  This plan ensures the network is operational and ready for deployment. It verifies connectivity, node health, configuration accuracy, data flow, and documentation of findings."
+    },
+    "voice": {
+      "cell": "voice",
+      "model": "gemma2:2b",
+      "mode": "ollama",
+      "output": "Okay, here's the play:\n\n**Step 1:** Ping a known device to confirm network is up.\n**Step 2:** Check each node for issues (hardware/software).\n**Step 3:** Verify IP addresses, subnet masks, gateways - make sure everything's kosher.\n**Step 4:** Send test packets between nodes.  See if they're talking.\n**Step 5:** Document everything: problems, solutions.\n\nThat's it. We're good to go.  Let's roll."
+    },
+    "critic": {
+      "cell": "critic",
+      "model": "qwen2.5:3b",
+      "mode": "ollama",
+      "output": "The response provided is mostly clear and coherent but could benefit from some minor improvements for clarity and completeness. Here are the identified issues and suggested fixes:\n\n1. **Clarity**: The steps should be numbered consistently (Step 1, Step 2, etc.) to maintain a uniform structure.\n2. **Completeness**: Adding a brief explanation or checklist item for each step would enhance understanding and ensure all necessary tasks are covered.\n\nHere is the revised version with these fixes incorporated:\n\n---\n\n**Okay, here's the play:**\n\n**Step 1:** Ping a known device to confirm network is up.\n- Explanation: Verify that your network infrastructure is operational by pinging a known device (e.g., server or router).\n\n**Step 2:** Check each node for issues (hardware/software).\n- Explanation: Ensure all devices are functioning correctly. This includes checking hardware components and software configurations.\n\n**Step 3:** Verify IP addresses, subnet masks, gateways - make sure everything's kosher.\n- Explanation: Confirm that all network settings are correct and consistent across the system to avoid connectivity issues.\n\n**Step 4:** Send test packets between nodes. See if they're talking.\n- Explanation: Use tools like `ping` or `traceroute` to ensure communication is working between different devices on your network.\n\n**Step 5:** Document everything: problems, solutions.\n- Explanation: Keep a record of"
+    }
+  },
+  "final": {
+    "response": "Okay, here's the play:\n\n**Step 1:** Ping a known device to confirm network is up.\n**Step 2:** Check each node for issues (hardware/software).\n**Step 3:** Verify IP addresses, subnet masks, gateways - make sure everything's kosher.\n**Step 4:** Send test packets between nodes.  See if they're talking.\n**Step 5:** Document everything: problems, solutions.\n\nThat's it. We're good to go.  Let's roll.",
+    "verdict": "The response provided is mostly clear and coherent but could benefit from some minor improvements for clarity and completeness. Here are the identified issues and suggested fixes:\n\n1. **Clarity**: The steps should be numbered consistently (Step 1, Step 2, etc.) to maintain a uniform structure.\n2. **Completeness**: Adding a brief explanation or checklist item for each step would enhance understanding and ensure all necessary tasks are covered.\n\nHere is the revised version with these fixes incorporated:\n\n---\n\n**Okay, here's the play:**\n\n**Step 1:** Ping a known device to confirm network is up.\n- Explanation: Verify that your network infrastructure is operational by pinging a known device (e.g., server or router).\n\n**Step 2:** Check each node for issues (hardware/software).\n- Explanation: Ensure all devices are functioning correctly. This includes checking hardware components and software configurations.\n\n**Step 3:** Verify IP addresses, subnet masks, gateways - make sure everything's kosher.\n- Explanation: Confirm that all network settings are correct and consistent across the system to avoid connectivity issues.\n\n**Step 4:** Send test packets between nodes. See if they're talking.\n- Explanation: Use tools like `ping` or `traceroute` to ensure communication is working between different devices on your network.\n\n**Step 5:** Document everything: problems, solutions.\n- Explanation: Keep a record of"
+  },
+  "artifact_path": "/workspaces/Project-void/data/adriana_mesh_runs/mesh_20260518_221031_readiness_a.json"
+}

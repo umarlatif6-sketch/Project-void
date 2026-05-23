@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "run_id": "mesh_20260518_215018",
+  "generated_at": "2026-05-18T21:50:18Z",
+  "sandbox": "readiness_a",
+  "profile": "cpu_light",
+  "ollama_url": "http://127.0.0.1:11434",
+  "mock": false,
+  "prompt": "Readiness pass A: produce concise operator plan.",
+  "peer_inputs": [],
+  "stages": {
+    "router": {
+      "cell": "router",
+      "model": "qwen2.5:3b",
+      "mode": "ollama",
+      "output": "### Task Map for Readiness Pass A:\n\n1. **Connect to Mesh Network**: Establish a connection with the Adriana mesh network.\n2. **Identify Current Status**: Determine the current operational status of the router cell in the Adriana mesh.\n3. **Check Connectivity**: Verify connectivity between the router cell and other nodes within the mesh.\n4. **Review Logs**: Review logs for any recent issues or errors that may affect readiness.\n5. **Perform Health Checks**: Conduct health checks on the router cell to ensure all components are functioning correctly.\n6. **Test Communication Channels**: Test communication channels with neighboring cells to confirm proper data transmission and reception.\n7. **Update Firmware (if necessary)**: Check if there is a need for firmware updates to improve performance or fix any known issues.\n\n### Route Plan:\n\n1. **Start by connecting to the Adriana mesh network** using your preferred method (e.g., Wi-Fi, Bluetooth).\n2. **Access the router cell’s management interface** through the web portal or command line.\n3. **Navigate to system status and logs** to review current operational data.\n4. **Perform a comprehensive health check** on all components including CPU usage, memory, storage, and network interfaces.\n5. **Test communication channels with neighboring cells** by sending test packets and monitoring responses.\n6. **If necessary, initiate firmware update process** for the router cell.\n7. **Document findings and any actions taken** in a log file or report.\n\nThis plan ensures that all aspects of the router cell’s readiness are thoroughly checked and addressed to maintain optimal performance"
+    },
+    "research": {
+      "cell": "research",
+      "model": "gemma2:2b",
+      "mode": "mock_fallback:HTTPError",
+      "output": "Evidence digest: You are the research cell. User intent: Readiness pass A: produce concise operator plan. Router plan: ### Task Map for Readiness Pass A: 1. **Connect to Mesh Network**: Establish a connection with the Adriana mesh network. 2. **Identify Current Status**: Determine the current ope"
+    },
+    "voice": {
+      "cell": "voice",
+      "model": "gemma2:2b",
+      "mode": "mock_fallback:HTTPError",
+      "output": "Adriana response: You are Adriana voice cell. User intent: Readiness pass A: produce concise operator plan. Router plan: ### Task Map for Readiness Pass A: 1. **Connect to Mesh Network**: Establish a connection with the Adriana mesh network. 2. **Identify Current Status**: Determine the current op"
+    },
+    "critic": {
+      "cell": "critic",
+      "model": "llama3.2:3b",
+      "mode": "mock_fallback:HTTPError",
+      "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+    }
+  },
+  "final": {
+    "response": "Adriana response: You are Adriana voice cell. User intent: Readiness pass A: produce concise operator plan. Router plan: ### Task Map for Readiness Pass A: 1. **Connect to Mesh Network**: Establish a connection with the Adriana mesh network. 2. **Identify Current Status**: Determine the current op",
+    "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+  },
+  "artifact_path": "/workspaces/Project-void/data/adriana_mesh_runs/mesh_20260518_215018_readiness_a.json"
+}

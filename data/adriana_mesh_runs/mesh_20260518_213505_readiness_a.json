@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "run_id": "mesh_20260518_213505",
+  "generated_at": "2026-05-18T21:35:05Z",
+  "sandbox": "readiness_a",
+  "profile": "cpu_light",
+  "ollama_url": "http://127.0.0.1:11434",
+  "mock": false,
+  "prompt": "Readiness pass A: produce concise operator plan.",
+  "peer_inputs": [],
+  "stages": {
+    "router": {
+      "cell": "router",
+      "model": "qwen2.5:3b",
+      "mode": "ollama",
+      "output": "### Task Map for Readiness Pass A:\n\n1. **Review Mesh Configuration**: \n   - Access the current configuration of the Adriana mesh network.\n   - Verify all nodes are operational and connected.\n\n2. **Check Node Status**:\n   - Ensure all router cells (including your own) are online and active.\n   - Confirm no node is in a degraded or offline state.\n\n3. **Verify Connectivity**:\n   - Test connectivity between all nodes to ensure data can flow seamlessly.\n   - Check for any dropped connections or network disruptions.\n\n4. **Monitor Network Traffic**:\n   - Review traffic logs to identify any anomalies or bottlenecks.\n   - Ensure there are no unexpected spikes in load that could affect performance.\n\n5. **Update Firmware (if necessary)**:\n   - Check if any firmware updates are available and install them.\n   - Verify the new firmware version is functioning correctly.\n\n6. **Perform Health Checks**:\n   - Conduct a comprehensive health check on all nodes to ensure they meet operational standards.\n   - Address any issues found during the health checks promptly.\n\n### Route Plan:\n\n1. **Start with Step 1: Review Mesh Configuration**\n2. Proceed directly to Step 2: Check Node Status\n3. Move on to Step 3: Verify Connectivity\n4. Continue to Step 4: Monitor Network Traffic\n5. Execute Step 5: Update Firmware (if necessary)\n6. Conclude with Step 6: Perform Health Checks\n\n### Summary:\nYour task is to ensure the Adriana mesh network is fully operational and ready for use by passing through"
+    },
+    "research": {
+      "cell": "research",
+      "model": "phi3:mini",
+      "mode": "mock_fallback:HTTPError",
+      "output": "Evidence digest: You are the research cell. User intent: Readiness pass A: produce concise operator plan. Router plan: ### Task Map for Readiness Pass A: 1. **Review Mesh Configuration**: - Access the current configuration of the Adriana mesh network. - Verify all nodes are operational and connec"
+    },
+    "voice": {
+      "cell": "voice",
+      "model": "gemma2:2b",
+      "mode": "ollama",
+      "output": "**Operator Plan: Readiness Pass A**\n\n1. **Mesh Check:**  Get the config, verify nodes online & connected. \n2. **Node Status:**  All cells online? No offline nodes.\n3. **Connectivity Test:** Data flows smoothly between nodes. No dropped connections.\n4. **Traffic Review:** Log for anomalies or bottlenecks. No unexpected load spikes.\n5. **Firmware Update (if needed):** Check for updates, install & verify.\n6. **Health Check:**  Nodes meet operational standards. Address any issues.\n\n**Route Plan:** 1-3-4-5-6. \n\n\n**Ready to go!**"
+    },
+    "critic": {
+      "cell": "critic",
+      "model": "llama3.2:3b",
+      "mode": "ollama",
+      "output": "**Verdict:**\n\nThe response is generally clear and concise, but there are a few areas that require improvement:\n\n1. **Contradictions:**\n\t* The phrase \"All cells online?\" in step 2 seems contradictory, as it's already stated that all nodes are online.\n\t* The phrase \"No offline nodes\" in step 2 also contradicts the previous statement, as it implies that there might be offline nodes.\n\nFix: Remove or rephrase these lines to avoid contradictions. For example, \"Verify all nodes are online and connected.\"\n\n2. **Missing Constraints:**\n\t* There is no mention of specific requirements or standards for the operator plan.\n\t* The response assumes a certain level of familiarity with the system and its components, which might not be the case for all readers.\n\nFix: Add relevant constraints or assumptions to make the response more comprehensive.\n\n3. **Clarity:**\n\t* Some steps (e.g., step 5) could benefit from additional context or explanations.\n\t* The phrase \"No unexpected load spikes\" in step 4 is somewhat vague; what exactly does it mean?\n\nFix: Provide more detailed explanations and clarify technical terms to improve clarity.\n\n**Revised Response:**\n\n**Operator Plan: Readiness Pass A**\n\n1. **Mesh Check:** Get the config, verify nodes online & connected.\n2. **Node Status:** Verify all"
+    }
+  },
+  "final": {
+    "response": "**Operator Plan: Readiness Pass A**\n\n1. **Mesh Check:**  Get the config, verify nodes online & connected. \n2. **Node Status:**  All cells online? No offline nodes.\n3. **Connectivity Test:** Data flows smoothly between nodes. No dropped connections.\n4. **Traffic Review:** Log for anomalies or bottlenecks. No unexpected load spikes.\n5. **Firmware Update (if needed):** Check for updates, install & verify.\n6. **Health Check:**  Nodes meet operational standards. Address any issues.\n\n**Route Plan:** 1-3-4-5-6. \n\n\n**Ready to go!**",
+    "verdict": "**Verdict:**\n\nThe response is generally clear and concise, but there are a few areas that require improvement:\n\n1. **Contradictions:**\n\t* The phrase \"All cells online?\" in step 2 seems contradictory, as it's already stated that all nodes are online.\n\t* The phrase \"No offline nodes\" in step 2 also contradicts the previous statement, as it implies that there might be offline nodes.\n\nFix: Remove or rephrase these lines to avoid contradictions. For example, \"Verify all nodes are online and connected.\"\n\n2. **Missing Constraints:**\n\t* There is no mention of specific requirements or standards for the operator plan.\n\t* The response assumes a certain level of familiarity with the system and its components, which might not be the case for all readers.\n\nFix: Add relevant constraints or assumptions to make the response more comprehensive.\n\n3. **Clarity:**\n\t* Some steps (e.g., step 5) could benefit from additional context or explanations.\n\t* The phrase \"No unexpected load spikes\" in step 4 is somewhat vague; what exactly does it mean?\n\nFix: Provide more detailed explanations and clarify technical terms to improve clarity.\n\n**Revised Response:**\n\n**Operator Plan: Readiness Pass A**\n\n1. **Mesh Check:** Get the config, verify nodes online & connected.\n2. **Node Status:** Verify all"
+  },
+  "artifact_path": "/workspaces/Project-void/data/adriana_mesh_runs/mesh_20260518_213505_readiness_a.json"
+}

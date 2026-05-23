@@ -107,23 +107,27 @@
           "cv": 2.5908
         },
         {
+          "token": "qdr",
+          "cv": 2.3278
+        },
+        {
+          "token": "qsb",
+          "cv": 2.3278
+        },
+        {
           "token": "balance",
           "cv": 2.3278
         },
         {
+          "token": "gdh",
+          "cv": 2.3278
+        },
+        {
+          "token": "audit",
+          "cv": 2.3278
+        },
+        {
           "token": "safety",
-          "cv": 2.3278
-        },
-        {
-          "token": "nutrition",
-          "cv": 2.3278
-        },
-        {
-          "token": "wallet",
-          "cv": 2.3278
-        },
-        {
-          "token": "reserves",
           "cv": 2.3278
         },
         {
@@ -135,11 +139,7 @@
           "cv": 2.3278
         },
         {
-          "token": "audit",
-          "cv": 2.3278
-        },
-        {
-          "token": "gdh",
+          "token": "reserves",
           "cv": 2.3278
         }
       ],

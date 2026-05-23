@@ -1,0 +1,174 @@
+{
+  "window_id": "WIN-e89100f2ebd5",
+  "created_at": "2026-05-18T03:28:30.582701+00:00",
+  "session_name": "internet_window_demo::DEMO_WINDOW_001",
+  "total_pages": 19,
+  "total_bytes": 3085,
+  "source_concepts": [
+    "force can only be visited",
+    "containment cell crystallisation",
+    "state encoded as video",
+    "the distraction is the architecture"
+  ],
+  "fields_covered": [
+    "containment cell crystallisation",
+    "the distraction is the architecture",
+    "force can only be visited",
+    "state encoded as video"
+  ],
+  "sha256_composite": "e89100f2ebd56b42ccb39251f60f0c94aef8e2922cab242d66816725b0a360f1",
+  "page_manifest": [
+    {
+      "frame": 1,
+      "title": "Estimation of the radial force on the tokamak vessel wall during fast transient events",
+      "url": "https://link.springer.com/article/10.1134/S1063780X16110088",
+      "field": "force can only be visited",
+      "sha256": "781126f817093662",
+      "size": 197
+    },
+    {
+      "frame": 2,
+      "title": "Pilgrimage beyond the officially sacred: Understanding the geographies of religion and spirituality",
+      "url": "https://books.google.com/books?id=AHnpDwAAQBAJ",
+      "field": "force can only be visited",
+      "sha256": "05b7cc111afc4a03",
+      "size": 198
+    },
+    {
+      "frame": 3,
+      "title": "Geographies of pilgrimage: Meaningful movements and embodied mobilities",
+      "url": "https://compass.onlinelibrary.wiley.com/doi/abs/10.1111/gec3.12124",
+      "field": "force can only be visited",
+      "sha256": "0f3f9f0bfa86ff19",
+      "size": 183
+    },
+    {
+      "frame": 4,
+      "title": "Potential energy is not stored in the object itself",
+      "url": "https://www.reddit.com/r/AskPhysics/comments/1itua6s/where_is_potential_energy_stored/",
+      "field": "force can only be visited",
+      "sha256": "7c49310049808772",
+      "size": 136
+    },
+    {
+      "frame": 5,
+      "title": "Interpretation of Potential Energy as Field Property",
+      "url": "https://www.physicsforums.com/threads/interpretation-of-potential-energy-as-field-property.998508/",
+      "field": "force can only be visited",
+      "sha256": "8c675621399d7b04",
+      "size": 143
+    },
+    {
+      "frame": 6,
+      "title": "Selective nucleation and self-organized crystallization",
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/S096089741630016X",
+      "field": "containment cell crystallisation",
+      "sha256": "8d531cea9b9a26a5",
+      "size": 129
+    },
+    {
+      "frame": 7,
+      "title": "Pathways to self-organization: crystallization via nucleation",
+      "url": "https://arxiv.org/abs/1608.01519",
+      "field": "containment cell crystallisation",
+      "sha256": "34a63a7dea2920f4",
+      "size": 130
+    },
+    {
+      "frame": 8,
+      "title": "Capturing the Moment of Emergence of Crystal Nucleus from Disorder",
+      "url": "https://pubs.acs.org/doi/10.1021/jacs.0c12100",
+      "field": "containment cell crystallisation",
+      "sha256": "033440bd2fc1ad50",
+      "size": 138
+    },
+    {
+      "frame": 9,
+      "title": "Self-Organizing Matter group - Dr. Wim Noorduin",
+      "url": "https://amolf.nl/research-groups/self-organizing-matter",
+      "field": "containment cell crystallisation",
+      "sha256": "e7ba802a90285f1c",
+      "size": 170
+    },
+    {
+      "frame": 10,
+      "title": "Self-organisation processes in the chemistry of materials",
+      "url": "https://pubs.rsc.org/en/content/articlehtml/2003/rc/rc030651",
+      "field": "containment cell crystallisation",
+      "sha256": "77f6286f70fd4e57",
+      "size": 183
+    },
+    {
+      "frame": 11,
+      "title": "Secure data transmission using video Steganography",
+      "url": "https://ieeexplore.ieee.org/abstract/document/5978601/",
+      "field": "state encoded as video",
+      "sha256": "a3bb65f196d64577",
+      "size": 133
+    },
+    {
+      "frame": 12,
+      "title": "Video steganography: recent advances and challenges",
+      "url": "https://link.springer.com/article/10.1007/s11042-023-14844-w",
+      "field": "state encoded as video",
+      "sha256": "d2383e79253f1003",
+      "size": 189
+    },
+    {
+      "frame": 13,
+      "title": "Video steganography techniques: taxonomy, challenges, and future directions",
+      "url": "https://ieeexplore.ieee.org/abstract/document/8001965/",
+      "field": "state encoded as video",
+      "sha256": "9bb9f3730b49f4b9",
+      "size": 180
+    },
+    {
+      "frame": 14,
+      "title": "Steganography in Video Files",
+      "url": "https://scispace.com/pdf/steganography-in-video-files-244xlu41qx.pdf",
+      "field": "state encoded as video",
+      "sha256": "800a96151d6b270b",
+      "size": 139
+    },
+    {
+      "frame": 15,
+      "title": "The Architecture of Creativity: Toward a Causal Theory",
+      "url": "https://www.ijdesign.org/index.php/IJDesign/article/view/4061/947",
+      "field": "the distraction is the architecture",
+      "sha256": "ebb7fbe0d31f2c5f",
+      "size": 122
+    },
+    {
+      "frame": 16,
+      "title": "Concept generation via lateral thinking in architectural design",
+      "url": "https://www.sciencedirect.com/science/article/pii/S1871187119301063",
+      "field": "the distraction is the architecture",
+      "sha256": "fbf97897cd5696e8",
+      "size": 177
+    },
+    {
+      "frame": 17,
+      "title": "Consequential creativity: Student competency and lateral thinking in architectural education",
+      "url": "https://link.springer.com/article/10.1007/s10798-015-9321-4",
+      "field": "the distraction is the architecture",
+      "sha256": "1c85737e11f5d157",
+      "size": 191
+    },
+    {
+      "frame": 18,
+      "title": "Creativity in Architecture\u2014A Review on Effective Parameters",
+      "url": "https://www.davidpublisher.com/Public/uploads/Contribute/5547245ff2e04.pdf",
+      "field": "the distraction is the architecture",
+      "sha256": "982070c97892a2e5",
+      "size": 180
+    },
+    {
+      "frame": 19,
+      "title": "Self-Organisation of Prediction Models",
+      "url": "https://www.mdpi.com/1099-4300/25/12/1596",
+      "field": "the distraction is the architecture",
+      "sha256": "07cb0ecd45f47373",
+      "size": 167
+    }
+  ]
+}
