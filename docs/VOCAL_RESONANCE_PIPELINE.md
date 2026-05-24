@@ -1,7 +1,7 @@
 ## 8. VOID Formation Principle: Seven-Element Resonance Blueprint
 
 ### Overview
-The VOID Formation Principle demonstrates how resonance, geometry, and material selection can be used to create zones of silence, invisibility, or amplified coherence—physically and digitally. This protocol was proven at Manchester Tech Week using a $100 asset.  of toys, showing the principle in seven distinct elements.
+The VOID Formation Principle demonstrates how resonance, geometry, and material selection can be used to create zones of silence, invisibility, or amplified coherence, physically and digitally. This protocol was demonstrated at Manchester Tech Week using a low-cost setup (about $100), showing the principle in seven distinct elements.
 
 ### The Seven Elements (Physical Demonstration)
 1. **Base Grid:** 2m x 2m square marked on the floor (tape, string, or chalk)
@@ -12,14 +12,51 @@ The VOID Formation Principle demonstrates how resonance, geometry, and material 
 6. **Frequency Source:** Audio player or phone playing 432Hz or resonance-aligned sound
 7. **Measurement/Feedback:** Decibel meter, phone app, or simple listening test to confirm the zone’s effect
 
+### Build Spec (Reproducible Baseline)
+- **Footprint:** 2.0m x 2.0m square, tolerance +/- 5cm
+- **Speaker placement:** one per corner, centerline pointed to grid center
+- **Speaker height:** 0.7m to 1.2m from floor, all matched within 10cm
+- **Resonator placement:** within 5cm of true center
+- **Panel placement:** two adjacent sides or opposite sides, log configuration before run
+- **Strip order:** Gold -> Silver -> Copper from corner to center (or labeled tape proxy)
+
+### Calibration Sequence (Day 8-Ready)
+1. Capture **ambient baseline** with source off for 60 seconds.
+2. Play single-frequency source (432Hz) at fixed device volume.
+3. Measure SPL at 5 points: center + midpoints of each edge.
+4. Rotate panel arrangement once and repeat the same 5-point sweep.
+5. Keep all non-tested variables fixed (volume, speaker angle, room, time window).
+
+### Control and Variant Logic
+- **Control A:** no center resonator, strips removed.
+- **Control B:** resonator present, strips removed.
+- **Variant C:** resonator + strips + panels (full seven-element configuration).
+- **Optional Variant D:** same as C with 440Hz source for comparison.
+
+### Evidence Capture Template (Per Run)
+- Run ID (UTC timestamp):
+- Operator:
+- Room profile (size/material/noise):
+- Source file and frequency:
+- SPL readings (5 points):
+- Subjective observation (1-2 sentences):
+- Claim tag: verified / provisional / narrative
+
+### Pass/Fail Gate (Reality Gate Alignment)
+- **Pass:** all required fields logged and at least one control-vs-variant delta is observable in measured or repeatable listening results.
+- **Conditional pass:** run executed but data incomplete; claim remains provisional.
+- **Fail:** missing baseline or no reproducible measurement path.
+
 ### Step-by-Step Guide
 1. Mark a 2m x 2m square on the floor.
 2. Place a speaker at each corner, angled toward the center.
 3. Place a resonator (stone, bowl, etc.) at the center.
 4. Lay gold, silver, and copper strips (or colored tape) from one corner to the center.
 5. Add panels to two sides to shape the sound field.
-6. Play a 432Hz tone or resonance track through the speakers.
-7. Stand inside the zone and measure or listen: sound is contained, amplified, or silenced depending on configuration.
+6. Run control first (no resonator/strips), then apply full configuration.
+7. Play a 432Hz tone or resonance track through the speakers.
+8. Record baseline and 5-point measurements before interpretation.
+9. Stand inside the zone and compare control vs variant: contained, amplified, or silenced behavior.
 
 ### Digital/Architectural Analogy
 - Use digital “speakers” (signal routers, codon gates) to create fail-closed, invisible, or silent zones in data flows or server topologies.
