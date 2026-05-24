@@ -215,6 +215,52 @@ When passing the system to the next agent, include only these five items:
 4. Verified evidence produced so far.
 5. One explicit risk or open question.
 
+## 7-Day Risk-Reduction Sprint (30 Minutes Per Day)
+
+Use this when system energy is high but evidence discipline must stay tight. Each day has one bounded action, one artifact, and one pass/fail gate.
+
+### Day 1 — Governance Continuity (Risk 2/5)
+- Action: Run preflight and verify continuity/contract surfaces load without missing references.
+- Command: `bash scripts/smoke_test.sh --no-build --timeout 120`
+- Artifact: smoke output + `/preflight` render check.
+- Pass: preflight route is visible and stack passes smoke.
+
+### Day 2 — Adriana Mesh Runtime (Risk 3/5)
+- Action: Run readiness + eval once and confirm reports are generated.
+- Command: `python3 scripts/adriana_mesh_readiness.py && python3 scripts/adriana_mesh_eval.py`
+- Artifact: new files in `data/adriana_mesh_runs/`.
+- Pass: readiness report and eval report both produced with no crash.
+
+### Day 3 — Packaging/Distribution (Risk 3/5)
+- Action: Validate package metadata and local build outputs.
+- Command: `cd void-engine-sdk && python3 -m build`
+- Artifact: `void-engine-sdk/dist/` wheel and sdist.
+- Pass: both artifacts build successfully.
+
+### Day 4 — Operator Process Drift (Risk 1/5)
+- Action: Fill the Operator Board for today and tag each active claim as verified/provisional/narrative.
+- Artifact: one Chronicle entry or session note with tags.
+- Pass: no untagged active claims remain.
+
+### Day 5 — Data Surface Pressure (Risk 4/5)
+- Action: Create a single "golden artifacts" shortlist and mark non-golden generated files for archive rotation.
+- Artifact: list of kept artifacts with reason (max 10 items).
+- Pass: each kept artifact has one-line justification and owner.
+
+### Day 6 — Regression Trap Check
+- Action: Run focused tests for recently touched lanes.
+- Command: `pytest -q tests/test_adriana_mesh_routes.py tests/test_adriana_mesh_eval.py tests/test_adriana_mesh_readiness.py`
+- Artifact: test run output.
+- Pass: all targeted tests pass.
+
+### Day 7 — Closure + Next Cycle Gate
+- Action: Produce one-page checkpoint using the five handoff fields.
+- Artifact: checkpoint note with branch state, goal, touched files, verified evidence, open risk.
+- Pass: next cycle can be explained in one sentence.
+
+### Hard Rule
+- If any day fails its pass condition, stop expansion work and repair only that failed lane before continuing.
+
 ---
 # Vocal Resonance Pipeline
 
