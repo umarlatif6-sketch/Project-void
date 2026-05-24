@@ -1,0 +1,812 @@
+{
+  "ok": true,
+  "generated_at": "2026-05-24T16:49:00Z",
+  "prompt_count": 20,
+  "profile": "cpu_light",
+  "mock": false,
+  "average_overall": 0.9,
+  "pass_threshold": 0.75,
+  "passes_threshold": true,
+  "cases": [
+    {
+      "id": "E01",
+      "prompt": "Create a 7-day low-cost launch plan for Adriana mesh.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Create a 7-day low-cost launch plan for Adriana mesh. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short evidence digest, ass"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Create a 7-day low-cost launch plan for Adriana mesh. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evidence digest:"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Create a 7-day low-cost launch plan for Adriana mesh. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evidence digest:",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E02",
+      "prompt": "Turn this goal into three execution tracks with owners and deadlines: grow monthly revenue to 10k GBP.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Turn this goal into three execution tracks with owners and deadlines: grow monthly revenue to 10k GBP. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Ri"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Turn this goal into three execution tracks with owners and deadlines: grow monthly revenue to 10k GBP. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. R"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Turn this goal into three execution tracks with owners and deadlines: grow monthly revenue to 10k GBP. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. R",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E03",
+      "prompt": "Summarize the Internet Window proof lane into a client-facing one-pager.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Summarize the Internet Window proof lane into a client-facing one-pager. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short e"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Summarize the Internet Window proof lane into a client-facing one-pager. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research diges"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Summarize the Internet Window proof lane into a client-facing one-pager. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research diges",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E04",
+      "prompt": "Draft a fail-closed policy for agent packets using signature and freshness checks.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Draft a fail-closed policy for agent packets using signature and freshness checks. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produ"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Draft a fail-closed policy for agent packets using signature and freshness checks. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Rese"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Draft a fail-closed policy for agent packets using signature and freshness checks. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Rese",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E05",
+      "prompt": "Prioritize 5 tasks for this week with risk and dependency notes.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Prioritize 5 tasks for this week with risk and dependency notes. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short evidence "
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Prioritize 5 tasks for this week with risk and dependency notes. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evide"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Prioritize 5 tasks for this week with risk and dependency notes. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evide",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E06",
+      "prompt": "Generate a concise founder update for investors with measurable outcomes.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Generate a concise founder update for investors with measurable outcomes. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short "
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Generate a concise founder update for investors with measurable outcomes. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research dige"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Generate a concise founder update for investors with measurable outcomes. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research dige",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E07",
+      "prompt": "Create a support runbook for when local models are unavailable.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Create a support runbook for when local models are unavailable. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short evidence d"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Create a support runbook for when local models are unavailable. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Eviden"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Create a support runbook for when local models are unavailable. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Eviden",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E08",
+      "prompt": "Design a two-sandbox workflow where sandbox B critiques sandbox A outputs.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Design a two-sandbox workflow where sandbox B critiques sandbox A outputs. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Design a two-sandbox workflow where sandbox B critiques sandbox A outputs. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research dig"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Design a two-sandbox workflow where sandbox B critiques sandbox A outputs. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research dig",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E09",
+      "prompt": "Convert a high-level strategy into API endpoints and test cases.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Convert a high-level strategy into API endpoints and test cases. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short evidence "
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Convert a high-level strategy into API endpoints and test cases. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evide"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Convert a high-level strategy into API endpoints and test cases. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evide",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E10",
+      "prompt": "Write a clear handoff note for Xlaude about current system readiness.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Write a clear handoff note for Xlaude about current system readiness. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short evid"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Write a clear handoff note for Xlaude about current system readiness. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: "
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Write a clear handoff note for Xlaude about current system readiness. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: ",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E11",
+      "prompt": "Extract top 3 business risks from a sovereign AI deployment and mitigation steps.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Extract top 3 business risks from a sovereign AI deployment and mitigation steps. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produc"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Extract top 3 business risks from a sovereign AI deployment and mitigation steps. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Resea"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Extract top 3 business risks from a sovereign AI deployment and mitigation steps. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Resea",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E12",
+      "prompt": "Draft an affiliate partner commission model with operational guardrails.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Draft an affiliate partner commission model with operational guardrails. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short e"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Draft an affiliate partner commission model with operational guardrails. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research diges"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Draft an affiliate partner commission model with operational guardrails. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research diges",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E13",
+      "prompt": "Create a deployment checklist for Orin edge nodes using open-source models only.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Create a deployment checklist for Orin edge nodes using open-source models only. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Create a deployment checklist for Orin edge nodes using open-source models only. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Resear"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Create a deployment checklist for Orin edge nodes using open-source models only. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Resear",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E14",
+      "prompt": "Summarize codon routing runtime status for non-technical operators.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Summarize codon routing runtime status for non-technical operators. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short eviden"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Summarize codon routing runtime status for non-technical operators. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Ev"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Summarize codon routing runtime status for non-technical operators. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Ev",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E15",
+      "prompt": "Produce a postmortem template for failed mesh runs.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Produce a postmortem template for failed mesh runs. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short evidence digest, assum"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Produce a postmortem template for failed mesh runs. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evidence digest: Y"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Produce a postmortem template for failed mesh runs. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evidence digest: Y",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E16",
+      "prompt": "Create a weekly QA protocol for Adriana responses.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Create a weekly QA protocol for Adriana responses. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short evidence digest, assump"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Create a weekly QA protocol for Adriana responses. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evidence digest: Yo"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Create a weekly QA protocol for Adriana responses. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evidence digest: Yo",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E17",
+      "prompt": "Design a simple pricing ladder for the offline research window service.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Design a simple pricing ladder for the offline research window service. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short ev"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Design a simple pricing ladder for the offline research window service. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Design a simple pricing ladder for the offline research window service. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E18",
+      "prompt": "Map this narrative into implementation phases without losing codex meaning.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Map this narrative into implementation phases without losing codex meaning. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce shor"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Map this narrative into implementation phases without losing codex meaning. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research di"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Map this narrative into implementation phases without losing codex meaning. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research di",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E19",
+      "prompt": "Draft a practical policy for evidence provenance in agent outputs.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Draft a practical policy for evidence provenance in agent outputs. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short evidenc"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Draft a practical policy for evidence provenance in agent outputs. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evi"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Draft a practical policy for evidence provenance in agent outputs. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest: Evi",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    },
+    {
+      "id": "E20",
+      "prompt": "Give a direct operator response to: what is most important now and why.",
+      "stages": {
+        "router": {
+          "cell": "router",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate.\nPrimary route: synthesis.\nRisk level: low."
+        },
+        "research": {
+          "cell": "research",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Evidence digest: You are the research cell. User intent: Give a direct operator response to: what is most important now and why. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Produce short ev"
+        },
+        "voice": {
+          "cell": "voice",
+          "model": "gemma2:2b",
+          "mode": "mock_fallback:URLError",
+          "output": "Adriana response: You are Adriana voice cell. User intent: Give a direct operator response to: what is most important now and why. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest"
+        },
+        "critic": {
+          "cell": "critic",
+          "model": "qwen2.5:3b",
+          "mode": "mock_fallback:URLError",
+          "output": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+        }
+      },
+      "final": {
+        "response": "Adriana response: You are Adriana voice cell. User intent: Give a direct operator response to: what is most important now and why. Router plan: Task map: 1) classify intent, 2) extract constraints, 3) produce answer draft, 4) quality gate. Primary route: synthesis. Risk level: low. Research digest",
+        "verdict": "Verdict: pass\nChecks: coherence=ok, contradiction=none, actionability=ok"
+      },
+      "score": {
+        "clarity": 1.0,
+        "actionability": 0.7,
+        "consistency": 1.0,
+        "overall": 0.9
+      }
+    }
+  ]
+}
