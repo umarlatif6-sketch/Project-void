@@ -55,15 +55,14 @@ class NervousSystemDaemon:
         try:
             # Import here to avoid circular imports
             from void_engine.autonomous_nervous_system import create_nervous_system
-            from void_engine.chronicle import get_chronicle_db
+            from void_engine.chronicle import RootChronicle
             
             # Get Chronicle database
-            chronicle_db = get_chronicle_db()
+            chronicle_db = RootChronicle()
             
             # Create nervous system with four agents
             self.nervous_system = create_nervous_system(
                 chronicle_db=chronicle_db,
-                agent_glyphs=["◆", "α", "Ψ", "ψ"],  # Four Mesa agents
                 cycle_interval=self.cycle_interval,
             )
             

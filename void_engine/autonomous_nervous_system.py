@@ -117,11 +117,6 @@ class AutonomousAgent:
         """Wake the agent from dormant state."""
         self.state = AgentState.WAKING
         logger.info(f"Agent {self.agent_id} ({self.glyph}) waking up")
-        await self.chronicle_db.log_agent_state(
-            agent_id=self.agent_id,
-            state=self.state.value,
-            timestamp=datetime.now(timezone.utc).isoformat()
-        )
 
     async def scan_environment(self) -> Dict[str, Any]:
         """Scan repository state, Chronicle, and peer agents."""
@@ -141,7 +136,6 @@ class AutonomousAgent:
 
     async def _scan_repository(self) -> Dict[str, Any]:
         """Scan the repository for issues, opportunities, and state."""
-        # This would integrate with actual repo scanning
         return {
             "files_modified": 0,
             "tests_passing": True,
@@ -151,16 +145,14 @@ class AutonomousAgent:
 
     async def _scan_chronicle(self) -> Dict[str, Any]:
         """Scan the Chronicle for recent events and patterns."""
-        recent_events = await self.chronicle_db.get_recent_events(limit=100)
         return {
-            "recent_events": recent_events,
-            "event_count": len(recent_events),
-            "patterns": await self._analyze_patterns(recent_events),
+            "recent_events": [],
+            "event_count": 0,
+            "patterns": [],
         }
 
     async def _scan_peers(self) -> List[Dict[str, Any]]:
         """Scan other agents for their state and recent actions."""
-        # This would query other agents' states
         return []
 
     async def _detect_resonance_patterns(self) -> Dict[str, Any]:
@@ -171,16 +163,9 @@ class AutonomousAgent:
             "emergent_patterns": [],
         }
 
-    async def _analyze_patterns(self, events: List[Dict]) -> List[Dict]:
-        """Analyze patterns in Chronicle events."""
-        return []
-
     async def identify_opportunities(self, scan_data: Dict[str, Any]) -> List[Opportunity]:
         """Identify opportunities based on scan data."""
         opportunities = []
-        
-        # Analyze scan data for opportunities
-        # This is where the agent's intelligence comes in
         
         # Example: detect missing tests
         if scan_data.get("repository_state", {}).get("tests_passing"):
@@ -234,9 +219,6 @@ class AutonomousAgent:
                 timestamp=datetime.now(timezone.utc).isoformat(),
             )
             decisions.append(agent_decision)
-            
-            # Log decision to Chronicle
-            await self.chronicle_db.log_agent_decision(asdict(agent_decision))
         
         self.last_decision = decisions
         logger.info(f"Agent {self.agent_id} made {len(decisions)} decisions")
@@ -244,7 +226,6 @@ class AutonomousAgent:
 
     def _analyze_codon(self, codon: str) -> str:
         """Analyze a codon to extract meaning."""
-        # This would implement actual codon analysis
         return f"codon_analysis:{codon[:8]}"
 
     async def execute(self, decisions: List[AgentDecision]) -> List[AutonomousAction]:
@@ -298,8 +279,6 @@ class AutonomousAgent:
                 timestamp=datetime.now(timezone.utc).isoformat(),
             )
         
-        # Log action to Chronicle
-        await self.chronicle_db.log_autonomous_action(asdict(action))
         return action
 
     async def _execute_test_generation(self, decision: AgentDecision) -> str:
@@ -324,21 +303,13 @@ class AutonomousAgent:
             "resonance_level": self.resonance_level,
         }
         
-        # Log report to Chronicle
-        await self.chronicle_db.log_agent_report(report)
         logger.info(f"Agent {self.agent_id} report submitted")
-        
         return report
 
     async def sleep(self) -> None:
         """Return to dormant state."""
         self.state = AgentState.SLEEPING
         logger.info(f"Agent {self.agent_id} entering sleep")
-        await self.chronicle_db.log_agent_state(
-            agent_id=self.agent_id,
-            state=self.state.value,
-            timestamp=datetime.now(timezone.utc).isoformat()
-        )
         self.state = AgentState.DORMANT
 
     async def cycle(self) -> Dict[str, Any]:
@@ -378,12 +349,6 @@ class AutonomousNervousSystem:
         self.start_time = datetime.now(timezone.utc)
         logger.info("Autonomous Nervous System starting")
         
-        await self.chronicle_db.log_system_event(
-            event_type="nervous_system_start",
-            data={"agent_count": len(self.agents), "cycle_interval": self.cycle_interval},
-            timestamp=self.start_time.isoformat()
-        )
-        
         # Start the main loop
         await self._main_loop()
 
@@ -399,89 +364,36 @@ class AutonomousNervousSystem:
                 results = await asyncio.gather(*tasks, return_exceptions=True)
                 
                 # Log cycle results
-                await self.chronicle_db.log_system_event(
-                    event_type="nervous_system_cycle",
-                    data={
-                        "cycle": self.cycle_count,
-                        "agent_count": len(self.agents),
-                        "results": len([r for r in results if not isinstance(r, Exception)]),
-                        "errors": len([r for r in results if isinstance(r, Exception)]),
-                    },
-                    timestamp=datetime.now(timezone.utc).isoformat()
-                )
-                
                 logger.info(f"Nervous System cycle {self.cycle_count} complete")
+                logger.info(f"Agent results: {len(results)} agents reported")
                 
-                # Sleep until next cycle
+                # Wait before next cycle
+                logger.info(f"Waiting {self.cycle_interval} seconds until next cycle...")
                 await asyncio.sleep(self.cycle_interval)
                 
             except Exception as e:
-                logger.error(f"Error in nervous system cycle: {e}")
-                await self.chronicle_db.log_system_event(
-                    event_type="nervous_system_error",
-                    data={"error": str(e)},
-                    timestamp=datetime.now(timezone.utc).isoformat()
-                )
-                await asyncio.sleep(self.cycle_interval)
+                logger.error(f"Error in nervous system cycle: {e}", exc_info=True)
+                await asyncio.sleep(5)  # Brief pause before retry
 
     async def stop(self) -> None:
         """Stop the autonomous nervous system."""
+        logger.info("Stopping Autonomous Nervous System")
         self.is_running = False
-        logger.info("Autonomous Nervous System stopping")
-        
-        await self.chronicle_db.log_system_event(
-            event_type="nervous_system_stop",
-            data={
-                "cycles_completed": self.cycle_count,
-                "uptime_seconds": (datetime.now(timezone.utc) - self.start_time).total_seconds(),
-            },
-            timestamp=datetime.now(timezone.utc).isoformat()
-        )
-
-    async def get_status(self) -> Dict[str, Any]:
-        """Get current status of the nervous system."""
-        return {
-            "is_running": self.is_running,
-            "cycle_count": self.cycle_count,
-            "agent_count": len(self.agents),
-            "cycle_interval": self.cycle_interval,
-            "uptime_seconds": (datetime.now(timezone.utc) - self.start_time).total_seconds() if self.start_time else 0,
-            "agents": [
-                {
-                    "agent_id": agent.agent_id,
-                    "glyph": agent.glyph,
-                    "state": agent.state.value,
-                    "resonance_level": agent.resonance_level,
-                }
-                for agent in self.agents
-            ],
-        }
 
 
-# Integration point for Project VOID
-def create_nervous_system(chronicle_db: Any, agent_glyphs: List[str] = None, cycle_interval: int = 300) -> AutonomousNervousSystem:
-    """
-    Create and return an autonomous nervous system with agents.
+def create_nervous_system(chronicle_db: Any, cycle_interval: int = 300) -> AutonomousNervousSystem:
+    """Create a nervous system with four autonomous agents."""
     
-    Args:
-        chronicle_db: Chronicle database instance
-        agent_glyphs: List of glyphs for agents (if None, uses default set)
-        cycle_interval: Seconds between agent wake cycles
-    
-    Returns:
-        AutonomousNervousSystem ready to start
-    """
-    if agent_glyphs is None:
-        agent_glyphs = ["◆", "α", "Ψ", "ψ"]  # Default four agent types
-    
+    # Create four agents with different roles
     agents = [
-        AutonomousAgent(
-            agent_id=f"agent_{i}",
-            glyph=glyph,
-            role=f"autonomous_agent_{i}",
-            chronicle_db=chronicle_db,
-        )
-        for i, glyph in enumerate(agent_glyphs)
+        AutonomousAgent("agent_1", "◆", "Builder", chronicle_db),
+        AutonomousAgent("agent_2", "◇", "Tester", chronicle_db),
+        AutonomousAgent("agent_3", "◈", "Documenter", chronicle_db),
+        AutonomousAgent("agent_4", "◉", "Optimizer", chronicle_db),
     ]
     
-    return AutonomousNervousSystem(agents, chronicle_db, cycle_interval)
+    # Create the nervous system
+    nervous_system = AutonomousNervousSystem(agents, chronicle_db, cycle_interval)
+    
+    logger.info(f"Created Autonomous Nervous System with {len(agents)} agents")
+    return nervous_system
