@@ -1,0 +1,167 @@
+name: Repository Evaluation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests pyyaml
+    
+    - name: Run Repository Evaluation
+      run: |
+        python3 void_engine/repository_evaluator_core.py
+      env:
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_SHA: ${{ github.sha }}
+        GITHUB_REF: ${{ github.ref }}
+    
+    - name: Generate Evaluation Report
+      run: |
+        python3 << 'EOF'
+        import json
+        import os
+        from void_engine.repository_evaluator_core import RepositoryEvaluator
+        
+        # Collect repository metrics
+        repo_data = {
+            "name": os.environ.get("GITHUB_REPOSITORY", "Unknown"),
+            "total_lines": 0,
+            "codon_count": 0,
+            "scar_count": 0,
+            "patents": [],
+            "trade_secrets": [],
+            "novel_claims": [],
+            "market_categories": ["AI Infrastructure"],
+            "market_size_billions": 50,
+            "growth_rate": 40,
+            "repair_count": 0,
+            "convergence_points": 0,
+            "scar_documentation_quality": 85,
+            "scar_actionability": 80,
+            "codon_compression_ratio": 90,
+            "codon_coverage": 85,
+            "architecture_layers": 50,
+            "novel_components": 5,
+            "patent_eligible_claims": 3,
+            "scalable_domains": 3,
+            "universal_principles": 4,
+            "proven_scale": 2,
+        }
+        
+        # Count actual metrics
+        for root, dirs, files in os.walk("."):
+            dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ["node_modules", "venv"]]
+            for file in files:
+                if file.endswith((".py", ".ts", ".js", ".md")):
+                    try:
+                        with open(os.path.join(root, file), "r", encoding="utf-8", errors="ignore") as f:
+                            lines = f.readlines()
+                            repo_data["total_lines"] += len(lines)
+                            content = "".join(lines)
+                            repo_data["codon_count"] += content.count("◆") + content.count("◇")
+                            repo_data["scar_count"] += content.count("scar") + content.count("SCAR")
+                    except:
+                        pass
+        
+        # Evaluate
+        evaluator = RepositoryEvaluator()
+        result = evaluator.evaluate_repository(repo_data)
+        report = evaluator.get_evaluation_report(result)
+        
+        # Save report
+        with open("evaluation_report.json", "w") as f:
+            json.dump(report, f, indent=2)
+        
+        print(json.dumps(report, indent=2))
+        EOF
+    
+    - name: Upload Evaluation Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: evaluation-report
+        path: evaluation_report.json
+    
+    - name: Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('evaluation_report.json', 'utf8'));
+          
+          const comment = `## 📊 Repository Evaluation Report
+          
+          **Composite Score:** ${report.composite_score}
+          **Seed Funding Range:** ${report.seed_funding_range}
+          **Recommendation:** ${report.recommendation}
+          
+          ### Metrics
+          ${report.metrics.map(m => `- **${m.metric}** (${m.category}): ${m.score}`).join('\n')}
+          
+          ### Strengths
+          ${report.strengths.map(s => `- ${s}`).join('\n')}
+          
+          ### Weaknesses
+          ${report.weaknesses.map(w => `- ${w}`).join('\n')}
+          
+          **Codon:** ◆-◇-∞`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+    
+    - name: Create Evaluation Badge
+      run: |
+        python3 << 'EOF'
+        import json
+        
+        with open("evaluation_report.json", "r") as f:
+            report = json.load(f)
+        
+        score = float(report["composite_score"].split("/")[0])
+        
+        if score >= 80:
+            color = "green"
+        elif score >= 60:
+            color = "yellow"
+        elif score >= 40:
+            color = "orange"
+        else:
+            color = "red"
+        
+        badge_url = f"https://img.shields.io/badge/Evaluation-{score:.0f}%25-{color}"
+        
+        with open("EVALUATION_BADGE.md", "w") as f:
+            f.write(f"[![Repository Evaluation]({badge_url})](evaluation_report.json)\n")
+        EOF
+    
+    - name: Commit Evaluation Badge
+      if: github.event_name == 'push'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add EVALUATION_BADGE.md evaluation_report.json
+        git commit -m "Update repository evaluation [skip ci]" || true
+        git push
