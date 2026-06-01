@@ -1,0 +1,375 @@
+{
+  "simulation": "Coincidences Project Void City Growth",
+  "duration_months": 24,
+  "total_agents": 50,
+  "final_stats": {
+    "agents_arrived": 50,
+    "total_contribution": 3073.482217160485,
+    "frequency_strength": 0.48000000000000015,
+    "network_coverage": 48
+  },
+  "historical_comparison": {
+    "london": {
+      "name": "London",
+      "founding_year": 43,
+      "key_inflection_points": [
+        {
+          "year": 1066,
+          "event": "Norman Conquest",
+          "population_multiplier": 2
+        },
+        {
+          "year": 1666,
+          "event": "Great Fire",
+          "population_multiplier": 0.5
+        },
+        {
+          "year": 1769,
+          "event": "Industrial Revolution",
+          "population_multiplier": 5
+        }
+      ],
+      "skill_arrival_pattern": [
+        {
+          "month": 1,
+          "skill": "merchant",
+          "count": 10
+        },
+        {
+          "month": 3,
+          "skill": "builder",
+          "count": 15
+        },
+        {
+          "month": 6,
+          "skill": "craftsman",
+          "count": 20
+        },
+        {
+          "month": 9,
+          "skill": "doctor",
+          "count": 5
+        }
+      ]
+    },
+    "newyork": {
+      "name": "New York",
+      "founding_year": 1624,
+      "key_inflection_points": [
+        {
+          "year": 1776,
+          "event": "American Independence",
+          "population_multiplier": 3
+        },
+        {
+          "year": 1825,
+          "event": "Erie Canal",
+          "population_multiplier": 4
+        },
+        {
+          "year": 1886,
+          "event": "Statue of Liberty",
+          "population_multiplier": 2
+        }
+      ],
+      "skill_arrival_pattern": [
+        {
+          "month": 1,
+          "skill": "merchant",
+          "count": 20
+        },
+        {
+          "month": 2,
+          "skill": "builder",
+          "count": 30
+        },
+        {
+          "month": 4,
+          "skill": "craftsman",
+          "count": 40
+        },
+        {
+          "month": 6,
+          "skill": "doctor",
+          "count": 10
+        }
+      ]
+    },
+    "bolton_potential": {
+      "name": "Bolton",
+      "founding_year": 2026,
+      "key_inflection_points": [
+        {
+          "month": 2,
+          "event": "Frequency Broadcast",
+          "population_multiplier": 1.5
+        },
+        {
+          "month": 4,
+          "event": "First Arrivals",
+          "population_multiplier": 2
+        },
+        {
+          "month": 8,
+          "event": "Technology Activation",
+          "population_multiplier": 3
+        },
+        {
+          "month": 12,
+          "event": "Community Emergence",
+          "population_multiplier": 5
+        }
+      ],
+      "skill_arrival_pattern": [
+        {
+          "month": 2,
+          "skill": "engineer",
+          "count": 5
+        },
+        {
+          "month": 4,
+          "skill": "builder",
+          "count": 10
+        },
+        {
+          "month": 6,
+          "skill": "designer",
+          "count": 8
+        },
+        {
+          "month": 8,
+          "skill": "organizer",
+          "count": 12
+        },
+        {
+          "month": 10,
+          "skill": "doctor",
+          "count": 3
+        },
+        {
+          "month": 12,
+          "skill": "merchant",
+          "count": 15
+        }
+      ]
+    }
+  },
+  "simulation_history": [
+    {
+      "month": 0,
+      "agents_arrived": 0,
+      "total_contribution": 0,
+      "frequency_strength": 0.02,
+      "network_coverage": 2,
+      "wedding_hall_connection": 0.05,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 1,
+      "agents_arrived": 0,
+      "total_contribution": 0,
+      "frequency_strength": 0.04,
+      "network_coverage": 4,
+      "wedding_hall_connection": 0.1,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 2,
+      "agents_arrived": 5,
+      "total_contribution": 239.87119604086112,
+      "frequency_strength": 0.06,
+      "network_coverage": 6,
+      "wedding_hall_connection": 0.15000000000000002,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 3,
+      "agents_arrived": 5,
+      "total_contribution": 244.87119604086112,
+      "frequency_strength": 0.08,
+      "network_coverage": 8,
+      "wedding_hall_connection": 0.2,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 4,
+      "agents_arrived": 10,
+      "total_contribution": 419.7980854309382,
+      "frequency_strength": 0.1,
+      "network_coverage": 10,
+      "wedding_hall_connection": 0.25,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 5,
+      "agents_arrived": 10,
+      "total_contribution": 429.7980854309382,
+      "frequency_strength": 0.12000000000000001,
+      "network_coverage": 12,
+      "wedding_hall_connection": 0.3,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 6,
+      "agents_arrived": 15,
+      "total_contribution": 778.2287768009346,
+      "frequency_strength": 0.14,
+      "network_coverage": 14,
+      "wedding_hall_connection": 0.35,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 7,
+      "agents_arrived": 15,
+      "total_contribution": 793.2287768009346,
+      "frequency_strength": 0.16,
+      "network_coverage": 16,
+      "wedding_hall_connection": 0.39999999999999997,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 8,
+      "agents_arrived": 20,
+      "total_contribution": 1056.7112819771314,
+      "frequency_strength": 0.18,
+      "network_coverage": 18,
+      "wedding_hall_connection": 0.44999999999999996,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 9,
+      "agents_arrived": 20,
+      "total_contribution": 1076.7112819771314,
+      "frequency_strength": 0.19999999999999998,
+      "network_coverage": 20,
+      "wedding_hall_connection": 0.49999999999999994,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 10,
+      "agents_arrived": 25,
+      "total_contribution": 1360.5421016602565,
+      "frequency_strength": 0.21999999999999997,
+      "network_coverage": 22,
+      "wedding_hall_connection": 0.5499999999999999,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 11,
+      "agents_arrived": 25,
+      "total_contribution": 1385.5421016602565,
+      "frequency_strength": 0.23999999999999996,
+      "network_coverage": 24,
+      "wedding_hall_connection": 0.6,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 12,
+      "agents_arrived": 30,
+      "total_contribution": 1667.2568870904213,
+      "frequency_strength": 0.25999999999999995,
+      "network_coverage": 26,
+      "wedding_hall_connection": 0.65,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 13,
+      "agents_arrived": 30,
+      "total_contribution": 1697.2568870904213,
+      "frequency_strength": 0.27999999999999997,
+      "network_coverage": 28,
+      "wedding_hall_connection": 0.7000000000000001,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 14,
+      "agents_arrived": 35,
+      "total_contribution": 2010.4997399500608,
+      "frequency_strength": 0.3,
+      "network_coverage": 30,
+      "wedding_hall_connection": 0.7500000000000001,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 15,
+      "agents_arrived": 35,
+      "total_contribution": 2045.4997399500608,
+      "frequency_strength": 0.32,
+      "network_coverage": 32,
+      "wedding_hall_connection": 0.8000000000000002,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 16,
+      "agents_arrived": 40,
+      "total_contribution": 2263.629450327776,
+      "frequency_strength": 0.34,
+      "network_coverage": 34,
+      "wedding_hall_connection": 0.8500000000000002,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 17,
+      "agents_arrived": 40,
+      "total_contribution": 2303.629450327776,
+      "frequency_strength": 0.36000000000000004,
+      "network_coverage": 36,
+      "wedding_hall_connection": 0.9000000000000002,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 18,
+      "agents_arrived": 45,
+      "total_contribution": 2709.3018519534,
+      "frequency_strength": 0.38000000000000006,
+      "network_coverage": 38,
+      "wedding_hall_connection": 0.9500000000000003,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 19,
+      "agents_arrived": 45,
+      "total_contribution": 2754.3018519534,
+      "frequency_strength": 0.4000000000000001,
+      "network_coverage": 40,
+      "wedding_hall_connection": 1.0,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 20,
+      "agents_arrived": 50,
+      "total_contribution": 2923.482217160485,
+      "frequency_strength": 0.4200000000000001,
+      "network_coverage": 42,
+      "wedding_hall_connection": 1.0,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 21,
+      "agents_arrived": 50,
+      "total_contribution": 2973.482217160485,
+      "frequency_strength": 0.4400000000000001,
+      "network_coverage": 44,
+      "wedding_hall_connection": 1.0,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 22,
+      "agents_arrived": 50,
+      "total_contribution": 3023.482217160485,
+      "frequency_strength": 0.46000000000000013,
+      "network_coverage": 46,
+      "wedding_hall_connection": 1.0,
+      "scrapyard_resources": 1000
+    },
+    {
+      "month": 23,
+      "agents_arrived": 50,
+      "total_contribution": 3073.482217160485,
+      "frequency_strength": 0.48000000000000015,
+      "network_coverage": 48,
+      "wedding_hall_connection": 1.0,
+      "scrapyard_resources": 1000
+    }
+  ]
+}
