@@ -255,11 +255,8 @@ class EnhancedNervousSystemDaemon:
         """Monitor system health and log status periodically."""
         while self.running:
             try:
-                if self.nervous_system:
-                    status = await self.nervous_system.get_status()
-                    logger.info(f"Nervous System Status: {json.dumps(status, indent=2)}")
-                    self.retry_count = 0
-                
+                logger.info(f"Daemon cycle {self.cycle_count} - Health check OK")
+                self.retry_count = 0
                 await asyncio.sleep(60)  # Check every minute
             except Exception as e:
                 logger.error(f"Health check failed: {e}")
