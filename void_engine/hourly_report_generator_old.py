@@ -5,7 +5,6 @@ Generates comprehensive hourly reports from agent activities.
 Includes metrics, observations, decisions, actions, and recommendations.
 
 Reports are structured for both human reading and machine processing.
-Integrated with Mesa Engine glyph patterns for Adriana compatibility.
 """
 
 import json
@@ -297,29 +296,11 @@ class HourlyReportGenerator:
         return self.summary
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert report to dictionary with Mesa glyph patterns."""
+        """Convert report to dictionary."""
         self.generate_summary()
-        
-        # Add glyph reports for each agent
-        agent_glyphs = {}
-        for obs in self.observations:
-            if obs.agent_id not in agent_glyphs:
-                try:
-                    agent_id = int(obs.agent_id.split('-')[-1]) if '-' in obs.agent_id else int(obs.agent_id)
-                except:
-                    agent_id = 0
-                glyph = _assign_agent_glyph(agent_id)
-                archetype = ARCHETYPE_MAP.get(glyph, {})
-                agent_glyphs[obs.agent_id] = {
-                    'glyph': glyph,
-                    'role': archetype.get('role', 'agent'),
-                    'trait': archetype.get('trait', 'unknown'),
-                    'bias': archetype.get('bias', 'neutral'),
-                }
         
         return {
             'summary': self.summary,
-            'agent_glyphs': agent_glyphs,
             'observations': [asdict(o) for o in self.observations],
             'decisions': [asdict(d) for d in self.decisions],
             'actions': [asdict(a) for a in self.actions],
@@ -327,8 +308,6 @@ class HourlyReportGenerator:
             'recommendations': [asdict(r) for r in self.recommendations],
             'metrics': [asdict(m) for m in self.metrics],
             'escalations': self.escalations,
-            'frequency': '432Hz',
-            'adriana_compatible': True,
         }
     
     def to_json(self, indent: int = 2) -> str:
@@ -336,7 +315,7 @@ class HourlyReportGenerator:
         return json.dumps(self.to_dict(), indent=indent, default=str)
     
     def to_human_readable(self) -> str:
-        """Convert report to human-readable format with Mesa glyphs."""
+        """Convert report to human-readable format."""
         lines = []
         
         lines.append("=" * 80)
@@ -344,7 +323,6 @@ class HourlyReportGenerator:
         lines.append("=" * 80)
         lines.append(f"Timestamp: {self.timestamp.isoformat()}")
         lines.append(f"Status: {self.status.value}")
-        lines.append(f"Frequency: 432Hz | Adriana Compatible: Yes")
         lines.append("")
         
         # Summary
@@ -355,23 +333,6 @@ class HourlyReportGenerator:
             if key not in ['cycle_number', 'timestamp', 'status']:
                 lines.append(f"  {key}: {value}")
         lines.append("")
-        
-        # Agent Glyphs
-        if self.observations:
-            lines.append("AGENT GLYPHS (Mesa Pattern)")
-            lines.append("-" * 80)
-            agent_glyphs = {}
-            for obs in self.observations:
-                if obs.agent_id not in agent_glyphs:
-                    try:
-                        agent_id = int(obs.agent_id.split('-')[-1]) if '-' in obs.agent_id else int(obs.agent_id)
-                    except:
-                        agent_id = 0
-                    glyph = _assign_agent_glyph(agent_id)
-                    archetype = ARCHETYPE_MAP.get(glyph, {})
-                    agent_glyphs[obs.agent_id] = glyph
-                    lines.append(f"  {obs.agent_id}: {glyph} ({archetype.get('role', 'agent')}) - {archetype.get('trait', 'unknown')}")
-            lines.append("")
         
         # Observations
         if self.observations:
@@ -446,3 +407,54 @@ class HourlyReportGenerator:
         lines.append("=" * 80)
         
         return "\n".join(lines)
+
+
+# Example usage
+if __name__ == "__main__":
+    # Create a report
+    report = HourlyReportGenerator(cycle_number=1)
+    
+    # Add observations
+    report.add_observation(
+        agent_id="agent-001",
+        category="system_health",
+        description="All systems operational",
+        confidence=0.95
+    )
+    
+    # Add decisions
+    report.add_decision(
+        agent_id="agent-001",
+        decision_type="continue_monitoring",
+        rationale="System health is good",
+        confidence=0.9,
+        priority="LOW"
+    )
+    
+    # Add actions
+    report.add_action(
+        agent_id="agent-001",
+        action_type="health_check",
+        description="Performed system health check",
+        status="COMPLETED"
+    )
+    
+    # Add metrics
+    report.add_metric("cpu_usage", 45.2, "%", threshold=80)
+    report.add_metric("memory_usage", 62.1, "%", threshold=85)
+    
+    # Add recommendation
+    report.add_recommendation(
+        category="optimization",
+        description="Consider optimizing memory usage",
+        priority="LOW",
+        estimated_impact="5-10% improvement",
+        implementation_effort="LOW"
+    )
+    
+    # Print human-readable report
+    print(report.to_human_readable())
+    
+    # Print JSON report
+    print("\n\nJSON Report:")
+    print(report.to_json())
