@@ -1,5 +1,5 @@
 {
-  "source": "/workspaces/Project-void/data/chronicle.db",
+  "source": "/home/ubuntu/Project-void/data/chronicle.db",
   "entries": 33,
   "token_vocab_size": 54,
   "top_tokens": [
@@ -107,19 +107,7 @@
           "cv": 2.5908
         },
         {
-          "token": "qdr",
-          "cv": 2.3278
-        },
-        {
-          "token": "qsb",
-          "cv": 2.3278
-        },
-        {
-          "token": "balance",
-          "cv": 2.3278
-        },
-        {
-          "token": "gdh",
+          "token": "safety",
           "cv": 2.3278
         },
         {
@@ -127,11 +115,7 @@
           "cv": 2.3278
         },
         {
-          "token": "safety",
-          "cv": 2.3278
-        },
-        {
-          "token": "achieve",
+          "token": "wallet",
           "cv": 2.3278
         },
         {
@@ -139,7 +123,23 @@
           "cv": 2.3278
         },
         {
+          "token": "nutrition",
+          "cv": 2.3278
+        },
+        {
+          "token": "qdr",
+          "cv": 2.3278
+        },
+        {
+          "token": "balance",
+          "cv": 2.3278
+        },
+        {
           "token": "reserves",
+          "cv": 2.3278
+        },
+        {
+          "token": "qsb",
           "cv": 2.3278
         }
       ],

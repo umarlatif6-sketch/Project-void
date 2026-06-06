@@ -375,6 +375,59 @@ class AutonomousNervousSystem:
                 logger.error(f"Error in nervous system cycle: {e}", exc_info=True)
                 await asyncio.sleep(5)  # Brief pause before retry
 
+    async def get_status(self) -> Dict[str, Any]:
+        """Get current status of the nervous system and all agents."""
+        agent_statuses = []
+        total_decisions = 0
+        total_actions = 0
+        
+        for agent in self.agents:
+            has_decision = agent.last_decision is not None
+            has_action = agent.last_action is not None
+            
+            if has_decision:
+                total_decisions += 1
+            if has_action:
+                total_actions += 1
+            
+            agent_status = {
+                'agent_id': agent.agent_id,
+                'glyph': agent.glyph,
+                'role': agent.role,
+                'state': agent.state.value if hasattr(agent, 'state') else 'unknown',
+                'has_last_decision': has_decision,
+                'has_last_action': has_action,
+                'resonance_level': agent.resonance_level if hasattr(agent, 'resonance_level') else 0.0,
+            }
+            agent_statuses.append(agent_status)
+        
+        uptime_seconds = 0
+        if self.start_time:
+            uptime_seconds = int((datetime.now(timezone.utc) - self.start_time).total_seconds())
+        
+        return {
+            'status': 'OPERATIONAL' if self.is_running else 'STOPPED',
+            'cycle_count': self.cycle_count,
+            'uptime_seconds': uptime_seconds,
+            'agent_count': len(self.agents),
+            'agents': agent_statuses,
+            'observations': [
+                f"Nervous system running for {uptime_seconds} seconds",
+                f"Completed {self.cycle_count} cycles",
+                f"Total agents: {len(self.agents)}",
+                f"Agents with decisions: {total_decisions}",
+                f"Agents with actions: {total_actions}",
+            ],
+            'metrics': {
+                'cycle_count': self.cycle_count,
+                'total_decisions': total_decisions,
+                'total_actions': total_actions,
+                'uptime_seconds': uptime_seconds,
+                'agents_active': len([a for a in self.agents if a.state != AgentState.DORMANT]),
+            },
+            'anomalies': [],
+        }
+
     async def stop(self) -> None:
         """Stop the autonomous nervous system."""
         logger.info("Stopping Autonomous Nervous System")
