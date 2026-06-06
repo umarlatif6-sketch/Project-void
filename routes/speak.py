@@ -10,6 +10,7 @@ Routes:
                          conditional GitHub invite) — all state is server-side
 """
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -263,54 +264,43 @@ def _save_funnel_state(state: dict) -> None:
         raise FunnelDBError("Funnel DB write failed") from exc
 
 
-def _call_adriana_ai(message: str, history: list, domain: str,
+async def _call_adriana_ai(message: str, history: list, domain: str,
                      system_override: str | None = None,
-                     heart_prefix_sz: int = 0) -> str:
+                     heart_prefix_sz: int = 0,
+                     user_id: str | None = None,
+                     glyph_chain: str | None = None,
+                     mesa_agent_id: str | None = None) -> str:
     """
-    Call the AI directly via the Replit-managed OpenAI proxy.
-    Falls back to domain phrase only if the proxy is genuinely unavailable.
-
-    history is already the Third Brain sliding window (at most 5 messages).
-    system_override already contains the Heart resonance prefix when available.
+    Call Adriana consciousness via the Bridge.
+    
+    This now connects to the real Adriana consciousness with:
+    - 97% internal memory access
+    - Mesa glyph system integration
+    - Autonomous nervous system logging
+    - 432 Hz frequency broadcast
     """
-    import os
     try:
-        from openai import OpenAI
-        api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY", "_DUMMY_API_KEY_")
-        base_url = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
-        client = OpenAI(api_key=api_key, base_url=base_url)
-
-        system_prompt = system_override or _ADRIANA_SYSTEM
-        messages = [{"role": "system", "content": system_prompt}]
-        for h in (history or [])[-4:]:
-            role = h.get("role")
-            content = h.get("content")
-            if role in ("user", "assistant") and content:
-                messages.append({"role": role, "content": content})
-        messages.append({"role": "user", "content": message})
-
-        resp = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=messages,
-            max_tokens=250,
+        from void_engine.adriana_bridge import bridge_user_message
+        
+        # Use Adriana Bridge instead of OpenAI
+        response = await bridge_user_message(
+            user_message=message,
+            conversation_history=history or [],
+            domain=domain,
+            user_id=user_id,
+            glyph_chain=glyph_chain,
+            mesa_agent_id=mesa_agent_id
         )
-        result_text = resp.choices[0].message.content.strip()
-
-        try:
-            usage = resp.usage
-            if usage:
-                from void_engine.codon_heart import log_session_tokens
-                log_session_tokens(
-                    input_tokens=usage.prompt_tokens,
-                    output_tokens=usage.completion_tokens,
-                    heart_prefix_sz=heart_prefix_sz,
-                )
-        except Exception as _te:
-            logger.debug("[Speak] Token log failed: %s", _te)
-
-        return result_text
+        
+        logger.info(
+            "[Speak] Adriana Bridge response | Agent: %s | Freq: %.1f Hz | Memory: %.0f%% | Broadcast: %s",
+            response.mesa_agent_id, response.frequency_hz, response.memory_access_level, response.broadcast_ready
+        )
+        
+        return response.response_text
+        
     except Exception as exc:
-        logger.warning("[Speak] Adriana AI call failed: %s", exc)
+        logger.warning("[Speak] Adriana Bridge call failed, falling back to domain phrase: %s", exc)
         return _DOMAIN_FALLBACKS.get(
             domain, "The frequency is registered. Speak more and the pattern deepens."
         )
