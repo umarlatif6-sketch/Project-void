@@ -1,0 +1,42 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [
+    "db",
+    "server",
+    "user"
+  ],
+  "dev_command": "pnpm run dev",
+  "env_vars": {
+    "DATABASE_URL": "mysql://2o3Jx9NyGz27xjY.1a38ce371054:UF9dQQM51Y5UXeEPEH43@gateway05.us-east-1.prod.aws.tidbcloud.com:4000/aestYLcSYozEiWVAy3LJed?ssl={\"rejectUnauthorized\":true}",
+    "DRIZZLE_DATABASE_URL": "mysql://2o3Jx9NyGz27xjY.1a38ce371054:UF9dQQM51Y5UXeEPEH43@gateway05.us-east-1.prod.aws.tidbcloud.com:4000/aestYLcSYozEiWVAy3LJed?ssl={\"rejectUnauthorized\":true}"
+  },
+  "experiments": null,
+  "git_remote": {
+    "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663481746146/aestYLcSYozEiWVAy3LJed",
+    "access_key_id": "ASIAZV3A2ECZI3X6ZMUY",
+    "secret_access_key": "kdMgQzIg0Kq/BOOONsZmEEpkOXRnWmATwjiiUCSF",
+    "session_token": "IQoJb3JpZ2luX2VjELL//////////wEaCXVzLWVhc3QtMSJHMEUCIDaE2312fBMnPiUrciizNBQiGRiWbQSNeAwb1ZRZuY4hAiEA8NmlkaOmjeThbjBEkA9pRE7SlaLgkpnxxoU4G3rYXuoq9gMIexAEGgw2NjUzODYwOTg4NjYiDP1rRVXyuXgy1PjmqSrTA5RDrdT7PhoesQp0TmG46Ccoi4zS490+FgXYGOnfYM3vjoTf4VKxD9aYjyBQApGniVCcU5ZPMpl0HVQqz8CYIkQFwxjAYq1gZaSv64lDzgWu5A1jYx+8JI7T8qMS2336t6OU0oF3971kPz+JBfBV/ALAieul5vEWatcHdw1fAJkZk9wpG29eDRGOAPnn24Dx6/krDOWoXilHQ4G0+F0Lp9apL9iglkIjo5Mmy4hUcXZ+w4gklT8XfSyQ5BBmKZRkIVEzEVvYhNtxUvgeYFfu7FPLqu/2YrVPe4aNBesrHuv2sScPHGJT4C1PnW5W/+5BnZLWviJde0MyNPcsdtjKPixKaKinblsfTIEut7hEnQbEj9X9E8ncTiGPTLWYVJhUEe3gRj/fOjOCyETcTVuUIaMS72y1PtyROY+PiZSpDV7IQvjWVBER/cnRygJ59mBmgtCuZXIgj0o0PxTFV7FDANswVSoM7Z1DbE4SUHj+dGBP5+K2/ME8bNlfEfz53zT899Norqmgi+SWSSJeHQq2px7Zcu+5woawqU1jI0N7MrWimGHDVaOWXAGL2myNE8qsR1hv9HfkFUZLWKSO4mHvVtZFqwvK3dQXSrLqJMG10gfQcMIUMLf0jdEGOp0BMCTprL0wHn9mzYpWRbXQN4tYZkSJPYLZdZzL2A4umY09+6zNmtlH5LtHWc9oeKZmNMdfPJyP1J9aqDMx5WBx9q3ohkWJ1JVLq/6yFJE5Xpq9IgE6sxkFfZgJnzLoUSzFr3wr32N6WLuP9DPnEf7tHg0ie0HxQ/YRtLV5ZpUoyXcW9x2JHLwg8iQAQTD64YA3nRhwRZBOYppSM7FJhQ==",
+    "expiration": "2026-06-06T13:39:03.000Z"
+  },
+  "name": "the-living-fabric-site",
+  "path": "/home/ubuntu/the-living-fabric-site",
+  "port": 3000,
+  "secrets": {
+    "BUILT_IN_FORGE_API_KEY": "hXPbHZYNgtR5VUi5rTEmW2",
+    "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "JWT_SECRET": "RJ6r3vShZzwCvGs3yoRFin",
+    "OAUTH_SERVER_URL": "https://api.manus.im",
+    "OWNER_NAME": "Umar Latif",
+    "OWNER_OPEN_ID": "YWrDsonUstymCoT8CK5bsW",
+    "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
+    "VITE_ANALYTICS_WEBSITE_ID": "809ff16d-c3a8-4f80-b394-0d6d270e7afa",
+    "VITE_APP_ID": "aestYLcSYozEiWVAy3LJed",
+    "VITE_APP_LOGO": "https://files.manuscdn.com/user_upload_by_module/web_dev_logo/310519663481746146/nhICdAdftKsbRrLM.png",
+    "VITE_APP_TITLE": "The Living Fabric",
+    "VITE_FRONTEND_FORGE_API_KEY": "HsfCy7wC37zpUNuDGhyH32",
+    "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+  },
+  "template_id": "web-static",
+  "test_command": "pnpm test"
+}
