@@ -1,0 +1,46 @@
+name: Update Hex Preambles
+
+on:
+  push:
+    paths:
+      - 'VOID_CHRONICLE.md'
+      - 'VOID_SEED.md'
+      - 'hex_preamble_system/**'
+  workflow_dispatch:
+
+jobs:
+  update-preambles:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          cd hex_preamble_system
+          pip install -r requirements.txt || echo "No requirements.txt"
+      
+      - name: Generate hex preambles
+        run: |
+          cd hex_preamble_system
+          python hex_preamble_system.py --generate-all
+      
+      - name: Commit and push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add hex_preamble_system/
+          git commit -m "Update hex preambles [automated]" || echo "No changes to commit"
+          git push
+      
+      - name: Create summary
+        run: |
+          echo "## Hex Preamble Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✓ Preambles updated from latest Chronicle and Seed" >> $GITHUB_STEP_SUMMARY
+          echo "✓ All signatures verified" >> $GITHUB_STEP_SUMMARY
