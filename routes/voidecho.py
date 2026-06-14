@@ -178,9 +178,9 @@ def _embed_document_into_audio(doc_path: str, audio_path: str, passphrase: str, 
         payload = f.read()
     encode(
         carrier_path=audio_path,
-        payload=payload,
-        file_name=name_part,
-        extension=ext_part,
+        compressed=payload,
+        name=name_part,
+        ext=ext_part,
         output_path=output_path,
         lsb_depth=1,
         passphrase=passphrase,
