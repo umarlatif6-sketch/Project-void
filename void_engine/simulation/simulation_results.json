@@ -1,0 +1,3630 @@
+{
+  "meta": {
+    "total_compounds": 108,
+    "engine": "OpenMM",
+    "timestamp": "2026-07-10T13:58:50Z",
+    "base_frequency": 432.0,
+    "n_steps": 10000
+  },
+  "results": [
+    {
+      "id": "A01",
+      "name": "C-H-N-O Polymer",
+      "frequency_hz": 326.5,
+      "geometry": "hexagonal_spiral",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 500.26,
+      "simulation": {
+        "initial_rg": 0.3403845339944325,
+        "final_rg": 2.0431811606933072,
+        "rg_change_pct": 500.25675570991905,
+        "final_energy_kJ_mol": 76.61206994020314,
+        "rg_trajectory": [
+          0.34038045777352166,
+          0.585886297848486,
+          0.8074884019827645,
+          1.0117186568274779,
+          1.4317067191247035,
+          1.5468548491347498,
+          1.7243545888713931,
+          1.7202496934451161,
+          1.8492303377354953,
+          1.838174843381129
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.09
+    },
+    {
+      "id": "A02",
+      "name": "Si-C-N Ceramic",
+      "frequency_hz": 378.2,
+      "geometry": "cubic_tetrahedral",
+      "elements": [
+        "Si",
+        "C",
+        "N"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 60.73,
+      "simulation": {
+        "initial_rg": 0.1768443848118255,
+        "final_rg": 0.28423741354208587,
+        "rg_change_pct": 60.727417975150246,
+        "final_energy_kJ_mol": 107.1715875735317,
+        "rg_trajectory": [
+          0.17684383114487526,
+          0.20275307997792233,
+          0.20903409516182608,
+          0.289709020659314,
+          0.32885498589869044,
+          0.2819664475409958,
+          0.1807287590488697,
+          0.19606673629000898,
+          0.23225561371440873,
+          0.21421222842215235
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.86
+    },
+    {
+      "id": "A03",
+      "name": "B-N Nanotube",
+      "frequency_hz": 432.0,
+      "geometry": "cylindrical_hexagonal",
+      "elements": [
+        "B",
+        "N"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 305.8,
+      "simulation": {
+        "initial_rg": 0.37358121505898245,
+        "final_rg": 1.5159937334789575,
+        "rg_change_pct": 305.8003112494847,
+        "final_energy_kJ_mol": 97.15953035377792,
+        "rg_trajectory": [
+          0.37357970712697675,
+          0.458504427308591,
+          0.72652496711235,
+          0.9028254255747283,
+          0.9923544498000357,
+          1.0272822823974639,
+          1.107890418062224,
+          1.2368316364712197,
+          1.3671184686760676,
+          1.2771775447679254
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.0
+    },
+    {
+      "id": "A04",
+      "name": "C-Si Carbide Fiber",
+      "frequency_hz": 345.6,
+      "geometry": "linear_tetrahedral",
+      "elements": [
+        "C",
+        "Si"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": -17.83,
+      "simulation": {
+        "initial_rg": 1.2013267489874557,
+        "final_rg": 0.9871079808600614,
+        "rg_change_pct": -17.831848687956857,
+        "final_energy_kJ_mol": 63.1898412051078,
+        "rg_trajectory": [
+          1.2013377048163096,
+          1.1292550602359042,
+          1.054430774662866,
+          1.0478223469814447,
+          0.9878155734716024,
+          0.9924403256743106,
+          1.023730167921841,
+          0.922170691039811,
+          1.0180806225401997,
+          1.0117516324553497
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.61
+    },
+    {
+      "id": "A05",
+      "name": "Al-O-N Oxynitride",
+      "frequency_hz": 389.0,
+      "geometry": "spinel_cubic",
+      "elements": [
+        "Al",
+        "O",
+        "N"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 87.18,
+      "simulation": {
+        "initial_rg": 0.17745821162525502,
+        "final_rg": 0.33215787861728624,
+        "rg_change_pct": 87.17526541894615,
+        "final_energy_kJ_mol": 93.22478922297813,
+        "rg_trajectory": [
+          0.17745828289817972,
+          0.2599210464875776,
+          0.3811151402282522,
+          0.26082917064937683,
+          0.22328918943779738,
+          0.20290366731698728,
+          0.37014650936213256,
+          0.36549767952732704,
+          0.39779194260453205,
+          0.3217442636604498
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.52
+    },
+    {
+      "id": "A06",
+      "name": "C-B Boron Carbide",
+      "frequency_hz": 410.4,
+      "geometry": "rhombohedral",
+      "elements": [
+        "C",
+        "B"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 878.36,
+      "simulation": {
+        "initial_rg": 0.22960325757581082,
+        "final_rg": 2.2463454311758246,
+        "rg_change_pct": 878.3595646216484,
+        "final_energy_kJ_mol": 44.91276494197291,
+        "rg_trajectory": [
+          0.2295995169443036,
+          0.5782605430928003,
+          0.9958340536979178,
+          1.2297964692504022,
+          1.4102986895163558,
+          1.6120135656121952,
+          1.6297412829055742,
+          1.7797365717025015,
+          1.966467734030205,
+          2.103596413029304
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.06
+    },
+    {
+      "id": "A07",
+      "name": "Mg-Al Spinel",
+      "frequency_hz": 356.8,
+      "geometry": "cubic_spinel",
+      "elements": [
+        "Mg",
+        "Al",
+        "O"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 41.74,
+      "simulation": {
+        "initial_rg": 0.1674718069480621,
+        "final_rg": 0.237369431645081,
+        "rg_change_pct": 41.736950219147154,
+        "final_energy_kJ_mol": 157.62636782980675,
+        "rg_trajectory": [
+          0.167476174024679,
+          0.21459314300414378,
+          0.2614176845049706,
+          0.23690169111973614,
+          0.27745308731852686,
+          0.2926861049399511,
+          0.2900783658751911,
+          0.2892365701176393,
+          0.29586960820905306,
+          0.2466129595438466
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.22
+    },
+    {
+      "id": "A08",
+      "name": "Ti-Al Intermetallic",
+      "frequency_hz": 367.2,
+      "geometry": "tetragonal",
+      "elements": [
+        "Ti",
+        "Al"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 394.0,
+      "simulation": {
+        "initial_rg": 0.22830232982493573,
+        "final_rg": 1.1278091046701921,
+        "rg_change_pct": 393.99807068767376,
+        "final_energy_kJ_mol": 60.58174158104422,
+        "rg_trajectory": [
+          0.22830134793252108,
+          0.2854568559291596,
+          0.35452743150622584,
+          0.5540617219437288,
+          0.6399180059856128,
+          0.7769546502407342,
+          0.8076206265572893,
+          0.856709376960238,
+          0.8598653259209044,
+          1.0344441746231585
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.06
+    },
+    {
+      "id": "A09",
+      "name": "C Aerogel Matrix",
+      "frequency_hz": 216.0,
+      "geometry": "fractal_network",
+      "elements": [
+        "C"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 973.59,
+      "simulation": {
+        "initial_rg": 0.2664521145067927,
+        "final_rg": 2.860594746952749,
+        "rg_change_pct": 973.5868064878215,
+        "final_energy_kJ_mol": 62.05373526925536,
+        "rg_trajectory": [
+          0.2664518514630466,
+          0.6173122112850921,
+          1.0608367090428041,
+          1.3894941560496687,
+          1.5909413187738968,
+          1.9228667601198977,
+          2.22831956308704,
+          2.4658478780136455,
+          2.5998638871077935,
+          2.754613622810121
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.73
+    },
+    {
+      "id": "A10",
+      "name": "Si-O Aerogel",
+      "frequency_hz": 288.0,
+      "geometry": "amorphous_network",
+      "elements": [
+        "Si",
+        "O"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 436.1,
+      "simulation": {
+        "initial_rg": 0.23573406111044115,
+        "final_rg": 1.2637708213828012,
+        "rg_change_pct": 436.10022048987054,
+        "final_energy_kJ_mol": 58.472073659289535,
+        "rg_trajectory": [
+          0.23573197106718832,
+          0.367377268508219,
+          0.5684171381788778,
+          0.6839192294978815,
+          0.8284580074402367,
+          0.8830960856721815,
+          0.9745296055813327,
+          1.1444764267212857,
+          1.1729570478353812,
+          1.2035486849646386
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.71
+    },
+    {
+      "id": "A11",
+      "name": "Al-B Boride",
+      "frequency_hz": 399.6,
+      "geometry": "hexagonal_layered",
+      "elements": [
+        "Al",
+        "B"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 396.38,
+      "simulation": {
+        "initial_rg": 0.3230300463954643,
+        "final_rg": 1.6034716382717937,
+        "rg_change_pct": 396.38467262230137,
+        "final_energy_kJ_mol": 63.08981193409042,
+        "rg_trajectory": [
+          0.32303051817534206,
+          0.429727388623945,
+          0.4817621229798339,
+          0.5866393260765687,
+          0.6580769388140311,
+          0.7545423865005255,
+          0.7549461367903072,
+          0.9155580352525777,
+          1.1374827498521718,
+          1.3422242704213796
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.7
+    },
+    {
+      "id": "A12",
+      "name": "C-N Nitride Film",
+      "frequency_hz": 421.2,
+      "geometry": "beta_hexagonal",
+      "elements": [
+        "C",
+        "N"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 537.3,
+      "simulation": {
+        "initial_rg": 0.34041075207151594,
+        "final_rg": 2.169437237894305,
+        "rg_change_pct": 537.2998575081829,
+        "final_energy_kJ_mol": 48.21627409878517,
+        "rg_trajectory": [
+          0.34040619268261657,
+          0.5920124618647019,
+          0.8335012722394719,
+          1.0772295663351705,
+          1.3177002926013086,
+          1.64216571331164,
+          1.8948730008107113,
+          1.872044738508415,
+          1.8957786365881004,
+          2.0338501927354637
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.07
+    },
+    {
+      "id": "A13",
+      "name": "Be-Al Alloy",
+      "frequency_hz": 334.8,
+      "geometry": "hcp",
+      "elements": [
+        "Be",
+        "Al"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 237.97,
+      "simulation": {
+        "initial_rg": 0.22920513028096393,
+        "final_rg": 0.7746412697657884,
+        "rg_change_pct": 237.9685562954977,
+        "final_energy_kJ_mol": 92.5103232740495,
+        "rg_trajectory": [
+          0.22920385893293513,
+          0.2682469253983752,
+          0.41015891069553934,
+          0.5677824313230612,
+          0.6827102041043371,
+          0.9015768152076261,
+          0.8518325611275933,
+          0.8931081049671359,
+          1.0275140447350435,
+          0.9686170715588377
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.32
+    },
+    {
+      "id": "A14",
+      "name": "Li-Al Hydride",
+      "frequency_hz": 302.4,
+      "geometry": "monoclinic",
+      "elements": [
+        "Li",
+        "Al",
+        "H"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1787.8,
+      "simulation": {
+        "initial_rg": 0.22661234589101706,
+        "final_rg": 4.277984239012169,
+        "rg_change_pct": 1787.7983995936158,
+        "final_energy_kJ_mol": 52.91688497256381,
+        "rg_trajectory": [
+          0.22661873959143541,
+          0.9840076526715623,
+          1.51375794715381,
+          1.6204572905375318,
+          2.1495435477445586,
+          2.39330406253883,
+          2.823296751642151,
+          3.686661198016209,
+          3.688900782957278,
+          3.5631334809053747
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.49
+    },
+    {
+      "id": "A15",
+      "name": "Mg-B Diboride",
+      "frequency_hz": 378.0,
+      "geometry": "hexagonal_AlB2",
+      "elements": [
+        "Mg",
+        "B"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 466.21,
+      "simulation": {
+        "initial_rg": 0.32288199597828127,
+        "final_rg": 1.8282028899909366,
+        "rg_change_pct": 466.21394588811665,
+        "final_energy_kJ_mol": 76.69828197427634,
+        "rg_trajectory": [
+          0.32288223913240865,
+          0.3864379406792389,
+          0.6988441487394063,
+          0.9258839748177353,
+          1.0674022368756788,
+          1.1015223356908592,
+          1.3534295004800785,
+          1.4419203926075308,
+          1.5688039181520514,
+          1.7457709357342241
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.64
+    },
+    {
+      "id": "B01",
+      "name": "Fe-Cu-Zn Alloy",
+      "frequency_hz": 1217.6,
+      "geometry": "bcc_complex",
+      "elements": [
+        "Fe",
+        "Cu",
+        "Zn"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 155.32,
+      "simulation": {
+        "initial_rg": 0.22944543318902633,
+        "final_rg": 0.5858238850365117,
+        "rg_change_pct": 155.32165835433585,
+        "final_energy_kJ_mol": 91.16262867945609,
+        "rg_trajectory": [
+          0.2294459540139007,
+          0.2652700418639094,
+          0.34553764044330965,
+          0.36688365407774987,
+          0.3569291314801204,
+          0.3727818875691133,
+          0.4561198073272133,
+          0.5202617578514085,
+          0.5656307480976844,
+          0.5350408581661129
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.67
+    },
+    {
+      "id": "B02",
+      "name": "Ti-V-Cr Superalloy",
+      "frequency_hz": 1296.0,
+      "geometry": "bcc_ordered",
+      "elements": [
+        "Ti",
+        "V",
+        "Cr"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 300.86,
+      "simulation": {
+        "initial_rg": 0.227905996446773,
+        "final_rg": 0.9135865930694567,
+        "rg_change_pct": 300.86114771570874,
+        "final_energy_kJ_mol": 106.65259570157434,
+        "rg_trajectory": [
+          0.22790624089758132,
+          0.23775008994630212,
+          0.29860358856579916,
+          0.3844073973764536,
+          0.46201330225681947,
+          0.526970224182986,
+          0.6291957419274473,
+          0.6731177841566673,
+          0.7288118844258802,
+          0.8423099222612048
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.68
+    },
+    {
+      "id": "B03",
+      "name": "Ni-Co-W Alloy",
+      "frequency_hz": 1350.0,
+      "geometry": "fcc_complex",
+      "elements": [
+        "Ni",
+        "Co",
+        "W"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 177.82,
+      "simulation": {
+        "initial_rg": 0.22910397932837193,
+        "final_rg": 0.6364924391444207,
+        "rg_change_pct": 177.81815095937023,
+        "final_energy_kJ_mol": 69.68069735609278,
+        "rg_trajectory": [
+          0.22910390632816624,
+          0.2430155890159263,
+          0.33708168357575097,
+          0.42055271335769123,
+          0.4456189761177318,
+          0.4339808947972348,
+          0.49819868545889084,
+          0.562933225394487,
+          0.6226136447871753,
+          0.6676800946486552
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.74
+    },
+    {
+      "id": "B04",
+      "name": "Fe-Ni-Mo Steel",
+      "frequency_hz": 1188.0,
+      "geometry": "martensite",
+      "elements": [
+        "Fe",
+        "Ni",
+        "Mo"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 238.12,
+      "simulation": {
+        "initial_rg": 0.22925893438829553,
+        "final_rg": 0.7751798005682162,
+        "rg_change_pct": 238.12414012851306,
+        "final_energy_kJ_mol": 90.76660228336816,
+        "rg_trajectory": [
+          0.22925940515025367,
+          0.2742631894860953,
+          0.343922969761146,
+          0.42108853961214027,
+          0.556634274844748,
+          0.6085812868715356,
+          0.6407622981952669,
+          0.6517489574361985,
+          0.6849750038967645,
+          0.7297732326932913
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.29
+    },
+    {
+      "id": "B05",
+      "name": "Ti-Nb-Zr Shape Memory",
+      "frequency_hz": 1242.0,
+      "geometry": "bcc_to_hcp",
+      "elements": [
+        "Ti",
+        "Nb",
+        "Zr"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 202.4,
+      "simulation": {
+        "initial_rg": 0.22806122807387724,
+        "final_rg": 0.6896658519989487,
+        "rg_change_pct": 202.4038140211808,
+        "final_energy_kJ_mol": 89.37784263463726,
+        "rg_trajectory": [
+          0.22806222449483415,
+          0.25807965433909413,
+          0.3467655553328003,
+          0.4261441468039837,
+          0.49417060995786216,
+          0.5916614351463199,
+          0.6301907862655705,
+          0.6447585476372933,
+          0.6830283251792054,
+          0.7000834181272575
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.52
+    },
+    {
+      "id": "B06",
+      "name": "Co-Cr-Mo Bioalloy",
+      "frequency_hz": 1274.4,
+      "geometry": "fcc_hcp",
+      "elements": [
+        "Co",
+        "Cr",
+        "Mo"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 302.58,
+      "simulation": {
+        "initial_rg": 0.22490869099017655,
+        "final_rg": 0.9054305925999923,
+        "rg_change_pct": 302.5769696198798,
+        "final_energy_kJ_mol": 76.07625919864493,
+        "rg_trajectory": [
+          0.22490616943450123,
+          0.2871332154434257,
+          0.4290507143552597,
+          0.5182640191176332,
+          0.6221678417768299,
+          0.6660083617994758,
+          0.693258419070139,
+          0.7611937575771599,
+          0.813171228355475,
+          0.8476172796112783
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.58
+    },
+    {
+      "id": "B07",
+      "name": "Cu-Ni-Zn Stealth",
+      "frequency_hz": 1247.3,
+      "geometry": "fcc_layered",
+      "elements": [
+        "Cu",
+        "Ni",
+        "Zn"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 182.41,
+      "simulation": {
+        "initial_rg": 0.5100928867239963,
+        "final_rg": 1.4405470248030658,
+        "rg_change_pct": 182.4087655985143,
+        "final_energy_kJ_mol": 49.95253636515977,
+        "rg_trajectory": [
+          0.5100926259754319,
+          0.5263497069298435,
+          0.6402782333509408,
+          0.7476285513732149,
+          0.8445845189827476,
+          0.9481841541063925,
+          1.1151909279291543,
+          1.222570763520902,
+          1.287593548856624,
+          1.3813894079570295
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.61
+    },
+    {
+      "id": "B08",
+      "name": "Fe-Mn-Si Austenite",
+      "frequency_hz": 1166.4,
+      "geometry": "fcc_austenite",
+      "elements": [
+        "Fe",
+        "Mn",
+        "Si"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 273.26,
+      "simulation": {
+        "initial_rg": 0.22869880788737182,
+        "final_rg": 0.8536468645795342,
+        "rg_change_pct": 273.2624898508142,
+        "final_energy_kJ_mol": 101.61895684060444,
+        "rg_trajectory": [
+          0.228699460890376,
+          0.31395323732000063,
+          0.5077562471660269,
+          0.6718649676442656,
+          0.6653261509018813,
+          0.7703033412968516,
+          0.7725808673217227,
+          0.874258867115177,
+          0.9142723261137559,
+          0.9248613001922007
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.66
+    },
+    {
+      "id": "B09",
+      "name": "Nb-Ti-Al Turbine",
+      "frequency_hz": 1382.4,
+      "geometry": "L12_ordered",
+      "elements": [
+        "Nb",
+        "Ti",
+        "Al"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 278.37,
+      "simulation": {
+        "initial_rg": 0.22819594550313696,
+        "final_rg": 0.8634270402284523,
+        "rg_change_pct": 278.3708945067926,
+        "final_energy_kJ_mol": 77.01027285321997,
+        "rg_trajectory": [
+          0.22819167252450187,
+          0.3083082065328589,
+          0.4170791664027036,
+          0.4557332947638899,
+          0.5302740975911181,
+          0.6328878122995751,
+          0.6211105210202937,
+          0.6484497383566141,
+          0.6766253865811549,
+          0.7587386926133997
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.62
+    },
+    {
+      "id": "B10",
+      "name": "W-Re Refractory",
+      "frequency_hz": 1512.0,
+      "geometry": "bcc_solid_solution",
+      "elements": [
+        "W",
+        "Re"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 130.48,
+      "simulation": {
+        "initial_rg": 0.2248093718903249,
+        "final_rg": 0.5181510351441938,
+        "rg_change_pct": 130.48462383364426,
+        "final_energy_kJ_mol": 47.93400798925874,
+        "rg_trajectory": [
+          0.22480953661710018,
+          0.233646899487269,
+          0.2838488415620904,
+          0.30863356992883456,
+          0.34597482973333166,
+          0.32150947517768613,
+          0.37731414954240533,
+          0.39943273988236944,
+          0.4475017295660325,
+          0.47383766725660337
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.61
+    },
+    {
+      "id": "B11",
+      "name": "Zr-Cu-Al Metallic Glass",
+      "frequency_hz": 1123.2,
+      "geometry": "amorphous_icosahedral",
+      "elements": [
+        "Zr",
+        "Cu",
+        "Al"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 306.51,
+      "simulation": {
+        "initial_rg": 0.34999976220740453,
+        "final_rg": 1.4227763433416032,
+        "rg_change_pct": 306.5078028534453,
+        "final_energy_kJ_mol": 89.42107257758519,
+        "rg_trajectory": [
+          0.350000179176886,
+          0.38135605610954737,
+          0.567265712960064,
+          0.7100066058227299,
+          0.9542451950794597,
+          1.1269266830431994,
+          1.1390589162946763,
+          1.2014610060501205,
+          1.2028221399046406,
+          1.3176959582470487
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.11
+    },
+    {
+      "id": "B12",
+      "name": "Fe-B Amorphous",
+      "frequency_hz": 1080.0,
+      "geometry": "amorphous_dense",
+      "elements": [
+        "Fe",
+        "B"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 586.8,
+      "simulation": {
+        "initial_rg": 0.26277515612038993,
+        "final_rg": 1.8047447825204115,
+        "rg_change_pct": 586.8019066816084,
+        "final_energy_kJ_mol": 58.57883540332184,
+        "rg_trajectory": [
+          0.2627768002715447,
+          0.42248773292869246,
+          0.7401195194393517,
+          0.9055443539784845,
+          0.9850633698856338,
+          1.0822245420633212,
+          1.2310222055582756,
+          1.4080892209087283,
+          1.521981112606321,
+          1.6257131928068385
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.33
+    },
+    {
+      "id": "B13",
+      "name": "Ni-Al Intermetallic",
+      "frequency_hz": 1296.0,
+      "geometry": "L12_cubic",
+      "elements": [
+        "Ni",
+        "Al"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "STABLE",
+      "rg_change_pct": -2.43,
+      "simulation": {
+        "initial_rg": 0.174935907973589,
+        "final_rg": 0.17067917374269598,
+        "rg_change_pct": -2.4333107366017006,
+        "final_energy_kJ_mol": 75.29765645052171,
+        "rg_trajectory": [
+          0.17493261872733426,
+          0.18621519692884866,
+          0.17296867993079545,
+          0.16114272778705366,
+          0.16136954615127352,
+          0.19016906443806458,
+          0.19798384510343245,
+          0.1900806229313248,
+          0.19714330228493285,
+          0.18277646311895715
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.48
+    },
+    {
+      "id": "B14",
+      "name": "Ti-Mo-V Beta",
+      "frequency_hz": 1328.4,
+      "geometry": "bcc_beta",
+      "elements": [
+        "Ti",
+        "Mo",
+        "V"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 282.54,
+      "simulation": {
+        "initial_rg": 0.22826247114405535,
+        "final_rg": 0.8731958241690384,
+        "rg_change_pct": 282.54024842216336,
+        "final_energy_kJ_mol": 51.79136103751903,
+        "rg_trajectory": [
+          0.22826267659270927,
+          0.3329403908145282,
+          0.4138349057501056,
+          0.5082152964027398,
+          0.6379960623778447,
+          0.7106935418913655,
+          0.7385377098140269,
+          0.7947602592183747,
+          0.790416115135478,
+          0.7989069226978652
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.51
+    },
+    {
+      "id": "B15",
+      "name": "Cr-Mn-Fe-Co-Ni HEA",
+      "frequency_hz": 1404.0,
+      "geometry": "fcc_random",
+      "elements": [
+        "Cr",
+        "Mn",
+        "Fe",
+        "Co",
+        "Ni"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 246.21,
+      "simulation": {
+        "initial_rg": 0.2552542488558965,
+        "final_rg": 0.8837064359103952,
+        "rg_change_pct": 246.20635694463635,
+        "final_energy_kJ_mol": 61.58081721101019,
+        "rg_trajectory": [
+          0.2552564887160063,
+          0.34041110829364546,
+          0.4660413691883727,
+          0.5103704539853137,
+          0.5802946210093552,
+          0.6489954959968546,
+          0.7029414492011161,
+          0.7090857556246145,
+          0.8067376240320275,
+          0.8709758444606344
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.64
+    },
+    {
+      "id": "C01",
+      "name": "Ti-W Carbide",
+      "frequency_hz": 1530.0,
+      "geometry": "cubic_rocksalt",
+      "elements": [
+        "Ti",
+        "W",
+        "C"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 45.63,
+      "simulation": {
+        "initial_rg": 0.15837666073846446,
+        "final_rg": 0.23064820826516444,
+        "rg_change_pct": 45.63270067048939,
+        "final_energy_kJ_mol": 124.63836754977238,
+        "rg_trajectory": [
+          0.1583758079106201,
+          0.16404259504257337,
+          0.17620644208584324,
+          0.194055091830742,
+          0.19663841336196436,
+          0.20502539683065996,
+          0.17151874799138692,
+          0.2024515233293718,
+          0.19949129688244388,
+          0.2340251115987919
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.68
+    },
+    {
+      "id": "C02",
+      "name": "Hf-C Carbide",
+      "frequency_hz": 1620.0,
+      "geometry": "rocksalt",
+      "elements": [
+        "Hf",
+        "C"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 21.53,
+      "simulation": {
+        "initial_rg": 0.17195638456508605,
+        "final_rg": 0.2089708034521632,
+        "rg_change_pct": 21.52546936869743,
+        "final_energy_kJ_mol": 87.18687029917591,
+        "rg_trajectory": [
+          0.1719557801217093,
+          0.18113429149267177,
+          0.18472956133168758,
+          0.21574280080671376,
+          0.19380066867878723,
+          0.20853062346492557,
+          0.20351358640437714,
+          0.221203510196459,
+          0.1941349513713468,
+          0.19268116977187452
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.64
+    },
+    {
+      "id": "C03",
+      "name": "Ta-Hf-C Ternary",
+      "frequency_hz": 1728.0,
+      "geometry": "rocksalt_ordered",
+      "elements": [
+        "Ta",
+        "Hf",
+        "C"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 29.86,
+      "simulation": {
+        "initial_rg": 0.15837666073846446,
+        "final_rg": 0.2056728512723347,
+        "rg_change_pct": 29.863106289362218,
+        "final_energy_kJ_mol": 120.4002717544623,
+        "rg_trajectory": [
+          0.15837699157067547,
+          0.1691348826602832,
+          0.20911605072092537,
+          0.24319112319548564,
+          0.22225713166055525,
+          0.2253114384723045,
+          0.235308644980434,
+          0.21092924961338252,
+          0.21759560913219714,
+          0.19495267391199653
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.51
+    },
+    {
+      "id": "C04",
+      "name": "Zr-B2 Diboride",
+      "frequency_hz": 1458.0,
+      "geometry": "hexagonal_AlB2",
+      "elements": [
+        "Zr",
+        "B"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 194.73,
+      "simulation": {
+        "initial_rg": 0.3229275077220114,
+        "final_rg": 0.9517751177321824,
+        "rg_change_pct": 194.73336738829556,
+        "final_energy_kJ_mol": 65.9183988140563,
+        "rg_trajectory": [
+          0.32292809788744725,
+          0.384177693521593,
+          0.45533208083342525,
+          0.5432743816497673,
+          0.5809053622259693,
+          0.6162878731519406,
+          0.7351144363278564,
+          0.6859497854357753,
+          0.7375956051816761,
+          0.8551745858062129
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.51
+    },
+    {
+      "id": "C05",
+      "name": "Si-C Moissanite",
+      "frequency_hz": 1566.0,
+      "geometry": "wurtzite",
+      "elements": [
+        "Si",
+        "C"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 314.31,
+      "simulation": {
+        "initial_rg": 0.2286631174916789,
+        "final_rg": 0.9473820343408521,
+        "rg_change_pct": 314.31344273320667,
+        "final_energy_kJ_mol": 81.23028721605974,
+        "rg_trajectory": [
+          0.22866598810238248,
+          0.3100720264506472,
+          0.45033716243597277,
+          0.609899975470906,
+          0.7699881571787417,
+          0.8589518559377346,
+          0.8973495334631048,
+          0.9298974399691055,
+          0.8301343346586907,
+          0.7930326084489603
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.57
+    },
+    {
+      "id": "C06",
+      "name": "Al2O3 Corundum",
+      "frequency_hz": 1440.0,
+      "geometry": "rhombohedral_corundum",
+      "elements": [
+        "Al",
+        "O"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 675.54,
+      "simulation": {
+        "initial_rg": 0.22767380209723706,
+        "final_rg": 1.765702454551576,
+        "rg_change_pct": 675.5404610836442,
+        "final_energy_kJ_mol": 50.27692013693815,
+        "rg_trajectory": [
+          0.22767090529174555,
+          0.3958030770113241,
+          0.5897455965303287,
+          0.6681458693179216,
+          0.8583637684885739,
+          1.0027094835458092,
+          1.2467172227083507,
+          1.4308587080580897,
+          1.4786153583196577,
+          1.5342498047890818
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.6
+    },
+    {
+      "id": "C07",
+      "name": "Y2O3-ZrO2 YSZ",
+      "frequency_hz": 1494.0,
+      "geometry": "fluorite_cubic",
+      "elements": [
+        "Y",
+        "Zr",
+        "O"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 72.53,
+      "simulation": {
+        "initial_rg": 0.15837666073846446,
+        "final_rg": 0.2732468839852225,
+        "rg_change_pct": 72.52976714570916,
+        "final_energy_kJ_mol": 125.23277479840054,
+        "rg_trajectory": [
+          0.15837788936372485,
+          0.17494871142060256,
+          0.17291275867507006,
+          0.24065214999151854,
+          0.2780590685714809,
+          0.24942612954233256,
+          0.27366292279226556,
+          0.25052191685998493,
+          0.24758815409218415,
+          0.22487832385041076
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.67
+    },
+    {
+      "id": "C08",
+      "name": "MgO Periclase",
+      "frequency_hz": 1404.0,
+      "geometry": "rocksalt_simple",
+      "elements": [
+        "Mg",
+        "O"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": -7.81,
+      "simulation": {
+        "initial_rg": 0.1805600970880324,
+        "final_rg": 0.1664642476087378,
+        "rg_change_pct": -7.8067356556759835,
+        "final_energy_kJ_mol": 94.20744406267549,
+        "rg_trajectory": [
+          0.18055366862561553,
+          0.1763884302659842,
+          0.1946138477514814,
+          0.19472699297843227,
+          0.20588227275769122,
+          0.2525338950170631,
+          0.25177657538749937,
+          0.1997064464242408,
+          0.20999021150933578,
+          0.18954827085975648
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.65
+    },
+    {
+      "id": "C09",
+      "name": "W Tungsten Pure",
+      "frequency_hz": 1836.0,
+      "geometry": "bcc_pure",
+      "elements": [
+        "W"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 82.13,
+      "simulation": {
+        "initial_rg": 0.22831454081188574,
+        "final_rg": 0.4158384291121788,
+        "rg_change_pct": 82.13401022705725,
+        "final_energy_kJ_mol": 38.02665406748489,
+        "rg_trajectory": [
+          0.2283146075796743,
+          0.26168827600375627,
+          0.27105690876062655,
+          0.32493495673459044,
+          0.37917948213512714,
+          0.3979137905350939,
+          0.4382005478461264,
+          0.45607053956825017,
+          0.4133677234702624,
+          0.41171937029752914
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.38
+    },
+    {
+      "id": "C10",
+      "name": "Re Rhenium Pure",
+      "frequency_hz": 1782.0,
+      "geometry": "hcp_pure",
+      "elements": [
+        "Re"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 150.29,
+      "simulation": {
+        "initial_rg": 0.22290149667016326,
+        "final_rg": 0.5578934339480588,
+        "rg_change_pct": 150.28698428777142,
+        "final_energy_kJ_mol": 78.02216168981174,
+        "rg_trajectory": [
+          0.22289989929740764,
+          0.2328763409274941,
+          0.3035943501264568,
+          0.38346445822280706,
+          0.3997079888873312,
+          0.48392715270266645,
+          0.46344810431196154,
+          0.48772328380927216,
+          0.48645306115868137,
+          0.5191381931284164
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.9
+    },
+    {
+      "id": "C11",
+      "name": "Si3N4 Nitride",
+      "frequency_hz": 1512.0,
+      "geometry": "hexagonal_Si3N4",
+      "elements": [
+        "Si",
+        "N"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 230.02,
+      "simulation": {
+        "initial_rg": 0.34729669396388757,
+        "final_rg": 1.1461653602275277,
+        "rg_change_pct": 230.02484047449866,
+        "final_energy_kJ_mol": 83.05546506488916,
+        "rg_trajectory": [
+          0.3472915166718941,
+          0.4342012637386115,
+          0.6201329350467736,
+          0.8933316378297167,
+          1.092497221437954,
+          1.144826360659586,
+          1.1221850901517116,
+          1.0340639948935115,
+          1.1117759570223877,
+          1.140927029998972
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.22
+    },
+    {
+      "id": "C12",
+      "name": "BN Cubic",
+      "frequency_hz": 1674.0,
+      "geometry": "zinc_blende",
+      "elements": [
+        "B",
+        "N"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 818.45,
+      "simulation": {
+        "initial_rg": 0.21929226858387468,
+        "final_rg": 2.0140812283666802,
+        "rg_change_pct": 818.4460726194441,
+        "final_energy_kJ_mol": 62.249772250939294,
+        "rg_trajectory": [
+          0.21929318358269703,
+          0.49565102836806435,
+          0.7471155050388266,
+          1.052450890868919,
+          1.1873668761981626,
+          1.403840651988528,
+          1.5607932899669719,
+          1.6906567037676137,
+          1.7918779935279383,
+          1.8983799400691852
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.55
+    },
+    {
+      "id": "C13",
+      "name": "TiN Nitride",
+      "frequency_hz": 1548.0,
+      "geometry": "rocksalt_TiN",
+      "elements": [
+        "Ti",
+        "N"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "STABLE",
+      "rg_change_pct": -0.89,
+      "simulation": {
+        "initial_rg": 0.17514692593460998,
+        "final_rg": 0.17359481536108187,
+        "rg_change_pct": -0.886176314683125,
+        "final_energy_kJ_mol": 101.27068722394286,
+        "rg_trajectory": [
+          0.1751508283472351,
+          0.19312236907254932,
+          0.15570909537833041,
+          0.1855713733521882,
+          0.21092263799979494,
+          0.1874406676127438,
+          0.16471245310636654,
+          0.21211472739918244,
+          0.24356423092743745,
+          0.20227578117371714
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.53
+    },
+    {
+      "id": "C14",
+      "name": "Cr2O3 Chromia",
+      "frequency_hz": 1476.0,
+      "geometry": "corundum",
+      "elements": [
+        "Cr",
+        "O"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 494.11,
+      "simulation": {
+        "initial_rg": 0.2280519941756429,
+        "final_rg": 1.3548879731198562,
+        "rg_change_pct": 494.11362659531835,
+        "final_energy_kJ_mol": 61.03745781096709,
+        "rg_trajectory": [
+          0.22805257084051284,
+          0.3771269744942563,
+          0.6141969708787984,
+          0.7431798039876563,
+          0.749868108645742,
+          0.9234650568408099,
+          1.0824668122288688,
+          1.0666574380758664,
+          1.2033918996986774,
+          1.3523717985772667
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.54
+    },
+    {
+      "id": "C15",
+      "name": "Mo-Si2 Silicide",
+      "frequency_hz": 1602.0,
+      "geometry": "tetragonal_C11b",
+      "elements": [
+        "Mo",
+        "Si"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 95.98,
+      "simulation": {
+        "initial_rg": 0.2261995294423729,
+        "final_rg": 0.4433157374901697,
+        "rg_change_pct": 95.9843765294436,
+        "final_energy_kJ_mol": 82.68016778993156,
+        "rg_trajectory": [
+          0.22619655195693414,
+          0.2684780111677253,
+          0.30788858832949884,
+          0.35775376713660045,
+          0.36115244289006826,
+          0.36785999404764036,
+          0.4390740085933473,
+          0.37808279684555085,
+          0.31117540209413325,
+          0.35775396791402203
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.44
+    },
+    {
+      "id": "D01",
+      "name": "Gd-U Superconductor",
+      "frequency_hz": 3152.1,
+      "geometry": "perovskite_layered",
+      "elements": [
+        "Gd",
+        "U",
+        "O"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 31.98,
+      "simulation": {
+        "initial_rg": 0.4723694897263123,
+        "final_rg": 0.6234345842396377,
+        "rg_change_pct": 31.980281918896047,
+        "final_energy_kJ_mol": 54.66448174351975,
+        "rg_trajectory": [
+          0.4723659220877379,
+          0.4464821287867843,
+          0.4466705192179827,
+          0.457290205827237,
+          0.4697649039556036,
+          0.4782484437168961,
+          0.581209443732729,
+          0.5619822373638828,
+          0.583909522040206,
+          0.6269763123374715
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.39
+    },
+    {
+      "id": "D02",
+      "name": "U-Pu Quantum Alloy",
+      "frequency_hz": 4036.7,
+      "geometry": "multidimensional",
+      "elements": [
+        "U",
+        "Pu"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 73.12,
+      "simulation": {
+        "initial_rg": 0.2213258707930031,
+        "final_rg": 0.38315652839412806,
+        "rg_change_pct": 73.1187262570305,
+        "final_energy_kJ_mol": 58.59818029436093,
+        "rg_trajectory": [
+          0.2213244435558877,
+          0.20568018119606807,
+          0.2159298962279545,
+          0.23650711963355495,
+          0.24286887789775388,
+          0.29961776174491944,
+          0.3550105473158493,
+          0.3664190479124677,
+          0.39853167329976946,
+          0.3828953725680069
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.21
+    },
+    {
+      "id": "D03",
+      "name": "Y-Ba-Cu-O YBCO",
+      "frequency_hz": 2592.0,
+      "geometry": "perovskite_ortho",
+      "elements": [
+        "Y",
+        "Ba",
+        "Cu",
+        "O"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 310.61,
+      "simulation": {
+        "initial_rg": 0.6655957868551228,
+        "final_rg": 2.7329752709931645,
+        "rg_change_pct": 310.6058549297937,
+        "final_energy_kJ_mol": 0.0012870719559396606,
+        "rg_trajectory": [
+          0.6655941304197509,
+          0.8216857477526136,
+          1.1482043445959873,
+          1.4937802875917054,
+          1.7102174826460808,
+          1.912610329441857,
+          1.990325162970653,
+          2.2264655135265095,
+          2.3566962020262237,
+          2.6268608434373095
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.15
+    },
+    {
+      "id": "D04",
+      "name": "Bi-Sr-Ca-Cu-O BSCCO",
+      "frequency_hz": 2808.0,
+      "geometry": "perovskite_tetra",
+      "elements": [
+        "Bi",
+        "Sr",
+        "Ca",
+        "Cu",
+        "O"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 270.34,
+      "simulation": {
+        "initial_rg": 0.6759026885909276,
+        "final_rg": 2.5031706706152566,
+        "rg_change_pct": 270.34483112261074,
+        "final_energy_kJ_mol": 0.001329820585447645,
+        "rg_trajectory": [
+          0.6759024573128387,
+          0.8399998878478757,
+          1.1865658875149185,
+          1.319009101777448,
+          1.5426679395675849,
+          1.742381436083101,
+          1.9279128032788093,
+          2.131823287438614,
+          2.276271415439123,
+          2.410346666761308
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.95
+    },
+    {
+      "id": "D05",
+      "name": "Nb-Sn A15",
+      "frequency_hz": 2376.0,
+      "geometry": "A15_cubic",
+      "elements": [
+        "Nb",
+        "Sn"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 14.73,
+      "simulation": {
+        "initial_rg": 0.1771432487117778,
+        "final_rg": 0.20323817452530568,
+        "rg_change_pct": 14.73097394526495,
+        "final_energy_kJ_mol": 101.67738860264507,
+        "rg_trajectory": [
+          0.17714191059460102,
+          0.20168167567345197,
+          0.20850680959164553,
+          0.22699173828044336,
+          0.2566496015959278,
+          0.23459412818900177,
+          0.21303792727409804,
+          0.2236938952997923,
+          0.2601878393278335,
+          0.2531757759124812
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "D06",
+      "name": "MgB2 Diboride SC",
+      "frequency_hz": 2160.0,
+      "geometry": "hexagonal_SC",
+      "elements": [
+        "Mg",
+        "B"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 433.79,
+      "simulation": {
+        "initial_rg": 0.32293329483598715,
+        "final_rg": 1.7237827102045928,
+        "rg_change_pct": 433.7890944568214,
+        "final_energy_kJ_mol": 75.09443344962422,
+        "rg_trajectory": [
+          0.32293527411182943,
+          0.41101628528439993,
+          0.47520662926321217,
+          0.4529092909570974,
+          0.5777132683423928,
+          0.7148792178578066,
+          0.9830686441064415,
+          1.1969206169347948,
+          1.3443647645922527,
+          1.5414442090110119
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "D07",
+      "name": "Fe-Se Chalcogenide",
+      "frequency_hz": 2268.0,
+      "geometry": "tetragonal_PbO",
+      "elements": [
+        "Fe",
+        "Se"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 232.04,
+      "simulation": {
+        "initial_rg": 0.22482856243938065,
+        "final_rg": 0.7465153864871801,
+        "rg_change_pct": 232.03761051866314,
+        "final_energy_kJ_mol": 65.78523396554179,
+        "rg_trajectory": [
+          0.22482686907968438,
+          0.27278860423372403,
+          0.42085324459562196,
+          0.5369272927168219,
+          0.6723145367504498,
+          0.71837636331587,
+          0.722693846494308,
+          0.7376801440436324,
+          0.7101894009887618,
+          0.6949199077840674
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.78
+    },
+    {
+      "id": "D08",
+      "name": "Bi2Te3 Topological",
+      "frequency_hz": 2484.0,
+      "geometry": "rhombohedral_layered",
+      "elements": [
+        "Bi",
+        "Te"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "STABLE",
+      "rg_change_pct": 2.76,
+      "simulation": {
+        "initial_rg": 0.46341483032280967,
+        "final_rg": 0.4761898951222701,
+        "rg_change_pct": 2.7567233423586113,
+        "final_energy_kJ_mol": 43.057848728350784,
+        "rg_trajectory": [
+          0.4634148047220775,
+          0.4153597414691953,
+          0.43052218117624175,
+          0.4564457148272664,
+          0.5116083507424268,
+          0.5408846910755643,
+          0.538032554000637,
+          0.4903851886706711,
+          0.45731984646504614,
+          0.45283302840650674
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.26
+    },
+    {
+      "id": "D09",
+      "name": "Cd-As Dirac Semimetal",
+      "frequency_hz": 2700.0,
+      "geometry": "tetragonal_I41",
+      "elements": [
+        "Cd",
+        "As"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 146.84,
+      "simulation": {
+        "initial_rg": 0.2279313457770381,
+        "final_rg": 0.5626306260157257,
+        "rg_change_pct": 146.84214630404085,
+        "final_energy_kJ_mol": 68.74225407282319,
+        "rg_trajectory": [
+          0.22793254742780875,
+          0.2893290547224353,
+          0.33329334499058255,
+          0.3396372624466202,
+          0.3740935758275994,
+          0.36817405384111423,
+          0.4024308770983333,
+          0.4542451752202235,
+          0.5243763777490871,
+          0.5459002365594259
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.22
+    },
+    {
+      "id": "D10",
+      "name": "WTe2 Weyl Semimetal",
+      "frequency_hz": 2916.0,
+      "geometry": "orthorhombic_Td",
+      "elements": [
+        "W",
+        "Te"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 140.14,
+      "simulation": {
+        "initial_rg": 0.2260901953516002,
+        "final_rg": 0.542943070962842,
+        "rg_change_pct": 140.14445656013243,
+        "final_energy_kJ_mol": 55.07964048674717,
+        "rg_trajectory": [
+          0.22609423899510914,
+          0.24760839296710493,
+          0.28499743671736877,
+          0.35606073138249267,
+          0.38159238033094367,
+          0.4165566114789608,
+          0.45833130319238635,
+          0.4788486031235625,
+          0.503096995967312,
+          0.540826970095535
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.18
+    },
+    {
+      "id": "D11",
+      "name": "SmB6 Kondo Insulator",
+      "frequency_hz": 3024.0,
+      "geometry": "cubic_CsCl",
+      "elements": [
+        "Sm",
+        "B"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 42.98,
+      "simulation": {
+        "initial_rg": 0.18877979801324113,
+        "final_rg": 0.2699147509522363,
+        "rg_change_pct": 42.97862048422382,
+        "final_energy_kJ_mol": 151.49787872158433,
+        "rg_trajectory": [
+          0.1887808186844481,
+          0.19168109989373375,
+          0.21168898720529644,
+          0.22624961963031848,
+          0.2554126812219566,
+          0.2455128995354712,
+          0.28972442087176786,
+          0.2434116802583102,
+          0.26377543702874107,
+          0.28141104666127154
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.88
+    },
+    {
+      "id": "D12",
+      "name": "TaAs Weyl",
+      "frequency_hz": 3132.0,
+      "geometry": "tetragonal_I41md",
+      "elements": [
+        "Ta",
+        "As"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 77.5,
+      "simulation": {
+        "initial_rg": 0.22915902475497413,
+        "final_rg": 0.40675710189338043,
+        "rg_change_pct": 77.49992710446433,
+        "final_energy_kJ_mol": 69.0581165009003,
+        "rg_trajectory": [
+          0.22916003361877868,
+          0.3129067431595713,
+          0.30536906012551185,
+          0.30415448952947044,
+          0.36961449959826825,
+          0.3918147999451868,
+          0.3846758977590011,
+          0.3968438674992273,
+          0.40483314568784556,
+          0.40814527969630826
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.62
+    },
+    {
+      "id": "D13",
+      "name": "Graphene Quantum Dot",
+      "frequency_hz": 5184.0,
+      "geometry": "hexagonal_confined",
+      "elements": [
+        "C"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 455.2,
+      "simulation": {
+        "initial_rg": 0.34733474195277414,
+        "final_rg": 1.9283960090640357,
+        "rg_change_pct": 455.19813486617267,
+        "final_energy_kJ_mol": 75.24619354458237,
+        "rg_trajectory": [
+          0.34733783000623664,
+          0.4908375119845758,
+          0.7544011765720476,
+          1.0359947408870716,
+          1.223282790674151,
+          1.4501066181162736,
+          1.7141719187508893,
+          1.786014472679469,
+          1.7624780476801116,
+          1.7630968254461536
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.15
+    },
+    {
+      "id": "D14",
+      "name": "MoS2 Monolayer",
+      "frequency_hz": 2052.0,
+      "geometry": "hexagonal_2H",
+      "elements": [
+        "Mo",
+        "S"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 189.54,
+      "simulation": {
+        "initial_rg": 0.322914173637465,
+        "final_rg": 0.934959092431189,
+        "rg_change_pct": 189.53795428034243,
+        "final_energy_kJ_mol": 56.58240455549294,
+        "rg_trajectory": [
+          0.32291668642313626,
+          0.33759082084430314,
+          0.4745759245951037,
+          0.6006367621062886,
+          0.6890405614721126,
+          0.7560643274829524,
+          0.8327533585690808,
+          0.8739132132668066,
+          0.9020960272381147,
+          0.9325398366234275
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.19
+    },
+    {
+      "id": "D15",
+      "name": "h-BN Monolayer",
+      "frequency_hz": 1944.0,
+      "geometry": "hexagonal_flat",
+      "elements": [
+        "B",
+        "N"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 492.08,
+      "simulation": {
+        "initial_rg": 0.32300361199021715,
+        "final_rg": 1.9124515893946963,
+        "rg_change_pct": 492.08365430062713,
+        "final_energy_kJ_mol": 83.33150206708181,
+        "rg_trajectory": [
+          0.3230049239713709,
+          0.46174142706631566,
+          0.7919063530265034,
+          0.9712654584181242,
+          1.0314383065246904,
+          1.068847825548334,
+          1.1524659696701132,
+          1.3957364405131925,
+          1.5250594026324777,
+          1.7453314878692303
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.19
+    },
+    {
+      "id": "E01",
+      "name": "Chitin Helix",
+      "frequency_hz": 144.0,
+      "geometry": "helical",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1384.53,
+      "simulation": {
+        "initial_rg": 0.5801755481461337,
+        "final_rg": 8.612869237177216,
+        "rg_change_pct": 1384.5281337171798,
+        "final_energy_kJ_mol": 0.0004058534830140698,
+        "rg_trajectory": [
+          0.5801631151653022,
+          1.9267363270154583,
+          3.6857265244852666,
+          4.436015792475737,
+          4.935216738209828,
+          5.713891286180422,
+          6.168599165766724,
+          6.678554890176215,
+          6.816405282913758,
+          7.357362529179969
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.17
+    },
+    {
+      "id": "E02",
+      "name": "Collagen Triple Helix",
+      "frequency_hz": 108.0,
+      "geometry": "triple_helix",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1312.76,
+      "simulation": {
+        "initial_rg": 0.6660974481079521,
+        "final_rg": 9.410380237586068,
+        "rg_change_pct": 1312.7632922654525,
+        "final_energy_kJ_mol": 0.0005452004246221362,
+        "rg_trajectory": [
+          0.6660856133304487,
+          1.8686679033192093,
+          3.1310936757492,
+          3.8052472891006137,
+          4.7797712060696185,
+          5.675669218539339,
+          6.35879128591646,
+          6.7962287638561225,
+          8.189445224972106,
+          9.017423514481386
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.19
+    },
+    {
+      "id": "E03",
+      "name": "Keratin Alpha Helix",
+      "frequency_hz": 162.0,
+      "geometry": "alpha_helix",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O",
+        "S"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1031.22,
+      "simulation": {
+        "initial_rg": 0.6106754292968992,
+        "final_rg": 6.908059097563124,
+        "rg_change_pct": 1031.216152828797,
+        "final_energy_kJ_mol": 0.0003678722341243282,
+        "rg_trajectory": [
+          0.6106771879599109,
+          1.5024689104444788,
+          2.511774772378813,
+          3.5688291716800524,
+          5.0466055756878525,
+          5.271540637160686,
+          5.96282663753316,
+          6.397095996433277,
+          6.829670981050468,
+          6.705051131245012
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.16
+    },
+    {
+      "id": "E04",
+      "name": "Silk Fibroin Beta Sheet",
+      "frequency_hz": 216.0,
+      "geometry": "beta_sheet",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 326.97,
+      "simulation": {
+        "initial_rg": 0.48069394282294287,
+        "final_rg": 2.052433384376713,
+        "rg_change_pct": 326.97300746572944,
+        "final_energy_kJ_mol": 31.534356852058394,
+        "rg_trajectory": [
+          0.4806837973060859,
+          0.6375768181204096,
+          0.8612911132047399,
+          1.1789868305540727,
+          1.3291143871738917,
+          1.3819518841471745,
+          1.4792003492750199,
+          1.6398696951751444,
+          1.7969205955433263,
+          1.895389676220781
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.19
+    },
+    {
+      "id": "E05",
+      "name": "Cellulose Chain",
+      "frequency_hz": 180.0,
+      "geometry": "linear_chain",
+      "elements": [
+        "C",
+        "H",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": -15.48,
+      "simulation": {
+        "initial_rg": 1.576506818417874,
+        "final_rg": 1.332501128762692,
+        "rg_change_pct": -15.477617147260897,
+        "final_energy_kJ_mol": 86.54762320650678,
+        "rg_trajectory": [
+          1.5765252018263471,
+          1.4091001683259197,
+          1.360721726294011,
+          1.1720658139807079,
+          1.1832941960280763,
+          1.1793196863931728,
+          1.2224140070872076,
+          1.0970196643020282,
+          1.0085473553198139,
+          1.2464656147347013
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.19
+    },
+    {
+      "id": "E06",
+      "name": "DNA Double Helix",
+      "frequency_hz": 432.0,
+      "geometry": "double_helix",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O",
+        "P"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 937.1,
+      "simulation": {
+        "initial_rg": 0.77246596473027,
+        "final_rg": 8.011213420241674,
+        "rg_change_pct": 937.0959739357621,
+        "final_energy_kJ_mol": 0.002211740262889058,
+        "rg_trajectory": [
+          0.7724674869799393,
+          1.8349264654913413,
+          3.5049211864084757,
+          4.749777749380348,
+          5.607126250083927,
+          6.396728036532451,
+          6.945365747340035,
+          7.390301638108763,
+          7.358465180374582,
+          7.46286005872491
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.64
+    },
+    {
+      "id": "E07",
+      "name": "Melanin Polymer",
+      "frequency_hz": 288.0,
+      "geometry": "stacked_planar",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 582.32,
+      "simulation": {
+        "initial_rg": 0.22879893334436505,
+        "final_rg": 1.56114684070686,
+        "rg_change_pct": 582.3226043441293,
+        "final_energy_kJ_mol": 84.30417903291044,
+        "rg_trajectory": [
+          0.22879577922707395,
+          0.4473616924648355,
+          0.6379250401185136,
+          0.7908828848670293,
+          0.906603737347233,
+          0.8121870288629136,
+          0.9780578095751143,
+          1.219686012144741,
+          1.2105337835689258,
+          1.3181963915616826
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.65
+    },
+    {
+      "id": "E08",
+      "name": "Spider Silk Crystallite",
+      "frequency_hz": 252.0,
+      "geometry": "beta_nanocrystal",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 722.32,
+      "simulation": {
+        "initial_rg": 0.22399755597669985,
+        "final_rg": 1.8419717524142554,
+        "rg_change_pct": 722.3177902020756,
+        "final_energy_kJ_mol": 73.63074865805996,
+        "rg_trajectory": [
+          0.2239992418640822,
+          0.6287787997702955,
+          0.9052448203194623,
+          1.0926408605891298,
+          1.4239903339076423,
+          1.6669467215592952,
+          1.7108909054875474,
+          1.7406725459086876,
+          1.739052213182004,
+          1.9222440424059772
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.58
+    },
+    {
+      "id": "E09",
+      "name": "Lignin Network",
+      "frequency_hz": 198.0,
+      "geometry": "3d_network",
+      "elements": [
+        "C",
+        "H",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1388.05,
+      "simulation": {
+        "initial_rg": 0.2406096504300836,
+        "final_rg": 3.580385207422982,
+        "rg_change_pct": 1388.0472171515712,
+        "final_energy_kJ_mol": 59.8123294957092,
+        "rg_trajectory": [
+          0.24059233452400408,
+          0.9827678698896769,
+          1.913575589601901,
+          2.8398136609249396,
+          3.47860017068077,
+          3.800974288274359,
+          4.162751938711204,
+          4.190559342714169,
+          3.745648456728398,
+          3.700171496552514
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.56
+    },
+    {
+      "id": "E10",
+      "name": "Hemoglobin Heme",
+      "frequency_hz": 324.0,
+      "geometry": "porphyrin_planar",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "Fe"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 526.49,
+      "simulation": {
+        "initial_rg": 0.22556608578284393,
+        "final_rg": 1.413148637467906,
+        "rg_change_pct": 526.4898522149144,
+        "final_energy_kJ_mol": 79.54131026779932,
+        "rg_trajectory": [
+          0.22556792825436653,
+          0.3491007909455579,
+          0.6483242827807958,
+          0.8512727273253534,
+          0.9587274013096987,
+          1.136275354765736,
+          1.2043417462619814,
+          1.253243418133817,
+          1.4018847607888838,
+          1.3754528363021363
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.57
+    },
+    {
+      "id": "E11",
+      "name": "Chlorophyll Ring",
+      "frequency_hz": 360.0,
+      "geometry": "porphyrin_Mg",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O",
+        "Mg"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 997.59,
+      "simulation": {
+        "initial_rg": 0.2302918713064778,
+        "final_rg": 2.527657544888522,
+        "rg_change_pct": 997.5886949672905,
+        "final_energy_kJ_mol": 73.26394917577534,
+        "rg_trajectory": [
+          0.23027868585871025,
+          0.7078695224255627,
+          1.1918397600394157,
+          1.6652795631504211,
+          2.244566566717581,
+          2.07834461545399,
+          1.9679897025337805,
+          1.9142278691637744,
+          1.852456373878237,
+          2.020935299514051
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.52
+    },
+    {
+      "id": "E12",
+      "name": "ATP Molecule",
+      "frequency_hz": 396.0,
+      "geometry": "nucleotide_tri",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O",
+        "P"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1187.35,
+      "simulation": {
+        "initial_rg": 0.2242600865979261,
+        "final_rg": 2.887019060124559,
+        "rg_change_pct": 1187.3530479370008,
+        "final_energy_kJ_mol": 101.64087518477491,
+        "rg_trajectory": [
+          0.2242658102168181,
+          0.5898830973417052,
+          1.2162699219749706,
+          1.690344080792302,
+          2.1538334827670544,
+          2.3693750923793604,
+          2.7457296087375416,
+          2.7869477730509558,
+          2.804725405073765,
+          2.6725083904952247
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.69
+    },
+    {
+      "id": "E13",
+      "name": "Mycelium Network Node",
+      "frequency_hz": 72.0,
+      "geometry": "branching_fractal",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 911.54,
+      "simulation": {
+        "initial_rg": 0.22887107210781502,
+        "final_rg": 2.315114030741624,
+        "rg_change_pct": 911.5363245430317,
+        "final_energy_kJ_mol": 71.87805221274604,
+        "rg_trajectory": [
+          0.22885977413787487,
+          0.5465778967791459,
+          0.6445226083927524,
+          0.9454072572349275,
+          1.222896127315049,
+          1.440978087672452,
+          1.6512475811169147,
+          1.9302574804430266,
+          2.265173981166978,
+          2.3610672342919505
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.68
+    },
+    {
+      "id": "E14",
+      "name": "Nacre Aragonite Layer",
+      "frequency_hz": 270.0,
+      "geometry": "orthorhombic_layered",
+      "elements": [
+        "Ca",
+        "C",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 214.57,
+      "simulation": {
+        "initial_rg": 0.4797472169880269,
+        "final_rg": 1.5091179135028994,
+        "rg_change_pct": 214.5652251987035,
+        "final_energy_kJ_mol": 61.27794147159939,
+        "rg_trajectory": [
+          0.4797482763832165,
+          0.4125837784027148,
+          0.5766032609773494,
+          0.7670322495814381,
+          0.9217988690644775,
+          1.035523751711905,
+          1.1890753467010053,
+          1.3100090756428266,
+          1.3609489869608653,
+          1.529394430526188
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "E15",
+      "name": "Elastin Random Coil",
+      "frequency_hz": 126.0,
+      "geometry": "random_coil",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 735.16,
+      "simulation": {
+        "initial_rg": 0.22392553605924617,
+        "final_rg": 1.8701264450828547,
+        "rg_change_pct": 735.1555066002195,
+        "final_energy_kJ_mol": 43.981766420720504,
+        "rg_trajectory": [
+          0.22392601174775728,
+          0.6971371668490876,
+          0.7992095977860016,
+          1.1925079133540164,
+          1.1102803292598078,
+          1.1302283519738279,
+          1.6161858810363376,
+          2.1735842729681307,
+          2.17050153440535,
+          1.848415354878242
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.64
+    },
+    {
+      "id": "F01",
+      "name": "LiFePO4 Cathode",
+      "frequency_hz": 864.0,
+      "geometry": "olivine",
+      "elements": [
+        "Li",
+        "Fe",
+        "P",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 505.93,
+      "simulation": {
+        "initial_rg": 0.22828302081943283,
+        "final_rg": 1.3832300586836002,
+        "rg_change_pct": 505.92770050020783,
+        "final_energy_kJ_mol": 98.80961240689228,
+        "rg_trajectory": [
+          0.22828311888341818,
+          0.35058372580043107,
+          0.5218785849963513,
+          0.6594654642948338,
+          0.8802399964548661,
+          1.0848936133138796,
+          1.1050519558882468,
+          1.3145538531071188,
+          1.3335251550034724,
+          1.3386312649735925
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.68
+    },
+    {
+      "id": "F02",
+      "name": "Li-Co-O Layered",
+      "frequency_hz": 918.0,
+      "geometry": "layered_R3m",
+      "elements": [
+        "Li",
+        "Co",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 123.01,
+      "simulation": {
+        "initial_rg": 0.44114434523558543,
+        "final_rg": 0.9838103141006808,
+        "rg_change_pct": 123.0132437887862,
+        "final_energy_kJ_mol": 40.87897645060547,
+        "rg_trajectory": [
+          0.44114378780397195,
+          0.39292615465302444,
+          0.39553356242778526,
+          0.41151490013443087,
+          0.5821909895745715,
+          0.6540126441589998,
+          0.7673935083171887,
+          0.9425864140695868,
+          0.9463392451829012,
+          0.8964678271933334
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.65
+    },
+    {
+      "id": "F03",
+      "name": "Na-ion Prussian Blue",
+      "frequency_hz": 756.0,
+      "geometry": "cubic_framework",
+      "elements": [
+        "Na",
+        "Fe",
+        "C",
+        "N"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 50.59,
+      "simulation": {
+        "initial_rg": 0.16562174860044035,
+        "final_rg": 0.24941039365542594,
+        "rg_change_pct": 50.5903637433054,
+        "final_energy_kJ_mol": 111.32916846042347,
+        "rg_trajectory": [
+          0.16562529307455068,
+          0.2426321069109445,
+          0.29962190805296507,
+          0.2574206352554253,
+          0.19747357385097808,
+          0.19307449711538055,
+          0.23192581857097785,
+          0.19436305798249207,
+          0.21259251112181268,
+          0.2277231871775237
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.68
+    },
+    {
+      "id": "F04",
+      "name": "Si Anode Nanoparticle",
+      "frequency_hz": 810.0,
+      "geometry": "diamond_cubic",
+      "elements": [
+        "Si"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 36.49,
+      "simulation": {
+        "initial_rg": 0.17400707262279974,
+        "final_rg": 0.2375092801718105,
+        "rg_change_pct": 36.49403819732452,
+        "final_energy_kJ_mol": 94.01732468015643,
+        "rg_trajectory": [
+          0.1740058961722413,
+          0.20401085098171384,
+          0.21653417408936446,
+          0.2706504193218439,
+          0.2936406418774756,
+          0.2814852307372096,
+          0.2435593529393843,
+          0.24814344737116958,
+          0.27458559906063373,
+          0.2843731762666563
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.64
+    },
+    {
+      "id": "F05",
+      "name": "TiO2 Anatase",
+      "frequency_hz": 972.0,
+      "geometry": "tetragonal_anatase",
+      "elements": [
+        "Ti",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 428.09,
+      "simulation": {
+        "initial_rg": 0.2253852454335042,
+        "final_rg": 1.1902316662858436,
+        "rg_change_pct": 428.0876589754407,
+        "final_energy_kJ_mol": 68.35712073166128,
+        "rg_trajectory": [
+          0.22538124235326415,
+          0.3550605583587243,
+          0.5458945530184726,
+          0.7084143141431161,
+          0.7419606958139987,
+          0.8598304221098861,
+          1.0960893537404282,
+          1.3023679558111536,
+          1.2834976481434581,
+          1.2359187055690193
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.65
+    },
+    {
+      "id": "F06",
+      "name": "Perovskite Solar CH3NH3PbI3",
+      "frequency_hz": 1080.0,
+      "geometry": "perovskite_cubic",
+      "elements": [
+        "C",
+        "N",
+        "H",
+        "Pb",
+        "I"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 45.69,
+      "simulation": {
+        "initial_rg": 0.15837666073846446,
+        "final_rg": 0.23073343049556988,
+        "rg_change_pct": 45.68651051217192,
+        "final_energy_kJ_mol": 124.12610134761093,
+        "rg_trajectory": [
+          0.1583803130937858,
+          0.15669298410079985,
+          0.18890896996622833,
+          0.21546605583992262,
+          0.20549363136900606,
+          0.22290518564307404,
+          0.20747174252941383,
+          0.2453356095686631,
+          0.2669562448253654,
+          0.24409963909192775
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.69
+    },
+    {
+      "id": "F07",
+      "name": "CdTe Solar",
+      "frequency_hz": 1026.0,
+      "geometry": "zinc_blende_CdTe",
+      "elements": [
+        "Cd",
+        "Te"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 146.14,
+      "simulation": {
+        "initial_rg": 0.22820027643610283,
+        "final_rg": 0.5617006865006705,
+        "rg_change_pct": 146.14373622722115,
+        "final_energy_kJ_mol": 53.55602064810949,
+        "rg_trajectory": [
+          0.22819782755381754,
+          0.23743697780203202,
+          0.30031789589248153,
+          0.35384684940194816,
+          0.40925799477552643,
+          0.44893579115626486,
+          0.45512032462089375,
+          0.4393608416281766,
+          0.5007683879273421,
+          0.48291420228980647
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "F08",
+      "name": "GaAs Solar",
+      "frequency_hz": 1134.0,
+      "geometry": "zinc_blende_GaAs",
+      "elements": [
+        "Ga",
+        "As"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 377.9,
+      "simulation": {
+        "initial_rg": 0.2227282143382064,
+        "final_rg": 1.0644116492480238,
+        "rg_change_pct": 377.89708744835775,
+        "final_energy_kJ_mol": 59.414198018896315,
+        "rg_trajectory": [
+          0.22272753628204153,
+          0.29817981716855196,
+          0.4573337086024277,
+          0.5030296804610058,
+          0.5786635812889885,
+          0.6183836955267651,
+          0.752567757780684,
+          0.8130047619367275,
+          0.9133249980667902,
+          1.0095298919359335
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.85
+    },
+    {
+      "id": "F09",
+      "name": "V2O5 Vanadium Oxide",
+      "frequency_hz": 702.0,
+      "geometry": "orthorhombic_layered",
+      "elements": [
+        "V",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 19.49,
+      "simulation": {
+        "initial_rg": 0.47903264910814236,
+        "final_rg": 0.5724000598185869,
+        "rg_change_pct": 19.49082403553806,
+        "final_energy_kJ_mol": 66.35934331727086,
+        "rg_trajectory": [
+          0.47903373549538536,
+          0.35541250891042897,
+          0.4085136771806751,
+          0.41782801917404033,
+          0.39577891845905605,
+          0.46826409805400254,
+          0.5701625123475457,
+          0.5797550253264707,
+          0.6316169359534533,
+          0.5987813705281668
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.24
+    },
+    {
+      "id": "F10",
+      "name": "MnO2 Birnessite",
+      "frequency_hz": 648.0,
+      "geometry": "layered_birnessite",
+      "elements": [
+        "Mn",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 186.24,
+      "simulation": {
+        "initial_rg": 0.44114434523558543,
+        "final_rg": 1.2627255966265327,
+        "rg_change_pct": 186.23864507482153,
+        "final_energy_kJ_mol": 70.25048189596713,
+        "rg_trajectory": [
+          0.44114192134817204,
+          0.42342530210667984,
+          0.6144296403437722,
+          0.7379270907494277,
+          0.7012144567173327,
+          0.6671665712431327,
+          0.7279716951668287,
+          0.8447321979152812,
+          1.0438071432597302,
+          1.1714017989653271
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.24
+    },
+    {
+      "id": "F11",
+      "name": "Solid Electrolyte Li7La3Zr2O12",
+      "frequency_hz": 1188.0,
+      "geometry": "garnet_cubic",
+      "elements": [
+        "Li",
+        "La",
+        "Zr",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 75.51,
+      "simulation": {
+        "initial_rg": 0.1674718069480621,
+        "final_rg": 0.29392999090402855,
+        "rg_change_pct": 75.51013287578895,
+        "final_energy_kJ_mol": 143.96386387072607,
+        "rg_trajectory": [
+          0.16747504497682783,
+          0.20087119886730256,
+          0.24712223526029875,
+          0.2441066606589466,
+          0.22960985059014805,
+          0.2924529196795081,
+          0.3280608309372469,
+          0.3423472826946487,
+          0.3462205296653567,
+          0.326019795342019
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.5
+    },
+    {
+      "id": "F12",
+      "name": "Pt Catalyst Nanoparticle",
+      "frequency_hz": 1296.0,
+      "geometry": "fcc_truncated_octa",
+      "elements": [
+        "Pt"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 91.05,
+      "simulation": {
+        "initial_rg": 0.22826450284340585,
+        "final_rg": 0.43610954563163395,
+        "rg_change_pct": 91.05447417324194,
+        "final_energy_kJ_mol": 48.52778894892152,
+        "rg_trajectory": [
+          0.22826369632872054,
+          0.2379761774698235,
+          0.28266124496229206,
+          0.36248551205366863,
+          0.3745552832302455,
+          0.42548628197399996,
+          0.4165375203645874,
+          0.38081223542562737,
+          0.4125177369944046,
+          0.42417133859578876
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.54
+    },
+    {
+      "id": "F13",
+      "name": "ZnO Piezoelectric",
+      "frequency_hz": 594.0,
+      "geometry": "wurtzite_ZnO",
+      "elements": [
+        "Zn",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 432.61,
+      "simulation": {
+        "initial_rg": 0.2255632810411371,
+        "final_rg": 1.2013672805263393,
+        "rg_change_pct": 432.60764561552907,
+        "final_energy_kJ_mol": 52.709335990737806,
+        "rg_trajectory": [
+          0.22556519763532487,
+          0.3072017073764557,
+          0.5135911939800282,
+          0.6673479483976086,
+          0.7570527907990094,
+          0.9091334576567343,
+          0.9745105305158084,
+          1.0067953796569307,
+          1.0858755707798835,
+          1.0990320930069115
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.4
+    },
+    {
+      "id": "F14",
+      "name": "BaTiO3 Ferroelectric",
+      "frequency_hz": 540.0,
+      "geometry": "perovskite_tetragonal",
+      "elements": [
+        "Ba",
+        "Ti",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 408.41,
+      "simulation": {
+        "initial_rg": 0.5589275444992848,
+        "final_rg": 2.8416405719647657,
+        "rg_change_pct": 408.40947094680206,
+        "final_energy_kJ_mol": 0.00021952717748270154,
+        "rg_trajectory": [
+          0.5589236822723919,
+          0.736010304748531,
+          1.1817023051662432,
+          1.565809450611595,
+          1.825196303224609,
+          2.0086040113228854,
+          2.262754626908804,
+          2.3343836150181834,
+          2.3873706408932214,
+          2.6395612707961664
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.93
+    },
+    {
+      "id": "F15",
+      "name": "Graphite Anode",
+      "frequency_hz": 486.0,
+      "geometry": "hexagonal_layered_AB",
+      "elements": [
+        "C"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 474.93,
+      "simulation": {
+        "initial_rg": 0.37357118342599177,
+        "final_rg": 2.1477797866168413,
+        "rg_change_pct": 474.9318689197927,
+        "final_energy_kJ_mol": 73.01690993327897,
+        "rg_trajectory": [
+          0.3735696845102283,
+          0.5980474366041264,
+          0.9010934407606387,
+          1.0470755349003453,
+          1.185789474557311,
+          1.37005870514751,
+          1.4781797772082685,
+          1.674586235617545,
+          1.953860250675685,
+          2.0643082721952677
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "G01",
+      "name": "Void Graphene (Base)",
+      "frequency_hz": 432.0,
+      "geometry": "hexagonal",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 379.56,
+      "simulation": {
+        "initial_rg": 0.3837916510985396,
+        "final_rg": 1.8405189591186708,
+        "rg_change_pct": 379.56201075518254,
+        "final_energy_kJ_mol": 88.32181776645427,
+        "rg_trajectory": [
+          0.38378651136085545,
+          0.47337234998003863,
+          0.6828331208466057,
+          0.8810028885902638,
+          1.0060699896101226,
+          1.2656773006221913,
+          1.4668991831379237,
+          1.5773696816042202,
+          1.649506904502888,
+          1.6368543942904925
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.68
+    },
+    {
+      "id": "G02",
+      "name": "Void Water (6th)",
+      "frequency_hz": 2592.0,
+      "geometry": "icosahedral",
+      "elements": [
+        "O",
+        "H"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1572.02,
+      "simulation": {
+        "initial_rg": 0.34999725391288145,
+        "final_rg": 5.85202290133697,
+        "rg_change_pct": 1572.019661843864,
+        "final_energy_kJ_mol": 35.60014119313175,
+        "rg_trajectory": [
+          0.3500022085975818,
+          0.9459107413807294,
+          1.7508657239284418,
+          2.4257473059458183,
+          2.9897902734045463,
+          3.592347273694659,
+          4.323876370698558,
+          4.768024847585847,
+          5.778846085001468,
+          5.830490024490818
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "G03",
+      "name": "Void Shell (12th)",
+      "frequency_hz": 5184.0,
+      "geometry": "geodesic_C60",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 696.98,
+      "simulation": {
+        "initial_rg": 0.34999976220740453,
+        "final_rg": 2.7894174796038214,
+        "rg_change_pct": 696.9769642160085,
+        "final_energy_kJ_mol": 49.81326682490428,
+        "rg_trajectory": [
+          0.34999625707990134,
+          0.699062948994861,
+          1.059497063397045,
+          1.2479028226366127,
+          1.43650091465027,
+          1.6450922343482448,
+          1.7377143329711615,
+          1.909812017240569,
+          2.177771521665733,
+          2.5602548268310708
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.67
+    },
+    {
+      "id": "G04",
+      "name": "Void Chitin (1/3)",
+      "frequency_hz": 144.0,
+      "geometry": "helical",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1394.94,
+      "simulation": {
+        "initial_rg": 0.5801755481461337,
+        "final_rg": 8.673262134090507,
+        "rg_change_pct": 1394.937551540159,
+        "final_energy_kJ_mol": 0.0004368466394494033,
+        "rg_trajectory": [
+          0.5801657284560328,
+          2.3738035241903708,
+          3.906665969164659,
+          4.43000204504333,
+          4.897913692636422,
+          6.369322868351781,
+          7.373814428280205,
+          7.7787565243871,
+          8.36918576625055,
+          8.761593971690521
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.6
+    },
+    {
+      "id": "G05",
+      "name": "Void Diamond (2nd)",
+      "frequency_hz": 864.0,
+      "geometry": "diamond_cubic",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 11.16,
+      "simulation": {
+        "initial_rg": 0.1731487898762241,
+        "final_rg": 0.19247585238445358,
+        "rg_change_pct": 11.162112378634294,
+        "final_energy_kJ_mol": 80.25394978812662,
+        "rg_trajectory": [
+          0.17313897069513254,
+          0.2021990720045934,
+          0.22058483702168954,
+          0.19038408552069225,
+          0.2783484116888152,
+          0.22206496102185022,
+          0.20154726565092423,
+          0.20089456127162283,
+          0.18071332928140083,
+          0.15292641538631468
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.63
+    },
+    {
+      "id": "G06",
+      "name": "Void Nanotube (3rd)",
+      "frequency_hz": 1296.0,
+      "geometry": "cylindrical",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 961.34,
+      "simulation": {
+        "initial_rg": 0.2266938519422711,
+        "final_rg": 2.406000349428812,
+        "rg_change_pct": 961.343450126523,
+        "final_energy_kJ_mol": 61.81649697172435,
+        "rg_trajectory": [
+          0.226700190881524,
+          0.5142053167460713,
+          0.7876586263974499,
+          1.0054405622257803,
+          1.3108616481685307,
+          1.508039659496094,
+          1.6709249313083676,
+          1.746554455251281,
+          1.9458187250727177,
+          2.095760701526532
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.67
+    },
+    {
+      "id": "G07",
+      "name": "Void Carbyne (4th)",
+      "frequency_hz": 1728.0,
+      "geometry": "linear_chain",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "METASTABLE",
+      "rg_change_pct": -14.3,
+      "simulation": {
+        "initial_rg": 0.9012691776324184,
+        "final_rg": 0.7723909454323481,
+        "rg_change_pct": -14.299638265520844,
+        "final_energy_kJ_mol": 41.00714094158351,
+        "rg_trajectory": [
+          0.9012695903811876,
+          0.8302733895635651,
+          0.7589856507883264,
+          0.8004308146086092,
+          0.8085686205207954,
+          0.7908913173253314,
+          0.6584349327967361,
+          0.6643202777682359,
+          0.7435054341212823,
+          0.7686798579556481
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "G08",
+      "name": "Void Lonsdaleite (5th)",
+      "frequency_hz": 2160.0,
+      "geometry": "hexagonal_diamond",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 410.33,
+      "simulation": {
+        "initial_rg": 0.30861714304012,
+        "final_rg": 1.5749758387122788,
+        "rg_change_pct": 410.33323139393235,
+        "final_energy_kJ_mol": 71.14616867300322,
+        "rg_trajectory": [
+          0.30861723333644936,
+          0.45591447740310637,
+          0.6870604212871979,
+          0.764715370093022,
+          1.1139819014755863,
+          1.2248317285867472,
+          1.0956290647707592,
+          1.109015413176914,
+          1.2666469140683112,
+          1.5512245198741985
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.68
+    },
+    {
+      "id": "G09",
+      "name": "Void Schwarzite (7th)",
+      "frequency_hz": 3024.0,
+      "geometry": "negative_curvature",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 864.77,
+      "simulation": {
+        "initial_rg": 0.22464172645862732,
+        "final_rg": 2.1672820381803457,
+        "rg_change_pct": 864.7726948802177,
+        "final_energy_kJ_mol": 54.39705831061721,
+        "rg_trajectory": [
+          0.224640307014931,
+          0.5530045972751636,
+          0.859265046955389,
+          1.0663951617996048,
+          1.1994560768564309,
+          1.4538643302264123,
+          1.682095291502623,
+          1.759688481521386,
+          1.8738721251359312,
+          2.016170491680043
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.67
+    },
+    {
+      "id": "G10",
+      "name": "Void Graphyne (8th)",
+      "frequency_hz": 3456.0,
+      "geometry": "hexagonal_acetylenic",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 498.2,
+      "simulation": {
+        "initial_rg": 0.3229491843835176,
+        "final_rg": 1.9318834107604819,
+        "rg_change_pct": 498.2004303396159,
+        "final_energy_kJ_mol": 53.22821785369001,
+        "rg_trajectory": [
+          0.3229389002381954,
+          0.45067174180081304,
+          0.5523343710024574,
+          0.7017805511372811,
+          0.847663276973804,
+          1.1085864400762078,
+          1.2249351691843373,
+          1.370368569702447,
+          1.5840466223559577,
+          1.7909797539368897
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.68
+    },
+    {
+      "id": "G11",
+      "name": "Void Pentacene (9th)",
+      "frequency_hz": 3888.0,
+      "geometry": "planar_acene",
+      "elements": [
+        "C",
+        "H"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1720.26,
+      "simulation": {
+        "initial_rg": 0.22560826600541886,
+        "final_rg": 4.1066522907814615,
+        "rg_change_pct": 1720.25790255523,
+        "final_energy_kJ_mol": 41.507543821437004,
+        "rg_trajectory": [
+          0.225613842394491,
+          0.8130127701189417,
+          1.193716617982249,
+          1.3684659975808202,
+          1.8465466365088032,
+          2.29168236159125,
+          2.716626924307953,
+          3.137440068618273,
+          3.227707945478947,
+          3.8287354126457513
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 2.12
+    },
+    {
+      "id": "G12",
+      "name": "Void C240 (10th)",
+      "frequency_hz": 4320.0,
+      "geometry": "icosahedral_giant",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 573.53,
+      "simulation": {
+        "initial_rg": 0.34999976220740453,
+        "final_rg": 2.357340381348389,
+        "rg_change_pct": 573.5262808411467,
+        "final_energy_kJ_mol": 70.32669708770375,
+        "rg_trajectory": [
+          0.3500014581824537,
+          0.7213483255282558,
+          1.0308676195144695,
+          1.2286264885116023,
+          1.536251479878915,
+          1.8240605837004173,
+          2.0663863115473067,
+          2.164755610202456,
+          2.214591900195217,
+          2.247808985038197
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.7
+    },
+    {
+      "id": "G13",
+      "name": "Void Toroid (11th)",
+      "frequency_hz": 4752.0,
+      "geometry": "toroidal",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": -4.45,
+      "simulation": {
+        "initial_rg": 0.7280109889280517,
+        "final_rg": 0.6956470737705414,
+        "rg_change_pct": -4.445525637623148,
+        "final_energy_kJ_mol": 161.86726832170154,
+        "rg_trajectory": [
+          0.7280128680865037,
+          0.8041818492056726,
+          0.7692705769066887,
+          0.7115338135552061,
+          0.6404265249023899,
+          0.591801938677688,
+          0.6770930715147938,
+          0.6245396728112198,
+          0.6266973338774003,
+          0.6586686732987308
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "G14",
+      "name": "Void Helicene (13th)",
+      "frequency_hz": 5616.0,
+      "geometry": "helical_aromatic",
+      "elements": [
+        "C",
+        "H"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1604.76,
+      "simulation": {
+        "initial_rg": 0.6475514703462778,
+        "final_rg": 11.039205697126334,
+        "rg_change_pct": 1604.7611197953308,
+        "final_energy_kJ_mol": 0.037827344368583656,
+        "rg_trajectory": [
+          0.6475623284633336,
+          2.517203120019303,
+          4.4704354199011265,
+          5.839249552081043,
+          6.8737037014290925,
+          7.840906247601549,
+          8.870130166243287,
+          9.675550689947244,
+          10.494163598908475,
+          10.703788033510618
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "G15",
+      "name": "Void Trefoil (14th)",
+      "frequency_hz": 6048.0,
+      "geometry": "trefoil_knot",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "METASTABLE",
+      "rg_change_pct": -9.19,
+      "simulation": {
+        "initial_rg": 0.7280109889280518,
+        "final_rg": 0.6610960745461657,
+        "rg_change_pct": -9.19147037607412,
+        "final_energy_kJ_mol": 57.00634673593425,
+        "rg_trajectory": [
+          0.7280074968101655,
+          0.4265145073418477,
+          0.45815781506513836,
+          0.5586506403751127,
+          0.5527198944252185,
+          0.4107546663958816,
+          0.3977208819541075,
+          0.5747777914657805,
+          0.6401445061715749,
+          0.679114536948119
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "G16",
+      "name": "Void Cage (15th)",
+      "frequency_hz": 6480.0,
+      "geometry": "dodecahedral",
+      "elements": [
+        "C",
+        "H"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 1696.57,
+      "simulation": {
+        "initial_rg": 0.22890277982730647,
+        "final_rg": 4.1123944592408375,
+        "rg_change_pct": 1696.5681597853002,
+        "final_energy_kJ_mol": 87.38141643691206,
+        "rg_trajectory": [
+          0.2288812030416048,
+          0.8971891324180098,
+          1.3938697692431554,
+          1.4078333457249637,
+          1.6635464094644352,
+          2.2908982505120696,
+          2.9964214041546424,
+          3.644687408584739,
+          3.8455791085700888,
+          3.952245065177065
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "G17",
+      "name": "Void Prism (16th)",
+      "frequency_hz": 6912.0,
+      "geometry": "prismatic",
+      "elements": [
+        "C",
+        "B",
+        "N"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 614.53,
+      "simulation": {
+        "initial_rg": 0.22258648437612863,
+        "final_rg": 1.590443912642278,
+        "rg_change_pct": 614.528520049192,
+        "final_energy_kJ_mol": 68.18334230375224,
+        "rg_trajectory": [
+          0.2225870275158086,
+          0.401240922633301,
+          0.6553474028019545,
+          0.6982100590989622,
+          0.8478319687724583,
+          1.1393452718422012,
+          1.2486596927379565,
+          1.2156279277464561,
+          1.2910701960091553,
+          1.3137097393328887
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.66
+    },
+    {
+      "id": "G18",
+      "name": "Void Tesseract (19th)",
+      "frequency_hz": 8208.0,
+      "geometry": "hypercubic_projection",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 50.12,
+      "simulation": {
+        "initial_rg": 0.15837666073846446,
+        "final_rg": 0.23775652896267066,
+        "rg_change_pct": 50.12093818248275,
+        "final_energy_kJ_mol": 110.6762750666105,
+        "rg_trajectory": [
+          0.1583760661361274,
+          0.25576269263722295,
+          0.2839848944045051,
+          0.2972743494104781,
+          0.18032599958655515,
+          0.22403379252580238,
+          0.21928321835575076,
+          0.22867867478374462,
+          0.20240823037876443,
+          0.2398514651784608
+        ],
+        "n_steps": 10000
+      },
+      "runtime_s": 1.69
+    }
+  ]
+}
