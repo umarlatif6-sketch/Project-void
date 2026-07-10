@@ -1,0 +1,407 @@
+{
+  "Nail image analysis AI": [
+    {
+      "description": "",
+      "fullName": "KongVo/Finger-Nail-Disease-Classifier",
+      "stargazersCount": 6
+    },
+    {
+      "description": "ML/AI project to detect and classify nail diseases and determine their severity",
+      "fullName": "hannesoehler/nail-disease-classification",
+      "stargazersCount": 5
+    },
+    {
+      "description": "",
+      "fullName": "Akshay4251/nail-disease-diagnosis",
+      "stargazersCount": 5
+    },
+    {
+      "description": "Project which identify the disease on the basis of nail",
+      "fullName": "Patil-Sushil/Nail-Disease-Diagnosis",
+      "stargazersCount": 5
+    },
+    {
+      "description": "",
+      "fullName": "zunaira-hameed/Nail-Disease-Recognition",
+      "stargazersCount": 4
+    },
+    {
+      "description": "",
+      "fullName": "omkaroulkar19/NailDiseasePrediction",
+      "stargazersCount": 3
+    },
+    {
+      "description": "Early-Stage-Disease-Diagnosis-System",
+      "fullName": "SiddharthMadake/Early-Stage-Nail-Disease-Diagnosis-System",
+      "stargazersCount": 3
+    },
+    {
+      "description": "this is fine tuned VEG16  model on nail disease images",
+      "fullName": "sumitghugare/Nail_disease_prediction",
+      "stargazersCount": 2
+    }
+  ],
+  "Nail detection": [
+    {
+      "description": "Real-time Nail-Detection using Neural Networks (SSD) on Tensorflow.",
+      "fullName": "toddwyl/nailtracking",
+      "stargazersCount": 103
+    },
+    {
+      "description": "\u5976\u9f99\u68c0\u6d4b NailongDetection\uff1a\u68c0\u6d4b\u56fe\u7247\u4e2d\u7684\u5976\u9f99\u3001\u52a8\u6f2b\u98ce\u683c\u4eba\u7269\u3001\u9f99\u56fe\u548c\u9ec4\u6843\u7f50\u5934\u7b49\u76ee\u6807\u3002",
+      "fullName": "nkxingxh/NailongDetection",
+      "stargazersCount": 45
+    },
+    {
+      "description": "\u57fa\u4e8eyolo11-C3k2-DynamicConv\u7684\u53e4\u5efa\u7b51\u6728\u7ed3\u6784\u88c2\u7f1d\u4e0e\u9489\u5b50\u68c0\u6d4b\u6280\u672f\u7814\u7a76",
+      "fullName": "share2code99/ancient_wood_structure_crack_nail_detection",
+      "stargazersCount": 3
+    },
+    {
+      "description": "",
+      "fullName": "Humengge/Hand-gesture-method-based-on-hand-key-point-and-nails-detection",
+      "stargazersCount": 3
+    },
+    {
+      "description": "",
+      "fullName": "zneret03/nail_detection",
+      "stargazersCount": 2
+    },
+    {
+      "description": "\u57fa\u4e8ePytorch\u7684\u6df1\u5ea6\u5b66\u4e60\u5976\u9f99\u56fe\u50cf\u68c0\u6d4b",
+      "fullName": "SendsTeam/nailong-detection",
+      "stargazersCount": 2
+    },
+    {
+      "description": "",
+      "fullName": "abd84/Nail-detection-tensor-flow-",
+      "stargazersCount": 2
+    },
+    {
+      "description": "",
+      "fullName": "Stomachache007/nailDetection",
+      "stargazersCount": 1
+    }
+  ],
+  "Palmistry AI": [
+    {
+      "description": "Fortune On Your Hand: View-Invariant Machine Palmistry",
+      "fullName": "yeonsumia/palmistry",
+      "stargazersCount": 51
+    },
+    {
+      "description": "palmistry app, make through digital image and computer vision  processing strategies",
+      "fullName": "ooorlandooo/palmy",
+      "stargazersCount": 19
+    },
+    {
+      "description": "\u4f20\u7edf\u76f8\u672f\u56fe\u7247\u5206\u6790\u6280\u80fd - \u9762\u76f8\u3001\u624b\u76f8\u3001\u9aa8\u76f8\u3001\u4f53\u76f8 | Chinese Physiognomy Image Analysis Skill",
+      "fullName": "timerzz/kanxiang",
+      "stargazersCount": 11
+    },
+    {
+      "description": "\u624b\u76f8\u5360\u3044\u3092\u3059\u308b\u6642\u3001\u6bce\u56de\u540c\u3058\u3088\u3046\u306a\u6587\u7ae0\u3092\u66f8\u304f\u306e\u304c\u9762\u5012\u3002\u305d\u3053\u3067\u4f5c\u3063\u305f\u306e\u304c\u624b\u76f8\u306e\u8981\u7d20\u304b\u3089\u7c21\u5358\u306b\u6587\u7ae0\u3092\u4f5c\u308b\u3053\u3068\u304c\u3067\u304d\u308b\u30b5\u30a4\u30c8",
+      "fullName": "himajin315/palmistry",
+      "stargazersCount": 9
+    },
+    {
+      "description": "Predicting future parameters about a person's life by extracting the palm's major lines like Heart line, Head line, Life line",
+      "fullName": "chiragsharmagithub/palmistry",
+      "stargazersCount": 6
+    },
+    {
+      "description": "Kotlin for Android Development \ud83d\ude80 \ud83d\udcf1 - App Horoscope - Black Horoscope app is a mobile app for daily horoscope reading, tarot card playing and palm reading (palmistry) developed in Kotlin and designed for Android devices.",
+      "fullName": "ArtielSry/KotlinAndroidApp_Horoscope",
+      "stargazersCount": 6
+    },
+    {
+      "description": "The Project titled \u201cPalm Recognition System\u201d with the aim of implementing key concepts in",
+      "fullName": "Sumit291994/Palmistry",
+      "stargazersCount": 5
+    },
+    {
+      "description": "[Android] Palm Reading App for Android using Palmistry and Computer Vision!",
+      "fullName": "withlovee/Horo",
+      "stargazersCount": 3
+    }
+  ],
+  "Traditional medicine AI (TCM)": [
+    {
+      "description": "\u502a\u6d77\u53a6\u6c49\u5510\u4e2d\u533bAI\u5b89\u5353\u8bca\u65adAPP - \u57fa\u4e8e\u502a\u6d77\u53a6\u5929\u7eaa\u3001\u5730\u7eaa\u3001\u4eba\u7eaa\u3001\u4f24\u5bd2\u8bba\u3001\u91d1\u532e\u8981\u7565\u3001\u9ec4\u5e1d\u5185\u7ecf\u3001\u795e\u519c\u672c\u8349\u7ecf\u3001\u5386\u53f2\u533b\u6848\u3001\u516d\u7ecf\u8fa8\u8bc1\u4f53\u7cfb\u7684\u5b89\u5353\u4e2d\u533b\u8bca\u65ad\u52a9\u624b | TCM Diagnosis App based on Ni Haisha's Six Meridian theory",
+      "fullName": "jangviktor-web/nihaixia-app",
+      "stargazersCount": 21
+    },
+    {
+      "description": "A collaborative multi-agent system for multimodal Traditional Chinese Medicine (TCM) diagnosis",
+      "fullName": "LiangRichard13/LingshuSmartLink",
+      "stargazersCount": 2
+    },
+    {
+      "description": "Skills Share",
+      "fullName": "frankshi1024/tcm-diagnosis-skill",
+      "stargazersCount": 1
+    },
+    {
+      "description": "\u5982\u4f55\u5b9e\u73b0\u2014\u2014\u57fa\u4e8e\u6df1\u5ea6\u5b66\u4e60\u7684\u9762\u5411\u4e2d\u533b\u8bca\u65ad\u7684\u820c\u8c61\u56fe\u50cf\u5206\u5272\u7cfb\u7edf \u820c\u8c61\u5206\u5272\u8bc6\u522b",
+      "fullName": "QQ767172261/How-to-Implement-Tongue-Image-Segmentation-System-for-TCM-Diagnosis-Based-on-Deep-Learning-Tongue-Im",
+      "stargazersCount": 1
+    },
+    {
+      "description": "\ud83c\udf3f AI-powered TCM health advisor\uff5c\u4e2d\u533b AI \u5065\u5eb7\u987e\u95ee \u00b7 \u671b\u95fb\u95ee\u5207 \u00d7 \u53cc\u8f68\u8bca\u65ad \u00d7 \u65f6\u7a7a\u8fa8\u8bc1\u8bbe\u8ba1\u601d\u8def\u3002AI-powered TCM diagnosis assistant \u00b7 symptom checker \u00b7 pattern differentiation \u00b7 Chinese medicine + Western medicine dual analysis",
+      "fullName": "ydsgangge-ux/zhongyi",
+      "stargazersCount": 1
+    },
+    {
+      "description": "",
+      "fullName": "NatalieChiang125/tcm_diagnosis",
+      "stargazersCount": 0
+    },
+    {
+      "description": "TCM diagnosis",
+      "fullName": "eratoshen-coder/Xiaoming_test_1",
+      "stargazersCount": 0
+    },
+    {
+      "description": "",
+      "fullName": "kepnoszheng/TCMConstitutionDiagnosis",
+      "stargazersCount": 0
+    }
+  ],
+  "Ayurveda AI": [
+    {
+      "description": "Voynich Manuscript Decoded: Elu-Sinhala Phonetic Transcription & Vocabulary Toolkit 2026",
+      "fullName": "okesipoke/manuscript-phoneme-decipher",
+      "stargazersCount": 153
+    },
+    {
+      "description": "Winner at SIH 2019 / Conversion of ancient Ayurvedic units to modern scientific measures. Funded AICTE project from the Ministry of AYUSH",
+      "fullName": "sanjaytharagesh31/Hackathon-Ayurveda",
+      "stargazersCount": 29
+    },
+    {
+      "description": "",
+      "fullName": "udisha1/ayurveda-daily",
+      "stargazersCount": 24
+    },
+    {
+      "description": "  Ayurveda is a system of medicine with historical roots in the Indian subcontinent. Globalized and modernized practices derived from Ayurveda traditions are a type of alternative medicine.  Online facility to take an appointment with the doctor. Providing communication through online system.",
+      "fullName": "ankitkanojia/eClinic",
+      "stargazersCount": 18
+    },
+    {
+      "description": "\"Science of yoga and ayurveda is subtler than the science of medicine, because science of medicine is often victim of statistical manipulation.\" \u2015 Amit Ray",
+      "fullName": "manjunath5496/Ayurveda-Books",
+      "stargazersCount": 17
+    },
+    {
+      "description": "Summarizing Psychology Texts, for Ease of Reference, with LLM / GPT. Attachment, Truama, Polyvagal.",
+      "fullName": "cognitivetech/Psychology-Summaries",
+      "stargazersCount": 17
+    },
+    {
+      "description": "A Web Chat bot to determine the prakriti of an individual.",
+      "fullName": "PrathameshDhande22/Prakriti-Determine",
+      "stargazersCount": 15
+    },
+    {
+      "description": "Merge Ayurvedic wisdom with AI chatbots for personalized health recommendations",
+      "fullName": "anubhav811/AI-Driven-Ayuvervedic-Advisor",
+      "stargazersCount": 12
+    }
+  ],
+  "HRV biometrics": [
+    {
+      "description": "Heart Rate Variability Training with the Polar H10 Monitor",
+      "fullName": "kieranabrennan/every-breath-you-take",
+      "stargazersCount": 644
+    },
+    {
+      "description": "Package for Heart Rate Variability analysis in Python",
+      "fullName": "Aura-healthcare/hrv-analysis",
+      "stargazersCount": 452
+    },
+    {
+      "description": "Python toolbox for Heart Rate Variability",
+      "fullName": "PGomes92/pyhrv",
+      "stargazersCount": 338
+    },
+    {
+      "description": "A Python package for heart rate variability analysis",
+      "fullName": "rhenanbartels/hrv",
+      "stargazersCount": 210
+    },
+    {
+      "description": "Heart rate variability (HRV) biofeedback with ECG chest straps.",
+      "fullName": "JanCBrammer/OpenHRV",
+      "stargazersCount": 177
+    },
+    {
+      "description": "Heart Rate Variability Analysis Software",
+      "fullName": "jramshur/HRVAS",
+      "stargazersCount": 165
+    },
+    {
+      "description": "A single lead ECG heart-rate variability monitoring patch with ESP32",
+      "fullName": "patchinc/heartypatch",
+      "stargazersCount": 145
+    },
+    {
+      "description": "Bluetooth low energy (Smart) Heart rate variability sensor demo app for Android",
+      "fullName": "oerjanti/BLE-Heart-rate-variability-demo",
+      "stargazersCount": 109
+    }
+  ],
+  "432Hz / solfeggio tools": [
+    {
+      "description": "Play the healing frequencies of various sets of tuning forks: Solfeggio, Organs, Mineral nutrients, Ohm, Chakras, Cosmic octave, Otto, DNA nucleotides... or custom.",
+      "fullName": "evoluteur/healing-frequencies",
+      "stargazersCount": 68
+    },
+    {
+      "description": "This \"probably\" will induce desired brainwaves in future. ",
+      "fullName": "Mr-Kumar-Abhishek/brain-beats",
+      "stargazersCount": 14
+    },
+    {
+      "description": "I wrote a test program using DeepSeek and a custom LLM prompt that theoretically reads physiological response and emotions through simple audio recordings through classifying Hz peaks in speech.",
+      "fullName": "contanpe/SolfeggioMindReader",
+      "stargazersCount": 10
+    },
+    {
+      "description": "Simple solfeggio testing system on Java for Android. 3 types of testing are implemented.",
+      "fullName": "FelixDes/Solfeggio_Test",
+      "stargazersCount": 5
+    },
+    {
+      "description": "Simple solfeggio testing system on Java for Android. 3 types of testing are implemented.",
+      "fullName": "FelixDes/Muz_test",
+      "stargazersCount": 5
+    },
+    {
+      "description": "A browser-based application for playing binaural beats, solfeggio frequencies, and other therapeutic tones. This dashboard allows you to explore and use sound frequencies that may help with relaxation, focus, meditation, and other cognitive states.",
+      "fullName": "1ps0/binaural",
+      "stargazersCount": 4
+    },
+    {
+      "description": "A VR-AR healing project transforming spaces into Cymatic temples using Solfeggio frequencies, sound resonance, and AI-driven biofeedback. Featuring NeuraSonics, AR overlays, VR sacred spaces, and local AI guides for meditation & healing. Open-source for the 99%\u2014bridging technology, spirituality, and consciousness expansion.",
+      "fullName": "TVi-Cloud/cymatic-sacred-spaces",
+      "stargazersCount": 4
+    },
+    {
+      "description": "\u4e3a\u89c6\u5531\u7ec3\u8033\u7a0b\u5e8f\u521b\u5efa\u7684\u540e\u7aef\u4ee3\u7801\u5e93",
+      "fullName": "Jimmy-L4/solfeggio_django",
+      "stargazersCount": 3
+    }
+  ],
+  "432Hz tools": [
+    {
+      "description": "432Hz Player, 432Hz Batch Converter, Powerliminals Player, Yang YouTube Downloader",
+      "fullName": "mysteryx93/HanumanInstituteApps",
+      "stargazersCount": 173
+    },
+    {
+      "description": "This is the Exact 432Hz Converter with tkinter GUI provide user convert the audio to exact 432Hz Tone.",
+      "fullName": "ArctonLin/Exact432HzConverter",
+      "stargazersCount": 17
+    },
+    {
+      "description": "A Rhythmbox-Plugin which allows to change music from 440Hz to 432Hz on the fly to enhance classical music.",
+      "fullName": "kurt-weber/hzswitch",
+      "stargazersCount": 9
+    },
+    {
+      "description": "converts 440hz to 432hz to make the music more in harmony with mother earth",
+      "fullName": "veselinve/AudioConverter432",
+      "stargazersCount": 4
+    },
+    {
+      "description": "432hz.audio",
+      "fullName": "interglobalvision/432hz.audio",
+      "stargazersCount": 3
+    },
+    {
+      "description": "",
+      "fullName": "kkdang14/432Hz",
+      "stargazersCount": 3
+    },
+    {
+      "description": "[Android APP] Play any Music at exact 432Hz tone.",
+      "fullName": "ArctonLin/Exact432HzPlayer",
+      "stargazersCount": 3
+    },
+    {
+      "description": "",
+      "fullName": "EmilHarutyunyan/Converter-432hz",
+      "stargazersCount": 1
+    }
+  ],
+  "AI memory persistence": [
+    {
+      "description": "\u26a1 Open-source AI Agent desktop client \u2014 multi-LLM, long-term memory, browser automation & tool orchestration | Tauri v2",
+      "fullName": "EDEAI/OpenFlux",
+      "stargazersCount": 221
+    },
+    {
+      "description": "A production-ready memory-enhanced AI agent that gives Large Language Models persistent conversational memory using a ChromaDB vector database. Retrieves relevant past interactions via semantic similarity to generate context-aware responses across sessions.",
+      "fullName": "DakshC17/llm-long-term-memory-v2",
+      "stargazersCount": 19
+    },
+    {
+      "description": "A simple Python project to give GPT models long-term memory by storing, retrieving, and deleting user-provided facts across conversations",
+      "fullName": "DakshC17/llm-long-term-memory",
+      "stargazersCount": 5
+    },
+    {
+      "description": "A sophisticated memory storage and retrieval system that provides LLMs with persistent, searchable long-term memory capabilities. This system can extract, store, update, and retrieve memories from conversations, enabling AI agents to maintain context across multiple sessions.",
+      "fullName": "Devparihar5/llm-long-term-memory",
+      "stargazersCount": 3
+    },
+    {
+      "description": "markdown-based LLM long-term memory",
+      "fullName": "veilm/cathedral",
+      "stargazersCount": 2
+    },
+    {
+      "description": "A lightweight, experimental Python chatbot that gives Ollama local LLMs long-term memory across separate chat sessions and the ability to use external tools.",
+      "fullName": "netharuM/llm-with-memory",
+      "stargazersCount": 2
+    },
+    {
+      "description": "\u2b50A production-ready system that provides Large Language Models with persistent conversational memory using vector databases. Meet Bruno - your memory-enhanced AI agent that remembers every conversation and learns from your interactions.\u2b50",
+      "fullName": "aquacommander/llm-long-term-memory-v2",
+      "stargazersCount": 1
+    },
+    {
+      "description": "Agentic IRC bot with tool-using LLM, long-term memory, initiative ticks, and graceful shutdown. Built for LM Studio + Quakenet.",
+      "fullName": "cubes321/Agentic-IRC-Bot",
+      "stargazersCount": 1
+    }
+  ],
+  "Vibration health sensing": [
+    {
+      "description": "",
+      "fullName": "daniilfurgen/ML-vibration-analysis-fault-detection",
+      "stargazersCount": 1
+    },
+    {
+      "description": "This project presents the vibration analysis and fault detection of a manually designed planetary gear assembly modeled in SolidWorks and analyzed using MATLAB. A mathematical dynamic model of the planetary gear system was developed using the Laplace transform to represent the system behavior in the frequency (s-) domain. ",
+      "fullName": "tahsin-engineer/Planetary_Gear_Vibration_Analysis_Fault_Detection",
+      "stargazersCount": 1
+    },
+    {
+      "description": "Predictive maintenance project using CWRU dataset and Random Forest algorithm.",
+      "fullName": "mehmeteminaltay/vibration-analysis-fault-detection",
+      "stargazersCount": 0
+    },
+    {
+      "description": "Implemented predictive maintenance for DC motors using sensor-based condition monitoring and FFT vibration analysis. Fault detection visualized on an IoT dashboard (Blynk) for real-time monitoring, reducing unexpected downtime and improving reliability.",
+      "fullName": "DishaH22/IOT-Predictive-Maintenance-of-DC-motor",
+      "stargazersCount": 0
+    },
+    {
+      "description": "This repository hosts the \"Kanna Vibration Analysis Library,\" an Arduino library for interfacing with the ADXL345 accelerometer. Perform vibration analysis, fault detection, and generate diagnostic reports for various applications such as structural health monitoring and predictive maintenance.",
+      "fullName": "Goutham250603/KCLAccelerometer",
+      "stargazersCount": 0
+    }
+  ]
+}

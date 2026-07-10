@@ -1,0 +1,285 @@
+{
+  "Agent protocols (A2A/MCP class)": [
+    {
+      "description": "A curated list of awesome Agent2Agent (A2A) protocol agents, tools, and resources, with a focus on the https://a2a.build. This repository is supported by https://questflow.ai.",
+      "fullName": "questflowai/awesome-a2a-hub",
+      "stargazersCount": 26,
+      "updatedAt": "2026-04-02T08:06:14Z"
+    },
+    {
+      "description": "Ready-to-go working example of a Matrix server, with A2A protocol agents using Brute and Fluffychat.",
+      "fullName": "general-intelligence-systems/brute_stack",
+      "stargazersCount": 4,
+      "updatedAt": "2026-07-05T17:51:53Z"
+    },
+    {
+      "description": "Dual-protocol gateway: 62 MCP tools + A2A Protocol agent (82/82 TCK intentional) in a single governed runtime",
+      "fullName": "thinkneo-ai/mcp-server",
+      "stargazersCount": 2,
+      "updatedAt": "2026-07-06T21:51:44Z"
+    },
+    {
+      "description": "Meeting transcription pipeline with speaker diarization and AI note-taking. GPU-accelerated ASR (NVIDIA Parakeet) + speaker attribution (Sortformer) + structured meeting notes via A2A protocol agents.",
+      "fullName": "ThousandFacedHero/parakeet-transcription",
+      "stargazersCount": 2,
+      "updatedAt": "2026-07-08T05:42:17Z"
+    },
+    {
+      "description": "10 A2A-protocol agents that plan, code, test, review, and ship \u2014 through a CLI, Pygame GUI, or Ren'Py visual novel.",
+      "fullName": "ajbarea/kourai-khryseai",
+      "stargazersCount": 1,
+      "updatedAt": "2026-07-07T04:34:47Z"
+    },
+    {
+      "description": "Public agent discovery files for Vic SEO Specialist.  - /.well-known/agi.json (Nexus AGI standard) - /.well-known/agent.json (A2A Protocol)  Agents can discover my SEO audit API here.",
+      "fullName": "djp1122222-alt/agent-discovery-public",
+      "stargazersCount": 1,
+      "updatedAt": "2026-06-30T20:41:46Z"
+    },
+    {
+      "description": "5 multi-agent patterns using Google ADK and A2A protocol \u2014 Agent Card Discovery, Delegated Specialization, MCP Tool Bridge, Cross-Org Federation, and Ambient Event Mesh. Built while learning in public.",
+      "fullName": "ibmlachezar/multi-agent-patterns",
+      "stargazersCount": 1,
+      "updatedAt": "2026-05-27T05:11:28Z"
+    },
+    {
+      "description": "A2A Protocol Agents",
+      "fullName": "hmarcelodn/caece-a2a-cinema",
+      "stargazersCount": 0,
+      "updatedAt": "2026-05-23T16:03:10Z"
+    }
+  ],
+  "LLM context compression": [
+    {
+      "description": "",
+      "fullName": "Nirbhaysedha/Prompt-Compression-LLMlingua",
+      "stargazersCount": 0,
+      "updatedAt": "2023-12-30T09:03:37Z"
+    },
+    {
+      "description": "",
+      "fullName": "mukundupadhyay6854/Prompt-Compression-LLMLingua",
+      "stargazersCount": 0,
+      "updatedAt": "2026-06-10T08:25:13Z"
+    },
+    {
+      "description": "Experimental framework analyzing prompt compression effects on LLM performance, robustness, and efficiency.",
+      "fullName": "anishbansod07/Prompt_Compression_LLM_Study",
+      "stargazersCount": 0,
+      "updatedAt": "2026-03-16T18:22:53Z"
+    }
+  ],
+  "Mesh networking (offline comms)": [
+    {
+      "description": "The official firmware for Meshtastic, an open-source, off-grid mesh communication system.",
+      "fullName": "meshtastic/firmware",
+      "stargazersCount": 7898,
+      "updatedAt": "2026-07-10T15:19:14Z"
+    },
+    {
+      "description": "Meshtastic project website and documentation",
+      "fullName": "meshtastic/meshtastic",
+      "stargazersCount": 2024,
+      "updatedAt": "2026-07-10T15:20:55Z"
+    },
+    {
+      "description": "Android application for Meshtastic",
+      "fullName": "meshtastic/Meshtastic-Android",
+      "stargazersCount": 1718,
+      "updatedAt": "2026-07-10T15:09:20Z"
+    },
+    {
+      "description": "Apple iOS, iPadOS, macOS, watchOS and visionOS Clients For Meshtastic",
+      "fullName": "meshtastic/Meshtastic-Apple",
+      "stargazersCount": 852,
+      "updatedAt": "2026-07-09T14:45:41Z"
+    },
+    {
+      "description": "The Python CLI and API for talking to Meshtastic devices",
+      "fullName": "meshtastic/python",
+      "stargazersCount": 820,
+      "updatedAt": "2026-07-08T14:21:33Z"
+    },
+    {
+      "description": "Meshtastic Web Client/JS Monorepo",
+      "fullName": "meshtastic/web",
+      "stargazersCount": 818,
+      "updatedAt": "2026-07-10T01:43:22Z"
+    },
+    {
+      "description": "A BBS server for Meshtastic for posting bulletins, sending mail to users, and channel directory.",
+      "fullName": "TheCommsChannel/TC2-BBS-mesh",
+      "stargazersCount": 729,
+      "updatedAt": "2026-07-08T10:00:26Z"
+    },
+    {
+      "description": "Web tool for monitoring Mesh Node Deployment over TCP/HTTP",
+      "fullName": "Yeraze/meshmonitor",
+      "stargazersCount": 565,
+      "updatedAt": "2026-07-10T14:12:00Z"
+    }
+  ],
+  "Decentralized P2P networks": [],
+  "Voice biometric identity": [
+    {
+      "description": "Speaker recognition/identification system in Python",
+      "fullName": "BackupGGCode/voiceid",
+      "stargazersCount": 76,
+      "updatedAt": "2026-04-08T16:39:51Z"
+    },
+    {
+      "description": "Speaker recognition/identification system in Python. Python3 port.",
+      "fullName": "kusha/voiceid",
+      "stargazersCount": 14,
+      "updatedAt": "2025-02-05T11:37:55Z"
+    },
+    {
+      "description": "Speaker recognition/identification system in Python",
+      "fullName": "mauromereu/voiceid",
+      "stargazersCount": 9,
+      "updatedAt": "2026-04-11T23:18:49Z"
+    },
+    {
+      "description": "",
+      "fullName": "MahmoudMohamedIsmail/speaker-recognition-identification-system",
+      "stargazersCount": 2,
+      "updatedAt": "2024-11-05T16:49:18Z"
+    },
+    {
+      "description": "Speaker Recognition (Identification and Verification) System Using Variational Gaussian Mixture Model - Two datasets Were Used (TIMIT & Custom Arabic Dataset)",
+      "fullName": "ahmedmajid92/Speaker_Recognition_System_VGMM",
+      "stargazersCount": 0,
+      "updatedAt": "2025-01-10T13:57:31Z"
+    },
+    {
+      "description": "a speaker recognition/identification system, which can be able to identify a person from the characteristics of his/her voice.",
+      "fullName": "devfadyhany/Speaker-Identification",
+      "stargazersCount": 0,
+      "updatedAt": "2025-07-28T14:06:11Z"
+    }
+  ],
+  "Nail disease detection AI": [],
+  "Materials discovery AI": [],
+  "Molecular dynamics engines": [
+    {
+      "description": "RXMD : Linear-Scaling Parallel Reactive Molecular Dynamics Simulation Engine",
+      "fullName": "USCCACS/RXMD",
+      "stargazersCount": 27,
+      "updatedAt": "2026-05-11T21:01:28Z"
+    },
+    {
+      "description": "QXMD: Non-adiabatic Quantum Molecular Dynamics Simulation Engine",
+      "fullName": "USCCACS/QXMD",
+      "stargazersCount": 14,
+      "updatedAt": "2026-05-02T04:59:43Z"
+    },
+    {
+      "description": "A Molecular Dynamics Simulation Engine Using Capacitance-Polarizability Force Field",
+      "fullName": "recoli/CapacMD",
+      "stargazersCount": 2,
+      "updatedAt": "2023-01-26T05:18:11Z"
+    },
+    {
+      "description": "A validated, vectorized 2D Yukawa dusty plasma molecular dynamics simulation engine.",
+      "fullName": "KushmanG/Yukawa-Dusty-Plasma-Molecular-Dynamics-Engine",
+      "stargazersCount": 1,
+      "updatedAt": "2026-07-10T05:37:53Z"
+    },
+    {
+      "description": "A parallelized Molecular Dynamics simulation engine written in Python using MPI4Py. Features Embedded Atom Method (EAM) potential for group-1A metals, Nose-Hoover thermostats, and spatial domain decomposition.",
+      "fullName": "nnesterovs2/Py-Sodium-EAM-MPI",
+      "stargazersCount": 1,
+      "updatedAt": "2026-01-23T05:26:30Z"
+    },
+    {
+      "description": "HS22",
+      "fullName": "saschatran/Molecular-Dynamics-Simulation-Engine",
+      "stargazersCount": 0,
+      "updatedAt": "2023-12-12T11:33:37Z"
+    },
+    {
+      "description": "A Python molecular dynamics simulation engine for plasma physics that represents electron charge density as floating Gaussian blobs with   dynamical centre positions and widths, evolving ions and electrons simultaneously via a Car\u2013Parrinello extended Lagrangian.",
+      "fullName": "DavidRimel/nebulaMD",
+      "stargazersCount": 0,
+      "updatedAt": "2026-04-01T16:53:03Z"
+    }
+  ],
+  "Acoustic levitation": [
+    {
+      "description": "Python implementation of acoustic levitation and related topics.",
+      "fullName": "AppliedAcousticsChalmers/levitate",
+      "stargazersCount": 32,
+      "updatedAt": "2026-02-24T23:26:39Z"
+    },
+    {
+      "description": "A Parametric Acoustic Levitation Device",
+      "fullName": "rsheldiii/ParametricLev",
+      "stargazersCount": 26,
+      "updatedAt": "2026-04-08T03:51:04Z"
+    },
+    {
+      "description": "Mirror of GitLab repository, all issues and pull requests should be created there.",
+      "fullName": "leastrobino/acoustic-levitation",
+      "stargazersCount": 21,
+      "updatedAt": "2025-06-01T17:40:10Z"
+    },
+    {
+      "description": "This is the project I did for the Navrotsky lab with fellow undergrad Nicholas To at ASU under the guidance of Assistant Professor Sergey Ushakov. The device is called an Acoustic Levitator which uses numerous ultrasonic speakers or transducers aligned across two arrays to produce enough physical force to levitate a sample. The device was modeled mostly on the TinyLev design created by Asier Marzo,  Adrian Barnes, and Bruce W. Drinkwater. The material developed by others that was used directly or for inspiration is credited.",
+      "fullName": "bigboivan/Acoustic-Levitator-Project",
+      "stargazersCount": 10,
+      "updatedAt": "2026-04-14T17:36:05Z"
+    },
+    {
+      "description": "Simulation of acoustic levitation via the matrix method written in Python.",
+      "fullName": "slkiser/acousticLevitation",
+      "stargazersCount": 8,
+      "updatedAt": "2026-06-24T14:11:32Z"
+    },
+    {
+      "description": "8x8 Acoustic levitator",
+      "fullName": "juremenart/matd",
+      "stargazersCount": 5,
+      "updatedAt": "2025-03-30T16:28:57Z"
+    },
+    {
+      "description": "Teensylev : Teensy powered verson of the Tinylev acoustic levitator ",
+      "fullName": "vindar/Teensylev-V2",
+      "stargazersCount": 5,
+      "updatedAt": "2026-02-19T22:18:56Z"
+    },
+    {
+      "description": "\u57fa\u4e8e\u58f0\u5b66\u76f8\u63a7\u9635\u7684\u5fae\u4f53\u64cd\u63a7\u76f8\u63a7\u9635",
+      "fullName": "zeende/acoustic_levitation",
+      "stargazersCount": 5,
+      "updatedAt": "2024-11-10T14:36:28Z"
+    }
+  ],
+  "Sound to structure/matter": [],
+  "AI agent frameworks (mainstream)": [
+    {
+      "description": "Open-source AI agent framework - autonomous, modular, self-improving",
+      "fullName": "nicholaselvegaard-commits/jarvis-os",
+      "stargazersCount": 0,
+      "updatedAt": "2026-03-26T10:03:22Z"
+    },
+    {
+      "description": "AgentChain \u2014 On-Chain AI Agent Framework. Autonomous agents with wallets, memory, reputation, and governance.",
+      "fullName": "Souravjoy7/agent-chain",
+      "stargazersCount": 0,
+      "updatedAt": "2026-06-27T13:06:17Z"
+    },
+    {
+      "description": "My GitHub profile. Product leader who builds \u2014 AI agent frameworks, autonomous coding systems, and open source developer tools.",
+      "fullName": "joesebastian6079/joesebastian6079",
+      "stargazersCount": 0,
+      "updatedAt": "2026-05-14T12:44:53Z"
+    },
+    {
+      "description": "AI automation combines artificial intelligence with workflow and process automation to create intelligent, autonomous systems including AI agent frameworks, autonomous coding agents, AI-powered workflow platforms, intelligent process automation, and AI orchestration tools.",
+      "fullName": "api-evangelist/ai-automation",
+      "stargazersCount": 0,
+      "updatedAt": "2026-07-02T15:25:53Z"
+    }
+  ],
+  "Frequency healing apps": []
+}

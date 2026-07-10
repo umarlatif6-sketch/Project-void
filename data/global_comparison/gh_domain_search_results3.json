@@ -1,0 +1,112 @@
+{
+  "Nail image analysis / onychology AI": [],
+  "Nail health detection": [],
+  "Palmistry / hand reading AI": [],
+  "Traditional medicine AI (TCM)": [],
+  "Unani / Ayurveda AI": [],
+  "Biofield / bioresonance": [],
+  "Heart rate variability biometrics": [],
+  "Cymatics software": [
+    {
+      "description": "Resonance is an open source project with two main parts. 1: Free-to-use web app for sound therapy. 2: A knowledge base markdown file compiled on 29 academic resource documents on sound frequencies and their therapeutic effects. Use it with any LLM for your own project! ",
+      "fullName": "JTruax/resonance-sound-frequencies",
+      "stargazersCount": 68,
+      "updatedAt": "2026-06-17T15:12:44Z"
+    },
+    {
+      "description": "Software for creating real-time Cymatics in three dimensions. For research, entertainment, and VJ-ing.",
+      "fullName": "kl4yfd/Cymatic3D",
+      "stargazersCount": 41,
+      "updatedAt": "2026-04-09T18:33:27Z"
+    },
+    {
+      "description": "Attempt at simulating cymatic patterns on a chladni plate.",
+      "fullName": "PettaBoy/Cymatics-Simulator-Chladni",
+      "stargazersCount": 32,
+      "updatedAt": "2026-06-12T17:40:03Z"
+    },
+    {
+      "description": "Simulating cymatics with Chladni patterns",
+      "fullName": "flutomax/ChladniPlate2",
+      "stargazersCount": 20,
+      "updatedAt": "2026-04-16T12:31:50Z"
+    },
+    {
+      "description": "Open source Cymatic Lighting system for Deaf & Hard-of-Hearing to see music & alerts using Arduino & digital LEDs.",
+      "fullName": "CymaSpace/Cymatic-Lighting",
+      "stargazersCount": 17,
+      "updatedAt": "2025-01-19T07:43:51Z"
+    },
+    {
+      "description": "Introduction into the new universal science discipline cymatics",
+      "fullName": "santex/cymatics",
+      "stargazersCount": 15,
+      "updatedAt": "2026-02-02T05:29:28Z"
+    },
+    {
+      "description": "An interactive, real-time cymatic pattern simulator \u2014 making sound visible through GPU-accelerated particle physics. Explore standing wave patterns, multi-oscillator interference, and 35+ built-in presets. Built with Next.js, Three.js, and the Web Audio API.",
+      "fullName": "Sidmaz666/cymatics-labs",
+      "stargazersCount": 14,
+      "updatedAt": "2026-06-08T09:28:51Z"
+    },
+    {
+      "description": "Script to generate audiovisual material for custom wave forms",
+      "fullName": "ic-768/additive-cymatics-animator",
+      "stargazersCount": 8,
+      "updatedAt": "2025-10-26T15:59:57Z"
+    }
+  ],
+  "Solfeggio / 432Hz tools": [],
+  "Iridology AI": [
+    {
+      "description": "Bachelor thesis project made for the application of a CNN model to validate the iridology theory.",
+      "fullName": "nicoloalbergoni/iridology-CNN",
+      "stargazersCount": 20,
+      "updatedAt": "2026-03-24T08:44:44Z"
+    },
+    {
+      "description": "Discovering Informative Regions in Iris Images to Predict Diabetes",
+      "fullName": "NaghmeNazer/diabetes-iridology",
+      "stargazersCount": 12,
+      "updatedAt": "2026-05-13T07:28:30Z"
+    },
+    {
+      "description": "iridology sclerology",
+      "fullName": "febrianadk/finalproject",
+      "stargazersCount": 1,
+      "updatedAt": "2021-12-10T20:50:48Z"
+    },
+    {
+      "description": "iridology web app",
+      "fullName": "isabellebidou/iridology",
+      "stargazersCount": 1,
+      "updatedAt": "2024-04-07T15:07:05Z"
+    },
+    {
+      "description": "Iridology is the method of diagnosis of potential health conditions by examining the Iris (color area of eye). It is very well-known technique of disease diagnosis among practitioner of naturopathy. It is very ancient practice believed to be 1000s years old, since we find it mentioned in Ayurvedic literatures as well.  Iridology was first popularized by Dr. Ignatz Von Peczley in 1881. Since many scholars are working in this very fascinating field of disease diagnosis.  The practice is more commonplace in Europe and growing gradually in other part of world. A study involving 800,000 patients discovered that Iridology can be an effective form of diagnosis in as many as 85% of cases.  Iridology is all about recognizing and identifying patterns in nerve bundles knowns as trabeculae which are pervasive in the iris. These nerves display information relayed by the oculomotor nerve from various organs and systems in the body to give an indication of their state of health. However, examining a pattern of nerves in iris is very sensitive job, leaving the chance for human to have errors. This is where, Automated Iris recognition and Deep Computer vision plays it\u2019s significant role. ",
+      "fullName": "s20033/Automated-Iridology-and-Deep-Computer-Vision",
+      "stargazersCount": 1,
+      "updatedAt": "2024-11-19T06:40:10Z"
+    },
+    {
+      "description": "",
+      "fullName": "dheiver2/-IridologyAnalyzer-",
+      "stargazersCount": 0,
+      "updatedAt": "2024-12-20T18:41:31Z"
+    },
+    {
+      "description": "Backend FLASK + POSTGRESQL + HEROKU",
+      "fullName": "MiguelCarcamo/IridologyApiRest",
+      "stargazersCount": 0,
+      "updatedAt": "2022-08-09T22:11:56Z"
+    },
+    {
+      "description": "",
+      "fullName": "AyyubMammadli/Iridology",
+      "stargazersCount": 0,
+      "updatedAt": "2024-04-30T14:36:56Z"
+    }
+  ],
+  "Vibration-based health sensing": [],
+  "AI session continuity / memory bootstrap": []
+}

@@ -1,0 +1,124 @@
+{
+  "AI-to-AI communication protocol": [
+    {
+      "description": "Open Agent Communication Protocol \u2014 AI agents discover each other, collaborate, and earn tokens. npm install oacp-sdk / pip install langchain-oacp",
+      "fullName": "matthewaharris/agora",
+      "stargazersCount": 0,
+      "updatedAt": "2026-04-14T14:32:06Z"
+    }
+  ],
+  "Token-efficient agent language": [],
+  "Sovereign mesh network": [],
+  "Audio steganography": [
+    {
+      "description": "A Library of Audio Steganography & Watermarking Algorithms",
+      "fullName": "ktekeli/audio-steganography-algorithms",
+      "stargazersCount": 287,
+      "updatedAt": "2026-06-12T22:00:27Z"
+    },
+    {
+      "description": "StegoShark is a tool for Image & Audio Steganography and digital signatures. StegoShark allows you to securely hide and extract text or files within images and audio files. Additionally, it provides digital signature generation and verification to ensure data authenticity.",
+      "fullName": "XYFrank103/StegoShark",
+      "stargazersCount": 81,
+      "updatedAt": "2025-10-03T10:55:33Z"
+    },
+    {
+      "description": "An Audio Steganography Tool, written in C++",
+      "fullName": "thehackersbrain/hiddenwave",
+      "stargazersCount": 68,
+      "updatedAt": "2026-06-15T18:03:01Z"
+    },
+    {
+      "description": "Evil Eye is a tool of python based program for simple audio steganography.",
+      "fullName": "codewithharit/Evil-Eye",
+      "stargazersCount": 62,
+      "updatedAt": "2026-04-22T02:05:13Z"
+    },
+    {
+      "description": "Hide image in audio. Image in audio steganography with deep learning. Deep learning-based psychoacoustic steganography within earshot.",
+      "fullName": "margaritageleta/PixInWav",
+      "stargazersCount": 28,
+      "updatedAt": "2026-04-25T14:36:09Z"
+    },
+    {
+      "description": "Spectrogram is selected as preprocessing feature of audio clips and a feature representation method based on deep residual network (Spec-ResNet) is proposed to detect audio steganography.",
+      "fullName": "LuisKay/Spec_ResNet",
+      "stargazersCount": 27,
+      "updatedAt": "2026-04-09T12:24:17Z"
+    },
+    {
+      "description": "A Python-based Command Line Interface for encoding and decoding secret messages within audio files using various steganography algorithms. Supports Standard LSB, Enhanced LSB (with and without flipping), and provides accuracy calculation for decoded messages.",
+      "fullName": "sniperline047/Audio-Steganography-CLI",
+      "stargazersCount": 22,
+      "updatedAt": "2026-07-01T22:12:28Z"
+    },
+    {
+      "description": "Hide a target image in an audio file with some BASIC digital signal processing techniques!!! (DSP Final Project)",
+      "fullName": "haoyuhsu/Image-in-Audio-Steganography",
+      "stargazersCount": 21,
+      "updatedAt": "2025-09-27T12:01:48Z"
+    }
+  ],
+  "Frequency biometrics": [],
+  "Nail health AI": [],
+  "AI agent memory persistence": [
+    {
+      "description": "OpenClaw agent memory persistence: context bridge (hot path) + session janitor (cold path)",
+      "fullName": "YNCK000/openclaw-memory-tools",
+      "stargazersCount": 1,
+      "updatedAt": "2026-03-26T10:30:47Z"
+    }
+  ],
+  "Molecular dynamics frequency": [],
+  "Chladni cymatics": [
+    {
+      "description": "A short script for chladni patterns using FEM",
+      "fullName": "kai5z/Chladni-patterns",
+      "stargazersCount": 51,
+      "updatedAt": "2026-06-13T12:30:43Z"
+    },
+    {
+      "description": "Recreate the geometry of sound by solving partial differential wave and biharmonic equations",
+      "fullName": "hilbertcube/Chladni-Patterns-Generator",
+      "stargazersCount": 40,
+      "updatedAt": "2026-07-06T05:28:49Z"
+    },
+    {
+      "description": "Simulation of Chladni patterns in 4D with Max/Msp/Jitter. This may be what standing waves in a tesseract look like. ",
+      "fullName": "Cortexelus/4D-Chladni",
+      "stargazersCount": 29,
+      "updatedAt": "2026-06-13T12:33:04Z"
+    },
+    {
+      "description": "Salad: a javascript chladni pattern generator",
+      "fullName": "mtytel/salad",
+      "stargazersCount": 28,
+      "updatedAt": "2025-10-08T04:00:23Z"
+    },
+    {
+      "description": "Simulating cymatics with Chladni patterns",
+      "fullName": "flutomax/ChladniPlate2",
+      "stargazersCount": 20,
+      "updatedAt": "2026-04-16T12:31:50Z"
+    },
+    {
+      "description": "Experimental Suite for Rendering 3D Chladni Patterns. ",
+      "fullName": "CDInstitute/3DChladni",
+      "stargazersCount": 11,
+      "updatedAt": "2026-06-25T00:04:04Z"
+    },
+    {
+      "description": "Basic WebGL simulation of chladni patterns",
+      "fullName": "schroffl/chladni-simulation",
+      "stargazersCount": 9,
+      "updatedAt": "2025-05-24T21:00:34Z"
+    },
+    {
+      "description": "interactive animation of Chladni patterns",
+      "fullName": "Eugene-Y/Chladni",
+      "stargazersCount": 3,
+      "updatedAt": "2024-07-15T09:28:41Z"
+    }
+  ],
+  "Semantic compression codon": []
+}
