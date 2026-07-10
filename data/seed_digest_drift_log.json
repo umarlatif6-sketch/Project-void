@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-07-10T01:59:27.556669+00:00",
+  "drift_detected": true,
+  "seed_hash": "c7552ba415c16921",
+  "digest_hash": "15ae8e52274000a3",
+  "seed_modified": "2026-07-10T01:25:23.393519+00:00",
+  "digest_modified": "2026-07-10T01:25:23.397519+00:00",
+  "time_drift": false,
+  "codon_drift": false,
+  "section_drift": true,
+  "seed_codons_count": 3,
+  "digest_codons_count": 3,
+  "codons_in_seed_only": [
+    "PCE-yield",
+    "RMW-01"
+  ],
+  "codons_in_digest_only": [
+    "VOID-first",
+    "AI-to"
+  ]
+}

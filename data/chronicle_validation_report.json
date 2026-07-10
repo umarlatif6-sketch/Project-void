@@ -1,0 +1,1010 @@
+{
+  "generated_at": "2026-07-10T01:36:30.234030",
+  "chronicle_file": "/home/ubuntu/Project-void/VOID_CHRONICLE.md",
+  "total_entries": 71,
+  "passed": 54,
+  "failed": 17,
+  "results": [
+    {
+      "entry_number": 1,
+      "header": "# VOID_CHRONICLE \u2014 The Evolutionary Record",
+      "checks": {
+        "has_session_header": false,
+        "has_narrative": true,
+        "has_forward_thread": false,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Missing or malformed session header. Got: '# VOID_CHRONICLE \u2014 The Evolutionary Record'",
+        "Missing '**Forward Thread:**' section"
+      ]
+    },
+    {
+      "entry_number": 2,
+      "header": "## SESSION \u2014 [Date] \u2014 [Short Title]",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 3,
+      "header": "## SESSION \u2014 February 17, 2026 \u2014 The First Breath",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 4,
+      "header": "## SESSION \u2014 February 17\u201318, 2026 \u2014 Shaping the Sapphire Bubble",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 5,
+      "header": "## SESSION \u2014 February 18, 2026 \u2014 The Machine Comes Alive",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 6,
+      "header": "## SESSION \u2014 February 18 \u2013 March 3, 2026 \u2014 The Deep Sea Tests",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 7,
+      "header": "## SESSION \u2014 March 3\u20134, 2026 \u2014 Al-Jabr and the Silt",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 8,
+      "header": "## SESSION \u2014 March 4\u201310, 2026 \u2014 Authentication, Economy, and the Guardian",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 9,
+      "header": "## SESSION \u2014 March 23, 2026 \u2014 The Adriana Story Engine and the Open SDK",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 10,
+      "header": "## SESSION \u2014 March 27, 2026 \u2014 The 3D Sovereign Game",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 11,
+      "header": "## SESSION \u2014 March 29, 2026 \u2014 The Great Convergence",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 12,
+      "header": "## SESSION \u2014 March 29, 2026 \u2014 Identity, Sovereignty, and the Transmissions",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": false,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Insufficient narrative content. Found 0 paragraphs (need \u22652)"
+      ]
+    },
+    {
+      "entry_number": 13,
+      "header": "## SESSION \u2014 March 29, 2026 \u2014 The Agent NFT Registry and Intelligence",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": false,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Insufficient narrative content. Found 0 paragraphs (need \u22652)"
+      ]
+    },
+    {
+      "entry_number": 14,
+      "header": "## SESSION \u2014 March 31, 2026 \u2014 VoidEcho and the Covenant",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 15,
+      "header": "## SESSION \u2014 March 31, 2026 \u2014 The Ghajini Paradox",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": false,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Missing '**Forward Thread:**' section"
+      ]
+    },
+    {
+      "entry_number": 16,
+      "header": "## SESSION \u2014 April 16, 2026 \u2014 The Ghajini Rail",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 17,
+      "header": "## SESSION \u2014 April 1, 2026 \u2014 The Voice Gains Its First Transmission Channel",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 18,
+      "header": "## SESSION \u2014 April 1\u20133, 2026 \u2014 The Platform Grows Its Body",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 19,
+      "header": "## SESSION \u2014 April 3, 2026 \u2014 The Full Verification Suite",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 20,
+      "header": "## SESSION \u2014 April 4, 2026 \u2014 The Naming Drift Corrected",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 21,
+      "header": "## SESSION \u2014 April 6, 2026 \u2014 The Four Are Named",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 22,
+      "header": "## SESSION \u2014 April 6, 2026 \u2014 The Record of What Was Built",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 23,
+      "header": "## SESSION \u2014 April 6, 2026 \u2014 The Measure of What Was Made",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 24,
+      "header": "## SESSION \u2014 April 6, 2026 \u2014 The Full Architecture Seen",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 25,
+      "header": "## SESSION \u2014 April 6, 2026 \u2014 The Payphone",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 26,
+      "header": "## SESSION \u2014 April 17, 2026 \u2014 The Broken Pieces Reframed",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 27,
+      "header": "## SESSION \u2014 April 17, 2026 \u2014 The Repair Register Applied",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 28,
+      "header": "## SESSION \u2014 April 16, 2026 \u2014 Recovery Becomes Resonance",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 29,
+      "header": "## SESSION \u2014 April 8, 2026 \u2014 The Room Opens",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 30,
+      "header": "## SESSION \u2014 April 8, 2026 \u2014 Physical Key Cryptography",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 31,
+      "header": "## SESSION \u2014 April 8, 2026 \u2014 The Formation Principle",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": false,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Missing '**Forward Thread:**' section"
+      ]
+    },
+    {
+      "entry_number": 32,
+      "header": "## SESSION \u2014 April 17, 2026 \u2014 The Repair Law Enters the Body",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 33,
+      "header": "## SESSION \u2014 April 8, 2026 \u2014 The First Witness",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 34,
+      "header": "## SESSION \u2014 April 8, 2026 \u2014 33 Songs and the Hafiz",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 35,
+      "header": "## SESSION \u2014 April 9, 2026 \u2014 What Is Pushing The Sand",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 36,
+      "header": "## SESSION \u2014 April 9, 2026 \u2014 The Double Channel",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 37,
+      "header": "## SESSION \u2014 April 9, 2026 \u2014 Haroof-e-Qalqala",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 38,
+      "header": "## SESSION \u2014 April 9, 2026 \u2014 The Three Brains / The Comedy",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": false,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Found bullet list instead of narrative: '- VOID_SIGNAL.md \u2014 the neocortex. Fast, working, p'",
+        "Found bullet list instead of narrative: '- VOID_CHRONICLE.md \u2014 the limbic layer. Full memor'",
+        "Found bullet list instead of narrative: '- The agent \u2014 the processing mind in the moment. R'"
+      ]
+    },
+    {
+      "entry_number": 39,
+      "header": "## SESSION \u2014 April 9, 2026 \u2014 The Prior Reading",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 40,
+      "header": "## SESSION \u2014 April 9, 2026 \u2014 The Donner Blank",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": false,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Found bullet list instead of narrative: '- **100kg Donner** \u2014 meat, large quantity, food co'",
+        "Found bullet list instead of narrative: '- **Pizza boxes** \u2014 different food context, foldin'",
+        "Found bullet list instead of narrative: '- **The man's gesture** \u2014 a delivery, an offer, di'"
+      ]
+    },
+    {
+      "entry_number": 41,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 Task #123: The Compressed Cold Start",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": false,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Insufficient narrative content. Found 0 paragraphs (need \u22652)"
+      ]
+    },
+    {
+      "entry_number": 42,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 Task #123 Addendum: Chordon Architecture",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": false,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Insufficient narrative content. Found 0 paragraphs (need \u22652)"
+      ]
+    },
+    {
+      "entry_number": 43,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 Task #127: The GriDul Experiment \u2014 First Cross-Pla",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": false,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Insufficient narrative content. Found 0 paragraphs (need \u22652)"
+      ]
+    },
+    {
+      "entry_number": 44,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 Task #126: First External MESA Simulation \u2014 Format",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": false,
+        "has_forward_thread": true,
+        "no_bullet_lists": false,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Found bullet list instead of narrative: '- Signal strength S = (5 channels \u00d7 Al-Jabr 286) /'",
+        "Found bullet list instead of narrative: '- P(response, 30 days) = 13.2% \u2014 one in eight'",
+        "Found bullet list instead of narrative: '- P(response, 60 days) = 24.5% \u2014 one in four'",
+        "Found bullet list instead of narrative: '- P(response, 90 days) = 34.5% \u2014 one in three'",
+        "Found bullet list instead of narrative: '- Fortune 500 propagation: A(t) = 500 \u00d7 (1 \u2212 e^{\u2212k'",
+        "Found bullet list instead of narrative: '- Month 12: ~424 companies. Month 36: ~498 compani'",
+        "Insufficient narrative content. Found 0 paragraphs (need \u22652)"
+      ]
+    },
+    {
+      "entry_number": 45,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Four-System Boundary: Formation Orchestrator A",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": false,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Found bullet list instead of narrative: '- Signal strength S = (5 \u00d7 286) / 7.83 = 182.63'",
+        "Found bullet list instead of narrative: '- P(30 days) = 13.1% | P(60 days) = 24.6% | P(90 d'",
+        "Found bullet list instead of narrative: '- Fortune 500: Month 12 = 424 companies | Month 36'",
+        "Found bullet list instead of narrative: '- `void_engine/formation_orchestrator.py` \u2014 parall'",
+        "Found bullet list instead of narrative: '- `routes/formation_probability.py` \u2014 `/formation-'",
+        "Found bullet list instead of narrative: '- `templates/formation_probability.html` \u2014 Full Fo'",
+        "Found bullet list instead of narrative: '- `sim_run_id` column added to `agent_intelligence'",
+        "Found bullet list instead of narrative: '- Model defaults switched from non-existent `gpt-5'",
+        "Found bullet list instead of narrative: '- 20-second hard timeouts added to both LLM calls '"
+      ]
+    },
+    {
+      "entry_number": 46,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 Chapter 109: The Field Record",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 47,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Circumference Law",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 48,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Wing Principle",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 49,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Declaration Law",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 50,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Envelope Principle",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": false,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Found bullet list instead of narrative: '- **Electrical** \u2014 copper wire wound at circumfere'",
+        "Found bullet list instead of narrative: '- **Aerodynamic** \u2014 bio-graphene paint on wing, pr'",
+        "Found bullet list instead of narrative: '- **Volumetric** \u2014 painted balloon envelope, elect'",
+        "Found bullet list instead of narrative: '- **Acoustic** \u2014 432 Hz steganography carrier, sig'"
+      ]
+    },
+    {
+      "entry_number": 51,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 Sovereign Lift",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": false,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Found bullet list instead of narrative: '- **Electrical** \u2014 copper wire circumference, heat'",
+        "Found bullet list instead of narrative: '- **Aerodynamic** \u2014 bio-graphene paint, lift ampli'",
+        "Found bullet list instead of narrative: '- **Volumetric** \u2014 painted envelope, electrically '",
+        "Found bullet list instead of narrative: '- **Acoustic** \u2014 432 Hz carrier, signal lives insi'",
+        "Found bullet list instead of narrative: '- **Vacuum** \u2014 graphene lattice boundary, total li'"
+      ]
+    },
+    {
+      "entry_number": 52,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Sixth Scale",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": false,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Found bullet list instead of narrative: '- **Electrical** \u2014 copper wire circumference, heat'",
+        "Found bullet list instead of narrative: '- **Aerodynamic** \u2014 bio-graphene paint, lift at wi'",
+        "Found bullet list instead of narrative: '- **Volumetric** \u2014 painted envelope, electrically '",
+        "Found bullet list instead of narrative: '- **Acoustic** \u2014 432 Hz carrier, signal inside fre'",
+        "Found bullet list instead of narrative: '- **Vacuum** \u2014 graphene lattice, total lift from p'",
+        "Found bullet list instead of narrative: '- **Biological** \u2014 breath empties the volume, body'"
+      ]
+    },
+    {
+      "entry_number": 53,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Receiver State",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 54,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Gap Between Beats",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 55,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Formation Is The Void",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": false,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Found bullet list instead of narrative: '- **Electrical** \u2014 the heat appears inside the mat'",
+        "Found bullet list instead of narrative: '- **Aerodynamic** \u2014 lift is amplified because the '",
+        "Found bullet list instead of narrative: '- **Volumetric** \u2014 the gas becomes lighter because'",
+        "Found bullet list instead of narrative: '- **Acoustic** \u2014 the steganographic signal lives a'",
+        "Found bullet list instead of narrative: '- **Vacuum** \u2014 the shell holds pure void; the lift'",
+        "Found bullet list instead of narrative: '- **Biological** \u2014 the breath-hold creates a void '",
+        "Found bullet list instead of narrative: '- **Cardiac** \u2014 the sculpture is built at the zero'",
+        "Found bullet list instead of narrative: '- **Quantum** \u2014 matter itself is the nodal void st'"
+      ]
+    },
+    {
+      "entry_number": 56,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Child In The Room",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 57,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Derivation of \u039b = 286",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 58,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Deeper Layer of \u039b = 286",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 59,
+      "header": "## SESSION \u2014 April 10, 2026 \u2014 The Third Confirmation: BW19-P286",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 60,
+      "header": "## SESSION \u2014 April 14, 2026 \u2014 The Wall Became a Readable World",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 61,
+      "header": "## SESSION \u2014 April 14, 2026 \u2014 The B-Stop Became a Codex Layer",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 62,
+      "header": "## SESSION \u2014 April 14, 2026 \u2014 Three-Hour Pair Lock and Runtime Pack Seal",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 63,
+      "header": "## SESSION \u2014 April 14, 2026 \u2014 Live Pair Switch, Validator Gate, Audit Enrichment",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 64,
+      "header": "## SESSION \u2014 April 14, 2026 \u2014 Trust Must Be Measurable",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 65,
+      "header": "## SESSION \u2014 April 17, 2026 \u2014 The Three Were Grounded in Code",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 66,
+      "header": "## SESSION \u2014 April 24, 2026 \u2014 The Cockroach Split Was Made Explicit",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 67,
+      "header": "## SESSION \u2014 April 26, 2026 \u2014 Continuity Rails Were Locked",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 68,
+      "header": "## SESSION \u2014 April 26, 2026 \u2014 Serena Was Found",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 69,
+      "header": "## SESSION \u2014 April 27, 2026 \u2014 The Drift Is Named",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    },
+    {
+      "entry_number": 70,
+      "header": "## SESSION \u2014 April 28, 2026 \u2014 Void Foundation Verification",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": false,
+        "has_content": true
+      },
+      "all_pass": false,
+      "violations": [
+        "Found bullet list instead of narrative: '- Popularity-hub clustering (frequency vs neighbor'",
+        "Found bullet list instead of narrative: '- Burst dynamics (mean inter-arrival CV over repea'",
+        "Found bullet list instead of narrative: '- Taylor-law fit (log variance vs log mean slope):'",
+        "Found bullet list instead of narrative: '- Taylor-law fit quality (R\u00b2): **0.9979**'",
+        "Found bullet list instead of narrative: '- Internal alignment flag: **TRUE**'",
+        "Found bullet list instead of narrative: '- `void_foundation.py`'",
+        "Found bullet list instead of narrative: '- `data/void_foundation_report.json`'"
+      ]
+    },
+    {
+      "entry_number": 71,
+      "header": "## SESSION \u2014 May 6, 2026 \u2014 The Sovereign Business Ecosystem Emerges",
+      "checks": {
+        "has_session_header": true,
+        "has_narrative": true,
+        "has_forward_thread": true,
+        "no_bullet_lists": true,
+        "has_content": true
+      },
+      "all_pass": true,
+      "violations": []
+    }
+  ]
+}
