@@ -149,8 +149,16 @@ COMPOUNDS = [
     {"id": "G18", "name": "Void Tesseract (19th)", "freq": 8208.0, "geometry": "hypercubic_projection", "elements": ["C"], "n_atoms": 48, "bond_type": "sp2", "category": "void_frequency"},
 ]
 
-# Total: 108 compounds
+# Total: 108 base compounds
 assert len(COMPOUNDS) == 108, f"Expected 108 compounds, got {len(COMPOUNDS)}"
+
+# Import Cymatics Bridge extension (42 additional compounds)
+try:
+    from cymatics_bridge_compounds import ALL_NEW_COMPOUNDS, NEW_CATEGORIES
+    COMPOUNDS_EXTENDED = COMPOUNDS + ALL_NEW_COMPOUNDS
+except ImportError:
+    COMPOUNDS_EXTENDED = COMPOUNDS
+    NEW_CATEGORIES = {}
 
 # Category summary
 CATEGORIES = {
@@ -162,13 +170,15 @@ CATEGORIES = {
     "F": "Energy Materials (F01-F15)",
     "G": "Void Frequency-Specific (G01-G18)",
 }
+CATEGORIES.update(NEW_CATEGORIES)
 
 if __name__ == "__main__":
     print(f"PROJECT VOID — Frequency Periodic Table")
-    print(f"Total compounds: {len(COMPOUNDS)}")
+    print(f"Base compounds: {len(COMPOUNDS)}")
+    print(f"Extended compounds: {len(COMPOUNDS_EXTENDED)}")
     print(f"\nCategories:")
     for cat_id, desc in CATEGORIES.items():
-        count = sum(1 for c in COMPOUNDS if c['id'].startswith(cat_id))
+        count = sum(1 for c in COMPOUNDS_EXTENDED if c['id'].startswith(cat_id))
         print(f"  {cat_id}: {desc} ({count} compounds)")
-    print(f"\nFrequency range: {min(c['freq'] for c in COMPOUNDS)} Hz — {max(c['freq'] for c in COMPOUNDS)} Hz")
+    print(f"\nFrequency range: {min(c['freq'] for c in COMPOUNDS_EXTENDED)} Hz — {max(c['freq'] for c in COMPOUNDS_EXTENDED)} Hz")
     print(f"All derived from 432 Hz base frequency")

@@ -1,0 +1,3541 @@
+{
+  "metadata": {
+    "engine": "multi_harmonic_analytical_v2",
+    "date": "2026-07-10 16:25:12",
+    "total_compounds": 150,
+    "harmonics": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "base_frequency": 432.0,
+    "seed": 432
+  },
+  "summary": {
+    "total": 150,
+    "stable": 46,
+    "metastable": 95,
+    "unstable": 9,
+    "errors": 0,
+    "yield_pct": 94.0
+  },
+  "results": [
+    {
+      "id": "A01",
+      "name": "C-H-N-O Polymer",
+      "frequency_hz": 326.5,
+      "geometry": "hexagonal_spiral",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 19.98,
+      "structural_coherence": 0.354,
+      "stability_score": 0.356,
+      "resonance_factor": 0.249,
+      "harmonic_purity": 0.026,
+      "harmonics_used": [
+        326.5,
+        653.0,
+        979.5,
+        1306.0
+      ]
+    },
+    {
+      "id": "A02",
+      "name": "Si-C-N Ceramic",
+      "frequency_hz": 378.2,
+      "geometry": "cubic_tetrahedral",
+      "elements": [
+        "Si",
+        "C",
+        "N"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 14.36,
+      "structural_coherence": 0.478,
+      "stability_score": 0.476,
+      "resonance_factor": 0.369,
+      "harmonic_purity": 0.154,
+      "harmonics_used": [
+        378.2,
+        756.4,
+        1134.6,
+        1512.8
+      ]
+    },
+    {
+      "id": "A03",
+      "name": "B-N Nanotube",
+      "frequency_hz": 432.0,
+      "geometry": "cylindrical_hexagonal",
+      "elements": [
+        "B",
+        "N"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "STABLE",
+      "rg_change_pct": 0.32,
+      "structural_coherence": 0.723,
+      "stability_score": 0.894,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "A04",
+      "name": "C-Si Carbide Fiber",
+      "frequency_hz": 345.6,
+      "geometry": "linear_tetrahedral",
+      "elements": [
+        "C",
+        "Si"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 16.98,
+      "structural_coherence": 0.403,
+      "stability_score": 0.398,
+      "resonance_factor": 0.238,
+      "harmonic_purity": 0.05,
+      "harmonics_used": [
+        345.6,
+        691.2,
+        1036.8000000000002,
+        1382.4
+      ]
+    },
+    {
+      "id": "A05",
+      "name": "Al-O-N Oxynitride",
+      "frequency_hz": 389.0,
+      "geometry": "spinel_cubic",
+      "elements": [
+        "Al",
+        "O",
+        "N"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.73,
+      "structural_coherence": 0.494,
+      "stability_score": 0.527,
+      "resonance_factor": 0.451,
+      "harmonic_purity": 0.225,
+      "harmonics_used": [
+        389.0,
+        778.0,
+        1167.0,
+        1556.0
+      ]
+    },
+    {
+      "id": "A06",
+      "name": "C-B Boron Carbide",
+      "frequency_hz": 410.4,
+      "geometry": "rhombohedral",
+      "elements": [
+        "C",
+        "B"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 5.47,
+      "structural_coherence": 0.658,
+      "stability_score": 0.696,
+      "resonance_factor": 0.67,
+      "harmonic_purity": 0.472,
+      "harmonics_used": [
+        410.4,
+        820.8,
+        1231.1999999999998,
+        1641.6
+      ]
+    },
+    {
+      "id": "A07",
+      "name": "Mg-Al Spinel",
+      "frequency_hz": 356.8,
+      "geometry": "cubic_spinel",
+      "elements": [
+        "Mg",
+        "Al",
+        "O"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 25.16,
+      "structural_coherence": 0.341,
+      "stability_score": 0.389,
+      "resonance_factor": 0.25,
+      "harmonic_purity": 0.073,
+      "harmonics_used": [
+        356.8,
+        713.6,
+        1070.4,
+        1427.2
+      ]
+    },
+    {
+      "id": "A08",
+      "name": "Ti-Al Intermetallic",
+      "frequency_hz": 367.2,
+      "geometry": "tetragonal",
+      "elements": [
+        "Ti",
+        "Al"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 17.33,
+      "structural_coherence": 0.472,
+      "stability_score": 0.498,
+      "resonance_factor": 0.305,
+      "harmonic_purity": 0.105,
+      "harmonics_used": [
+        367.2,
+        734.4,
+        1101.6,
+        1468.8
+      ]
+    },
+    {
+      "id": "A09",
+      "name": "C Aerogel Matrix",
+      "frequency_hz": 216.0,
+      "geometry": "fractal_network",
+      "elements": [
+        "C"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 14.92,
+      "structural_coherence": 0.449,
+      "stability_score": 0.466,
+      "resonance_factor": 0.403,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        216.0,
+        432.0,
+        648.0,
+        864.0
+      ]
+    },
+    {
+      "id": "A10",
+      "name": "Si-O Aerogel",
+      "frequency_hz": 288.0,
+      "geometry": "amorphous_network",
+      "elements": [
+        "Si",
+        "O"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 18.35,
+      "structural_coherence": 0.398,
+      "stability_score": 0.427,
+      "resonance_factor": 0.253,
+      "harmonic_purity": 0.007,
+      "harmonics_used": [
+        288.0,
+        576.0,
+        864.0,
+        1152.0
+      ]
+    },
+    {
+      "id": "A11",
+      "name": "Al-B Boride",
+      "frequency_hz": 399.6,
+      "geometry": "hexagonal_layered",
+      "elements": [
+        "Al",
+        "B"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 9.06,
+      "structural_coherence": 0.546,
+      "stability_score": 0.551,
+      "resonance_factor": 0.549,
+      "harmonic_purity": 0.325,
+      "harmonics_used": [
+        399.6,
+        799.2,
+        1198.8000000000002,
+        1598.4
+      ]
+    },
+    {
+      "id": "A12",
+      "name": "C-N Nitride Film",
+      "frequency_hz": 421.2,
+      "geometry": "beta_hexagonal",
+      "elements": [
+        "C",
+        "N"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "STABLE",
+      "rg_change_pct": 6.57,
+      "structural_coherence": 0.77,
+      "stability_score": 0.749,
+      "resonance_factor": 0.819,
+      "harmonic_purity": 0.687,
+      "harmonics_used": [
+        421.2,
+        842.4,
+        1263.6,
+        1684.8
+      ]
+    },
+    {
+      "id": "A13",
+      "name": "Be-Al Alloy",
+      "frequency_hz": 334.8,
+      "geometry": "hcp",
+      "elements": [
+        "Be",
+        "Al"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 14.33,
+      "structural_coherence": 0.322,
+      "stability_score": 0.354,
+      "resonance_factor": 0.239,
+      "harmonic_purity": 0.034,
+      "harmonics_used": [
+        334.8,
+        669.6,
+        1004.4000000000001,
+        1339.2
+      ]
+    },
+    {
+      "id": "A14",
+      "name": "Li-Al Hydride",
+      "frequency_hz": 302.4,
+      "geometry": "monoclinic",
+      "elements": [
+        "Li",
+        "Al",
+        "H"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 8.32,
+      "structural_coherence": 0.521,
+      "stability_score": 0.433,
+      "resonance_factor": 0.217,
+      "harmonic_purity": 0.011,
+      "harmonics_used": [
+        302.4,
+        604.8,
+        907.1999999999999,
+        1209.6
+      ]
+    },
+    {
+      "id": "A15",
+      "name": "Mg-B Diboride",
+      "frequency_hz": 378.0,
+      "geometry": "hexagonal_AlB2",
+      "elements": [
+        "Mg",
+        "B"
+      ],
+      "category": "lightweight_structural",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 17.05,
+      "structural_coherence": 0.414,
+      "stability_score": 0.435,
+      "resonance_factor": 0.368,
+      "harmonic_purity": 0.153,
+      "harmonics_used": [
+        378.0,
+        756.0,
+        1134.0,
+        1512.0
+      ]
+    },
+    {
+      "id": "B01",
+      "name": "Fe-Cu-Zn Alloy",
+      "frequency_hz": 1217.6,
+      "geometry": "bcc_complex",
+      "elements": [
+        "Fe",
+        "Cu",
+        "Zn"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 4.52,
+      "structural_coherence": 0.563,
+      "stability_score": 0.565,
+      "resonance_factor": 0.638,
+      "harmonic_purity": 0.066,
+      "harmonics_used": [
+        1217.6,
+        2435.2,
+        3652.7999999999997,
+        4870.4
+      ]
+    },
+    {
+      "id": "B02",
+      "name": "Ti-V-Cr Superalloy",
+      "frequency_hz": 1296.0,
+      "geometry": "bcc_ordered",
+      "elements": [
+        "Ti",
+        "V",
+        "Cr"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "STABLE",
+      "rg_change_pct": -0.23,
+      "structural_coherence": 0.881,
+      "stability_score": 0.943,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        1296.0,
+        2592.0,
+        3888.0,
+        5184.0
+      ]
+    },
+    {
+      "id": "B03",
+      "name": "Ni-Co-W Alloy",
+      "frequency_hz": 1350.0,
+      "geometry": "fcc_complex",
+      "elements": [
+        "Ni",
+        "Co",
+        "W"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.14,
+      "structural_coherence": 0.624,
+      "stability_score": 0.629,
+      "resonance_factor": 0.717,
+      "harmonic_purity": 0.153,
+      "harmonics_used": [
+        1350.0,
+        2700.0,
+        4050.0,
+        5400.0
+      ]
+    },
+    {
+      "id": "B04",
+      "name": "Fe-Ni-Mo Steel",
+      "frequency_hz": 1188.0,
+      "geometry": "martensite",
+      "elements": [
+        "Fe",
+        "Ni",
+        "Mo"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 6.1,
+      "structural_coherence": 0.537,
+      "stability_score": 0.54,
+      "resonance_factor": 0.602,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        1188.0,
+        2376.0,
+        3564.0,
+        4752.0
+      ]
+    },
+    {
+      "id": "B05",
+      "name": "Ti-Nb-Zr Shape Memory",
+      "frequency_hz": 1242.0,
+      "geometry": "bcc_to_hcp",
+      "elements": [
+        "Ti",
+        "Nb",
+        "Zr"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 8.35,
+      "structural_coherence": 0.61,
+      "stability_score": 0.609,
+      "resonance_factor": 0.717,
+      "harmonic_purity": 0.153,
+      "harmonics_used": [
+        1242.0,
+        2484.0,
+        3726.0,
+        4968.0
+      ]
+    },
+    {
+      "id": "B06",
+      "name": "Co-Cr-Mo Bioalloy",
+      "frequency_hz": 1274.4,
+      "geometry": "fcc_hcp",
+      "elements": [
+        "Co",
+        "Cr",
+        "Mo"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": -4.72,
+      "structural_coherence": 0.651,
+      "stability_score": 0.752,
+      "resonance_factor": 0.875,
+      "harmonic_purity": 0.472,
+      "harmonics_used": [
+        1274.4,
+        2548.8,
+        3823.2000000000003,
+        5097.6
+      ]
+    },
+    {
+      "id": "B07",
+      "name": "Cu-Ni-Zn Stealth",
+      "frequency_hz": 1247.3,
+      "geometry": "fcc_layered",
+      "elements": [
+        "Cu",
+        "Ni",
+        "Zn"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 1.7,
+      "structural_coherence": 0.649,
+      "stability_score": 0.656,
+      "resonance_factor": 0.74,
+      "harmonic_purity": 0.184,
+      "harmonics_used": [
+        1247.3,
+        2494.6,
+        3741.8999999999996,
+        4989.2
+      ]
+    },
+    {
+      "id": "B08",
+      "name": "Fe-Mn-Si Austenite",
+      "frequency_hz": 1166.4,
+      "geometry": "fcc_austenite",
+      "elements": [
+        "Fe",
+        "Mn",
+        "Si"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.48,
+      "structural_coherence": 0.496,
+      "stability_score": 0.53,
+      "resonance_factor": 0.584,
+      "harmonic_purity": 0.011,
+      "harmonics_used": [
+        1166.4,
+        2332.8,
+        3499.2000000000003,
+        4665.6
+      ]
+    },
+    {
+      "id": "B09",
+      "name": "Nb-Ti-Al Turbine",
+      "frequency_hz": 1382.4,
+      "geometry": "L12_ordered",
+      "elements": [
+        "Nb",
+        "Ti",
+        "Al"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 3.37,
+      "structural_coherence": 0.535,
+      "stability_score": 0.571,
+      "resonance_factor": 0.637,
+      "harmonic_purity": 0.05,
+      "harmonics_used": [
+        1382.4,
+        2764.8,
+        4147.200000000001,
+        5529.6
+      ]
+    },
+    {
+      "id": "B10",
+      "name": "W-Re Refractory",
+      "frequency_hz": 1512.0,
+      "geometry": "bcc_solid_solution",
+      "elements": [
+        "W",
+        "Re"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 8.55,
+      "structural_coherence": 0.476,
+      "stability_score": 0.551,
+      "resonance_factor": 0.652,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        1512.0,
+        3024.0,
+        4536.0,
+        6048.0
+      ]
+    },
+    {
+      "id": "B11",
+      "name": "Zr-Cu-Al Metallic Glass",
+      "frequency_hz": 1123.2,
+      "geometry": "amorphous_icosahedral",
+      "elements": [
+        "Zr",
+        "Cu",
+        "Al"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 12.09,
+      "structural_coherence": 0.48,
+      "stability_score": 0.511,
+      "resonance_factor": 0.564,
+      "harmonic_purity": 0.002,
+      "harmonics_used": [
+        1123.2,
+        2246.4,
+        3369.6000000000004,
+        4492.8
+      ]
+    },
+    {
+      "id": "B12",
+      "name": "Fe-B Amorphous",
+      "frequency_hz": 1080.0,
+      "geometry": "amorphous_dense",
+      "elements": [
+        "Fe",
+        "B"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 13.27,
+      "structural_coherence": 0.45,
+      "stability_score": 0.514,
+      "resonance_factor": 0.534,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        1080.0,
+        2160.0,
+        3240.0,
+        4320.0
+      ]
+    },
+    {
+      "id": "B13",
+      "name": "Ni-Al Intermetallic",
+      "frequency_hz": 1296.0,
+      "geometry": "L12_cubic",
+      "elements": [
+        "Ni",
+        "Al"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "STABLE",
+      "rg_change_pct": 0.92,
+      "structural_coherence": 0.774,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        1296.0,
+        2592.0,
+        3888.0,
+        5184.0
+      ]
+    },
+    {
+      "id": "B14",
+      "name": "Ti-Mo-V Beta",
+      "frequency_hz": 1328.4,
+      "geometry": "bcc_beta",
+      "elements": [
+        "Ti",
+        "Mo",
+        "V"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.07,
+      "structural_coherence": 0.668,
+      "stability_score": 0.712,
+      "resonance_factor": 0.819,
+      "harmonic_purity": 0.325,
+      "harmonics_used": [
+        1328.4,
+        2656.8,
+        3985.2000000000003,
+        5313.6
+      ]
+    },
+    {
+      "id": "B15",
+      "name": "Cr-Mn-Fe-Co-Ni HEA",
+      "frequency_hz": 1404.0,
+      "geometry": "fcc_random",
+      "elements": [
+        "Cr",
+        "Mn",
+        "Fe",
+        "Co",
+        "Ni"
+      ],
+      "category": "high_strength_alloy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 6.76,
+      "structural_coherence": 0.479,
+      "stability_score": 0.549,
+      "resonance_factor": 0.608,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        1404.0,
+        2808.0,
+        4212.0,
+        5616.0
+      ]
+    },
+    {
+      "id": "C01",
+      "name": "Ti-W Carbide",
+      "frequency_hz": 1530.0,
+      "geometry": "cubic_rocksalt",
+      "elements": [
+        "Ti",
+        "W",
+        "C"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 8.7,
+      "structural_coherence": 0.553,
+      "stability_score": 0.603,
+      "resonance_factor": 0.648,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        1530.0,
+        3060.0,
+        4590.0,
+        6120.0
+      ]
+    },
+    {
+      "id": "C02",
+      "name": "Hf-C Carbide",
+      "frequency_hz": 1620.0,
+      "geometry": "rocksalt",
+      "elements": [
+        "Hf",
+        "C"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 13.36,
+      "structural_coherence": 0.601,
+      "stability_score": 0.628,
+      "resonance_factor": 0.68,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        1620.0,
+        3240.0,
+        4860.0,
+        6480.0
+      ]
+    },
+    {
+      "id": "C03",
+      "name": "Ta-Hf-C Ternary",
+      "frequency_hz": 1728.0,
+      "geometry": "rocksalt_ordered",
+      "elements": [
+        "Ta",
+        "Hf",
+        "C"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "STABLE",
+      "rg_change_pct": 2.0,
+      "structural_coherence": 0.857,
+      "stability_score": 0.994,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        1728.0,
+        3456.0,
+        5184.0,
+        6912.0
+      ]
+    },
+    {
+      "id": "C04",
+      "name": "Zr-B2 Diboride",
+      "frequency_hz": 1458.0,
+      "geometry": "hexagonal_AlB2",
+      "elements": [
+        "Zr",
+        "B"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 6.2,
+      "structural_coherence": 0.468,
+      "stability_score": 0.53,
+      "resonance_factor": 0.598,
+      "harmonic_purity": 0.004,
+      "harmonics_used": [
+        1458.0,
+        2916.0,
+        4374.0,
+        5832.0
+      ]
+    },
+    {
+      "id": "C05",
+      "name": "Si-C Moissanite",
+      "frequency_hz": 1566.0,
+      "geometry": "wurtzite",
+      "elements": [
+        "Si",
+        "C"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 5.57,
+      "structural_coherence": 0.561,
+      "stability_score": 0.57,
+      "resonance_factor": 0.648,
+      "harmonic_purity": 0.004,
+      "harmonics_used": [
+        1566.0,
+        3132.0,
+        4698.0,
+        6264.0
+      ]
+    },
+    {
+      "id": "C06",
+      "name": "Al2O3 Corundum",
+      "frequency_hz": 1440.0,
+      "geometry": "rhombohedral_corundum",
+      "elements": [
+        "Al",
+        "O"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 6.89,
+      "structural_coherence": 0.536,
+      "stability_score": 0.6,
+      "resonance_factor": 0.62,
+      "harmonic_purity": 0.007,
+      "harmonics_used": [
+        1440.0,
+        2880.0,
+        4320.0,
+        5760.0
+      ]
+    },
+    {
+      "id": "C07",
+      "name": "Y2O3-ZrO2 YSZ",
+      "frequency_hz": 1494.0,
+      "geometry": "fluorite_cubic",
+      "elements": [
+        "Y",
+        "Zr",
+        "O"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 6.04,
+      "structural_coherence": 0.52,
+      "stability_score": 0.562,
+      "resonance_factor": 0.596,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        1494.0,
+        2988.0,
+        4482.0,
+        5976.0
+      ]
+    },
+    {
+      "id": "C08",
+      "name": "MgO Periclase",
+      "frequency_hz": 1404.0,
+      "geometry": "rocksalt_simple",
+      "elements": [
+        "Mg",
+        "O"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 9.89,
+      "structural_coherence": 0.476,
+      "stability_score": 0.579,
+      "resonance_factor": 0.608,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        1404.0,
+        2808.0,
+        4212.0,
+        5616.0
+      ]
+    },
+    {
+      "id": "C09",
+      "name": "W Tungsten Pure",
+      "frequency_hz": 1836.0,
+      "geometry": "bcc_pure",
+      "elements": [
+        "W"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 0.48,
+      "structural_coherence": 0.491,
+      "stability_score": 0.569,
+      "resonance_factor": 0.684,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        1836.0,
+        3672.0,
+        5508.0,
+        7344.0
+      ]
+    },
+    {
+      "id": "C10",
+      "name": "Re Rhenium Pure",
+      "frequency_hz": 1782.0,
+      "geometry": "hcp_pure",
+      "elements": [
+        "Re"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 5.68,
+      "structural_coherence": 0.644,
+      "stability_score": 0.66,
+      "resonance_factor": 0.779,
+      "harmonic_purity": 0.153,
+      "harmonics_used": [
+        1782.0,
+        3564.0,
+        5346.0,
+        7128.0
+      ]
+    },
+    {
+      "id": "C11",
+      "name": "Si3N4 Nitride",
+      "frequency_hz": 1512.0,
+      "geometry": "hexagonal_Si3N4",
+      "elements": [
+        "Si",
+        "N"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 11.5,
+      "structural_coherence": 0.535,
+      "stability_score": 0.571,
+      "resonance_factor": 0.652,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        1512.0,
+        3024.0,
+        4536.0,
+        6048.0
+      ]
+    },
+    {
+      "id": "C12",
+      "name": "BN Cubic",
+      "frequency_hz": 1674.0,
+      "geometry": "zinc_blende",
+      "elements": [
+        "B",
+        "N"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.4,
+      "structural_coherence": 0.529,
+      "stability_score": 0.64,
+      "resonance_factor": 0.779,
+      "harmonic_purity": 0.153,
+      "harmonics_used": [
+        1674.0,
+        3348.0,
+        5022.0,
+        6696.0
+      ]
+    },
+    {
+      "id": "C13",
+      "name": "TiN Nitride",
+      "frequency_hz": 1548.0,
+      "geometry": "rocksalt_TiN",
+      "elements": [
+        "Ti",
+        "N"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.64,
+      "structural_coherence": 0.542,
+      "stability_score": 0.609,
+      "resonance_factor": 0.645,
+      "harmonic_purity": 0.002,
+      "harmonics_used": [
+        1548.0,
+        3096.0,
+        4644.0,
+        6192.0
+      ]
+    },
+    {
+      "id": "C14",
+      "name": "Cr2O3 Chromia",
+      "frequency_hz": 1476.0,
+      "geometry": "corundum",
+      "elements": [
+        "Cr",
+        "O"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.26,
+      "structural_coherence": 0.491,
+      "stability_score": 0.548,
+      "resonance_factor": 0.594,
+      "harmonic_purity": 0.002,
+      "harmonics_used": [
+        1476.0,
+        2952.0,
+        4428.0,
+        5904.0
+      ]
+    },
+    {
+      "id": "C15",
+      "name": "Mo-Si2 Silicide",
+      "frequency_hz": 1602.0,
+      "geometry": "tetragonal_C11b",
+      "elements": [
+        "Mo",
+        "Si"
+      ],
+      "category": "thermal_resistant",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 5.88,
+      "structural_coherence": 0.544,
+      "stability_score": 0.56,
+      "resonance_factor": 0.667,
+      "harmonic_purity": 0.013,
+      "harmonics_used": [
+        1602.0,
+        3204.0,
+        4806.0,
+        6408.0
+      ]
+    },
+    {
+      "id": "D01",
+      "name": "Gd-U Superconductor",
+      "frequency_hz": 3152.1,
+      "geometry": "perovskite_layered",
+      "elements": [
+        "Gd",
+        "U",
+        "O"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 6.0,
+      "structural_coherence": 0.574,
+      "stability_score": 0.633,
+      "resonance_factor": 0.801,
+      "harmonic_purity": 0.012,
+      "harmonics_used": [
+        3152.1,
+        6304.2,
+        9456.3,
+        12608.4
+      ]
+    },
+    {
+      "id": "D02",
+      "name": "U-Pu Quantum Alloy",
+      "frequency_hz": 4036.7,
+      "geometry": "multidimensional",
+      "elements": [
+        "U",
+        "Pu"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": -1.5,
+      "structural_coherence": 0.613,
+      "stability_score": 0.665,
+      "resonance_factor": 0.834,
+      "harmonic_purity": 0.006,
+      "harmonics_used": [
+        4036.7,
+        8073.4,
+        12110.099999999999,
+        16146.8
+      ]
+    },
+    {
+      "id": "D03",
+      "name": "Y-Ba-Cu-O YBCO",
+      "frequency_hz": 2592.0,
+      "geometry": "perovskite_ortho",
+      "elements": [
+        "Y",
+        "Ba",
+        "Cu",
+        "O"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "STABLE",
+      "rg_change_pct": 0.95,
+      "structural_coherence": 0.857,
+      "stability_score": 0.927,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        2592.0,
+        5184.0,
+        7776.0,
+        10368.0
+      ]
+    },
+    {
+      "id": "D04",
+      "name": "Bi-Sr-Ca-Cu-O BSCCO",
+      "frequency_hz": 2808.0,
+      "geometry": "perovskite_tetra",
+      "elements": [
+        "Bi",
+        "Sr",
+        "Ca",
+        "Cu",
+        "O"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 11.94,
+      "structural_coherence": 0.687,
+      "stability_score": 0.563,
+      "resonance_factor": 0.744,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        2808.0,
+        5616.0,
+        8424.0,
+        11232.0
+      ]
+    },
+    {
+      "id": "D05",
+      "name": "Nb-Sn A15",
+      "frequency_hz": 2376.0,
+      "geometry": "A15_cubic",
+      "elements": [
+        "Nb",
+        "Sn"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.63,
+      "structural_coherence": 0.561,
+      "stability_score": 0.605,
+      "resonance_factor": 0.738,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        2376.0,
+        4752.0,
+        7128.0,
+        9504.0
+      ]
+    },
+    {
+      "id": "D06",
+      "name": "MgB2 Diboride SC",
+      "frequency_hz": 2160.0,
+      "geometry": "hexagonal_SC",
+      "elements": [
+        "Mg",
+        "B"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "STABLE",
+      "rg_change_pct": -2.13,
+      "structural_coherence": 0.848,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        2160.0,
+        4320.0,
+        6480.0,
+        8640.0
+      ]
+    },
+    {
+      "id": "D07",
+      "name": "Fe-Se Chalcogenide",
+      "frequency_hz": 2268.0,
+      "geometry": "tetragonal_PbO",
+      "elements": [
+        "Fe",
+        "Se"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 8.26,
+      "structural_coherence": 0.522,
+      "stability_score": 0.57,
+      "resonance_factor": 0.736,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        2268.0,
+        4536.0,
+        6804.0,
+        9072.0
+      ]
+    },
+    {
+      "id": "D08",
+      "name": "Bi2Te3 Topological",
+      "frequency_hz": 2484.0,
+      "geometry": "rhombohedral_layered",
+      "elements": [
+        "Bi",
+        "Te"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 14.1,
+      "structural_coherence": 0.563,
+      "stability_score": 0.584,
+      "resonance_factor": 0.771,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        2484.0,
+        4968.0,
+        7452.0,
+        9936.0
+      ]
+    },
+    {
+      "id": "D09",
+      "name": "Cd-As Dirac Semimetal",
+      "frequency_hz": 2700.0,
+      "geometry": "tetragonal_I41",
+      "elements": [
+        "Cd",
+        "As"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.24,
+      "structural_coherence": 0.541,
+      "stability_score": 0.565,
+      "resonance_factor": 0.773,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        2700.0,
+        5400.0,
+        8100.0,
+        10800.0
+      ]
+    },
+    {
+      "id": "D10",
+      "name": "WTe2 Weyl Semimetal",
+      "frequency_hz": 2916.0,
+      "geometry": "orthorhombic_Td",
+      "elements": [
+        "W",
+        "Te"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 5.86,
+      "structural_coherence": 0.571,
+      "stability_score": 0.616,
+      "resonance_factor": 0.8,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        2916.0,
+        5832.0,
+        8748.0,
+        11664.0
+      ]
+    },
+    {
+      "id": "D11",
+      "name": "SmB6 Kondo Insulator",
+      "frequency_hz": 3024.0,
+      "geometry": "cubic_CsCl",
+      "elements": [
+        "Sm",
+        "B"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "STABLE",
+      "rg_change_pct": 2.56,
+      "structural_coherence": 0.799,
+      "stability_score": 0.92,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        3024.0,
+        6048.0,
+        9072.0,
+        12096.0
+      ]
+    },
+    {
+      "id": "D12",
+      "name": "TaAs Weyl",
+      "frequency_hz": 3132.0,
+      "geometry": "tetragonal_I41md",
+      "elements": [
+        "Ta",
+        "As"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 9.34,
+      "structural_coherence": 0.593,
+      "stability_score": 0.656,
+      "resonance_factor": 0.801,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        3132.0,
+        6264.0,
+        9396.0,
+        12528.0
+      ]
+    },
+    {
+      "id": "D13",
+      "name": "Graphene Quantum Dot",
+      "frequency_hz": 5184.0,
+      "geometry": "hexagonal_confined",
+      "elements": [
+        "C"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "STABLE",
+      "rg_change_pct": -2.85,
+      "structural_coherence": 0.925,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        5184.0,
+        10368.0,
+        15552.0,
+        20736.0
+      ]
+    },
+    {
+      "id": "D14",
+      "name": "MoS2 Monolayer",
+      "frequency_hz": 2052.0,
+      "geometry": "hexagonal_2H",
+      "elements": [
+        "Mo",
+        "S"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.23,
+      "structural_coherence": 0.586,
+      "stability_score": 0.629,
+      "resonance_factor": 0.733,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        2052.0,
+        4104.0,
+        6156.0,
+        8208.0
+      ]
+    },
+    {
+      "id": "D15",
+      "name": "h-BN Monolayer",
+      "frequency_hz": 1944.0,
+      "geometry": "hexagonal_flat",
+      "elements": [
+        "B",
+        "N"
+      ],
+      "category": "exotic_quantum",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 9.89,
+      "structural_coherence": 0.533,
+      "stability_score": 0.576,
+      "resonance_factor": 0.666,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        1944.0,
+        3888.0,
+        5832.0,
+        7776.0
+      ]
+    },
+    {
+      "id": "E01",
+      "name": "Chitin Helix",
+      "frequency_hz": 144.0,
+      "geometry": "helical",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 18.9,
+      "structural_coherence": 0.406,
+      "stability_score": 0.408,
+      "resonance_factor": 0.191,
+      "harmonic_purity": 0.007,
+      "harmonics_used": [
+        144.0,
+        288.0,
+        432.0,
+        576.0
+      ]
+    },
+    {
+      "id": "E02",
+      "name": "Collagen Triple Helix",
+      "frequency_hz": 108.0,
+      "geometry": "triple_helix",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 15.88,
+      "structural_coherence": 0.34,
+      "stability_score": 0.384,
+      "resonance_factor": 0.121,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        108.0,
+        216.0,
+        324.0,
+        432.0
+      ]
+    },
+    {
+      "id": "E03",
+      "name": "Keratin Alpha Helix",
+      "frequency_hz": 162.0,
+      "geometry": "alpha_helix",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O",
+        "S"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 21.66,
+      "structural_coherence": 0.37,
+      "stability_score": 0.376,
+      "resonance_factor": 0.113,
+      "harmonic_purity": 0.004,
+      "harmonics_used": [
+        162.0,
+        324.0,
+        486.0,
+        648.0
+      ]
+    },
+    {
+      "id": "E04",
+      "name": "Silk Fibroin Beta Sheet",
+      "frequency_hz": 216.0,
+      "geometry": "beta_sheet",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 12.19,
+      "structural_coherence": 0.564,
+      "stability_score": 0.465,
+      "resonance_factor": 0.403,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        216.0,
+        432.0,
+        648.0,
+        864.0
+      ]
+    },
+    {
+      "id": "E05",
+      "name": "Cellulose Chain",
+      "frequency_hz": 180.0,
+      "geometry": "linear_chain",
+      "elements": [
+        "C",
+        "H",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 10.53,
+      "structural_coherence": 0.36,
+      "stability_score": 0.38,
+      "resonance_factor": 0.124,
+      "harmonic_purity": 0.002,
+      "harmonics_used": [
+        180.0,
+        360.0,
+        540.0,
+        720.0
+      ]
+    },
+    {
+      "id": "E06",
+      "name": "DNA Double Helix",
+      "frequency_hz": 432.0,
+      "geometry": "double_helix",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O",
+        "P"
+      ],
+      "category": "biological",
+      "verdict": "STABLE",
+      "rg_change_pct": 1.78,
+      "structural_coherence": 0.851,
+      "stability_score": 0.955,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "E07",
+      "name": "Melanin Polymer",
+      "frequency_hz": 288.0,
+      "geometry": "stacked_planar",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 11.27,
+      "structural_coherence": 0.485,
+      "stability_score": 0.453,
+      "resonance_factor": 0.253,
+      "harmonic_purity": 0.007,
+      "harmonics_used": [
+        288.0,
+        576.0,
+        864.0,
+        1152.0
+      ]
+    },
+    {
+      "id": "E08",
+      "name": "Spider Silk Crystallite",
+      "frequency_hz": 252.0,
+      "geometry": "beta_nanocrystal",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 20.6,
+      "structural_coherence": 0.367,
+      "stability_score": 0.414,
+      "resonance_factor": 0.175,
+      "harmonic_purity": 0.002,
+      "harmonics_used": [
+        252.0,
+        504.0,
+        756.0,
+        1008.0
+      ]
+    },
+    {
+      "id": "E09",
+      "name": "Lignin Network",
+      "frequency_hz": 198.0,
+      "geometry": "3d_network",
+      "elements": [
+        "C",
+        "H",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 13.49,
+      "structural_coherence": 0.473,
+      "stability_score": 0.402,
+      "resonance_factor": 0.205,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        198.0,
+        396.0,
+        594.0,
+        792.0
+      ]
+    },
+    {
+      "id": "E10",
+      "name": "Hemoglobin Heme",
+      "frequency_hz": 324.0,
+      "geometry": "porphyrin_planar",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "Fe"
+      ],
+      "category": "biological",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 19.26,
+      "structural_coherence": 0.483,
+      "stability_score": 0.397,
+      "resonance_factor": 0.254,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        324.0,
+        648.0,
+        972.0,
+        1296.0
+      ]
+    },
+    {
+      "id": "E11",
+      "name": "Chlorophyll Ring",
+      "frequency_hz": 360.0,
+      "geometry": "porphyrin_Mg",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O",
+        "Mg"
+      ],
+      "category": "biological",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 19.93,
+      "structural_coherence": 0.378,
+      "stability_score": 0.407,
+      "resonance_factor": 0.256,
+      "harmonic_purity": 0.082,
+      "harmonics_used": [
+        360.0,
+        720.0,
+        1080.0,
+        1440.0
+      ]
+    },
+    {
+      "id": "E12",
+      "name": "ATP Molecule",
+      "frequency_hz": 396.0,
+      "geometry": "nucleotide_tri",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O",
+        "P"
+      ],
+      "category": "biological",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 8.3,
+      "structural_coherence": 0.614,
+      "stability_score": 0.623,
+      "resonance_factor": 0.513,
+      "harmonic_purity": 0.287,
+      "harmonics_used": [
+        396.0,
+        792.0,
+        1188.0,
+        1584.0
+      ]
+    },
+    {
+      "id": "E13",
+      "name": "Mycelium Network Node",
+      "frequency_hz": 72.0,
+      "geometry": "branching_fractal",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 25.45,
+      "structural_coherence": 0.33,
+      "stability_score": 0.315,
+      "resonance_factor": 0.011,
+      "harmonic_purity": 0.082,
+      "harmonics_used": [
+        72.0,
+        144.0,
+        216.0,
+        288.0
+      ]
+    },
+    {
+      "id": "E14",
+      "name": "Nacre Aragonite Layer",
+      "frequency_hz": 270.0,
+      "geometry": "orthorhombic_layered",
+      "elements": [
+        "Ca",
+        "C",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 20.54,
+      "structural_coherence": 0.419,
+      "stability_score": 0.4,
+      "resonance_factor": 0.172,
+      "harmonic_purity": 0.004,
+      "harmonics_used": [
+        270.0,
+        540.0,
+        810.0,
+        1080.0
+      ]
+    },
+    {
+      "id": "E15",
+      "name": "Elastin Random Coil",
+      "frequency_hz": 126.0,
+      "geometry": "random_coil",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "biological",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 17.89,
+      "structural_coherence": 0.329,
+      "stability_score": 0.372,
+      "resonance_factor": 0.096,
+      "harmonic_purity": 0.013,
+      "harmonics_used": [
+        126.0,
+        252.0,
+        378.0,
+        504.0
+      ]
+    },
+    {
+      "id": "F01",
+      "name": "LiFePO4 Cathode",
+      "frequency_hz": 864.0,
+      "geometry": "olivine",
+      "elements": [
+        "Li",
+        "Fe",
+        "P",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "STABLE",
+      "rg_change_pct": 3.06,
+      "structural_coherence": 1.002,
+      "stability_score": 0.974,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        864.0,
+        1728.0,
+        2592.0,
+        3456.0
+      ]
+    },
+    {
+      "id": "F02",
+      "name": "Li-Co-O Layered",
+      "frequency_hz": 918.0,
+      "geometry": "layered_R3m",
+      "elements": [
+        "Li",
+        "Co",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 11.27,
+      "structural_coherence": 0.512,
+      "stability_score": 0.631,
+      "resonance_factor": 0.607,
+      "harmonic_purity": 0.153,
+      "harmonics_used": [
+        918.0,
+        1836.0,
+        2754.0,
+        3672.0
+      ]
+    },
+    {
+      "id": "F03",
+      "name": "Na-ion Prussian Blue",
+      "frequency_hz": 756.0,
+      "geometry": "cubic_framework",
+      "elements": [
+        "Na",
+        "Fe",
+        "C",
+        "N"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 14.13,
+      "structural_coherence": 0.501,
+      "stability_score": 0.493,
+      "resonance_factor": 0.476,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        756.0,
+        1512.0,
+        2268.0,
+        3024.0
+      ]
+    },
+    {
+      "id": "F04",
+      "name": "Si Anode Nanoparticle",
+      "frequency_hz": 810.0,
+      "geometry": "diamond_cubic",
+      "elements": [
+        "Si"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 8.87,
+      "structural_coherence": 0.486,
+      "stability_score": 0.591,
+      "resonance_factor": 0.607,
+      "harmonic_purity": 0.153,
+      "harmonics_used": [
+        810.0,
+        1620.0,
+        2430.0,
+        3240.0
+      ]
+    },
+    {
+      "id": "F05",
+      "name": "TiO2 Anatase",
+      "frequency_hz": 972.0,
+      "geometry": "tetragonal_anatase",
+      "elements": [
+        "Ti",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 8.72,
+      "structural_coherence": 0.516,
+      "stability_score": 0.532,
+      "resonance_factor": 0.489,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        972.0,
+        1944.0,
+        2916.0,
+        3888.0
+      ]
+    },
+    {
+      "id": "F06",
+      "name": "Perovskite Solar CH3NH3PbI3",
+      "frequency_hz": 1080.0,
+      "geometry": "perovskite_cubic",
+      "elements": [
+        "C",
+        "N",
+        "H",
+        "Pb",
+        "I"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 6.32,
+      "structural_coherence": 0.458,
+      "stability_score": 0.517,
+      "resonance_factor": 0.534,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        1080.0,
+        2160.0,
+        3240.0,
+        4320.0
+      ]
+    },
+    {
+      "id": "F07",
+      "name": "CdTe Solar",
+      "frequency_hz": 1026.0,
+      "geometry": "zinc_blende_CdTe",
+      "elements": [
+        "Cd",
+        "Te"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 7.16,
+      "structural_coherence": 0.557,
+      "stability_score": 0.529,
+      "resonance_factor": 0.494,
+      "harmonic_purity": 0.004,
+      "harmonics_used": [
+        1026.0,
+        2052.0,
+        3078.0,
+        4104.0
+      ]
+    },
+    {
+      "id": "F08",
+      "name": "GaAs Solar",
+      "frequency_hz": 1134.0,
+      "geometry": "zinc_blende_GaAs",
+      "elements": [
+        "Ga",
+        "As"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 12.03,
+      "structural_coherence": 0.444,
+      "stability_score": 0.537,
+      "resonance_factor": 0.564,
+      "harmonic_purity": 0.004,
+      "harmonics_used": [
+        1134.0,
+        2268.0,
+        3402.0,
+        4536.0
+      ]
+    },
+    {
+      "id": "F09",
+      "name": "V2O5 Vanadium Oxide",
+      "frequency_hz": 702.0,
+      "geometry": "orthorhombic_layered",
+      "elements": [
+        "V",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 9.91,
+      "structural_coherence": 0.51,
+      "stability_score": 0.522,
+      "resonance_factor": 0.428,
+      "harmonic_purity": 0.004,
+      "harmonics_used": [
+        702.0,
+        1404.0,
+        2106.0,
+        2808.0
+      ]
+    },
+    {
+      "id": "F10",
+      "name": "MnO2 Birnessite",
+      "frequency_hz": 648.0,
+      "geometry": "layered_birnessite",
+      "elements": [
+        "Mn",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 11.73,
+      "structural_coherence": 0.434,
+      "stability_score": 0.548,
+      "resonance_factor": 0.495,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        648.0,
+        1296.0,
+        1944.0,
+        2592.0
+      ]
+    },
+    {
+      "id": "F11",
+      "name": "Solid Electrolyte Li7La3Zr2O12",
+      "frequency_hz": 1188.0,
+      "geometry": "garnet_cubic",
+      "elements": [
+        "Li",
+        "La",
+        "Zr",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 6.89,
+      "structural_coherence": 0.483,
+      "stability_score": 0.557,
+      "resonance_factor": 0.602,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        1188.0,
+        2376.0,
+        3564.0,
+        4752.0
+      ]
+    },
+    {
+      "id": "F12",
+      "name": "Pt Catalyst Nanoparticle",
+      "frequency_hz": 1296.0,
+      "geometry": "fcc_truncated_octa",
+      "elements": [
+        "Pt"
+      ],
+      "category": "energy",
+      "verdict": "STABLE",
+      "rg_change_pct": -0.99,
+      "structural_coherence": 0.844,
+      "stability_score": 0.96,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        1296.0,
+        2592.0,
+        3888.0,
+        5184.0
+      ]
+    },
+    {
+      "id": "F13",
+      "name": "ZnO Piezoelectric",
+      "frequency_hz": 594.0,
+      "geometry": "wurtzite_ZnO",
+      "elements": [
+        "Zn",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 21.05,
+      "structural_coherence": 0.459,
+      "stability_score": 0.387,
+      "resonance_factor": 0.341,
+      "harmonic_purity": 0.004,
+      "harmonics_used": [
+        594.0,
+        1188.0,
+        1782.0,
+        2376.0
+      ]
+    },
+    {
+      "id": "F14",
+      "name": "BaTiO3 Ferroelectric",
+      "frequency_hz": 540.0,
+      "geometry": "perovskite_tetragonal",
+      "elements": [
+        "Ba",
+        "Ti",
+        "O"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 17.85,
+      "structural_coherence": 0.38,
+      "stability_score": 0.433,
+      "resonance_factor": 0.292,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        540.0,
+        1080.0,
+        1620.0,
+        2160.0
+      ]
+    },
+    {
+      "id": "F15",
+      "name": "Graphite Anode",
+      "frequency_hz": 486.0,
+      "geometry": "hexagonal_layered_AB",
+      "elements": [
+        "C"
+      ],
+      "category": "energy",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 18.15,
+      "structural_coherence": 0.465,
+      "stability_score": 0.429,
+      "resonance_factor": 0.368,
+      "harmonic_purity": 0.153,
+      "harmonics_used": [
+        486.0,
+        972.0,
+        1458.0,
+        1944.0
+      ]
+    },
+    {
+      "id": "G01",
+      "name": "Void Graphene (Base)",
+      "frequency_hz": 432.0,
+      "geometry": "hexagonal",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": -2.33,
+      "structural_coherence": 0.783,
+      "stability_score": 0.89,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "G02",
+      "name": "Void Water (6th)",
+      "frequency_hz": 2592.0,
+      "geometry": "icosahedral",
+      "elements": [
+        "O",
+        "H"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": -0.8,
+      "structural_coherence": 0.828,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        2592.0,
+        5184.0,
+        7776.0,
+        10368.0
+      ]
+    },
+    {
+      "id": "G03",
+      "name": "Void Shell (12th)",
+      "frequency_hz": 5184.0,
+      "geometry": "geodesic_C60",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": -5.43,
+      "structural_coherence": 0.921,
+      "stability_score": 0.975,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        5184.0,
+        10368.0,
+        15552.0,
+        20736.0
+      ]
+    },
+    {
+      "id": "G04",
+      "name": "Void Chitin (1/3)",
+      "frequency_hz": 144.0,
+      "geometry": "helical",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "void_frequency",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 15.27,
+      "structural_coherence": 0.393,
+      "stability_score": 0.408,
+      "resonance_factor": 0.191,
+      "harmonic_purity": 0.007,
+      "harmonics_used": [
+        144.0,
+        288.0,
+        432.0,
+        576.0
+      ]
+    },
+    {
+      "id": "G05",
+      "name": "Void Diamond (2nd)",
+      "frequency_hz": 864.0,
+      "geometry": "diamond_cubic",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": 1.17,
+      "structural_coherence": 0.852,
+      "stability_score": 0.96,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        864.0,
+        1728.0,
+        2592.0,
+        3456.0
+      ]
+    },
+    {
+      "id": "G06",
+      "name": "Void Nanotube (3rd)",
+      "frequency_hz": 1296.0,
+      "geometry": "cylindrical",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": -2.43,
+      "structural_coherence": 0.824,
+      "stability_score": 0.974,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        1296.0,
+        2592.0,
+        3888.0,
+        5184.0
+      ]
+    },
+    {
+      "id": "G07",
+      "name": "Void Carbyne (4th)",
+      "frequency_hz": 1728.0,
+      "geometry": "linear_chain",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 9.27,
+      "structural_coherence": 0.81,
+      "stability_score": 0.94,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        1728.0,
+        3456.0,
+        5184.0,
+        6912.0
+      ]
+    },
+    {
+      "id": "G08",
+      "name": "Void Lonsdaleite (5th)",
+      "frequency_hz": 2160.0,
+      "geometry": "hexagonal_diamond",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": -3.68,
+      "structural_coherence": 0.895,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        2160.0,
+        4320.0,
+        6480.0,
+        8640.0
+      ]
+    },
+    {
+      "id": "G09",
+      "name": "Void Schwarzite (7th)",
+      "frequency_hz": 3024.0,
+      "geometry": "negative_curvature",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": -0.44,
+      "structural_coherence": 0.864,
+      "stability_score": 0.974,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        3024.0,
+        6048.0,
+        9072.0,
+        12096.0
+      ]
+    },
+    {
+      "id": "G10",
+      "name": "Void Graphyne (8th)",
+      "frequency_hz": 3456.0,
+      "geometry": "hexagonal_acetylenic",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": 4.83,
+      "structural_coherence": 0.799,
+      "stability_score": 0.9,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        3456.0,
+        6912.0,
+        10368.0,
+        13824.0
+      ]
+    },
+    {
+      "id": "G11",
+      "name": "Void Pentacene (9th)",
+      "frequency_hz": 3888.0,
+      "geometry": "planar_acene",
+      "elements": [
+        "C",
+        "H"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": 0.51,
+      "structural_coherence": 0.933,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        3888.0,
+        7776.0,
+        11664.0,
+        15552.0
+      ]
+    },
+    {
+      "id": "G12",
+      "name": "Void C240 (10th)",
+      "frequency_hz": 4320.0,
+      "geometry": "icosahedral_giant",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": 0.06,
+      "structural_coherence": 0.91,
+      "stability_score": 0.935,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        4320.0,
+        8640.0,
+        12960.0,
+        17280.0
+      ]
+    },
+    {
+      "id": "G13",
+      "name": "Void Toroid (11th)",
+      "frequency_hz": 4752.0,
+      "geometry": "toroidal",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": 2.75,
+      "structural_coherence": 0.86,
+      "stability_score": 0.954,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        4752.0,
+        9504.0,
+        14256.0,
+        19008.0
+      ]
+    },
+    {
+      "id": "G14",
+      "name": "Void Helicene (13th)",
+      "frequency_hz": 5616.0,
+      "geometry": "helical_aromatic",
+      "elements": [
+        "C",
+        "H"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": -6.67,
+      "structural_coherence": 0.708,
+      "stability_score": 0.9,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        5616.0,
+        11232.0,
+        16848.0,
+        22464.0
+      ]
+    },
+    {
+      "id": "G15",
+      "name": "Void Trefoil (14th)",
+      "frequency_hz": 6048.0,
+      "geometry": "trefoil_knot",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "METASTABLE",
+      "rg_change_pct": -9.03,
+      "structural_coherence": 0.91,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        6048.0,
+        12096.0,
+        18144.0,
+        24192.0
+      ]
+    },
+    {
+      "id": "G16",
+      "name": "Void Cage (15th)",
+      "frequency_hz": 6480.0,
+      "geometry": "dodecahedral",
+      "elements": [
+        "C",
+        "H"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": 2.16,
+      "structural_coherence": 0.853,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        6480.0,
+        12960.0,
+        19440.0,
+        25920.0
+      ]
+    },
+    {
+      "id": "G17",
+      "name": "Void Prism (16th)",
+      "frequency_hz": 6912.0,
+      "geometry": "prismatic",
+      "elements": [
+        "C",
+        "B",
+        "N"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": 1.02,
+      "structural_coherence": 0.88,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        6912.0,
+        13824.0,
+        20736.0,
+        27648.0
+      ]
+    },
+    {
+      "id": "G18",
+      "name": "Void Tesseract (19th)",
+      "frequency_hz": 8208.0,
+      "geometry": "hypercubic_projection",
+      "elements": [
+        "C"
+      ],
+      "category": "void_frequency",
+      "verdict": "STABLE",
+      "rg_change_pct": 0.76,
+      "structural_coherence": 0.855,
+      "stability_score": 0.974,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        8208.0,
+        16416.0,
+        24624.0,
+        32832.0
+      ]
+    },
+    {
+      "id": "H01",
+      "name": "Chidambaram Hexagonal Carbon",
+      "frequency_hz": 258.0,
+      "geometry": "hexagonal_nested",
+      "elements": [
+        "C"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 20.98,
+      "structural_coherence": 0.294,
+      "stability_score": 0.301,
+      "resonance_factor": 0.168,
+      "harmonic_purity": 0.002,
+      "harmonics_used": [
+        258.0,
+        516.0,
+        774.0,
+        1032.0
+      ]
+    },
+    {
+      "id": "H02",
+      "name": "Akshardham Cubic Silicon",
+      "frequency_hz": 378.2,
+      "geometry": "cubic_tetrahedral",
+      "elements": [
+        "Si",
+        "C",
+        "N"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 14.41,
+      "structural_coherence": 0.458,
+      "stability_score": 0.476,
+      "resonance_factor": 0.369,
+      "harmonic_purity": 0.154,
+      "harmonics_used": [
+        378.2,
+        756.4,
+        1134.6,
+        1512.8
+      ]
+    },
+    {
+      "id": "H03",
+      "name": "UV-Bubble Hydrogen Geometry",
+      "frequency_hz": 432.0,
+      "geometry": "spherical_nodal",
+      "elements": [
+        "H"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "STABLE",
+      "rg_change_pct": -1.81,
+      "structural_coherence": 0.953,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "H04",
+      "name": "Frequency-Collapsed Iron Lattice",
+      "frequency_hz": 1217.6,
+      "geometry": "bcc_complex",
+      "elements": [
+        "Fe",
+        "Cu",
+        "Zn"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 5.94,
+      "structural_coherence": 0.537,
+      "stability_score": 0.565,
+      "resonance_factor": 0.638,
+      "harmonic_purity": 0.066,
+      "harmonics_used": [
+        1217.6,
+        2435.2,
+        3652.7999999999997,
+        4870.4
+      ]
+    },
+    {
+      "id": "H05",
+      "name": "Fractal Carbide Heat Shield",
+      "frequency_hz": 1530.0,
+      "geometry": "fractal_cubic",
+      "elements": [
+        "Ti",
+        "W",
+        "C"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": -2.71,
+      "structural_coherence": 0.686,
+      "stability_score": 0.603,
+      "resonance_factor": 0.648,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        1530.0,
+        3060.0,
+        4590.0,
+        6120.0
+      ]
+    },
+    {
+      "id": "H06",
+      "name": "Quantum Superconductor Pillar",
+      "frequency_hz": 3152.1,
+      "geometry": "perovskite_multidim",
+      "elements": [
+        "Gd",
+        "U",
+        "O"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 6.04,
+      "structural_coherence": 0.499,
+      "stability_score": 0.613,
+      "resonance_factor": 0.801,
+      "harmonic_purity": 0.012,
+      "harmonics_used": [
+        3152.1,
+        6304.2,
+        9456.3,
+        12608.4
+      ]
+    },
+    {
+      "id": "H07",
+      "name": "Submarine Hull Alloy",
+      "frequency_hz": 1247.3,
+      "geometry": "fcc_layered",
+      "elements": [
+        "Cu",
+        "Ni",
+        "Zn"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "STABLE",
+      "rg_change_pct": 6.35,
+      "structural_coherence": 0.703,
+      "stability_score": 0.656,
+      "resonance_factor": 0.74,
+      "harmonic_purity": 0.184,
+      "harmonics_used": [
+        1247.3,
+        2494.6,
+        3741.8999999999996,
+        4989.2
+      ]
+    },
+    {
+      "id": "H08",
+      "name": "Cymatics Carbon Spiral",
+      "frequency_hz": 324.0,
+      "geometry": "spiral_hexagonal",
+      "elements": [
+        "C",
+        "H"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 16.74,
+      "structural_coherence": 0.344,
+      "stability_score": 0.351,
+      "resonance_factor": 0.254,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        324.0,
+        648.0,
+        972.0,
+        1296.0
+      ]
+    },
+    {
+      "id": "H09",
+      "name": "Nodal Surface Ceramic",
+      "frequency_hz": 756.4,
+      "geometry": "nodal_cubic",
+      "elements": [
+        "Si",
+        "C",
+        "N"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 10.95,
+      "structural_coherence": 0.508,
+      "stability_score": 0.506,
+      "resonance_factor": 0.476,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        756.4,
+        1512.8,
+        2269.2,
+        3025.6
+      ]
+    },
+    {
+      "id": "H10",
+      "name": "Triple-Harmonic Diamond",
+      "frequency_hz": 1134.6,
+      "geometry": "diamond_layered",
+      "elements": [
+        "C"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 1.96,
+      "structural_coherence": 0.52,
+      "stability_score": 0.558,
+      "resonance_factor": 0.567,
+      "harmonic_purity": 0.004,
+      "harmonics_used": [
+        1134.6,
+        2269.2,
+        3403.7999999999997,
+        4538.4
+      ]
+    },
+    {
+      "id": "H11",
+      "name": "Geometric Signature Polymer",
+      "frequency_hz": 326.5,
+      "geometry": "hexagonal_spiral",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 14.85,
+      "structural_coherence": 0.43,
+      "stability_score": 0.356,
+      "resonance_factor": 0.249,
+      "harmonic_purity": 0.026,
+      "harmonics_used": [
+        326.5,
+        653.0,
+        979.5,
+        1306.0
+      ]
+    },
+    {
+      "id": "H12",
+      "name": "Fourier-Extracted Silicon",
+      "frequency_hz": 516.0,
+      "geometry": "hexagonal_layered",
+      "elements": [
+        "Si"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 19.91,
+      "structural_coherence": 0.387,
+      "stability_score": 0.381,
+      "resonance_factor": 0.293,
+      "harmonic_purity": 0.054,
+      "harmonics_used": [
+        516.0,
+        1032.0,
+        1548.0,
+        2064.0
+      ]
+    },
+    {
+      "id": "H13",
+      "name": "Standing Wave Boron Nitride",
+      "frequency_hz": 864.0,
+      "geometry": "hexagonal_standing_wave",
+      "elements": [
+        "B",
+        "N"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "STABLE",
+      "rg_change_pct": -5.14,
+      "structural_coherence": 0.824,
+      "stability_score": 0.92,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        864.0,
+        1728.0,
+        2592.0,
+        3456.0
+      ]
+    },
+    {
+      "id": "H14",
+      "name": "Collapse-Point Graphene",
+      "frequency_hz": 432.0,
+      "geometry": "hexagonal_collapse",
+      "elements": [
+        "C"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "STABLE",
+      "rg_change_pct": -5.26,
+      "structural_coherence": 0.811,
+      "stability_score": 0.875,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "H15",
+      "name": "Volumetric Gale Carbon",
+      "frequency_hz": 432.0,
+      "geometry": "volumetric_19gale",
+      "elements": [
+        "C",
+        "N"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "STABLE",
+      "rg_change_pct": 0.59,
+      "structural_coherence": 0.976,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "H16",
+      "name": "Photopolymer Capture Matrix",
+      "frequency_hz": 648.0,
+      "geometry": "nodal_3d_network",
+      "elements": [
+        "C",
+        "O",
+        "H"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 12.35,
+      "structural_coherence": 0.537,
+      "stability_score": 0.528,
+      "resonance_factor": 0.495,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        648.0,
+        1296.0,
+        1944.0,
+        2592.0
+      ]
+    },
+    {
+      "id": "H17",
+      "name": "Harmonic Ratio Titanium",
+      "frequency_hz": 1296.0,
+      "geometry": "cubic_harmonic",
+      "elements": [
+        "Ti",
+        "Al"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "STABLE",
+      "rg_change_pct": -1.97,
+      "structural_coherence": 0.915,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        1296.0,
+        2592.0,
+        3888.0,
+        5184.0
+      ]
+    },
+    {
+      "id": "H18",
+      "name": "Electron Orbital Spiral",
+      "frequency_hz": 774.0,
+      "geometry": "spiral_orbital",
+      "elements": [
+        "C"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 9.89,
+      "structural_coherence": 0.577,
+      "stability_score": 0.537,
+      "resonance_factor": 0.49,
+      "harmonic_purity": 0.044,
+      "harmonics_used": [
+        774.0,
+        1548.0,
+        2322.0,
+        3096.0
+      ]
+    },
+    {
+      "id": "H19",
+      "name": "Atomic Substructure Fractal",
+      "frequency_hz": 1032.0,
+      "geometry": "fractal_hexagonal",
+      "elements": [
+        "C",
+        "Si"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 17.91,
+      "structural_coherence": 0.5,
+      "stability_score": 0.468,
+      "resonance_factor": 0.493,
+      "harmonic_purity": 0.003,
+      "harmonics_used": [
+        1032.0,
+        2064.0,
+        3096.0,
+        4128.0
+      ]
+    },
+    {
+      "id": "H20",
+      "name": "Collapse Equation Material",
+      "frequency_hz": 2160.0,
+      "geometry": "icosahedral_collapse",
+      "elements": [
+        "C",
+        "B",
+        "N"
+      ],
+      "category": "cymatics_bridge",
+      "verdict": "STABLE",
+      "rg_change_pct": -5.83,
+      "structural_coherence": 0.912,
+      "stability_score": 0.994,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        2160.0,
+        4320.0,
+        6480.0,
+        8640.0
+      ]
+    },
+    {
+      "id": "I01",
+      "name": "HAr\u2088 Noble Cage",
+      "frequency_hz": 432.0,
+      "geometry": "8fold_cage",
+      "elements": [
+        "H",
+        "Ar"
+      ],
+      "category": "chladni_priority",
+      "verdict": "METASTABLE",
+      "rg_change_pct": -8.22,
+      "structural_coherence": 0.901,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "I02",
+      "name": "HSi\u2088 Silicon Cage",
+      "frequency_hz": 432.0,
+      "geometry": "8fold_cage",
+      "elements": [
+        "H",
+        "Si"
+      ],
+      "category": "chladni_priority",
+      "verdict": "STABLE",
+      "rg_change_pct": 3.44,
+      "structural_coherence": 0.914,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "I03",
+      "name": "Ca\u2085Zn\u2085 Pentagonal Alloy",
+      "frequency_hz": 2160.0,
+      "geometry": "5fold_decahedral",
+      "elements": [
+        "Ca",
+        "Zn"
+      ],
+      "category": "chladni_priority",
+      "verdict": "STABLE",
+      "rg_change_pct": -0.61,
+      "structural_coherence": 0.818,
+      "stability_score": 0.92,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        2160.0,
+        4320.0,
+        6480.0,
+        8640.0
+      ]
+    },
+    {
+      "id": "I04",
+      "name": "HMg\u2088 Magnesium Cage",
+      "frequency_hz": 432.0,
+      "geometry": "8fold_cage",
+      "elements": [
+        "H",
+        "Mg"
+      ],
+      "category": "chladni_priority",
+      "verdict": "STABLE",
+      "rg_change_pct": 4.74,
+      "structural_coherence": 0.873,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "I05",
+      "name": "O\u2088He\u2082 Oxygen-Helium Cluster",
+      "frequency_hz": 432.0,
+      "geometry": "8fold_cluster",
+      "elements": [
+        "O",
+        "He"
+      ],
+      "category": "chladni_priority",
+      "verdict": "STABLE",
+      "rg_change_pct": -3.52,
+      "structural_coherence": 0.937,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "I06",
+      "name": "B\u2082C\u2088 Boron-Carbon Cage",
+      "frequency_hz": 432.0,
+      "geometry": "8fold_cage",
+      "elements": [
+        "B",
+        "C"
+      ],
+      "category": "chladni_priority",
+      "verdict": "STABLE",
+      "rg_change_pct": -0.66,
+      "structural_coherence": 0.957,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "I07",
+      "name": "F\u2085Br\u2085 Halogen Decamer",
+      "frequency_hz": 2160.0,
+      "geometry": "5fold_ring",
+      "elements": [
+        "F",
+        "Br"
+      ],
+      "category": "chladni_priority",
+      "verdict": "STABLE",
+      "rg_change_pct": -3.34,
+      "structural_coherence": 0.859,
+      "stability_score": 0.92,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        2160.0,
+        4320.0,
+        6480.0,
+        8640.0
+      ]
+    },
+    {
+      "id": "I08",
+      "name": "Be\u2083P\u2087 Beryllium Phosphide",
+      "frequency_hz": 3024.0,
+      "geometry": "7fold_heptagonal",
+      "elements": [
+        "Be",
+        "P"
+      ],
+      "category": "chladni_priority",
+      "verdict": "STABLE",
+      "rg_change_pct": -2.0,
+      "structural_coherence": 0.854,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        3024.0,
+        6048.0,
+        9072.0,
+        12096.0
+      ]
+    },
+    {
+      "id": "I09",
+      "name": "CCu\u2088 Carbon-Copper Cage",
+      "frequency_hz": 432.0,
+      "geometry": "8fold_cage",
+      "elements": [
+        "C",
+        "Cu"
+      ],
+      "category": "chladni_priority",
+      "verdict": "STABLE",
+      "rg_change_pct": -3.94,
+      "structural_coherence": 0.893,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "I10",
+      "name": "MgF\u2088 Magnesium Fluoride Cage",
+      "frequency_hz": 432.0,
+      "geometry": "8fold_cage",
+      "elements": [
+        "Mg",
+        "F"
+      ],
+      "category": "chladni_priority",
+      "verdict": "METASTABLE",
+      "rg_change_pct": -8.9,
+      "structural_coherence": 0.925,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "I11",
+      "name": "Dual-Polarity Carbon Ring",
+      "frequency_hz": 864.0,
+      "geometry": "ring_dual_polarity",
+      "elements": [
+        "C"
+      ],
+      "category": "chladni_priority",
+      "verdict": "STABLE",
+      "rg_change_pct": 0.29,
+      "structural_coherence": 0.89,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        864.0,
+        1728.0,
+        2592.0,
+        3456.0
+      ]
+    },
+    {
+      "id": "I12",
+      "name": "Void Resonance Compound",
+      "frequency_hz": 432.0,
+      "geometry": "void_resonance",
+      "elements": [
+        "C",
+        "N",
+        "O",
+        "H"
+      ],
+      "category": "chladni_priority",
+      "verdict": "STABLE",
+      "rg_change_pct": 0.82,
+      "structural_coherence": 1.03,
+      "stability_score": 1.0,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "J01",
+      "name": "Spacecraft Heat Tile",
+      "frequency_hz": 1530.0,
+      "geometry": "fractal_cubic",
+      "elements": [
+        "Ti",
+        "W",
+        "C"
+      ],
+      "category": "advanced_application",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 5.56,
+      "structural_coherence": 0.491,
+      "stability_score": 0.603,
+      "resonance_factor": 0.648,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        1530.0,
+        3060.0,
+        4590.0,
+        6120.0
+      ]
+    },
+    {
+      "id": "J02",
+      "name": "Quantum Shield Alloy",
+      "frequency_hz": 4036.7,
+      "geometry": "multidimensional",
+      "elements": [
+        "U",
+        "Pu"
+      ],
+      "category": "advanced_application",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 2.71,
+      "structural_coherence": 0.689,
+      "stability_score": 0.665,
+      "resonance_factor": 0.834,
+      "harmonic_purity": 0.006,
+      "harmonics_used": [
+        4036.7,
+        8073.4,
+        12110.099999999999,
+        16146.8
+      ]
+    },
+    {
+      "id": "J03",
+      "name": "Stealth Coating Layer",
+      "frequency_hz": 1247.3,
+      "geometry": "fcc_absorbing",
+      "elements": [
+        "Cu",
+        "Ni",
+        "Zn"
+      ],
+      "category": "advanced_application",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 0.23,
+      "structural_coherence": 0.584,
+      "stability_score": 0.636,
+      "resonance_factor": 0.74,
+      "harmonic_purity": 0.184,
+      "harmonics_used": [
+        1247.3,
+        2494.6,
+        3741.8999999999996,
+        4989.2
+      ]
+    },
+    {
+      "id": "J04",
+      "name": "Deep Pressure Hull",
+      "frequency_hz": 1350.0,
+      "geometry": "fcc_dense",
+      "elements": [
+        "Ni",
+        "Co",
+        "W"
+      ],
+      "category": "advanced_application",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 2.52,
+      "structural_coherence": 0.486,
+      "stability_score": 0.629,
+      "resonance_factor": 0.717,
+      "harmonic_purity": 0.153,
+      "harmonics_used": [
+        1350.0,
+        2700.0,
+        4050.0,
+        5400.0
+      ]
+    },
+    {
+      "id": "J05",
+      "name": "Mycelium Radiation Absorber",
+      "frequency_hz": 72.0,
+      "geometry": "branching_fractal",
+      "elements": [
+        "C",
+        "H",
+        "N",
+        "O"
+      ],
+      "category": "advanced_application",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 20.5,
+      "structural_coherence": 0.317,
+      "stability_score": 0.29,
+      "resonance_factor": 0.011,
+      "harmonic_purity": 0.082,
+      "harmonics_used": [
+        72.0,
+        144.0,
+        216.0,
+        288.0
+      ]
+    },
+    {
+      "id": "J06",
+      "name": "Silk-Tempered Pin Alloy",
+      "frequency_hz": 216.0,
+      "geometry": "beta_sheet_metallic",
+      "elements": [
+        "Zn",
+        "Fe",
+        "C"
+      ],
+      "category": "advanced_application",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 15.42,
+      "structural_coherence": 0.538,
+      "stability_score": 0.471,
+      "resonance_factor": 0.403,
+      "harmonic_purity": 0.001,
+      "harmonics_used": [
+        216.0,
+        432.0,
+        648.0,
+        864.0
+      ]
+    },
+    {
+      "id": "J07",
+      "name": "Ghost Internet Conductor",
+      "frequency_hz": 432.0,
+      "geometry": "cylindrical_waveguide",
+      "elements": [
+        "Cu",
+        "C"
+      ],
+      "category": "advanced_application",
+      "verdict": "STABLE",
+      "rg_change_pct": -0.24,
+      "structural_coherence": 0.894,
+      "stability_score": 0.98,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "J08",
+      "name": "Air-Thickness Modulator",
+      "frequency_hz": 108.0,
+      "geometry": "triple_helix_air",
+      "elements": [
+        "N",
+        "O"
+      ],
+      "category": "advanced_application",
+      "verdict": "UNSTABLE",
+      "rg_change_pct": 23.88,
+      "structural_coherence": 0.406,
+      "stability_score": 0.384,
+      "resonance_factor": 0.121,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        108.0,
+        216.0,
+        324.0,
+        432.0
+      ]
+    },
+    {
+      "id": "J09",
+      "name": "Void Funnel Carbon",
+      "frequency_hz": 432.0,
+      "geometry": "funnel_toroidal",
+      "elements": [
+        "C"
+      ],
+      "category": "advanced_application",
+      "verdict": "STABLE",
+      "rg_change_pct": -6.01,
+      "structural_coherence": 0.896,
+      "stability_score": 0.974,
+      "resonance_factor": 1.0,
+      "harmonic_purity": 1.0,
+      "harmonics_used": [
+        432.0,
+        864.0,
+        1296.0,
+        1728.0
+      ]
+    },
+    {
+      "id": "J10",
+      "name": "Resonance Badge Piezo",
+      "frequency_hz": 540.0,
+      "geometry": "perovskite_piezo",
+      "elements": [
+        "Ba",
+        "Ti",
+        "O"
+      ],
+      "category": "advanced_application",
+      "verdict": "METASTABLE",
+      "rg_change_pct": 12.16,
+      "structural_coherence": 0.515,
+      "stability_score": 0.433,
+      "resonance_factor": 0.292,
+      "harmonic_purity": 0.024,
+      "harmonics_used": [
+        540.0,
+        1080.0,
+        1620.0,
+        2160.0
+      ]
+    }
+  ]
+}
