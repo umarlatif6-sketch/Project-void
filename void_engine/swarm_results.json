@@ -1,0 +1,72 @@
+{
+  "timestamp": "2026-07-18T00:38:43.586595",
+  "total_variations": 1000,
+  "survivors": 542,
+  "killed": 458,
+  "top_5_codons": [
+    "[431Hz]-[TOR]-[\u03b1\u00b7\u03c8\u00b7\u25c6]",
+    "[432Hz]-[HEX]-[\u03b1\u00b7\u03c8\u00b7\u25c6]",
+    "[432Hz]-[BIN]-[\u03b1\u00b7\u03c8\u00b7\u25c6]",
+    "[431Hz]-[HEX]-[\u03b1\u00b7\u03c8\u00b7\u25c6]",
+    "[431Hz]-[HEX]-[\u03b1\u00b7\u03c8\u00b7\u25c6]"
+  ],
+  "top_5_configs": [
+    {
+      "node_id": "NODE_0596",
+      "base_frequency": 431.999,
+      "harmonics": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "geometry": "torus_capsicum"
+    },
+    {
+      "node_id": "NODE_0824",
+      "base_frequency": 432.026,
+      "harmonics": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "geometry": "hex_nested"
+    },
+    {
+      "node_id": "NODE_0625",
+      "base_frequency": 432.027,
+      "harmonics": [
+        1,
+        2,
+        3,
+        5,
+        8
+      ],
+      "geometry": "binary_linear"
+    },
+    {
+      "node_id": "NODE_0883",
+      "base_frequency": 431.972,
+      "harmonics": [
+        1,
+        2,
+        3,
+        5,
+        8
+      ],
+      "geometry": "hex_nested"
+    },
+    {
+      "node_id": "NODE_0893",
+      "base_frequency": 431.97,
+      "harmonics": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "geometry": "hex_nested"
+    }
+  ]
+}
